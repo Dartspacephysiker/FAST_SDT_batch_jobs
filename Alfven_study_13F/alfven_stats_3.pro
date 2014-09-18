@@ -4,6 +4,19 @@ burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin
 
 ;SPENCE EDITS
 
+
+;09/18/2014
+;It appears we can get all the way to the end now... I've
+;uncommented 'smooth' on line 20 or so, which produces no error, and I
+;commented out the entire ';e over b' section that tests E over B
+;relative to the Alfven speed. Now the routine is complaining about
+;being unable to open a file
+
+;Made a companion file for understanding alfven_stats_3.pro that
+;includes questions I need to answer in order to understand how
+;we're going about building up the database.
+;The file is 'Explorations_of_alven_stats_3.txt'
+
 ;**09/16/2014
 ;The error now is that 'GET_2DT_TS_POT' apparently doesn't exist (line 368)
 
@@ -266,7 +279,7 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 			endelse
 			
 			store_data,'MagZ',data=magz
-			;magz.y=smooth(magz.y,40)
+			magz.y=smooth(magz.y,40)
 			store_data,'Magz_smooth',data={x:magz.x,y:magz.y}
 			if keyword_set(filterfreq) then begin
 				
@@ -288,12 +301,13 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
                         ;SMH make 'em '/talk' so I can see what's happening
 			FA_FIELDS_COMBINE,magz,efield,result=efield_aligned,/interp,delt_t=50.,/talk
 			;I'm hoping this means magz is pared down somewhere else
+                        magz={x:magz.time,y:magz.comp1}
 
 
 			;get the prootn cyc frequency for smoothing the e field data later
 			
 			;proton_cyc_freq=1.6e-19*sqrt(magx.y^2+magy.y^2+magz.y^2)*1.0e-9/1.67e-27/(2.*!DPI); in Hz
-                        proton_cyc_freq=1.6e-19*sqrt(magx.y^2+magy.y^2+magz.comp1^2)*1.0e-9/1.67e-27/(2.*!DPI) ; in Hz
+                        proton_cyc_freq=1.6e-19*sqrt(magx.y^2+magy.y^2+magz.y^2)*1.0e-9/1.67e-27/(2.*!DPI) ; in Hz
 			
 			;get_orbit data
 		
@@ -959,9 +973,9 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
      				current_intervals(j,34)=-1*sc_pot.y(ind)
      				
      				;e over b test
-     				va=1000.0*alfven_speed_mlt(current_intervals(j,21),current_intervals(j,22))
-     				e_over_b=(1.0e-3*current_intervals(j,18))/(current_intervals(j,17)*1.0e-9)
-     				if e_over_b/va LT 1.0/eb_to_alfven_speed then current_intervals(j,3)=0.0
+     				;; va=1000.0*alfven_speed_mlt(current_intervals(j,21),current_intervals(j,22))
+     				;; e_over_b=(1.0e-3*current_intervals(j,18))/(current_intervals(j,17)*1.0e-9)
+     				;; if e_over_b/va LT 1.0/eb_to_alfven_speed then current_intervals(j,3)=0.0
      				
      				intervalparts_electrons_old=intervalparts_electrons
      				intervalparts_ions_old=intervalparts_ions	
