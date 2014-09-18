@@ -1,0 +1,379 @@
+Input Arguments:
+   argc= 2
+      argv[0]= /home/spencerh/software/sdt//Linux.2.6/bin/FastDecom
+      argv[1]= SDT_INITIATE_DECOM
+
+FASTCONFIG:  /home/spencerh/software/sdt//sdt_config
+
+
+FAST_DCOM:
+   pid= 4463
+   machine= Merry2
+   64-bit version
+   MySQL version
+   argc= 2
+      argv[0]= /home/spencerh/software/sdt//Linux.2.6/bin/FastDecom
+      argv[1]= SDT_INITIATE_DECOM
+
+   cfg_filename_ptr= /home/spencerh/software/sdt//sdt_config/sdt_cfg/Fast.cfg
+
+
+ReadConfiguration:
+   cfg_filename= /home/spencerh/software/sdt//sdt_config/sdt_cfg/Fast.cfg
+   fname= /home/spencerh/software/sdt//sdt_config/sdt_cfg/Fast.cfg
+   fullname= /home/spencerh/software/sdt//sdt_config/sdt_cfg/Fast.cfg
+   ParseFastConfigurationFile returns:  i= 0  ProgramConfig= 18f3900
+
+ProgramConfig:
+
+CFGFastInfo:
+   default_memory_type= 0
+   number_data_directories= 2
+
+   sesa_burst_decompress= 1
+   sesa_survey_decompress= 1
+   eiesa_burst_decompress= 1
+   eiesa_survey_decompress= 1
+   tms_mrates_decompress= 1
+   tms_burst_decompress= 1
+   tms_survey_decompress= 1
+   tms_pole_decompress= 1
+   tms_hms_decompress= 1
+
+   check_crc_errors= 1
+
+   use_sybase_for_orbit= 1
+
+   use_sybase_for_attitude= 1
+
+   fill_in_sesa_energy_gaps= 1
+
+   use_bmodel_to_compute_magphase= 1
+
+   realtime_input_prog= diskToShm
+   realtime_input_mode= separateProg
+   relaytoshm_root_flag= 0
+   dnames:  (number_data_directories= 2)
+      dnames[0]= /FASTdata/
+      dnames[1]= /mnt/FASTbackup/
+   DQDFname= NULL
+   PQDFname= NULL
+   UDPServer= sitkap
+
+   l= 1521  FAST_COMPUTE_MAG_PHASE_STR= FAST_COMPUTE_MAG_PHASE
+     getenv(FAST_COMPUTE_MAG_PHASE) returns:  fmphs_var= 7fff10e43c00
+     fmphs_var= 2
+     strlen(fmphs_var)= 1
+
+  CRC errors will be heeded
+
+   FastSybaseAvailable= 0
+   FastOrbSybaseIsToBeUsed= 0
+   FastAttSybaseIsToBeUsed= 0
+   FillInSesaFixedModeEnergyGaps= 1
+   UseModelBFieldForMagPhaseInEsas= 0
+   UseAutoModelForBMagPhaseInEsas= 1
+
+   FastAlamanacDir will be:  /SPENCEdata/fast/almanac
+
+   Orbit Definitive Almanac will be:  /SPENCEdata/fast/almanac/orbit/definitive
+   Orbit Predicted Almanac will be:  /SPENCEdata/fast/almanac/orbit/predicted
+   Attitude Almanac will be:  /SPENCEdata/fast/almanac/attitude
+
+START DQD, PQD PARSING:  time= 14380607.18
+
+END DQD,PQD PARSING:  time= 14380607.41
+
+   DSP FMode file= /home/spencerh/software/sdt//Linux.2.6/lib/sdt_cfg/FastDSPmodes.dta
+
+   before OpenDQHInterface:  i= 0
+
+   after OpenDQHInterface:  i= 0
+
+   l= 2619   after serv_lpc_create:  lpc_srv= 1954ec0
+before lpc_run:
+
+  Fields WILL be calibrated
+
+DQD: Mag1dc_S, scale: 1.000000  offset 0.000000
+FAST FIELDS CAL: Boomlength for Mag1dc_S:  1.0000 
+FAST FIELDS CAL: Mag1dc_S initiated.
+DQD: Mag2dc_S, scale: 1.000000  offset 0.000000
+FAST FIELDS CAL: Boomlength for Mag2dc_S:  1.0000 
+FAST FIELDS CAL: Mag2dc_S initiated.
+DQD: Mag3dc_S, scale: 1.000000  offset 0.000000
+FAST FIELDS CAL: Boomlength for Mag3dc_S:  1.0000 
+FAST FIELDS CAL: Mag3dc_S initiated.
+DQD: Mag1ac_S, scale: 1.000000  offset 0.000000
+FAST FIELDS CAL: Boomlength for Mag1ac_S:  1.0000 
+FAST FIELDS CAL: Mag1ac_S initiated.
+DQD: Mag2ac_S, scale: 1.000000  offset 0.000000
+FAST FIELDS CAL: Boomlength for Mag2ac_S:  1.0000 
+FAST FIELDS CAL: Mag2ac_S initiated.
+DQD: Mag3ac_S, scale: 1.000000  offset 0.000000
+FAST FIELDS CAL: Boomlength for Mag3ac_S:  1.0000 
+FAST FIELDS CAL: Mag3ac_S initiated.
+DQD: SMPhase_FieldsSurvey0, scale: 1.000000  offset 0.000000
+DQD: MagXYZ, scale: 1.000000  offset 0.000000
+FAST FIELDS CAL: Boomlength for MagXYZ:  1.0000 
+FAST FIELDS CAL: MagXYZ initiated.
+DQD: MagDC, scale: 1.000000  offset 0.000000
+FAST FIELDS CAL: Boomlength for MagDC:  1.0000 
+FAST FIELDS CAL: MagDC initiated.
+DQD: V5-V8_S, scale: 1.000000  offset 0.000000
+FAST FIELDS CAL: Boomlength for V5-V8_S: 55.6920 
+FAST FIELDS CAL: V5-V8_S initiated.
+DQD: V8_S, scale: 1.000000  offset 0.000000
+FAST FIELDS CAL: Boomlength for V8_S:  1.0000 
+FAST FIELDS CAL: V8_S initiated.
+DQD: V1-V2_S, scale: 1.000000  offset 0.000000
+FAST FIELDS CAL: Boomlength for V1-V2_S:  5.0000 
+FAST FIELDS CAL: V1-V2_S initiated.
+DQD: V1-V4_S, scale: 1.000000  offset 0.000000
+FAST FIELDS CAL: Boomlength for V1-V4_S: 28.9000 
+FAST FIELDS CAL: V1-V4_S initiated.
+
+WARNING:  f= FastDecom.c   l= 6062
+Attitude data for this orbit was not found.
+
+WARNING:   f= FastOrbAtt.c   l= 4210
+There were:  797   times (out of:  797)  where AttQuery failed.
+The attitude values for these times were interpolated.
+
+Gap found with delta st = 4.875000 . Header Rate: 6. gapsize: 0.875000  Packet apid 1032 starts at
+secs= 64419.921    t= 17:53:39.921
+Can't fix it
+
+FAST FIELDS CAL: Mag1dc_S being calibrated.
+FAST FIELDS CAL: Mag2dc_S being calibrated.
+FAST FIELDS CAL: Mag3dc_S being calibrated.
+FAST FIELDS CAL: MagXYZ being calibrated.
+FAST FIELDS CAL: MagDC being calibrated.
+FAST FIELDS CAL: E5-8_S being calibrated.
+FAST FIELDS CAL: E1-4_S being calibrated.
+Overlap found with delta st = 0.250000 . Header Rate: 6. Packet apid 1032 starts at
+secs= 64440.796    t= 17:54:00.796
+8/8 of packet in fast survey 2
+TotalTime of packet 0.250000, StartTime of next packet shifted by 0.000000
+Gap found with delta st = 4.000000 . Header Rate: 2. gapsize: 3.750000  Packet apid 1032 starts at
+secs= 64797.796    t= 17:59:57.796
+8/8 of packet in slow survey 6
+TotalTime of packet 4.000000, StartTime of next packet shifted by 0.000000
+Gap found with delta st = 7.000000 . Header Rate: 6. gapsize: 3.000000  Packet apid 1032 starts at
+secs= 64801.796    t= 18:00:01.796
+shifting start time by 3.000000
+8/8 of packet in slow survey 6
+TotalTime of packet 4.000000, StartTime of next packet shifted by 0.000000
+Overlap found with delta st = 0.250000 . Header Rate: 6. Packet apid 1032 starts at
+secs= 65116.796    t= 18:05:16.796
+8/8 of packet in fast survey 2
+TotalTime of packet 0.250000, StartTime of next packet shifted by 0.000000
+Gap found with delta st = 5.000000 . Header Rate: 2. gapsize: 4.750000  Packet apid 1032 starts at
+secs= 65735.796    t= 18:15:35.796
+shifting start time by 1.000000
+8/8 of packet in slow survey 6
+TotalTime of packet 4.000000, StartTime of next packet shifted by 0.000000
+Throwing out last backorbit packet before start of survey mode. APID 1032
+
+secs= 69606.015    t= 19:20:06.015
+Gap found with delta st = 5.625000 . Header Rate: 6. gapsize: 1.625000  Packet apid 1033 starts at
+secs= 64423.171    t= 17:53:43.171
+Can't fix it
+
+FAST FIELDS CAL: E1-2_S being calibrated.
+Overlap found with delta st = 0.250000 . Header Rate: 6. Packet apid 1033 starts at
+secs= 64440.796    t= 17:54:00.796
+8/8 of packet in fast survey 2
+TotalTime of packet 0.250000, StartTime of next packet shifted by 0.000000
+Gap found with delta st = 4.000000 . Header Rate: 2. gapsize: 3.750000  Packet apid 1033 starts at
+secs= 64797.796    t= 17:59:57.796
+8/8 of packet in slow survey 6
+TotalTime of packet 4.000000, StartTime of next packet shifted by 0.000000
+Gap found with delta st = 7.000000 . Header Rate: 6. gapsize: 3.000000  Packet apid 1033 starts at
+secs= 64801.796    t= 18:00:01.796
+shifting start time by 3.000000
+8/8 of packet in slow survey 6
+TotalTime of packet 4.000000, StartTime of next packet shifted by 0.000000
+Overlap found with delta st = 0.250000 . Header Rate: 6. Packet apid 1033 starts at
+secs= 65116.796    t= 18:05:16.796
+8/8 of packet in fast survey 2
+TotalTime of packet 0.250000, StartTime of next packet shifted by 0.000000
+Gap found with delta st = 13.000000 . Header Rate: 2. gapsize: 12.750000  Packet apid 1033 starts at
+secs= 65735.796    t= 18:15:35.796
+Can't fix it
+
+New StartTime for next packet:
+secs= 65748.780    t= 18:15:48.780
+
+Gap found with delta st = 3617.500000 . Header Rate: 6. gapsize: 3613.500000  Packet apid 1033 starts at
+secs= 65992.796    t= 18:19:52.796
+Can't fix it
+
+Gap found with delta st = 6.500000 . Header Rate: 6. gapsize: 2.500000  Packet apid 1033 starts at
+secs= 69610.296    t= 19:20:10.296
+Can't fix it
+
+Gap found with delta st = 5.625000 . Header Rate: 6. gapsize: 1.625000  Packet apid 1034 starts at
+secs= 64423.171    t= 17:53:43.171
+Can't fix it
+
+FAST FIELDS CAL: Mag1ac_S being calibrated.
+FAST FIELDS CAL: Mag2ac_S being calibrated.
+FAST FIELDS CAL: Mag3ac_S being calibrated.
+FAST FIELDS CAL: V8_S being calibrated.
+Overlap found with delta st = 0.250000 . Header Rate: 6. Packet apid 1034 starts at
+secs= 64440.796    t= 17:54:00.796
+8/8 of packet in fast survey 2
+TotalTime of packet 0.250000, StartTime of next packet shifted by 0.000000
+Gap found with delta st = 4.000000 . Header Rate: 2. gapsize: 3.750000  Packet apid 1034 starts at
+secs= 64797.796    t= 17:59:57.796
+8/8 of packet in slow survey 6
+TotalTime of packet 4.000000, StartTime of next packet shifted by 0.000000
+Gap found with delta st = 7.000000 . Header Rate: 6. gapsize: 3.000000  Packet apid 1034 starts at
+secs= 64801.796    t= 18:00:01.796
+shifting start time by 3.000000
+8/8 of packet in slow survey 6
+TotalTime of packet 4.000000, StartTime of next packet shifted by 0.000000
+Overlap found with delta st = 0.250000 . Header Rate: 6. Packet apid 1034 starts at
+secs= 65116.796    t= 18:05:16.796
+8/8 of packet in fast survey 2
+TotalTime of packet 0.250000, StartTime of next packet shifted by 0.000000
+Gap found with delta st = 13.000000 . Header Rate: 2. gapsize: 12.750000  Packet apid 1034 starts at
+secs= 65735.796    t= 18:15:35.796
+Can't fix it
+
+New StartTime for next packet:
+secs= 65748.780    t= 18:15:48.780
+
+Gap found with delta st = 3617.500000 . Header Rate: 6. gapsize: 3613.500000  Packet apid 1034 starts at
+secs= 65992.796    t= 18:19:52.796
+Can't fix it
+
+Gap found with delta st = 6.500000 . Header Rate: 6. gapsize: 2.500000  Packet apid 1034 starts at
+secs= 69610.296    t= 19:20:10.296
+Can't fix it
+
+last packet being decoded
+secs= 70244.796    t= 19:30:44.796
+last packet being decoded
+secs= 70244.796    t= 19:30:44.796
+last packet being decoded
+secs= 70244.796    t= 19:30:44.796
+
+ FINAL DQI memory usage for:
+      Orb:  9999 - 10000    1999/03/02   17:35:44   19:48:12
+   qty:  AttitudeCtrl      UsedPts= 465  AvailablePts= 2619
+      total allocated space (bytes):  440768
+   qty:  Fast_Orbit_Data      UsedPts= 797  AvailablePts= 812
+      total allocated space (bytes):  127792
+   qty:  Fast_Attitude_Data      UsedPts= 797  AvailablePts= 812
+      total allocated space (bytes):  49456
+   qty:  Mag1dc_S      UsedPts= 134720  AvailablePts= 134959
+      total allocated space (bytes):  1620032
+   qty:  Mag2dc_S      UsedPts= 134720  AvailablePts= 134959
+      total allocated space (bytes):  1620032
+   qty:  Mag3dc_S      UsedPts= 134720  AvailablePts= 134959
+      total allocated space (bytes):  1620032
+   qty:  Mag1ac_S      UsedPts= 538496  AvailablePts= 538767
+      total allocated space (bytes):  6465728
+   qty:  Mag2ac_S      UsedPts= 538496  AvailablePts= 538767
+      total allocated space (bytes):  6465728
+   qty:  Mag3ac_S      UsedPts= 538496  AvailablePts= 538767
+      total allocated space (bytes):  6465728
+   qty:  Eesa Burst      UsedPts= 4346  AvailablePts= 4359
+      total allocated space (bytes):  17740640
+      ArrDesc:  NDesc= 1421   UsedBytes= 1206288   TotalBytes:  4000528
+   qty:  Eesa_Burst_Packet_Hdr      UsedPts= 4344  AvailablePts= 4359
+      total allocated space (bytes):  227200
+   qty:  Iesa Burst      UsedPts= 4346  AvailablePts= 4360
+      total allocated space (bytes):  17743792
+      ArrDesc:  NDesc= 1422   UsedBytes= 1207136   TotalBytes:  4000528
+   qty:  Iesa_Burst_Packet_Hdr      UsedPts= 4344  AvailablePts= 4360
+      total allocated space (bytes):  227264
+   qty:  Sesa1_Burst_SpinPhase_Info      UsedPts= 208064  AvailablePts= 312207
+      total allocated space (bytes):  8117920
+   qty:  Sesa 1 Burst      UsedPts= 208064  AvailablePts= 416271
+      total allocated space (bytes):  55623424
+      ArrDesc:  NDesc= 1488   UsedBytes= 674048   TotalBytes:  9000528
+   qty:  Sesa1_Burst_Packet_Hdr      UsedPts= 208064  AvailablePts= 312207
+      total allocated space (bytes):  16235296
+   qty:  Sesa2_Burst_SpinPhase_Info      UsedPts= 208128  AvailablePts= 312303
+      total allocated space (bytes):  8120416
+   qty:  Sesa 2 Burst      UsedPts= 208128  AvailablePts= 416399
+      total allocated space (bytes):  55637760
+      ArrDesc:  NDesc= 1481   UsedBytes= 673264   TotalBytes:  9000528
+   qty:  Sesa2_Burst_Packet_Hdr      UsedPts= 208128  AvailablePts= 312303
+      total allocated space (bytes):  16240288
+   qty:  Sesa3_Burst_SpinPhase_Info      UsedPts= 208064  AvailablePts= 312207
+      total allocated space (bytes):  8117920
+   qty:  Sesa 3 Burst      UsedPts= 208064  AvailablePts= 416271
+      total allocated space (bytes):  55623424
+      ArrDesc:  NDesc= 1478   UsedBytes= 672928   TotalBytes:  9000528
+   qty:  Sesa3_Burst_Packet_Hdr      UsedPts= 208064  AvailablePts= 312207
+      total allocated space (bytes):  16235296
+   qty:  Sesa4_Burst_SpinPhase_Info      UsedPts= 208128  AvailablePts= 312303
+      total allocated space (bytes):  8120416
+   qty:  Sesa 4 Burst      UsedPts= 208128  AvailablePts= 416399
+      total allocated space (bytes):  55637760
+      ArrDesc:  NDesc= 1486   UsedBytes= 674176   TotalBytes:  9000528
+   qty:  Sesa4_Burst_Packet_Hdr      UsedPts= 208128  AvailablePts= 312303
+      total allocated space (bytes):  16240288
+   qty:  Sesa5_Burst_SpinPhase_Info      UsedPts= 208000  AvailablePts= 312111
+      total allocated space (bytes):  8115424
+   qty:  Sesa 5 Burst      UsedPts= 208000  AvailablePts= 416143
+      total allocated space (bytes):  55609088
+      ArrDesc:  NDesc= 1479   UsedBytes= 673392   TotalBytes:  9000528
+   qty:  Sesa5_Burst_Packet_Hdr      UsedPts= 208000  AvailablePts= 312111
+      total allocated space (bytes):  16230304
+   qty:  Sesa6_Burst_SpinPhase_Info      UsedPts= 207936  AvailablePts= 312015
+      total allocated space (bytes):  8112928
+   qty:  Sesa 6 Burst      UsedPts= 207936  AvailablePts= 416015
+      total allocated space (bytes):  55594752
+      ArrDesc:  NDesc= 1472   UsedBytes= 672608   TotalBytes:  9000528
+   qty:  Sesa6_Burst_Packet_Hdr      UsedPts= 207936  AvailablePts= 312015
+      total allocated space (bytes):  16225312
+   qty:  Eesa Survey      UsedPts= 2000  AvailablePts= 2022
+      total allocated space (bytes):  14004784
+      ArrDesc:  NDesc= 426   UsedBytes= 506144   TotalBytes:  3000528
+   qty:  Eesa_Survey_Packet_Hdr      UsedPts= 2000  AvailablePts= 2022
+      total allocated space (bytes):  105680
+   qty:  Iesa Survey      UsedPts= 1999  AvailablePts= 2027
+      total allocated space (bytes):  14019840
+      ArrDesc:  NDesc= 426   UsedBytes= 506144   TotalBytes:  3000528
+   qty:  Iesa_Survey_Packet_Hdr      UsedPts= 1999  AvailablePts= 2027
+      total allocated space (bytes):  105936
+   qty:  Sesa_Survey_SpinPhase_Info      UsedPts= 55365  AvailablePts= 55407
+      total allocated space (bytes):  1441120
+   qty:  Sesa Survey      UsedPts= 55365  AvailablePts= 55407
+      total allocated space (bytes):  18071776
+      ArrDesc:  NDesc= 419   UsedBytes= 194208   TotalBytes:  3000528
+   qty:  Sesa_Survey_Packet_Hdr      UsedPts= 55354  AvailablePts= 55407
+      total allocated space (bytes):  2881696
+   qty:  SMPhase_FieldsSurvey0      UsedPts= 4211  AvailablePts= 4229
+      total allocated space (bytes):  38608
+   qty:  DataHdr_1032      UsedPts= 4211  AvailablePts= 4229
+      total allocated space (bytes):  93568
+   qty:  MagXYZ      UsedPts= 134720  AvailablePts= 134959
+      total allocated space (bytes):  2699712
+   qty:  MagDC      UsedPts= 134264  AvailablePts= 134959
+      total allocated space (bytes):  2699712
+   qty:  V5-V8_S      UsedPts= 538880  AvailablePts= 539279
+      total allocated space (bytes):  6471872
+   qty:  V8_S      UsedPts= 134624  AvailablePts= 134703
+      total allocated space (bytes):  1616960
+   qty:  V1-V2_S      UsedPts= 538496  AvailablePts= 539023
+      total allocated space (bytes):  6468800
+   qty:  V1-V4_S      UsedPts= 538880  AvailablePts= 539279
+      total allocated space (bytes):  6471872
+   qty:  Tms_HO_Survey_Data      UsedPts= 470  AvailablePts= 485
+      total allocated space (bytes):  6023424
+      ArrDesc:  NDesc= 3   UsedBytes= 5024   TotalBytes:  20528
+   qty:  Tms_HO_Survey_Packet_Hdr      UsedPts= 470  AvailablePts= 485
+      total allocated space (bytes):  46112
+   qty:  Tms_He_Survey_Data      UsedPts= 241  AvailablePts= 256
+      total allocated space (bytes):  3189328
+      ArrDesc:  NDesc= 3   UsedBytes= 5024   TotalBytes:  20528
+   qty:  Tms_He_Survey_Packet_Hdr      UsedPts= 241  AvailablePts= 256
+      total allocated space (bytes):  24608
+Shutdown:  pid= 4463
+BEFORE EXIT:  pid= 4463  errno= 115

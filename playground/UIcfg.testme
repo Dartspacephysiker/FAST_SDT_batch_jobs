@@ -1,0 +1,312 @@
+*
+Header :this is the 'testme' configuration file
+Header :created on Mon Dec 23 09:36:54 2013
+*
+*
+
+Configuration
+{
+Config Name:			'testme'
+Config MenuPosition:		15, -6
+Config MenuSize:		300, 300
+Config DefaultSourceId:	'?'
+Config CurrentPlotWindow:	'Current:0 - DA'
+
+	PlotWinStandard
+	{
+	PlotWin Name:		'Current:0 - DA'
+	PlotWin Position:	255, -6
+	PlotWin Size:		900, 600
+	PlotWin PlotsPage:	6
+	PlotWin TopPlotOfPage:	'Eesa Survey:  Energy'
+	PlotWin DefaultDataBaseResponse:	2450489 20010.7 2450489 28002.5 '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit1858_r;/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit1859_r'
+'
+
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa Survey:  Angle'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa Survey:  Angle'
+		Plot2 PlotYTitleName:	'EesaSurvey Angle'
+		Plot2 PlotYSubTitleName:	'Deg'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	28002.5, 360, 800, 1, 1, 1
+		Plot2 MinLimits:	20010.7, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 360 0 1
+		Plot2 Accum:		TRUE 0 40000 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa Survey:  Energy'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa Survey:  Energy'
+		Plot2 PlotYTitleName:	'EesaSurvey Energy'
+		Plot2 PlotYSubTitleName:	'_'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LOG LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	28002.5, 40000, 800, 1, 1, 1
+		Plot2 MinLimits:	20010.7, 1, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 40000 0 1
+		Plot2 Accum:		TRUE 0 360 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Iesa Survey:  Angle'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Iesa Survey:  Angle'
+		Plot2 PlotYTitleName:	'IesaSurvey Angle'
+		Plot2 PlotYSubTitleName:	'Deg'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	28002.5, 32, 255, 1, 1, 1
+		Plot2 MinLimits:	20010.7, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 32 0 1
+		Plot2 Accum:		TRUE 0 1 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Iesa Survey:  Energy'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Iesa Survey:  Energy'
+		Plot2 PlotYTitleName:	'IesaSurvey Energy'
+		Plot2 PlotYSubTitleName:	'_'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	28002.5, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	20010.7, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 48 0 1
+		Plot2 Accum:		TRUE 0 1 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Sesa Survey:  Angle'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Sesa Survey:  Angle'
+		Plot2 PlotYTitleName:	'SesaSurvey Angle'
+		Plot2 PlotYSubTitleName:	'Deg'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	28002.5, 32, 255, 1, 1, 1
+		Plot2 MinLimits:	20010.7, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 32 0 1
+		Plot2 Accum:		TRUE 0 1 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Sesa Survey:  Energy'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Sesa Survey:  Energy'
+		Plot2 PlotYTitleName:	'SesaSurvey Energy'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	28002.5, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	20010.7, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 48 0 1
+		Plot2 Accum:		TRUE 0 1 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'SesaSurveyELev_1_6'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'SesaSurveyELev_1_6'
+		Plot2 PlotYTitleName:	'Energy'
+		Plot2 PlotYSubTitleName:	'counts'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		6
+		Plot2 ScaleTypes:	TIME LOG
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	28002.5, 1e+19, 1, 1
+		Plot2 MinLimits:	20010.7, 1, 0, 0
+		Plot2 UseOff:		TRUE, TRUE, TRUE, TRUE, TRUE, TRUE
+		Plot2 LinOff:		0, 3000, 6000, 9000, 12000, 15000
+		Plot2 LogOff:		0, 3, 6, 9, 12, 15
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR, SDT_MLSTYLE_COLOR, SDT_MLSTYLE_COLOR, SDT_MLSTYLE_COLOR, SDT_MLSTYLE_COLOR, SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE, GRAPH_MODE_LINE, GRAPH_MODE_LINE, GRAPH_MODE_LINE, GRAPH_MODE_LINE, GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1, 	1, 	1, 	1, 	1, 	1
+		Plot2 UseBrk:		TRUE, TRUE, TRUE, TRUE, TRUE, TRUE
+		Plot2 BrkInt:		500, 500, 500, 500, 500, 500
+		Plot2 ErrorBar:		SDT_EBAR_NONE, SDT_EBAR_NONE, SDT_EBAR_NONE, SDT_EBAR_NONE, SDT_EBAR_NONE, SDT_EBAR_NONE
+		Plot2 NSymbols:		0, 0, 0, 0, 0, 0
+		Plot2 LineFont:		Solid, Solid, Solid, Solid, Solid, Solid
+		Plot2 LineColor:	White, White, White, White, White, White
+		Plot2 Accum:		FALSE 0 0.1 0 0.1
+		Plot2 Accum:		TRUE 0 360 0 32
+		Plot2 Accum:		FALSE 1 1.1 1 1.1
+		Plot2 Accum:		TRUE 0 360 0 32
+		Plot2 Accum:		FALSE 2 2.1 2 2.1
+		Plot2 Accum:		TRUE 0 360 0 32
+		Plot2 Accum:		FALSE 3 3.1 3 3.1
+		Plot2 Accum:		TRUE 0 360 0 32
+		Plot2 Accum:		FALSE 4 4.1 4 4.1
+		Plot2 Accum:		TRUE 0 360 0 32
+		Plot2 Accum:		FALSE 5 5.1 5 5.1
+		Plot2 Accum:		TRUE 0 360 0 32
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+	PlotWin EndPlotWindow:
+	}
+}
+
+*
+*

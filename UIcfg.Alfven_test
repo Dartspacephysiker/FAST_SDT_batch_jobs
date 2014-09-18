@@ -1,0 +1,23 @@
+BatchJob:  Alfven_test
+Output:   ColorPostScriptL2
+FileDestination:  Alfven_test GIF ByDate
+PlotsPerPage: 8
+PageSize:   ASize
+Orientation:  portrait
+PageTag:  Alfven_test
+
+PixelDims:  640 480
+
+FileDumpUseIndexing
+DataOutputFile: Alfven_test AsciiEntire ByDate
+
+DataDirectory: /FASTdata
+ 
+DataBaseRequest:
+    TimeSpan:  1998/10/25  18:00:00  23:30:00
+    Orbits 1942 1944
+    Orbits 32001 - 33000
+    Orbits 33001 - 33020 X 4
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/
+PlotConfigurationFile:  fast_summary_plot_config

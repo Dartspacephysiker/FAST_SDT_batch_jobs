@@ -1,0 +1,14 @@
+#No SDT error files
+errdqh
+errscm
+errfast
+errUI
+errIDL*
+
+#No SDT outfiles
+outdqh
+outscm
+outfast
+outUI
+outIDL*
+*~

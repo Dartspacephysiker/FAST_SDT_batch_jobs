@@ -1,0 +1,11 @@
+BatchJob: "spencer"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/Jackvernetti_example/spencer_wrapper.pro
+
+DataBaseRequest:
+    Orbits 1656 1800
+    Orbits 7500 - 7503
+    Orbits 41314
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Jackvernetti_example
+PlotConfigurationFile: part_fastconfig_sesa

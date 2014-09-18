@@ -1,0 +1,31 @@
+#FULL EXAMPLE:
+#------------
+#
+#The following is a sample FAST Batch Control File.  Note that there
+#must exist the following SDT configuration file for this to work:
+#
+#    /disks/bishma/disk4/sdt/tmp/UIcfg.HKSurv1
+#
+#Also note that this program feeds the data into the IDL program:
+#
+#    /disks/local/idl/idl_fft.pro
+#
+#
+BatchJob:  HouseKeepingSurvey
+Printer:  spp1
+Output:   PostScript
+PlotsPerPage: 8
+PageSize:   ASize
+Orientation:  portrait
+PageTag:   "FAST Housekeeping Survey"
+PlotLength:  200 millimeters
+# NoPlots
+
+DataDirectory:  /disks/bishma/disk1/sdt/fast_lzp
+# TimeSpan:     $FFF1
+TimeSpan:     fast_lzp_DSS-16_orbit0025_r
+TimeSpan:     fast_lzp_DSS-85_orbit0029_r
+
+PlotConfigurationDir:   /disks/bishma/disk4/sdt/tmp
+PlotConfigurationFile:  HKSurv1
+IDL:  /disks/local/idl/idl_fft.pro

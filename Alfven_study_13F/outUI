@@ -1,0 +1,167 @@
+
+sdt_batch - running on machine:  Merry2
+User:  spencerh
+CWD:  /SPENCEdata/software/sdt/batch_jobs/Alfven_study_13F
+Architecture:  x86_64
+Running in 64-bit mode
+OS:  Linux 3.16.2-1-ARCH  #1 SMP PREEMPT Sat Sep 6 13:12:51 CEST 2014
+FASTBIN:    /home/spencerh/software/sdt//Linux.2.6/bin
+FASTCONFIG: /home/spencerh/software/sdt//sdt_config
+LPC Version,  Single-User Version,  QT Version
+Invoked at (Local Time):  Thu Sep 18 09:48:00 2014
+
+sdt_batch will use DISPLAY:  DISPLAY=:0
+
+Note that X-Windows is available and will be used for GIF output and,
+when appropriate, for PostScript output.
+
+IDL version:  8.3
+
+
+TheBatchRun:
+BatchRun:
+   PrgConfigFileName= /home/spencerh/software/sdt//sdt_config/sdt_cfg/UI.Config.dat
+   BatchSource= -1
+   WaitTillDone= 1
+   PlotWindowNumber= 0
+   IsMonoChrome= 0
+   NoPlots= 1
+   SpgrmBgrndWhite= 0
+   AutoScaleAll= 0
+   UseExactPlotLength= 0
+   PlotGroupingMode= 0
+   ExactPlotLengthValue= 0.000000
+   UseExactPlotHeight= 0
+   ExactPlotHeightValue= 0.000000
+   PixLinRes= 1.000000
+   Id= alfven
+   Printer= NULL
+   OutputFile= NULL
+   PageTag= NULL
+   ProgVersText= P:<SDT>, V:<5.0> T:<Thu Sep 18 09:48:02 2014>
+   CurrentPCfg= 0
+   NPlotConfigurationFile= 1
+   PlotConfigurationFile[0]= chaston_survey
+   PlotConfigurationDir[0]= /home/spencerh/software/sdt/batch_jobs/Alfven_study_13F
+   DATASETGRPS:  nobjects= 1
+      DSGRP[0]
+
+   BatchDataSetGrp (214c090):
+       type(1):  SDT_BATCH_DBASE_USAGE_DATA_SET_TYPE
+       DataDirectory= 0
+       TimeSpans= 214cad0
+       NumberTimeSpans= 1
+
+
+   TSpan[0]:  214e760
+   BatchTimeSpan (214e760):
+       type(1):  ORBIT_RANGE TYPE
+       sorb= 10000   eorb= 10000
+       orbit_split_flag (0):  SDT_BATCHJOB_ORBIT_PROCESS_ENTIRE
+       tspan:
+
+   DataBaseResponse:
+
+   TimeSpanDescription:
+      StartJulianDay= 2444444
+      EndJulianDay=   2444444
+      Year=           1980
+      Month=          7
+      DayOfMonth=     23
+      DayOfYear=      205
+      StartTime=      1.000
+      EndTime=        2.000
+      FileName:  NULL
+      Flg1= 0
+   FileDumpFile= NULL
+   SubTimeSpanGenerator= NULL
+   RequestedColorMap= NULL
+   IDLPath= NULL
+   EnvIDLPath= NULL
+   OldIDLPath= NULL
+   ColorMapSize= 256
+
+   IDLFileList:
+
+            StringList:
+               nqtys= 1
+               string[0]:
+                  /home/spencerh/software/sdt/batch_jobs/Alfven_study_13F/alfven_wrapper.pro
+      Destination= 0 (Net Printer)
+      Orientation= 1 (PORTRAIT)
+      OutputType= 17 (COLOR_POSTSCRIPT_LEV_2)
+      OutputNameConvention= 0 (NONE)
+      PageSize= 0 (SIZE_A)
+      PlotsPerPage= 8
+      PreserveAspect= 0
+      FileDumpType= -1 (UNKNOWN)
+      FileDumpNameConvention= 0 (NONE)
+      FileDumpNameUseIndexing= 0
+      Pix:  Init= 0  Width= 800  Height= 800
+      AltOutputTypeFlag= 0
+      AltOutputType= 8
+      PARAMETERS:
+         NONE.
+
+Invoking the following decommutators:
+   FAST
+   Science Control Module
+
+IDL_PATH: +/home/spencerh/idl/lib/various:+/home/spencerh/idl/mw_lib:+/home/spencerh/idl/lib/coyote:/home/spencerh/idl/lib/catalyst:/home/spencerh/software/sdt/idl:+/home/spencerh/idl/lib/idlutils/goddard/pro:+/home/spencerh/idl/lib/idlutils/pro:+/usr/local/exelis/idl/lib:+/home/spencerh/idl/lib:+/home/spencerh/software/sdt//idl
+IDL_DIR: /usr/local/exelis/idl
+
+BatchRun::ExecutePCfg:   l= 3967   cfg_idx= 0   which_order= 0
+   NPlotConfigurationFile= 1
+
+   Process all TimeSpans for each PlotConfig
+
+   l= 8153   CurrentPCfg= 0
+
+      PlotConfigurationFile[CurrentPCfg]= chaston_survey
+      PlotConfigurationDir[CurrentPCfg]= /home/spencerh/software/sdt/batch_jobs/Alfven_study_13F
+
+   FullPlotConfigName= /home/spencerh/software/sdt/batch_jobs/Alfven_study_13F/UIcfg.chaston_survey
+
+Configuration:  /home/spencerh/software/sdt/batch_jobs/Alfven_study_13F/UIcfg.chaston_survey
+
+   l= 5154   OK to use Network Data:
+
+RunBatch for TimeSpan:   l= 7445
+   BatchTimeSpan (214e760):
+       type(1):  ORBIT_RANGE TYPE
+       sorb= 10000   eorb= 10000
+       orbit_split_flag (0):  SDT_BATCHJOB_ORBIT_PROCESS_ENTIRE
+       tspan:
+
+   DataBaseResponse:
+
+   TimeSpanDescription:
+      StartJulianDay= 2451240
+      EndJulianDay=   2451240
+      Year=           1999
+      Month=          3
+      DayOfMonth=     2
+      DayOfYear=      61
+      StartTime=      63344.593
+      EndTime=        71292.833
+      FileName:  str= 28aa110
+        is TOO LONG to print as a single line (tchars= 433).
+        Disassemble it into its components:
+        tmp_dbase:   nqtys= 7   qty_val= 2891c70
+           [0]= /SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit10001_p
+           [1]= /SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit10002_p
+           [2]= /SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit10004_p
+           [3]= /SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit10005_p
+           [4]= /SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-27_orbit10001_t
+           [5]= /SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit10007_t
+           [6]= /SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-76_orbit10003_p
+      Flg1= 0
+
+   Beginning TimeSpan:  0  (out of:  1  TimeSpan)
+
+   Beginning PlotWindow:  0  (out of:  1  PlotWindows)
+
+   Beginning IDL runs for this data set:
+
+   Run IDLFile= /home/spencerh/software/sdt/batch_jobs/Alfven_study_13F/alfven_wrapper.pro
+exit BatchRun::ExecutePCfg  l= 8101   ret= 0
