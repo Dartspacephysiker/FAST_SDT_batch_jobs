@@ -1,0 +1,97 @@
+*
+Header :this is the '/disks/fast/users/kenb/w/src/sdt/UIConfigs/UIcfg.apid_1033' configuration file
+Header :created on Mon Jan  3 13:53:46 1994
+*
+
+Configuration
+{
+Config Name:			'/disks/fast/users/kenb/w/src/sdt/UIConfigs/UIcfg.apid_1033'
+Config MenuPosition:		5, 5
+Config MenuSize:		155, 265
+Config DefaultSpaceCraft:	'?'
+Config DefaultTimeSpan
+	Start:			2439995, 0
+	End:			2439995, 10
+Config CurrentPlotWindow:	'Plot Window #1'
+Config DefaultPlotDevice:	'-1'
+Config DefaultPlotFile:		''
+Config DefaultASCIIFormat:	'?'
+Config MenuColors:		'Yellow', 'Black'
+Config DefaultMenuColors:	'White', 'Black'
+
+	PlotWinRealtime
+	{
+	PlotWin Name:		'Plot Window #1'
+	PlotWin DisplayTimeLength:	10
+	PlotWin DisplayTimeStart:	0	0
+	PlotWin Position:	0, 277
+	PlotWin Size:		579, 498
+	PlotWin PlotsPage:	5
+	PlotWin TopPlotOfPage:	'DIFF2_S'
+
+		PlotType
+		{
+		Plot SourceName:	'FAST RealTime'
+		Plot QtyName:		'DIFF2_S'
+		Plot TimeSpan:		2439995 81456 2439995 81457
+		Plot MaxLimits:		81457, 50
+		Plot MinLimits:		81456, -50
+		Plot LinePointsMode:	'LINE'
+		Plot ShadingMode:	'SHADE'
+		Plot NPanels:		1
+		Plot EndPlot:
+		}
+		PlotType
+		{
+		Plot SourceName:	'FAST RealTime'
+		Plot QtyName:		'DIFF3_S'
+		Plot TimeSpan:		2439995 81456 2439995 81457
+		Plot MaxLimits:		81457, 50
+		Plot MinLimits:		81456, -50
+		Plot LinePointsMode:	'LINE'
+		Plot ShadingMode:	'SHADE'
+		Plot NPanels:		1
+		Plot EndPlot:
+		}
+		PlotType
+		{
+		Plot SourceName:	'FAST RealTime'
+		Plot QtyName:		'DIFF6_S'
+		Plot TimeSpan:		2439995 81456 2439995 81457
+		Plot MaxLimits:		81457, 50
+		Plot MinLimits:		81456, -50
+		Plot LinePointsMode:	'LINE'
+		Plot ShadingMode:	'SHADE'
+		Plot NPanels:		1
+		Plot EndPlot:
+		}
+		PlotType
+		{
+		Plot SourceName:	'FAST RealTime'
+		Plot QtyName:		'DIFF7_S'
+		Plot TimeSpan:		2439995 81456 2439995 81457
+		Plot MaxLimits:		81457, 50
+		Plot MinLimits:		81456, -50
+		Plot LinePointsMode:	'LINE'
+		Plot ShadingMode:	'SHADE'
+		Plot NPanels:		1
+		Plot EndPlot:
+		}
+		PlotType
+		{
+		Plot SourceName:	'FAST RealTime'
+		Plot QtyName:		'1033-spinPhase'
+		Plot TimeSpan:		2439995 81456 2439995 81457
+		Plot MaxLimits:		81457, 1
+		Plot MinLimits:		81456, 0
+		Plot LinePointsMode:	'LINE'
+		Plot ShadingMode:	'SHADE'
+		Plot NPanels:		1
+		Plot EndPlot:
+		}
+	PlotWin EndPlotWindow:
+	}
+}
+
+*
+*

@@ -1,0 +1,37 @@
+*
+* For SCCS:
+* @(#)UIcfg.Blank	1.1, 10/26/93
+*
+Header :this is the 'Blank' configuration file
+Header :created on Fri Aug 28 11:16:44 1992
+*
+
+Configuration
+{
+Config Name:			'Blank'
+Config MenuPosition:		5, 5
+Config MenuSize:		155, 265
+Config DefaultSpaceCraft:	'?'
+Config DefaultTimeSpan
+	Start:			-1, -1
+	End:			-1, -1
+Config CurrentPlotWindow:	''
+Config DefaultPlotDevice:	'-1'
+Config DefaultPlotFile:		''
+Config DefaultASCIIFormat:	'?'
+Config MenuColors:		'Orange', 'Forest Green'
+Config DefaultMenuColors:	'White', 'Black'
+
+	PlotWindow
+	{
+	PlotWin Name:		'Plot Window #1'
+	PlotWin Position:	390, 0
+	PlotWin Size:		750, 500
+	PlotWin PlotsPage:	3
+
+	PlotWin EndPlotWindow:
+	}
+}
+
+*
+*

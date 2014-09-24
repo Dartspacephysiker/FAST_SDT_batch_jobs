@@ -1,0 +1,9 @@
+BatchJob: "fields_sumplot"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/summary_plot/sumplot_wrapper.pro
+
+DataBaseRequest:
+    Orbits 10000
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/summary_plot
+PlotConfigurationFile: sumplot_fields

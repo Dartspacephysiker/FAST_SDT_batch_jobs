@@ -3,7 +3,7 @@ t1=t1,t2=t2,filterfreq=filterfreq,$
 burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin
 
 ;SPENCE EDITS
-
+;09/20/2014 Commented out lines 1083, 1143, 1166-7 and 1206 in /analyse_noise segment since we don't have alfven_speed_mlt routine
 
 ;09/18/2014
 ;It appears we can get all the way to the end now... I've
@@ -159,7 +159,7 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 		part_res_je(j)=abs(Je.x(j)-Je.x(j-1))
 	endfor
 	part_res_Je(0)=part_res_Je(1)
-	gap=where(part_res_je GT 10.0)
+	gap=where(part_res_je GT 10.0) ; & print, "This is gap: " &  print, gap, format='(4(I0))'
 	if gap(0) NE -1 then begin
 		 separate_start=[0,where(part_res_je GT 10.0)]
 		 separate_stop=[where(part_res_je GT 10.0),n_elements(Je.x)-1]
@@ -279,7 +279,7 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 			endelse
 			
 			store_data,'MagZ',data=magz
-			magz.y=smooth(magz.y,40)
+			;magz.y=smooth(magz.y,40)
 			store_data,'Magz_smooth',data={x:magz.x,y:magz.y}
 			if keyword_set(filterfreq) then begin
 				
@@ -364,7 +364,7 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 
 			j_range=where(v8.x LT v8.x(n_elements(v8.x)-1)-spin_period)
 			index_max=max(j_range)
-			print,index_max
+			print,"index max:", index_max
 			pot=make_array(n_elements(v8.x),/double)
 			for j=0L,index_max do begin
 				;spin_range=where(v8.x GE v8.x(j) and v8.x LE v8.x(j)+spin_period)
@@ -620,9 +620,9 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 			window,0,xsize=600,ysize=800
 			loadct,39
 			!p.charsize=1.3
-			tplot,['Je','CharE','JEei','Ji','JEi','MagZ'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges(jjj,0),time_ranges(jjj,1)]
+                        tplot,['Je','CharE','JEei','Ji','JEi','MagZ'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges(jjj,0),time_ranges(jjj,1)]
+                        popen,/port,'biz.data' & loadct2,43 & tplot & pclose ; For hard copies use 
 
-			
 
 			;calculate the total ion outflow for this interval
 
@@ -661,8 +661,8 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 			jtemp=abs(1.0e-3*(deltaBx)/1.26e-6)
 			sign_jtemp=abs(deltaBx)/deltaBx
 			store_data,'jtemp',data={x:magz.x,y:jtemp}
-			;terminate the intervals before the last point
 
+			;terminate the intervals before the last point
 			if sign_jtemp(n_elements(jtemp)-1)*sign_jtemp(n_elements(jtemp)-2) NE -1 then sign_jtemp(n_elements(jtemp)-1)=-1*sign_jtemp(n_elements(jtemp)-1)
 
 			
@@ -1080,8 +1080,8 @@ for m=0L,number_streaks-1 do begin
 					de=max(current_intervals(streaks(start_pos_streak(mmm):stop_pos_streak(mmm)),25))-min(current_intervals(streaks(start_pos_streak(mmm):stop_pos_streak(mmm)),25))
 					if db GT delta_b_threshold and de GT delta_E_threshold then begin
 						e_over_b=abs((1.0e-3*de)/(db*1.0e-9))
-						va=1000.0*alfven_speed_mlt(current_intervals(j,21),current_intervals(j,22))
-     						if e_over_b/va LT 1.0/eb_to_alfven_speed then begin
+						;; va=1000.0*alfven_speed_mlt(current_intervals(j,21),current_intervals(j,22))
+     						;; if e_over_b/va LT 1.0/eb_to_alfven_speed then begin
 						
 						integrated_downgoing_eflux=total(current_intervals(interval,7))
 						integrated_iflux=total(current_intervals(interval,12))
@@ -1140,7 +1140,7 @@ for m=0L,number_streaks-1 do begin
 						current_intervals(start_streaks(m)+start_pos_streak(mmm)+indj_streak_max,18)=de
 						current_intervals(start_streaks(m)+start_pos_streak(mmm)+indj_streak_max,19)=orbit_pos_streak
 						current_intervals(start_streaks(m)+start_pos_streak(mmm)+indj_streak_max,20)=time_pos_streak
-						endif
+;;						endif
 					endif
 				endif
 			endif
@@ -1163,8 +1163,8 @@ for m=0L,number_streaks-1 do begin
 					de=max(current_intervals(interval,25))-min(current_intervals(interval,25))
 					if db GT delta_b_threshold and de GT delta_E_threshold then begin
 						e_over_b=abs((1.0e-3*de)/(db*1.0e-9))
-						va=1000.0*alfven_speed_mlt(current_intervals(j,21),current_intervals(j,22))
-     						if e_over_b/va LT 1.0/eb_to_alfven_speed then begin
+						;; va=1000.0*alfven_speed_mlt(current_intervals(j,21),current_intervals(j,22))
+     						;; if e_over_b/va LT 1.0/eb_to_alfven_speed then begin
 						
 						
 						integrated_downgoing_eflux=total(current_intervals(interval,7))
@@ -1203,7 +1203,7 @@ for m=0L,number_streaks-1 do begin
 						current_intervals(start_streaks(m)+start_neg_streak(mmm)+indj_streak_max,18)=de
 						current_intervals(start_streaks(m)+start_neg_streak(mmm)+indj_streak_max,19)=orbit_neg_streak
 						current_intervals(start_streaks(m)+start_neg_streak(mmm)+indj_streak_max,20)=time_neg_streak
-						endif
+;;						endif
 					endif
 				endif
 			endif
@@ -1223,7 +1223,9 @@ print,'keep',keep
 current_intervals=current_intervals(keep,*)
 
 print,'number of intervals',n_elements(keep)
-if jjj GT 0 or not keyword_set(filename) then filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_Study_13F/'+'dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
+;if jjj GT 0 or not keyword_set(filename) then
+;filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_Study_13F/'+'dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
+if jjj GT 0 or not keyword_set(filename) then filename='/home/spencerh/biz.data'
 
 print,filename,jjj
 openw,unit1,filename,/get_lun

@@ -1,0 +1,133 @@
+*
+Header :this is the '/disks/fast/users/kenb/w/src/sdt/UIConfigs/UIcfg.apid_1032' configuration file
+Header :created on Tue Jan  4 12:16:24 1994
+*
+
+Configuration
+{
+Config Name:			'/disks/fast/users/kenb/w/src/sdt/UIConfigs/UIcfg.apid_1032'
+Config MenuPosition:		5, 5
+Config MenuSize:		155, 265
+Config DefaultSpaceCraft:	'?'
+Config DefaultTimeSpan
+	Start:			2439995, 0
+	End:			2439995, 10
+Config CurrentPlotWindow:	'Plot Window #1'
+Config DefaultPlotDevice:	'-1'
+Config DefaultPlotFile:		''
+Config DefaultASCIIFormat:	'?'
+Config MenuColors:		'Yellow', 'Black'
+Config DefaultMenuColors:	'White', 'Black'
+
+	PlotWinRealtime
+	{
+	PlotWin Name:		'Plot Window #1'
+	PlotWin DisplayTimeLength:	10
+	PlotWin DisplayTimeStart:	0	0
+	PlotWin Position:	0, 176
+	PlotWin Size:		610, 693
+	PlotWin PlotsPage:	8
+	PlotWin TopPlotOfPage:	'V1-V4_S'
+
+		PlotType
+		{
+		Plot SourceName:	'FAST RealTime'
+		Plot QtyName:		'V1-V4_S'
+		Plot TimeSpan:		2449329 81435 2449329 81436
+		Plot MaxLimits:		81436, 50
+		Plot MinLimits:		81435, -50
+		Plot LinePointsMode:	'LINE'
+		Plot ShadingMode:	'SHADE'
+		Plot NPanels:		1
+		Plot EndPlot:
+		}
+		PlotType
+		{
+		Plot SourceName:	'FAST RealTime'
+		Plot QtyName:		'V5-V8_S'
+		Plot TimeSpan:		2449329 81435 2449329 81436
+		Plot MaxLimits:		81436, 50
+		Plot MinLimits:		81435, -50
+		Plot LinePointsMode:	'LINE'
+		Plot ShadingMode:	'SHADE'
+		Plot NPanels:		1
+		Plot EndPlot:
+		}
+		PlotType
+		{
+		Plot SourceName:	'FAST RealTime'
+		Plot QtyName:		'V9..._S'
+		Plot TimeSpan:		2449329 81435 2449329 81436
+		Plot MaxLimits:		81436, 50
+		Plot MinLimits:		81435, -50
+		Plot LinePointsMode:	'LINE'
+		Plot ShadingMode:	'SHADE'
+		Plot NPanels:		1
+		Plot EndPlot:
+		}
+		PlotType
+		{
+		Plot SourceName:	'FAST RealTime'
+		Plot QtyName:		'Mag1dc_S'
+		Plot TimeSpan:		2449329 81435 2449329 81436
+		Plot MaxLimits:		81436, 50
+		Plot MinLimits:		81435, -50
+		Plot LinePointsMode:	'LINE'
+		Plot ShadingMode:	'SHADE'
+		Plot NPanels:		1
+		Plot EndPlot:
+		}
+		PlotType
+		{
+		Plot SourceName:	'FAST RealTime'
+		Plot QtyName:		'Mag2dc_S'
+		Plot TimeSpan:		2449329 81435 2449329 81436
+		Plot MaxLimits:		81436, 50
+		Plot MinLimits:		81435, -50
+		Plot LinePointsMode:	'LINE'
+		Plot ShadingMode:	'SHADE'
+		Plot NPanels:		1
+		Plot EndPlot:
+		}
+		PlotType
+		{
+		Plot SourceName:	'FAST RealTime'
+		Plot QtyName:		'Mag3dc_S'
+		Plot TimeSpan:		2449329 81435 2449329 81436
+		Plot MaxLimits:		81436, 50
+		Plot MinLimits:		81435, -50
+		Plot LinePointsMode:	'LINE'
+		Plot ShadingMode:	'SHADE'
+		Plot NPanels:		1
+		Plot EndPlot:
+		}
+		PlotType
+		{
+		Plot SourceName:	'FAST RealTime'
+		Plot QtyName:		'THERM'
+		Plot TimeSpan:		2449329 81435 2449329 81436
+		Plot MaxLimits:		81436, 20000
+		Plot MinLimits:		81435, 10000
+		Plot LinePointsMode:	'LINE'
+		Plot ShadingMode:	'SHADE'
+		Plot NPanels:		1
+		Plot EndPlot:
+		}
+		PlotType
+		{
+		Plot SourceName:	'FAST RealTime'
+		Plot QtyName:		'1032-spinPhase'
+		Plot TimeSpan:		2449329 81435 2449329 81436
+		Plot MaxLimits:		81436, 1
+		Plot MinLimits:		81435, 0
+		Plot LinePointsMode:	'LINE'
+		Plot ShadingMode:	'SHADE'
+		Plot NPanels:		1
+		Plot EndPlot:
+		}
+	PlotWin EndPlotWindow:
+	}
+}
+
+*
+*

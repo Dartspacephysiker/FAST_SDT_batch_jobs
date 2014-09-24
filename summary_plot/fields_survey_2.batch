@@ -1,0 +1,9 @@
+BatchJob: "fields_survey_1"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/summary_plot/sumplot_wrapper.pro
+
+DataBaseRequest:
+    Orbits 10000
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/summary_plot
+PlotConfigurationFile: fields_survey_2_SPENCE
