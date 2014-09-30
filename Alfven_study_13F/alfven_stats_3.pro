@@ -1223,9 +1223,9 @@ print,'keep',keep
 current_intervals=current_intervals(keep,*)
 
 print,'number of intervals',n_elements(keep)
-;if jjj GT 0 or not keyword_set(filename) then
-;filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_Study_13F/'+'dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
-if jjj GT 0 or not keyword_set(filename) then filename='/home/spencerh/biz.data'
+if jjj GT 0 or not keyword_set(filename) then
+filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_study_13F/'+'dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
+;if jjj GT 0 or not keyword_set(filename) then filename='/home/spencerh/biz.data'
 
 print,filename,jjj
 openw,unit1,filename,/get_lun
@@ -1282,6 +1282,9 @@ printf,unit1,'total upward only Alfven ion outflow at ionosphere',total(current_
 
 
 endfor
+
+outdataf = "orbit" + strcompress(orbit_num+'_'+string(jjj),/remove_all) + ".dat"
+save, /variables, filename=outdataf
 
 return 
 end
