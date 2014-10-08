@@ -1,0 +1,9 @@
+BatchJob: "current"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study_14F/get_magcurrent_plots/magcurrent_wrapper.pro
+
+DataBaseRequest:
+    Orbits 10000
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study_14F/get_magcurrent_plots
+PlotConfigurationFile: magcurrent_survey

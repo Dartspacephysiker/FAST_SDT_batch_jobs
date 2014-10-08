@@ -1,4 +1,4 @@
-pro Alfven_Stats_spence,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
+pro exp_density_stats,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
                         t1=t1,t2=t2,filterfreq=filterfreq,$
                         burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,$
                         save_plot=save_p,save_data=save_d,smooth=smooth,extra_times=extra_t,no_screen=no_s ;spence additions

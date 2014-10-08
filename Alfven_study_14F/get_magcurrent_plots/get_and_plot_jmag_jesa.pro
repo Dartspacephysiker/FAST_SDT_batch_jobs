@@ -1,4 +1,5 @@
-pro Alfven_Stats_spence,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
+pro get_and_plot_jmag_jesa,$
+                        filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
                         t1=t1,t2=t2,filterfreq=filterfreq,$
                         burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,$
                         save_plot=save_p,save_data=save_d,smooth=smooth,extra_times=extra_t,no_screen=no_s ;spence additions
@@ -7,15 +8,13 @@ pro Alfven_Stats_spence,filename=filename,energy_electrons=energy_electrons,ener
 ;Alfven_study_13F directory. I'm adding some output fields to
 ;make sure we're identifying current intervals the same way chaston did
 
-;This program identifies Alfven waves and writes varous observable to a file names dflux_'orbit_number'_index.txt' from the size of the field-aligned current greater than som threshold value.
+;This program calculates j_mag and j_esa for a given orbit
+
 ;Analysis of many orbits have shown this to be an effective way to find Alfven waves
 ; the output quantities are described in the output file and in the txt of this pro.
 ;to run load the data in sdt using the config alfven_stats_survey and then compile in the dircetory
 ;/disks/moose/home/ccc/Alfven_stats
 
-;example from idl prompt: Alfven_Stats_3,/heavy,/analyse_noise
-;the keyword heavy is set to get heavy ion data from teams
-; the keyword analyse noise is set to extract Alfven waves out of noisy b field data
 
 ;Intended to be run in batch mode-to do this from terminal prompt type: sdt_batch alfven_stats_batch.txt 
 
@@ -270,8 +269,8 @@ pro Alfven_Stats_spence,filename=filename,energy_electrons=energy_electrons,ener
 
         get_data,'ILAT',data=ilat
         print, "loss_cone_alt", loss_cone_alt, "ilat.y(0)", ilat.y(0)
-        lcw=loss_cone_width(loss_cone_alt,ilat.y(0))*180.0/!DPI
-;        lcw=0.69745*180.0/!DPI
+;                        lcw=loss_cone_width(loss_cone_alt,ilat.y(0))*180.0/!DPI
+        lcw=0.69745*180.0/!DPI
         north_south=abs(ilat.y(0))/ilat.y(0)
         
         if north_south EQ -1 then begin
@@ -569,6 +568,7 @@ pro Alfven_Stats_spence,filename=filename,energy_electrons=energy_electrons,ener
         window,0,xsize=600,ysize=800
         loadct,39
         !p.charsize=1.3
+        
         tplot,['Je','CharE','JEei','Ji','JEi','MagZ'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges(jjj,0),time_ranges(jjj,1)]
         IF KEYWORD_SET(save_p) THEN popen,/port,'biz.data' & loadct2,43 & tplot & pclose ; For hard copies use 
 
@@ -737,6 +737,7 @@ pro Alfven_Stats_spence,filename=filename,energy_electrons=energy_electrons,ener
            if abs(maxJe)/abs(jmax) LE esa_j_delta_bj_ratio_threshold then begin
               IF NOT KEYWORD_SET(no_s) THEN current_intervals(j,3)=0.0
            endif
+           
            
                                 ;get the electron energy flux and dtermine if to keep this event
                                 ;print,'intervalparts_electrons',intervalparts_electrons
@@ -948,6 +949,7 @@ pro Alfven_Stats_spence,filename=filename,energy_electrons=energy_electrons,ener
               current_intervals(j,36)=magz.x(current_intervals(j,1))
               current_intervals(j,37)=current_intervals(j,36)-current_intervals(j,35)
            ENDIF
+
         endfor
         
      endif
@@ -1192,14 +1194,13 @@ pro Alfven_Stats_spence,filename=filename,energy_electrons=energy_electrons,ener
 
      print,'number of intervals',n_elements(keep)
      if jjj GT 0 or not keyword_set(filename) then $
-        filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_study_14F/output_alfven_stats/Dartmouth_dflux_'+$
-                 strcompress(orbit_num+'_'+string(jjj),/remove_all)
+        filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_study_14F/Dartmouth_dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
      ;if jjj GT 0 or not keyword_set(filename) then filename='/home/spencerh/biz.data'
      IF KEYWORD_SET(analyse_noise) THEN filename += '_analysenoise'
      IF KEYWORD_SET(smooth) THEN filename += '_smooth'
      IF KEYWORD_SET(extra_t) THEN filename += '_extratimes'
      IF KEYWORD_SET(no_s) THEN filename += '_noscreen'
-     IF KEYWORD_SET(ucla_mag_despin) THEN filename += '_magdespin'
+     
 
      print,filename,jjj
      openw,unit1,filename,/get_lun
@@ -1269,6 +1270,16 @@ pro Alfven_Stats_spence,filename=filename,energy_electrons=energy_electrons,ener
                   current_intervals(jj,17),current_intervals(jj,18),current_intervals(jj,26),current_intervals(jj,27),$
                   current_intervals(jj,28),current_intervals(jj,29),current_intervals(jj,30),current_intervals(jj,31),$
                   current_intervals(jj,32),current_intervals(jj,33),current_intervals(jj,34)
+
+                                ;do spence's stuff
+           IF current_intervals(jj,3) NE 0.0 THEN BEGIN
+              fname='plots/biz_'+str(jj)+'.data'
+              tplot,['jtemp','Je'] ,var_label=['ALT','MLT','ILAT'],trange=[magz.x(current_intervals(jj,0)),magz.x(current_intervals(jj,1))]
+              popen,/port,fname & loadct2,43 & tplot & pclose
+           ENDIF
+           
+
+
         endfor
 
      ENDELSE

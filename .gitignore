@@ -12,3 +12,10 @@ outfast
 outUI
 outIDL*
 *~
+
+#output_alfven_stats dir
+Alfven_study_14F/output_alfven_stats/*
+
+#No .ps or .pdf files
+*.ps
+*.pdf

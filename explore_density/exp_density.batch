@@ -1,0 +1,9 @@
+BatchJob: "exp_density"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/explore_density/exp_density_wrapper.pro
+
+DataBaseRequest:
+    Orbits 10000
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/explore_density
+PlotConfigurationFile: chaston_survey

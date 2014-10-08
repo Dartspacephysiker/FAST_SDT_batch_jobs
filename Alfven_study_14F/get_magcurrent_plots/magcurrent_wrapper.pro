@@ -12,14 +12,14 @@
 ;cols=get_colors()
 ;time_stamp,off=1
 
-; To get "alfven_stats_spence.pro" in the PATH, we need this line:
-!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study_14F:'+!PATH
+; To get "get_and_plot_jmag_jesa.pro" in the PATH, we need this line:
+!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study_14F/get_magcurrent_plots:'+!PATH
       
 
 ;*****************************
 ;Put code here:
 
-alfven_stats_spence,/ucla_mag_despin
+get_and_plot_jmag_jesa
 
 ;*****************************
 ;End routine:

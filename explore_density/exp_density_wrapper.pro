@@ -12,14 +12,14 @@
 ;cols=get_colors()
 ;time_stamp,off=1
 
-; To get "alfven_stats_spence.pro" in the PATH, we need this line:
-!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study_14F:'+!PATH
+; To get "alfven_stats_3.pro" in the PATH, we need this line:
+!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study_13F:'+!PATH
       
 
 ;*****************************
 ;Put code here:
 
-alfven_stats_spence,/ucla_mag_despin
+exp_density_stats
 
 ;*****************************
 ;End routine:
