@@ -1,0 +1,9 @@
+BatchJob: "alfven"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as3_pristine/alfven_wrapper.pro
+
+DataBaseRequest:
+    Orbits 10000
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as3_pristine
+PlotConfigurationFile: chaston_survey

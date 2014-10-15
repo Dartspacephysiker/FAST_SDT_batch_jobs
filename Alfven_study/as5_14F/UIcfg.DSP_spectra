@@ -1,0 +1,156 @@
+*
+Header :this is the 'DSP_spectra' configuration file
+Header :created on Tue Sep 23 10:29:08 2014
+*
+*
+Description : 
+
+*
+
+Configuration
+{
+Config Name:			'DSP_spectra'
+Config MenuPosition:		15, -6
+Config MenuSize:		300, 300
+Config DefaultSourceId:	'?'
+Config CurrentPlotWindow:	'Current:0 - DA'
+
+	PlotWinStandard
+	{
+	PlotWin Name:		'Current:0 - DA'
+	PlotWin Position:	333, 20
+	PlotWin Size:		900, 600
+	PlotWin PlotsPage:	6
+	PlotWin TopPlotOfPage:	'DspADC_V5-V8_Spectra'
+	PlotWin DefaultDataBaseResponse:	2451240 64201 2451240 65102 'FNMLine 7'
+   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit10001_p'
+   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit10002_p'
+   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit10004_p'
+   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit10005_p'
+   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-27_orbit10001_t'
+   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit10007_t'
+   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-76_orbit10003_p'
+
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'DspADC_V5-V8_Spectra'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'DspADC_V5-V8_Spectra'
+		Plot2 PlotYTitleName:	'DspADC_V5-V8'
+		Plot2 PlotYSubTitleName:	'Hz'
+		Plot2 PlotZTitleName:	'Value'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	UNKNOWN
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LOG LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	65102, 10000, 1e-05, 1, 1, 1
+		Plot2 MinLimits:	64201, 1, 1e-10, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		FALSE 0 1 0 512
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'SfaAve_V5-V8'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'SfaAve_V5-V8'
+		Plot2 PlotYTitleName:	'SfaAve_V5-V8'
+		Plot2 PlotYSubTitleName:	'kHz'
+		Plot2 PlotZTitleName:	'Value'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	UNKNOWN
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LOG LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	65102, 100000, 256, 1, 1, 1
+		Plot2 MinLimits:	64201, 1, 0, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE -100 2500 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'SfaBurst_V5-V8'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'SfaBurst_V5-V8'
+		Plot2 PlotYTitleName:	'SfaBurst_V5-V8'
+		Plot2 PlotYSubTitleName:	'kHz'
+		Plot2 PlotZTitleName:	'Value'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	UNKNOWN
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	65102, 2500, 256, 1, 1, 1
+		Plot2 MinLimits:	64201, -100, 0, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE -100 2500 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+	PlotWin EndPlotWindow:
+	}
+}
+
+*
+*
