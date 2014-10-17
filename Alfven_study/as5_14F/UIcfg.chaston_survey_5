@@ -1,6 +1,6 @@
 *
-Header :this is the 'chaston_survey' configuration file
-Header :created on Wed Oct 15 13:17:06 2014
+Header :this is the 'chaston_survey_5' configuration file
+Header :created on Fri Oct 17 11:00:06 2014
 *
 *
 Description : 
@@ -9,16 +9,16 @@ Description :
 
 Configuration
 {
-Config Name:			'chaston_survey'
+Config Name:			'chaston_survey_5'
 Config MenuPosition:		6, -14
 Config MenuSize:		300, 300
 Config DefaultSourceId:	'?'
-Config CurrentPlotWindow:	'chaston_survey:0 - DA'
+Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 
 	PlotWinStandard
 	{
-	PlotWin Name:		'chaston_survey:0 - DA'
-	PlotWin Position:	267, -22
+	PlotWin Name:		'chaston_survey_5:0 - DA'
+	PlotWin Position:	250, 84
 	PlotWin Size:		900, 600
 	PlotWin PlotsPage:	6
 	PlotWin TopPlotOfPage:	'NE2_S'
@@ -40,8 +40,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 256, 0, 0
-		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 MaxLimits:	2, 256, 0, 0
+		Plot2 MinLimits:	1, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -77,8 +77,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -115,8 +115,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 35000, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 1, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 35000, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 1, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -153,8 +153,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -191,8 +191,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 35000, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 1, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 35000, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 1, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -229,8 +229,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -267,8 +267,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 40000, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 40000, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -305,8 +305,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -343,8 +343,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 40000, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 40000, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -381,8 +381,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -419,8 +419,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 40000, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 40000, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -457,8 +457,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -495,8 +495,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 40000, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 40000, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -533,8 +533,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -571,8 +571,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 40000, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 40000, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -609,8 +609,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -647,8 +647,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 40000, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 40000, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -685,8 +685,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 360, 800, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 360, 800, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -723,8 +723,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 40000, 800, 1, 1, 1
-		Plot2 MinLimits:	0, 1, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 40000, 800, 1, 1, 1
+		Plot2 MinLimits:	1, 1, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -761,8 +761,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 32, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 32, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -799,8 +799,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -837,8 +837,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 32, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 32, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -875,8 +875,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -911,8 +911,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 4096, 0, 0
-		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 MaxLimits:	2, 4096, 0, 0
+		Plot2 MinLimits:	1, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -946,8 +946,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 64, 0, 0
-		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 MaxLimits:	2, 64, 0, 0
+		Plot2 MinLimits:	1, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -981,8 +981,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 300, 0, 0
-		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 MaxLimits:	2, 300, 0, 0
+		Plot2 MinLimits:	1, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1016,8 +1016,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 0, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	2, 32768, 0, 0
+		Plot2 MinLimits:	1, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1051,8 +1051,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 0, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	2, 32768, 0, 0
+		Plot2 MinLimits:	1, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1086,8 +1086,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 0, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	2, 32768, 0, 0
+		Plot2 MinLimits:	1, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1121,8 +1121,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 0, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	2, 32768, 0, 0
+		Plot2 MinLimits:	1, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1156,8 +1156,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 0, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	2, 32768, 0, 0
+		Plot2 MinLimits:	1, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1191,8 +1191,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 1, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	2, 32768, 0, 0
+		Plot2 MinLimits:	1, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1226,8 +1226,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 1, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	2, 32768, 0, 0
+		Plot2 MinLimits:	1, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1261,8 +1261,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 1, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	2, 32768, 0, 0
+		Plot2 MinLimits:	1, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1296,8 +1296,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 1, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	2, 32768, 0, 0
+		Plot2 MinLimits:	1, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1331,8 +1331,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 300, 1, 0
-		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 MaxLimits:	2, 300, 0, 0
+		Plot2 MinLimits:	1, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1366,8 +1366,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 1, 1
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	2, 32768, 0, 0
+		Plot2 MinLimits:	1, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1401,8 +1401,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 1, 1
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	2, 32768, 0, 0
+		Plot2 MinLimits:	1, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1436,8 +1436,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 1, 1
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	2, 32768, 0, 0
+		Plot2 MinLimits:	1, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1471,8 +1471,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 0, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	2, 32768, 0, 0
+		Plot2 MinLimits:	1, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1506,8 +1506,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 8000, 0, 0
-		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 MaxLimits:	2, 8000, 0, 0
+		Plot2 MinLimits:	1, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1541,8 +1541,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 90, 0, 0
-		Plot2 MinLimits:	0, -90, 0, 0
+		Plot2 MaxLimits:	2, 90, 0, 0
+		Plot2 MinLimits:	1, -90, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1576,8 +1576,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 30, 0, 0
-		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 MaxLimits:	2, 30, 0, 0
+		Plot2 MinLimits:	1, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1611,8 +1611,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 20, 0, 0
-		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 MaxLimits:	2, 20, 0, 0
+		Plot2 MinLimits:	1, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1648,7 +1648,7 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LINEAR LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	8, 16, 255, 0, 0, 0, 0, 1, 1, 1
+		Plot2 MaxLimits:	8, 16, 255, 0, 0, 0, 0, 0, 0, 0
 		Plot2 MinLimits:	0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -1684,8 +1684,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1723,8 +1723,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1762,8 +1762,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1801,7 +1801,7 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LINEAR LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	8, 16, 255, 0, 0, 0, 0, 1, 1, 1
+		Plot2 MaxLimits:	8, 16, 255, 0, 0, 0, 0, 0, 0, 0
 		Plot2 MinLimits:	0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -1837,8 +1837,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1876,8 +1876,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1915,8 +1915,8 @@ Config CurrentPlotWindow:	'chaston_survey:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	2, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	1, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0

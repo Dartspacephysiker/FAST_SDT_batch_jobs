@@ -1,4 +1,4 @@
-pro Alfven_Stats_5,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
+pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
 t1=t1,t2=t2,filterfreq=filterfreq,$
 burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only
 
@@ -248,11 +248,20 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 			;get E field and B field on same time scale
 			
 			
-			efields_combine=combinets({x:efieldV1214.time,y:efieldV1214.comp1},{x:efieldV58.time,y:efieldV58.comp1})
+;;			efields_combine=combinets({x:efieldV1214.time,y:efieldV1214.comp1},{x:efieldV58.time,y:efieldV58.comp1})
+			FA_FIELDS_COMBINE,efieldV1214,efieldV58,result=efields_combine,/talk
 			
 			;get magnitude of electric and magnetic field
 			
-			efield={x:efieldV1214.time,y:sqrt(efields_combine.comp1^2+efields_combine.comp2^2)}
+                        ;; for k=0,10,1 do begin
+                        ;;    print, "This is efieldV1214.comp1["+string(k)+"]: " + string(efieldV1214.comp1[k])
+                        ;;    print, "This is efieldV58.comp1["+string(k)+"]: " + string(efieldV58.comp1[k])
+                        ;;    print, "This is efields_combine["+string(k)+"]: " + string(efields_combine[k])
+                        ;; endfor
+                        ;; help, efieldV1214,/str
+                        ;; help, efieldV58,/str
+                        ;; help,efields_combine
+			efield={x:efieldV1214.time,y:sqrt(efieldV1214.comp1^2+efields_combine^2)}
 			if not keyword_set(ucla_mag_despin) then begin
 				get_data,'MagDCcomp1',data=magx
 				get_data,'MagDCcomp2',data=magy
@@ -283,10 +292,25 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 			
 			
 			;get mag and efield data on same time scale
+                        ;SMH Try this to make fa_fields_combine stop crying                        
+                        magz={time:magz.x,comp1:magz.y,ncomp:1}
+                        efield={time:efield.x,comp1:efield.y}
 			
 			
-			fields=combinets(magz,efield)
-			dens=combinets(magz,langmuir)
+			;; fields=combinets(magz,efield)
+                        FA_FIELDS_COMBINE,magz,efield,result=fields,/interp,delt_t=50.,/talk
+                        fields={time:magz.time,comp1:magz.comp1,comp2:fields,ncomp:2}
+
+                        ;I'm hoping this means magz is pared down somewhere else
+
+                        ;; dens=combinets(magz,langmuir)
+                        langmuir={time:langmuir.x,comp1:langmuir.y,ncomp:1}
+                        FA_FIELDS_COMBINE,magz,langmuir,result=dens,/talk
+                        dens={time:magz.time,comp1:magz.comp1,comp2:dens,ncomp:2}
+
+                        magz={x:magz.time,y:magz.comp1}
+                        langmuir={x:langmuir.time,y:langmuir.comp1}
+
 			;get the prootn cyc frequency for smoothing the e field data later
 			
 			proton_cyc_freq=1.6e-19*sqrt(magx.y^2+magy.y^2+magz.y^2)*1.0e-9/1.67e-27/(2.*!DPI); in Hz
@@ -1258,7 +1282,13 @@ if keyword_set(keep_alfven_only) then begin
 endif
 
 print,'number of intervals',n_elements(keep)
-if jjj GT 0 or not keyword_set(filename) then filename='/home/ccc/'+'dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
+if jjj GT 0 or not keyword_set(filename) then filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/'+'Dartmouth_dflux_as5'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
+
+;make sure we're not overwriting
+if file_test(filename) then begin
+   filename = filename + "--" + right_now
+   right_now=strmid(timestamp(),0,13)
+endif
 
 print,filename,jjj
 openw,unit1,filename,/get_lun

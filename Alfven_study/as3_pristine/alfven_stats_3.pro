@@ -259,8 +259,18 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
                         ;data from 2nd arg with data from 1st arg
 			
                         print, 'Combining efields V1214 and V58 into efields_combine...'
-			FA_FIELDS_COMBINE,efieldV1214,efieldV58,result=efields_combine,/talk
+                        FA_FIELDS_COMBINE,efieldV1214,efieldV58,result=efields_combine,/talk
 
+                        ;; for k=0,10,1 do begin
+                        ;;    print, "This is efieldV1214.comp1["+string(k)+"]: " + string(efieldV1214.comp1[k])
+                        ;;    print, "This is efieldV58.comp1["+string(k)+"]: " + string(efieldV58.comp1[k])                    
+                        ;;    print, "This is efields_combine["+string(k)+"]: " + string(efields_combine[k])
+                        ;; endfor
+
+                        help,efieldV1214,/str
+                        help,efieldV58,/str
+                        help,efields_combine
+                        return
 			;get magnitude of electric and magnetic field
 			
 			efield={x:efieldV1214.time,y:sqrt(efieldV1214.comp1^2+efields_combine^2)}
