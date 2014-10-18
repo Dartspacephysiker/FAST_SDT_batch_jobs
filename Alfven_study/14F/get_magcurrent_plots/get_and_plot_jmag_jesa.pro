@@ -1308,7 +1308,7 @@ pro get_and_plot_jmag_jesa,$
               fname='plots/chastplots_orb10000_'+str(jj)
               plotstr = "J!Dmag!N and J!DESA!N for line " + str(jj)
               tplot_options,'title',plotstr
-               tplot,['jtemp','Je'] ,var_label=['ALT','MLT','ILAT'],trange=[(str_to_time(dat.time[jj],/ms)-0.25),(str_to_time(dat.time[jj],/ms)+0.25)]
+               tplot,['jtemp','Je'] ,var_label=['ALT','MLT','ILAT'],trange=[(str_to_time(dat.time[jj])-0.25),(str_to_time(dat.time[jj])+0.25)]
               
               ENDFOR
            ENDIF

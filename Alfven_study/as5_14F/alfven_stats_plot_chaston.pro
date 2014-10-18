@@ -1,21 +1,40 @@
 pro alfven_stats_plot_chaston,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
   t1=t1,t2=t2,filterfreq=filterfreq,$
-  burst=burst,ucla_mag_despin=ucla_mag_despin
+  burst=burst,ucla_mag_despin=ucla_mag_despin,do_ch=do_ch,ch_int=ch_int,$
+  do_overview=do_o,jmag_thres=jmag_thres
 
-  ;thresholds for inclusion as Alfven waves
+  @startup
+  
+; if doing Chaston plots, get prepped 
+  IF KEYWORD_SET(do_ch) THEN BEGIN
+     IF CH_INT EQ !NULL THEN BEGIN
+      PRINT,"No current interval specified for Chaston plots! Doing interval 0..."
+      CH_INT = 0
+     ENDIF
+     chastondbdir='/SPENCEdata/Research/Cusp/database/current_db/'
+     outdir='/SPENCEdata/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/txtoutput/'
+     !PATH = '/SPENCEdata/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/:' + !PATH
 
-  current_threshold=1.0;microA/m^2
-  delta_b_threshold=5.0; nT
-  delta_E_threshold=10.0 ; mV/m
-  esa_j_delta_bj_ratio_threshold=0.02
-  electron_eflux_ionos_threshold=0.05;ergs/cm^2/s
-  eb_to_alfven_speed=10.0; factor by which the event can differ from model Alfven speed and still be called an Alfven wave
-  ;(applies only to the lower limit for e over b the upper limit is taken care of by the requiremenst that delta_b exceed 5 nT
+     orbit=10000
+     savsuf=".sav"
+     basename='dflux_'+strcompress(str(orbit)+"_"+str(ch_int),/remove_all)
+     chastonfname=chastondbdir+basename
+     chastonoutname=outdir+'chast_'+basename+savsuf
 
-  ;energy ranges
+     print, "Chaston db file: " + chastonfname
 
-  if not keyword_set(energy_electrons) then energy_electrons=[0.,30000.];use 0.0 for lower bound since the sc_pot is used to set this
-  if not keyword_set(energy_ions) then energy_ions=[0.,500.];use 0.0 for lower bound since the sc_pot is used to set this
+     ;get Chaston db file in memory
+     combine_dflux_dartchast,orbit, 0, in_name=chastonfname,outname=chastonoutname
+     restore, chastonoutname
+
+     n_chast = N_ELEMENTS(dat.time)
+     data_chast = dat
+     
+     IF NOT KEYWORD_SET(jmag_thres) THEN jmag_thres = 5.0
+     PRINT,"Current threshold set to " + string(jmag_thres)
+  ENDIF
+
+
 
   t=0
   dat = get_fa_ees(t,/st)
@@ -118,15 +137,6 @@ pro alfven_stats_plot_chaston,filename=filename,energy_electrons=energy_electron
 
   print,'number_of_intervals',number_of_intervals
 
-  ;loop over each time interval
-  ji_tot=make_array(number_of_intervals,/double)
-  ji_up_tot=make_array(number_of_intervals,/double)
-  jee_tot=make_array(number_of_intervals,/double)
-  Ji_tot_alf=make_array(number_of_intervals,/double)
-  Ji_up_tot_alf=make_array(number_of_intervals,/double)
-  Jee_tot_alf=make_array(number_of_intervals,/double)
-
-
   ;get despun mag data if keyword set
   if keyword_set(ucla_mag_despin) then ucla_mag_despin
 
@@ -134,7 +144,6 @@ pro alfven_stats_plot_chaston,filename=filename,energy_electrons=energy_electron
   ;begin looping each interval
 
   for jjj=0,number_of_intervals-1 do begin
-    print,'time_range',time_to_str(time_ranges(jjj,0)),time_to_str(time_ranges(jjj,1))
 
     je_tmp_time=je.x(time_range_indices(jjj,0):time_range_indices(jjj,1))
     je_tmp_data=je.y(time_range_indices(jjj,0):time_range_indices(jjj,1))
@@ -200,23 +209,6 @@ pro alfven_stats_plot_chaston,filename=filename,energy_electrons=energy_electron
 
     if data_valid NE 0.0 then begin
 
-      ;get E field and B field on same time scale
-
-
-      ;;      efields_combine=combinets({x:efieldV1214.time,y:efieldV1214.comp1},{x:efieldV58.time,y:efieldV58.comp1})
-      FA_FIELDS_COMBINE,efieldV1214,efieldV58,result=efields_combine,/talk
-
-      ;get magnitude of electric and magnetic field
-
-      ;; for k=0,10,1 do begin
-      ;;    print, "This is efieldV1214.comp1["+string(k)+"]: " + string(efieldV1214.comp1[k])
-      ;;    print, "This is efieldV58.comp1["+string(k)+"]: " + string(efieldV58.comp1[k])
-      ;;    print, "This is efields_combine["+string(k)+"]: " + string(efields_combine[k])
-      ;; endfor
-      ;; help, efieldV1214,/str
-      ;; help, efieldV58,/str
-      ;; help,efields_combine
-      efield={x:efieldV1214.time,y:sqrt(efieldV1214.comp1^2+efields_combine^2)}
       if not keyword_set(ucla_mag_despin) then begin
         get_data,'MagDCcomp1',data=magx
         get_data,'MagDCcomp2',data=magy
@@ -245,31 +237,6 @@ pro alfven_stats_plot_chaston,filename=filename,energy_electrons=energy_electron
         store_data,'MagZ',data=magz
       endif
 
-
-      ;get mag and efield data on same time scale
-      ;SMH Try this to make fa_fields_combine stop crying
-      magz={time:magz.x,comp1:magz.y,ncomp:1}
-      efield={time:efield.x,comp1:efield.y}
-
-
-      ;; fields=combinets(magz,efield)
-      FA_FIELDS_COMBINE,magz,efield,result=fields,/interp,delt_t=50.,/talk
-      fields={time:magz.time,comp1:magz.comp1,comp2:fields,ncomp:2}
-
-      ;I'm hoping this means magz is pared down somewhere else
-
-      ;; dens=combinets(magz,langmuir)
-      langmuir={time:langmuir.x,comp1:langmuir.y,ncomp:1}
-      FA_FIELDS_COMBINE,magz,langmuir,result=dens,/talk
-      dens={time:magz.time,comp1:magz.comp1,comp2:dens,ncomp:2}
-
-      magz={x:magz.time,y:magz.comp1}
-      langmuir={x:langmuir.time,y:langmuir.comp1}
-
-      ;get the prootn cyc frequency for smoothing the e field data later
-
-      proton_cyc_freq=1.6e-19*sqrt(magx.y^2+magy.y^2+magz.y^2)*1.0e-9/1.67e-27/(2.*!DPI); in Hz
-
       ;get_orbit data
 
       get_fa_orbit,je_tmp_time,/time_array,/all
@@ -282,211 +249,10 @@ pro alfven_stats_plot_chaston,filename=filename,energy_electrons=energy_electron
       get_data,'ILAT',data=ilat
       north_south=abs(ilat.y(0))/ilat.y(0)
 
-      if north_south EQ -1 then begin
-        e_angle=[180.-lcw,180+lcw]; for Southern Hemis.
-        ;i_angle=[270.0,90.0]
-        ;elimnate ram from data
-        i_angle=[180.0,360.0]
-        i_angle_up=[270.0,360.0]
-
-      endif else begin
-        e_angle=[360.-lcw,lcw]; for Northern Hemis.
-        ;i_angle=[90.,270.0]
-        ;eliminate ram from data
-        i_angle=[0.0,180.0]
-        i_angle_up=[90.0,180.0]
-
-      endelse
-
-
-      ;get fields mode
-
-      fields_mode=get_fa_fields('DataHdr_1032',time_ranges(jjj,0),time_ranges(jjj,1))
-
-
-
-      ;get the spacecraft potential per spin
-
-      spin_period=4.946; seconds
-
-      ;get_sample_rate
-
-      v8={x:spacecraft_potential.time,y:spacecraft_potential.comp1}
-
-      v8_dt=abs(v8.x-shift(v8.x,-1))
-      v8_dt(0)=v8_dt(1)
-      v8_dt(n_elements(v8.x)-1)=v8_dt(n_elements(v8.x)-2)
-
-      ;get maxima within a 1 spin window
-
-      j_range=where(v8.x LT v8.x(n_elements(v8.x)-1)-spin_period)
-      index_max=max(j_range)
-      print,index_max
-      pot=make_array(n_elements(v8.x),/double)
-      for j=0L,index_max do begin
-        ;spin_range=where(v8.x GE v8.x(j) and v8.x LE v8.x(j)+spin_period)
-        spin_range=j+findgen(ceil(spin_period/V8_dt(j)))
-        pot(j)=max(abs(v8.y(spin_range)),ind)
-        sign=v8.y(spin_range(ind))/abs(v8.y(spin_range(ind)))
-        pot(j)=sign*pot(j)
-        ;print,j,pot(j)
-      endfor
-      pot(index_max+1:n_elements(v8.x)-1)=pot(j_range(index_max))
-      sc_pot={x:v8.x,y:pot}
-      store_data,'S_Pot',data=sc_pot;note this is actualy the negative of the sp. potential this corrected in the file output
-
-
-
-
-
-      if keyword_set(burst) then begin
-
-        get_2dt_ts,'je_2d_b','fa_eeb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='JEe_tot',energy=energy_electrons
-        get_2dt_ts,'je_2d_b','fa_eeb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='JEe',angle=e_angle,energy=energy_electrons
-        get_2dt_ts,'j_2d_b','fa_eeb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='Je',energy=energy_electrons
-        get_2dt_ts,'j_2d_b','fa_eeb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='Je_lc',energy=energy_electrons,angle=e_angle
-
-
-        get_2dt_ts,'je_2d_b','fa_ieb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='JEi',energy=energy_ions
-        get_2dt_ts,'j_2d_b','fa_ieb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='Ji',energy=energy_ions
-        get_2dt_ts,'je_2d_b','fa_ieb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='JEi_up',energy=energy_ions,angle=i_angle
-        get_2dt_ts,'j_2d_b','fa_ieb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='Ji_up',energy=energy_ions,angle=i_angle
-
-      endif else begin
-
-        get_2dt_ts_pot,'je_2d_b','fa_ees',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='JEe_tot',energy=energy_electrons,sc_pot=sc_pot
-        get_2dt_ts_pot,'je_2d_b','fa_ees',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='JEe',angle=e_angle,energy=energy_electrons,sc_pot=sc_pot
-        get_2dt_ts_pot,'j_2d_b','fa_ees',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='Je',energy=energy_electrons,sc_pot=sc_pot
-        get_2dt_ts_pot,'j_2d_b','fa_ees',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='Je_lc',energy=energy_electrons,angle=e_angle,sc_pot=sc_pot
-
-
-        get_2dt_ts_pot,'je_2d_b','fa_ies',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='JEi',energy=energy_ions,angle=i_angle,sc_pot=sc_pot
-        get_2dt_ts_pot,'j_2d_b','fa_ies',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='Ji',energy=energy_ions,angle=i_angle,sc_pot=sc_pot
-        get_2dt_ts_pot,'je_2d_b','fa_ies',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='JEi_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot
-        get_2dt_ts_pot,'j_2d_b','fa_ies',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='Ji_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot
-
-
-        ;SNIP #3 starting at
-        ;if keyword_set(heavy) then begin
-
-        ;SNIP #3 ending at
-        ;  get_2dt_pot,'j_2d','fa_tsh_eq',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1),name='Jh_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot
-        ;
-        ;endif
-
-      endelse
-
-      get_data,'Je',data=tmp
-      get_data,'Ji',data=tmpi
-      ;remove crap
-      keep1=where(finite(tmp.y) NE 0 and finite(tmpi.y) NE 0)
-      tmp.x=tmp.x(keep1)
-      tmp.y=tmp.y(keep1)
-      keep2=where(abs(tmp.y) GT 0.0 and abs(tmpi.y) GT 0.0)
-      je_tmp_time=tmp.x(keep2)
-      je_tmp_data=tmp.y(keep2)
-      store_data,'Je',data={x:je_tmp_time,y:je_tmp_data}
-
-      get_data,'JEe',data=tmp
-      ;remove crap
-      ;keep=where(finite(tmp.y) NE 0)
-      tmp.x=tmp.x(keep1)
-      tmp.y=tmp.y(keep1)
-      ;keep=where(abs(tmp.y) GT 0.0)
-      jee_tmp_time=tmp.x(keep2)
-      jee_tmp_data=tmp.y(keep2)
-      store_data,'JEe',data={x:jee_tmp_time,y:jee_tmp_data}
-
-      get_data,'JEe_tot',data=tmp
-      ;remove crap
-      ;keep=where(finite(tmp.y) NE 0)
-      tmp.x=tmp.x(keep1)
-      tmp.y=tmp.y(keep1)
-      ;keep=where(abs(tmp.y) GT 0.0)
-      jee_tot_tmp_time=tmp.x(keep2)
-      jee_tot_tmp_data=tmp.y(keep2)
-      store_data,'JEe_tot',data={x:jee_tot_tmp_time,y:jee_tot_tmp_data}
-
-      get_data,'Je_lc',data=tmp
-      ;remove_crap
-      ;keep=where(finite(tmp.y) NE 0)
-      tmp.x=tmp.x(keep1)
-      tmp.y=tmp.y(keep1)
-      ;keep=where(abs(tmp.y) GT 0.0)
-      je_lc_tmp_time=tmp.x(keep2)
-      je_lc_tmp_data=tmp.y(keep2)
-      store_data,'Je_lc',data={x:je_lc_tmp_time,y:je_lc_tmp_data}
-
-
-
-      get_data,'Ji',data=tmp
-      ;remove crap
-      ;keep1=where(finite(tmp.y) NE 0)
-      tmp.x=tmp.x(keep1)
-      tmp.y=tmp.y(keep1)
-      ;keep2=where(abs(tmp.y) GT 0.0)
-      ji_tmp_time=tmp.x(keep2)
-      ji_tmp_data=2.0*tmp.y(keep2);the 2.0 here is because of the 1/2 angular range I use to exclude ram ions
-      store_data,'Ji',data={x:ji_tmp_time,y:ji_tmp_data}
-
-      get_data,'JEi',data=tmp
-      ;remove crap
-      ;keep=where(finite(tmp.y) NE 0)
-      tmp.x=tmp.x(keep1)
-      tmp.y=tmp.y(keep1)
-      ;keep=where(abs(tmp.y) GT 0.0)
-      jEi_tmp_time=tmp.x(keep2)
-      jEi_tmp_data=tmp.y(keep2)
-      store_data,'JEi',data={x:jEi_tmp_time,y:jEi_tmp_data}
-
-      get_data,'JEi_up',data=tmp
-      ;remove crap
-      ;keep=where(finite(tmp.y) NE 0)
-      tmp.x=tmp.x(keep1)
-      tmp.y=tmp.y(keep1)
-      ;keep=where(abs(tmp.y) GT 0.0)
-      jEi_up_tmp_time=tmp.x(keep2)
-      jEi_up_tmp_data=tmp.y(keep2)
-      store_data,'JEi_up',data={x:jEi_up_tmp_time,y:jEi_up_tmp_data}
-
-      get_data,'Ji_up',data=tmp
-      ;remove crap
-      ;keep=where(finite(tmp.y) NE 0)
-      tmp.x=tmp.x(keep1)
-      tmp.y=tmp.y(keep1)
-      ;keep=where(abs(tmp.y) GT 0.0)
-      ji_up_tmp_time=tmp.x(keep2)
-      ji_up_tmp_data=2.0*tmp.y(keep2);the 2.0 here is because of the 1/2 angular range I use to exclude ram ions
-      store_data,'Ji_up',data={x:ji_up_tmp_time,y:ji_up_tmp_data}
-
-      ;SNIP SNIP SNIP #2 starting at
-      ;if keyword_set(heavy) then begin
-
-      ;SNIP #2 ENDING AT
-      ; store_data,'Jh_up',data={x:jh_up_tmp_time,y:jh_up_tmp_data}
-      ;
-      ;endif
-
       ;get orbit number for filenames
-
       get_data,'ORBIT',data=tmp
       orbit=tmp.y(0)
       orbit_num=strcompress(string(tmp.y(0)),/remove_all)
-
-      ;Scale electron energy flux to 100km, pos flux earthward
-
-      get_data,'ILAT',data=tmp
-      sgn_flx = tmp.y/abs(tmp.y)
-      get_data,'B_model',data=tmp1
-      get_data,'BFOOT',data=tmp2
-      mag1 = (tmp1.y(*,0)*tmp1.y(*,0)+tmp1.y(*,1)*tmp1.y(*,1)+tmp1.y(*,2)*tmp1.y(*,2))^0.5
-      mag2 = (tmp2.y(*,0)*tmp2.y(*,0)+tmp2.y(*,1)*tmp2.y(*,1)+tmp2.y(*,2)*tmp2.y(*,2))^0.5
-      ratio = (mag2/mag1)
-      jee_ionos_tmp_data = sgn_flx*jee_tmp_data*ratio
-      store_data,'JEei',data={x:jee_tmp_time,y:jee_ionos_tmp_data}
-
-      jee_tot_ionos_tmp_data=sgn_flx*jee_tot_tmp_data*ratio
-      store_data,'JEei_tot',data={x:jee_tot_tmp_time,y:jee_tot_ionos_tmp_data}
 
       get_data,'fa_vel',data=vel
       speed=sqrt(vel.y(*,0)^2+vel.y(*,1)^2+vel.y(*,2)^2)*1000.0
@@ -504,38 +270,52 @@ pro alfven_stats_plot_chaston,filename=filename,energy_electrons=energy_electron
         old_pos=position(j)
       endfor
 
-      window,0,xsize=600,ysize=800
-      loadct,39
-      !p.charsize=1.3
-      tplot,['MagZ'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges(jjj,0),time_ranges(jjj,1)]
-
-      ;SNIP SNIP SNIP #4 includes sections
-      ;calculate the total ion outflow for this interval
-      ;calculate the total electron downflux at the spacecraft altitude over this interval
-      ;END SNIP #4
-      
       ;calculate the current from mag
-
 
       deltaBX=deriv(position,magz.y)
       jtemp=abs(1.0e-3*(deltaBx)/1.26e-6)
       sign_jtemp=abs(deltaBx)/deltaBx
-      store_data,'jtemp',data={x:magz.x,y:jtemp}
+      store_data,'j_mag',data={x:magz.x,y:jtemp}
       ;terminate the intervals before the last point
 
       if sign_jtemp(n_elements(jtemp)-1)*sign_jtemp(n_elements(jtemp)-2) NE -1 then sign_jtemp(n_elements(jtemp)-1)=-1*sign_jtemp(n_elements(jtemp)-1)
 
+      print,'time_range ',time_to_str(time_ranges(jjj,0)),time_to_str(time_ranges(jjj,1))
 
-      ;SNIP SNIP SNIP #1
-      ;starts at start_points=[0]
-      ;          stop_points=[0]
-      ;;END SNIP #1
+      IF KEYWORD_SET(do_o) THEN BEGIN
+        cgPS_Open, 'magz_orbit' + strcompress(orbit_num+'_'+string(jjj),/remove_all) + '.ps'
+        loadct,39
+        !p.charsize=1.3
+        tplot,['MagZ','j_mag'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges(jjj,0),time_ranges(jjj,1)]
+        cgPS_Close, /PNG, /Delete_PS, Width=1000
+      ENDIF   
       
-      ;;SNIP SNIP SNIP #0
-      ;;entire loop over start points discarded
-      ;;END SNIP #0
-      
-    endif ; end of data_valid if statement
+      IF KEYWORD_SET(do_ch) AND jjj EQ ch_int THEN BEGIN
+         PRINT, "Doing Chaston plots..."
+         FOR jj=0L,n_chast-1 DO BEGIN
+           cur_time = str_to_time(data_chast.time[jj])
+           IF cur_time GT time_ranges(jjj,0) AND cur_time LT time_ranges(jjj,1) THEN BEGIN
+            IF ABS(data_chast.mag_current[jj]) GE jmag_thres THEN BEGIN
+              fname='plots/chastplots_' + strcompress(orbit_num+'_'+string(jjj)+'_'+string(jj),/remove_all) + '.ps'
+              plotstr = "B!Dz!N and J!Dmag!N for Chaston event " + str(jj)
+              tplot_options,'title',plotstr
+              cgPS_Open,fname
+              loadct,39
+              !p.charsize = 1.3
+              tfirst = cur_time-0.25
+              tlast =  cur_time+0.25
+              tplot,['MagZ','j_mag'] ,var_label=['ALT','MLT','ILAT'],trange=[tfirst,tlast]
+              cgPS_Close, /PNG, WIDTH=1000
+            ENDIF
+           ENDIF ELSE PRINT,$
+            FORMAT='("Chaston event[",I-0,"]: ",A-0," outside range (for jjj=",I-0,")")',$
+            jj,data_chast.time[jj],jjj
+         ENDFOR
+         PRINT, "Done with Chaston plots for interval " + STRCOMPRESS(str(jjj),/REMOVE_ALL)
+      ENDIF
+
+
+    endif else print,"Data for current interval " + string(jjj) + " is INVALID!"; end of data_valid if statement
 
 endfor ;end of number_of_intervals (indexed by jjj) loop
 
