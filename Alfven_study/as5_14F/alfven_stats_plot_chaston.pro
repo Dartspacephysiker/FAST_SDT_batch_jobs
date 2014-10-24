@@ -295,7 +295,7 @@ pro alfven_stats_plot_chaston,filename=filename,energy_electrons=energy_electron
          FOR jj=0L,n_chast-1 DO BEGIN
            cur_time = str_to_time(data_chast.time[jj])
            IF cur_time GT time_ranges(jjj,0) AND cur_time LT time_ranges(jjj,1) THEN BEGIN
-            IF ABS(data_chast.mag_current[jj]) GE jmag_thres THEN BEGIN
+;            IF ABS(data_chast.mag_current[jj]) GE jmag_thres THEN BEGIN
               fname='plots/chastplots_' + strcompress(orbit_num+'_'+string(jjj)+'_'+string(jj),/remove_all) + '.ps'
               plotstr = "B!Dz!N and J!Dmag!N for Chaston event " + str(jj)
               tplot_options,'title',plotstr
@@ -305,8 +305,8 @@ pro alfven_stats_plot_chaston,filename=filename,energy_electrons=energy_electron
               tfirst = cur_time-0.25
               tlast =  cur_time+0.25
               tplot,['MagZ','j_mag'] ,var_label=['ALT','MLT','ILAT'],trange=[tfirst,tlast]
-              cgPS_Close, /PNG, WIDTH=1000
-            ENDIF
+              cgPS_Close, /PNG,/remove_ps WIDTH=1000
+;            ENDIF
            ENDIF ELSE PRINT,$
             FORMAT='("Chaston event[",I-0,"]: ",A-0," outside range (for jjj=",I-0,")")',$
             jj,data_chast.time[jj],jjj

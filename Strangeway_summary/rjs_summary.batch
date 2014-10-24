@@ -1,0 +1,9 @@
+BatchJob: "rjs_summary"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/Strangeway_summary/batch_summary_wrapper.pro
+
+DataBaseRequest:
+    Orbits 9000
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Strangeway_summary/
+PlotConfigurationFile: rjs_summary

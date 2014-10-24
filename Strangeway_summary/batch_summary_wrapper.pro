@@ -2,7 +2,8 @@
 
 !path = !path+':'+expand_path('+$FASTHOME/idl')
 
-.run /disks/gpc2/home/sdt/sdt/strangeway/batch_summary.pro
+;.run /disks/gpc2/home/sdt/sdt/strangeway/batch_summary.pro
+.run /home/spencerh/software/sdt/batch_jobs/Strangeway_summary/batch_summary.pro
 
 batch_summary,tplot_vars=tplot_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
 
@@ -16,7 +17,7 @@ orbit_num=strcompress(string(orb_tmp.y(0)),/remove_all)
 out_fname='esummary_orbit_'+orbit_num+'_'+hemisph+'.plt'
 print,'out_fname= ', out_fname
 
-if (n_elements(tplot_vars) gt 0) then begin
+if n_elements(tplot_vars) gt 0 then begin
     popen, out_fname
     loadct2,40
     print_options,/port
