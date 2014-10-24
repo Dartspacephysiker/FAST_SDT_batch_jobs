@@ -6,6 +6,7 @@ errUI
 errIDL*
 
 #No SDT outfiles
+SelectedEvts
 outdqh
 outscm
 outfast

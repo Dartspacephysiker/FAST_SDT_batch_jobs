@@ -1,9 +1,9 @@
-BatchJob: "alfven_stats_5"
+BatchJob: "as5_plot_chaston"
 NoPlots:
-IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/alfven_wrapper.pro
+IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/as5_plot_chaston_wrapper.pro
 
 DataBaseRequest:
-    Orbits 6000
+    Orbits 10000
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F
 PlotConfigurationFile: chaston_survey_5

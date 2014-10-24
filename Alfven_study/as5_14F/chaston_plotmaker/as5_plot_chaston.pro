@@ -1,4 +1,4 @@
-pro alfven_stats_plot_chaston,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
+pro as5_plot_chaston,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
   t1=t1,t2=t2,filterfreq=filterfreq,$
   burst=burst,ucla_mag_despin=ucla_mag_despin,do_ch=do_ch,ch_int=ch_int,$
   do_overview=do_o,jmag_thres=jmag_thres
