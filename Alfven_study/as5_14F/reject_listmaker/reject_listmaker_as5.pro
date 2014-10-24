@@ -42,24 +42,11 @@ if not keyword_set(energy_ions) then energy_ions=[0.,500.];use 0.0 for lower bou
 
 
 ;we ARE here to make lists of rejects, after all, so here we go:
-  rejdir="/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/reject_listmaker/rej_output/"
-  rej_fname="rejects_as5_dflux_"+strcompress(str(orbit)+"_"+str(interval)+".txt",/remove_all)
-  openw,rejl,rej_fname,/get_lun
+rejdir="/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/reject_listmaker/rej_output/"
 
 ;a whole slew of reasons to reject events!!
 rej_arr=["Current too low","Delta-b too low","Delta-E too low","ESA_j/delta_bj ratio too low",$
          "e- energy flux in ionosphere too low","E-over-B/Alfvèn speed ratio"]
-
-  ;start by writing thresholds
-printf,rejl,"Thresholds for generating reject file:"
-printf,rejl,format='("Current threshold (microA/m^2) :",)'
-printf,rejl,format='("Delta-b threshold (nT)",T33,":",D-0)',delta_b_threshold
-printf,rejl,format='(Delta-E threshold (mV/m)",T33,":",D-0)',delta_E_threshold
-printf,rejl,format='(ESA_j/delta_bj ratio threshold",T33,":",D-0)',esa_j_delta_bj_ratio_threshold
-printf,rejl,format='("e- energy flux ionos threshold (ergs/cm^2/s)",T33,":",D-0)',electron_eflux_ionos_threshold
-printf,rejl,format='("E-over-B/Alfvèn speed ratio",T33,":",D-0)',eb_to_alfven_speed
-printf,rejl,""
-printf,rejl,FORMAT='("Event #",T10,"Time of event",T38,"Reason",T78,"Value")'
 
 ; If no data exists, return to main
 
@@ -182,8 +169,25 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 	;begin looping each interval
 	
 	for jjj=0,number_of_intervals-1 do begin
-		print,'time_range',time_to_str(time_ranges(jjj,0)),time_to_str(time_ranges(jjj,1))
-		
+	
+                rej_fname="rejects_as5_dflux_"+strcompress(str(orbit)+"_"+str(jjj)+".txt",/remove_all)
+                openw,rejl,rej_fname,/get_lun
+     
+                                     ;start by writing thresholds
+                printf,rejl,"Thresholds for generating reject file:"
+                printf,rejl,format='("Current threshold (microA/m^2) :",)'
+                printf,rejl,format='("Delta-b threshold (nT)",T33,":",D-0)',delta_b_threshold
+                printf,rejl,format='(Delta-E threshold (mV/m)",T33,":",D-0)',delta_E_threshold
+                printf,rejl,format='(ESA_j/delta_bj ratio threshold",T33,":",D-0)',esa_j_delta_bj_ratio_threshold
+                printf,rejl,format='("e- energy flux ionos threshold (ergs/cm^2/s)",T33,":",D-0)',electron_eflux_ionos_threshold
+                printf,rejl,format='("E-over-B/Alfvèn speed ratio",T33,":",D-0)',eb_to_alfven_speed
+                printf,rejl,""
+                printf,rejl,FORMAT='("Event #",T10,"Time of event",T38,"Reason",T78,"Value")'
+     
+
+
+                print,'time_range',time_to_str(time_ranges(jjj,0)),time_to_str(time_ranges(jjj,1))
+        
 		je_tmp_time=je.x(time_range_indices(jjj,0):time_range_indices(jjj,1))
 		je_tmp_data=je.y(time_range_indices(jjj,0):time_range_indices(jjj,1))
 		
@@ -806,7 +810,7 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 				if jmax LE current_threshold then begin
 					current_intervals(j,3)=0.0
                                         printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T76,":",T78,D-0.4)'$
-                                               j,magz.x(intervalfields(indjmax)),rej_arr[0],jmax
+                                               ,j,magz.x(intervalfields(indjmax)),rej_arr[0],jmax
 				endif
 				
 				;define the time of the max current
@@ -825,7 +829,7 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 				if abs(maxJe)/abs(jmax) LE esa_j_delta_bj_ratio_threshold then begin
 					current_intervals(j,3)=0.0
                                         printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T76,":",T78,D-0.4)'$
-                                               j,magz.x(intervalfields(indjmax)),rej_arr[3],abs(maxJe)/abs(jmax)
+                                               ,j,magz.x(intervalfields(indjmax)),rej_arr[3],abs(maxJe)/abs(jmax)
 				endif
 				
 				;get the electron energy flux and dtermine if to keep this event
@@ -850,7 +854,7 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
      				if abs(maxJEe_ionos) LE electron_eflux_ionos_threshold and abs(maxJEe_tot_ionos-maxJEe_ionos) LE electron_eflux_ionos_threshold then begin ;note change from previously when only downgoing fluxes where considered.
 					current_intervals(j,3)=0.0				      
                                         printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T76,":",T78,D-0.4)'$
-                                               j,magz.x(intervalfields(indjmax)),rej_arr[4],maxJEe_ionos
+                                               ,j,magz.x(intervalfields(indjmax)),rej_arr[4],maxJEe_ionos
 				endif
 				
 				if keyword_set(heavy) then begin
@@ -987,7 +991,7 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 				if db LT delta_b_threshold then begin
                                    current_intervals(j,3)=0.0 ;threshold for reliablity of identification
                                    printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T76,":",T78,D-0.4)'$
-                                           j,magz.x(intervalfields(indjmax)),rej_arr[1],db
+                                           ,j,magz.x(intervalfields(indjmax)),rej_arr[1],db
 				ENDIF
 				;get elec field amplitude
 				;smooth to below proton gyro freq.
@@ -1002,7 +1006,7 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 				if de LT delta_E_threshold then begin
                                    current_intervals(j,3)=0.0 ;threshold for reliablity of identification
                                    printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T76,":",T78,D-0.4)'$
-                                           j,magz.x(intervalfields(indjmax)),rej_arr[2],de
+                                           ,j,magz.x(intervalfields(indjmax)),rej_arr[2],de
                                 ENDIF
 				;get max and min L. probe currents
 				
@@ -1058,7 +1062,7 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
      				if e_over_b/va LT 1.0/eb_to_alfven_speed then begin
                                    current_intervals(j,3)=0.0
                                    printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T76,":",T78,D-0.4)'$
-                                           j,magz.x(intervalfields(indjmax)),rej_arr[5],e_over_b/va
+                                           ,j,magz.x(intervalfields(indjmax)),rej_arr[5],e_over_b/va
                                 endif
 
      				intervalparts_electrons_old=intervalparts_electrons
@@ -1210,9 +1214,8 @@ for m=0L,number_streaks-1 do begin
 						;current_intervals(start_streaks(m)+start_pos_streak(mmm)+indj_streak_max),1)=jtemp_pos_streak
 						current_intervals(start_streaks(m)+start_pos_streak(mmm)+indj_streak_max,2)=1.
 						current_intervals(start_streaks(m)+start_pos_streak(mmm)+indj_streak_max,3)=1.
-                                                printf,rejl,"Nevermind! Event " +strcompress(start_streaks(m)+$
-                                                                                             start_neg_streak(mmm)+indj_streak_max,/remove_all) +
-                                                            " is valid! Met Alfven ratio req"
+                                                printf,rejl,$
+                                                 "Nevermind! Event " +strcompress(start_streaks(m)+start_neg_streak(mmm)+indj_streak_max,/remove_all) +" is valid! Met Alfven ratio req"
 
 						current_intervals(start_streaks(m)+start_pos_streak(mmm)+indj_streak_max,4)=jmax_b_pos_streak
 						current_intervals(start_streaks(m)+start_pos_streak(mmm)+indj_streak_max,5)=jmax_esa_pos_streak
@@ -1283,9 +1286,7 @@ for m=0L,number_streaks-1 do begin
 						;current_intervals(start_streaks(m)+start_neg_streak(mmm)+indj_streak_max,1)=jtemp_neg_streak
 						current_intervals(start_streaks(m)+start_neg_streak(mmm)+indj_streak_max,2)=1.
 						current_intervals(start_streaks(m)+start_neg_streak(mmm)+indj_streak_max,3)=1.
-                                                printf,rejl,"Nevermind! Event " +strcompress(start_streaks(m)+$
-                                                                                             start_neg_streak(mmm)+indj_streak_max,/remove_all) +
-                                                            " is valid! Met Alfven ratio req"
+                                                printf,rejl,"Nevermind! Event " +strcompress(start_streaks(m)+start_neg_streak(mmm)+indj_streak_max,/remove_all) +" is valid! Met Alfven ratio req"
 						current_intervals(start_streaks(m)+start_neg_streak(mmm)+indj_streak_max,4)=jmax_b_neg_streak
 						current_intervals(start_streaks(m)+start_neg_streak(mmm)+indj_streak_max,5)=jmax_esa_neg_streak
 						current_intervals(start_streaks(m)+start_neg_streak(mmm)+indj_streak_max,6)=jemax_neg_streak			
