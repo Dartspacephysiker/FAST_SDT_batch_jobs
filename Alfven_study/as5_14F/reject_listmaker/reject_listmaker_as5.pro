@@ -45,8 +45,8 @@ if not keyword_set(energy_ions) then energy_ions=[0.,500.];use 0.0 for lower bou
 rejdir="/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/reject_listmaker/rej_output/"
 
 ;a whole slew of reasons to reject events!!
-rej_arr=["Current too low","Delta-b too low","Delta-E too low","ESA_j/delta_bj ratio too low",$
-         "e- energy flux in ionosphere too low","E-over-B/Alfvèn speed ratio"]
+rej_arr=["Current too low","Delta-b too low","Delta-E too low","ESA_j/delta_bj low",$
+         "Jee ionos low","E-over-B/v_Alfvèn"]
 
 ; If no data exists, return to main
 
@@ -612,7 +612,7 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
                         printf,rejl,format='("e- energy flux ionos threshold (ergs/cm^2/s)",T33,":",D-0)',electron_eflux_ionos_threshold
                         printf,rejl,format='("E-over-B/Alfvèn speed ratio",T33,":",D-0)',eb_to_alfven_speed
                         printf,rejl,""
-                        printf,rejl,FORMAT='("Event #",T10,"Time of event",T38,"Reason",T78,"Value")'
+                        printf,rejl,FORMAT='("Event #",T10,"Time of event",T38,"Reason",T60,"Value")'
                         
 			;Scale electron energy flux to 100km, pos flux earthward
         	
@@ -807,8 +807,8 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 				current_intervals(j,4)=jmax*sign_jtemp(start_points(j))
 				if jmax LE current_threshold then begin
 					current_intervals(j,3)=0.0
-                                        printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T66,":",T78,D-0.4)'$
-                                               ,j,time_to_str(magz.x(intervalfields(indjmax))),rej_arr[0],jmax
+                                        printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T56,":",T60,D-0.4)'$
+                                               ,j,time_to_str(magz.x(intervalfields(indjmax)),/ms),rej_arr[0],jmax
 				endif
 				
 				;define the time of the max current
@@ -826,8 +826,8 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 				current_intervals(j,5)=maxJe
 				if abs(maxJe)/abs(jmax) LE esa_j_delta_bj_ratio_threshold then begin
 					current_intervals(j,3)=0.0
-                                        printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T66,":",T78,D-0.4)'$
-                                               ,j,time_to_str(magz.x(intervalfields(indjmax))),rej_arr[3],abs(maxJe)/abs(jmax)
+                                        printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T56,":",T60,D-0.4)'$
+                                               ,j,time_to_str(magz.x(intervalfields(indjmax)),/ms),rej_arr[3],abs(maxJe)/abs(jmax)
 				endif
 				
 				;get the electron energy flux and dtermine if to keep this event
@@ -851,8 +851,8 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 				current_intervals(j,40)=maxJEe_tot_ionos
      				if abs(maxJEe_ionos) LE electron_eflux_ionos_threshold and abs(maxJEe_tot_ionos-maxJEe_ionos) LE electron_eflux_ionos_threshold then begin ;note change from previously when only downgoing fluxes where considered.
 					current_intervals(j,3)=0.0				      
-                                        printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T66,":",T78,D-0.4)'$
-                                               ,j,time_to_str(magz.x(intervalfields(indjmax))),rej_arr[4],maxJEe_ionos
+                                        printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T56,":",T60,D-0.4)'$
+                                               ,j,time_to_str(magz.x(intervalfields(indjmax)),/ms),rej_arr[4],maxJEe_ionos
 				endif
 				
 				if keyword_set(heavy) then begin
@@ -988,8 +988,8 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 				current_intervals(j,24)=median_db
 				if db LT delta_b_threshold then begin
                                    current_intervals(j,3)=0.0 ;threshold for reliablity of identification
-                                   printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T66,":",T78,D-0.4)'$
-                                           ,j,time_to_str(magz.x(intervalfields(indjmax))),rej_arr[1],db
+                                   printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T56,":",T60,D-0.4)'$
+                                           ,j,time_to_str(magz.x(intervalfields(indjmax)),/ms),rej_arr[1],db
 				ENDIF
 				;get elec field amplitude
 				;smooth to below proton gyro freq.
@@ -1003,8 +1003,8 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 				current_intervals(j,25)=median_de
 				if de LT delta_E_threshold then begin
                                    current_intervals(j,3)=0.0 ;threshold for reliablity of identification
-                                   printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T66,":",T78,D-0.4)'$
-                                           ,j,time_to_str(magz.x(intervalfields(indjmax))),rej_arr[2],de
+                                   printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T56,":",T60,D-0.4)'$
+                                           ,j,time_to_str(magz.x(intervalfields(indjmax)),/ms),rej_arr[2],de
                                 ENDIF
 				;get max and min L. probe currents
 				
@@ -1059,8 +1059,8 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
      				e_over_b=(1.0e-3*current_intervals(j,18))/(current_intervals(j,17)*1.0e-9)
      				if e_over_b/va LT 1.0/eb_to_alfven_speed then begin
                                    current_intervals(j,3)=0.0
-                                   printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T66,":",T78,D-0.4)'$
-                                           ,j,time_to_str(magz.x(intervalfields(indjmax))),rej_arr[5],e_over_b/va
+                                   printf,rejl,FORMAT='(I-0,T10,A-0,T38,A-0,T56,":",T60,D-0.4)'$
+                                           ,j,time_to_str(magz.x(intervalfields(indjmax)),/ms),rej_arr[5],e_over_b/va
                                 endif
 
      				intervalparts_electrons_old=intervalparts_electrons
