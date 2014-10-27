@@ -5,5 +5,5 @@ IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/chaston_plotmak
 DataBaseRequest:
     Orbits 6000 9000
 
-PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/
 PlotConfigurationFile: chaston_survey_5

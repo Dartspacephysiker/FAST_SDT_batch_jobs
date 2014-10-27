@@ -5,34 +5,34 @@ pro as5_plot_chaston,filename=filename,energy_electrons=energy_electrons,energy_
 
   @startup
   
-; if doing Chaston plots, get prepped 
-  IF KEYWORD_SET(do_ch) THEN BEGIN
-     IF CH_INT EQ !NULL THEN BEGIN
-      PRINT,"No current interval specified for Chaston plots! Doing interval 0..."
-      CH_INT = 0
-     ENDIF
-     chastondbdir='/SPENCEdata/Research/Cusp/database/current_db/'
-     outdir='/SPENCEdata/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/txtoutput/'
-     !PATH = '/SPENCEdata/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/:' + !PATH
+;; ; if doing Chaston plots, get prepped 
+;;   IF KEYWORD_SET(do_ch) THEN BEGIN
+;;      IF CH_INT EQ !NULL THEN BEGIN
+;;       PRINT,"No current interval specified for Chaston plots! Doing interval 0..."
+;;       CH_INT = 0
+;;      ENDIF
+;;      chastondbdir='/SPENCEdata/Research/Cusp/database/current_db/'
+;;      outdir='/SPENCEdata/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/txtoutput/'
+;;      !PATH = '/SPENCEdata/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/:' + !PATH
 
-     orbit=10000
-     savsuf=".sav"
-     basename='dflux_'+strcompress(str(orbit)+"_"+str(ch_int),/remove_all)
-     chastonfname=chastondbdir+basename
-     chastonoutname=outdir+'chast_'+basename+savsuf
+;;      orbit=10000
+;;      savsuf=".sav"
+;;      basename='dflux_'+strcompress(str(orbit)+"_"+str(ch_int),/remove_all)
+;;      chastonfname=chastondbdir+basename
+;;      chastonoutname=outdir+'chast_'+basename+savsuf
 
-     print, "Chaston db file: " + chastonfname
+;;      print, "Chaston db file: " + chastonfname
 
-     ;get Chaston db file in memory
-     combine_dflux_dartchast,orbit, 0, in_name=chastonfname,outname=chastonoutname
-     restore, chastonoutname
+;;      ;get Chaston db file in memory
+;;      combine_dflux_dartchast,orbit, 0, in_name=chastonfname,outname=chastonoutname
+;;      restore, chastonoutname
 
-     n_chast = N_ELEMENTS(dat.time)
-     data_chast = dat
+;;      n_chast = N_ELEMENTS(dat.time)
+;;      data_chast = dat
      
-     IF NOT KEYWORD_SET(jmag_thres) THEN jmag_thres = 5.0
-     PRINT,"Current threshold set to " + string(jmag_thres)
-  ENDIF
+;;      IF NOT KEYWORD_SET(jmag_thres) THEN jmag_thres = 5.0
+;;      PRINT,"Current threshold set to " + string(jmag_thres)
+;;   ENDIF
 
 
 
@@ -254,6 +254,37 @@ pro as5_plot_chaston,filename=filename,energy_electrons=energy_electrons,energy_
       orbit=tmp.y(0)
       orbit_num=strcompress(string(tmp.y(0)),/remove_all)
 
+; if doing Chaston plots, get prepped 
+  IF KEYWORD_SET(do_ch) THEN BEGIN
+     IF CH_INT EQ !NULL THEN BEGIN
+      PRINT,"No current interval specified for Chaston plots! Doing interval 0..."
+      CH_INT = 0
+     ENDIF
+     chastondbdir='/SPENCEdata/Research/Cusp/database/current_db/'
+     outdir='/SPENCEdata/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/txtoutput/'
+     !PATH = '/SPENCEdata/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/:' + !PATH
+
+     orbit=orbit_num[0]
+     savsuf=".sav"
+     basename='dflux_'+strcompress(str(orbit)+"_"+str(ch_int),/remove_all)
+     chastonfname=chastondbdir+basename
+     chastonoutname=outdir+'chast_'+basename+savsuf
+
+     print, "Chaston db file: " + chastonfname
+
+     ;get Chaston db file in memory
+     combine_dflux_dartchast,orbit, 0, in_name=chastonfname,outname=chastonoutname
+     restore, chastonoutname
+
+     n_chast = N_ELEMENTS(dat.time)
+     data_chast = dat
+     
+     IF NOT KEYWORD_SET(jmag_thres) THEN jmag_thres = 5.0
+     PRINT,"Current threshold set to " + string(jmag_thres)
+  ENDIF
+
+
+
       get_data,'fa_vel',data=vel
       speed=sqrt(vel.y(*,0)^2+vel.y(*,1)^2+vel.y(*,2)^2)*1000.0
 
@@ -305,7 +336,7 @@ pro as5_plot_chaston,filename=filename,energy_electrons=energy_electrons,energy_
               tfirst = cur_time-0.25
               tlast =  cur_time+0.25
               tplot,['MagZ','j_mag'] ,var_label=['ALT','MLT','ILAT'],trange=[tfirst,tlast]
-              cgPS_Close, /PNG,/remove_ps WIDTH=1000
+              cgPS_Close, /PNG,/delete_ps, WIDTH=1000
 ;            ENDIF
            ENDIF ELSE PRINT,$
             FORMAT='("Chaston event[",I-0,"]: ",A-0," outside range (for jjj=",I-0,")")',$
