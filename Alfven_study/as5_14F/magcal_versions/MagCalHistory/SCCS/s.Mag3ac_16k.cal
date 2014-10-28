@@ -1,0 +1,91 @@
+h50624
+s 00001/00001/00026
+d D 1.3 96/12/03 10:41:08 ree 4 3
+c Changed base frequency to 25 Hz.
+e
+s 00009/00006/00018
+d D 1.2 96/11/14 08:55:51 ree 3 1
+c Added base frequency and pole frequency to integration.
+e
+s 00000/00000/00000
+d R 1.2 96/08/13 12:49:26 Codemgr 2 1
+c SunPro Code Manager data about conflicts, renames, etc...
+c Name history : 1 0 src/fastcal/fast_fields_cals/Mag3ac_16k.cal
+e
+s 00024/00000/00000
+d D 1.1 96/08/13 12:49:25 ree 1 0
+c date and time created 96/08/13 12:49:25 by ree
+e
+u
+U
+f e 0
+t
+T
+I 1
+#  SCCS Id
+#  %W% %G%
+#
+D 3
+# Mag3ac_S.cal
+E 3
+I 3
+# Mag3ac_16k.cal
+E 3
+# REE 08/12/96
+I 3
+# Modified: REE 11/04/96 (with Elphic & Strangeway!)
+E 3
+#
+# Note: Mag1ac and Mag2ac directions switched in UCLA harness.
+# dB/dT positive toward S/C. Mag3ac is 21".
+#
+D 3
+MagXac_S		Data name.
+E 3
+I 3
+Mag3ac_16k		Data name.
+E 3
+5    			MagAC calibration. Data are integrated.
+sec			x-axis units.
+nT			y-axis units.
+xx			z-axis units.
+0			Boomlength index.
+D 3
+1			Survey data. Note: 0-SVY, 1-ADC, 2-4kHz.
+E 3
+I 3
+1			ADC data. Note: 0-SVY, 1-ADC, 2-4kHz.
+E 3
+0			History - 0-base number of entries.
+D 3
+# Calibration table as of 08/12/96.
+E 3
+I 3
+# Calibration table as of 11/12/96.
+E 3
+0			Time in seconds.
+D 3
+2.562e-1		Gain nT/bit @ 1 Hz. (From: 2.562e-4 nT/bit @ 1kHz.)
+E 3
+I 3
+4.216e-2		Gain nT/bit @ 1 Hz. (From: 4.216e-5 nT/bit @ 1kHz.)
+E 3
+0.0			Offset - At this time unknown.
+I 3
+D 4
+10.0			Base frequency in Hz.
+E 4
+I 4
+25.0			Base frequency in Hz.
+E 4
+208.8			Pole frequency in Hz.
+E 3
+#
+D 3
+# Calculated from (1) u-can cal 0.134 V/nT @ 1kHz and (2) ADC 3.433e-5 V/bit.
+E 3
+I 3
+# Calculated from flight data. Matched spin tone with Mag3dc. 
+E 3
+#
+E 1

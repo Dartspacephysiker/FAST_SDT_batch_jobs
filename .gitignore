@@ -20,3 +20,6 @@ Alfven_study_14F/output_alfven_stats/*
 #No .ps or .pdf files
 *.ps
 *.pdf
+
+#No dflux files
+*dflux_*

@@ -1,0 +1,9 @@
+BatchJob: "alfven_stats_5_magcal_v"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/magcal_versions/alfven_wrapper.pro
+
+DataBaseRequest:
+    Orbits 10000
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F
+PlotConfigurationFile: chaston_survey_5

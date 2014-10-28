@@ -1,0 +1,113 @@
+h56364
+s 00038/00005/00026
+d D 1.3 96/09/17 14:19:25 ree 4 3
+c With MagDC fix.
+e
+s 00001/00001/00030
+d D 1.2 96/08/15 13:41:56 ree 3 1
+c 
+e
+s 00000/00000/00000
+d R 1.2 96/08/15 11:58:07 Codemgr 2 1
+c SunPro Code Manager data about conflicts, renames, etc...
+c Name history : 1 0 src/fastcal/fast_fields_cals/MagDC_test.cal
+e
+s 00031/00000/00000
+d D 1.1 96/08/15 11:58:06 ree 1 0
+c date and time created 96/08/15 11:58:06 by ree
+e
+u
+U
+f e 0
+t
+T
+I 1
+#  SCCS Id
+#  %W% %G%
+#
+# MagDC_test.cal	THIS FILE IS FOR TESTING ONLY!
+# REE 8/15/96
+MagDC_test		Data name.
+12			Type:  MagDC.
+sec			x-axis units.
+nT			y-axis units
+xx			z-axis units.
+0			Boomlength index
+0			No gain state
+D 4
+0			History - zero based number of entries.
+E 4
+I 4
+3			History - zero based number of entries.
+E 4
+#
+# The gain and offset matrix from R. Strangeway document 5/96.
+# Currently gain*(raw-offset). Linear, order2, order3 not used.
+# delta_t for very fine adjustments.
+# delay is from asynchronous sampling.
+#
+ 0					Epoch time.
+D 4
+ 0            0           -2		Gain matrix.
+ 0           -2            0		Gain matrix.
+ 2            0            0		Gain matrix.
+E 4
+I 4
+ 1            0            0		Gain matrix.
+ 0            1            0		Gain matrix.
+ 0            0            1		Gain matrix.
+E 4
+ 0.0          0.0          0.0 		Offset.
+ 1.0          1.0          1.0          Linear.
+ 0.0          0.0          0.0          Order2.
+ 0.0          0.0          0.0          Order3.
+ 0.0          0.0          0.0          delta_t in seconds.
+D 3
+ 0.0          0.25         0.5          delay in from Mag1dc / sampletime.
+E 3
+I 3
+D 4
+ 0.0          0.0          0.0          delay in from Mag1dc / sampletime.
+E 4
+E 3
+ 0.0					t_adjst in sec. Adjusts all.
+I 4
+# End of 0th record, MagDC_test.cal
+ 2					Epoch time.
+ 1            0            0		Gain matrix.
+ 0            1            0		Gain matrix.
+ 0            0            1		Gain matrix.
+ 0.0          0.0          0.0 		Offset.
+ 1.0          1.0          1.0          Linear.
+ 0.0          0.0          0.0          Order2.
+ 0.0          0.0          0.0          Order3.
+ 0.0          0.0          0.0          delta_t in seconds.
+ 0.0					t_adjst in sec. Adjusts all.
+E 4
+# End of 0th record, MagDC_test.cal		 
+I 4
+ 4					Epoch time.
+ 1            0            0		Gain matrix.
+ 0            1            0		Gain matrix.
+ 0            0            1		Gain matrix.
+ 0.0          0.0          0.0 		Offset (nT).
+ 1.0          1.0          1.0          Linear.
+ 0.0          0.0          0.0          Order2.
+ 0.0          0.0          0.0          Order3.
+ 0.0          3.0e-5       6.0e-5       delta_t in seconds.
+ 0.0					t_adjst in sec. Adjusts all.
+# End of 0th record, MagDC_test.cal		 
+ 6					Epoch time.
+ 1            0            0		Gain matrix.
+ 0            1            0		Gain matrix.
+ 0            0            1		Gain matrix.
+ 10.0         20.0         30.0 	Offset (nT).
+ 1.0          1.0          1.0          Linear.
+ 0.0          0.0          0.0          Order2.
+ 0.0          0.0          0.0          Order3.
+ 0.0          3.0e-5       6.0e-5       delta_t in seconds.
+ 0.0					t_adjst in sec. Adjusts all.
+# End of 0th record, MagDC_test.cal		 
+
+E 4
+E 1

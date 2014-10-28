@@ -1,9 +1,9 @@
-pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
+pro alfven_stats_5_magcal_v,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
 t1=t1,t2=t2,filterfreq=filterfreq,$
 burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only
 
 ;temp mod to use other version of mag cal
-version=2.5
+version='1.2.1.2'
 
 ;This program identifies Alfven waves and writes varous observable to a file names dflux_'orbit_number'_index.txt' from the size of the field-aligned current greater than som threshold value.
 ;Analysis of many orbits have shown this to be an effective way to find Alfven waves

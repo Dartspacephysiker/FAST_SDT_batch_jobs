@@ -1,0 +1,7 @@
+Jack Vernetti kindly provided me with the SCCS files necessary to get all old revisions of the magcals, which should allow us to duplicate Chaston a little more exactly. Here are a few helpful commands:
+
+sccs prs MagDC.cal 
+--->get revision info
+
+v=1.1; sccs get -r${v} -G../versions/MagDC.cal_v${v} s.MagDC.cal
+--->Use this to get v1.1 of a revised file

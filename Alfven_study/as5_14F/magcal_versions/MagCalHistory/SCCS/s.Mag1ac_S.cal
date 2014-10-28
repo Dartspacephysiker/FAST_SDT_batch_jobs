@@ -1,0 +1,44 @@
+h10435
+s 00000/00000/00000
+d R 1.2 96/11/14 08:57:46 Codemgr 2 1
+c SunPro Code Manager data about conflicts, renames, etc...
+c Name history : 1 0 src/fastcal/fast_fields_cals/Mag1ac_S.cal
+e
+s 00027/00000/00000
+d D 1.1 96/11/14 08:57:45 ree 1 0
+c date and time created 96/11/14 08:57:45 by ree
+e
+u
+U
+f e 0
+t
+T
+I 1
+#  SCCS Id
+#  %W% %G%
+#
+# Mag1ac_S.cal
+# REE 08/12/96
+# Modified: REE 11/04/96 (with Elphic & Strangeway!)
+#
+# Note: Mag1ac and Mag2ac directions switched in UCLA harness.
+# Polarity unknown.
+#
+Mag1ac_S		Data name.
+5    			MagAC calibration. Data are integrated.
+sec			x-axis units.
+nT			y-axis units.
+xx			z-axis units.
+0			Boomlength index.
+0			Survey data. Note: 0-SVY, 1-ADC, 2-4kHz.
+0			History - 0-base number of entries.
+# Calibration table as of 11/12/96.
+0			Time in seconds.
+8.67e-2			Gain nT/bit @ 1 Hz. (From: 8.67e-5 nT/bit @ 1kHz.)
+0.0			Offset - At this time unknown.
+10.0			Base frequency in Hz.
+1291.8			Pole frequency in Hz.
+#
+# Calculated from flight data. Matched spin tone with Mag3dc and Mag1dc. 
+#
+E 1
