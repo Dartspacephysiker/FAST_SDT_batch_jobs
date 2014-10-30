@@ -3,7 +3,7 @@ t1=t1,t2=t2,filterfreq=filterfreq,$
 burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only
 
 ;temp mod to use other version of mag cal
-version='1.2.1.2'
+version='2.5'
 
 ;This program identifies Alfven waves and writes varous observable to a file names dflux_'orbit_number'_index.txt' from the size of the field-aligned current greater than som threshold value.
 ;Analysis of many orbits have shown this to be an effective way to find Alfven waves
@@ -1285,7 +1285,7 @@ if keyword_set(keep_alfven_only) then begin
 endif
 
 print,'number of intervals',n_elements(keep)
-if jjj GT 0 or not keyword_set(filename) then filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj)+"_magcal_v" + string(version),/remove_all)
+if jjj GT 0 or not keyword_set(filename) then filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/magcal_versions/output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj)+"_magcal_v" + string(version),/remove_all)
 
 ;make sure we're not overwriting
 if file_test(filename) then begin
