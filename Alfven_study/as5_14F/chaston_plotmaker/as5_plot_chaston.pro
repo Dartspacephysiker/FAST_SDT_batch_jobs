@@ -11,9 +11,9 @@ pro as5_plot_chaston,filename=filename,energy_electrons=energy_electrons,energy_
 ;;       PRINT,"No current interval specified for Chaston plots! Doing interval 0..."
 ;;       CH_INT = 0
 ;;      ENDIF
-;;      chastondbdir='/SPENCEdata/Research/Cusp/database/current_db/'
-;;      outdir='/SPENCEdata/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/txtoutput/'
-;;      !PATH = '/SPENCEdata/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/:' + !PATH
+;;      chastondbdir='/SPENCEdata2/Research/Cusp/database/current_db/'
+;;      outdir='/SPENCEdata2/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/txtoutput/'
+;;      !PATH = '/SPENCEdata2/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/:' + !PATH
 
 ;;      orbit=10000
 ;;      savsuf=".sav"
@@ -260,9 +260,9 @@ pro as5_plot_chaston,filename=filename,energy_electrons=energy_electrons,energy_
       PRINT,"No current interval specified for Chaston plots! Doing interval 0..."
       CH_INT = 0
      ENDIF
-     chastondbdir='/SPENCEdata/Research/Cusp/database/current_db/'
-     outdir='/SPENCEdata/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/txtoutput/'
-     !PATH = '/SPENCEdata/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/:' + !PATH
+     chastondbdir='/SPENCEdata2/Research/Cusp/database/current_db/'
+     outdir='/SPENCEdata2/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/txtoutput/'
+     !PATH = '/SPENCEdata2/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/:' + !PATH
 
      orbit=orbit_num[0]
      savsuf=".sav"

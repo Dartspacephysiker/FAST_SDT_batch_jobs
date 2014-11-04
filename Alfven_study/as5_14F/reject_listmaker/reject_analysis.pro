@@ -4,7 +4,7 @@ pro reject_analysis,orbit=orbit,interval=interval,do_as3=do_as3,comparison_file=
 ;defaults
 DEF_OUTFILE="reject_analysis.txt"
 DEF_INTERVAL=0
-comparison_dir="/SPENCEdata/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/txtoutput/"
+comparison_dir="/SPENCEdata2/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/txtoutput/"
 reject_filedir="/home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/reject_listmaker/rej_output/"
 comp_base="dflux_"
 rej_base="rejects_"

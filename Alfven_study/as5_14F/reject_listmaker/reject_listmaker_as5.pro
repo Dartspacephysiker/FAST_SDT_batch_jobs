@@ -42,7 +42,7 @@ if not keyword_set(energy_ions) then energy_ions=[0.,500.];use 0.0 for lower bou
 
 
 ;we ARE here to make lists of rejects, after all, so here we go:
-rejdir="/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/reject_listmaker/rej_output/"
+rejdir="/SPENCEdata2/software/sdt/batch_jobs/Alfven_study/as5_14F/reject_listmaker/rej_output/"
 
 ;a whole slew of reasons to reject events!!
 rej_arr=["Current too low","Delta-b too low","Delta-E too low","ESA_j/delta_bj low",$
@@ -1325,7 +1325,7 @@ if keyword_set(keep_alfven_only) then begin
 endif
 
 print,'number of intervals',n_elements(keep)
-;; if jjj GT 0 or not keyword_set(filename) then filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
+;; if jjj GT 0 or not keyword_set(filename) then filename='/SPENCEdata2/software/sdt/batch_jobs/Alfven_study/as5_14F/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
 
 ;; ;make sure we're not overwriting
 ;; if file_test(filename) then begin
