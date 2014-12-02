@@ -19,7 +19,7 @@
 ;*****************************
 ;Put code here:
 
-alfven_stats_5,/keep_alfven_only
+alfven_stats_5,/keep_alfven_only,/burst
 
 ;*****************************
 ;End routine:
