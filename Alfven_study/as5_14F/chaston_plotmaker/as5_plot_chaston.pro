@@ -4,6 +4,9 @@ pro as5_plot_chaston,filename=filename,energy_electrons=energy_electrons,energy_
   do_overview=do_o,jmag_thres=jmag_thres
 
   @startup
+
+;;THE FOLLOWING IS SOME OLD CODE THAT I DIDN'T WANT TO DELETE
+;;FOR SOME REASON
   
 ;; ; if doing Chaston plots, get prepped 
 ;;   IF KEYWORD_SET(do_ch) THEN BEGIN

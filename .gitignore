@@ -22,4 +22,4 @@ Alfven_study_14F/output_alfven_stats/*
 *.pdf
 
 #No dflux files
-*dflux_*
+#*dflux_*

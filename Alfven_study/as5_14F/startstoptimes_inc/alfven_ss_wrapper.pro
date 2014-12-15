@@ -13,13 +13,13 @@
 ;time_stamp,off=1
 
 ; To get "alfven_stats_5.pro" in the PATH, we need this line:
-!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/chaston_plotmaker/:'+!PATH
+!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F:'+!PATH
       
 
 ;*****************************
 ;Put code here:
 
-as5_plot_chaston,/do_ch
+alfven_stats_5_startstop,/keep_alfven_only
 
 ;*****************************
 ;End routine:
