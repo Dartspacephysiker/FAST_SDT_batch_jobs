@@ -1,10 +1,9 @@
 BatchJob: "alfven_stats_5_startstop"
 NoPlots:
-IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/alfven_ss_wrapper.pro
+IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/startstoptimes_inc/alfven_ss_wrapper.pro
 
 DataBaseRequest:
-    Orbits 10000
-
+    Orbits 6535
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F
 PlotConfigurationFile: chaston_survey_5

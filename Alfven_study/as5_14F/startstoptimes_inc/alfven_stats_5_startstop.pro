@@ -6,9 +6,6 @@ burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_al
 ;Adding the saving of start/stop times... NOT DONE YET, and I
 ;don't know how to go about it...
 
-;temp mod to use other version of mag cal
-version=2.10
-
 ;This program identifies Alfven waves and writes varous observable to a file names dflux_'orbit_number'_index.txt' from the size of the field-aligned current greater than som threshold value.
 ;Analysis of many orbits have shown this to be an effective way to find Alfven waves
 ; the output quantities are described in the output file and in the txt of this pro.
@@ -1289,9 +1286,6 @@ if keyword_set(keep_alfven_only) then begin
 endif
 
 print,'number of intervals',n_elements(keep)
-;if jjj GT 0 or not keyword_set(filename) then
-;filename='/SPENCEdata2/software/sdt/batch_jobs/Alfven_study/as5_14F/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj)+"_magcal_v"
-;+ string(version)+"_burst",/remove_all)
 if jjj GT 0 or not keyword_set(filename) then filename='/SPENCEdata2/software/sdt/batch_jobs/Alfven_study/as5_14F/batch_output/'+'Dartmouth_as5_startstop_dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
 
 ;make sure we're not overwriting
@@ -1344,18 +1338,18 @@ printf,unit1,'			37-median langmuir probe current over interval'
 printf,unit1,'			38-interval start time'
 printf,unit1,'			39-interval stop time'
 
-printf,unit1,'total electron dflux at ionosphere from single integ.',Jee_tot(jjj)
-printf,unit1,'total electron dflux at ionosphere from total of intervals',total(current_intervals(*,7))
-printf,unit1,'total Alfven electron dflux at ionosphere',total(current_intervals(keep,7))
-printf,unit1,'total ion outflow at ionosphere from single integ',Ji_tot(jjj)
-printf,unit1,'total ion outflow at ionosphere from total of intervals',total(current_intervals(*,12))
-printf,unit1,'total Alfven ion outflow at ionosphere',total(current_intervals(keep,12))
-printf,unit1,'total upward only ion outflow at ionosphere from single integ.',Ji_up_tot(jjj)
-printf,unit1,'total upward only ion outflow at ionosphere from total of intervals',total(current_intervals(*,13))
-printf,unit1,'total Alfven upward only ion outflow at ionosphere',total(current_intervals(keep,13))						
+printf,unit1,format='("total electron dflux at ionosphere from single integ.",T68,G16.6)',Jee_tot(jjj)
+printf,unit1,format='("total electron dflux at ionosphere from total of intervals",T68,G16.6)',total(current_intervals(*,7))
+printf,unit1,format='("total Alfven electron dflux at ionosphere",T68,G16.6)',total(current_intervals(keep,7))
+printf,unit1,format='("total ion outflow at ionosphere from single integ",T68,G16.6)',Ji_tot(jjj)
+printf,unit1,format='("total ion outflow at ionosphere from total of intervals",T68,G16.6)',total(current_intervals(*,12))
+printf,unit1,format='("total Alfven ion outflow at ionosphere",T68,G16.6)',total(current_intervals(keep,12))
+printf,unit1,format='("total upward only ion outflow at ionosphere from single integ.",T68,G16.6)',Ji_up_tot(jjj)
+printf,unit1,format='("total upward only ion outflow at ionosphere from total of intervals",T68,G16.6)',total(current_intervals(*,13))
+printf,unit1,format='("total Alfven upward only ion outflow at ionosphere",T68,G16.6)',total(current_intervals(keep,13))						
 		
 		for jj=0L,n_elements(current_intervals(*,0))-1 do begin
-			printf,unit1,format='(I9,G13.6,A24,31G13.6,A24,A24)',current_intervals(jj,19),current_intervals(jj,3),time_to_str(current_intervals(jj,20),/ms),$
+			printf,unit1,format='(I9,G13.6,A24,34G13.6,A24,A24)',current_intervals(jj,19),current_intervals(jj,3),time_to_str(current_intervals(jj,20),/ms),$
 ;			printf,unit1,format='(I9,G13.6,A24,31G13.6)',current_intervals(jj,19),current_intervals(jj,3),time_to_str(current_intervals(jj,20),/ms),$
 			current_intervals(jj,21),current_intervals(jj,22),current_intervals(jj,23),current_intervals(jj,4),$
 			current_intervals(jj,5),current_intervals(jj,6),current_intervals(jj,40),current_intervals(jj,7),$
@@ -1366,7 +1360,7 @@ printf,unit1,'total Alfven upward only ion outflow at ionosphere',total(current_
 			current_intervals(jj,28),current_intervals(jj,29),current_intervals(jj,30),current_intervals(jj,31),$
 			current_intervals(jj,32),current_intervals(jj,33),current_intervals(jj,34),current_intervals(jj,35),$
 			current_intervals(jj,36),current_intervals(jj,37),current_intervals(jj,38), $
-                        time_to_str(current_intervals(jj,0),/ms), time_to_str(current_intervals(jj,1),/ms)
+                        time_to_str(magz.x(current_intervals(jj,0)),/ms), time_to_str(magz.x(current_intervals(jj,1)),/ms)
 		endfor
 		free_lun,unit1
 

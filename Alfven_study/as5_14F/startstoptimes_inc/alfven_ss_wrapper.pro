@@ -13,7 +13,7 @@
 ;time_stamp,off=1
 
 ; To get "alfven_stats_5.pro" in the PATH, we need this line:
-!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F:'+!PATH
+!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/startstoptimes_inc/:'+!PATH
       
 
 ;*****************************

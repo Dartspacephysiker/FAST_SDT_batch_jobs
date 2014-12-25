@@ -317,7 +317,7 @@ pro as5_plot_chaston,filename=filename,energy_electrons=energy_electrons,energy_
       print,'time_range ',time_to_str(time_ranges(jjj,0)),time_to_str(time_ranges(jjj,1))
 
       IF KEYWORD_SET(do_o) THEN BEGIN
-        cgPS_Open, 'magz_orbit' + strcompress(orbit_num+'_'+string(jjj),/remove_all) + '.ps'
+        cgPS_Open, 'magz_orbit' + strcompress(orbit_num+'_'+string(jjj),/remove_all) + '.ps', font=1
         loadct,39
         !p.charsize=1.3
         tplot,['MagZ','j_mag'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges(jjj,0),time_ranges(jjj,1)]
@@ -333,7 +333,7 @@ pro as5_plot_chaston,filename=filename,energy_electrons=energy_electrons,energy_
               fname='plots/chastplots_' + strcompress(orbit_num+'_'+string(jjj)+'_'+string(jj),/remove_all) + '.ps'
               plotstr = "B!Dz!N and J!Dmag!N for Chaston event " + str(jj)
               tplot_options,'title',plotstr
-              cgPS_Open,fname
+              cgPS_Open,fname,font=1
               loadct,39
               !p.charsize = 1.3
               tfirst = cur_time-0.25
