@@ -1,13 +1,19 @@
 pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
 t1=t1,t2=t2,filterfreq=filterfreq,$
-burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only
+burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only, $
+no_png_sumplot=no_png_sumplot
+
+;12/29/2014
+;On Dartmouth Coach, integrating work on
+;'alfven_stats_5_startstop.pro', and have also added 'no_png_sumplot'
+;keyword so that the default is generation of a png sumplot file
 
 ;12/13/2014
 ;Adding the saving of start/stop times... NOT DONE YET, and I
 ;don't know how to go about it...
 
 ;temp mod to use other version of mag cal
-version=2.10
+;version=2.10
 
 ;This program identifies Alfven waves and writes varous observable to a file names dflux_'orbit_number'_index.txt' from the size of the field-aligned current greater than som threshold value.
 ;Analysis of many orbits have shown this to be an effective way to find Alfven waves
@@ -637,12 +643,20 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 			endfor
 			
 			
-			window,0,xsize=600,ysize=800
-			loadct,39
-			!p.charsize=1.3
-			tplot,['Je','CharE','JEei','Ji','JEi','MagZ'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges(jjj,0),time_ranges(jjj,1)]
+                        ;If we want to save the plot we were just shown
+                        IF NOT KEYWORD_SET(no_png_sumplot) THEN BEGIN
+                           cgPS_Open, 'as5_orbit' + strcompress(orbit_num+'_'+string(jjj),/remove_all) + '.ps', font=1
+                           loadct,39
+                           !p.charsize=1.3
+                           tplot,['MagZ','j_mag'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges(jjj,0),time_ranges(jjj,1)]
+                           cgPS_Close, /PNG, /Delete_PS, Width=1000
+                        ENDIF ELSE BEGIN 
+                           window,0,xsize=600,ysize=800
+                           loadct,39
+                           !p.charsize=1.3
+                           tplot,['Je','CharE','JEei','Ji','JEi','MagZ'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges(jjj,0),time_ranges(jjj,1)]
 
-			
+                        ENDELSE
 
 			;calculate the total ion outflow for this interval
 
@@ -1341,19 +1355,43 @@ printf,unit1,'			34-Langmuir probe number'
 printf,unit1,'			35-max langmuir probe current over interval'
 printf,unit1,'			36-min lamgmuir probe current over interval'
 printf,unit1,'			37-median langmuir probe current over interval'
+printf,unit1,'			38-interval start time'
+printf,unit1,'			39-interval stop time'
 
-printf,unit1,'total electron dflux at ionosphere from single integ.',Jee_tot(jjj)
-printf,unit1,'total electron dflux at ionosphere from total of intervals',total(current_intervals(*,7))
-printf,unit1,'total Alfven electron dflux at ionosphere',total(current_intervals(keep,7))
-printf,unit1,'total ion outflow at ionosphere from single integ',Ji_tot(jjj)
-printf,unit1,'total ion outflow at ionosphere from total of intervals',total(current_intervals(*,12))
-printf,unit1,'total Alfven ion outflow at ionosphere',total(current_intervals(keep,12))
-printf,unit1,'total upward only ion outflow at ionosphere from single integ.',Ji_up_tot(jjj)
-printf,unit1,'total upward only ion outflow at ionosphere from total of intervals',total(current_intervals(*,13))
-printf,unit1,'total Alfven upward only ion outflow at ionosphere',total(current_intervals(keep,13))						
-		
+printf,unit1,format='("total electron dflux at ionosphere from single integ.",T68,G16.6)',Jee_tot(jjj)
+printf,unit1,format='("total electron dflux at ionosphere from total of intervals",T68,G16.6)',total(current_intervals(*,7))
+printf,unit1,format='("total Alfven electron dflux at ionosphere",T68,G16.6)',total(current_intervals(keep,7))
+printf,unit1,format='("total ion outflow at ionosphere from single integ",T68,G16.6)',Ji_tot(jjj)
+printf,unit1,format='("total ion outflow at ionosphere from total of intervals",T68,G16.6)',total(current_intervals(*,12))
+printf,unit1,format='("total Alfven ion outflow at ionosphere",T68,G16.6)',total(current_intervals(keep,12))
+printf,unit1,format='("total upward only ion outflow at ionosphere from single integ.",T68,G16.6)',Ji_up_tot(jjj)
+printf,unit1,format='("total upward only ion outflow at ionosphere from total of intervals",T68,G16.6)',total(current_intervals(*,13))
+printf,unit1,format='("total Alfven upward only ion outflow at ionosphere",T68,G16.6)',total(current_intervals(keep,13))						
+
 		for jj=0L,n_elements(current_intervals(*,0))-1 do begin
-			printf,unit1,format='(I9,G13.6,A24,31G13.6)',current_intervals(jj,19),current_intervals(jj,3),time_to_str(current_intervals(jj,20),/ms),$
+
+                   ;Want pngs of each of OUR events?
+                   IF KEYWORD_SET(png_ourevents) THEN BEGIN
+                      cur_time = str_to_time(data_chast.time[jj])
+;           IF cur_time GT time_ranges(jjj,0) AND cur_time LT time_ranges(jjj,1) THEN BEGIN
+                      fname='plots/orb_' + strcompress(orbit_num+'_'+string(jjj)+'_'+string(jj),/remove_all) + '--Dart_as5_event_'+strcompress(jj,/remove_all)+'.ps'
+                      plotstr = "B!Dz!N and J!Dmag!N for Dartmouth event " + str(jj)
+                      tplot_options,'title',plotstr
+                      cgPS_Open,fname,font=1
+                      loadct,39
+                      !p.charsize = 1.3
+;                      tfirst = magz.x(current_intervals(jj,0))
+;                      tlast = magz.x(current_intervals(jj,1))
+                      tplot,['MagZ','j_mag'] ,var_label=['ALT','MLT','ILAT'],trange=[magz.x(current_intervals(jj,0)),magz.x(current_intervals(jj,1))]
+                      cgPS_Close, /PNG,/delete_ps, WIDTH=1000
+;            ENDIF
+                      ;; ENDIF ELSE PRINT,$
+                      ;;  FORMAT='("Chaston event[",I-0,"]: ",A-0," outside range (for jjj=",I-0,")")',$
+                      ;;  jj,data_chast.time[jj],jjj
+                   ENDIF
+
+			printf,unit1,format='(I9,G13.6,A24,34G13.6,A24,A24)',current_intervals(jj,19),current_intervals(jj,3),time_to_str(current_intervals(jj,20),/ms),$
+;			printf,unit1,format='(I9,G13.6,A24,31G13.6)',current_intervals(jj,19),current_intervals(jj,3),time_to_str(current_intervals(jj,20),/ms),$
 			current_intervals(jj,21),current_intervals(jj,22),current_intervals(jj,23),current_intervals(jj,4),$
 			current_intervals(jj,5),current_intervals(jj,6),current_intervals(jj,40),current_intervals(jj,7),$
 			current_intervals(jj,41),current_intervals(jj,8),current_intervals(jj,39),$
@@ -1362,7 +1400,30 @@ printf,unit1,'total Alfven upward only ion outflow at ionosphere',total(current_
 			current_intervals(jj,17),current_intervals(jj,18),current_intervals(jj,26),current_intervals(jj,27),$
 			current_intervals(jj,28),current_intervals(jj,29),current_intervals(jj,30),current_intervals(jj,31),$
 			current_intervals(jj,32),current_intervals(jj,33),current_intervals(jj,34),current_intervals(jj,35),$
-			current_intervals(jj,36),current_intervals(jj,37),current_intervals(jj,38)
+			current_intervals(jj,36),current_intervals(jj,37),current_intervals(jj,38), $
+                        time_to_str(magz.x(current_intervals(jj,0)),/ms), time_to_str(magz.x(current_intervals(jj,1)),/ms)
+
+;; printf,unit1,'total electron dflux at ionosphere from single integ.',Jee_tot(jjj)
+;; printf,unit1,'total electron dflux at ionosphere from total of intervals',total(current_intervals(*,7))
+;; printf,unit1,'total Alfven electron dflux at ionosphere',total(current_intervals(keep,7))
+;; printf,unit1,'total ion outflow at ionosphere from single integ',Ji_tot(jjj)
+;; printf,unit1,'total ion outflow at ionosphere from total of intervals',total(current_intervals(*,12))
+;; printf,unit1,'total Alfven ion outflow at ionosphere',total(current_intervals(keep,12))
+;; printf,unit1,'total upward only ion outflow at ionosphere from single integ.',Ji_up_tot(jjj)
+;; printf,unit1,'total upward only ion outflow at ionosphere from total of intervals',total(current_intervals(*,13))
+;; printf,unit1,'total Alfven upward only ion outflow at ionosphere',total(current_intervals(keep,13))						
+		
+		;; for jj=0L,n_elements(current_intervals(*,0))-1 do begin
+		;; 	printf,unit1,format='(I9,G13.6,A24,31G13.6)',current_intervals(jj,19),current_intervals(jj,3),time_to_str(current_intervals(jj,20),/ms),$
+		;; 	current_intervals(jj,21),current_intervals(jj,22),current_intervals(jj,23),current_intervals(jj,4),$
+		;; 	current_intervals(jj,5),current_intervals(jj,6),current_intervals(jj,40),current_intervals(jj,7),$
+		;; 	current_intervals(jj,41),current_intervals(jj,8),current_intervals(jj,39),$
+		;; 	current_intervals(jj,9),current_intervals(jj,10),current_intervals(jj,11),current_intervals(jj,12),$
+		;; 	current_intervals(jj,13),current_intervals(jj,14),current_intervals(jj,15),current_intervals(jj,16),$
+		;; 	current_intervals(jj,17),current_intervals(jj,18),current_intervals(jj,26),current_intervals(jj,27),$
+		;; 	current_intervals(jj,28),current_intervals(jj,29),current_intervals(jj,30),current_intervals(jj,31),$
+		;; 	current_intervals(jj,32),current_intervals(jj,33),current_intervals(jj,34),current_intervals(jj,35),$
+		;; 	current_intervals(jj,36),current_intervals(jj,37),current_intervals(jj,38)
 		endfor
 		free_lun,unit1
 
