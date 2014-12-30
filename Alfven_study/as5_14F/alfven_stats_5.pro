@@ -1,7 +1,7 @@
 pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
 t1=t1,t2=t2,filterfreq=filterfreq,$
 burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only, $
-no_png_sumplot=no_png_sumplot
+no_png_sumplot=no_png_sumplot,png_ourevents=png_ourevents
 
 ;12/29/2014
 ;On Dartmouth Coach, integrating work on
@@ -648,7 +648,7 @@ store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
                            cgPS_Open, 'as5_orbit' + strcompress(orbit_num+'_'+string(jjj),/remove_all) + '.ps', font=1
                            loadct,39
                            !p.charsize=1.3
-                           tplot,['MagZ','j_mag'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges(jjj,0),time_ranges(jjj,1)]
+                           tplot,['Je','CharE','JEei','Ji','JEi','MagZ'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges(jjj,0),time_ranges(jjj,1)]
                            cgPS_Close, /PNG, /Delete_PS, Width=1000
                         ENDIF ELSE BEGIN 
                            window,0,xsize=600,ysize=800
@@ -1372,7 +1372,7 @@ printf,unit1,format='("total Alfven upward only ion outflow at ionosphere",T68,G
 
                    ;Want pngs of each of OUR events?
                    IF KEYWORD_SET(png_ourevents) THEN BEGIN
-                      cur_time = str_to_time(data_chast.time[jj])
+;                      cur_time = str_to_time(data_chast.time[jj])
 ;           IF cur_time GT time_ranges(jjj,0) AND cur_time LT time_ranges(jjj,1) THEN BEGIN
                       fname='plots/orb_' + strcompress(orbit_num+'_'+string(jjj)+'_'+string(jj),/remove_all) + '--Dart_as5_event_'+strcompress(jj,/remove_all)+'.ps'
                       plotstr = "B!Dz!N and J!Dmag!N for Dartmouth event " + str(jj)
@@ -1382,7 +1382,7 @@ printf,unit1,format='("total Alfven upward only ion outflow at ionosphere",T68,G
                       !p.charsize = 1.3
 ;                      tfirst = magz.x(current_intervals(jj,0))
 ;                      tlast = magz.x(current_intervals(jj,1))
-                      tplot,['MagZ','j_mag'] ,var_label=['ALT','MLT','ILAT'],trange=[magz.x(current_intervals(jj,0)),magz.x(current_intervals(jj,1))]
+                      tplot,['MagZ','jtemp'] ,var_label=['ALT','MLT','ILAT'],trange=[magz.x(current_intervals(jj,0)),magz.x(current_intervals(jj,1))]
                       cgPS_Close, /PNG,/delete_ps, WIDTH=1000
 ;            ENDIF
                       ;; ENDIF ELSE PRINT,$
