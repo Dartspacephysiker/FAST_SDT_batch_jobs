@@ -12,14 +12,14 @@
 ;cols=get_colors()
 ;time_stamp,off=1
 
-; To get "alfven_stats_5.pro" in the PATH, we need this line:
-!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F:'+!PATH
+; To get "teams_explore.pro" in the PATH, we need this line:
+!PATH='/home/spencerh/software/sdt/batch_jobs/explore_TEAMS/:'+!PATH
       
 
 ;*****************************
 ;Put code here:
 
-alfven_stats_5,/keep_alfven_only
+explore_teams
 
 ;*****************************
 ;End routine:

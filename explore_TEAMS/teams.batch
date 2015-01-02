@@ -1,0 +1,9 @@
+BatchJob: "explore_teams"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/explore_teams_wrapper.pro
+
+DataBaseRequest:
+    Orbits 1676
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/explore_TEAMS/
+PlotConfigurationFile: chaston_survey_5
