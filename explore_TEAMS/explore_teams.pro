@@ -74,7 +74,7 @@ pro explore_teams
 
   ;; Get the orbit data
   IF get_sdt_timespan(t1,t2) THEN BEGIN
-     print,'timespan is from ',t1,' to ',t2
+     print,'timespan is from ',time_to_str(t1),' to ',time_to_str(t2)
   ENDIF ELSE BEGIN
      print,' could not get timespan...'
   ENDELSE
@@ -92,65 +92,74 @@ pro explore_teams
      return
   endif
 
-  ;; Electron current - line plot
-  ;; if keyword_set(burst) then begin
-  ;;    get_2dt_ts,'j_2d_b','fa_eeb',t1=t1,t2=t2,name='Je',energy=energy_electrons
-  ;; endif else begin
-     get_2dt_ts,'j_2d_b','fa_ees',t1=t1,t2=t2,name='Je',energy=energy_electrons
-  ;; endelse
+  ;; proton current - spectrogram
+  if not keyword_set(energy_ions) then energy_ions=[0.,500.] ;use 0.0 for lower bound since the sc_pot is used to set this
+
+  ;;  if keyword_set(burst) then begin
+  ;;     get_2dt_ts,'j_3d','fa_eeb',t1=t1,t2=t2,name='Je',energy=energy_electrons
+  ;;  endif else begin
+  ;; to my great confusion, these produce a different number of data points
+     get_3dt,'j_3d','fa_tsp',name='Jp',t=t
+     get_2dt,'j_3d','fa_tsp',name='Jp2d'
+  ;;  endelse
   
   ;; remove spurious crap
-  get_data,'Je',data=tmpj
-  
-  keep=where(finite(tmpj.y) NE 0)
+  get_data,'Jp',data=tmpj
+  get_data,'Jp2d',data=tmpj2d
+  ;; have to be finite
+  keep=where(finite(tmpj.y(*,0)) NE 0 AND finite(tmpj.y(*,1)) NE 0 AND finite(tmpj.y(*,2)) NE 0)
   tx=tmpj.x(keep)
-  ty=tmpj.y(keep)
-  
-  keep=where(abs(ty) GT 0.0)
+  ty=[[tmpj.y(keep,0)],[tmpj.y(keep,1)],[tmpj.y(keep,2)]]
+  print,"Original Jp data has " + strcompress(n_elements(tmpj.x)) + " elements, but we're losing " $
+        + strcompress(n_elements(tmpj.x)-n_elements(keep)) + " by removing junk data"
+  ;; and have to be greater than zero
+  keep=where(abs(ty(*,0)) GT 0.0 AND abs(ty(*,1)) GT 0.0 AND abs(ty(*,2)) GT 0.0)
   tx=tx(keep)
-  ty=ty(keep)
+;  ty=ty(keep)
+  ty=ty(keep,*)
   
   ;; get timescale monotonic
   time_order=sort(tx)
   tx=tx(time_order)
-  ty=ty(time_order)
+  ;; ty=ty(time_order)
+  ty=ty(time_order,*)
   
   ;; throw away the first 10  points since they are often corrupted
   if not keyword_set(burst) then begin
-     store_data,'Je',data={x:tx(10:n_elements(tx)-1),y:ty(10:n_elements(tx)-1)}
+     store_data,'Jp',data={x:tx(10:n_elements(tx)-1),y:ty(10:n_elements(tx)-1,*)}
   endif else begin
-     store_data,'Je',data={x:tx,y:ty}
+     store_data,'Jp',data={x:tx,y:ty}
   endelse
   
   ;; eliminate data from latitudes below the Holzworth/Meng auroral oval 
-  get_data,'Je',data=je
-  get_fa_orbit,/time_array,je.x
+  get_data,'Jp',data=jp
+  get_fa_orbit,/time_array,jp.x
   get_data,'MLT',data=mlt
   get_data,'ILAT',data=ilat
   keep=where(abs(ilat.y) GT auroral_zone(mlt.y,7,/lat)/(!DPI)*180.)
-  store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
+  store_data,'Jp',data={x:jp.x(keep),y:jp.y(keep,*)}
 
-  ;; Use the electron data to define the time ranges for this orbit	
+  ;; Use the proton data to define the time ranges for this orbit	
   ;; just looking at the difference between consecutive time stamps
   max_t_gap=10.0
-  get_data,'Je',data=je
-  part_res_je=make_array(n_elements(Je.x),/double)
-  for j=1,n_elements(Je.x)-1 do begin
-     part_res_je(j)=abs(Je.x(j)-Je.x(j-1))
+  get_data,'Jp',data=jp
+  part_res_jp=make_array(n_elements(Jp.x),/double)
+  for j=1,n_elements(Jp.x)-1 do begin
+     part_res_jp(j)=abs(Jp.x(j)-Jp.x(j-1))
   endfor
-  part_res_Je(0)=part_res_Je(1)
-  gap=where(part_res_je GT max_t_gap)
+  part_res_Jp(0)=part_res_Jp(1)
+  gap=where(part_res_jp GT max_t_gap)
   if gap(0) NE -1 then begin
-     separate_start=[0,where(part_res_je GT max_t_gap)]
-     separate_stop=[where(part_res_je GT max_t_gap),n_elements(Je.x)-1]
+     separate_start=[0,where(part_res_jp GT max_t_gap)]
+     separate_stop=[where(part_res_jp GT max_t_gap),n_elements(Jp.x)-1]
   endif else begin
      separate_start=[0]
-     separate_stop=[n_elements(Je.x)-1]
+     separate_stop=[n_elements(Jp.x)-1]
   endelse
   
   ;; remove esa burp when switched on
   if not keyword_set(burst) then begin
-     turn_on=where(part_res_je GT 300.0)
+     turn_on=where(part_res_jp GT 300.0)
      if turn_on(0) NE -1 then begin
         turn_on_separate=make_array(n_elements(turn_on),/double)
         for j=0,n_elements(turn_on)-1 do turn_on_separate(j)=where(separate_start EQ turn_on(j))
@@ -172,18 +181,23 @@ pro explore_teams
   endfor
   
   ;; identify interval times
-  time_ranges=je.x(time_range_indices)
+  time_ranges=jp.x(time_range_indices)
   number_of_intervals=n_elements(time_ranges(*,0))
   
   print,'number_of_intervals',number_of_intervals
-  
+
+  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+  ;; EVERYTHANG SHOULD WORK TO HERE!!!!!!!!!!!!!!!!
+  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
   ;; loop over each time interval
   ji_tot=make_array(number_of_intervals,/double)
   ji_up_tot=make_array(number_of_intervals,/double)
-  jee_tot=make_array(number_of_intervals,/double)
+  jpe_tot=make_array(number_of_intervals,/double)
   Ji_tot_alf=make_array(number_of_intervals,/double)
   Ji_up_tot_alf=make_array(number_of_intervals,/double)
-  Jee_tot_alf=make_array(number_of_intervals,/double)
+  Jpe_tot_alf=make_array(number_of_intervals,/double)
 
   ;;; END RIPOFF ALFVEN_STATS_5
 
@@ -198,6 +212,11 @@ pro explore_teams
   options,tpa_name,'x_no_interp',1 ; don't interpolate
   options,tpa_name,'y_no_interp',1 ; don't interpolate
 
+
+  ;; I want to try getting a hydrogen survey energy spectrum
+  tsp_name='tsp_en_spec'
+  get_en_spec, 'fa_tsp', units = 'eflux', gap_time = 60,name=tsp_name
+  get_data,tsp_name,data=tmp    ; get data structure
 
   ;; I want to try getting an He survey energy spectrum
   tsh_name='tsh_en_spec'
