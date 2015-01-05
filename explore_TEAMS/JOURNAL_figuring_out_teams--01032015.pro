@@ -1,68 +1,8 @@
-;; This buffer is for notes you don't want to save, and for Lisp evaluation.
-;; If you want to create a file, visit that file with C-x C-f,
-;; then enter the text in that file's own buffer.
-
 IDL Version 8.3 (linux x86_64 m64). (c) 2013, Exelis Visual Information Solutions, Inc.
 Installation number: 212858-4.
 Licensed for use by: Dartmouth College
 
 Data dir set to /SPENCEdata2/Research/Cusp/database/
-IDL> .run "/SPENCEdata2/software/sdt/batch_jobs/explore_TEAMS/explore_teams.pro"
-% Compiled module: EXPLORE_TEAMS.
-IDL> explore_teams
-% Compiled module: GET_SDT_TIMESPAN.
-% Compiled module: GET_DQDS.
-% Compiled module: SHOW_DQIS.
-% Compiled module: GET_SDT_RUN_IDX.
-% Compiled module: DEFINED.
-% Compiled module: DATETIMESEC.
-% Compiled module: DATESEC.
-% Compiled module: TIMESEC.
-% Compiled module: TIME_TO_STR.
-% Compiled module: SECDATE.
-% Compiled module: SECTIME.
-timespan is from 1997-01-23/00:00:01 to 1997-01-23/11:46:09
-% Compiled module: FA_ALMANAC_DIR.
-% Compiled module: GET_FA_ORBIT.
-% Compiled module: DATA_TYPE.
-% Compiled module: STORE_DATA.
-% Compiled module: FIND_HANDLE.
-% Compiled module: EXTRACT_TAGS.
-% Compiled module: DIMEN1.
-% Compiled module: FIND_STR_ELEMENT.
-% Compiled module: ADD_STR_ELEMENT.
-% Compiled module: STR_ELEMENT.
-% Compiled module: MINMAX_RANGE.
-% Compiled module: GET_DATA.
-% Compiled module: NDIMEN.
-% Compiled module: GET_FA_TSP.
-% Compiled module: GET_MD_FROM_SDT.
-% Compiled module: GETTIME.
-% Compiled module: STR_TO_TIME.
-% Compiled module: DATESTRUCT.
-% Compiled module: DATESEC_VAR.
-% Compiled module: MD_DIMS_OK.
-% Compiled module: GET_FA_TSOP_HDR.
-% Compiled module: GET_TS_1P_FROM_SDT.
-% Compiled module: ALLOCATEARRAY.
-% Compiled module: FA_TS_EFF.
-% Compiled module: FA_TTOF_CALIBRATION.
-Reading TEAMS calibration file version       3.14000
-% Compiled module: GET_3DT.
-% Compiled module: J_3D.
-% Compiled module: CONV_UNITS.
-% Compiled module: CONVERT_TMS_UNITS.
-% Illegal subscript range: EBINS2.
-% Execution halted at: J_3D               57
-   /home/spencerh/software/sdt/idl/j_3d.pro
-%                      GET_3DT            57
-   /home/spencerh/software/sdt/idl/get_3dt.pro
-%                      EXPLORE_TEAMS     101
-   /SPENCEdata2/software/sdt/batch_jobs/explore_TEAMS/explore_teams.pro
-%                      $MAIN$          
-IDL> .run "/SPENCEdata2/software/sdt/batch_jobs/explore_TEAMS/explore_teams.pro"
-% Procedure was compiled while active: EXPLORE_TEAMS. Returning.
-% Compiled module: EXPLORE_TEAMS.
 IDL> breakpoint,'/SPENCEdata2/software/sdt/batch_jobs/explore_TEAMS/explore_teams.pro',101
 IDL> explore_teams
 timespan is from 1997-01-23/00:00:01 to 1997-01-23/11:46:09
@@ -152,27 +92,6 @@ IDL> help,tmpj2d
    X               DOUBLE    Array[578]
    Y               FLOAT     Array[578, 3]
    YTITLE          STRING    'jp2d'
-IDL> journal,"JOURNAL_figure_out_teams:
-IDL> journal,"JOURNAL_figure_out_teams"
-IDL> journal,"JOURNAL_figure_out_teams"
-IDL> journal
-IDL> journal
-IDL> journal
-IDL> journal
-IDL> journal,"JOURNAL_figure_out_teams"
-IDL> for i=0,10 do print,time_to_str(tmpj2d.x(i))+",    "+time_to_str(tmpj.x(i))
-1997-01-23/09:56:36,    1997-01-23/09:56:36
-1997-01-23/09:56:40,    1997-01-23/09:56:56
-1997-01-23/09:56:52,    1997-01-23/09:57:16
-1997-01-23/09:56:56,    1997-01-23/09:57:36
-1997-01-23/09:57:00,    1997-01-23/09:57:57
-1997-01-23/09:57:12,    1997-01-23/09:58:17
-1997-01-23/09:57:16,    1997-01-23/09:58:37
-1997-01-23/09:57:20,    1997-01-23/09:58:57
-1997-01-23/09:57:32,    1997-01-23/09:59:17
-1997-01-23/09:57:36,    1997-01-23/09:59:37
-1997-01-23/09:57:40,    1997-01-23/09:59:58
-
 IDL> for i=0,99 do print,str(tmpj2d.x(i+1)-tmpj2d.x(i))+",    "+str(tmpj.x(i+1)-tmpj.x(i))
 % Compiled module: STR.
 4.0000000,    20.105199
@@ -631,5 +550,3 @@ IDL> print,time_ranges
    8.5401414e+08   8.5401537e+08
 IDL> print,time_to_str(time_ranges)
 1997-01-23/10:02:38 1997-01-23/10:25:39 1997-01-23/10:08:58 1997-01-23/10:29:31
-IDL> journal
-IDL> 

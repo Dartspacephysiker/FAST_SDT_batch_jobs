@@ -1,6 +1,6 @@
 *
 Header :this is the 'chaston_survey_5' configuration file
-Header :created on Mon Jan  5 09:40:17 2015
+Header :created on Mon Jan  5 10:26:16 2015
 *
 *
 Description : 
@@ -18,29 +18,16 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 	PlotWinStandard
 	{
 	PlotWin Name:		'chaston_survey_5:0 - DA'
-	PlotWin Position:	247, 62
+	PlotWin Position:	244, 40
 	PlotWin Size:		900, 600
 	PlotWin PlotsPage:	6
 	PlotWin TopPlotOfPage:	'FASTSpacecraft_Mlt'
-	PlotWin DefaultDataBaseResponse:	2450464 38334.3 2450465 31843.4 'FNMLine 12'
-   '/SPENCEdata2/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit1590_r'
-   '/SPENCEdata2/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit1591_r'
-   '/SPENCEdata2/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit1592_r'
-   '/SPENCEdata2/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit1593_r'
-   '/SPENCEdata2/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit1594_p'
-   '/SPENCEdata2/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit1594_r'
-   '/SPENCEdata2/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit1595_r'
-   '/SPENCEdata2/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit1596_r'
-   '/SPENCEdata2/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit1598_r'
-   '/SPENCEdata2/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit1599_r'
-   '/SPENCEdata2/fast/NetworkData/lzp/fast_lzp_DSS-76_orbit1597_r'
-   '/SPENCEdata2/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit1600_r'
+	PlotWin DefaultDataBaseResponse:	2444444 0 2444444 1 ''
 
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Eesa Survey:  Angle'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Eesa Survey:  Angle'
 		Plot2 PlotYTitleName:	'EesaSurvey Angle'
@@ -56,8 +43,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 360, 800, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 360, 800, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -79,7 +66,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Eesa Survey:  Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Eesa Survey:  Energy'
 		Plot2 PlotYTitleName:	'EesaSurvey Energy'
@@ -95,8 +81,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 40000, 800, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 1, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 40000, 800, 1, 1, 1
+		Plot2 MinLimits:	0, 1, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -118,7 +104,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Iesa Survey:  Angle'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Iesa Survey:  Angle'
 		Plot2 PlotYTitleName:	'IesaSurvey Angle'
@@ -134,8 +119,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 32, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -157,7 +142,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Iesa Survey:  Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Iesa Survey:  Energy'
 		Plot2 PlotYTitleName:	'IesaSurvey Energy'
@@ -173,8 +157,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -196,7 +180,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Sesa Survey:  Angle'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Sesa Survey:  Angle'
 		Plot2 PlotYTitleName:	'SesaSurvey Angle'
@@ -212,8 +195,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 32, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -235,7 +218,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Sesa Survey:  Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Sesa Survey:  Energy'
 		Plot2 PlotYTitleName:	'SesaSurvey Energy'
@@ -251,8 +233,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -274,7 +256,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'V5-V8_S'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'V5-V8_S'
 		Plot2 PlotYTitleName:	'V5-V8_S'
@@ -288,8 +269,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32768, 0, 0
-		Plot2 MinLimits:	38334.3, -32768, 0, 0
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -310,7 +291,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'V8_S'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'V8_S'
 		Plot2 PlotYTitleName:	'V8_S'
@@ -324,8 +304,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32768, 0, 0
-		Plot2 MinLimits:	38334.3, -32768, 0, 0
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -346,7 +326,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'V1-V2_S'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'V1-V2_S'
 		Plot2 PlotYTitleName:	'V1-V2_S'
@@ -360,8 +339,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32768, 0, 0
-		Plot2 MinLimits:	38334.3, -32768, 0, 0
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -382,7 +361,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'V1-V4_S'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'V1-V4_S'
 		Plot2 PlotYTitleName:	'V1-V4_S'
@@ -396,8 +374,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32768, 0, 0
-		Plot2 MinLimits:	38334.3, -32768, 0, 0
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -418,7 +396,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'NE2_S'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'NE2_S'
 		Plot2 PlotYTitleName:	'NE2_S'
@@ -432,8 +409,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32768, 0, 0
-		Plot2 MinLimits:	38334.3, -32768, 0, 0
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -454,7 +431,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'NE6_S'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'NE6_S'
 		Plot2 PlotYTitleName:	'NE6_S'
@@ -468,8 +444,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32768, 0, 0
-		Plot2 MinLimits:	38334.3, -32768, 0, 0
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -490,7 +466,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'NE9_S'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'NE9_S'
 		Plot2 PlotYTitleName:	'NE9_S'
@@ -504,8 +479,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32768, 0, 0
-		Plot2 MinLimits:	38334.3, -32768, 0, 0
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -526,7 +501,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'MagX'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'MagX'
 		Plot2 PlotYTitleName:	'MagX'
@@ -540,8 +514,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32768, 0, 0
-		Plot2 MinLimits:	38334.3, -32768, 0, 0
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -562,7 +536,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'MagXDC'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'MagXDC'
 		Plot2 PlotYTitleName:	'MagXDC'
@@ -576,8 +549,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32768, 0, 0
-		Plot2 MinLimits:	38334.3, -32768, 0, 0
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -598,7 +571,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'MagY'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'MagY'
 		Plot2 PlotYTitleName:	'MagY'
@@ -612,8 +584,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32768, 0, 0
-		Plot2 MinLimits:	38334.3, -32768, 0, 0
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -634,7 +606,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'MagYDC'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'MagYDC'
 		Plot2 PlotYTitleName:	'MagYDC'
@@ -648,8 +619,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32768, 0, 0
-		Plot2 MinLimits:	38334.3, -32768, 0, 0
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -670,7 +641,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'MagZ'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'MagZ'
 		Plot2 PlotYTitleName:	'MagZ'
@@ -684,8 +654,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32768, 0, 0
-		Plot2 MinLimits:	38334.3, -32768, 0, 0
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -706,7 +676,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'MagZDC'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'MagZDC'
 		Plot2 PlotYTitleName:	'MagZDC'
@@ -720,8 +689,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 32768, 0, 0
-		Plot2 MinLimits:	38334.3, -32768, 0, 0
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -742,7 +711,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Teams H+, O+ Survey Distribution'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Teams H+, O+ Survey Distribution'
 		Plot2 PlotYTitleName:	'Position'
@@ -779,7 +747,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Teams H+, O+ Survey Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Teams H+, O+ Survey Energy'
 		Plot2 PlotYTitleName:	'TmsHOSurvey Engy'
@@ -795,8 +762,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -819,7 +786,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Teams H+, O+ Survey Phi'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Teams H+, O+ Survey Phi'
 		Plot2 PlotYTitleName:	'TmsHOSurvey Phi'
@@ -835,8 +801,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -859,7 +825,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Teams H+, O+ Survey Theta'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Teams H+, O+ Survey Theta'
 		Plot2 PlotYTitleName:	'TmsHOSurvey Theta'
@@ -875,8 +840,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -899,7 +864,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Teams He+,++ Survey Distribution'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Teams He+,++ Survey Distribution'
 		Plot2 PlotYTitleName:	'Position'
@@ -936,7 +900,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Teams He+,++ Survey Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Teams He+,++ Survey Energy'
 		Plot2 PlotYTitleName:	'TmsHeSurvey Engy'
@@ -952,8 +915,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -976,7 +939,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Teams He+,++ Survey Phi'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Teams He+,++ Survey Phi'
 		Plot2 PlotYTitleName:	'TmsHeSurvey Phi'
@@ -992,8 +954,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1016,7 +978,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Teams He+,++ Survey Theta'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Teams He+,++ Survey Theta'
 		Plot2 PlotYTitleName:	'TmsHeSurvey Theta'
@@ -1032,8 +993,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1056,7 +1017,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Eesa Burst:  Angle'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Eesa Burst:  Angle'
 		Plot2 PlotYTitleName:	'EesaBurst Angle'
@@ -1072,8 +1032,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1095,7 +1055,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Eesa Burst:  Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Eesa Burst:  Energy'
 		Plot2 PlotYTitleName:	'EesaBurst Energy'
@@ -1111,8 +1070,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 35000, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 1, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 35000, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 1, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1134,7 +1093,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Iesa Burst:  Angle'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Iesa Burst:  Angle'
 		Plot2 PlotYTitleName:	'IesaBurst Angle'
@@ -1150,8 +1108,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1173,7 +1131,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Iesa Burst:  Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Iesa Burst:  Energy'
 		Plot2 PlotYTitleName:	'IesaBurst Energy'
@@ -1189,8 +1146,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 35000, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 1, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 35000, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 1, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1212,7 +1169,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Sesa 1 Burst:  Angle'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Sesa 1 Burst:  Angle'
 		Plot2 PlotYTitleName:	'Sesa1Burst Angle'
@@ -1228,8 +1184,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1251,7 +1207,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Sesa 1 Burst:  Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Sesa 1 Burst:  Energy'
 		Plot2 PlotYTitleName:	'Sesa1Burst Energy'
@@ -1267,8 +1222,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 40000, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 40000, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1290,7 +1245,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Sesa 2 Burst:  Angle'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Sesa 2 Burst:  Angle'
 		Plot2 PlotYTitleName:	'Sesa2Burst Angle'
@@ -1306,8 +1260,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1329,7 +1283,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Sesa 2 Burst:  Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Sesa 2 Burst:  Energy'
 		Plot2 PlotYTitleName:	'Sesa2Burst Energy'
@@ -1345,8 +1298,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 40000, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 40000, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1368,7 +1321,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Sesa 3 Burst:  Angle'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Sesa 3 Burst:  Angle'
 		Plot2 PlotYTitleName:	'Sesa3Burst Angle'
@@ -1384,8 +1336,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1407,7 +1359,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Sesa 3 Burst:  Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Sesa 3 Burst:  Energy'
 		Plot2 PlotYTitleName:	'Sesa3Burst Energy'
@@ -1423,8 +1374,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 40000, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 40000, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1446,7 +1397,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Sesa 4 Burst:  Angle'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Sesa 4 Burst:  Angle'
 		Plot2 PlotYTitleName:	'Sesa4Burst Angle'
@@ -1462,8 +1412,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1485,7 +1435,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Sesa 4 Burst:  Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Sesa 4 Burst:  Energy'
 		Plot2 PlotYTitleName:	'Sesa4Burst Energy'
@@ -1501,8 +1450,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 40000, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 40000, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1524,7 +1473,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Sesa 5 Burst:  Angle'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Sesa 5 Burst:  Angle'
 		Plot2 PlotYTitleName:	'Sesa5Burst Angle'
@@ -1540,8 +1488,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1563,7 +1511,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Sesa 5 Burst:  Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Sesa 5 Burst:  Energy'
 		Plot2 PlotYTitleName:	'Sesa5Burst Energy'
@@ -1579,8 +1526,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 40000, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 40000, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1602,7 +1549,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Sesa 6 Burst:  Angle'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Sesa 6 Burst:  Angle'
 		Plot2 PlotYTitleName:	'Sesa6Burst Angle'
@@ -1618,8 +1564,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1641,7 +1587,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Sesa 6 Burst:  Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Sesa 6 Burst:  Energy'
 		Plot2 PlotYTitleName:	'Sesa6Burst Energy'
@@ -1657,8 +1602,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	118243, 40000, 255, 1, 1, 1
-		Plot2 MinLimits:	38334.3, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	1, 40000, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1680,7 +1625,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'FASTSpacecraft_Altitude'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'FASTSpacecraft_Altitude'
 		Plot2 PlotYTitleName:	'Altitude'
@@ -1694,8 +1638,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 8000, 0, 0
-		Plot2 MinLimits:	38334.3, 0, 0, 0
+		Plot2 MaxLimits:	1, 8000, 0, 0
+		Plot2 MinLimits:	0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1716,7 +1660,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'FASTSpacecraft_InvariantLatitude'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'FASTSpacecraft_InvariantLatitude'
 		Plot2 PlotYTitleName:	'ILat'
@@ -1730,8 +1673,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 90, 0, 0
-		Plot2 MinLimits:	38334.3, -90, 0, 0
+		Plot2 MaxLimits:	1, 90, 0, 0
+		Plot2 MinLimits:	0, -90, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1752,7 +1695,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'FASTSpacecraft_Mlt'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'FASTSpacecraft_Mlt'
 		Plot2 PlotYTitleName:	'MLT'
@@ -1766,8 +1708,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 30, 0, 0
-		Plot2 MinLimits:	38334.3, 0, 0, 0
+		Plot2 MaxLimits:	1, 30, 0, 0
+		Plot2 MinLimits:	0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1788,7 +1730,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'FASTSpacecraft_|Velocity|'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'FASTSpacecraft_|Velocity|'
 		Plot2 PlotYTitleName:	'|Vel|'
@@ -1802,8 +1743,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 20, 0, 0
-		Plot2 MinLimits:	38334.3, 0, 0, 0
+		Plot2 MaxLimits:	1, 20, 0, 0
+		Plot2 MinLimits:	0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1824,7 +1765,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'SUN'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'SUN'
 		Plot2 PlotYTitleName:	'SUNCTR'
@@ -1838,8 +1778,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 256, 0, 0
-		Plot2 MinLimits:	38334.3, 0, 0, 0
+		Plot2 MaxLimits:	1, 256, 0, 0
+		Plot2 MinLimits:	0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1860,7 +1800,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'1032-magPhase'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'1032-magPhase'
 		Plot2 PlotYTitleName:	'1032-magPhase'
@@ -1874,8 +1813,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 4096, 0, 0
-		Plot2 MinLimits:	38334.3, 0, 0, 0
+		Plot2 MaxLimits:	1, 4096, 0, 0
+		Plot2 MinLimits:	0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1896,7 +1835,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'1032-spinNum'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'1032-spinNum'
 		Plot2 PlotYTitleName:	'1032-spinNum'
@@ -1910,8 +1848,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 64, 0, 0
-		Plot2 MinLimits:	38334.3, 0, 0, 0
+		Plot2 MaxLimits:	1, 64, 0, 0
+		Plot2 MinLimits:	0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1932,7 +1870,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'FastFieldsMode_1032'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'FastFieldsMode_1032'
 		Plot2 PlotYTitleName:	'FMode (Apid 1032)'
@@ -1946,8 +1883,8 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	118243, 300, 0, 0
-		Plot2 MinLimits:	38334.3, 0, 0, 0
+		Plot2 MaxLimits:	1, 300, 0, 0
+		Plot2 MinLimits:	0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
