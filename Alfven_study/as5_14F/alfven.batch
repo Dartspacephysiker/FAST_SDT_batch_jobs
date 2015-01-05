@@ -3,7 +3,7 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/alfven_wrapper.pro
 
 DataBaseRequest:
-    Orbits 1583-1599
+    Orbits 1594-1599
     Orbits 1700-1799
     Orbits 1900-2099
 

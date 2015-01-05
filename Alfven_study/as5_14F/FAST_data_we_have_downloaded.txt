@@ -3,5 +3,8 @@ Orbits
 1000-1599
 SDT keeps crashing/not responding when I try to download 1600-1699
 1700-1799
+
 Have NOT downloaded 1800-1899
+01/03/2015 Started download of the last 500 files for orbits 1800-1899
+
 1900-2099
