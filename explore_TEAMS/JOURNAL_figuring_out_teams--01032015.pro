@@ -2,20 +2,20 @@ IDL Version 8.3 (linux x86_64 m64). (c) 2013, Exelis Visual Information Solution
 Installation number: 212858-4.
 Licensed for use by: Dartmouth College
 
-Data dir set to /SPENCEdata2/Research/Cusp/database/
-IDL> breakpoint,'/SPENCEdata2/software/sdt/batch_jobs/explore_TEAMS/explore_teams.pro',101
+Data dir set to /SPENCEdata/Research/Cusp/database/
+IDL> breakpoint,'/SPENCEdata/software/sdt/batch_jobs/explore_TEAMS/explore_teams.pro',101
 IDL> explore_teams
 timespan is from 1997-01-23/00:00:01 to 1997-01-23/11:46:09
-% Breakpoint at: EXPLORE_TEAMS     101 /SPENCEdata2/software/sdt/batch_jobs/exp
+% Breakpoint at: EXPLORE_TEAMS     101 /SPENCEdata/software/sdt/batch_jobs/exp
   lore_TEAMS/explore_teams.pro
 IDL> retall
 IDL> .run "/home/spencerh/software/sdt/idl/get_3dt.pro"
 % Compiled module: GET_3DT.
-IDL> .run "/SPENCEdata2/software/sdt/batch_jobs/explore_TEAMS/explore_teams.pro"
+IDL> .run "/SPENCEdata/software/sdt/batch_jobs/explore_TEAMS/explore_teams.pro"
 % Compiled module: EXPLORE_TEAMS.
 IDL> explore_teams
 timespan is from 1997-01-23/00:00:01 to 1997-01-23/11:46:09
-% Breakpoint at: EXPLORE_TEAMS     101 /SPENCEdata2/software/sdt/batch_jobs/exp
+% Breakpoint at: EXPLORE_TEAMS     101 /SPENCEdata/software/sdt/batch_jobs/exp
   lore_TEAMS/explore_teams.pro
 IDL> 
 getDQISelection: Unable to get indices into DQI
@@ -33,7 +33,7 @@ IDL> get_2dt,'j_3d','fa_tsp',name='jp2d',t=t
 % Compiled module: GET_2DT.
 % Ambiguous keyword abbreviation: T.
 % Execution halted at: EXPLORE_TEAMS     107
-   /SPENCEdata2/software/sdt/batch_jobs/explore_TEAMS/explore_teams.pro
+   /SPENCEdata/software/sdt/batch_jobs/explore_TEAMS/explore_teams.pro
 %                      $MAIN$          
 IDL> get_2dt,'j_3d','fa_tsp',name='jp2d'
 getDQISelection: Unable to get indices into DQI

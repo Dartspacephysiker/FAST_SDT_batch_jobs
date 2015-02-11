@@ -1,9 +1,9 @@
 BatchJob: "alfven_stats_5"
 NoPlots:
-IDL: /SPENCEdata2/software/sdt/batch_jobs/Alfven_study/as5_14F/stripped_down/alfven_stripped_wrapper.pro
+IDL: /SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/stripped_down/alfven_stripped_wrapper.pro
 
 DataBaseRequest:
-    Orbits 1700-1749
+    Orbits 15000-15999
 
-PlotConfigurationDir: /SPENCEdata2/software/sdt/batch_jobs/Alfven_study/as5_14F/stripped_down
+PlotConfigurationDir: /SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/stripped_down
 PlotConfigurationFile: chaston_survey_5_stripped_down

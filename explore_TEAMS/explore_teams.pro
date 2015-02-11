@@ -64,7 +64,7 @@
 
 pro explore_teams
   
-  exp_teams_dir = '/SPENCEdata2/software/sdt/batch_jobs/explore_TEAMS/'
+  exp_teams_dir = '/SPENCEdata/software/sdt/batch_jobs/explore_TEAMS/'
 
   ;;; BEGIN RIPOFF ALFVEN_STATS_5
   ;;; We're doing this in order to divide an orbit up into intervals the way Chaston does

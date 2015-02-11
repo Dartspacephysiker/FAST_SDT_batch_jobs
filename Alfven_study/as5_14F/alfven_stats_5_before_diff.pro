@@ -1303,9 +1303,9 @@ endif
 
 print,'number of intervals',n_elements(keep)
 ;if jjj GT 0 or not keyword_set(filename) then
-;filename='/SPENCEdata2/software/sdt/batch_jobs/Alfven_study/as5_14F/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj)+"_magcal_v"
+;filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj)+"_magcal_v"
 ;+ string(version)+"_burst",/remove_all)
-if jjj GT 0 or not keyword_set(filename) then filename='/SPENCEdata2/software/sdt/batch_jobs/Alfven_study/as5_14F/batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
+if jjj GT 0 or not keyword_set(filename) then filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
 
 ;make sure we're not overwriting
 if file_test(filename) then begin

@@ -3,7 +3,7 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
                    burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only, $
                    no_png_sumplot=no_png_sumplot,png_ourevents=png_ourevents
 
-  as5_dir = '/SPENCEdata2/software/sdt/batch_jobs/Alfven_study/as5_14F/'
+  as5_dir = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/'
 
 ;12/29/2014
 ;On Dartmouth Coach, integrating work on
@@ -1246,7 +1246,7 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
 
      print,'number of intervals',n_elements(keep)
 ;;if jjj GT 0 or not keyword_set(filename) then
-;;filename='/SPENCEdata2/software/sdt/batch_jobs/Alfven_study/as5_14F/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj)+"_magcal_v"
+;;filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj)+"_magcal_v"
 ;;+ string(version)+"_burst",/remove_all)
      if jjj GT 0 or not keyword_set(filename) then filename= as5_dir + 'batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
 

@@ -8,7 +8,7 @@ PRO journal_figuring_out_teams__jp_vs_jp2d_comparison__looks_good__01052015
   ;;number of samples, 356.
   ;;Go ahead and try it with some other orbits, s'il vous plaît
   
-  exp_teams_dir = '/SPENCEdata2/software/sdt/batch_jobs/explore_TEAMS/'
+  exp_teams_dir = '/SPENCEdata/software/sdt/batch_jobs/explore_TEAMS/'
 
   ;;; BEGIN RIPOFF ALFVEN_STATS_5
   ;;; We're doing this in order to divide an orbit up into intervals the way Chaston does
