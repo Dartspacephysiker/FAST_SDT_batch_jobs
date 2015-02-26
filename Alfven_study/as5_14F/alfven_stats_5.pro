@@ -1,9 +1,12 @@
 pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
                    t1=t1,t2=t2,filterfreq=filterfreq,$
                    burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only, $
-                   no_png_sumplot=no_png_sumplot,png_ourevents=png_ourevents
+                   no_png_sumplot=no_png_sumplot,png_ourevents=png_ourevents, $
+                   CONT_IF_FILE_EXISTS=cont_if_file_exists
 
   as5_dir = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/'
+
+  IF NOT KEYWORD_SET(cont_if_file_exists) THEN cont_if_file_exists=1
 
 ;12/29/2014
 ;On Dartmouth Coach, integrating work on
@@ -159,6 +162,25 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
   for jjj=0,number_of_intervals-1 do begin
      print,'time_range',time_to_str(time_ranges(jjj,0)),time_to_str(time_ranges(jjj,1))
      
+     ;;get orbit number for filenames		
+     get_data,'ORBIT',data=tmp
+     orbit=tmp.y(0)
+     orbit_num=strcompress(string(tmp.y(0)),/remove_all)
+                                ;filename for output file
+     curfile = as5_dir + 'batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
+     IF KEYWORD_SET(burst) THEN curfile += '--burst'
+     
+     ;;make sure we're not overwriting
+     IF file_test(curfile) AND NOT KEYWORD_SET(cont_if_file_exists) THEN BEGIN
+        right_now=strmid(timestamp(),0,13)
+        curfile = curfile + "--" + right_now
+     ENDIF ELSE BEGIN
+        IF KEYWORD_SET(cont_if_file_exists) THEN BEGIN
+           PRINT,"Not overwriting file " + curfile + "! Returning..."
+           return
+        ENDIF
+     ENDELSE
+        
      je_tmp_time=je.x(time_range_indices(jjj,0):time_range_indices(jjj,1))
      je_tmp_data=je.y(time_range_indices(jjj,0):time_range_indices(jjj,1))
      
@@ -581,11 +603,6 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
         store_data,'CharE_tot',data={x:jee_tot_tmp_time,y:chare_tot}
         store_data,'CharEi',data={x:jei_up_tmp_time,y:charei}
         
-        ;;get orbit number for filenames		
-        get_data,'ORBIT',data=tmp
-        orbit=tmp.y(0)
-        orbit_num=strcompress(string(tmp.y(0)),/remove_all)
-
         ;;Scale electron energy flux to 100km, pos flux earthward
         get_data,'ILAT',data=tmp
         sgn_flx = tmp.y/abs(tmp.y)
@@ -1248,13 +1265,7 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
 ;;if jjj GT 0 or not keyword_set(filename) then
 ;;filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj)+"_magcal_v"
 ;;+ string(version)+"_burst",/remove_all)
-     if jjj GT 0 or not keyword_set(filename) then filename= as5_dir + 'batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
-
-;;make sure we're not overwriting
-     if file_test(filename) then begin
-        right_now=strmid(timestamp(),0,13)
-        filename = filename + "--" + right_now
-     endif
+     if jjj GT 0 or not keyword_set(filename) then filename= curfile
 
      print,filename,jjj
      openw,unit1,filename,/get_lun
