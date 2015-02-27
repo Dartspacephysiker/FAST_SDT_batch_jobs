@@ -1,0 +1,6 @@
+#No old DB stuff
+old_batch_output/
+batch_output_before_revamped_db.tar.gz
+
+#No reject listmaker stuff
+reject_listmaker/rej_output/
