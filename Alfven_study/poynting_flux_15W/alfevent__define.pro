@@ -4,7 +4,7 @@
 ; E-field, Poynting flux estimates, and whatever other sorts of data we might be interested in. 
 ; The data products needed to get B-field data should simply be 
 
-function alfEvent::init,eventNum,maximus
+function alfEvent::init,eventNum,orbNum,maximus
 
   ;; init pointers for B-field and E-field data based on orbit number
   self.BField    = ptr_new(/allocate)  
@@ -95,11 +95,11 @@ end
 
 pro alfEvent__define
  
-  void={alfEvent,eventNum:eventNum,orbit:orbit, $              ;Orbit number, event number
-        start_t:start_t,stop_t:stop_t, $                       ;Start and stop time
-        BField:ptr_new(),EField:ptr_new(), $                   ;Fields
-        tSeries_B:prt_new(),                                   ;Time series of BField data
-        PoyntEst:ptr_new(),}                                   ;Poynting flux estimate
+  void={alfEvent,eventNum:0.,orbit:0., $              ;Orbit number, event number
+        start_t:"UNDEFINED",stop_t:"UNDEFINED", $     ;Start and stop time
+        BField:ptr_new(),EField:ptr_new(), $          ;Fields
+        tSeries_B:ptr_new(), $                        ;Time series of BField data
+        PoyntEst:ptr_new()}                           ;Poynting flux estimate
 
   return 
 

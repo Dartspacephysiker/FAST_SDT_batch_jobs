@@ -6,7 +6,7 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
 
   as5_dir = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/'
 
-  IF NOT KEYWORD_SET(cont_if_file_exists) THEN cont_if_file_exists=1
+;  IF NOT KEYWORD_SET(cont_if_file_exists) THEN cont_if_file_exists=1
 
 ;12/29/2014
 ;On Dartmouth Coach, integrating work on
@@ -167,19 +167,23 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
      orbit=tmp.y(0)
      orbit_num=strcompress(string(tmp.y(0)),/remove_all)
                                 ;filename for output file
-     curfile = as5_dir + 'batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
-     IF KEYWORD_SET(burst) THEN curfile += '--burst'
+     curfile = as5_dir + 'batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)
+     IF KEYWORD_SET(burst) THEN BEGIN
+        curfile = curfile + '--burst'
+     ENDIF
      
      ;;make sure we're not overwriting
-     IF file_test(curfile) AND NOT KEYWORD_SET(cont_if_file_exists) THEN BEGIN
-        right_now=strmid(timestamp(),0,13)
-        curfile = curfile + "--" + right_now
-     ENDIF ELSE BEGIN
-        IF KEYWORD_SET(cont_if_file_exists) THEN BEGIN
-           PRINT,"Not overwriting file " + curfile + "! Returning..."
-           return
-        ENDIF
-     ENDELSE
+     IF file_test(curfile) THEN BEGIN
+        IF NOT KEYWORD_SET(cont_if_file_exists) THEN BEGIN
+           right_now=strmid(timestamp(),0,13)
+           curfile = curfile + "--" + right_now
+        ENDIF ELSE BEGIN
+           IF KEYWORD_SET(cont_if_file_exists) THEN BEGIN
+              PRINT,"Not overwriting file " + curfile + "! Returning..."
+              RETURN
+           ENDIF
+        ENDELSE
+     ENDIF
         
      je_tmp_time=je.x(time_range_indices(jjj,0):time_range_indices(jjj,1))
      je_tmp_data=je.y(time_range_indices(jjj,0):time_range_indices(jjj,1))

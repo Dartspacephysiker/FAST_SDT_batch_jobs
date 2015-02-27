@@ -20,7 +20,7 @@
 ;*****************************
 ;Put code here:
 
-alfven_stats_5,/keep_alfven_only
+alfven_stats_5,/keep_alfven_only,/CONT_IF_FILE_EXISTS
 
 ;*****************************
 ;End routine:

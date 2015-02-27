@@ -6,27 +6,40 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
 
   @startup       ;run necessary sdt startup
 
+  defOrb = 1000  ;default orbit if none provided
+
   ;; load DB file
   dbDir = '/SPENCEdata/Research/Cusp/ACE_FAST/scripts_for_processing_Dartmouth_data/'
-  dbFile = 'Dartdb_02112015--500-14999--maximus.sav'
+  dbFile = 'Dartdb_02272015--500-14999--maximus.sav'
   restore,dbDir + dbFile
 
   ;;handle orbit or event number
   IF KEYWORD_SET(orbNum) THEN BEGIN
      events_i = where(maximus.orbit EQ orbNum)
      nEvents = n_elements(events_i)
-  ENDIF
-
-  IF KEYWORD_SET(eventNum) THEN BEGIN
-     events_i = eventNum
-     nEvents = 1.
-  ENDIF
+  ENDIF ELSE BEGIN
+     IF KEYWORD_SET(eventNum) THEN BEGIN
+        events_i = eventNum
+        nEvents = 1.
+     ENDIF ELSE BEGIN 
+        print,"No orbnum or eventnum provided! Setting orbNum=" + strcompress(defOrb,/remove_all) + "..."
+        orbNum = defOrb;
+        events_i = where(maximus.orbit EQ orbNum)
+        nEvents = n_elements(events_i)
+     ENDELSE
+  ENDELSE
 
   ;;create Alfven event objects
-  alfEvents = OBJARR(nEvents)
-  FOR i=0, nEvents-1 DO BEGIN
-     alfEvents(i) = OBJ_NEW('alfEvent')
-  ENDFOR
+  IF events_i[0] NE -1 THEN BEGIN
+     alfEvents = OBJARR(nEvents)
+     FOR i=0, nEvents-1 DO BEGIN
+        alfEvents(i) = OBJ_NEW('alfEvent')
+     ENDFOR
+  ENDIF ELSE BEGIN
+     PRINT, "No events for the orbit number provided, or, if you instead provided an event number, there is no such event."
+     PRINT, "Exiting..."
+     RETURN
+  ENDELSE
   
 
   ;;energy ranges
