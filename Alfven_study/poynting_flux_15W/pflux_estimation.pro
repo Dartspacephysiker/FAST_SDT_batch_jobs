@@ -2,6 +2,9 @@
 ;PFLUX ESTIMATES
 ;**
 
+;NOTE: Where the comment ";get magnitude of electric and magnetic field" is located (currently line 208), the electric field is converted to its magnitude and we lose any component information.
+;We can probably do better than that, especially if we wanted signed Poynting flux info.
+
 pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=burst
 
   @startup       ;run necessary sdt startup
@@ -43,26 +46,26 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
   
 
   ;;energy ranges
-  if not keyword_set(energy_electrons) then energy_electrons=[0.,30000.] ;use 0.0 for lower bound since the sc_pot is used to set this
-  if not keyword_set(energy_ions) then energy_ions=[0.,500.]             ;use 0.0 for lower bound since the sc_pot is used to set this
+  ;; if not keyword_set(energy_electrons) then energy_electrons=[0.,30000.];use 0.0 for lower bound since the sc_pot is used to set this
+  ;; if not keyword_set(energy_ions) then energy_ions=[0.,500.]            ;use 0.0 for lower bound since the sc_pot is used to set this
 
-  t=0
-  dat = get_fa_ees(t,/st)
+  ;tstart=maximus.start_time(events_i[0])
+  tstart=0
+  
+  dat = get_fa_ees(tstart,/st)
   if dat.valid eq 0 then begin
      print,' ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data'
      return
   endif
 
   ;; Electron current - line plot
-  if keyword_set(burst) then begin
-     get_2dt_ts,'j_2d_b','fa_eeb',t1=t1,t2=t2,name='Je',energy=energy_electrons
-  endif else begin
-     get_2dt_ts,'j_2d_b','fa_ees',t1=t1,t2=t2,name='Je',energy=energy_electrons
-  endelse
-  
+  get_2dt_ts,'j_2d_b','fa_ees',t1=t1,t2=t2,name='Je',energy=energy_electrons
+
   ;;remove spurious crap
   get_data,'Je',data=tmpj
   
+  npoints = N_ELEMENTS(tmpj.x)
+
   keep=where(finite(tmpj.y) NE 0)
   tmpj.x=tmpj.x(keep)
   tmpj.y=tmpj.y(keep)
@@ -70,19 +73,18 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
   keep=where(abs(tmpj.y) GT 0.0)
   tx=tmpj.x(keep)
   ty=tmpj.y(keep)
+
+  nkeep = N_ELEMENTS(keep)
+
+  IF nkeep NE npoints THEN print, "Junking garbage Je data: Losing " + strcompress(npoints - nkeep,/remove_all) + " data points of " + strcompress(npoints,/remove_all) + " total."
   
   ;;get timescale monotonic
   time_order=sort(tx)
   tx=tx(time_order)
   ty=ty(time_order)
-  
-  
+    
   ;;throw away the first 10  points since they are often corrupted
-  if not keyword_set(burst) then begin
-     store_data,'Je',data={x:tx(10:n_elements(tx)-1),y:ty(10:n_elements(tx)-1)}
-  endif else begin
-     store_data,'Je',data={x:tx,y:ty}
-  endelse
+  store_data,'Je',data={x:tx(10:n_elements(tx)-1),y:ty(10:n_elements(tx)-1)}
   
   ;;eliminate data from latitudes below the Holzworth/Meng auroral oval 
   get_data,'Je',data=je
@@ -93,85 +95,80 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
   store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 
   ;;Use the electron data to define the time ranges for this orbit	
-  get_data,'Je',data=je
-  part_res_je=make_array(n_elements(Je.x),/double)
-  for j=1,n_elements(Je.x)-1 do begin
-     part_res_je(j)=abs(Je.x(j)-Je.x(j-1))
-  endfor
-  part_res_Je(0)=part_res_Je(1)
-  gap=where(part_res_je GT 10.0)
-  if gap(0) NE -1 then begin
-     separate_start=[0,where(part_res_je GT 10.0)]
-     separate_stop=[where(part_res_je GT 10.0),n_elements(Je.x)-1]
-  endif else begin
-     separate_start=[0]
-     separate_stop=[n_elements(Je.x)-1]
-  endelse
+  ;; get_data,'Je',data=je
+  ;; part_res_je=make_array(n_elements(Je.x),/double)
+  ;; for j=1,n_elements(Je.x)-1 do begin
+  ;;    part_res_je(j)=abs(Je.x(j)-Je.x(j-1))
+  ;; endfor
+  ;; part_res_Je(0)=part_res_Je(1)
+  ;; gap=where(part_res_je GT 10.0)
+  ;; if gap(0) NE -1 then begin
+  ;;    separate_start=[0,where(part_res_je GT 10.0)]
+  ;;    separate_stop=[where(part_res_je GT 10.0),n_elements(Je.x)-1]
+  ;; endif else begin
+  ;;    separate_start=[0]
+  ;;    separate_stop=[n_elements(Je.x)-1]
+  ;; endelse
   
   ;;remove esa burp when switched on
-  if not keyword_set(burst) then begin
-     turn_on=where(part_res_je GT 300.0)
-     if turn_on(0) NE -1 then begin
-        turn_on_separate=make_array(n_elements(turn_on),/double)
-        for j=0,n_elements(turn_on)-1 do turn_on_separate(j)=where(separate_start EQ turn_on(j))
-        separate_start(turn_on_separate+1)=separate_start(turn_on_separate+1)+5
-     endif
-  endif
-
+  ;; turn_on=where(part_res_je GT 300.0)
+  ;; if turn_on(0) NE -1 then begin
+  ;;    turn_on_separate=make_array(n_elements(turn_on),/double)
+  ;;    for j=0,n_elements(turn_on)-1 do turn_on_separate(j)=where(separate_start EQ turn_on(j))
+  ;;    separate_start(turn_on_separate+1)=separate_start(turn_on_separate+1)+5
+  ;; endif
+  
   ;;identify time indices for each interval
-  count=0.0
-  for j=0,n_elements(separate_start)-1 do begin
-     if (separate_stop(j)-separate_start(j)) GT 10 then begin
-        count=count+1
-        if count EQ 1.0 then begin
-           time_range_indices=transpose([separate_start(j)+1,separate_stop(j)-1])
-        endif else begin
-           time_range_indices=[time_range_indices,transpose([separate_start(j),separate_stop(j)-1])]
-        endelse
-     endif
-  endfor
+  ;; count=0.0
+  ;; for j=0,n_elements(separate_start)-1 do begin
+  ;;    if (separate_stop(j)-separate_start(j)) GT 10 then begin
+  ;;       count=count+1
+  ;;       if count EQ 1.0 then begin
+  ;;          time_range_indices=transpose([separate_start(j)+1,separate_stop(j)-1])
+  ;;       endif else begin
+  ;;          time_range_indices=[time_range_indices,transpose([separate_start(j),separate_stop(j)-1])]
+  ;;       endelse
+  ;;    endif
+  ;; endfor
   
-  ;;identify interval times
-  time_ranges=je.x(time_range_indices)
-  number_of_intervals=n_elements(time_ranges(*,0))
+  ;; ;;identify interval times
+  ;; time_ranges=je.x(time_range_indices)
+  ;; number_of_intervals=n_elements(time_ranges(*,0))
+
+  time_ranges = time_ranges=[[str_to_time(maximus.start_time(events_i))],[str_to_time(maximus.stop_time(events_i))]]
   
-  print,'number_of_intervals',number_of_intervals
+  ;; print,'number_of_intervals',number_of_intervals
   
   ;;loop over each time interval
-  ji_tot=make_array(number_of_intervals,/double)
-  ji_up_tot=make_array(number_of_intervals,/double)
-  jee_tot=make_array(number_of_intervals,/double)
-  Ji_tot_alf=make_array(number_of_intervals,/double)
-  Ji_up_tot_alf=make_array(number_of_intervals,/double)
-  Jee_tot_alf=make_array(number_of_intervals,/double)
+  ;; ji_tot=make_array(number_of_intervals,/double)
+  ;; ji_up_tot=make_array(number_of_intervals,/double)
+  ;; jee_tot=make_array(number_of_intervals,/double)
+  ;; Ji_tot_alf=make_array(number_of_intervals,/double)
+  ;; Ji_up_tot_alf=make_array(number_of_intervals,/double)
+  ;; Jee_tot_alf=make_array(number_of_intervals,/double)
   
   ;;get despun mag data if keyword set
   if keyword_set(ucla_mag_despin) then ucla_mag_despin
 
 
-  ;;begin looping each interval
-  for jjj=0,number_of_intervals-1 do begin
-     print,'time_range',time_to_str(time_ranges(jjj,0)),time_to_str(time_ranges(jjj,1))
+
+  ;;begin looping each event
+  for jjj=0,nEvents-1 do begin
+     print,format='("time_range ",A0,TR4,A0)',time_to_str(time_ranges(jjj,0),/msec),time_to_str(time_ranges(jjj,1),/msec)
      
+     ;; times for this event
+     t1 = str_to_time(maximus.start_time(events_i[jjj]))
+     t2 = str_to_time(maximus.stop_time(events_i[jjj]))
+
+     ;;get indices for time range
+     ;;this might not work
+     time_range_indices = value_locate(je.x,time_ranges)
+
      ;;get orbit number for filenames		
      get_data,'ORBIT',data=tmp
      orbit=tmp.y(0)
      orbit_num=strcompress(string(tmp.y(0)),/remove_all)
-                                ;filename for output file
-     curfile = as5_dir + 'batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj),/remove_all)
-     IF KEYWORD_SET(burst) THEN curfile += '--burst'
      
-     ;;make sure we're not overwriting
-     IF file_test(curfile) AND NOT KEYWORD_SET(cont_if_file_exists) THEN BEGIN
-        right_now=strmid(timestamp(),0,13)
-        curfile = curfile + "--" + right_now
-     ENDIF ELSE BEGIN
-        IF KEYWORD_SET(cont_if_file_exists) THEN BEGIN
-           PRINT,"Not overwriting file " + curfile + "! Returning..."
-           return
-        ENDIF
-     ENDELSE
-        
      je_tmp_time=je.x(time_range_indices(jjj,0):time_range_indices(jjj,1))
      je_tmp_data=je.y(time_range_indices(jjj,0):time_range_indices(jjj,1))
      
@@ -179,13 +176,13 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
      
      ;;get fields quantities
      data_valid=1.0
-     dat=get_fa_fields('MagDC',t,/start)
+     dat=get_fa_fields('MagDC',tstart,/start)
      if dat.valid eq 0 then begin
         print,' ERROR: No FAST mag data-get_fa_fields returned invalid data'
         data_valid=0.0
      endif else begin
         if not keyword_set(ucla_mag_despin) then field=get_fa_fields('MagDC',time_ranges(jjj,0),time_ranges(jjj,1),/store)
-        dat=get_fa_fields('V5-V8_S',t,/start)
+        dat=get_fa_fields('V5-V8_S',tstart,/start)
         if dat.valid eq 0 then begin
            print,' ERROR: No FAST V5-V8 data-get_fa_fields returned invalid data'
            data_valid=0.0
@@ -212,19 +209,19 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
         
         ;;get magnitude of electric and magnetic field
         efield={x:efieldV1214.time,y:sqrt(efieldV1214.comp1^2+efields_combine^2)}
-        if not keyword_set(ucla_mag_despin) then begin
+        ;; if not keyword_set(ucla_mag_despin) then begin   
            get_data,'MagDCcomp1',data=magx
            get_data,'MagDCcomp2',data=magy
            get_data,'MagDCcomp3',data=magz
-        endif else begin
-           get_data,'dB_fac_v',data=db_fac
-           mintime=min(abs(time_ranges(jjj,0)-db_fac.x),ind1)
-           mintime=min(abs(time_ranges(jjj,1)-db_fac.x),ind2)
+        ;; endif else begin
+        ;;    get_data,'dB_fac_v',data=db_fac
+        ;;    mintime=min(abs(time_ranges(jjj,0)-db_fac.x),ind1)
+        ;;    mintime=min(abs(time_ranges(jjj,1)-db_fac.x),ind2)
            
-           magx={x:db_fac.x(ind1:ind2),y:db_fac.y(ind1:ind2,0)}
-           magy={x:db_fac.x(ind1:ind2),y:db_fac.y(ind1:ind2,2)}
-           magz={x:db_fac.x(ind1:ind2),y:db_fac.y(ind1:ind2,1)}
-        endelse
+        ;;    magx={x:db_fac.x(ind1:ind2),y:db_fac.y(ind1:ind2,0)}
+        ;;    magy={x:db_fac.x(ind1:ind2),y:db_fac.y(ind1:ind2,2)}
+        ;;    magz={x:db_fac.x(ind1:ind2),y:db_fac.y(ind1:ind2,1)}
+        ;; endelse
         
         store_data,'MagZ',data=magz
         ;;magz.y=smooth(magz.y,40)
@@ -245,8 +242,7 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
         ;;SMH Try this to make fa_fields_combine stop crying                        
         magz={time:magz.x,comp1:magz.y,ncomp:1}
         efield={time:efield.x,comp1:efield.y}
-        
-        
+                
         ;; fields=combinets(magz,efield)
         FA_FIELDS_COMBINE,magz,efield,result=fields,/interp,delt_t=50.,/talk
         fields={time:magz.time,comp1:magz.comp1,comp2:fields,ncomp:2}
@@ -444,13 +440,13 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
         sign_jtemp=abs(deltaBx)/deltaBx
         store_data,'jtemp',data={x:magz.x,y:jtemp}
 
-        ;;terminate the intervals before the last point
+        ;;terminate the events before the last point
         if sign_jtemp(n_elements(jtemp)-1)*sign_jtemp(n_elements(jtemp)-2) NE -1 then sign_jtemp(n_elements(jtemp)-1)=-1*sign_jtemp(n_elements(jtemp)-1)
 
         start_points=[0]
         stop_points=[0]
         
-        ;;get current intervals
+        ;;get current events
         for j=1L,n_elements(sign_jtemp)-2 do begin
 
            if sign_jtemp(j)+sign_jtemp(j-1) EQ 0.0 then begin
@@ -470,49 +466,49 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
         start_points=start_points(non_single_points)
         stop_points=stop_points(non_single_points)
 
-        current_intervals=make_array(n_elements(start_points),42,/double)
-        current_intervals(*,0)=start_points
-        current_intervals(*,1)=stop_points
-        current_intervals(*,2)=sign_jtemp(start_points)
-        current_intervals(*,3)=1
+        current_events=make_array(n_elements(start_points),42,/double)
+        current_events(*,0)=start_points
+        current_events(*,1)=stop_points
+        current_events(*,2)=sign_jtemp(start_points)
+        current_events(*,3)=1
         
-        intervalparts_electrons_old=-1
-        intervalparts_ions_old=-1
+        eventparts_electrons_old=-1
+        eventparts_ions_old=-1
         valid_old=0.0
         for j=0L,n_elements(start_points)-1 do begin
            
-           ;;define the interval points 
-           intervalfields=(current_intervals(j,0))+findgen(current_intervals(j,1)+1-current_intervals(j,0))
-           tempz=magz.y(intervalfields)
-           fields_res_interval=magz.x(intervalfields)-magz.x(intervalfields-1)
+           ;;define the event points 
+           eventfields=(current_events(j,0))+findgen(current_events(j,1)+1-current_events(j,0))
+           tempz=magz.y(eventfields)
+           fields_res_event=magz.x(eventfields)-magz.x(eventfields-1)
 
            ;;get the current from b and determine if to keep this event
-           jmax=max(jtemp(intervalfields),indjmax)
-           current_intervals(j,4)=jmax*sign_jtemp(start_points(j))
+           jmax=max(jtemp(eventfields),indjmax)
+           current_events(j,4)=jmax*sign_jtemp(start_points(j))
            if jmax LE current_threshold then begin
-              current_intervals(j,3)=0.0
+              current_events(j,3)=0.0
            endif
            
            ;;define the time of the max current
-           current_intervals(j,20)=magz.x(intervalfields(indjmax))
+           current_events(j,20)=magz.x(eventfields(indjmax))
 
            ;;get mag field amplitude
-           db=max(magz.y(intervalfields))-min(magz.y(intervalfields))
-           median_db=median(magz.y(intervalfields))
-           current_intervals(j,17)=db
-           current_intervals(j,24)=median_db
-           if db LT delta_b_threshold then current_intervals(j,3)=0.0 ;threshold for reliablity of identification
+           db=max(magz.y(eventfields))-min(magz.y(eventfields))
+           median_db=median(magz.y(eventfields))
+           current_events(j,17)=db
+           current_events(j,24)=median_db
+           if db LT delta_b_threshold then current_events(j,3)=0.0 ;threshold for reliablity of identification
 
            ;;get elec field amplitude
            ;;smooth to below proton gyro freq.
-           smooth_int=ceil((1./proton_cyc_freq(intervalfields(indjmax)))/current_intervals(j,26))
-           if smooth_int GT 1.0 and smooth_int LE n_elements(intervalfields)/4.0 then efield_smooth=smooth(fields.comp2(intervalfields),smooth_int) else efield_smooth=fields.comp2(intervalfields)
+           smooth_int=ceil((1./proton_cyc_freq(eventfields(indjmax)))/current_events(j,26))
+           if smooth_int GT 1.0 and smooth_int LE n_elements(eventfields)/4.0 then efield_smooth=smooth(fields.comp2(eventfields),smooth_int) else efield_smooth=fields.comp2(eventfields)
            
            de=max(efield_smooth)-min(efield_smooth)
-           median_de=median(fields.comp2(intervalfields))
-           current_intervals(j,18)=de
-           current_intervals(j,25)=median_de
-           if de LT delta_E_threshold then current_intervals(j,3)=0.0 ;threshold for reliablity of identification
+           median_de=median(fields.comp2(eventfields))
+           current_events(j,18)=de
+           current_events(j,25)=median_de
+           if de LT delta_E_threshold then current_events(j,3)=0.0 ;threshold for reliablity of identification
 
            ;;now get orbit quantities
            get_data,'ORBIT',data=orb
@@ -520,25 +516,25 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
            get_data,'ALT',data=alt
            get_data,'ILAT',data=ilat
 
-           mintime=min(abs(mlt.x-magz.x(intervalfields(indjmax))),ind)
+           mintime=min(abs(mlt.x-magz.x(eventfields(indjmax))),ind)
            
-           current_intervals(j,19)=orb.y(ind)
-           current_intervals(j,21)=alt.y(ind)	
-           current_intervals(j,22)=mlt.y(ind)	
-           current_intervals(j,23)=ilat.y(ind)	     				
+           current_events(j,19)=orb.y(ind)
+           current_events(j,21)=alt.y(ind)	
+           current_events(j,22)=mlt.y(ind)	
+           current_events(j,23)=ilat.y(ind)	     				
            
            ;;fields_mode
-           mintime=min(abs(fields_mode.time-magz.x(intervalfields(indjmax))),ind)
-           current_intervals(j,27)=fields_mode.comp1(13,ind)
+           mintime=min(abs(fields_mode.time-magz.x(eventfields(indjmax))),ind)
+           current_events(j,27)=fields_mode.comp1(13,ind)
            
            ;;sc potential
-           mintime=min(abs(sc_pot.x-magz.x(intervalfields(indjmax))),ind)
-           current_intervals(j,34)=-1*sc_pot.y(ind)
+           mintime=min(abs(sc_pot.x-magz.x(eventfields(indjmax))),ind)
+           current_events(j,34)=-1*sc_pot.y(ind)
            
         endfor
         
      endif
 
-
+  endfor
 
 end
