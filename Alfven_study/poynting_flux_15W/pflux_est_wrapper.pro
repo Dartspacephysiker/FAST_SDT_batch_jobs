@@ -5,22 +5,22 @@
 ; idl -32
 
 ; The following commented out lines are probably
-; not needed for calling "alfven_stats_5":
+; not needed for calling "pflux_estimation":
 ;device,decomposed=0
 @startup
 ;loadct2,43
 ;cols=get_colors()
 ;time_stamp,off=1
 
-; To get "alfven_stats_5.pro" in the PATH, we need this line:
+; To get "pflux_estimation.pro" in the PATH, we need this line:
 ;!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F:'+!PATH
-!PATH='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/:'+!PATH
+!PATH='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/poynting_flux_15W/:'+!PATH
       
 
 ;*****************************
 ;Put code here:
 
-alfven_stats_5,/keep_alfven_only
+pflux_estimation,/keep_alfven_only
 
 ;*****************************
 ;End routine:

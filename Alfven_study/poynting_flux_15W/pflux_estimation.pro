@@ -13,7 +13,7 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
 
   ;; load DB file
   dbDir = '/SPENCEdata/Research/Cusp/ACE_FAST/scripts_for_processing_Dartmouth_data/'
-  dbFile = 'Dartdb_02272015--500-14999--maximus.sav'
+  dbFile = 'Dartdb_02282015--500-14999--maximus.sav'
   restore,dbDir + dbFile
 
   ;;handle orbit or event number
@@ -44,7 +44,6 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
      RETURN
   ENDELSE
   
-
   ;;energy ranges
   ;; if not keyword_set(energy_electrons) then energy_electrons=[0.,30000.];use 0.0 for lower bound since the sc_pot is used to set this
   ;; if not keyword_set(energy_ions) then energy_ions=[0.,500.]            ;use 0.0 for lower bound since the sc_pot is used to set this

@@ -1,0 +1,9 @@
+BatchJob: "alfven_stats_5"
+NoPlots:
+IDL: /SPENCEdata/software/sdt/batch_jobs/Alfven_study/poynting_flux_15W/pflux_est_wrapper.pro
+
+DataBaseRequest:
+    Orbits 15000-15999
+
+PlotConfigurationDir: /SPENCEdata/software/sdt/batch_jobs/Alfven_study/poynting_flux_15W/
+PlotConfigurationFile: chaston_survey_5_stripped
