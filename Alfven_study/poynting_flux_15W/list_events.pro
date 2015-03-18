@@ -12,6 +12,22 @@ PRO list_events,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=burst
 
   @startup       ;run necessary sdt startup
 
+  tstart=0
+  
+  dat = get_fa_ees(tstart,/st)
+  if dat.valid eq 0 then begin
+     print,' ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data'
+     return
+  endif
+
+  ;; Electron current - line plot
+  get_2dt_ts,'j_2d_b','fa_ees',t1=t1,t2=t2,name='Je',energy=energy_electrons
+
+  get_data,'Je',data=je
+  ;;use this one for getting all fast orbit stuff corresponding to times in je.x
+  ;;get_fa_orbit,/time_array,je.x 
+
+  get_fa_orbit,je.x[0],je.x[-1]
   ;; load DB file
   dbDir = '/SPENCEdata/Research/Cusp/ACE_FAST/scripts_for_processing_Dartmouth_data/'
   dbFile = 'Dartdb_02282015--500-14999--maximus.sav'
@@ -19,8 +35,9 @@ PRO list_events,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=burst
 
   ;;get orbit number for filenames		
   get_data,'ORBIT',data=tmp
-  orbit=tmp.y(0)
-  orbit_num=strcompress(string(tmp.y(0)),/remove_all)
+  orbNum=tmp.y(0)
+  orbStr=strcompress(string(tmp.y(0)),/remove_all)
+  print,"Orbit " + orbStr
      
   ;;Get all events associated with this orbit number
   events_i = where(maximus.orbit EQ orbNum)
@@ -42,13 +59,18 @@ PRO list_events,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=burst
   IF keyword_set(ucla_mag_despin) THEN ucla_mag_despin
 
   ;;begin looping each event
-  FOR jjj=0,nEvents-1 DO BEGIN
-     print,format='("time_range ",A0,TR4,A0)',time_to_str(time_ranges(jjj,0),/msec),time_to_str(time_ranges(jjj,1),/msec)
-     
-     ;; times for this event
-     t1 = str_to_time(maximus.start_time(events_i[jjj]))
-     t2 = str_to_time(maximus.stop_time(events_i[jjj]))
+  print,"Event    Start Time                 Stop Time                  Duration"
 
+  FOR jjj=0,nEvents-1 DO BEGIN
+     ;; times for the event
+     t1Str = maximus.start_time(events_i[jjj])
+     t2Str = maximus.stop_time(events_i[jjj])
+     t1 = str_to_time(t1Str)
+     t2 = str_to_time(t2Str)
+     dur=t2-t1
+
+     print,format='(I0,T10,A0,T37,A0,T64,F0.3)',orbNum,t1Str,t2Str,dur
+     
   ENDFOR
 
 END
