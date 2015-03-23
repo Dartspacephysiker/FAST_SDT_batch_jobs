@@ -131,10 +131,10 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
   ;; endfor
   
   ;; ;;identify interval times
-  ;; time_ranges=je.x(time_range_indices)
-  ;; number_of_intervals=n_elements(time_ranges(*,0))
+  ;; time_range=je.x(time_range_indices)
+  ;; number_of_intervals=n_elements(time_range(*,0))
 
-  time_ranges = time_ranges=[[str_to_time(maximus.start_time(events_i))],[str_to_time(maximus.stop_time(events_i))]]
+  time_range=[[str_to_time(maximus.start_time(events_i[0]))],[str_to_time(maximus.stop_time(events_i[-1]))]]
   
   ;; print,'number_of_intervals',number_of_intervals
   
@@ -153,7 +153,7 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
 
   ;;begin looping each event
   for jjj=0,nEvents-1 do begin
-     print,format='("time_range ",A0,TR4,A0)',time_to_str(time_ranges(jjj,0),/msec),time_to_str(time_ranges(jjj,1),/msec)
+     print,format='("time_range ",A0,TR4,A0)',time_to_str(time_range(jjj,0),/msec),time_to_str(time_range(jjj,1),/msec)
      
      ;; times for this event
      t1 = str_to_time(maximus.start_time(events_i[jjj]))
@@ -161,7 +161,7 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
 
      ;;get indices for time range
      ;;this might not work
-     time_range_indices = value_locate(je.x,time_ranges)
+     time_range_indices = value_locate(je.x,time_range)
 
      ;;get orbit number for filenames		
      get_data,'ORBIT',data=tmp
@@ -180,18 +180,18 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
         print,' ERROR: No FAST mag data-get_fa_fields returned invalid data'
         data_valid=0.0
      endif else begin
-        if not keyword_set(ucla_mag_despin) then field=get_fa_fields('MagDC',time_ranges(jjj,0),time_ranges(jjj,1),/store)
+        if not keyword_set(ucla_mag_despin) then field=get_fa_fields('MagDC',time_range(jjj,0),time_range(jjj,1),/store)
         dat=get_fa_fields('V5-V8_S',tstart,/start)
         if dat.valid eq 0 then begin
            print,' ERROR: No FAST V5-V8 data-get_fa_fields returned invalid data'
            data_valid=0.0
         endif else begin
-           spacecraft_potential=get_fa_fields('V8_S',time_ranges(jjj,0),time_ranges(jjj,1))
-           efieldV58=get_fa_fields('V5-V8_S',time_ranges(jjj,0),time_ranges(jjj,1))
-           efieldV1214=get_fa_fields('V1-V2_S',time_ranges(jjj,0),time_ranges(jjj,1))
+           spacecraft_potential=get_fa_fields('V8_S',time_range(jjj,0),time_range(jjj,1))
+           efieldV58=get_fa_fields('V5-V8_S',time_range(jjj,0),time_range(jjj,1))
+           efieldV1214=get_fa_fields('V1-V2_S',time_range(jjj,0),time_range(jjj,1))
            if efieldV1214.valid eq 0 then begin
               print,'No V1-V2 data - trying V1-V4'
-              efieldV1214=get_fa_fields('V1-V4_S',time_ranges(jjj,0),time_ranges(jjj,1))
+              efieldV1214=get_fa_fields('V1-V4_S',time_range(jjj,0),time_range(jjj,1))
               if efieldV1214.valid eq 0 then begin
                  print,' ERROR: No FAST fields data - get_fa_fields returned invalid data'
                  data_valid=0.0
@@ -214,8 +214,8 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
            get_data,'MagDCcomp3',data=magz
         ;; endif else begin
         ;;    get_data,'dB_fac_v',data=db_fac
-        ;;    mintime=min(abs(time_ranges(jjj,0)-db_fac.x),ind1)
-        ;;    mintime=min(abs(time_ranges(jjj,1)-db_fac.x),ind2)
+        ;;    mintime=min(abs(time_range(jjj,0)-db_fac.x),ind1)
+        ;;    mintime=min(abs(time_range(jjj,1)-db_fac.x),ind2)
            
         ;;    magx={x:db_fac.x(ind1:ind2),y:db_fac.y(ind1:ind2,0)}
         ;;    magy={x:db_fac.x(ind1:ind2),y:db_fac.y(ind1:ind2,2)}
@@ -287,7 +287,7 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
         
         
         ;;get fields mode
-        fields_mode=get_fa_fields('DataHdr_1032',time_ranges(jjj,0),time_ranges(jjj,1))
+        fields_mode=get_fa_fields('DataHdr_1032',time_range(jjj,0),time_range(jjj,1))
         
         ;;get the spacecraft potential per spin
         spin_period=4.946  ; seconds
@@ -317,22 +317,22 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
         store_data,'S_Pot',data=sc_pot ;note this is actualy the negative of the sp. potential this corrected in the file output
 
         ;; get moments/integrals of various fluxes
-        ;; get_2dt_ts_pot,'je_2d_b','fa_ees',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+        ;; get_2dt_ts_pot,'je_2d_b','fa_ees',t1=time_range(jjj,0),t2=time_range(jjj,1), $
         ;;                name='JEe_tot',energy=energy_electrons,sc_pot=sc_pot
-        ;; get_2dt_ts_pot,'je_2d_b','fa_ees',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+        ;; get_2dt_ts_pot,'je_2d_b','fa_ees',t1=time_range(jjj,0),t2=time_range(jjj,1), $
         ;;                name='JEe',angle=e_angle,energy=energy_electrons,sc_pot=sc_pot
-        ;; get_2dt_ts_pot,'j_2d_b','fa_ees',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+        ;; get_2dt_ts_pot,'j_2d_b','fa_ees',t1=time_range(jjj,0),t2=time_range(jjj,1), $
         ;;                name='Je',energy=energy_electrons,sc_pot=sc_pot
-        ;; get_2dt_ts_pot,'j_2d_b','fa_ees',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+        ;; get_2dt_ts_pot,'j_2d_b','fa_ees',t1=time_range(jjj,0),t2=time_range(jjj,1), $
         ;;                name='Je_lc',energy=energy_electrons,angle=e_angle,sc_pot=sc_pot
         
-        ;; get_2dt_ts_pot,'je_2d_b','fa_ies',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+        ;; get_2dt_ts_pot,'je_2d_b','fa_ies',t1=time_range(jjj,0),t2=time_range(jjj,1), $
         ;;                name='JEi',energy=energy_ions,angle=i_angle,sc_pot=sc_pot
-        ;; get_2dt_ts_pot,'j_2d_b','fa_ies',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+        ;; get_2dt_ts_pot,'j_2d_b','fa_ies',t1=time_range(jjj,0),t2=time_range(jjj,1), $
         ;;                name='Ji',energy=energy_ions,angle=i_angle,sc_pot=sc_pot
-        ;; get_2dt_ts_pot,'je_2d_b','fa_ies',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+        ;; get_2dt_ts_pot,'je_2d_b','fa_ies',t1=time_range(jjj,0),t2=time_range(jjj,1), $
         ;;                name='JEi_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot
-        ;; get_2dt_ts_pot,'j_2d_b','fa_ies',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+        ;; get_2dt_ts_pot,'j_2d_b','fa_ies',t1=time_range(jjj,0),t2=time_range(jjj,1), $
         ;;                name='Ji_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot
         
         ;; get_data,'Je',data=tmp

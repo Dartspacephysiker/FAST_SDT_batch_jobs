@@ -64,6 +64,8 @@
 
 pro explore_teams
   
+  @startup
+
   exp_teams_dir = '/SPENCEdata/software/sdt/batch_jobs/explore_TEAMS/'
 
   ;;; BEGIN RIPOFF ALFVEN_STATS_5
