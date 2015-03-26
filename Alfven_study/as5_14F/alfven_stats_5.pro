@@ -992,7 +992,7 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
            current_intervals(j,19)=orb.y(ind)
            current_intervals(j,21)=alt.y(ind)	
            current_intervals(j,22)=mlt.y(ind)	
-           current_intervals(j,23)=ilat.y(ind)	     				
+           current_intervals(j,23)=ilat.y(ind)
            
            ;;fields_mode
            mintime=min(abs(fields_mode.time-magz.x(intervalfields(indjmax))),ind)
