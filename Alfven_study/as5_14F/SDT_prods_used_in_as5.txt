@@ -55,23 +55,36 @@ Here are the data products used in alfven_stats_5, along with the line number:
 	 --> Get fields mode
 
 (ENTER CONS bd., if not burst)
-20bd. 	  JEe_tot           L396-7
+20bd. 	  JEe_tot           L416-7
 	  --> Uses fa_ees
-21bd. 	  JEe               L398-9
+21bd. 	  JEe               L418-9
 	  --> Uses fa_ees
-22bd. 	  Je		    L400-1
+22bd. 	  Je		    L420-1
 	  --> Uses fa_ees
-23bd. 	  Je_lc	            L402-3
+23bd. 	  Je_lc	            L422-3
 	  --> Uses fa_ees
-24bd. 	  JEi	            L405-6
+24bd. 	  JEi	            L425-6
 	  --> Uses fa_ies
-25bd. 	  Ji	            L407-8
+25bd. 	  Ji	            L427-8
 	  --> Uses fa_ies
-26bd. 	  JEi_up            L409-10
+26bd. 	  JEi_up            L429-30
 	  --> Uses fa_ies
-27bd. 	  Ji_up             L411-2
+27bd. 	  Ji_up             L431-2
 	  --> Uses fa_ies
+(EXIT CONS bd.)
 
+(ALL FOR SCALING ENERGY FLUX TO 100km)
+28b.      ILAT              L611
+29b.      B_model           L613
+30b.      BFOOT             L614
+
+31b.	  fa_vel	    L624
+	  -->For s/c speed calc
+
+32b.	  ORBIT	     	    L985
+33b.	  MLT	     	    L986
+34b.	  ALT	     	    L987
+35b.	  ILAT	     	    L988
 
 +**************************************************
 (IF \BURST)
@@ -101,6 +114,23 @@ B9bc. 	  Ji_up             L411-2
 (IF \HEAVY)
 -**************************************************
 
+
+(IN CONS. bda., 'if not burst' (d), 'if heavy' (a))
+H1bda.    JEp_up	    L436-7 
+          --> Uses fa_tsp_eq       
+H2bda.    JEo_up	    L438-9 
+          --> Uses fa_tso_eq       
+H3bda.    JEh_up	    L440-1 
+          --> Uses fa_tsh_eq       
+H4bda.    Jp_up		    L443-4 
+          --> Uses fa_tsp_eq       
+H5bda.    Jo_up		    L445-6 
+          --> Uses fa_tso_eq       
+H6bda.    Jh_up		    L447-8 
+          --> Uses fa_tsh_eq       
+
+(IN CONS. be., 'if heavy')
+H7be.	  
 
 
 +**************************************************
@@ -133,9 +163,134 @@ C11b.	 pot, sc_pot	         L376-391
 	 --> Somewhat elaborate calculation
 	 -->"get maxima within a 1 spin window"
 
-C12b.
+C12b.    chare                   L603
+C13b.    chare_tot               L604
+C14b.    charei                  L605
 
+C15b.    mag1                    L615
+C16b.    mag2                    L616
+C17b.	 ratio			 L617
+C18b.	 jee_ionos_tmp_data	 L618
+C19b.	 jee_tot_ionos_tmp_data	 L621
+	 -->All for scaling energy flux to 100km
+
+C20b.	 speed	    	    	 L625
+
+C21b.    speed_mag_point	 L639
+C22b.	 samplingperiod		 L640
+C23b.	 position		 L642
+
+(Total ion outflow over interval, mapped to ionosphere)
+C24b.    part_res_ji             L648
+C25b.    position_ji             L649
+C26b.	 ji_tot			 L657
+C27b.	 ji_up_tot		 L658
+
+(Total electron downflux at s/c alt over interval)
+C28b.    part_res_je             L648
+C29b.    position_je             L649
+C30b.	 jee_tot		 L657
+
+C31b.	 deltaBX		 L676
+C32b.	 jtemp			 L677
+
+C33b.    intervalparts_electrons L785,787-9
+	 --> Gives where je lies within the interval
+
+C33b.    intervalparts_electrons L786,790-2
+	 --> Gives where ji_up lies within the interval
+
+C35b.	 jmax			 L795	 
+
+C36b.    current_intervals(j,20) L802
+	 --> Time of max current
+
+C37b.	 maxJe			 L807-8
+
+C38b.	 maxJEe_ionos		 L822-3
+
+C39b.	 maxJEe_tot_ionos	 L826-7
+
+C40be.   current_intervals(j,28) L840
+	 --> max upgoing proton flux
+C41be.	 C_Ep		         L841
+	 --> max characteristic proton energy
+
+C42be.   current_intervals(j,30) L840
+	 --> max upgoing oxygen flux
+C43be.   C_Eo		         L845
+	 --> max characteristic oxygen energy
+
+C44be.   current_intervals(j,32) L849
+	 --> max upgoing helium flux
+C45be.	 C_Eh		         L850
+	 --> max characteristic oxygen energy      
+
+C46b.	 time_width	         L856
+	 --> width of current fil. in s
+
+C47b.    width	     	     	 L861
+	 --> spatial width of current fil. at this altitude
+
+C48b.	 current_intervals(j,7)  L869,881
+	 --> "integrated downgoing electron flux over that interval at ionosphere"
+C49b.	 current_intervals(j,41) L870,882
+	 --> "integrated downgoing electron flux from total distribution over that interval at ionosphere"
+
+(ENTER CONS bf., "if intervalparts_ions(0) NE -1")
+(ENTER CONS bfa., "if n_elements(intervalparts_ion) EQ 1"
+C50bfa1.  current_intervals(j,12) L890
+	  --> Integrated upgoing ion flux over the interval at the ionosphere
+C51bfa1.  current_intervals(j,13) L891
+	  --> Integrated upgoing only ion flux over the interval at the ionosphere
+(EXIT CONS bfa., ENTER CONS bfb., "else")
+C50bfb2.  current_intervals(j,12) L904-907
+C51bfb2.  current_intervals(j,13) L904-908
+(EXIT CONS bfb.)
+(MAP C50 and C51 to ionos)
+(EXIT CONS bf.)
+
+C52b. 	  C_E			  L922
+C53b.	  C_E_tot		  L923
+
+C54b.	  maxJEi		  L929
+C55b.	  maxJi			  L933-935
+	  --> Max ion flux over this interval
+C56b.	  maxJi_up        	  L939
+	  --> Max upgoing ion flux over this interval
+C57b.	  C_Ei			  L943
+	  --> Max characteristic ion energy over this interval
+
+C58b.     current_intervals(j,26) L949
+	  --> Fields sample period
+
+C59b.	  db			  L952
+C60b.	  median_db		  L953
+
+C61b.	  smooth_int		  L960
+	  --> For smoothing efield to below proton gyro freq.
+C62b_aorb.efield_smooth           L961
+C63b.	  de			  L963
+C64b.	  median_de		  L964
+
+C65b_aorb.dens_smooth             L971
+	  --> For smoothing density to below proton gyro freq.
+C66b.	  dens_max	    	  L973
+C67b.	  dens_min		  L974
+C68b.	  probe_time		  L975
+	  --> density measurement nearest to time of max current
+C69b.	  median_dens		  L978
+
+C70b.	  current_intervals(j,19) L992
+C71b.	  current_intervals(j,21) L993
+C72b.	  current_intervals(j,22) L994
+C73b.	  current_intervals(j,23) L995
+
++**************************************************
++**************************************************
 IN THE CODE:
+-**************************************************
+-**************************************************
 
 1. ********************
   dat = get_fa_ees(t,/st)
@@ -210,10 +365,73 @@ IN THE CODE:
 
 19b.         fields_mode=get_fa_fields('DataHdr_1032',time_ranges(jjj,0),time_ranges(jjj,1))
 
+(ENTER CONS bd., 'if not burst')
+20bd.           get_2dt_ts_pot,'je_2d_b','fa_ees',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                               name='JEe_tot',energy=energy_electrons,sc_pot=sc_pot
+21bd.           get_2dt_ts_pot,'je_2d_b','fa_ees',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                               name='JEe',angle=e_angle,energy=energy_electrons,sc_pot=sc_pot
+22bd.           get_2dt_ts_pot,'j_2d_b','fa_ees',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                               name='Je',energy=energy_electrons,sc_pot=sc_pot
+23bd.           get_2dt_ts_pot,'j_2d_b','fa_ees',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                               name='Je_lc',energy=energy_electrons,angle=e_angle,sc_pot=sc_pot
+24bd.           get_2dt_ts_pot,'je_2d_b','fa_ies',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                               name='JEi',energy=energy_ions,angle=i_angle,sc_pot=sc_pot
+25bd.           get_2dt_ts_pot,'j_2d_b','fa_ies',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                               name='Ji',energy=energy_ions,angle=i_angle,sc_pot=sc_pot
+26bd.           get_2dt_ts_pot,'je_2d_b','fa_ies',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                               name='JEi_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot
+27bd.           get_2dt_ts_pot,'j_2d_b','fa_ies',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                          name='Ji_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot
+
+(ALL FOR SCALING ENERGY FLUX TO 100km)
+28b.        get_data,'ILAT',data=tmp
+29b.        get_data,'B_model',data=tmp1
+30b.        get_data,'BFOOT',data=tmp2
+
+31b.        get_data,'fa_vel',data=vel
+
 +************************
 BURST
 -************************
 B1.      get_2dt_ts,'j_2d_b','fa_eeb',t1=t1,t2=t2,name='Je',energy=energy_electrons
+
+B2bc.           get_2dt_ts,'je_2d_b','fa_eeb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                           name='JEe_tot',energy=energy_electrons
+B3bc.           get_2dt_ts,'je_2d_b','fa_eeb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                           name='JEe',angle=e_angle,energy=energy_electrons
+B4bc.           get_2dt_ts,'j_2d_b','fa_eeb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                           name='Je',energy=energy_electrons
+B5bc.           get_2dt_ts,'j_2d_b','fa_eeb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                           name='Je_lc',energy=energy_electrons,angle=e_angle
+           
+B6bc.           get_2dt_ts,'je_2d_b','fa_ieb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                           name='JEi',energy=energy_ions
+B7bc.           get_2dt_ts,'j_2d_b','fa_ieb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                           name='Ji',energy=energy_ions
+B8bc.           get_2dt_ts,'je_2d_b','fa_ieb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                           name='JEi_up',energy=energy_ions,angle=i_angle
+B9bc.           get_2dt_ts,'j_2d_b','fa_ieb',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                      name='Ji_up',energy=energy_ions,angle=i_angle
+
+
++************************
+HEAVY
+-************************
+
+(IN CONS bda., 'if not burst' (d), 'if heavy' (a))
+H1bda.              get_2dt_pot,'je_2d','fa_tsp_eq',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                               name='JEp_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot
+H2bda.              get_2dt_pot,'je_2d','fa_tso_eq',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                               name='JEo_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot
+H3bda.              get_2dt_pot,'je_2d','fa_tsh_eq',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                               name='JEh_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot              
+H4bda.              get_2dt_pot,'j_2d','fa_tsp_eq',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                               name='Jp_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot
+H5bda.              get_2dt_pot,'j_2d','fa_tso_eq',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                               name='Jo_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot
+H6bda.              get_2dt_pot,'j_2d','fa_tsh_eq',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
+                               name='Jh_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot
+
 
 +************************
 CALCULATIONS
@@ -262,4 +480,159 @@ C11b. *******************
         store_data,'S_Pot',data=sc_pot ;note this is actualy the negative of the sp. potential this corrected in the file output
 -*************************
 
-C12b.
+C12b.        chare=(jee_tmp_data/je_lc_tmp_data)*6.242*1.0e11
+C13b.        chare_tot=(jee_tot_tmp_data/je_tmp_data)*6.242*1.0e11
+C14b.        charei=(JEi_up_tmp_data/ji_up_tmp_data)*6.242*1.0e11
+
+
+(ALL FOR SCALING ENERGY FLUX TO 100km)
+C15b.        mag1 = (tmp1.y(*,0)*tmp1.y(*,0)+tmp1.y(*,1)*tmp1.y(*,1)+tmp1.y(*,2)*tmp1.y(*,2))^0.5
+C16b.        mag2 = (tmp2.y(*,0)*tmp2.y(*,0)+tmp2.y(*,1)*tmp2.y(*,1)+tmp2.y(*,2)*tmp2.y(*,2))^0.5
+C17b.        ratio = (mag2/mag1)
+C18b.        jee_ionos_tmp_data = sgn_flx*jee_tmp_data*ratio
+C19b.        jee_tot_ionos_tmp_data=sgn_flx*jee_tot_tmp_data*ratio
+
+C20b.        speed=sqrt(vel.y(*,0)^2+vel.y(*,1)^2+vel.y(*,2)^2)*1000.0
+
+
+        ;;calculate the total ion outflow for this interval
+C24b.        part_res_ji=make_array(n_elements(ji_up_tmp_time),/double)
+C25b.        position_ji=make_array(n_elements(Ji_up_tmp_time),/double)
+C26b.        ji_tot(jjj)=int_tabulated(position_ji,ji_tmp_data*sqrt(ratio))       ;mapped to ionosphere sqrt due to intergration in x 
+C27b.        ji_up_tot(jjj)=int_tabulated(position_ji,ji_up_tmp_data*sqrt(ratio)) ;mapped to ionosphere sqrt due to intergration in x 
+        
+        ;;calculate the total electron downflux at the spacecraft altitude over this interval
+C28b.        part_res_je=make_array(n_elements(jee_tmp_data),/double)
+C29b.        position_je=make_array(n_elements(jee_tmp_time),/double)
+C30b.        jee_tot(jjj)=int_tabulated(position_je,jee_tmp_data*sqrt(ratio)) ;mapped to ionosphere sqrt due to intergration in x 
+   
+C31b.        deltaBX=deriv(position,magz.y)
+C32b.        jtemp=abs(1.0e-3*(deltaBx)/1.26e-6)
+
+C33b. *******************
+           intervalparts_electrons=where(je_tmp_time GE magz.x(current_intervals(j,0)) and je_tmp_time LE magz.x(current_intervals(j,1)))
+           if intervalparts_electrons(0) EQ -1 then begin
+                	minitime=min(abs(je_tmp_time-magz.x(current_intervals(j,0))),intervalparts_electrons)
+	   endif
+-************************
+
+C34b. *******************
+           intervalparts_ions=where(ji_up_tmp_time GE magz.x(current_intervals(j,0)) and ji_up_tmp_time LE magz.x(current_intervals(j,1)))
+           if intervalparts_ions(0) EQ -1 then begin
+                        minitime=min(abs(ji_up_tmp_time-magz.x(current_intervals(j,0))),intervalparts_ions)
+           endif
+-************************
+
+C35b.        jmax=max(jtemp(intervalfields),indjmax)
+
+C36b.        current_intervals(j,20)=magz.x(intervalfields(indjmax))
+  
+
+C37b. *******************
+           maxJe=max(abs(je_tmp_data(intervalparts_electrons)),ind)
+           maxJe=maxJe*sign(ind)*1.6e-9 ;;in microA/m2
+-************************
+
+C38b. *******************
+           maxJEe_ionos=max(abs(jee_ionos_tmp_data(intervalparts_electrons)),ind)
+           maxJEe_ionos=maxJEe_ionos*sign(ind)
+-************************
+
+C39b. *******************           
+           maxJEe_tot_ionos=max(abs(jee_tot_ionos_tmp_data(intervalparts_electrons)),ind)
+           maxJEe_tot_ionos=maxJEe_tot_ionos*sign(ind)
+-************************
+
+(IN CONS be., 'if heavy')
+NOTE: INDICES ind_OH and ind_h are index of upgoing ion flux measurement nearest in time to observation of the max CURRENT, derived from slope of Bxx
+
+C40be.              current_intervals(j,28)=Jp_up_tmp_data(ind_OH)
+C41be.              C_Ep=JEp_up_tmp_data(ind_OH)/Jp_up_tmp_data(ind_OH)*6.242*1.0e11
+
+C42be.              current_intervals(j,30)=Jo_up_tmp_data(ind_OH)
+C43be.              C_Eo=JEo_up_tmp_data(ind_OH)/Jo_up_tmp_data(ind_OH)*6.242*1.0e11
+              
+C44be.              current_intervals(j,32)=Jh_up_tmp_data(ind_h)
+C45be.              C_Eh=JEh_up_tmp_data(ind_h)/Jh_up_tmp_data(ind_h)*6.242*1.0e11
+
+C46b.           time_width=magz.x(current_intervals(j,1))-magz.x(current_intervals(j,0))
+
+C47b.           width=speed_mag_point(current_intervals(j,0))*abs(magz.x(current_intervals(j,0))-magz.x(current_intervals(j,1)))
+
+C48b.                 current_intervals(j,7)=width*jee_tmp_data(intervalparts_electrons)
+(L881--map to ionos)  current_intervals(j,7)=current_intervals(j,7)*sqrt(ratio(intervalparts_electrons(0)))
+
+C49b.                 current_intervals(j,41)=width*jee_tot_tmp_data(intervalparts_electrons)
+(L882--map to ionos)  current_intervals(j,41)=current_intervals(j,41)*sqrt(ratio(intervalparts_electrons(0)))
+
+(ENTER CONS bf., "if intervalparts_ions(0) NE -1")
+(ENTER CONS bfa., "if n_elements(intervalparts_ion) EQ 1"
+C50bfa1.                 current_intervals(j,12)=width*ji_tmp_data(intervalparts_ions)
+
+C51bfa1.                 current_intervals(j,13)=width*ji_up_tmp_data(intervalparts_ions)
+(EXIT CONS bfa., ENTER CONS bfb., "else")
+(Interp particle data to same res as field data)
+                 ji_tmp_data_fields_res_interval=interpol(ji_tmp_data(intervalparts_ions),ji_tmp_time(intervalparts_ions),magz.x(intervalfields))
+                 ji_up_tmp_data_fields_res_interval=interpol(ji_up_tmp_data(intervalparts_ions),ji_up_tmp_time(intervalparts_ions),magz.x(intervalfields))
+
+C50bfb2.                 current_intervals(j,12)=int_tabulated(findgen(n_elements(intervalfields))*speed_mag_point(intervalfields)*fields_res_interval,ji_tmp_data_fields_res_interval,/double)
+              current_intervals(j,12)=current_intervals(j,12)*sqrt(ratio(intervalparts_ions(0)))
+
+C51bfb2.
+                 current_intervals(j,13)=int_tabulated(findgen(n_elements(intervalfields))*speed_mag_point(intervalfields)*fields_res_interval,ji_up_tmp_data_fields_res_interval,/double)
+              current_intervals(j,13)=current_intervals(j,13)*sqrt(ratio(intervalparts_ions(0)))
+(EXIT CONS bfb.)
+
+(MAP C50 and C51 to ionosphere)
+              ;;map result to ionosphere (sqrt of B since have integrated in x)
+C50bf.              current_intervals(j,12)=current_intervals(j,12)*sqrt(ratio(intervalparts_ions(0)))
+C51bf.              current_intervals(j,13)=current_intervals(j,13)*sqrt(ratio(intervalparts_ions(0)))
+(EXIT CONS bf.)
+
+C52b.           C_E=max(charE(intervalparts_electrons))
+C53b.           C_E_tot=max(charE_tot(intervalparts_electrons))
+
+C54b.           maxJEi=max(abs(jei_up_tmp_data(intervalparts_ions)),ind)
+           
+C55b. ********************
+           ;;get max ion flux over this interval
+           sign_ion=-1.*ji_tmp_data(intervalparts_ions)/abs(ji_tmp_data(intervalparts_ions))
+           maxJi=max(abs(ji_tmp_data(intervalparts_ions)),ind)
+           maxJi=maxJi*sign_ion(ind)
+**************************
+           
+C56b. ********************
+           ;;get max upgoing ion flux over this interval
+           maxJi_up=max(abs(ji_up_tmp_data(intervalparts_ions)),ind)
+-*************************
+
+C57b. ********************
+           ;;get max characteristic ion energy over this interval
+           C_Ei=max(charEi(intervalparts_ions))
+-*************************
+
+C58b.           current_intervals(j,26)=magz.x(intervalfields(indjmax)+1)-magz.x(intervalfields(indjmax))
+
+C59b.           db=max(magz.y(intervalfields))-min(magz.y(intervalfields))
+C60b.           median_db=median(magz.y(intervalfields))
+
+C61b.           smooth_int=ceil((1./proton_cyc_freq(intervalfields(indjmax)))/current_intervals(j,26))
+
+     
+C62b_aorb.           if smooth_int GT 1.0 and smooth_int LE n_elements(intervalfields)/4.0 then efield_smooth=smooth(fields.comp2(intervalfields),smooth_int) else efield_smooth=fields.comp2(intervalfields)
+
+C63b.           de=max(efield_smooth)-min(efield_smooth)
+C64b.           median_de=median(fields.comp2(intervalfields))
+
+C65b_aorb.           if smooth_int GT 1.0 and smooth_int LE n_elements(intervalfields)/4.0 then dens_smooth=smooth(dens.comp2(intervalfields),smooth_int) else dens_smooth=dens.comp2(intervalfields)
+     
+C66b.           dens_max=max(dens_smooth)
+C67b.           dens_min=min(dens_smooth)
+C68b.           probe_time=min(abs(dens_probe.x-magz.x(intervalfields(indjmax))),probe_ind)
+
+C69b.           median_dens=median(dens.comp2(intervalfields))
+
+C70b.           current_intervals(j,19)=orb.y(ind) 
+C71b.           current_intervals(j,21)=alt.y(ind) 
+C72b.           current_intervals(j,22)=mlt.y(ind) 
+C73b.           current_intervals(j,23)=ilat.y(ind)
