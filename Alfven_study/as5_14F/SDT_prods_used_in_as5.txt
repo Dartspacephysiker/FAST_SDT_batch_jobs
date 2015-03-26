@@ -1,0 +1,265 @@
+2015/03/26
+
+Here are the data products used in alfven_stats_5, along with the line number:
+
+1.       fa_ees             L59
+         --> See whether electron survey data is available; bail if not
+         
+2.       fa_ees             L69
+         --> Je
+         
+3.       orbit stuff        L98
+         
+4.       ucla_mag_despin    L158 
+         
+5.       MagDC              L195
+         --> If not available, set data_valid 0.0 (CONS a.)
+(ENTER CONS a.)
+6a.      V5-V8_S            L201
+         --> If valid, enter (CONS aa.)
+
+(ENTER CONS aa.)         
+7aa.     V8_S               L206
+         --> Get spacecraft potential
+         
+8aa.     V5-V8_S            L207
+         
+9aa.     V1-V2_S            L208
+         -->If not valid, try V1-V4 (CONS aaa.)
+(ENTER CONS aaa.)
+10aaa.   V1-V4_S            L211
+(EXIT CONS aaa., aa.)
+
+11a.     NE2_S		    L236
+	 --> If valid, add to langmuir_data array
+12a.     NE6_S		    L237
+	 --> If valid, add to langmuir_data array
+13a.     NE9_S		    L239
+	 --> If valid, add to langmuir_data array
+(EXIT CONS a.)
+
+(ENTER CONS b., 'if data_valid')
+(ENTER CONS ba., 'if not keyword_set(ucla_mag_despin)'
+14ba.    MagDCcomp1         L285
+15ba.    MagDCcomp2         L286
+16ba.    MagDCcomp3         L287
+
+(EXIT CONS ba., ENTER CONS bb., 'else')
+17bb.    dB_fac_v           L289
+(EXIT CONS bb.)
+
+18b.     get_fa_orbit       L337
+	 --> ALT and ILAT pulled from this
+
+19b.     DataHdr_1032       L364
+	 --> Get fields mode
+
+(ENTER CONS bd., if not burst)
+20bd. 	  JEe_tot           L396-7
+	  --> Uses fa_ees
+21bd. 	  JEe               L398-9
+	  --> Uses fa_ees
+22bd. 	  Je		    L400-1
+	  --> Uses fa_ees
+23bd. 	  Je_lc	            L402-3
+	  --> Uses fa_ees
+24bd. 	  JEi	            L405-6
+	  --> Uses fa_ies
+25bd. 	  Ji	            L407-8
+	  --> Uses fa_ies
+26bd. 	  JEi_up            L409-10
+	  --> Uses fa_ies
+27bd. 	  Ji_up             L411-2
+	  --> Uses fa_ies
+
+
++**************************************************
+(IF \BURST)
+-**************************************************
+
+B1.       fa_eeb            L67
+
+(IN CONS bc.,"if burst")
+B2bc. 	  JEe_tot           L396-7
+	  --> Uses fa_eeb
+B3bc. 	  JEe               L398-9
+	  --> Uses fa_eeb
+B4bc. 	  Je		    L400-1
+	  --> Uses fa_eeb
+B5bc. 	  Je_lc	            L402-3
+	  --> Uses fa_eeb
+B6bc. 	  JEi	            L405-6
+	  --> Uses fa_ieb
+B7bc. 	  Ji	            L407-8
+	  --> Uses fa_ieb
+B8bc. 	  JEi_up            L409-10
+	  --> Uses fa_ieb
+B9bc. 	  Ji_up             L411-2
+	  --> Uses fa_ieb
+
++**************************************************
+(IF \HEAVY)
+-**************************************************
+
+
+
++**************************************************
+CALCULATIONS
+-**************************************************
+(IN CONS. b., 'if data_valid')
+C1b.     efields_combine         L272 
+
+C2b.     efield                  L283
+
+(IN CONS bc., "if keyword_set(filterfreq)")
+C3bc.    magz		         L303
+         
+C4b.     fields                  L320
+         
+C5b.     dens                    L327
+         
+C6b.     proton_cyc_freq         L334
+         
+C7b.     loss_cone_alt           L341
+         
+C8b.     lcw     	         L342
+         
+C9b.     spin_period             L367
+         
+C10b.    v8_dt			 L372
+	 --> get sample rate
+
+C11b.	 pot, sc_pot	         L376-391
+	 --> Somewhat elaborate calculation
+	 -->"get maxima within a 1 spin window"
+
+C12b.
+
+IN THE CODE:
+
+1. ********************
+  dat = get_fa_ees(t,/st)
+  if dat.valid eq 0 then begin
+     print,' ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data'
+-***********************
+
+2.      get_2dt_ts,'j_2d_b','fa_ees',t1=t1,t2=t2,name='Je',energy=energy_electrons
+
+3. ********************
+  get_fa_orbit,/time_array,je.x
+  get_data,'MLT',data=mlt
+  get_data,'ILAT',data=ilat
+-***********************
+
+4.   if keyword_set(ucla_mag_despin) then ucla_mag_despin
+
+5. *************************
+     dat=get_fa_fields('MagDC',t,/start)
+     if dat.valid eq 0 then begin
+        print,' ERROR: No FAST mag data-get_fa_fields returned invalid data'
+        data_valid=0.0
+     endif else begin
+        if not keyword_set(ucla_mag_despin) then field=get_fa_fields('MagDC',time_ranges(jjj,0),time_ranges(jjj,1),/store)
+-****************************
+
+6a. **********************
+        dat=get_fa_fields('V5-V8_S',t,/start)
+        if dat.valid eq 0 then begin
+           print,' ERROR: No FAST V5-V8 data-get_fa_fields returned invalid data'
+           data_valid=0.0
+        endif else begin
+-*************************
+
+7aa.           spacecraft_potential=get_fa_fields('V8_S',time_ranges(jjj,0),time_ranges(jjj,1))
+
+8aa.           efieldV58=get_fa_fields('V5-V8_S',time_ranges(jjj,0),time_ranges(jjj,1))
+
+9aa. ********************
+          efieldV1214=get_fa_fields('V1-V2_S',time_ranges(jjj,0),time_ranges(jjj,1))
+           if efieldV1214.valid eq 0 then begin
+              print,'No V1-V2 data - trying V1-V4'
+-**************************
+
+10aaa. *******************
+              efieldV1214=get_fa_fields('V1-V4_S',time_ranges(jjj,0),time_ranges(jjj,1))
+              if efieldV1214.valid eq 0 then begin
+                 print,' ERROR: No FAST fields data - get_fa_fields returned invalid data'
+                 data_valid=0.0
+-***************************
+
+11a.        Langmuir_2=get_fa_fields('NE2_S',time_ranges(jjj,0),time_ranges(jjj,1))
+12a.        Langmuir_6=get_fa_fields('NE6_S',time_ranges(jjj,0),time_ranges(jjj,1))
+13a.        Langmuir_9=get_fa_fields('NE9_S',time_ranges(jjj,0),time_ranges(jjj,1))
+
+14ba.           get_data,'MagDCcomp1',data=magx
+15ba.           get_data,'MagDCcomp2',data=magy
+16ba.           get_data,'MagDCcomp3',data=magz
+
+17bb.           get_data,'dB_fac_v',data=db_fac
+
+18b. ********************
+        ;;get_orbit data
+        get_fa_orbit,je_tmp_time,/time_array,/all
+        
+        ;;define loss cone angle
+        get_data,'ALT',data=alt
+        loss_cone_alt=alt.y(0)*1000.0
+        lcw=loss_cone_width(loss_cone_alt)*180.0/!DPI
+        get_data,'ILAT',data=ilat
+*************************
+
+19b.         fields_mode=get_fa_fields('DataHdr_1032',time_ranges(jjj,0),time_ranges(jjj,1))
+
++************************
+BURST
+-************************
+B1.      get_2dt_ts,'j_2d_b','fa_eeb',t1=t1,t2=t2,name='Je',energy=energy_electrons
+
++************************
+CALCULATIONS
+-************************
+C1b.        FA_FIELDS_COMBINE,efieldV1214,efieldV58,result=efields_combine,/talk
+
+C2b.        efield={x:efieldV1214.time,y:sqrt(efieldV1214.comp1^2+efields_combine^2)}
+
+C3bc.           magz=filter(magz,filterfreq,'magfilt','l')
+
+C4b.        FA_FIELDS_COMBINE,magz,efield,result=fields,/interp,delt_t=50.,/talk
+
+C5b.        FA_FIELDS_COMBINE,magz,langmuir,result=dens,/talk
+
+C6b.        proton_cyc_freq=1.6e-19*sqrt(magx.y^2+magy.y^2+magz.y^2)*1.0e-9/1.67e-27/(2.*!DPI) ; in Hz
+
+C7b.        loss_cone_alt=alt.y(0)*1000.0
+C8b.        lcw=loss_cone_width(loss_cone_alt)*180.0/!DPI
+
+C9b.        spin_period=4.946  ; seconds
+
+C10b. ******************
+       v8={x:spacecraft_potential.time,y:spacecraft_potential.comp1}
+        
+        v8_dt=abs(v8.x-shift(v8.x,-1))
+        v8_dt(0)=v8_dt(1)
+        v8_dt(n_elements(v8.x)-1)=v8_dt(n_elements(v8.x)-2)
+-************************
+
+C11b. *******************
+        ;;get maxima within a 1 spin window
+        j_range=where(v8.x LT v8.x(n_elements(v8.x)-1)-spin_period)
+        index_max=max(j_range)
+        print,index_max
+        pot=make_array(n_elements(v8.x),/double)
+        for j=0L,index_max do begin
+           ;;spin_range=where(v8.x GE v8.x(j) and v8.x LE v8.x(j)+spin_period)
+           spin_range=j+findgen(ceil(spin_period/V8_dt(j)))
+           pot(j)=max(abs(v8.y(spin_range)),ind)
+           sign=v8.y(spin_range(ind))/abs(v8.y(spin_range(ind)))
+           pot(j)=sign*pot(j)
+                           ;print,j,pot(j)
+        endfor
+        pot(index_max+1:n_elements(v8.x)-1)=pot(j_range(index_max))
+        sc_pot={x:v8.x,y:pot}
+        store_data,'S_Pot',data=sc_pot ;note this is actualy the negative of the sp. potential this corrected in the file output
+-*************************
+
+C12b.
