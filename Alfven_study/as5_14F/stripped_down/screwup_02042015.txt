@@ -1,0 +1,1 @@
+Looks like SDT was having a hard time keeping up with the speed of this computer(?). It was complaining about not having MagDC loaded before some call or other... Perhaps that's why there are so many gaps in the processed data... I'll need to go back and take another look
