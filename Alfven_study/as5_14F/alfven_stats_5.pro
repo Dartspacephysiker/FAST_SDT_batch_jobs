@@ -1,7 +1,7 @@
 pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
                    t1=t1,t2=t2,filterfreq=filterfreq,$
                    burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only, $
-                   no_png_sumplot=no_png_sumplot,png_ourevents=png_ourevents, $
+                   png_sumplot=png_sumplot,png_ourevents=png_ourevents, $
                    CONT_IF_FILE_EXISTS=cont_if_file_exists
 
   as5_dir = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/'
@@ -10,7 +10,7 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
 
 ;12/29/2014
 ;On Dartmouth Coach, integrating work on
-;'alfven_stats_5_startstop.pro', and have also added 'no_png_sumplot'
+;'alfven_stats_5_startstop.pro', and have also added 'png_sumplot'
 ;keyword so that the default is generation of a png sumplot file
 
 ;12/13/2014
@@ -683,7 +683,7 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
 
         
         ;;If we want to save a summary plot
-        IF NOT KEYWORD_SET(no_png_sumplot) THEN BEGIN
+        IF KEYWORD_SET(png_sumplot) THEN BEGIN
            cgPS_Open, as5_dir+'plots/summaries/as5_orbit' + strcompress(orbit_num+'_'+string(jjj),/remove_all) + '.ps', font=1
            loadct,39
            !p.charsize=1.3
@@ -1273,7 +1273,7 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
 
      print,filename,jjj
      openw,unit1,filename,/get_lun
-     printf,unit1,n_elements(current_intervals(*,0)),34,n_elements(keep)
+     printf,unit1,n_elements(current_intervals(*,0)),n_elements(keep)
 
      printf,unit1,' Column No.  	1-Orbit number'
      printf,unit1,'			2-Alfvenic = 1 non-Alfvenic = 0'

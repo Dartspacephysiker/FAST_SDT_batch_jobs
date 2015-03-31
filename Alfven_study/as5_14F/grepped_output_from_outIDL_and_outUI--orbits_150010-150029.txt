@@ -1,0 +1,66 @@
+2015/03/26
+I first set up an SDT batch job to run over orbits 150010-150029. Before executing the batch job, I run the following command to monitor the output files, with the output immediately following:
+
+spencerh@thelonious as5_14F [master] $ tail -n 100 -f outUI outIDL.alfven_wrapper.pro | grep 'ERROR:\|sorb'
+       sorb= 150029   eorb= 150029
+       sorb= 150010   eorb= 150010
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150011   eorb= 150011
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150012   eorb= 150012
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150013   eorb= 150013
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150014   eorb= 150014
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150015   eorb= 150015
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150016   eorb= 150016
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150017   eorb= 150017
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150018   eorb= 150018
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150019   eorb= 150019
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150020   eorb= 150020
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150021   eorb= 150021
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150022   eorb= 150022
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150023   eorb= 150023
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150024   eorb= 150024
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150025   eorb= 150025
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150026   eorb= 150026
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150027   eorb= 150027
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150028   eorb= 150028
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
+       sorb= 150029   eorb= 150029
+tail: outIDL.alfven_wrapper.pro: file truncated
+ ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data
