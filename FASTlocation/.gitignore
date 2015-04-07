@@ -1,0 +1,15 @@
+#No emacs tmp files
+*~
+
+#No SDT garbage
+errdqh
+errfast
+errIDL.*
+errscm
+errUI
+outdqh
+outfast
+outIDL.*
+outscm
+outUI
+SelectedEvts

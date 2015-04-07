@@ -1,0 +1,300 @@
+*
+Header :this is the 'fastlocation' configuration file
+Header :created on Mon Apr  6 11:00:47 2015
+*
+*
+Description : 
+
+*
+
+Configuration
+{
+Config Name:			'fastlocation'
+Config MenuPosition:		6, -14
+Config MenuSize:		300, 300
+Config DefaultSourceId:	'?'
+Config CurrentPlotWindow:	'fastlocation:0 - DA'
+
+	PlotWinStandard
+	{
+	PlotWin Name:		'fastlocation:0 - DA'
+	PlotWin Position:	241, 18
+	PlotWin Size:		900, 600
+	PlotWin PlotsPage:	6
+	PlotWin TopPlotOfPage:	'FASTSpacecraft_Altitude'
+	PlotWin DefaultDataBaseResponse:	2450409 75963 2450409 83953.4 'FNMLine 16'
+   '/FASTdata_2/FAST_JB_4/FAST75_ORBIT0999/lzp/fast_lzp_DSS-29_orbit1001_r'
+   '/FASTdata_2/FAST_JB_4/FAST75_ORBIT0999/lzp/fast_lzp_DSS-29_orbit1001_r'
+   '/FASTdata_2/FAST_JB_4/FAST75_ORBIT0999/lzp/fast_lzp_DSS-29_orbit1002_r'
+   '/FASTdata_2/FAST_JB_4/FAST75_ORBIT0999/lzp/fast_lzp_DSS-29_orbit1002_r'
+   '/FASTdata_2/FAST_JB_4/FAST75_ORBIT0999/lzp/fast_lzp_DSS-29_orbit1003_r'
+   '/FASTdata_2/FAST_JB_4/FAST75_ORBIT0999/lzp/fast_lzp_DSS-29_orbit1003_r'
+   '/FASTdata_2/FAST_JB_4/FAST75_ORBIT0999/lzp/fast_lzp_DSS-29_orbit1004_r'
+   '/FASTdata_2/FAST_JB_4/FAST75_ORBIT0999/lzp/fast_lzp_DSS-29_orbit1004_r'
+   '/FASTdata_2/FAST_JB_4/FAST75_ORBIT0999/lzp/fast_lzp_DSS-29_orbit1005_r'
+   '/FASTdata_2/FAST_JB_4/FAST75_ORBIT0999/lzp/fast_lzp_DSS-29_orbit1005_r'
+   '/FASTdata_2/FAST_JB_4/FAST75_ORBIT0999/lzp/fast_lzp_DSS-76_orbit1000_r'
+   '/FASTdata_2/FAST_JB_4/FAST75_ORBIT0999/lzp/fast_lzp_DSS-76_orbit1000_r'
+   '/FASTdata_2/FAST_JB_2/FAST76_ORBIT0963/lzp/fast_lzp_DSS-29_orbit1007_r'
+   '/FASTdata_2/FAST_JB_2/FAST76_ORBIT0963/lzp/fast_lzp_DSS-29_orbit1007_r'
+   '/FASTdata_2/FAST_JB_2/FAST76_ORBIT0963/lzp/fast_lzp_DSS-76_orbit1006_r'
+   '/FASTdata_2/FAST_JB_2/FAST76_ORBIT0963/lzp/fast_lzp_DSS-76_orbit1006_r'
+
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'FASTSpacecraft_Altitude'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'FASTSpacecraft_Altitude'
+		Plot2 PlotYTitleName:	'Altitude'
+		Plot2 PlotYSubTitleName:	'Km'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	83953.4, 8000, 0, 0
+		Plot2 MinLimits:	75963, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		60
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'FASTSpacecraft_InvariantLatitude'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'FASTSpacecraft_InvariantLatitude'
+		Plot2 PlotYTitleName:	'ILat'
+		Plot2 PlotYSubTitleName:	'deg'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	83953.4, 90, 0, 0
+		Plot2 MinLimits:	75963, -90, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		60
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'FASTSpacecraft_Mlt'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'FASTSpacecraft_Mlt'
+		Plot2 PlotYTitleName:	'MLT'
+		Plot2 PlotYSubTitleName:	'Hrs'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	83953.4, 30, 0, 0
+		Plot2 MinLimits:	75963, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		60
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'FASTSpacecraft_|Velocity|'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'FASTSpacecraft_|Velocity|'
+		Plot2 PlotYTitleName:	'|Vel|'
+		Plot2 PlotYSubTitleName:	'Km/sec'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	83953.4, 20, 0, 0
+		Plot2 MinLimits:	75963, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		60
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'SUN'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'SUN'
+		Plot2 PlotYTitleName:	'SUNCTR'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	83953.4, 256, 0, 0
+		Plot2 MinLimits:	75963, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'1032-magPhase'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'1032-magPhase'
+		Plot2 PlotYTitleName:	'1032-magPhase'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	83953.4, 4096, 0, 0
+		Plot2 MinLimits:	75963, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'1032-spinNum'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'1032-spinNum'
+		Plot2 PlotYTitleName:	'1032-spinNum'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	83953.4, 64, 0, 0
+		Plot2 MinLimits:	75963, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+	PlotWin EndPlotWindow:
+	}
+}
+
+*
+*
