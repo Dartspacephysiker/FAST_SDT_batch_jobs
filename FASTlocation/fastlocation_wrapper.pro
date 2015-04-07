@@ -20,7 +20,7 @@
 ;*****************************
 ;Put code here:
 
-fastlocation
+fastlocation_2
 
 ;*****************************
 ;End routine:

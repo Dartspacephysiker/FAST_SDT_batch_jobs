@@ -1,6 +1,6 @@
 *
 Header :this is the 'fastlocation' configuration file
-Header :created on Mon Apr  6 11:00:47 2015
+Header :created on Tue Apr  7 13:22:02 2015
 *
 *
 Description : 
@@ -18,10 +18,10 @@ Config CurrentPlotWindow:	'fastlocation:0 - DA'
 	PlotWinStandard
 	{
 	PlotWin Name:		'fastlocation:0 - DA'
-	PlotWin Position:	241, 18
+	PlotWin Position:	238, -4
 	PlotWin Size:		900, 600
 	PlotWin PlotsPage:	6
-	PlotWin TopPlotOfPage:	'FASTSpacecraft_Altitude'
+	PlotWin TopPlotOfPage:	'FASTSpacecraft_Mlt'
 	PlotWin DefaultDataBaseResponse:	2450409 75963 2450409 83953.4 'FNMLine 16'
    '/FASTdata_2/FAST_JB_4/FAST75_ORBIT0999/lzp/fast_lzp_DSS-29_orbit1001_r'
    '/FASTdata_2/FAST_JB_4/FAST75_ORBIT0999/lzp/fast_lzp_DSS-29_orbit1001_r'
@@ -284,6 +284,42 @@ Config CurrentPlotWindow:	'fastlocation:0 - DA'
 		Plot2 PreservePtsModeinFullZoom:
 		Plot2 PointsPlot:	1
 		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'FastFieldsMode_1032'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'FastFieldsMode_1032'
+		Plot2 PlotYTitleName:	'FMode (Apid 1032)'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	83953.4, 300, 1, 1
+		Plot2 MinLimits:	75963, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
 		Plot2 BrkInt:		10
 		Plot2 ErrorBar:		SDT_EBAR_NONE
 		Plot2 NSymbols:		0

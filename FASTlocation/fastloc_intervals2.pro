@@ -1,11 +1,13 @@
 ;2015/04/07 This pro uses intervals as defined by Alfven_Stats_5, but interpolates data to 5-s resolution
-pro fastloc_intervals_2,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
+pro fastloc_intervals2,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
                    t1=t1,t2=t2,filterfreq=filterfreq,$
                    burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only, $
                    png_sumplot=png_sumplot,png_ourevents=png_ourevents, $
                    SKIP_IF_FILE_EXISTS=skip_if_file_exists
 
   fastloc_dir = '/SPENCEdata/software/sdt/batch_jobs/FASTlocation/'
+
+  list_of_attempted_repeats_file='list_of_attempted_repeats--fastloc_intervals2.txt'
 
 ;  IF NOT KEYWORD_SET(skip_if_file_exists) THEN skip_if_file_exists=1
 
@@ -111,15 +113,15 @@ pro fastloc_intervals_2,filename=filename,energy_electrons=energy_electrons,ener
      orbit=tmp.y(0)
      orbStr=strcompress(string(tmp.y(0)),/remove_all)
                                 ;filename for output file
-     curfile = fastloc_dir + 'batch_output__intervals/'+'Dartmouth_fastloc_intervals_2_'+strcompress(orbStr,/remove_all)+'_'+strcompress(jjj,/remove_all)
+     curfile = fastloc_dir + 'batch_output__intervals/'+'Dartmouth_fastloc_intervals2_'+strcompress(orbStr,/remove_all)+'_'+strcompress(jjj,/remove_all)
      IF KEYWORD_SET(burst) THEN BEGIN
         curfile = curfile + '--burst'
      ENDIF
      
      ;;make sure we're not overwriting
      IF file_test(curfile) THEN BEGIN
+        right_now=strmid(timestamp(),0,13)
         IF NOT KEYWORD_SET(skip_if_file_exists) THEN BEGIN
-           right_now=strmid(timestamp(),0,13)
            curfile = curfile + "--" + right_now
         ENDIF ELSE BEGIN
            IF KEYWORD_SET(skip_if_file_exists) THEN BEGIN
@@ -198,8 +200,6 @@ pro fastloc_intervals_2,filename=filename,energy_electrons=energy_electrons,ener
         get_fa_orbit,time_ranges(jjj,0),time_ranges(jjj,1),DELTA_T=5,/ALL,DRAG_PROP=1
         ;drag_prop is slightly more accurate, but slower. Takes stock of atmosph. drag
         ; turn it off if you want...
-        nPoints = N_ELEMENTS(alt.x)
-        
         fields_mode=get_fa_fields('DataHdr_1032',time_ranges(jjj,0),time_ranges(jjj,1))
         
         get_data,'fa_vel',data=vel
@@ -211,13 +211,16 @@ pro fastloc_intervals_2,filename=filename,energy_electrons=energy_electrons,ener
         get_data,'ALT',data=alt
         get_data,'ILAT',data=ilat
 
+        nPoints = N_ELEMENTS(alt.x)
+        
         north_south=abs(ilat.y(0))/ilat.y(0)
 
         ;;fields_mode
         ;;get fields mode nearest to each je_tmp_time point
         fieldsmode_arr = MAKE_ARRAY(nPoints,/DOUBLE)
         FOR i=0,nPoints -1 DO BEGIN
-           near = Min(Abs(fields_mode.time-je_tmp_time[i]), index)
+           ;; near = Min(Abs(fields_mode.time-je_tmp_time[i]), index)
+           near = Min(Abs(fields_mode.time-mlt.x[i]), index)
            IF near LE 20 THEN fieldsmode_arr[i] = fields_mode.comp1[index] ELSE fieldsmode_arr[i] = !Values.F_NAN
         ENDFOR
 
@@ -225,7 +228,7 @@ pro fastloc_intervals_2,filename=filename,energy_electrons=energy_electrons,ener
 
      
 ;;if jjj GT 0 or not keyword_set(filename) then
-;;filename='/SPENCEdata/software/sdt/batch_jobs/FASTlocation/'+'Dartmouth_fastloc_intervals_2'+strcompress(orbStr+'_'+string(jjj)+"_magcal_v"
+;;filename='/SPENCEdata/software/sdt/batch_jobs/FASTlocation/'+'Dartmouth_fastloc_intervals2'+strcompress(orbStr+'_'+string(jjj)+"_magcal_v"
 ;;+ string(version)+"_burst",/remove_all)
      if jjj GT 0 or not keyword_set(filename) then filename= curfile
 

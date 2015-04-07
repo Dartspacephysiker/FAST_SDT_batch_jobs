@@ -6,6 +6,8 @@ pro fastloc_intervals,filename=filename,energy_electrons=energy_electrons,energy
 
   fastloc_dir = '/SPENCEdata/software/sdt/batch_jobs/FASTlocation/'
 
+  list_of_attempted_repeats_file='list_of_attempted_repeats--fastloc_intervals.txt'
+
 ;  IF NOT KEYWORD_SET(skip_if_file_exists) THEN skip_if_file_exists=1
 
 
@@ -117,11 +119,14 @@ pro fastloc_intervals,filename=filename,energy_electrons=energy_electrons,energy
      
      ;;make sure we're not overwriting
      IF file_test(curfile) THEN BEGIN
+        right_now=strmid(timestamp(),0,13)
         IF NOT KEYWORD_SET(skip_if_file_exists) THEN BEGIN
-           right_now=strmid(timestamp(),0,13)
            curfile = curfile + "--" + right_now
         ENDIF ELSE BEGIN
            IF KEYWORD_SET(skip_if_file_exists) THEN BEGIN
+              OPENU,replun,fastloc_dir + 'batch_output__intervals/' + list_of_attempted_repeats_file,/APPEND,/GET_LUN
+              PRINTF,replun,FORMAT='(A24,T30,A50)',right_now,curfile
+              free_lun,replun
               PRINT,"Not overwriting file " + curfile + "! Returning..."
               RETURN
            ENDIF
