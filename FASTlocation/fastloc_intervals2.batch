@@ -1,0 +1,9 @@
+BatchJob: "fastloc_intervals2"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/FASTlocation/fastloc_intervals2_wrapper.pro
+
+DataBaseRequest:
+    Orbits 500-999
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/FASTlocation
+PlotConfigurationFile: fastloc_intervals
