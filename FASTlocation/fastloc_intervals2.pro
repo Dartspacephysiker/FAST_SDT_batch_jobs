@@ -1,5 +1,5 @@
 ;2015/04/07 This pro uses intervals as defined by Alfven_Stats_5, but interpolates data to 5-s resolution
-pro fastloc_intervals2,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
+PRO fastloc_intervals2,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
                    t1=t1,t2=t2,filterfreq=filterfreq,$
                    burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only, $
                    png_sumplot=png_sumplot,png_ourevents=png_ourevents, $
@@ -221,7 +221,8 @@ pro fastloc_intervals2,filename=filename,energy_electrons=energy_electrons,energ
         FOR i=0,nPoints -1 DO BEGIN
            ;; near = Min(Abs(fields_mode.time-je_tmp_time[i]), index)
            near = Min(Abs(fields_mode.time-mlt.x[i]), index)
-           IF near LE 20 THEN fieldsmode_arr[i] = fields_mode.comp1[index] ELSE fieldsmode_arr[i] = !Values.F_NAN
+           ;; IF near LE 20 THEN fieldsmode_arr[i] = fields_mode.comp1[index] ELSE fieldsmode_arr[i] = !Values.F_NAN
+           IF near LE 20 THEN fieldsmode_arr[i] = fields_mode.comp1[index] ELSE fieldsmode_arr[i] = -9999
         ENDFOR
 
      endif
@@ -230,26 +231,30 @@ pro fastloc_intervals2,filename=filename,energy_electrons=energy_electrons,energ
 ;;if jjj GT 0 or not keyword_set(filename) then
 ;;filename='/SPENCEdata/software/sdt/batch_jobs/FASTlocation/'+'Dartmouth_fastloc_intervals2'+strcompress(orbStr+'_'+string(jjj)+"_magcal_v"
 ;;+ string(version)+"_burst",/remove_all)
-     if jjj GT 0 or not keyword_set(filename) then filename= curfile
+     IF jjj GT 0 OR NOT keyword_set(filename) THEN filename = curfile
 
-     print,filename,jjj
-     openw,unit1,filename,/get_lun
-     printf,unit1,FORMAT='("time range: ",A24,T40,A24)',time_to_str(time_ranges(jjj,0),/ms),time_to_str(time_ranges(jjj,1),/ms)
+     IF nPoints GT 0 THEN BEGIN
 
-     printf,unit1,' Column No.  	1-Orbit number'
-     printf,unit1,'                     2-time'
-     printf,unit1,'                     3-altitude'
-     printf,unit1,'                     4-MLT'
-     printf,unit1,'                     5-ILAT'			
-     printf,unit1,'                     6-fields mode'
-
-     for jj=0L,nPoints-1 do begin
-        printf,unit1,format='(I9,A24,4G13.6)',orbit,time_to_str(je_tmp_time[jj],/ms),alt.y[jj],mlt.y[jj],ilat.y[jj],fieldsmode_arr[jj]
-     ENDFOR
+        print,filename,jjj
+        openw,unit1,filename,/get_lun
+        printf,unit1,FORMAT='("time range: ",A24,T40,A24)',time_to_str(time_ranges(jjj,0),/ms),time_to_str(time_ranges(jjj,1),/ms)
+        
+        printf,unit1,' Column No.  	   1-Orbit number'
+        printf,unit1,'                     2-time'
+        printf,unit1,'                     3-altitude'
+        printf,unit1,'                     4-MLT'
+        printf,unit1,'                     5-ILAT'			
+        printf,unit1,'                     6-fields mode'
+        
+        FOR jj=0L,nPoints-1 DO BEGIN
+           printf,unit1,format='(I9,A24,4G13.6)',orbit,time_to_str(je_tmp_time[jj],/ms),alt.y[jj],mlt.y[jj],ilat.y[jj],fieldsmode_arr[jj]
+        ENDFOR
+        
+        free_lun,unit1
+        
+     ENDIF
+     
   ENDFOR  
   
-free_lun,unit1
-
-
-  return 
-end
+  RETURN 
+END

@@ -99,7 +99,8 @@ PRO fastlocation,filename=filename,energy_electrons=energy_electrons,energy_ions
   fieldsmode_arr = MAKE_ARRAY(nPoints,/DOUBLE)
   FOR i=0,nPoints -1 DO BEGIN
      near = Min(Abs(fields_mode.time-mlt.x[i]), index)
-     IF near LE 20 THEN fieldsmode_arr[i] = fields_mode.comp1[index] ELSE fieldsmode_arr[i] = !Values.F_NAN
+     ;; IF near LE 20 THEN fieldsmode_arr[i] = fields_mode.comp1[index] ELSE fieldsmode_arr[i] = !Values.F_NAN
+     IF near LE 20 THEN fieldsmode_arr[i] = fields_mode.comp1[index] ELSE fieldsmode_arr[i] = -9999
   ENDFOR
 
      

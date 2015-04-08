@@ -244,7 +244,8 @@ pro fastloc_intervals,filename=filename,energy_electrons=energy_electrons,energy
         fieldsmode_arr = MAKE_ARRAY(n_elements(je_tmp_time),/DOUBLE)
         FOR i=0,N_ELEMENTS(je_tmp_time) -1 DO BEGIN
            near = Min(Abs(fields_mode.time-je_tmp_time[i]), index)
-           IF near LE 20 THEN fieldsmode_arr[i] = fields_mode.comp1[index] ELSE fieldsmode_arr[i] = !Values.F_NAN
+           ;; IF near LE 20 THEN fieldsmode_arr[i] = fields_mode.comp1[index] ELSE fieldsmode_arr[i] = !Values.F_NAN
+           IF near LE 20 THEN fieldsmode_arr[i] = fields_mode.comp1[index] ELSE fieldsmode_arr[i] = -9999
         ENDFOR
 
      endif
@@ -253,26 +254,30 @@ pro fastloc_intervals,filename=filename,energy_electrons=energy_electrons,energy
 ;;if jjj GT 0 or not keyword_set(filename) then
 ;;filename='/SPENCEdata/software/sdt/batch_jobs/FASTlocation/'+'Dartmouth_fastloc_intervals'+strcompress(orbStr+'_'+string(jjj)+"_magcal_v"
 ;;+ string(version)+"_burst",/remove_all)
-     if jjj GT 0 or not keyword_set(filename) then filename= curfile
+     IF jjj GT 0 OR NOT keyword_set(filename) THEN filename = curfile
 
-     print,filename,jjj
-     openw,unit1,filename,/get_lun
-     printf,unit1,FORMAT='("time range: ",A24,T40,A24)',time_to_str(time_ranges(jjj,0),/ms),time_to_str(time_ranges(jjj,1),/ms)
+     IF nPoints GT 0 THEN BEGIN
 
-     printf,unit1,' Column No.  	1-Orbit number'
-     printf,unit1,'                     2-time'
-     printf,unit1,'                     3-altitude'
-     printf,unit1,'                     4-MLT'
-     printf,unit1,'                     5-ILAT'			
-     printf,unit1,'                     6-fields mode'
+        print,filename,jjj
+        openw,unit1,filename,/get_lun
+        printf,unit1,FORMAT='("time range: ",A24,T40,A24)',time_to_str(time_ranges(jjj,0),/ms),time_to_str(time_ranges(jjj,1),/ms)
+        
+        printf,unit1,' Column No.  	   1-Orbit number'
+        printf,unit1,'                     2-time'
+        printf,unit1,'                     3-altitude'
+        printf,unit1,'                     4-MLT'
+        printf,unit1,'                     5-ILAT'			
+        printf,unit1,'                     6-fields mode'
+        
+        FOR jj=0L,nPoints-1 DO BEGIN
+           printf,unit1,format='(I9,A24,4G13.6)',orbit,time_to_str(je_tmp_time[jj],/ms),alt.y[jj],mlt.y[jj],ilat.y[jj],fieldsmode_arr[jj]
+        ENDFOR
+        
+        free_lun,unit1
+        
+     ENDIF
 
-     for jj=0L,n_elements(je_tmp_time)-1 do begin
-        printf,unit1,format='(I9,A24,4G13.6)',orbit,time_to_str(je_tmp_time[jj],/ms),alt.y[jj],mlt.y[jj],ilat.y[jj],fieldsmode_arr[jj]
-     ENDFOR
-  ENDFOR  
-  
-free_lun,unit1
+  ENDFOR
 
-
-  return 
-end
+  RETURN 
+END
