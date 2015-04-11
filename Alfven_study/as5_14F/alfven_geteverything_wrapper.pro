@@ -20,7 +20,7 @@
 ;*****************************
 ;Put code here:
 
-alfven_stats_5_geteverything
+alfven_stats_5_geteverything,/DONTSHOWPLOTS
 
 ;*****************************
 ;End routine:
