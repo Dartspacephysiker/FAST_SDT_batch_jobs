@@ -1,0 +1,29 @@
+#2015/04/16
+#I started running this SDT batch job last Saturday around 20:30. We started at orbit 1503, and we've arrived at 3702, inclusive.
+
+#Calc of time we've been running so far, from `ps aux` output
+6780/60 #Get it in hours
+113.00000000000000000000
+last/24 #And in days
+4.70833333333333333333
+(last-4)*24 #Mod # days
+16.99999999999999999992
+#OK, we've been going for 4 days and 17 hours.
+
+#Now, how many orbits per hour?
+(3703-1503)/(6780/60)
+19.46902654867256637168
+#So 19.47 orbs an hour...
+#There are (14999-499) orbits total
+last
+19.46902654867256637168
+(14999-3702-500)/last #subtract another 500 since we don't do the first 500 orbs
+554.57318181818181818185
+#Hmm... 580 hours of processing left?
+last/24
+23.10721590909090909091
+(last-23)*24
+2.57318181818181818184 
+#23 days and 2.5 hours to process the remaining orbs
+#So in total, (about) 27 days and 19.5 hours to do the whole database
+#about a month...I guess it adds up

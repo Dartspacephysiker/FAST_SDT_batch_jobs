@@ -1,0 +1,9 @@
+BatchJob: "fastlocation"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/FASTlocation/fastlocation_wrapper.pro
+
+DataBaseRequest:
+    Orbits 500-1999
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/FASTlocation
+PlotConfigurationFile: fastlocation

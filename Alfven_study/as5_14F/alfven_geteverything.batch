@@ -1,0 +1,9 @@
+BatchJob: "alfven_stats_5_geteverything"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/alfven_geteverything_wrapper.pro
+
+DataBaseRequest:
+    Orbits 3703-14999
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F
+PlotConfigurationFile: chaston_survey_5
