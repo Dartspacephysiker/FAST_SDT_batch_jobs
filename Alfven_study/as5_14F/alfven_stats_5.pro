@@ -2,7 +2,7 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
                    t1=t1,t2=t2,filterfreq=filterfreq,$
                    burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only, $
                    BELOW_AURORAL_OVAL=below_auroral_oval, $
-                   png_sumplot=png_sumplot,png_ourevents=png_ourevents, $
+                   png_sumplot=png_sumplot,png_ourevents=png_ourevents, DONTSHOWPLOTS=dontShowPlots, $
                    CONT_IF_FILE_EXISTS=cont_if_file_exists
 
   as5_dir = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/'
@@ -701,11 +701,12 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
            tplot,['Je','CharE','JEei','Ji','JEi','MagZ','jtemp'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges(jjj,0),time_ranges(jjj,1)]
            cgPS_Close, /PNG, /Delete_PS, Width=1000
         ENDIF ELSE BEGIN 
-           window,0,xsize=600,ysize=800
-           loadct,39
-           !p.charsize=1.3
-           tplot,['Je','CharE','JEei','Ji','JEi','MagZ'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges(jjj,0),time_ranges(jjj,1)]
-
+           IF NOT KEYWORD_SET(dontShowPlots) THEN BEGIN
+              window,0,xsize=600,ysize=800
+              loadct,39
+              !p.charsize=1.3
+              tplot,['Je','CharE','JEei','Ji','JEi','MagZ'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges(jjj,0),time_ranges(jjj,1)]
+           ENDIF
         ENDELSE
 
         start_points=[0]
