@@ -1,0 +1,9 @@
+BatchJob: "alfven_stats_5_below_auroral_oval"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/alfven_below_aur_oval_wrapper.pro
+
+DataBaseRequest:
+    Orbits 500-10000
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F
+PlotConfigurationFile: chaston_survey_5
