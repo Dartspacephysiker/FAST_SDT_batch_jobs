@@ -93,12 +93,12 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
      store_data,'Je',data={x:tx,y:ty}
   endelse
   
-  ;;eliminate data from latitudes below the Holzworth/Meng auroral oval 
+  ;;eliminate data from latitudes above the Holzworth/Meng auroral oval 
   get_data,'Je',data=je
   get_fa_orbit,/time_array,je.x
   get_data,'MLT',data=mlt
   get_data,'ILAT',data=ilat
-  keep=where(abs(ilat.y) LE auroral_zone(mlt.y,7,/lat)/(!DPI)*180.0 AND abs(ilat.y) GE 60.0 )
+  keep=where(abs(ilat.y) LE auroral_zone(mlt.y,7,/lat)/(!DPI)*180.0 AND abs(ilat.y) GE 50.0 )
   store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 
   ;;Use the electron data to define the time ranges for this orbit	

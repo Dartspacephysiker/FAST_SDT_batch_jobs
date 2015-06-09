@@ -1,0 +1,1 @@
+head -n 1 /SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/batch_output/Dartmouth_as5_dflux_{1,2,3,4,5,6,7,8,9} -q | awk --assign sum=0 --assign nintervals=0 '{ sum +=$1; nintervals += 1 } END { print "Num events:  " sum; print "N Intervals: " nintervals }'

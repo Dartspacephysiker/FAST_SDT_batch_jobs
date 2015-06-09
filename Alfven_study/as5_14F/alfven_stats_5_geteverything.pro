@@ -8,6 +8,9 @@ pro alfven_stats_5_geteverything,filename=filename,energy_electrons=energy_elect
 
 ;  IF NOT KEYWORD_SET(cont_if_file_exists) THEN cont_if_file_exists=1
 
+;2015/06/08
+;Edited auroral zone stuff, so we get everything above 55 ILAT
+
 ;12/29/2014
 ;On Dartmouth Coach, integrating work on
 ;'alfven_stats_5_startstop.pro', and have also added 'png_sumplot'
@@ -98,7 +101,8 @@ pro alfven_stats_5_geteverything,filename=filename,energy_electrons=energy_elect
   get_fa_orbit,/time_array,je.x
   get_data,'MLT',data=mlt
   get_data,'ILAT',data=ilat
-  keep=where(abs(ilat.y) GT auroral_zone(mlt.y,7,/lat)/(!DPI)*180.)
+  ;; keep=where(abs(ilat.y) GT auroral_zone(mlt.y,7,/lat)/(!DPI)*180.)
+  keep=where(abs(ilat.y) GE 55.0 )
   store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 
   ;;Use the electron data to define the time ranges for this orbit	

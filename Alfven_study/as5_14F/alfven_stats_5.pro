@@ -1,7 +1,7 @@
 pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
                    t1=t1,t2=t2,filterfreq=filterfreq,$
                    burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only, $
-                   BELOW_AURORAL_OVAL=below_auroral_oval, $
+                   BELOW_AURORAL_OVAL=below_auroral_oval, ONLY_BELOW_AURORAL_OVAL=only_below_auroral_oval, $
                    png_sumplot=png_sumplot,png_ourevents=png_ourevents, DONTSHOWPLOTS=dontShowPlots, $
                    CONT_IF_FILE_EXISTS=cont_if_file_exists
 
@@ -45,6 +45,12 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
                            ;threshold=20.0;threshold current for identifying SKAW in microA/m^2
                            ;***********************************************************
 
+;2015/06/08 
+;Trying to figure out why I can't get orbit 15011 to work in batch mode
+;I DO get valid data if I just run each line here, but if I run this as a batch job with SDT, I got
+;the 'No FAST survey data' error
+;; @startup
+;; wait,2
                            ;thresholds for inclusion as Alfven waves
   current_threshold=1.0    ;microA/m^2
   delta_b_threshold=5.0    ; nT
@@ -63,7 +69,7 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
   dat = get_fa_ees(t,/st)
   if dat.valid eq 0 then begin
      print,' ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data'
-     return
+;     return
   endif
 
   ;; Electron current - line plot
@@ -102,12 +108,17 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
   get_fa_orbit,/time_array,je.x
   get_data,'MLT',data=mlt
   get_data,'ILAT',data=ilat
-  IF KEYWORD_SET(below_auroral_oval) THEN BEGIN
+  IF KEYWORD_SET(only_below_auroral_oval) THEN BEGIN
      keep=where(abs(ilat.y) LE auroral_zone(mlt.y,7,/lat)/(!DPI)*180.0 AND abs(ilat.y) GE 50.0 )
-     belowAurOvalStr='--below_aur_oval'
+     belowAurOvalStr='--only_below_aur_oval'
   ENDIF ELSE BEGIN
-     keep=where(abs(ilat.y) GT auroral_zone(mlt.y,7,/lat)/(!DPI)*180.)
-     belowAurOvalStr=''
+     IF KEYWORD_SET(below_auroral_oval) THEN BEGIN
+        keep=where(abs(ilat.y) GE 50.0 )
+        belowAurOvalStr='below_aur_oval'
+     ENDIF ELSE BEGIN
+        keep=where(abs(ilat.y) GT auroral_zone(mlt.y,7,/lat)/(!DPI)*180.)
+        belowAurOvalStr=''
+     ENDELSE
   ENDELSE
 
   store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
