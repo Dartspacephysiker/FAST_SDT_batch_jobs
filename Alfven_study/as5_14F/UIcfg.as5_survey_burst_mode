@@ -1,0 +1,1494 @@
+*
+Header :this is the 'as5_survey_burst_mode' configuration file
+Header :created on Fri Aug  7 16:02:04 2015
+*
+*
+Description : 
+
+*
+
+Configuration
+{
+Config Name:			'as5_survey_burst_mode'
+Config MenuPosition:		6, -14
+Config MenuSize:		300, 300
+Config DefaultSourceId:	'?'
+Config CurrentPlotWindow:	'as5_survey_burst_mode:0 - DA'
+
+	PlotWinStandard
+	{
+	PlotWin Name:		'as5_survey_burst_mode:0 - DA'
+	PlotWin Position:	-3, -22
+	PlotWin Size:		1278, 972
+	PlotWin PlotsPage:	6
+	PlotWin TopPlotOfPage:	'V8_S'
+
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'EesaBrst: Angle'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'EesaBrst: Angle'
+		Plot2 PlotYTitleName:	'Counts'
+		Plot2 PlotYSubTitleName:	'_'
+		Plot2 PlotZTitleName:	'Energy'
+		Plot2 PlotZSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	LINEAR LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	32, 255, 1, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'EesaBrst: ELevel'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'EesaBrst: ELevel'
+		Plot2 PlotYTitleName:	'Counts'
+		Plot2 PlotYSubTitleName:	'_'
+		Plot2 PlotZTitleName:	'Angle'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	LINEAR LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	48, 255, 1, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'EesaBurstAggregate'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'EesaBurstAggregate'
+		Plot2 PlotYTitleName:	'EesaBurstAggregate'
+		Plot2 PlotYSubTitleName:	'counts'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LOG
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 1e+06, 0, 0
+		Plot2 MinLimits:	0, 1, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 40000 0 48
+		Plot2 Accum:		TRUE 0 360 0 32
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa Burst:  Angle'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa Burst:  Angle'
+		Plot2 PlotYTitleName:	'EesaBurst Angle'
+		Plot2 PlotYSubTitleName:	'Deg'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 360 0 32
+		Plot2 Accum:		TRUE 0 40000 0 48
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa Burst:  Energy'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa Burst:  Energy'
+		Plot2 PlotYTitleName:	'EesaBurst Energy'
+		Plot2 PlotYSubTitleName:	'_'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LOG LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	1, 35000, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 1, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 1 40000 0 48
+		Plot2 Accum:		TRUE 0 360 0 32
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa_Burst_Hdr'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa_Burst_Hdr'
+		Plot2 PlotYTitleName:	'Eesa_Burst_Hdr'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		0
+		Plot2 ScaleTypes:	LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 2, 0, 0
+		Plot2 MinLimits:	0, -2, 0, 0
+		Plot2 UseOff:		
+		Plot2 LinOff:		
+		Plot2 LogOff:		
+		Plot2 LineStyle:	
+		Plot2 LinePointsMode:	
+		Plot2 PointsPlot:
+		Plot2 UseBrk:		
+		Plot2 BrkInt:		
+		Plot2 ErrorBar:		
+		Plot2 NSymbols:		
+		Plot2 LineFont:		
+		Plot2 LineColor:	
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'IesaBrst: Angle'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'IesaBrst: Angle'
+		Plot2 PlotYTitleName:	'Counts'
+		Plot2 PlotYSubTitleName:	'_'
+		Plot2 PlotZTitleName:	'Energy'
+		Plot2 PlotZSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	LINEAR LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	32, 255, 1, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'IesaBrst: ELevel'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'IesaBrst: ELevel'
+		Plot2 PlotYTitleName:	'Counts'
+		Plot2 PlotYSubTitleName:	'_'
+		Plot2 PlotZTitleName:	'Angle'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	LINEAR LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	48, 255, 1, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'IesaBurstAggregate'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'IesaBurstAggregate'
+		Plot2 PlotYTitleName:	'IesaBurstAggregate'
+		Plot2 PlotYSubTitleName:	'counts'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LOG
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 1e+06, 0, 0
+		Plot2 MinLimits:	0, 1, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 40000 0 48
+		Plot2 Accum:		TRUE 0 360 0 32
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Iesa Burst:  Angle'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Iesa Burst:  Angle'
+		Plot2 PlotYTitleName:	'IesaBurst Angle'
+		Plot2 PlotYSubTitleName:	'Deg'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	1, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 360 0 32
+		Plot2 Accum:		TRUE 0 40000 0 48
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Iesa Burst:  Energy'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Iesa Burst:  Energy'
+		Plot2 PlotYTitleName:	'IesaBurst Energy'
+		Plot2 PlotYSubTitleName:	'_'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LOG LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	1, 35000, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 1, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 1 40000 0 48
+		Plot2 Accum:		TRUE 0 360 0 32
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Iesa_Burst_Hdr'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Iesa_Burst_Hdr'
+		Plot2 PlotYTitleName:	'Iesa_Burst_Hdr'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		0
+		Plot2 ScaleTypes:	LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 2, 0, 0
+		Plot2 MinLimits:	0, -2, 0, 0
+		Plot2 UseOff:		
+		Plot2 LinOff:		
+		Plot2 LogOff:		
+		Plot2 LineStyle:	
+		Plot2 LinePointsMode:	
+		Plot2 PointsPlot:
+		Plot2 UseBrk:		
+		Plot2 BrkInt:		
+		Plot2 ErrorBar:		
+		Plot2 NSymbols:		
+		Plot2 LineFont:		
+		Plot2 LineColor:	
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa Survey:  Angle'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa Survey:  Angle'
+		Plot2 PlotYTitleName:	'EesaSurvey Angle'
+		Plot2 PlotYSubTitleName:	'Deg'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	1, 360, 800, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 360 0 1
+		Plot2 Accum:		TRUE 0 40000 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa Survey:  Energy'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa Survey:  Energy'
+		Plot2 PlotYTitleName:	'EesaSurvey Energy'
+		Plot2 PlotYSubTitleName:	'_'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LOG LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	1, 40000, 800, 1, 1, 1
+		Plot2 MinLimits:	0, 1, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 40000 0 1
+		Plot2 Accum:		TRUE 0 360 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa_Survey_Hdr'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa_Survey_Hdr'
+		Plot2 PlotYTitleName:	'Eesa_Survey_Hdr'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		0
+		Plot2 ScaleTypes:	LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 2, 0, 0
+		Plot2 MinLimits:	0, -2, 0, 0
+		Plot2 UseOff:		
+		Plot2 LinOff:		
+		Plot2 LogOff:		
+		Plot2 LineStyle:	
+		Plot2 LinePointsMode:	
+		Plot2 PointsPlot:
+		Plot2 UseBrk:		
+		Plot2 BrkInt:		
+		Plot2 ErrorBar:		
+		Plot2 NSymbols:		
+		Plot2 LineFont:		
+		Plot2 LineColor:	
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Iesa Survey:  Angle'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Iesa Survey:  Angle'
+		Plot2 PlotYTitleName:	'IesaSurvey Angle'
+		Plot2 PlotYSubTitleName:	'Deg'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	1, 32, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 32 0 1
+		Plot2 Accum:		TRUE 0 1 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Iesa Survey:  Energy'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Iesa Survey:  Energy'
+		Plot2 PlotYTitleName:	'IesaSurvey Energy'
+		Plot2 PlotYSubTitleName:	'_'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	1, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	0, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 48 0 1
+		Plot2 Accum:		TRUE 0 1 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Iesa_Survey_Hdr'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Iesa_Survey_Hdr'
+		Plot2 PlotYTitleName:	'Iesa_Survey_Hdr'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		0
+		Plot2 ScaleTypes:	LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 2, 0, 0
+		Plot2 MinLimits:	0, -2, 0, 0
+		Plot2 UseOff:		
+		Plot2 LinOff:		
+		Plot2 LogOff:		
+		Plot2 LineStyle:	
+		Plot2 LinePointsMode:	
+		Plot2 PointsPlot:
+		Plot2 UseBrk:		
+		Plot2 BrkInt:		
+		Plot2 ErrorBar:		
+		Plot2 NSymbols:		
+		Plot2 LineFont:		
+		Plot2 LineColor:	
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'MagZDC'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'MagZDC'
+		Plot2 PlotYTitleName:	'MagZDC'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'MagZ'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'MagZ'
+		Plot2 PlotYTitleName:	'MagZ'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'MagYDC'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'MagYDC'
+		Plot2 PlotYTitleName:	'MagYDC'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'MagY'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'MagY'
+		Plot2 PlotYTitleName:	'MagY'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'MagXDC'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'MagXDC'
+		Plot2 PlotYTitleName:	'MagXDC'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'MagX'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'MagX'
+		Plot2 PlotYTitleName:	'MagX'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'FASTSpacecraft_Altitude'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'FASTSpacecraft_Altitude'
+		Plot2 PlotYTitleName:	'Altitude'
+		Plot2 PlotYSubTitleName:	'Km'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 8000, 0, 0
+		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		60
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'FASTSpacecraft_Mlt'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'FASTSpacecraft_Mlt'
+		Plot2 PlotYTitleName:	'MLT'
+		Plot2 PlotYSubTitleName:	'Hrs'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 30, 0, 0
+		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		60
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'FASTSpacecraft_|Velocity|'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'FASTSpacecraft_|Velocity|'
+		Plot2 PlotYTitleName:	'|Vel|'
+		Plot2 PlotYSubTitleName:	'Km/sec'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 20, 0, 0
+		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		60
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'FASTSpacecraft_InvariantLatitude'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'FASTSpacecraft_InvariantLatitude'
+		Plot2 PlotYTitleName:	'ILat'
+		Plot2 PlotYSubTitleName:	'deg'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 90, 0, 0
+		Plot2 MinLimits:	0, -90, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		60
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'V8_S'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'V8_S'
+		Plot2 PlotYTitleName:	'V8_S'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 32768, 1, 1
+		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'V5-V8_S'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'V5-V8_S'
+		Plot2 PlotYTitleName:	'V5-V8_S'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'V1-V2_S'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'V1-V2_S'
+		Plot2 PlotYTitleName:	'V1-V2_S'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'V1-V4_S'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'V1-V4_S'
+		Plot2 PlotYTitleName:	'V1-V4_S'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'NE2_S'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'NE2_S'
+		Plot2 PlotYTitleName:	'NE2_S'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'NE6_S'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'NE6_S'
+		Plot2 PlotYTitleName:	'NE6_S'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'NE9_S'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'NE9_S'
+		Plot2 PlotYTitleName:	'NE9_S'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 32768, 0, 0
+		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'1032-magPhase'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'1032-magPhase'
+		Plot2 PlotYTitleName:	'1032-magPhase'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 4096, 0, 0
+		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'FASTSpacecraft_|Mdl_B|'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'FASTSpacecraft_|Mdl_B|'
+		Plot2 PlotYTitleName:	'|Mdl_B|'
+		Plot2 PlotYSubTitleName:	'nT'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 100000, 0, 0
+		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		60
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'FASTSpacecraft_Mdl_BX'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'FASTSpacecraft_Mdl_BX'
+		Plot2 PlotYTitleName:	'Mdl_BX'
+		Plot2 PlotYSubTitleName:	'nT'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 50000, 0, 0
+		Plot2 MinLimits:	0, -50000, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		60
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'FASTSpacecraft_Mdl_BY'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'FASTSpacecraft_Mdl_BY'
+		Plot2 PlotYTitleName:	'Mdl_BY'
+		Plot2 PlotYSubTitleName:	'nT'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 50000, 0, 0
+		Plot2 MinLimits:	0, -50000, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		60
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'FASTSpacecraft_Mdl_BZ'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'FASTSpacecraft_Mdl_BZ'
+		Plot2 PlotYTitleName:	'Mdl_BZ'
+		Plot2 PlotYSubTitleName:	'nT'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 50000, 0, 0
+		Plot2 MinLimits:	0, -50000, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		60
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'FastFieldsMode_1032'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'FastFieldsMode_1032'
+		Plot2 PlotYTitleName:	'FMode (Apid 1032)'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 300, 1, 0
+		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+	PlotWin EndPlotWindow:
+	}
+}
+
+*
+*
