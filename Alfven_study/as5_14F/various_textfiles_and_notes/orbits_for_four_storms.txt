@@ -1,0 +1,15 @@
+2015/08/07
+These are the orbit numbers of the storms reviewed by Yao et al. [2008]. I want the orbit numbers so that I can process the relevant data under 'burst mode' in alfven_stats_5.pro to see if we're missing out on loads of Alfvén events.
+
+
+11 – 15 February
+13759-13813
+
+6 – 9 April
+14360-14493
+
+24 – 26 May
+14885-14917
+
+17 – 20 September
+16153-16196

@@ -1,0 +1,9 @@
+BatchJob: "alfven_stats_5"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/alfven_burst_wrapper.pro
+
+DataBaseRequest:
+    Orbits 10000-13758
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F
+PlotConfigurationFile: as5_survey_burst_mode
