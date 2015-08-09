@@ -3,7 +3,7 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/alfven_burst_wrapper.pro
 
 DataBaseRequest:
-    Orbits 12778-16999
+    Orbits 12774
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F
-PlotConfigurationFile: as5_survey_burst_mode
+PlotConfigurationFile: as5_survey_burst_mode_for_viewing
