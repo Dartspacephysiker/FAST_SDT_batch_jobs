@@ -1,6 +1,7 @@
 pro fastloc_intervals,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
                    t1=t1,t2=t2,filterfreq=filterfreq,$
                    burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only, $
+                   BELOW_AURORAL_OVAL=below_auroral_oval, ONLY_BELOW_AURORAL_OVAL=only_below_auroral_oval, $
                    png_sumplot=png_sumplot,png_ourevents=png_ourevents, $
                    SKIP_IF_FILE_EXISTS=skip_if_file_exists
 
@@ -55,7 +56,19 @@ pro fastloc_intervals,filename=filename,energy_electrons=energy_electrons,energy
   get_fa_orbit,/time_array,je.x
   get_data,'MLT',data=mlt
   get_data,'ILAT',data=ilat
-  keep=where(abs(ilat.y) GT auroral_zone(mlt.y,7,/lat)/(!DPI)*180.)
+  IF KEYWORD_SET(only_below_auroral_oval) THEN BEGIN
+     keep=where(abs(ilat.y) LE auroral_zone(mlt.y,7,/lat)/(!DPI)*180.0 AND abs(ilat.y) GE 50.0 )
+     belowAurOvalStr='--only_below_aur_oval'
+  ENDIF ELSE BEGIN
+     IF KEYWORD_SET(below_auroral_oval) THEN BEGIN
+        keep=where(abs(ilat.y) GE 50.0 )
+        belowAurOvalStr='below_aur_oval'
+     ENDIF ELSE BEGIN
+        keep=where(abs(ilat.y) GT auroral_zone(mlt.y,7,/lat)/(!DPI)*180.)
+        belowAurOvalStr=''
+     ENDELSE
+  ENDELSE
+
   store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 
   ;;Use the electron data to define the time ranges for this orbit	

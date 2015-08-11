@@ -188,11 +188,13 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
      get_data,'ORBIT',data=tmp
      orbit=tmp.y(0)
      orbit_num=strcompress(string(tmp.y(0)),/remove_all)
+
                                 ;filename for output file
-     curfile = as5_dir + 'batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)+belowAurOvalStr
      IF KEYWORD_SET(burst) THEN BEGIN
-        curfile = curfile + '--burst'
-     ENDIF
+        curfile = as5_dir + 'batch_output__burst/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)+'--'+belowAurOvalStr + '--burst'
+     ENDIF ELSE BEGIN
+        curfile = as5_dir + 'batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)+'--'+belowAurOvalStr
+     ENDELSE
      
      ;;make sure we're not overwriting
      IF file_test(curfile) THEN BEGIN
@@ -1285,10 +1287,15 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
      keep=where(current_intervals(*,3) NE 0.0)
      print,'keep',keep
      if keyword_set(keep_alfven_only) then begin
-        current_intervals=current_intervals(keep,*)
-     endif
+        IF keep[0] EQ -1 THEN BEGIN
+           PRINT,"No meaningful data here! Not producing file..."
+           keep = !NULL
+        ENDIF ELSE BEGIN
+           print,'number of events: ',n_elements(keep)
+           current_intervals=current_intervals(keep,*)
+        ENDELSE
+     ENDIF
 
-     print,'number of intervals',n_elements(keep)
 ;;if jjj GT 0 or not keyword_set(filename) then
 ;;filename='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num+'_'+string(jjj)+"_magcal_v"
 ;;+ string(version)+"_burst",/remove_all)

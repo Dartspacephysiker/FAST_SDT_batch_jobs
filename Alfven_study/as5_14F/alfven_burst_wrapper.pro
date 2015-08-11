@@ -20,7 +20,7 @@
 ;*****************************
 ;Put code here:
 
-alfven_stats_5,/BELOW_AURORAL_OVAL,/DONTSHOWPLOTS
+alfven_stats_5,/keep_alfven_only,/BELOW_AURORAL_OVAL,/DONTSHOWPLOTS,/BURST
 
 ;*****************************
 ;End routine:

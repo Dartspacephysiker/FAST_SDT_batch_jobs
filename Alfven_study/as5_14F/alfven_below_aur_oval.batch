@@ -3,7 +3,7 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/alfven_below_aur_oval_wrapper.pro
 
 DataBaseRequest:
-    Orbits 10000-14999
+    Orbits 15000-16999
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F
 PlotConfigurationFile: chaston_survey_5

@@ -3,7 +3,7 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/FASTlocation/fastloc_intervals2_below_aur_oval_wrapper.pro
 
 DataBaseRequest:
-    Orbits 500-15000
+    Orbits 15000-16361
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/FASTlocation
 PlotConfigurationFile: fastloc_intervals
