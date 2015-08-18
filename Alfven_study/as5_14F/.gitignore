@@ -4,3 +4,8 @@ batch_output_before_revamped_db.tar.gz
 
 #No reject listmaker stuff
 reject_listmaker/rej_output/
+
+#No batch_output
+batch_output/
+batch_output__burst/
+batch_output--all_events/

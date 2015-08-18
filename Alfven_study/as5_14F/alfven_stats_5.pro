@@ -193,7 +193,11 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
      IF KEYWORD_SET(burst) THEN BEGIN
         curfile = as5_dir + 'batch_output__burst/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)+'--'+belowAurOvalStr + '--burst'
      ENDIF ELSE BEGIN
-        curfile = as5_dir + 'batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)+'--'+belowAurOvalStr
+        IF KEYWORD_SET(ucla_mag_despin) THEN BEGIN
+           curfile = as5_dir + 'batch_output__ucla_mag_despin/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)+'--'+belowAurOvalStr + '--ucla_mag_despin'
+        ENDIF ELSE BEGIN
+           curfile = as5_dir + 'batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)+'--'+belowAurOvalStr
+        ENDELSE
      ENDELSE
      
      ;;make sure we're not overwriting
@@ -231,12 +235,23 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
            efieldV58=get_fa_fields('V5-V8_S',time_ranges(jjj,0),time_ranges(jjj,1))
            efieldV1214=get_fa_fields('V1-V2_S',time_ranges(jjj,0),time_ranges(jjj,1))
            if efieldV1214.valid eq 0 then begin
-              print,'No V1-V2 data - trying V1-V4'
+              print,'No V1-V2_S data - trying V1-V4_S'
               efieldV1214=get_fa_fields('V1-V4_S',time_ranges(jjj,0),time_ranges(jjj,1))
-              if efieldV1214.valid eq 0 then begin
-                 print,' ERROR: No FAST fields data - get_fa_fields returned invalid data'
+              if efieldV1214.valid eq 0 AND KEYWORD_SET(burst) then begin
+                 print,'No V1-V4_S data - trying V1-V2_4k (burst)'
+                 efieldV1214=get_fa_fields('V1-V2_4k',time_ranges(jjj,0),time_ranges(jjj,1))
+                 if efieldV1214.valid eq 0 then begin
+                    print,'No V1-V2_4k data - trying V1-V4_4k (burst)'
+                    efieldV1214=get_fa_fields('V1-V4_4k',time_ranges(jjj,0),time_ranges(jjj,1))
+                    if efieldV1214.valid eq 0 then begin
+                       print,'No FAST fields data-get_fa_fields returned invalid data'
+                       data_valid=0.0
+                    endif
+                 endif
+              endif else begin
+                 print,'No FAST fields data-get_fa_fields returned invalid data'
                  data_valid=0.0
-              endif 
+              endelse
            endif 
         endelse
         ;;Langmuir=get_fa_fields('NE2_S',time_ranges(jjj,0),time_ranges(jjj,1))
