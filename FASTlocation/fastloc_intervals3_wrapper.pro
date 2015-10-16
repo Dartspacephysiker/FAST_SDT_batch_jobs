@@ -14,13 +14,13 @@
 
 ; To get "alfven_stats_5.pro" in the PATH, we need this line:
 ;!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F:'+!PATH
-!PATH='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F:'+!PATH
+!PATH='/SPENCEdata/software/sdt/batch_jobs/FASTlocation/:'+!PATH
       
 
 ;*****************************
 ;Put code here:
 
-alfven_stats_5,/keep_alfven_only,/BELOW_AURORAL_OVAL,/DONTSHOWPLOTS,/UCLA_MAG_DESPIN,/HEAVY
+fastloc_intervals3,/SKIP_IF_FILE_EXISTS,/BELOW_AURORAL_OVAL
 
 ;*****************************
 ;End routine:

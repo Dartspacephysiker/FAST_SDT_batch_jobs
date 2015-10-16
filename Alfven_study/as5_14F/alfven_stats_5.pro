@@ -320,6 +320,8 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
         ;; help, efieldV58,/str
         ;; help,efields_combine
         efield={x:efieldV1214.time,y:sqrt(efieldV1214.comp1^2+efields_combine^2)}
+
+
         if not keyword_set(ucla_mag_despin) then begin
            get_data,'MagDCcomp1',data=magx
            get_data,'MagDCcomp2',data=magy
@@ -485,7 +487,6 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
                           name='Jo_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot
               get_2dt_pot,'j_2d','fa_tsh_eq',t1=time_ranges(jjj,0),t2=time_ranges(jjj,1), $
                           name='Jh_up',energy=energy_ions,angle=i_angle_up,sc_pot=sc_pot
-              
            endif
            
         endelse
