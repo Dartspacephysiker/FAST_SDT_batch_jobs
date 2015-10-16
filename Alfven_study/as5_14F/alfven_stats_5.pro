@@ -1397,7 +1397,7 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
 ;			printf,unit1,format='(I9,G13.6,A24,31G13.6)',current_intervals(jj,19),current_intervals(jj,3),time_to_str(current_intervals(jj,20),/ms),$
                current_intervals(jj,21),current_intervals(jj,22),current_intervals(jj,23),current_intervals(jj,4),$
                current_intervals(jj,5),current_intervals(jj,6),current_intervals(jj,40),current_intervals(jj,7),$
-               current_intervals(jj,41),current_intervals(jj,8),current_intervals(jj,39),$
+               current_intervals(jj,41),current_intervals(jj,8),current_intervals(jj,39),$ ;;Counting from 1, jj,39 is item 14
                current_intervals(jj,9),current_intervals(jj,10),current_intervals(jj,11),current_intervals(jj,12),$
                current_intervals(jj,13),current_intervals(jj,14),current_intervals(jj,15),current_intervals(jj,16),$
                current_intervals(jj,17),current_intervals(jj,18),current_intervals(jj,26),current_intervals(jj,27),$

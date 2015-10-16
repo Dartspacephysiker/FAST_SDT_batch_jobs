@@ -264,7 +264,7 @@ PRO fastloc_intervals3,filename=filename,energy_electrons=energy_electrons,energ
         printf,unit1,'                     4-MLT'
         printf,unit1,'                     5-ILAT'			
         printf,unit1,'                     6-fields mode'
-        printf,unit1,'                     7-magnetometer sample period'
+        printf,unit1,'                     7-fields sample period'
         
         FOR jj=0L,nPoints-1 DO BEGIN
            printf,unit1,format='(I9,A24,5G13.6)',orbit,time_to_str(je_tmp_time[jj],/ms),alt.y[jj],mlt.y[jj],ilat.y[jj],fieldsmode_arr[jj],sample_t_arr[jj]
