@@ -48,7 +48,7 @@ PRO fastloc_intervals3,filename=filename,energy_electrons=energy_electrons,energ
   
   ;;throw away the first 10  points since they are often corrupted
   if not keyword_set(burst) then begin
-     store_data,'Je',data={x:tx(10:n_elements(tx)-1),y:ty(10:n_elements(tx)-1)}
+     store_data,'Je',data={x:tx[10:n_elements(tx)-1],y:ty[10:n_elements(tx)-1]}
   endif else begin
      store_data,'Je',data={x:tx,y:ty}
   endelse
@@ -158,7 +158,7 @@ PRO fastloc_intervals3,filename=filename,energy_electrons=energy_electrons,energ
         print,' ERROR: No FAST mag data-get_fa_fields returned invalid data'
         data_valid=0.0
      endif else begin
-        if not keyword_set(ucla_mag_despin) then field=get_fa_fields('MagDC',time_ranges(jjj,0),time_ranges(jjj,1),/store)
+        if not keyword_set(ucla_mag_despin) then field=get_fa_fields('MagDC',time_ranges(jjj,0),time_ranges(jjj,1))
         dat=get_fa_fields('V5-V8_S',t,/start)
         if dat.valid eq 0 then begin
            print,' ERROR: No FAST V5-V8 data-get_fa_fields returned invalid data'
@@ -267,7 +267,7 @@ PRO fastloc_intervals3,filename=filename,energy_electrons=energy_electrons,energ
         printf,unit1,'                     7-magnetometer sample period'
         
         FOR jj=0L,nPoints-1 DO BEGIN
-           printf,unit1,format='(I9,A24,4G13.6)',orbit,time_to_str(je_tmp_time[jj],/ms),alt.y[jj],mlt.y[jj],ilat.y[jj],fieldsmode_arr[jj],sample_t_arr[jj]
+           printf,unit1,format='(I9,A24,5G13.6)',orbit,time_to_str(je_tmp_time[jj],/ms),alt.y[jj],mlt.y[jj],ilat.y[jj],fieldsmode_arr[jj],sample_t_arr[jj]
         ENDFOR
         
         free_lun,unit1
