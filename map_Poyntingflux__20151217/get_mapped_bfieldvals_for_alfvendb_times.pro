@@ -49,26 +49,33 @@ PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES
                 
   these_i       = where(alfOrbits EQ tmp.y[0]) ;relevant indices
                 
-  times_i       = MAKE_ARRAY(N_ELEMENTS(these_i),/LONG)
-  times         = MAKE_ARRAY(N_ELEMENTS(these_i),/DOUBLE)
-  ratios        = MAKE_ARRAY(N_ELEMENTS(these_i),/DOUBLE)
+  IF these_i[0] NE -1 THEN BEGIN
+     
+     times_i       = MAKE_ARRAY(N_ELEMENTS(these_i),/LONG)
+     times         = MAKE_ARRAY(N_ELEMENTS(these_i),/DOUBLE)
+     ratios        = MAKE_ARRAY(N_ELEMENTS(these_i),/DOUBLE)
+     
+     FOR j=0,N_ELEMENTS(these_i)-1 DO BEGIN
+        tempMin    = MIN(ABS(tmp.x-cdbTime[these_i[j]]),tempMin_i)
+        times[j]   = tmp.x[tempMin_i]
+        times_i[j] = tempMin_i
+     ENDFOR
+     
+     ;;Scale electron energy flux to 100km, pos flux earthward
+     get_data,'ILAT',data=tmp
+     get_data,'B_model',data=tmp1
+     get_data,'BFOOT',data=tmp2
+     ;; mag1 = (tmp1.y(*,0)*tmp1.y(*,0)+tmp1.y(*,1)*tmp1.y(*,1)+tmp1.y(*,2)*tmp1.y(*,2))^0.5
+     ;; mag2 = (tmp2.y(*,0)*tmp2.y(*,0)+tmp2.y(*,1)*tmp2.y(*,1)+tmp2.y(*,2)*tmp2.y(*,2))^0.5
+     mag1 = (tmp1.y(times_i,0)*tmp1.y(times_i,0)+tmp1.y(times_i,1)*tmp1.y(times_i,1)+tmp1.y(times_i,2)*tmp1.y(times_i,2))^0.5
+     mag2 = (tmp2.y(times_i,0)*tmp2.y(times_i,0)+tmp2.y(times_i,1)*tmp2.y(times_i,1)+tmp2.y(times_i,2)*tmp2.y(times_i,2))^0.5
+     ratio = (mag2/mag1)
+     
+     save,times,ratio,mag1,mag2,FILENAME=outDir+'mapping_ratio--orb_'+orbit_num
+     
 
-  FOR j=0,N_ELEMENTS(these_i)-1 DO BEGIN
-     tempMin    = MIN(ABS(tmp.x-cdbTime[these_i[j]]),tempMin_i)
-     times[j]   = tmp.x[tempMin_i]
-     times_i[j] = tempMin_i
-  ENDFOR
-
-  ;;Scale electron energy flux to 100km, pos flux earthward
-  get_data,'ILAT',data=tmp
-  get_data,'B_model',data=tmp1
-  get_data,'BFOOT',data=tmp2
-  ;; mag1 = (tmp1.y(*,0)*tmp1.y(*,0)+tmp1.y(*,1)*tmp1.y(*,1)+tmp1.y(*,2)*tmp1.y(*,2))^0.5
-  ;; mag2 = (tmp2.y(*,0)*tmp2.y(*,0)+tmp2.y(*,1)*tmp2.y(*,1)+tmp2.y(*,2)*tmp2.y(*,2))^0.5
-  mag1 = (tmp1.y(times_i,0)*tmp1.y(times_i,0)+tmp1.y(times_i,1)*tmp1.y(times_i,1)+tmp1.y(times_i,2)*tmp1.y(times_i,2))^0.5
-  mag2 = (tmp2.y(times_i,0)*tmp2.y(times_i,0)+tmp2.y(times_i,1)*tmp2.y(times_i,1)+tmp2.y(times_i,2)*tmp2.y(times_i,2))^0.5
-  ratio = (mag2/mag1)
-
-  save,times,ratio,mag1,mag2,FILENAME=outDir+'mapping_ratio--orb_'+orbit_num
+  ENDIF ELSE BEGIN
+     PRINT,'No data for orbit ' + orbit_num + '!!!'
+  ENDELSE
 
 END
