@@ -80,7 +80,8 @@ pro explore_teams
   ENDIF ELSE BEGIN
      print,' could not get timespan...'
   ENDELSE
-  orbit_file=fa_almanac_dir()+'/orbit/predicted'
+  ;; orbit_file=fa_almanac_dir()+'/orbit/predicted'
+  orbit_file=fa_almanac_dir()+'/orbit/definitive' ;Is this better because it's what actually happened instead of what was predicted?
   get_fa_orbit,t1,t2,orbit_file=orbit_file,/all,status=orb_stat
   get_data,'ORBIT',data=tmp
   orbit=tmp.y(0)
