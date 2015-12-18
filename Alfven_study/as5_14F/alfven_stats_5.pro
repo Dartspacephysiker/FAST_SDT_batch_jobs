@@ -114,7 +114,7 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
   ENDIF ELSE BEGIN
      IF KEYWORD_SET(below_auroral_oval) THEN BEGIN
         keep=where(abs(ilat.y) GE 50.0 )
-        belowAurOvalStr='below_aur_oval'
+        belowAurOvalStr='--below_aur_oval'
      ENDIF ELSE BEGIN
         keep=where(abs(ilat.y) GT auroral_zone(mlt.y,7,/lat)/(!DPI)*180.)
         belowAurOvalStr=''
@@ -194,7 +194,9 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
         curfile = as5_dir + 'batch_output__burst/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)+'--'+belowAurOvalStr + '--burst'
      ENDIF ELSE BEGIN
         IF KEYWORD_SET(ucla_mag_despin) THEN BEGIN
-           curfile = as5_dir + 'batch_output__ucla_mag_despin/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)+'--'+belowAurOvalStr + '--ucla_mag_despin'
+;;           curfile = as5_dir +
+;;           'batch_output__ucla_mag_despin/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)+'--'+belowAurOvalStr + '--ucla_mag_despin'
+           curfile = as5_dir + 'batch_output__ucla_mag_despin_201512/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)+'--'+belowAurOvalStr + '--ucla_mag_despin'
         ENDIF ELSE BEGIN
            curfile = as5_dir + 'batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)+'--'+belowAurOvalStr
         ENDELSE

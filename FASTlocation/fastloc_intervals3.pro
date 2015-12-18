@@ -1,6 +1,6 @@
 ;2015/10/16 Additionally, it has come to my attention that we absolutely have to have the magnetometer sampling rate. I am hereby
 ;             called upon to recreate the whole friggin' database.
-;2015/04/07 This pro uses intervals as defined by Alfven_Stats_5, but interpolates data to 5-s resolution
+;2015/04/07 (with ref. to fastloc_intervals2) This pro uses intervals as defined by Alfven_Stats_5, but interpolates data to 5-s resolution
 PRO fastloc_intervals3,filename=filename,energy_electrons=energy_electrons,energy_ions=energy_ions, $
                        t1=t1,t2=t2,filterfreq=filterfreq,$
                        burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin, $
