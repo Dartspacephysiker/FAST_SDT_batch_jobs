@@ -1,0 +1,9 @@
+BatchJob: "get_mapping_ratio_for_pflux"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/map_Poyntingflux__20151217/map_pflux_wrapper.pro
+
+DataBaseRequest:
+    Orbits 500-16361
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/map_Poyntingflux__20151217/
+PlotConfigurationFile: just_some_basics
