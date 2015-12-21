@@ -3,7 +3,11 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/map_Poyntingflux__20151217/map_pflux_wrapper.pro
 
 DataBaseRequest:
-    Orbits 8999-9294
+    Orbits 1984 
+    Orbits 4960 
+    Orbits 10994 
+    Orbits 10996 
+    Orbits 11003
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/map_Poyntingflux__20151217/
 PlotConfigurationFile: just_some_basics

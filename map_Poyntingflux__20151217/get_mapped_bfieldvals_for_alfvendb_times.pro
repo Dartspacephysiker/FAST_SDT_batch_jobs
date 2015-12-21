@@ -27,27 +27,33 @@ PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES
   get_data,'Je',data=tmpj
   
   keep=where(finite(tmpj.y) NE 0)
-  tmpj.x=tmpj.x(keep)
-  tmpj.y=tmpj.y(keep)
+  tmpj.x=tmpj.x[keep]
+  tmpj.y=tmpj.y[keep]
   
   keep=where(abs(tmpj.y) GT 0.0)
-  tx=tmpj.x(keep)
-  ty=tmpj.y(keep)
+  tx=tmpj.x[keep]
+  ty=tmpj.y[keep]
   
   ;;get timescale monotonic
   time_order=sort(tx)
-  tx=tx(time_order)
-  ty=ty(time_order)
+  tx=tx[time_order]
+  ty=ty[time_order]
   ;;And now some orbit stuff
   ;; get_fa_orbit,t1,t2,orbit_file=orbit_file,/all,status=orb_stat
   get_data,'Je',data=je
   get_fa_orbit,/time_array,je.x,/all
   get_data,'ORBIT',data=tmp
 
-  orbit         = tmp.y[0]
-  orbit_num     = strcompress(string(tmp.y[0]),/remove_all)
+  orbInd        = N_ELEMENTS(tmp.y)/2
+  unOrbs        = tmp.y[UNIQ(tmp.y)]
+  IF N_ELEMENTS(unOrbs) GT 1 THEN BEGIN
+     PRINT,FORMAT='("Look out! This orbit could be anything: ",(I0,TR5))',unOrbs
+  ENDIF
+
+  orbit         = tmp.y[orbInd]
+  orbit_num     = strcompress(string(tmp.y[orbInd]),/remove_all)
                 
-  these_i       = where(alfOrbits EQ tmp.y[0]) ;relevant indices
+  these_i       = where(alfOrbits EQ tmp.y[orbInd]) ;relevant indices
                 
   IF these_i[0] NE -1 THEN BEGIN
      
@@ -67,8 +73,8 @@ PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES
      get_data,'BFOOT',data=tmp2
      ;; mag1 = (tmp1.y(*,0)*tmp1.y(*,0)+tmp1.y(*,1)*tmp1.y(*,1)+tmp1.y(*,2)*tmp1.y(*,2))^0.5
      ;; mag2 = (tmp2.y(*,0)*tmp2.y(*,0)+tmp2.y(*,1)*tmp2.y(*,1)+tmp2.y(*,2)*tmp2.y(*,2))^0.5
-     mag1 = (tmp1.y(times_i,0)*tmp1.y(times_i,0)+tmp1.y(times_i,1)*tmp1.y(times_i,1)+tmp1.y(times_i,2)*tmp1.y(times_i,2))^0.5
-     mag2 = (tmp2.y(times_i,0)*tmp2.y(times_i,0)+tmp2.y(times_i,1)*tmp2.y(times_i,1)+tmp2.y(times_i,2)*tmp2.y(times_i,2))^0.5
+     mag1 = (tmp1.y[times_i,0]*tmp1.y[times_i,0]+tmp1.y[times_i,1]*tmp1.y[times_i,1]+tmp1.y[times_i,2]*tmp1.y[times_i,2])^0.5
+     mag2 = (tmp2.y[times_i,0]*tmp2.y[times_i,0]+tmp2.y[times_i,1]*tmp2.y[times_i,1]+tmp2.y[times_i,2]*tmp2.y[times_i,2])^0.5
      ratio = (mag2/mag1)
      
      save,times,ratio,mag1,mag2,FILENAME=outDir+'mapping_ratio--orb_'+orbit_num

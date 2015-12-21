@@ -1,0 +1,90 @@
+BatchJob: "get_mapping_ratio_for_pflux"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/map_Poyntingflux__20151217/map_pflux_wrapper.pro
+
+DataBaseRequest:
+    Orbits  513 - 515
+    Orbits  567 - 580
+    Orbits  632 - 634
+    Orbits  686 - 688
+    Orbits  740 - 742
+    Orbits  914
+    Orbits  1120
+    Orbits  1239
+    Orbits  1293
+    Orbits  1412
+    Orbits  1466
+    Orbits  1520
+    Orbits  1574
+    Orbits  1585
+    Orbits  1639
+    Orbits  1693
+    Orbits  1747
+    Orbits  1758
+    Orbits  1812
+    Orbits  1866
+    Orbits  1920
+    Orbits  1931
+    Orbits  1983
+    Orbits  2039
+    Orbits  2158
+    Orbits  2212
+    Orbits  2742
+    Orbits  2817
+    Orbits  2947
+    Orbits  3034
+    Orbits  3055
+    Orbits  3120
+    Orbits  3153
+    Orbits  3445
+    Orbits  4159
+    Orbits  4278
+    Orbits  4440
+    Orbits  4494
+    Orbits  4559
+    Orbits  4581
+    Orbits  4613
+    Orbits  4678
+    Orbits  4743
+    Orbits  4830
+    Orbits  4862
+    Orbits  4959
+    Orbits  4981
+    Orbits  5035
+    Orbits  5165
+    Orbits  5263
+    Orbits  5295
+    Orbits  5328
+    Orbits  5414
+    Orbits  5447
+    Orbits  5663
+    Orbits  5696
+    Orbits  5826
+    Orbits  5945
+    Orbits  5956
+    Orbits  6021
+    Orbits  6335
+    Orbits  6595
+    Orbits  6898
+    Orbits  7169
+    Orbits  7180
+    Orbits  7321
+    Orbits  7386
+    Orbits  7560
+    Orbits  7842
+    Orbits  7983
+    Orbits  8059
+    Orbits  8113
+    Orbits  8124
+    Orbits  8200
+    Orbits  8265
+    Orbits  8276
+    Orbits  8330
+    Orbits  8341
+    Orbits  10995
+    Orbits  11001
+    Orbits  11002
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/map_Poyntingflux__20151217/
+PlotConfigurationFile: just_some_basics
+
