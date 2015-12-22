@@ -48,7 +48,6 @@ DataBaseRequest:
     Orbits  4743
     Orbits  4830
     Orbits  4862
-    Orbits  4959
     Orbits  4981
     Orbits  5035
     Orbits  5165
@@ -81,9 +80,6 @@ DataBaseRequest:
     Orbits  8276
     Orbits  8330
     Orbits  8341
-    Orbits  10995
-    Orbits  11001
-    Orbits  11002
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/map_Poyntingflux__20151217/
 PlotConfigurationFile: just_some_basics
