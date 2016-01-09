@@ -6,7 +6,7 @@ PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES__UCLA_DESPIN_201512
   thisDir    = '/SPENCEdata/software/sdt/batch_jobs/map_Poyntingflux__20151217/'
   alfFile    = 'alfTimes_and_alfOrbits--20160107_despun_DB.sav'
 
-  outDir     = thisDir + 'output/'
+  outDir     = thisDir + 'output__despundb_20160107/'
 
   ;;Get the Alfven DB stuff
   restore,thisDir+alfFile
