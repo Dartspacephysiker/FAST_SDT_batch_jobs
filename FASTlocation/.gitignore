@@ -13,3 +13,6 @@ outIDL.*
 outscm
 outUI
 SelectedEvts
+#No batch output
+batch_output__intervals/
+batch_output__intervals--20160201/

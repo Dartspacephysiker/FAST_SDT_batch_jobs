@@ -13,3 +13,15 @@ batch_output__ucla_mag_despin/
 #Ignore chaston_plotmaker plots
 ../Alfven_study/as5_14F/chaston_plotmaker/plots/
 
+
+#No UCLA mag despin batch output
+batch_output__ucla_mag_despin_201512/
+
+#No plotmaker plots
+chaston_plotmaker/plots/
+
+#No magcal versions output
+magcal_versions/output/
+
+#No as5 plots
+plots/
