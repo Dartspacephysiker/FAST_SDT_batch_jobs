@@ -5,7 +5,7 @@ PRO fastloc_intervals4,filename=filename,energy_electrons=energy_electrons,energ
                        BELOW_AURORAL_OVAL=below_auroral_oval, ONLY_BELOW_AURORAL_OVAL=only_below_auroral_oval, $
                        SKIP_IF_FILE_EXISTS=skip_if_file_exists
 
-  delta_t                        = 1.0
+  delta_t                        = 2.5
   fastloc_dir                    = '/SPENCEdata/software/sdt/batch_jobs/FASTlocation/'
   ;; fastloc_dir                    = '/SPENCEdata/software/sdt/batch_jobs/FASTlocation/'
 
@@ -49,7 +49,7 @@ PRO fastloc_intervals4,filename=filename,energy_electrons=energy_electrons,energ
   
   
   ;;throw away the first 10  points since they are often corrupted
-  if not keyword_set(burst) then begin
+  if not keyword_set(burst) AND N_ELEMENTS(tx) GT 10 then begin
      store_data,'Je',data={x:tx[10:n_elements(tx)-1],y:ty[10:n_elements(tx)-1]}
   endif else begin
      store_data,'Je',data={x:tx,y:ty}
@@ -266,13 +266,13 @@ PRO fastloc_intervals4,filename=filename,energy_electrons=energy_electrons,energ
 
         print,filename,jjj
 
-        IF N_ELEMENTS(je_tmp_time) NE nPoints THEN BEGIN
-           OPENW,diagLun,diagnosticFile,/GET_LUN,/APPEND
-           PRINTF,diagLun,'Je_tmp_time has ' + STRCOMPRESS(N_ELEMENTS(je_tmp_time),/REMOVE_ALL) + $
-                  ' elements, but there are supposedly ' + STRCOMPRESS(nPoints,/REMOVE_ALL) + ' points!'
-           CLOSE,diagLun
-           FREE_LUN,diagLun
-        ENDIF
+        ;; IF N_ELEMENTS(je_tmp_time) NE nPoints THEN BEGIN
+        ;;    OPENW,diagLun,diagnosticFile,/GET_LUN,/APPEND
+        ;;    PRINTF,diagLun,'Je_tmp_time has ' + STRCOMPRESS(N_ELEMENTS(je_tmp_time),/REMOVE_ALL) + $
+        ;;           ' elements, but there are supposedly ' + STRCOMPRESS(nPoints,/REMOVE_ALL) + ' points!'
+        ;;    CLOSE,diagLun
+        ;;    FREE_LUN,diagLun
+        ;; ENDIF
 
         IF N_ELEMENTS(mlt.y) NE nPoints THEN BEGIN
            OPENW,diagLun,diagnosticFile,/GET_LUN,/APPEND
@@ -307,7 +307,9 @@ PRO fastloc_intervals4,filename=filename,energy_electrons=energy_electrons,energ
         ENDIF
 
         fastLoc_intervals={ORBIT:REPLICATE(orbit,nPoints), $
-                           TIME:TIME_TO_STR(je_tmp_time,/ms), $
+                           ;; TIME:TIME_TO_STR(je_tmp_time,/ms), $
+                           TIME:TIME_TO_STR(ilat.x,/ms), $
+                           ALT:alt.y, $
                            MLT:mlt.y, $
                            ILAT:ilat.y, $
                            FIELDS_MODE:fieldsmode_arr, $
