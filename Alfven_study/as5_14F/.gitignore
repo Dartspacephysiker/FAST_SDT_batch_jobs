@@ -10,3 +10,6 @@ batch_output/
 batch_output__burst/
 batch_output--all_events/
 batch_output__ucla_mag_despin/
+#Ignore chaston_plotmaker plots
+../Alfven_study/as5_14F/chaston_plotmaker/plots/
+

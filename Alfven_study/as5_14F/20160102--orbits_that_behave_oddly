@@ -1,0 +1,8 @@
+
+6426,6417
+========
+These ostensibly had duplicate information, with timestamps hanging off one set of files. Interestingly, however, they were not duplicates! The supposed duplicates were data from orbits 6427 and 6418!
+
+509,505,503,502
+===============
+For all of these orbits, there were zeros for all ion species quantities (or so I surmise that's what they were based on their position at the end of the row of text), but the supposed duplicates had actual values instead of 0.00000.

@@ -7,9 +7,12 @@ PRO fastloc_intervals3,filename=filename,energy_electrons=energy_electrons,energ
                        BELOW_AURORAL_OVAL=below_auroral_oval, ONLY_BELOW_AURORAL_OVAL=only_below_auroral_oval, $
                        SKIP_IF_FILE_EXISTS=skip_if_file_exists
 
-  fastloc_dir = '/SPENCEdata/software/sdt/batch_jobs/FASTlocation/'
+  delta_t                        = 1.0
+  fastloc_dir                    = '/SPENCEdata/software/sdt/batch_jobs/FASTlocation/'
+  ;; fastloc_dir                    = '/SPENCEdata/software/sdt/batch_jobs/FASTlocation/'
 
   list_of_attempted_repeats_file='list_of_attempted_repeats--fastloc_intervals3.txt'
+  diagnosticFile                =fastloc_dir+'fastloc_run--20160203--returnvalues_from_get_fa_orbit.txt'
 
 ;  IF NOT KEYWORD_SET(skip_if_file_exists) THEN skip_if_file_exists=1
 
@@ -127,7 +130,7 @@ PRO fastloc_intervals3,filename=filename,energy_electrons=energy_electrons,energ
      orbit=tmp.y(0)
      orbStr=strcompress(string(tmp.y(0)),/remove_all)
                                 ;filename for output file
-     curfile = fastloc_dir + 'batch_output__intervals/'+'Dartmouth_fastloc_intervals3_'+ $
+     curfile = fastloc_dir + 'batch_output__intervals--20160201/'+'Dartmouth_fastloc_intervals3_'+ $
                strcompress(orbStr,/remove_all)+'_'+strcompress(jjj,/remove_all)+belowAurOvalStr
      IF KEYWORD_SET(burst) THEN BEGIN
         curfile = curfile + '--burst'
@@ -212,7 +215,15 @@ PRO fastloc_intervals3,filename=filename,energy_electrons=energy_electrons,energ
         
         ;;get_orbit data
         ;Use the following line if you don't want to line the times up with je_tmp_time
-        get_fa_orbit,time_ranges(jjj,0),time_ranges(jjj,1),DELTA_T=5,/ALL,DRAG_PROP=1
+        get_fa_orbit,time_ranges(jjj,0),time_ranges(jjj,1),DELTA_T=delta_t,/ALL,DRAG_PROP=1,STATUS=orb_status
+        OPENW,diagLun,diagnosticFile,/GET_LUN,/APPEND
+        PRINTF,diagLun,FORMAT='(I0,T20,I0)',orbit,orb_status
+        CLOSE,diagLun
+        FREE_LUN,diagLun
+        IF orb_status NE 0 THEN BEGIN
+           PRINT,'Bad orbit data for orb ' + STRCOMPRESS(orbit,/REMOVE_ALL) + '. Exiting ...'
+           RETURN
+        END
         ;drag_prop is slightly more accurate, but slower. Takes stock of atmosph. drag
         ; turn it off if you want...
         fields_mode=get_fa_fields('DataHdr_1032',time_ranges(jjj,0),time_ranges(jjj,1))
