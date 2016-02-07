@@ -7,56 +7,59 @@ PRO ALFVEN_DAYSIDE_ELECTRONS_IONS_SUMPLOTS
   inFile              = 'journal__20160206__times_for_orbs_with_more_than_50_events_on_dayside_during_mainphase__check_for_msheath_electrons__'+hemi+'.sav'
   RESTORE,inDir+inFile
 
-  plotDir             = '/SPENCEdata/software/sdt/batch_jobs/20160206--storms_Alfvens--msheath_mapping_in_dayside/plots'
+  plotDir             = '/SPENCEdata/software/sdt/batch_jobs/20160206--storms_Alfvens--msheath_mapping_in_dayside/plots/'
   plotPref            = 'alfven_dayside_electrons_during_mainphase--'+hemi+'--'
   plotSuff            = '.ps'
 
   maxAbsI             = 85
   minAbsI             = 55
 
-  t=0
-  dat = get_fa_ees(t,/st)
-  IF dat.valid EQ 0 THEN BEGIN
-     print,' ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data'
-     RETURN
-  ENDIF
+  threshDiff          = 600        ;If time between plots is less than 5 min, space em out!
 
-  ;; Electron current - line plot
-  get_2dt_ts,'j_2d_b','fa_ees',t1=t1,t2=t2,name='Je',energy=energy_electrons
+  ;; t=0
+  ;; dat = get_fa_ees(t,/st)
+  ;; IF dat.valid EQ 0 THEN BEGIN
+  ;;    print,' ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data'
+  ;;    RETURN
+  ;; ENDIF
 
-  ;;remove spurious crap
-  get_data,'Je',data=tmpj
+  ;; ;; Electron current - line plot
+  ;; get_2dt_ts,'j_2d_b','fa_ees',t1=t1,t2=t2,name='Je',energy=energy_electrons
+
+  ;; ;;remove spurious crap
+  ;; get_data,'Je',data=tmpj
   
-  keep=where(finite(tmpj.y) NE 0)
-  tmpj.x=tmpj.x(keep)
-  tmpj.y=tmpj.y(keep)
+  ;; keep=where(finite(tmpj.y) NE 0)
+  ;; tmpj.x=tmpj.x(keep)
+  ;; tmpj.y=tmpj.y(keep)
   
-  keep=where(abs(tmpj.y) GT 0.0)
-  tx=tmpj.x(keep)
-  ty=tmpj.y(keep)
+  ;; keep=where(abs(tmpj.y) GT 0.0)
+  ;; tx=tmpj.x(keep)
+  ;; ty=tmpj.y(keep)
   
-  ;;get timescale monotonic
-  time_order=sort(tx)
-  tx=tx(time_order)
-  ty=ty(time_order)
+  ;; ;;get timescale monotonic
+  ;; time_order=sort(tx)
+  ;; tx=tx(time_order)
+  ;; ty=ty(time_order)
 
-  get_data,'Je',data=je
-  get_fa_orbit,/time_array,je.x
+  ;; get_data,'Je',data=je
+  ;; get_fa_orbit,/time_array,je.x
 
-  ;;Junk the junk
-  get_data,'ILAT',data=ilat
-  keep=where(abs(ilat.y) LE maxAbsI AND abs(ilat.y) GE minAbsI )
-  store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
+  ;; ;;Junk the junk
+  ;; get_data,'ILAT',data=ilat
+  ;; keep=where(abs(ilat.y) LE maxAbsI AND abs(ilat.y) GE minAbsI )
+  ;; store_data,'Je',data={x:je.x(keep),y:je.y(keep)}
 
-  ;;now the good stuff
-  get_data,'Je',data=je
-  get_fa_orbit,/time_array,je.x
-  get_data,'ORBIT',data=tmp
+  ;; ;;now the good stuff
+  ;; get_data,'Je',data=je
+  ;; get_fa_orbit,/time_array,je.x
+  ;; get_data,'ORBIT',data=tmp
 
   ;;get the orb number
-  orbit=tmp.y[0]
+  orbit  = 1535
+  ;; orbit=tmp.y[0]
   orbit_num = STRCOMPRESS(orbit,/REMOVE_ALL)
-  plotName = plotPref+orbit_num+plotSuff
+  plotName = plotPref+orbit_num
 
   ;;Now get the times
   thisInd = WHERE(orbit EQ orbArr)
@@ -65,15 +68,25 @@ PRO ALFVEN_DAYSIDE_ELECTRONS_IONS_SUMPLOTS
      PRINT,'Out ...'
      RETURN
   ENDIF ELSE BEGIN
-     t1     = ORB_STARTSTOPARR[0,thisInd]
-     t2     = ORB_STARTSTOPARR[1,thisInd]
+     t1     = FIX(ORB_STARTSTOPARR[0,thisInd],TYPE=3)
+     t2     = FIX(ORB_STARTSTOPARR[1,thisInd],TYPE=3)
+
+     IF (t2-t1) LE threshDiff THEN BEGIN
+        PRINT,'Increasing sep. twixt t1 and t2; it is only ' + STRCOMPRESS(t2-t1,/REMOVE_ALL) + ' seconds, after all.'
+        ;; maxTime    = MAX(tmp.x,MIN=minTime)
+        ;; t1  = (t1 -threshDiff/2) > minTime
+        ;; t2  = (t2 + threshDiff/2)  < maxTime
+        t1  = t1 -threshDiff/2
+        t2  = t2 + threshDiff/2
+     ENDIF
+
      PRINT,'Orbit: ' + orbit_num
      PRINT,'Start: ' + TIME_TO_STR(t1,/MSEC)
-     PRINT,'Stop : ' + TIME_TO_STR(t1,/MSEC)
+     PRINT,'Stop : ' + TIME_TO_STR(t2,/MSEC)
   ENDELSE
 
   ;; Electron spectrogram - survey data, remove retrace, downgoing electrons
-  get_en_spec,"fa_ees_c",units='eflux',name='el_0',angle=[-22.5,22.5],retrace=1,t1=t1,t2=t2,/calib
+  get_en_spec,"fa_ees",units='eflux',name='el_0',angle=[-22.5,22.5],retrace=1,t1=t1,t2=t2,/calib
   get_data,'el_0', data=tmp                                          ; get data structure
   tmp.y = tmp.y>1.e1                                                 ; Remove zeros
   tmp.y = alog10(tmp.y)                                              ; Pre-log
@@ -183,10 +196,15 @@ PRO ALFVEN_DAYSIDE_ELECTRONS_IONS_SUMPLOTS
   ;; orbit_num=strcompress(string(tmp.y(0)),/remove_all)
   
   ;; Plot the data
-  popen,/port,plotDir+plotName
-  loadct2,43
+  ;; loadct2,43
   tplot,['el_0','el_pa','ion_180','ion_pa','JEe','Je','Ji'],$
         var_label=['ALT','ILAT','MLT'],title='FAST ORBIT '+orbit_num
+
+  popen,/port,plotDir+plotName
+  ;; loadct2,43
+  ;; tplot,['el_0','el_pa','ion_180','ion_pa','JEe','Je','Ji'],$
+  ;;       var_label=['ALT','ILAT','MLT'],title='FAST ORBIT '+orbit_num
+  tplot
   pclose
   
   RETURN 
