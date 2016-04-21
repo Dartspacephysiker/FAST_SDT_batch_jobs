@@ -1,0 +1,161 @@
+*
+Header :this is the 'Eesa_Iesa_some_fields__Orb4494' configuration file
+Header :created on Sat Feb  6 14:16:35 2016
+*
+*
+Description : 
+
+*
+
+Configuration
+{
+Config Name:			'Eesa_Iesa_some_fields__Orb4494'
+Config MenuPosition:		6, -14
+Config MenuSize:		300, 300
+Config DefaultSourceId:	'?'
+Config CurrentPlotWindow:	'Eesa_Iesa_some_fields__Orb4494:0 - DA'
+
+	PlotWinStandard
+	{
+	PlotWin Name:		'Eesa_Iesa_some_fields__Orb4494:0 - DA'
+	PlotWin Position:	371, 350
+	PlotWin Size:		900, 600
+	PlotWin PlotsPage:	6
+	PlotWin TopPlotOfPage:	'Eesa Survey:  Angle'
+	PlotWin DefaultDataBaseResponse:	2450732 85318 2450732 85347 'FNMLine 12'
+   '/FASTdata_1/FAST_JB_1/FAST922_ORBIT3403/lzp/fast_lzp_DSS-29_orbit4498_r'
+   '/FASTdata_1/FAST_JB_1/FAST922_ORBIT3403/lzp/fast_lzp_DSS-29_orbit4498_r'
+   '/FASTdata_1/FAST_JB_1/FAST922_ORBIT3403/lzp/fast_lzp_DSS-76_orbit4495_r'
+   '/FASTdata_1/FAST_JB_1/FAST922_ORBIT3403/lzp/fast_lzp_DSS-76_orbit4495_r'
+   '/FASTdata_1/FAST_JB_1/FAST922_ORBIT3403/lzp/fast_lzp_DSS-76_orbit4496_r'
+   '/FASTdata_1/FAST_JB_1/FAST922_ORBIT3403/lzp/fast_lzp_DSS-76_orbit4496_r'
+   '/FASTdata_1/FAST_JB_1/FAST922_ORBIT3403/lzp/fast_lzp_DSS-76_orbit4497_r'
+   '/FASTdata_1/FAST_JB_1/FAST922_ORBIT3403/lzp/fast_lzp_DSS-76_orbit4497_r'
+   '/FASTdata_2/FAST_JB_2/FAST923_ORBIT4498/lzp/fast_lzp_DSS-29_orbit4500_r'
+   '/FASTdata_2/FAST_JB_2/FAST923_ORBIT4498/lzp/fast_lzp_DSS-29_orbit4500_r'
+   '/FASTdata_2/FAST_JB_2/FAST923_ORBIT4498/lzp/fast_lzp_DSS-29_orbit4501_r'
+   '/FASTdata_2/FAST_JB_2/FAST923_ORBIT4498/lzp/fast_lzp_DSS-29_orbit4501_r'
+
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa Survey:  Angle'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa Survey:  Angle'
+		Plot2 PlotYTitleName:	'EesaSurvey Angle'
+		Plot2 PlotYSubTitleName:	'Deg'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	85347, 360, 10000, 1, 1, 1
+		Plot2 MinLimits:	85318, 0, 0, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 360 0 1
+		Plot2 Accum:		TRUE 0 40000 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa Survey:  Energy'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa Survey:  Energy'
+		Plot2 PlotYTitleName:	'EesaSurvey Energy'
+		Plot2 PlotYSubTitleName:	'_'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LOG LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	85347, 40000, 38000, 1, 1, 1
+		Plot2 MinLimits:	85318, 1, 0, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 40000 0 1
+		Plot2 Accum:		TRUE 0 360 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'MagZDC'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'MagZDC'
+		Plot2 PlotYTitleName:	'MagZDC'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	85347, 32768, 0, 0
+		Plot2 MinLimits:	85318, -32768, 0, 0
+		Plot2 AutoScale:	FALSE, TRUE
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+	PlotWin EndPlotWindow:
+	}
+}
+
+*
+*

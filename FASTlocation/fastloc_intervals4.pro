@@ -49,7 +49,7 @@ PRO fastloc_intervals4,filename=filename,energy_electrons=energy_electrons,energ
   
   
   ;;throw away the first 10  points since they are often corrupted
-  if not keyword_set(burst) then begin
+  if not keyword_set(burst) AND N_ELEMENTS(tx) GT 10 then begin
      store_data,'Je',data={x:tx[10:n_elements(tx)-1],y:ty[10:n_elements(tx)-1]}
   endif else begin
      store_data,'Je',data={x:tx,y:ty}
@@ -309,6 +309,7 @@ PRO fastloc_intervals4,filename=filename,energy_electrons=energy_electrons,energ
         fastLoc_intervals={ORBIT:REPLICATE(orbit,nPoints), $
                            ;; TIME:TIME_TO_STR(je_tmp_time,/ms), $
                            TIME:TIME_TO_STR(ilat.x,/ms), $
+                           ALT:alt.y, $
                            MLT:mlt.y, $
                            ILAT:ilat.y, $
                            FIELDS_MODE:fieldsmode_arr, $
