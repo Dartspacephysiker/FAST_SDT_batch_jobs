@@ -34,3 +34,8 @@ funct_fit2d,dat,angle=[-45,45] ; fit the data
 ; click the right button to end the selection
 ; plot will show a maxwellian fit to data over the energy range
 ; text on the screen will show the source temperature and density 
+
+02/09/1997
+06:06:35
+02/09/1997
+06:07:00

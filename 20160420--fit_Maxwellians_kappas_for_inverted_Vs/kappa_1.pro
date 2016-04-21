@@ -1,5 +1,5 @@
 ;+
-;PROCEDURE: maxwellian_1,x,a,f,pder,units=units,mass=mass,index=ind
+;PROCEDURE: kappa_1,x,a,f,pder,units=units,mass=mass,index=ind
 ;PURPOSE:
 ;	Procedure returns maxwellian function f(x,a) and df/da, where f=a0*exp(a1*x), x-vector of energies.
 ;INPUTS:
@@ -17,18 +17,16 @@
 ;NOTES:
 ;	see funct_fit2d.pro
 ;	see curvefit.pro
-;	see maxwellian_2.pro, maxwellian_3.pro
 ;
-;CREATED BY:	J. McFadden  96-11-14
-;FILE:  maxwellian_1.pro
+;CREATED BY:	S. Hatch     16-04-21 at EGU
+;FILE:  kappa_1.pro
 ;VERSION 1.
-;LAST MODIFICATION: mcfadden 97-10-16	
+;LAST MODIFICATION: Hatch 16-04-21
 ;MOD HISTORY:
-;		97-5		delory	 
 ;		97-10-16	mcfadden	mass in common 
 ;-
 
-pro maxwellian_1,x, $
+pro kappa_1,x, $
                  a, $
                  f, $
                  pder, $
