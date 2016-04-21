@@ -25,8 +25,8 @@ PRO journal_figuring_out_teams__jp_vs_jp2d_comparison__looks_good__01052015
   orbit_file=fa_almanac_dir()+'/orbit/predicted'
   get_fa_orbit,t1,t2,orbit_file=orbit_file,/all,status=orb_stat
   get_data,'ORBIT',data=tmp
-  orbit=tmp.y(0)
-  orbit_num=strcompress(string(tmp.y(0)),/remove_all)
+  orbit=tmp.y[0]
+  orbit_num=strcompress(string(tmp.y[0]),/remove_all)
 
   ;; If no data exists, return to main
   t=0
