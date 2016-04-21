@@ -2,7 +2,10 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
                    t1=t1,t2=t2,filterfreq=filterfreq,$
                    burst=burst,heavy=heavy,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only, $
                    BELOW_AURORAL_OVAL=below_auroral_oval, ONLY_BELOW_AURORAL_OVAL=only_below_auroral_oval, $
-                   png_sumplot=png_sumplot,png_ourevents=png_ourevents, DONTSHOWPLOTS=dontShowPlots, $
+                   PNG_SUMPLOT=png_sumplot, $
+                   PNG_OUREVENTS=png_ourevents, $
+                   PNG_LOTS_OF_QUANTITIES_OUREVENTS=png_lots_of_quantities_ourevents, $
+                   DONTSHOWPLOTS=dontShowPlots, $
                    CONT_IF_FILE_EXISTS=cont_if_file_exists
 
   as5_dir = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/'
@@ -1394,7 +1397,20 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
            ;;  FORMAT='("Chaston event[",I-0,"]: ",A-0," outside range (for jjj=",I-0,")")',$
            ;;  jj,data_chast.time[jj],jjj
         ENDIF
-
+        IF KEYWORD_SET(png_lots_of_quantities_ourevents) THEN BEGIN
+           store_data,'eField',data={x:fields.time,y:fields.comp2,yTitle:'E!Dsp!N'}
+           fname=as5_dir+'plots/20160412--lots_o_quantities/orb_' + strcompress(orbit_num+'_'+string(jjj)+'_'+string(jj),/remove_all) + '--Dart_event_'+strcompress(jj,/remove_all)+'.ps'
+           plotstr = "Event " + str(jj)
+           tplot_options,'title',plotstr
+           cgPS_Open,fname,font=1
+           loadct,39
+           !p.charsize = 1.3
+           ;; tplot,['MagZ','jtemp','eField','Je_lc','JEei','Ji'] , $
+           tplot,['MagZ','jtemp','eField'] , $
+                 VAR_LABEL=['ALT','MLT','ILAT'], $
+                 TRANGE=[magz.x(current_intervals(jj,0)),magz.x(current_intervals(jj,1))]
+           CGPS_CLOSE, /PNG, /DELETE_PS
+        ENDIF
         printf,unit1,format='(I9,G13.6,A24,34G13.6,A24,A24)',current_intervals(jj,19),current_intervals(jj,3),time_to_str(current_intervals(jj,20),/ms),$
 ;			printf,unit1,format='(I9,G13.6,A24,31G13.6)',current_intervals(jj,19),current_intervals(jj,3),time_to_str(current_intervals(jj,20),/ms),$
                current_intervals(jj,21),current_intervals(jj,22),current_intervals(jj,23),current_intervals(jj,4),$

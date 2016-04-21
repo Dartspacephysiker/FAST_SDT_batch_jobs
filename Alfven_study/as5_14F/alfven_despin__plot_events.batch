@@ -1,0 +1,9 @@
+BatchJob: "alfven_stats_5--despin__plot_events"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F/alfven_despin__plot_events_wrapper.pro
+
+DataBaseRequest:
+    Orbits 10000
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F
+PlotConfigurationFile: chaston_survey_5
