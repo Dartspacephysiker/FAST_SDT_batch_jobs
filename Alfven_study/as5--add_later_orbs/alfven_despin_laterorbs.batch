@@ -1,0 +1,9 @@
+BatchJob: "alfven_stats_5_despin_later_orbs"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5--add_later_orbs/alfven_despin_laterorbs_wrapper.pro
+
+DataBaseRequest:
+    Orbits 10210-16361
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/as5--add_later_orbs
+PlotConfigurationFile: chaston_survey_5__no_heavies__pared
