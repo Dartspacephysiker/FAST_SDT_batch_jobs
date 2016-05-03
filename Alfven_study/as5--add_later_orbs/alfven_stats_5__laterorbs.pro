@@ -291,35 +291,35 @@ PRO ALFVEN_STATS_5__LATERORBS,filename=filename,energy_electrons=energy_electron
         ;;
         ;;endif 
         ;;if langmuir.valid NE 0 then langmuir={x:langmuir.time,y:langmuir.comp1}
-        Langmuir_2=get_fa_fields('NE2_S',time_ranges(jjj,0),time_ranges(jjj,1))
-        Langmuir_6=get_fa_fields('NE6_S',time_ranges(jjj,0),time_ranges(jjj,1))
-        Langmuir_9=get_fa_fields('NE9_S',time_ranges(jjj,0),time_ranges(jjj,1))
-        Langmuir_data=[0]
-        Langmuir_time=[0]
-        Langmuir_prob=[0]
-        if Langmuir_2.valid NE 0 then begin
-           langmuir_data=[Langmuir_data,Langmuir_2.comp1]
-           langmuir_time=[Langmuir_time,Langmuir_2.time]
-           langmuir_prob=[Langmuir_prob,replicate(2,n_elements(Langmuir_2.time))]
-        endif
-        if Langmuir_6.valid NE 0 then begin
-           langmuir_data=[Langmuir_data,Langmuir_6.comp1]
-           langmuir_time=[Langmuir_time,Langmuir_6.time]
-           langmuir_prob=[Langmuir_prob,replicate(6,n_elements(Langmuir_6.time))]
-        endif
-        if Langmuir_9.valid NE 0 then begin
-           langmuir_data=[Langmuir_data,Langmuir_9.comp1]
-           langmuir_time=[Langmuir_time,Langmuir_9.time]
-           langmuir_prob=[Langmuir_prob,replicate(9,n_elements(Langmuir_9.time))]
-        endif
-        if n_elements(langmuir_data) GT 1 then  begin
-           langmuir_time=langmuir_time(1:n_elements(Langmuir_time)-1)
-           langmuir_data=langmuir_data(1:n_elements(Langmuir_time)-1)
-           langmuir_prob=langmuir_prob(1:n_elements(Langmuir_time)-1)
-           time_order_langmuir=sort(langmuir_time)
-           langmuir={x:langmuir_time(time_order_langmuir),y:langmuir_data(time_order_langmuir)}
-           dens_probe={x:langmuir_time(time_order_langmuir),y:langmuir_prob(time_order_langmuir)}
-        endif else data_valid=0.0
+        ;; Langmuir_2=get_fa_fields('NE2_S',time_ranges(jjj,0),time_ranges(jjj,1))
+        ;; Langmuir_6=get_fa_fields('NE6_S',time_ranges(jjj,0),time_ranges(jjj,1))
+        ;; Langmuir_9=get_fa_fields('NE9_S',time_ranges(jjj,0),time_ranges(jjj,1))
+        ;; Langmuir_data=[0]
+        ;; Langmuir_time=[0]
+        ;; Langmuir_prob=[0]
+        ;; if Langmuir_2.valid NE 0 then begin
+        ;;    langmuir_data=[Langmuir_data,Langmuir_2.comp1]
+        ;;    langmuir_time=[Langmuir_time,Langmuir_2.time]
+        ;;    langmuir_prob=[Langmuir_prob,replicate(2,n_elements(Langmuir_2.time))]
+        ;; endif
+        ;; if Langmuir_6.valid NE 0 then begin
+        ;;    langmuir_data=[Langmuir_data,Langmuir_6.comp1]
+        ;;    langmuir_time=[Langmuir_time,Langmuir_6.time]
+        ;;    langmuir_prob=[Langmuir_prob,replicate(6,n_elements(Langmuir_6.time))]
+        ;; endif
+        ;; if Langmuir_9.valid NE 0 then begin
+        ;;    langmuir_data=[Langmuir_data,Langmuir_9.comp1]
+        ;;    langmuir_time=[Langmuir_time,Langmuir_9.time]
+        ;;    langmuir_prob=[Langmuir_prob,replicate(9,n_elements(Langmuir_9.time))]
+        ;; endif
+        ;; if n_elements(langmuir_data) GT 1 then  begin
+        ;;    langmuir_time=langmuir_time(1:n_elements(Langmuir_time)-1)
+        ;;    langmuir_data=langmuir_data(1:n_elements(Langmuir_time)-1)
+        ;;    langmuir_prob=langmuir_prob(1:n_elements(Langmuir_time)-1)
+        ;;    time_order_langmuir=sort(langmuir_time)
+        ;;    langmuir={x:langmuir_time(time_order_langmuir),y:langmuir_data(time_order_langmuir)}
+        ;;    dens_probe={x:langmuir_time(time_order_langmuir),y:langmuir_prob(time_order_langmuir)}
+        ;; endif else data_valid=0.0
      endelse	
      
      
@@ -380,15 +380,13 @@ PRO ALFVEN_STATS_5__LATERORBS,filename=filename,energy_electrons=energy_electron
         FA_FIELDS_COMBINE,magz,efield,result=fields,/interp,delt_t=50.,/talk
         fields={time:magz.time,comp1:magz.comp1,comp2:fields,ncomp:2}
 
-        ;;I'm hoping this means magz is pared down somewhere else
-
         ;; dens=combinets(magz,langmuir)
-        langmuir={time:langmuir.x,comp1:langmuir.y,ncomp:1}
-        FA_FIELDS_COMBINE,magz,langmuir,result=dens,/talk
-        dens={time:magz.time,comp1:magz.comp1,comp2:dens,ncomp:2}
+        ;; langmuir={time:langmuir.x,comp1:langmuir.y,ncomp:1}
+        ;; FA_FIELDS_COMBINE,magz,langmuir,result=dens,/talk
+        ;; dens={time:magz.time,comp1:magz.comp1,comp2:dens,ncomp:2}
 
         magz={x:magz.time,y:magz.comp1}
-        langmuir={x:langmuir.time,y:langmuir.comp1}
+        ;; langmuir={x:langmuir.time,y:langmuir.comp1} ;;2016/05/03 Langmuir stuff junked
 
         ;;get the prootn cyc frequency for smoothing the e field data later
         proton_cyc_freq=1.6e-19*sqrt(magx.y^2+magy.y^2+magz.y^2)*1.0e-9/1.67e-27/(2.*!DPI) ; in Hz
@@ -922,6 +920,10 @@ PRO ALFVEN_STATS_5__LATERORBS,filename=filename,energy_electrons=energy_electron
            ;;print,'speed',speed_mag_point(current_intervals(j,0))
            current_intervals(j,16)=width
            
+           ;;what it was before... if there were different sampling rates, this bit choked. Not anymore with the help of TOTAL
+           ;; xForIntegration = findgen(n_elements(intervalfields))*speed_mag_point(intervalfields)*fields_res_interval
+           xForIntegration = findgen(n_elements(intervalfields))*speed_mag_point(intervalfields)*TOTAL(fields_res_interval,/CUMULATIVE,/DOUBLE)
+
            ;;get the integrated electron dflux in ionosphere over this interval
            if intervalparts_electrons(0) NE -1 then begin
               if n_elements(intervalparts_electrons) EQ 1 then begin 
@@ -932,8 +934,8 @@ PRO ALFVEN_STATS_5__LATERORBS,filename=filename,energy_electrons=energy_electron
                  ;;interpolate particle data to same resolution as the fields data
                  jee_tmp_data_fields_res_interval=interpol(jee_tmp_data(intervalparts_electrons),jee_tmp_time(intervalparts_electrons),magz.x(intervalfields))
                  jee_tot_tmp_data_fields_res_interval=interpol(jee_tot_tmp_data(intervalparts_electrons),jee_tot_tmp_time(intervalparts_electrons),magz.x(intervalfields))
-                 current_intervals(j,7)=int_tabulated(findgen(n_elements(intervalfields))*speed_mag_point(intervalfields)*fields_res_interval,jee_tmp_data_fields_res_interval,/double)
-                 current_intervals(j,41)=int_tabulated(findgen(n_elements(intervalfields))*speed_mag_point(intervalfields)*fields_res_interval,jee_tot_tmp_data_fields_res_interval,/double)
+                 current_intervals(j,7)=int_tabulated(xForIntegration,jee_tmp_data_fields_res_interval,/double)
+                 current_intervals(j,41)=int_tabulated(xForIntegration,jee_tot_tmp_data_fields_res_interval,/double)
                  
               endelse
               
@@ -964,8 +966,8 @@ PRO ALFVEN_STATS_5__LATERORBS,filename=filename,energy_electrons=energy_electron
                  ji_tmp_data_fields_res_interval=interpol(ji_tmp_data(intervalparts_ions),ji_tmp_time(intervalparts_ions),magz.x(intervalfields))
                  ji_up_tmp_data_fields_res_interval=interpol(ji_up_tmp_data(intervalparts_ions),ji_up_tmp_time(intervalparts_ions),magz.x(intervalfields))
                  
-                 current_intervals(j,12)=int_tabulated(findgen(n_elements(intervalfields))*speed_mag_point(intervalfields)*fields_res_interval,ji_tmp_data_fields_res_interval,/double)
-                 current_intervals(j,13)=int_tabulated(findgen(n_elements(intervalfields))*speed_mag_point(intervalfields)*fields_res_interval,ji_up_tmp_data_fields_res_interval,/double)
+                 current_intervals(j,12)=int_tabulated(xForIntegration,ji_tmp_data_fields_res_interval,/double)
+                 current_intervals(j,13)=int_tabulated(xForIntegration,ji_up_tmp_data_fields_res_interval,/double)
                  ;;print,'ji_tot_alf',Ji_tot_alf(jjj)
                  
                  
@@ -1026,21 +1028,25 @@ PRO ALFVEN_STATS_5__LATERORBS,filename=filename,energy_electrons=energy_electron
            current_intervals(j,25)=median_de
            if de LT delta_E_threshold then current_intervals(j,3)=0.0 ;threshold for reliablity of identification
            
+           ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
            ;;get max and min L. probe currents
-           smooth_int=ceil((1./proton_cyc_freq(intervalfields(indjmax)))/current_intervals(j,26))
-           if smooth_int GT 1.0 and smooth_int LE n_elements(intervalfields)/4.0 then dens_smooth=smooth(dens.comp2(intervalfields),smooth_int) else dens_smooth=dens.comp2(intervalfields)
-           
-           dens_max=max(dens_smooth)
-           dens_min=min(dens_smooth)
-           probe_time=min(abs(dens_probe.x-magz.x(intervalfields(indjmax))),probe_ind)
-           
-           
-           median_dens=median(dens.comp2(intervalfields))
-           current_intervals(j,35)=dens_probe.y(probe_ind)
-           current_intervals(j,36)=dens_max
-           current_intervals(j,37)=dens_min
-           current_intervals(j,38)=median_dens
+           ;;2016/05/03 REMOVED
 
+           smooth_int=ceil((1./proton_cyc_freq(intervalfields(indjmax)))/current_intervals(j,26))
+           ;; if smooth_int GT 1.0 and smooth_int LE n_elements(intervalfields)/4.0 then dens_smooth=smooth(dens.comp2(intervalfields),smooth_int) else dens_smooth=dens.comp2(intervalfields)
+           
+           ;; dens_max=max(dens_smooth)
+           ;; dens_min=min(dens_smooth)
+           ;; probe_time=min(abs(dens_probe.x-magz.x(intervalfields(indjmax))),probe_ind)
+           
+           
+           ;; median_dens=median(dens.comp2(intervalfields))
+           ;; current_intervals(j,35)=dens_probe.y(probe_ind)
+           ;; current_intervals(j,36)=dens_max
+           ;; current_intervals(j,37)=dens_min
+           ;; current_intervals(j,38)=median_dens
+
+           ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
            ;;now get orbit quantities
            get_data,'ORBIT',data=orb
            get_data,'MLT',data=mlt
@@ -1434,8 +1440,10 @@ PRO ALFVEN_STATS_5__LATERORBS,filename=filename,energy_electrons=energy_electron
                current_intervals(jj,13),current_intervals(jj,14),current_intervals(jj,15),current_intervals(jj,16),$
                current_intervals(jj,17),current_intervals(jj,18),current_intervals(jj,26),current_intervals(jj,27),$
                current_intervals(jj,28),current_intervals(jj,29),current_intervals(jj,30),current_intervals(jj,31),$
-               current_intervals(jj,32),current_intervals(jj,33),current_intervals(jj,34),current_intervals(jj,35),$
-               current_intervals(jj,36),current_intervals(jj,37),current_intervals(jj,38), $
+               ;; current_intervals(jj,32),current_intervals(jj,33),current_intervals(jj,34),current_intervals(jj,35),$
+               current_intervals(jj,32),current_intervals(jj,33),current_intervals(jj,34),!VALUES.F_NAN,$
+               ;; current_intervals(jj,36),current_intervals(jj,37),current_intervals(jj,38), $ ;;All langmuir stuff is junk
+               !VALUES.F_NAN,!VALUES.F_NAN,!VALUES.F_NAN, $
                time_to_str(magz.x(current_intervals(jj,0)),/ms), time_to_str(magz.x(current_intervals(jj,1)),/ms)
 
 ;; printf,unit1,'total electron dflux at ionosphere from single integ.',Jee_tot(jjj)

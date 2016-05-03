@@ -1,6 +1,6 @@
 *
-Header :this is the 'chaston_survey_5__no_heavies__pared' configuration file
-Header :created on Tue May  3 09:54:14 2016
+Header :this is the 'chaston_survey_5__super_pared__no_langmuir' configuration file
+Header :created on Tue May  3 10:09:12 2016
 *
 *
 Description : 
@@ -9,7 +9,7 @@ Description :
 
 Configuration
 {
-Config Name:			'chaston_survey_5__no_heavies__pared'
+Config Name:			'chaston_survey_5__super_pared__no_langmuir'
 Config MenuPosition:		6, -14
 Config MenuSize:		300, 300
 Config DefaultSourceId:	'?'
@@ -18,11 +18,10 @@ Config CurrentPlotWindow:	'chaston_survey_5__no_heavies__pared:0 - DA'
 	PlotWinStandard
 	{
 	PlotWin Name:		'chaston_survey_5__no_heavies__pared:0 - DA'
-	PlotWin Position:	247, 62
+	PlotWin Position:	244, 40
 	PlotWin Size:		900, 600
 	PlotWin PlotsPage:	6
 	PlotWin TopPlotOfPage:	'SUN'
-	PlotWin DefaultDataBaseResponse:	2444444 0 2444444 1 ''
 
 		PlotType
 		{
@@ -94,44 +93,6 @@ Config CurrentPlotWindow:	'chaston_survey_5__no_heavies__pared:0 - DA'
 		Plot2 LineColor:	White
 		Plot2 Accum:		TRUE 0 360 0 1
 		Plot2 Accum:		TRUE 0 40000 0 1
-		Plot2 ColorLimits:	COLORMAP 239 1
-		Plot2 EndPlot:
-		}
-		PlotType
-		{
-		Plot2 SourceName:	'FAST'
-		Plot2 QtyName:		'Eesa Survey:  Energy'
-		Plot2 NPanels:		1
-		Plot2 QtyTitleName:	'Eesa Survey:  Energy'
-		Plot2 PlotYTitleName:	'EesaSurvey Energy'
-		Plot2 PlotYSubTitleName:	'_'
-		Plot2 PlotZTitleName:	'Counts'
-		Plot2 PlotZSubTitleName:	'#'
-		Plot2 HeightUnits:	1
-		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
-		Plot2 RedLimits:	FALSE 0 0
-		Plot2 YellowLimits:	FALSE 0 0
-		Plot2 NAxes:		3
-		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LOG LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 40000, 800, 1, 1, 1
-		Plot2 MinLimits:	0, 1, 0, 0, 0, 0
-		Plot2 UseOff:		FALSE
-		Plot2 LinOff:		0
-		Plot2 LogOff:		0
-		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
-		Plot2 LinePointsMode:	GRAPH_MODE_LINE
-		Plot2 PointsPlot:	1
-		Plot2 UseBrk:		FALSE
-		Plot2 BrkInt:		10
-		Plot2 ErrorBar:		SDT_EBAR_NONE
-		Plot2 NSymbols:		0
-		Plot2 LineFont:		Solid
-		Plot2 LineColor:	White
-		Plot2 Accum:		TRUE 0 40000 0 1
-		Plot2 Accum:		TRUE 0 360 0 1
 		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
@@ -675,6 +636,76 @@ Config CurrentPlotWindow:	'chaston_survey_5__no_heavies__pared:0 - DA'
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'V1-V2_4k'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'V1-V2_4k'
+		Plot2 PlotYTitleName:	'V1-V2 (4K)'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 35000, 1, 1
+		Plot2 MinLimits:	0, -35000, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		0.2
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'V1-V4_4k'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'V1-V4_4k'
+		Plot2 PlotYTitleName:	'V1-V4 (4K)'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	1, 35000, 1, 1
+		Plot2 MinLimits:	0, -35000, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		0.2
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'V1-V4_S'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'V1-V4_S'
@@ -734,76 +765,6 @@ Config CurrentPlotWindow:	'chaston_survey_5__no_heavies__pared:0 - DA'
 		Plot2 PreservePtsModeinFullZoom:
 		Plot2 PointsPlot:	1
 		Plot2 UseBrk:		FALSE
-		Plot2 BrkInt:		10
-		Plot2 ErrorBar:		SDT_EBAR_NONE
-		Plot2 NSymbols:		0
-		Plot2 LineFont:		Solid
-		Plot2 LineColor:	White
-		Plot2 ColorLimits:	COLORMAP 239 1
-		Plot2 EndPlot:
-		}
-		PlotType
-		{
-		Plot2 SourceName:	'FAST'
-		Plot2 QtyName:		'NE2_S'
-		Plot2 NPanels:		1
-		Plot2 QtyTitleName:	'NE2_S'
-		Plot2 PlotYTitleName:	'NE2_S'
-		Plot2 PlotYSubTitleName:	'-'
-		Plot2 HeightUnits:	1
-		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
-		Plot2 RedLimits:	FALSE 0 0
-		Plot2 YellowLimits:	FALSE 0 0
-		Plot2 NAxes:		2
-		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 0, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
-		Plot2 UseOff:		FALSE
-		Plot2 LinOff:		0
-		Plot2 LogOff:		0
-		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
-		Plot2 LinePointsMode:	GRAPH_MODE_LINE
-		Plot2 PreservePtsModeinFullZoom:
-		Plot2 PointsPlot:	1
-		Plot2 UseBrk:		TRUE
-		Plot2 BrkInt:		10
-		Plot2 ErrorBar:		SDT_EBAR_NONE
-		Plot2 NSymbols:		0
-		Plot2 LineFont:		Solid
-		Plot2 LineColor:	White
-		Plot2 ColorLimits:	COLORMAP 239 1
-		Plot2 EndPlot:
-		}
-		PlotType
-		{
-		Plot2 SourceName:	'FAST'
-		Plot2 QtyName:		'NE9_S'
-		Plot2 NPanels:		1
-		Plot2 QtyTitleName:	'NE9_S'
-		Plot2 PlotYTitleName:	'NE9_S'
-		Plot2 PlotYSubTitleName:	'-'
-		Plot2 HeightUnits:	1
-		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
-		Plot2 RedLimits:	FALSE 0 0
-		Plot2 YellowLimits:	FALSE 0 0
-		Plot2 NAxes:		2
-		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 0, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
-		Plot2 UseOff:		FALSE
-		Plot2 LinOff:		0
-		Plot2 LogOff:		0
-		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
-		Plot2 LinePointsMode:	GRAPH_MODE_LINE
-		Plot2 PreservePtsModeinFullZoom:
-		Plot2 PointsPlot:	1
-		Plot2 UseBrk:		TRUE
 		Plot2 BrkInt:		10
 		Plot2 ErrorBar:		SDT_EBAR_NONE
 		Plot2 NSymbols:		0
