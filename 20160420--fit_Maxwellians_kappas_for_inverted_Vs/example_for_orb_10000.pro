@@ -13,7 +13,8 @@
 ; Examples of 3D plots data distribution at peak
 
 ;;some good times for Orb 10000
-timeStr = '99-3-2/17:58:39'
+;; timeStr = '99-3-2/17:58:39'
+timeStr = '99-3-2/18:08:42'
 ;; timeStr = '99-3-2/18:12:54'
 
 ;;Spectrum stuff
