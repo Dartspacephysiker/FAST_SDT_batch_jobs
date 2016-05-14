@@ -1,10 +1,20 @@
 ;2016/05/11 Trying to pull the data out
 ;Other work to be done includes identifying monoenergetic, inverted-V structures
+PRO JOURNAL__20160511__ORB10000__18_08_42
 
+  eSpecUnits                = 'DF'
+
+  ;;Contour plot options (units = 'DF' recommended if doing velocity
+  do_velocity               = 1
+  polarDist                 = 1
+  do_postscript             = 1
+  plotExt                   = '.gif'
+  plotExt                   = '.png'
+  
   ;;fire up
   @startup
   
-  energy_electrons          = [5e1,3e4]
+  energy_electrons          = [3e1,3e4]
 
   ;; From the FAST ESA IDL demo
   
@@ -55,7 +65,8 @@
   ENDELSE
 
   ;;Make the spectrogram data struct
-  GET_EN_SPEC,'fa_ees',units='eflux',name='el',retrace=1,t1=t1,t2=t2,ANGLE=e_angle
+  ;; GET_EN_SPEC,'fa_ees',units='eflux',name='el',retrace=1,t1=t1,t2=t2,ANGLE=e_angle
+  GET_EN_SPEC,'fa_ees',UNITS=eSpecUnits,NAME='el',RETRACE=1,T1=t1,T2=t2,ANGLE=e_angle
   ;;GET the spectrogram data struct
   GET_DATA,'el',data=eSpec
   
@@ -64,14 +75,33 @@
 
   x         = eSpec.v[0,*]
   xRange    = [eSpec.v[0,-1],eSpec.v[0,0]]
-  yRange    = [MIN(eSpec.y[WHERE(eSpec.y GT 0)]),1e9]
 
   title     = STRING(FORMAT='("Loss-cone e!U-!N spectra from Orbit ",I0,", ",A0)',orb,STRMID(TIME_TO_STR(eSpec.x[bounds[0]]),0,10))
   xTitle    = "Energy (eV)"
-  yTitle    = "Energy flux (eV/(cm^2-s-sr-eV)??)"
+  CASE STRUPCASE(eSpecUnits) OF
+     'DF': BEGIN
+        yTitle    = "Phase space density (s!U3!N/(km!U3!N cm^!U3!N))"
+        yRange    = [MIN(eSpec.y[WHERE(eSpec.y GT 0)]),MAX(eSpec.y)]
+        ZLIM,lim,1e-14,1e-9,1
+        IF KEYWORD_SET(do_velocity) THEN BEGIN
+           XLIM,lim,-3e4,3e4
+           YLIM,lim,-3e4,3e4
+        ENDIF
+     END
+     'DFSTD': BEGIN
+        yTitle    = "Phase space density (s!U3!N m^!U-6!N)"
+        yRange    = [MIN(eSpec.y[WHERE(eSpec.y GT 0)]),MAX(eSpec.y)]
+        ZLIM,lim,1e-15,1e-5,1
+     END
+     'EFLUX': BEGIN
+        yTitle    = "Energy flux (eV/(cm^2-s-sr-eV)??)"
+        yRange    = [MIN(eSpec.y[WHERE(eSpec.y GT 0)]),1e9]
+        ZLIM,lim,1e5,1e9,1
+     END
+  ENDCASE
 
   orbDate   = STRMID(TIME_TO_STR(eSpec.x[bounds[0]]),0,10)
-  plotSN    = STRING(FORMAT='("losscone_e-_spectra--orb_",I0,"__",A0,".png")',orb,orbDate)
+  plotSN    = STRING(FORMAT='("losscone_e-_spectra--",A0,"--orb_",I0,"__",A0,".png")',eSpecUnits,orb,orbDate)
 
   window    = WINDOW(DIMENSION=[800,600])
   plotArr   = MAKE_ARRAY(nPlots,/OBJ) 
@@ -93,49 +123,43 @@
                        CURRENT=window) 
   ENDFOR
   legend = LEGEND(TARGET=plotArr[*],POSITION=[0.45,0.45],/NORMAL)
+  PRINT,'Saving to ' + plotSN + '...'
   window.save,plotSN
 
   ;;Get all the dist. functions for the time range of interest
-  FOR i=0,FIX(t2-t1)-1 DO BEGIN
-     t_temp   = t1 + i
-     dat      = get_fa_ees(t_temp)
-
-     out_tStr = (STRMID(TIME_TO_STR(dat.time),11,9)).Replace(':', '_')
-     outFN    = STRING(FORMAT='("Orb_",I0,"--",A0,"__",A0,"--particle_dist")',orb,orbDate,out_tStr)
+  ;; FOR i=0,FIX(t2-t1)-1 DO BEGIN
+  ;; FOR i=0,1 DO BEGIN
+     ;; t_temp   = t1 + i
+  t_temp      = t1
+  dat         = get_fa_ees(t_temp)
+  WHILE (t_temp LE t2) DO BEGIN
+     out_tStr = (STRMID(TIME_TO_STR(dat.time,/MSEC),11,11)).Replace(':', '_')
+     outFN    = STRING(FORMAT='("Orb_",I0,"--",A0,"__",A0,"--particle_dist",A0)',orb,orbDate,out_tStr,eSpecUnits)
      ;;Open postscript, plot,and close
-     cgPS_Open, FILENAME=outFN+'.ps'
+     IF KEYWORD_SET(do_postscript) THEN cgPS_Open, FILENAME=outFN+'.ps'
      RAINBOW_COLORS,N_COLORS=nLevels
+
      ;; loadct2,43
      ;; contour2d,dat,/label,ncont=20,/POLAR,/FILL ; plot contour plot 
-     contour2d,dat,/label,ncont=20,/FILL ; plot contour plot 
-     cgPS_Close
+     CONTOUR2D,dat, $
+               VEL=do_velocity, $
+               LIMITS=lim,$
+               /LABEL, $
+               NCONT=29, $
+               /FILL, $
+               POLAR=polarDist, $
+               UNITS=eSpecUnits ; plot contour plot 
 
-     ;; CGPS2RASTER,outFN+'.ps',outFN+'.gif',/DELETE_PS ;for the movie
-     CGPS2RASTER,outFN+'.ps',outFN+'.png',/DELETE_PS
-  ENDFOR
+     IF KEYWORD_SET(do_postscript) THEN BEGIN
+        cgPS_Close
+        CGPS2RASTER,outFN+'.ps',outFN+plotExt,/DELETE_PS
+     ENDIF 
+     
+     dat      = get_fa_ees(t_temp,/ADVANCE)
 
-  ;;Spectrum stuff
-  t=str_to_time(timeStr)
-  dat = get_fa_ees(t) ; get electron esa survey
-  spec2d,dat,/label ; plot spectra
-  pitch2d,dat,/label,energy=[2000,10000] ; plot pitch angle
-  contour2d,dat,/label,ncont=20 ; plot contour plot
-  dat = get_fa_ies(t); get ion esa survey data
-  contour2d,dat,/label,ncont=20 ; plot contour plot
-  fu_spec2d,'n_2d_fs',dat,/integ_f,/integ_r ; plot partial density, partial integral densities
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;  Example functions
-  t=str_to_time(timeStr)
-  dat = get_fa_ees(t) ; get electron survey data
-  print,n_2d_fs(dat,energy=[100,30000]) ; print density >100 eV, #/cm3
-  print,j_2d_fs(dat,energy=[100,30000]) ; print flux >100 eV, #/cm2-s
-  print,je_2d_fs(dat,energy=[100,30000]) ; print energy flux >100 eV, ergs/cm2-s
-  print,v_2d_fs(dat,energy=[100,30000]) ; print Vx,Vy,Vz, km/s
-  print,p_2d_fs(dat,energy=[100,30000]) ; print Pxx,Pyy,Pzz,Pxy,Pxz,Pyz, eV/cm^3
-  print,t_2d_fs(dat,energy=[100,30000]) ; print Tx,Ty,Tz,Tavg, eV
-  print,vth_2d_fs(dat,energy=[100,30000]) ; print Vthx,Vthy,Vthz,Vthavg, km/s
-  
+  ENDWHILE
+  ;; ENDFOR
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;  Fitting data to an accelerated Maxwellian
   t=str_to_time(timeStr)
@@ -149,3 +173,6 @@
   ;;  click the right button to end the selection
   ;;  plot will show a maxwellian fit to data over the energy range
   ;;  text on the screen will show the source temperature and density 
+
+
+END

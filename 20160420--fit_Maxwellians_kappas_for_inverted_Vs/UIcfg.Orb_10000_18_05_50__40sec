@@ -1,0 +1,278 @@
+*
+Header :this is the 'Orb_10000_18_05_50__40sec' configuration file
+Header :created on Wed May 11 11:29:35 2016
+*
+*
+Description : 
+
+*
+
+Configuration
+{
+Config Name:			'Orb_10000_18_05_50__40sec'
+Config MenuPosition:		6, -14
+Config MenuSize:		300, 300
+Config DefaultSourceId:	'?'
+Config CurrentPlotWindow:	'Electron_survey_prods:0 - DA'
+
+	PlotWinStandard
+	{
+	PlotWin Name:		'Electron_survey_prods:0 - DA'
+	PlotWin Position:	285, 231
+	PlotWin Size:		900, 600
+	PlotWin PlotsPage:	6
+	PlotWin TopPlotOfPage:	'Eesa Survey:  Angle'
+	PlotWin DefaultDataBaseResponse:	2451240 65310 2451240 65350 'FNMLine 18'
+   '/FASTdata_2/FAST_JB_9/FAST2063_ORBIT9996/lzp/fast_lzp_DSS-29_orbit10001_p'
+   '/FASTdata_2/FAST_JB_9/FAST2063_ORBIT9996/lzp/fast_lzp_DSS-29_orbit10001_p'
+   '/FASTdata_2/FAST_JB_9/FAST2064_ORBIT10001/lzp/fast_lzp_DSS-29_orbit10002_p'
+   '/FASTdata_2/FAST_JB_9/FAST2064_ORBIT10001/lzp/fast_lzp_DSS-29_orbit10002_p'
+   '/FASTdata_2/FAST_JB_9/FAST2064_ORBIT10001/lzp/fast_lzp_DSS-29_orbit10004_p'
+   '/FASTdata_2/FAST_JB_9/FAST2064_ORBIT10001/lzp/fast_lzp_DSS-29_orbit10004_p'
+   '/FASTdata_2/FAST_JB_9/FAST2064_ORBIT10001/lzp/fast_lzp_DSS-29_orbit10005_p'
+   '/FASTdata_2/FAST_JB_9/FAST2064_ORBIT10001/lzp/fast_lzp_DSS-29_orbit10005_p'
+   '/FASTdata_2/FAST_JB_9/FAST2065_ORBIT10001/lzp/fast_lzp_DSS-27_orbit10001_t'
+   '/FASTdata_2/FAST_JB_9/FAST2065_ORBIT10001/lzp/fast_lzp_DSS-27_orbit10001_t'
+   '/FASTdata_2/FAST_JB_9/FAST2065_ORBIT10001/lzp/fast_lzp_DSS-29_orbit10005_p'
+   '/FASTdata_2/FAST_JB_9/FAST2065_ORBIT10001/lzp/fast_lzp_DSS-29_orbit10005_p'
+   '/FASTdata_2/FAST_JB_9/FAST2065_ORBIT10001/lzp/fast_lzp_DSS-29_orbit10007_t'
+   '/FASTdata_2/FAST_JB_9/FAST2065_ORBIT10001/lzp/fast_lzp_DSS-29_orbit10007_t'
+   '/FASTdata_2/FAST_JB_9/FAST2065_ORBIT10001/lzp/fast_lzp_DSS-76_orbit10003_p'
+   '/FASTdata_2/FAST_JB_9/FAST2065_ORBIT10001/lzp/fast_lzp_DSS-76_orbit10003_p'
+   '/FASTdata_2/FAST_JB_9/FAST2066_ORBIT10007/lzp/fast_lzp_DSS-29_orbit10007_t'
+   '/FASTdata_2/FAST_JB_9/FAST2066_ORBIT10007/lzp/fast_lzp_DSS-29_orbit10007_t'
+
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa Survey:  Angle'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa Survey:  Angle'
+		Plot2 PlotYTitleName:	'EesaSurvey Angle'
+		Plot2 PlotYSubTitleName:	'Deg'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	UNKNOWN
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	65350, 360, 800, 1, 1, 1
+		Plot2 MinLimits:	65310, 0, 0, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 360 0 1
+		Plot2 Accum:		TRUE 0 40000 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa Survey:  Energy'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa Survey:  Energy'
+		Plot2 PlotYTitleName:	'EesaSurvey Energy'
+		Plot2 PlotYSubTitleName:	'_'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	UNKNOWN
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LOG LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	65350, 40000, 800, 1, 1, 1
+		Plot2 MinLimits:	65310, 1, 0, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 40000 0 1
+		Plot2 Accum:		TRUE 0 360 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa_Survey_Hdr'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa_Survey_Hdr'
+		Plot2 PlotYTitleName:	'Eesa_Survey_Hdr'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		0
+		Plot2 ScaleTypes:	LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	65350, 2, 1, 0
+		Plot2 MinLimits:	65310, -2, 0, 0
+		Plot2 UseOff:		
+		Plot2 LinOff:		
+		Plot2 LogOff:		
+		Plot2 LineStyle:	
+		Plot2 LinePointsMode:	
+		Plot2 PointsPlot:
+		Plot2 UseBrk:		
+		Plot2 BrkInt:		
+		Plot2 ErrorBar:		
+		Plot2 NSymbols:		
+		Plot2 LineFont:		
+		Plot2 LineColor:	
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Iesa Survey:  Angle'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Iesa Survey:  Angle'
+		Plot2 PlotYTitleName:	'IesaSurvey Angle'
+		Plot2 PlotYSubTitleName:	'Deg'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	65350, 32, 255, 1, 1, 1
+		Plot2 MinLimits:	65310, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 32 0 1
+		Plot2 Accum:		TRUE 0 1 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Iesa Survey:  Energy'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Iesa Survey:  Energy'
+		Plot2 PlotYTitleName:	'IesaSurvey Energy'
+		Plot2 PlotYSubTitleName:	'_'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 MaxLimits:	65350, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	65310, 0, 0, 0, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 48 0 1
+		Plot2 Accum:		TRUE 0 1 0 1
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Iesa_Survey_Hdr'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Iesa_Survey_Hdr'
+		Plot2 PlotYTitleName:	'Iesa_Survey_Hdr'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		0
+		Plot2 ScaleTypes:	LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	65350, 2, 1, 0
+		Plot2 MinLimits:	65310, -2, 0, 0
+		Plot2 UseOff:		
+		Plot2 LinOff:		
+		Plot2 LogOff:		
+		Plot2 LineStyle:	
+		Plot2 LinePointsMode:	
+		Plot2 PointsPlot:
+		Plot2 UseBrk:		
+		Plot2 BrkInt:		
+		Plot2 ErrorBar:		
+		Plot2 NSymbols:		
+		Plot2 LineFont:		
+		Plot2 LineColor:	
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+	PlotWin EndPlotWindow:
+	}
+}
+
+*
+*
