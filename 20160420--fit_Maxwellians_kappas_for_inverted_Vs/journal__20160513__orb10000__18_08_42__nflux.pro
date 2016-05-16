@@ -112,9 +112,9 @@ PRO JOURNAL__20160513__ORB10000__18_08_42__NFLUX
   PRINT,'Saving to ' + plotSN + '...'
   window.save,plotSN
 
-;Bonus
-fu_spec2d,'n_2d_fs',dat,OUT_PARTIAL=dn_2d,ANGLE=e_angle ;,/integ_f,/integ_r ; plot partial density, partial integral densities
-fu_spec2d,'j_2d_fs',dat,OUT_PARTIAL=dj_2d,ANGLE=e_angle ;,/integ_f,/integ_r ; plot partial density, partial integral densities
+  ;;Bonus
+  fu_spec2d,'n_2d_fs',dat,OUT_PARTIAL=dn_2d,ANGLE=e_angle ;,/integ_f,/integ_r ; plot partial density, partial integral densities
+  fu_spec2d,'j_2d_fs',dat,OUT_PARTIAL=dj_2d,ANGLE=e_angle ;,/integ_f,/integ_r ; plot partial density, partial integral densities
 
   SAVE,je_en,x,dn_2d,dj_2d,eSpec,bounds,orb,orbDate,nPlots,FILENAME='/SPENCEdata/software/sdt/batch_jobs/20160420--fit_Maxwellians_kappas_for_inverted_Vs/nFlux_and_eSpec--orb_10000__18_08_36-18_09_00.sav'
 
