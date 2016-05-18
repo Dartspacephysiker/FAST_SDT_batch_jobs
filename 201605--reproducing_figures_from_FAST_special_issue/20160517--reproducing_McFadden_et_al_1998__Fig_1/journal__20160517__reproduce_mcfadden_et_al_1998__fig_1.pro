@@ -42,6 +42,10 @@ PRO JOURNAL__20160517__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SA
   t1Adj                   = t1-10.
   t2Adj                   = t2+10.
 
+  red                     = 250
+  green                   = 130
+  black                   = 10
+
   ;;Get fields stuff, eFields and magFields
   FA_FIELDS_DESPIN,T1=t1Adj,T2=t2Adj,DAT=despun_E
   GET_DATA,'E_NEAR_B',DATA=eNearB
@@ -234,7 +238,7 @@ PRO JOURNAL__20160517__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SA
   OPTIONS,'charepanel','tplot_routine','mplot'
   OPTIONS,'charepanel','ytitle','E/q Volts'
   OPTIONS,'charepanel','labels',['Ion','Electron','Total']
-  OPTIONS,'charepanel','colors',[250,100,45]
+  OPTIONS,'charepanel','colors',[red,green,20]
   OPTIONS,'charepanel','labflag',1
   OPTIONS,'charepanel','yticks',5                                     ; set y-axis labels
   OPTIONS,'charepanel','ytickname',['0','5e3','1.0e4','1.5e4','2.e4'] ; set y-axis labels
@@ -297,8 +301,11 @@ PRO JOURNAL__20160517__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SA
   OPTIONS,'dBpanel','tplot_routine','mplot'
   OPTIONS,'dBpanel','ytitle','dB!CnT'
   OPTIONS,'dBpanel','labels',[CGGREEK('Sigma')+'Je*dx','B-B!Dmodel!N']
-  OPTIONS,'dBpanel','colors',[100,250]
+  OPTIONS,'dBpanel','colors',[green,red]
   OPTIONS,'dBpanel','labflag',1
+  OPTIONS,'dBpanel','yticks',3                                     ; set y-axis labels
+  ;; OPTIONS,'dBpanel','ytickname',['0','5e3','1.0e4','1.5e4','2.e4'] ; set y-axis labels
+  OPTIONS,'dBpanel','ytickv',[100,200,300]           ; set y-axis labels
   YLIM,'dBpanel',100,350
 
   ;; Electron flux
@@ -309,6 +316,7 @@ PRO JOURNAL__20160517__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SA
   STORE_DATA,'JeF',DATA={x:tmp.x,y:tmp.y}
   YLIM,'JeF',1.e8,2.e9,1                                                 ; set y limits
   OPTIONS,'JeF','ytitle','Electrons!C!C1/(cm!U2!N-s)'                     ; set y title 
+  OPTIONS,'JeF','colors',green
   ;; OPTIONS,'JeF','tplot_routine','pmplot'                                ; set 2 color plot
   ;; OPTIONS,'JeF','labels',['Downgoing!C Electrons','Upgoing!C Electrons '] ; set color label
   ;; OPTIONS,'JeF','labflag',3                                               ; set color label
@@ -331,25 +339,30 @@ PRO JOURNAL__20160517__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SA
   IF NOT KEYWORD_SET(dontShowPlots) THEN BEGIN
 
      IF KEYWORD_SET(save_png) THEN BEGIN
-        CGPS_OPEN, './plots/McFadden_et_al_1998--Fig_1.ps',FONT=1 ;,XSIZE=4,YSIZE=7
+        CGPS_OPEN, './plots/McFadden_et_al_1998--Fig_1.ps',FONT=0;,XSIZE=4,YSIZE=7
      ENDIF ELSE BEGIN
         IF KEYWORD_SET(save_ps) THEN BEGIN
-           CGPS_OPEN, './plots/McFadden_et_al_1998--Fig_1.ps',FONT=1 ;,XSIZE=4,YSIZE=7
-           ;; POPEN,'./plots/Elphic_et_al_1998--Fig_1',FONT=1,XSIZE=4,YSIZE=7
+           ;; CGPS_OPEN, './plots/McFadden_et_al_1998--Fig_1.ps',FONT=0,XSIZE=4,YSIZE=7
+           POPEN,'./plots/McFadden_et_al_1998--Fig_1',/PORT,FONT=-1;,XSIZE=4,YSIZE=7
+           DEVICE,/PALATINO,FONT_SIZE=8
+           ;; DEVICE,SET_FONT='Garamond*15'
+           ;; !P.FONT = -1
         ENDIF ELSE BEGIN
            WINDOW,0,XSIZE=600,YSIZE=800
         ENDELSE
      ENDELSE
      
+     ;; LOADCT,74
      LOADCT,39
-     !p.charsize=1.3
+
      TPLOT,['el_0','el_pa','ion_180','ion_pa','E_ALONG_V','charepanel','dBpanel','JeF'],VAR_LABEL=['ALT','MLT','ILAT'],TRANGE=[t1,t2]
      ;;got more than we need so smoothing can be nice
      ;; TLIMIT,t1+10.,t2-10.
 
 
      IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
-        CGPS_CLOSE, PNG=KEYWORD_SET(save_png),DELETE_PS=KEYWORD_SET(save_png);, WIDTH=1000
+        ;; CGPS_CLOSE, PNG=KEYWORD_SET(save_png),DELETE_PS=KEYWORD_SET(save_png);, WIDTH=1000
+        PCLOSE
      ENDIF ELSE BEGIN
         ;; IF KEYWORD_SET(save_ps) THEN BEGIN
         ;;    PCLOSE
