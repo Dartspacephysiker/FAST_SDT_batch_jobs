@@ -1,0 +1,104 @@
+2016/05/19 Parsing the Newell et al. [2009] algorithm
+*****************************************************
+NOTE: There are clear opportunities for kappa fits all over the place here. Especially when fitting the diffuse electron spectra.
+ALSO: Are we sure about monoenergetic identification? 
+
+Each event can have these variables associated with it:
+event = { time:UTC seconds, $
+      	  eSpec_problems:INT(0), $       ;0 = no problems      , N = N bad bins
+          monoenergetic:INT(0), $        ;0 = not monoenergetic, 1 = monoenergetic, 2 = strict_monoenergetic, (NEGATIVE) = step where algorithm failed
+          broadband:INT(0), $            ;0 = not broadband    , 1 = broadband    , 2 = strict_broadband
+	  diffuse:INT(0), $              ;0 = not diffuse      , 1 = diffuse      , 2 = diffuse, flux extrapolated to 50 keV
+	  Je:DOUBLE(0), $                ;Electron number flux (#/cm^2-s)
+	  Jee:DOUBLE(0), $               ;Electron energy flux (mW/m^2)
+	  Ji:DOUBLE(0), $                ;Ion number flux      (#/cm^2-s)
+	  Jei:DOUBLE(0)}                 ;Ion energy flux      (mW/m^2)
+
+SPECTRUM INTEGRITY
+******************
+bad_i      = WHERE(~FINITE(spectrum),nBad)
+IF nBad GT 0 THEN BEGIN
+eSpec_problems = nBad
+eSpectrum[bad_i] = 0.
+ENDIF
+
+;;Get derivative of electron spectrum
+;;STUFF
+
+
+MONOENERGETIC EVENTS
+********************
+
+I. Identify peak in differential energy flux
+1. Examine drops in energy channels one and two levels above the peak (or only below, if at the highest energy)
+    i.  If flux_drop_below AND flux_drop_above are 30% or less of the peak, continue to 2b.
+    ii. Else, not monoenergetic. Monoenergetic = -1
+    NOTE: Assuming a Maxwellian, the drop would be ~80% on either side. 30% is well below Maxwellian.
+2.  Is peak_flux GE 1.0e8 eV/cm^2-sr-eV?
+    i.  If so, continue to 3
+    ii. Else, not monoenergetic. Monoenergetic = -2
+    NOTE: They reference Newell et al. [1996b] here, saying it is the smallest threshold that seems to exclude homogeneous aurora
+3. Identify average energy. Is Eavg GT 80 eV?
+   i.   YES: Continue to 4
+   ii.  NO : Not monoenergetic. Monoenergetic = -3
+4. Get peak_energy. Is peak_energy GE 100 eV? 
+   i.   YES: Monoenergetic! Go to 5.
+   ii.  NO : Not monoenergetic. Monoenergetic = -4
+5. Are flux_drop_below AND flux_drop_above LE 10% of peak_flux?
+   i.   YES: strict_monoenergetic! Monoenergetic = 2
+   ii.  NO : Not strict_monoenergetic! Monoenergetic = 1.
+DONE
+
+
+BROADBAND EVENTS
+****************
+I. Calculate dJ_E/dE
+1. Get N_good bins WHERE(dJ_E/dE > 2.0e8 eV/cm^2-sr-eV)
+   i.   N_good GE 3 ? Continue to 2.
+   ii.  Else, not broadband. Broadband = -1
+2.  Calculate Eavg
+   i.   Eavg GT 80 eV ? Continue to 3.
+   ii.  Else, not broadband. Broadband = -2
+II. Determine our MLT: Is 9.5 < MLT < 14.5 ? 
+   i.   YES: We're in the cusp; min eV = 300 eV
+   ii.  NO : Not in cusp;       min_eV = 140 eV
+3. Get N_wild(=number of N_good energies at or above min_eV). N_wild GE 3?
+   i.   YES: broadband! Go to 4. 
+   ii.  NO : Not broadband. Broadband = -3
+4. N_wild GE 4?
+   i.   YES: strict_broadband! Broadband = 2
+   ii.  NO : NOT strict_broadband. Broadband = 1
+DONE
+
+
+THIS STEP IS PROBABLY JUNK. IT GETS HANDLED EARLIER
+Events identified as monoenergetic AND broadband
+************************************************
+1. Is event monoenergetic AND broadband?
+   i.   YES: Go to 2
+   ii.  NO : Exit
+2. Is flux_drop_below OR flux_drop_above LE 10% peak_flux?
+   i.   YES: Event is strict_monoenergetic. Continue to 3.
+   ii.  NO : Event is not monoenergetic anymore--just broadband. Exit.
+3. Is N_wild GE 4?
+   i.   YES: Event is strict_broadband.
+
+
+DIFFUSE AURORA (Events identified as NEITHER monoenergetic NOR broadband)
+*************************************************************************
+1. Flag as diffuse
+   i.   Do electron extrapolation
+   ii.  Event is diffuse
+
+ELECTRON EXTRAPOLATION
+**********************
+1. Assume Maxwellian, calculate flux at 50 keV based on Maxwellian fit
+   i.   Set T_ion = 0.5 * peak_ion_energy (NOT peak_ion_flux!) (Maxwellian assumption)
+   ii.  Based on Maxwellian assumption, extrapolate {#,energy} flux at extrapolated energy bin up to 50 keV (or one energy step above highest bin)
+
+Ion aurora
+**********
+1. Determine differential energy flux peak, peak_ion_flux. 
+   i.   Set T_ion = 0.5 * peak_ion_energy (NOT peak_ion_flux!) (Maxwellian assumption)
+2. Extrapolation
+   i.   Based on Maxwellian assumption, extrapolate {#,energy} flux at extrapolated energy bin up to 50 keV (or one energy step above highest bin)
