@@ -1,9 +1,0 @@
-BatchJob: "spencer"
-NoPlots:
-IDL: /home/spencerh/software/sdt/batch_jobs/mcfadden_idldemo.pro
-
-DataBaseRequest:
-    Orbits 1858
-
-PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/playground
-PlotConfigurationFile: testme
