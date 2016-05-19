@@ -106,12 +106,15 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
   sign_jtemp              = ABS(deltaBx)/deltaBx
   STORE_DATA,'jtemp',DATA={x:magz.x,y:jtemp}
   ;; OPTIONS,'jtemp','psym','10'
-  OPTIONS,'jtemp','fill',1
+  ;; OPTIONS,'jtemp','fill',1
   YLIM,'jtemp',-1.e9,2.e9
   OPTIONS,'jtemp','yticks',4                           ; set y-axis labels
   OPTIONS,'jtemp','ytickname',['-1e9','0','1e9','2e9'] ; set y-axis labels
   OPTIONS,'jtemp','ytickv',[-1e9,0,1e9,2e9]            ; set y-axis labels
   OPTIONS,'jtemp','ytitle','Electron!CFlux!C(cm!U2!Ns!U-1!N)'
+  OPTIONS,'jtemp,','tplot_routine','polyfill_tplot'
+  ;; OPTIONS,'jtemp','color','808080'x
+  OPTIONS,'jtemp','color',250
 
   ;;make fill for this guy
   ;; jtemp_fill = {x:[magz.x[0],magz.x,magz.x[-1]],y:[0.,jtemp,0.]}
