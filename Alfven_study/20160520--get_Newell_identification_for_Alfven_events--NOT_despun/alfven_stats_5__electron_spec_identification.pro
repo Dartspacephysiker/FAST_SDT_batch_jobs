@@ -1,13 +1,6 @@
 PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION,filename=filename, $
-   energy_electrons=energy_electrons,energy_ions=energy_ions,analyse_noise=analyse_noise,$
-   t1=t1,t2=t2,filterfreq=filterfreq,$
-   burst=burst,ucla_mag_despin=ucla_mag_despin,keep_alfven_only=keep_alfven_only, $
-   BELOW_AURORAL_OVAL=below_auroral_oval, ONLY_BELOW_AURORAL_OVAL=only_below_auroral_oval, $
-   PNG_SUMPLOT=png_sumplot, $
-   PNG_OUREVENTS=png_ourevents, $
-   PNG_LOTS_OF_QUANTITIES_OUREVENTS=png_lots_of_quantities_ourevents, $
-   DONTSHOWPLOTS=dontShowPlots, $
-   CONT_IF_FILE_EXISTS=cont_if_file_exists
+   energy_electrons=energy_electrons,energy_ions=energy_ions, $
+   t1=t1,t2=t2
 
   dbDir     = '/SPENCEdata/Research/Cusp/database/dartdb/saves/'
   dbTFile   = 'Dartdb_20150814--500-16361_inc_lower_lats--burst_1000-16361--cdbtime.sav'
