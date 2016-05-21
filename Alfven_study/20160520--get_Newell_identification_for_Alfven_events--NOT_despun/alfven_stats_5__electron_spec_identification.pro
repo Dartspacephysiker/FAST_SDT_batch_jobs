@@ -322,41 +322,110 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION,filename=filename, $
         tmpeSpec = {x:tmpeSpec.x[eSpec_uniq_i],y:tmpeSpec.y[eSpec_uniq_i],v:tmpeSpec.v[eSpec_uniq_i]}
      ENDIF
 
+     ;;remove junk first
+     keep1=WHERE(FINITE(tmpjee.y))
+     tmpjee.x=tmpjee.x(keep1)
+     tmpjee.y=tmpjee.y(keep1)
+
+     keep1=WHERE(FINITE(tmpje_lc.y))
+     tmpje_lc.x=tmpje_lc.x(keep1)
+     tmpje_lc.y=tmpje_lc.y(keep1)
+     out_sc_pot=out_sc_pot(keep1)
+     out_sc_time=out_sc_time(keep1)
+     out_sc_min_energy_ind=out_sc_min_energy_ind(keep1)
+
+     keep1     = FINITE(tmpeSpec.y)
+     nTimes    = N_ELEMENTS(tmpespec.y[*,0])
+     nEnergies = n_elements(tmpespec.y[0,*])
+     ;; this=reform(keep1,nTimes,nEnergies) ;;specialty
+     keeprow = MAKE_ARRAY(nTimes,/BYTE,VALUE=1)
+     FOR i=0,N_ELEMENTS(tmpespec.y[*,0])-1 DO BEGIN
+        test    = WHERE(keep1[i,*],tCount)
+        keeprow[i] = tCount EQ nEnergies ? 1 : 0
+     ENDFOR
+     tmpeSpec.x=tmpeSpec.x(WHERE(keeprow))
+     tmpeSpec.y=tmpeSpec.y(WHERE(keepRow),*)
+     tmpeSpec.v=tmpeSpec.v(WHERE(keeprow),*)
+
+     keep2=WHERE(ABS(tmpjee.y) GT 0.0)
+     jee_tmp_time=tmpjee.x(keep2)
+     jee_tmp_data=tmpjee.y(keep2)
+
+     keep2=WHERE(ABS(tmpje_lc.y) GT 0.0)
+     je_lc_tmp_time=tmpje_lc.x(keep2)
+     je_lc_tmp_data=tmpje_lc.y(keep2)
+     out_sc_pot=out_sc_pot(keep2)
+     out_sc_time=out_sc_time(keep2)
+     out_sc_min_energy_ind=out_sc_min_energy_ind(keep2)
+
+     ;; keep2=ABS(tmpeSpec.y) GT 0.0
+     ;; nTimes    = N_ELEMENTS(tmpespec.y[*,0])
+     ;; nEnergies = n_elements(tmpespec.y[0,*])
+     ;; ;; this=reform(keep2,nTimes,nEnergies) ;;specialty
+     ;; keeprow = MAKE_ARRAY(nTimes,/BYTE,VALUE=1)
+     ;; FOR i=0,N_ELEMENTS(tmpespec.y[*,0])-1 DO BEGIN
+     ;;    test    = WHERE(keep2[i,*],tCount)
+     ;;    keeprow[i] = tCount EQ nEnergies ? 1 : 0
+     ;; ENDFOR
+     ;; IF N_ELEMENTS(WHERE(keeprow)) NE nTimes THEN BEGIN
+     ;;    tmpeSpec.x=tmpeSpec.x(WHERE(keeprow))
+     ;;    tmpeSpec.y=tmpeSpec.y(WHERE(keepRow),*)
+     ;;    tmpeSpec.v=tmpeSpec.v(WHERE(keeprow),*)
+     ;; ENDIF
+     ;; eSpec_lc_tmp_time=tmpeSpec.x(keep2)
+     ;; eSpec_lc_tmp_data=tmpeSpec.y(keep2)
+     ;; eSpec_lc_tmp_energy=tmpeSpec.v(keep2)
+
      ;;Are we safe?
-     IF ( N_ELEMENTS(tmpjee)   NE N_ELEMENTS(tmpje_lc) ) OR $
-        ( N_ELEMENTS(tmpje_lc) NE N_ELEMENTS(tmpeSpec) ) OR $
-        ( N_ELEMENTS(tmpje_lc) NE N_ELEMENTS(tmpeSpec.x) ) $
+     nJee = N_ELEMENTS(tmpjee.x)
+     nJe_lc = N_ELEMENTS(tmpje_lc.x)
+     nESpec = N_ELEMENTS(tmpeSpec.x)
+     IF ( nJee   NE nJe_lc ) OR $
+        ( nJe_lc NE nESpec ) OR $
+        ( nJe_lc NE nESpec ) $
      THEN BEGIN
         WRITE_MESSAGE_TO_LOGFILE,badFile, $
                                  STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'Unequal # of Je/Jee/eSpec inds'), $
                                  /APPEND
+        ;;We'll handle Jee first. eSpec is the gold standard
+        tmpClosest = VALUE_CLOSEST(tmpeSpec.x,tmpjee.x,diffs,/QUIET,/BATCH_MODE)
+        keep       = WHERE(diffs LT 0.05)
+        tmpjee.x   = tmpjee.x[keep]
+        tmpjee.y   = tmpjee.y[keep]
+
+        ;;Now handle je_lc
+        tmpClosest = VALUE_CLOSEST(tmpeSpec.x,tmpje_lc.x,diffs,/QUIET,/BATCH_MODE)
+        keep       = WHERE(diffs LT 0.05)
+        tmpje_lc.x   = tmpje_lc.x[keep]
+        tmpje_lc.y   = tmpje_lc.y[keep]
      ENDIF
      ;;remove crap
-     keep1=WHERE(FINITE(tmpjee.y) AND FINITE(tmpje_lc.y) AND FINITE(tmpeSpec.y) )
-     tmpjee.x=tmpjee.x(keep1)
-     tmpjee.y=tmpjee.y(keep1)
-     tmpje_lc.x=tmpje_lc.x(keep1)
-     tmpje_lc.y=tmpje_lc.y(keep1)
-     tmpeSpec.x=tmpeSpec.x(keep1)
-     tmpeSpec.y=tmpeSpec.y(keep1)
-     tmpeSpec.v=tmpeSpec.v(keep1)
-     out_sc_pot=out_sc_pot(keep1)
-     out_sc_time=out_sc_time(keep1)
-     out_sc_min_energy_ind=out_sc_min_energy_ind(keep1)
-     keep2=WHERE(ABS(tmpjee.y) GT 0.0 AND ABS(tmpje_lc.y) GT 0.0 AND ABS(tmpeSpec.y) )
-     jee_tmp_time=tmpjee.x(keep2)
-     jee_tmp_data=tmpjee.y(keep2)
-     je_lc_tmp_time=tmpje_lc.x(keep2)
-     je_lc_tmp_data=tmpje_lc.y(keep2)
-     eSpec_lc_tmp_time=tmpeSpec.x(keep2)
-     eSpec_lc_tmp_data=tmpeSpec.y(keep2)
-     eSpec_lc_tmp_energy=tmpeSpec.v(keep2)
-     out_sc_pot=out_sc_pot(keep2)
-     out_sc_time=out_sc_time(keep2)
-     out_sc_min_energy_ind=out_sc_min_energy_ind(keep2)
+     ;; keep1=WHERE(FINITE(tmpjee.y) AND FINITE(tmpje_lc.y) AND FINITE(tmpeSpec.y) )
+     ;; tmpjee.x=tmpjee.x(keep1)
+     ;; tmpjee.y=tmpjee.y(keep1)
+     ;; tmpje_lc.x=tmpje_lc.x(keep1)
+     ;; tmpje_lc.y=tmpje_lc.y(keep1)
+     ;; tmpeSpec.x=tmpeSpec.x(keep1)
+     ;; tmpeSpec.y=tmpeSpec.y(keep1)
+     ;; tmpeSpec.v=tmpeSpec.v(keep1)
+     ;; out_sc_pot=out_sc_pot(keep1)
+     ;; out_sc_time=out_sc_time(keep1)
+     ;; out_sc_min_energy_ind=out_sc_min_energy_ind(keep1)
+     ;; keep2=WHERE(ABS(tmpjee.y) GT 0.0 AND ABS(tmpje_lc.y) GT 0.0 AND ABS(tmpeSpec.y) )
+     ;; jee_tmp_time=tmpjee.x(keep2)
+     ;; jee_tmp_data=tmpjee.y(keep2)
+     ;; je_lc_tmp_time=tmpje_lc.x(keep2)
+     ;; je_lc_tmp_data=tmpje_lc.y(keep2)
+     ;; eSpec_lc_tmp_time=tmpeSpec.x(keep2)
+     ;; eSpec_lc_tmp_data=tmpeSpec.y(keep2)
+     ;; eSpec_lc_tmp_energy=tmpeSpec.v(keep2)
+     ;; out_sc_pot=out_sc_pot(keep2)
+     ;; out_sc_time=out_sc_time(keep2)
+     ;; out_sc_min_energy_ind=out_sc_min_energy_ind(keep2)
      STORE_DATA,'JEe_lc',data={x:jee_tmp_time,y:jee_tmp_data}
      STORE_DATA,'Je_lc',data={x:je_lc_tmp_time,y:je_lc_tmp_data}
-     STORE_DATA,'eSpec_lc', DATA={x:eSpec_lc_tmp_time,y:eSpec_lc_tmp_data,v:eSpec_lc_tmp_energy}
+     ;; STORE_DATA,'eSpec_lc', DATA={x:eSpec_lc_tmp_time,y:eSpec_lc_tmp_data,v:eSpec_lc_tmp_energy}
+     STORE_DATA,'eSpec_lc', DATA={x:tmpeSpec.x,y:tmpeSpec.y,v:tmpeSpec.v}
 
      ;;Now get 'em and send 'em packing!
      GET_DATA,'JEe_lc',DATA=tmpjee
