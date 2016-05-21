@@ -8,12 +8,13 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION,filename=filename, $
   as5_dir = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
   alfven_startstop_maxJ_file = './alfven_startstop_maxJ_times--500-16361_inc_lower_lats--burst_1000-16361.sav'
 
+  todayStr         = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
   outDir           = as5_dir + 'batch_output/'
   outNewellDir     = as5_dir + 'Newell_batch_output/'
   outFile_pref     = 'Dartdb--Alfven--Newell_identification_of_electron_spectra--Orbit_'
   newellStuff_pref = 'Newell_et_al_identification_of_electron_spectra--Orbit_'
 
-  badFile          = 'Orbs_without_Alfven_events.txt'
+  badFile          = 'Orbs_without_Alfven_events--'+todayStr+'.txt'
 
   ;;energy ranges
   if not keyword_set(energy_electrons) then energy_electrons=[0.,30000.] ;use 0.0 for lower bound since the sc_pot is used to set this
@@ -136,10 +137,9 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION,filename=filename, $
   match_i        = WHERE(alfven_orblist EQ orbit_num,nMatch)
   IF nMatch EQ 0 THEN BEGIN
      PRINT,'No matches! Leaving ...'
-     OPENW,badLun,badFile,/GET_LUN,/APPEND
-     PRINTF,badLun,FORMAT='(A0,T20,A0)',orbStr,GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
-     CLOSE,badLun
-     FREE_LUN,badLun
+     WRITE_MESSAGE_TO_LOGFILE,badFile, $
+                              STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'No Alfs'), $
+                              /APPEND
      RETURN
   ENDIF ELSE BEGIN
      ;;set up output
@@ -158,8 +158,11 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION,filename=filename, $
   hit_nSpectra              = !NULL
   alfvenDBindices_for_spectra = !NULL
   orbInterval_for_spectra     = !NULL
+  could_be_fraud              = !NULL
+  minDiffArr                  = !NULL
   electron_startstop_alfven_ind_list    = LIST()
   ;; skip_this_interval = MAKE_ARRAY(number_of_intervals,VALUE=0)
+  temp_last_closest = MAKE_ARRAY(nMatch,VALUE=250,/FLOAT)
   FOR jjj=0,number_of_intervals-1 DO BEGIN
      ;;Reset the lists
      ;; electron_start_times = !NULL
@@ -168,31 +171,54 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION,filename=filename, $
      ;;get the relevant time range
      je_tmp_time=je.x(time_range_indices(jjj,0):time_range_indices(jjj,1))
      je_tmp_data=je.y(time_range_indices(jjj,0):time_range_indices(jjj,1))
-     FOR i=0,nMatch-1 DO BEGIN
-        temp_inds         = WHERE(je_tmp_time GE start_times[i] AND je_tmp_time LE stop_times[i],tempCount)
+     n_tmp_times=N_ELEMENTS(je_tmp_time)
+     FOR iMatch=0,nMatch-1 DO BEGIN
+        temp_inds         = WHERE(je_tmp_time GE start_times[iMatch] AND je_tmp_time LE stop_times[iMatch],tempCount)
         IF tempCount GT 0 THEN BEGIN
            electron_startstop_alfven_inds = [[electron_startstop_alfven_inds],[temp_inds[0],temp_inds[-1]]]
            hit_nSpectra         = [hit_nSpectra,tempCount]
            ;; electron_stop_times  = [electron_stop_times,je_tmp_time[temp_inds]]
-           matched[i]           = jjj
-           nHits[i]++
-           alfvenDBindices_for_spectra = [alfvenDBindices_for_spectra,REPLICATE(match_i[i],tempCount)]
+           matched[iMatch]           = jjj
+           nHits[iMatch]++
+           alfvenDBindices_for_spectra = [alfvenDBindices_for_spectra,REPLICATE(match_i[iMatch],tempCount)]
            orbInterval_for_spectra     = [orbInterval_for_spectra,REPLICATE(jjj,tempCount)]
         ENDIF ELSE BEGIN
-           minitime=MIN(ABS(je_tmp_time-start_times[i]),temp_i)
-           IF minitime LE 0.5 THEN BEGIN
-              tempCount         = 1
-              hit_nSpectra      = [hit_nSpectra,tempCount]
-              electron_startstop_alfven_inds = [[electron_startstop_alfven_inds],[temp_i,temp_i]]
-              ;; electron_start_times = [electron_start_times,je_tmp_time[temp_i]]
-              ;; electron_stop_times = [electron_stop_times,je_tmp_time[temp_i]]
-              matched[i]        = 255-jjj-1
-              nHits[i]++
-              alfvenDBindices_for_spectra = [alfvenDBindices_for_spectra,match_i[i]]
-              orbInterval_for_spectra     = [orbInterval_for_spectra,REPLICATE(jjj,tempCount)]
+           ;;This introduces the possibility of duplicates
+           minstartdiff=MIN(ABS(je_tmp_time-start_times[iMatch]),temp_i_start)
+           minstopdiff=MIN(ABS(je_tmp_time-stop_times[iMatch]),temp_i_stop)
+           minDiff = MIN([minstartdiff,minstopdiff],temp_ii_min)
+           IF minDiff LT temp_last_closest[iMatch] THEN BEGIN
+              temp_last_closest[iMatch] = minDiff
+
+              IF temp_ii_min EQ 0 THEN BEGIN
+                 temp_i = temp_i_start
+                 minitime = minstartdiff
+              ENDIF ELSE BEGIN
+                 temp_i = temp_i_stop
+                 minitime = minstopdiff
+              ENDELSE
+              CASE temp_i OF
+                 0: je_sampPeriod = (n_tmp_times GT 1) ? je_tmp_time[1]-je_tmp_time[0] : 2.5
+                 n_tmp_times-1: je_sampPeriod = je_tmp_time[-1]-je_tmp_time[-2]
+                 ELSE: je_sampPeriod = je_tmp_time[temp_i]-je_tmp_time[temp_i-1]
+              ENDCASE
+              ;; je_sampPeriod = MEAN((shift(je_tmp_time,-1)-je_tmp_time)[0:-2]) < 2.5 ;the slowest sample rate?
+              IF minitime LE je_sampPeriod THEN BEGIN
+                 tempCount         = 1
+                 hit_nSpectra      = [hit_nSpectra,tempCount]
+                 electron_startstop_alfven_inds = [[electron_startstop_alfven_inds],[temp_i,temp_i]]
+                 ;; electron_start_times = [electron_start_times,je_tmp_time[temp_i]]
+                 ;; electron_stop_times = [electron_stop_times,je_tmp_time[temp_i]]
+                 matched[iMatch]        = 255-jjj-1
+                 nHits[iMatch]++
+                 alfvenDBindices_for_spectra = [alfvenDBindices_for_spectra,match_i[iMatch]]
+                 orbInterval_for_spectra     = [orbInterval_for_spectra,REPLICATE(jjj,tempCount)]
+              ENDIF ELSE BEGIN
+                 PRINT,"No Alfven events here!"
+                 ;; skip_this_interval[jjj] = 1
+              ENDELSE
            ENDIF ELSE BEGIN
-              PRINT,"No Alfven events here!"
-              ;; skip_this_interval[jjj] = 1
+              PRINT,'Last match was better ...'
            ENDELSE
         ENDELSE
         nSpectra        += tempCount
@@ -200,6 +226,8 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION,filename=filename, $
      IF electron_startstop_alfven_inds EQ !NULL THEN electron_startstop_alfven_inds = [-1,-1]
      electron_startstop_alfven_ind_list.add,electron_startstop_alfven_inds
   ENDFOR
+
+  ;;Now clean out dupes, if need be
 
   ;;Make the structure that's going to hold all these chocolatiers
   alf_eSpec = MAKE_ELECTRON_SPECTRA_STRUCT_FOR_ALFVEN_EVENTS(orb.y[0],nSpectra,alfvenDBindices_for_spectra,center_times,matched,nHits,hit_nSpectra)
@@ -294,6 +322,15 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION,filename=filename, $
         tmpeSpec = {x:tmpeSpec.x[eSpec_uniq_i],y:tmpeSpec.y[eSpec_uniq_i],v:tmpeSpec.v[eSpec_uniq_i]}
      ENDIF
 
+     ;;Are we safe?
+     IF ( N_ELEMENTS(tmpjee)   NE N_ELEMENTS(tmpje_lc) ) OR $
+        ( N_ELEMENTS(tmpje_lc) NE N_ELEMENTS(tmpeSpec) ) OR $
+        ( N_ELEMENTS(tmpje_lc) NE N_ELEMENTS(tmpeSpec.x) ) $
+     THEN BEGIN
+        WRITE_MESSAGE_TO_LOGFILE,badFile, $
+                                 STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'Unequal # of Je/Jee/eSpec inds'), $
+                                 /APPEND
+     ENDIF
      ;;remove crap
      keep1=WHERE(FINITE(tmpjee.y) AND FINITE(tmpje_lc.y) AND FINITE(tmpeSpec.y) )
      tmpjee.x=tmpjee.x(keep1)
@@ -331,7 +368,10 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION,filename=filename, $
      mlt       = mlt.y
 
      ;;Now do the thing!
-     IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,tmpeSpec,tmpjee,tmpje_lc,mlt,eSpecs_parsed,SC_POT=out_sc_pot
+     IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,tmpeSpec,tmpjee,tmpje_lc,mlt,eSpecs_parsed, $
+                                             SC_POT=out_sc_pot, $
+                                             /QUIET, $
+                                             /BATCH_MODE
 
      ;;Save the electron stuff
      PRINT,'Saving Newell file: ' + out_newell_file

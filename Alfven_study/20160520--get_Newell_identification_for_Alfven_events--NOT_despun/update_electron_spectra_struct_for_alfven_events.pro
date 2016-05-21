@@ -24,7 +24,9 @@ PRO UPDATE_ELECTRON_SPECTRA_STRUCT_FOR_ALFVEN_EVENTS,alf_eSpec,eSpecs_parsed,par
      alf_eSpec.Structs.Jee[alf_eSpec_i]         = eSpecs_parsed.Jee[parsed_temp_i]
      alf_eSpec.structs.nBad_eSpec[alf_eSpec_i]  = eSpecs_parsed.nBad_eSpec[parsed_temp_i]
 
-     IF N_ELEMENTS(could_be_fraud) GT 0 THEN alf_eSpec.could_be_fraud[alf_eSpec_i] = could_be_fraud[k]
+     IF N_ELEMENTS(could_be_fraud) GT 0 THEN BEGIN
+        alf_eSpec.could_be_fraud[alf_eSpec_i] = could_be_fraud[k]
+     ENDIF
   ENDFOR
 
 
