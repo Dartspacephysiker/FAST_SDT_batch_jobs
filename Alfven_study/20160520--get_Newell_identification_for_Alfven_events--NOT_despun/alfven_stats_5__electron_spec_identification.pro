@@ -192,7 +192,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION,filename=filename, $
               orbInterval_for_spectra     = [orbInterval_for_spectra,REPLICATE(jjj,tempCount)]
            ENDIF ELSE BEGIN
               PRINT,"No Alfven events here!"
-              skip_this_interval[jjj] = 1
+              ;; skip_this_interval[jjj] = 1
            ENDELSE
         ENDELSE
         nSpectra        += tempCount
