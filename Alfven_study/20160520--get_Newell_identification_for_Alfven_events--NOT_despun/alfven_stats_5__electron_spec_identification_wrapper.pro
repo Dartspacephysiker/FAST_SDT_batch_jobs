@@ -14,13 +14,13 @@
 
 ; To get "alfven_stats_5.pro" in the PATH, we need this line:
 ;!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F:'+!PATH
-!PATH='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5--add_later_orbs:'+!PATH
+!PATH='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun:'+!PATH
       
 
 ;*****************************
 ;Put code here:
 
-ALFVEN_STATS_5__LATERORBS,/KEEP_ALFVEN_ONLY,/BELOW_AURORAL_OVAL,/DONTSHOWPLOTS,/UCLA_MAG_DESPIN
+ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION
 
 ;*****************************
 ;End routine:
