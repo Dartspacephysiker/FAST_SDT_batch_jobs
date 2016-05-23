@@ -1,7 +1,8 @@
 PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2,filename=filename, $
    energy_electrons=energy_electrons,energy_ions=energy_ions, $
    T1=t1,T2=t2, $
-   BATCH_MODE=batch_mode
+   BATCH_MODE=batch_mode, $
+   INCLUDE_IONS=include_ions
 
   COMPILE_OPT idl2
 
@@ -15,8 +16,11 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2,filename=filename, $
   outDir                                 = as5_dir + 'batch_output/'
   outNewellDir                           = as5_dir + 'Newell_batch_output/'
   outFile_pref                           = 'Dartdb--Alfven--Newell_identification_of_electron_spectra--Orbit_'
-  newellStuff_pref                       = 'Newell_et_al_identification_of_electron_spectra--Orbit_'
-
+  IF KEYWORD_SET(include_ions) THEN BEGIN
+     newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--ions_included--Orbit_'
+  ENDIF ELSE BEGIN
+     newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--Orbit_'
+  ENDELSE
   noEventsFile                           = 'Orbs_without_Alfven_events--'+todayStr+'.txt'
   badFile                                = 'Orbs_with_other_issues--'+todayStr+'.txt'
 
@@ -210,32 +214,48 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2,filename=filename, $
                     OUT_SC_POT=out_sc_pot, $
                     OUT_SC_TIME=out_sc_time, $
                     OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind
-     GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='eSpec_lc',ANGLE=e_angle,RETRACE=1,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
-     
+     GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='eSpec_lc',ANGLE=e_angle,RETRACE=1, $
+                 T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
+     IF KEYWORD_SET(include_ions) THEN BEGIN
+        GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                       NAME='JEi_up',ENERGY=energy_ions,ANGLE=i_angle_up,SC_POT=sc_pot,/CALIB
+        GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                       NAME='Ji_up',ENERGY=energy_ions,ANGLE=i_angle_up,SC_POT=sc_pot,/CALIB, $
+                       OUT_SC_POT=out_sc_pot_i, $
+                       OUT_SC_TIME=out_sc_time_i, $
+                       OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i
+        GET_EN_SPEC,"fa_ies_c",UNITS='eflux',NAME='iSpec_up',ANGLE=i_angle_up,RETRACE=1, $
+                    T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
+     ENDIF     
 
      ;;Now get 'em all, see what we gots
-     GET_DATA,'JEe_lc',DATA=tmpjee
+     GET_DATA,'JEe_lc',DATA=tmpjee_lc
      GET_DATA,'Je_lc',DATA=tmpje_lc
-     GET_DATA,'eSpec_lc', DATA=tmpeSpec
+     GET_DATA,'eSpec_lc', DATA=tmpeSpec_lc
+     IF KEYWORD_SET(include_ions) THEN BEGIN
+        GET_DATA,'JEi_up',DATA=tmpjei_up
+        GET_DATA,'Ji_up',DATA=tmpji_up
+        GET_DATA,'iSpec_up', DATA=tmpiSpec_up
+     ENDIF
 
      ;;Check for dupes and/or sort
-     CHECK_DUPES,tmpjee.x,HAS_DUPES=jee_has_dupes,OUT_UNIQ_I=jee_uniq_i,IS_SORTED=is_jee_sorted,/QUIET
+     CHECK_DUPES,tmpjee_lc.x,HAS_DUPES=jee_has_dupes,OUT_UNIQ_I=jee_uniq_i,IS_SORTED=is_jee_sorted,/QUIET
      IF jee_has_dupes OR ~is_jee_sorted THEN BEGIN
-        tmpjee                                   = {x:tmpjee.x[jee_uniq_i],y:tmpjee.y[jee_uniq_i]}
+        tmpjee_lc                                   = {x:tmpjee_lc.x[jee_uniq_i],y:tmpjee_lc.y[jee_uniq_i]}
      ENDIF
      CHECK_DUPES,tmpje_lc.x,HAS_DUPES=je_lc_has_dupes,OUT_UNIQ_I=je_lc_uniq_i,IS_SORTED=is_je_lc_sorted,/QUIET
      IF je_lc_has_dupes OR ~is_je_lc_sorted THEN BEGIN
         tmpje_lc                                 = {x:tmpje_lc.x[je_lc_uniq_i],y:tmpje_lc.y[je_lc_uniq_i]}
      ENDIF
-     CHECK_DUPES,tmpeSpec.x,HAS_DUPES=eSpec_has_dupes,OUT_UNIQ_I=eSpec_uniq_i,IS_SORTED=is_eSpec_sorted,/QUIET
+     CHECK_DUPES,tmpeSpec_lc.x,HAS_DUPES=eSpec_has_dupes,OUT_UNIQ_I=eSpec_uniq_i,IS_SORTED=is_eSpec_sorted,/QUIET
      IF eSpec_has_dupes OR ~is_eSpec_sorted THEN BEGIN
-        tmpeSpec                                 = {x:tmpeSpec.x[eSpec_uniq_i],y:tmpeSpec.y[eSpec_uniq_i,*],v:tmpeSpec.v[eSpec_uniq_i,*]}
+        tmpeSpec_lc                                 = {x:tmpeSpec_lc.x[eSpec_uniq_i],y:tmpeSpec_lc.y[eSpec_uniq_i,*],v:tmpeSpec_lc.v[eSpec_uniq_i,*]}
      ENDIF
 
      ;;remove junk first--all have to be finite (i.e., not NANs and such)
-     keep1                                       = WHERE(FINITE(tmpjee.y))
-     tmpjee.x                                    = tmpjee.x[keep1]
-     tmpjee.y                                    = tmpjee.y[keep1]
+     keep1                                       = WHERE(FINITE(tmpjee_lc.y))
+     tmpjee_lc.x                                 = tmpjee_lc.x[keep1]
+     tmpjee_lc.y                                 = tmpjee_lc.y[keep1]
 
      keep1                                       = WHERE(FINITE(tmpje_lc.y))
      tmpje_lc.x                                  = tmpje_lc.x[keep1]
@@ -244,22 +264,22 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2,filename=filename, $
      out_sc_time                                 = out_sc_time[keep1]
      out_sc_min_energy_ind                       = out_sc_min_energy_ind[keep1]
 
-     keep1                                       = FINITE(tmpeSpec.y)
-     nTimes                                      = N_ELEMENTS(tmpespec.y[*,0])
-     nEnergies                                   = N_ELEMENTS(tmpespec.y[0,*])
+     keep1                                       = FINITE(tmpeSpec_lc.y)
+     nTimes                                      = N_ELEMENTS(tmpeSpec_lc.y[*,0])
+     nEnergies                                   = N_ELEMENTS(tmpeSpec_lc.y[0,*])
      keepRow                                     = MAKE_ARRAY(nTimes,/BYTE,VALUE=1)
-     FOR i=0,N_ELEMENTS(tmpespec.y[*,0])-1 DO BEGIN
+     FOR i=0,N_ELEMENTS(tmpeSpec_lc.y[*,0])-1 DO BEGIN
         test                                     = WHERE(keep1[i,*],tCount)
         keepRow[i]                               = tCount EQ nEnergies ? 1 : 0
      ENDFOR
-     tmpeSpec.x                                  = tmpeSpec.x[WHERE(keepRow)]
-     tmpeSpec.y                                  = tmpeSpec.y[WHERE(keepRow),*]
-     tmpeSpec.v                                  = tmpeSpec.v[WHERE(keepRow),*]
+     tmpeSpec_lc.x                               = tmpeSpec_lc.x[WHERE(keepRow)]
+     tmpeSpec_lc.y                               = tmpeSpec_lc.y[WHERE(keepRow),*]
+     tmpeSpec_lc.v                               = tmpeSpec_lc.v[WHERE(keepRow),*]
 
      ;;Now check for zeroes
-     keep2                                       = WHERE(ABS(tmpjee.y) GT 0.0)
-     jee_tmp_time                                = tmpjee.x[keep2]
-     jee_tmp_data                                = tmpjee.y[keep2]
+     keep2                                       = WHERE(ABS(tmpjee_lc.y) GT 0.0)
+     jee_tmp_time                                = tmpjee_lc.x[keep2]
+     jee_tmp_data                                = tmpjee_lc.y[keep2]
 
      keep2                                       = WHERE(ABS(tmpje_lc.y) GT 0.0)
      je_lc_tmp_time                              = tmpje_lc.x[keep2]
@@ -268,66 +288,163 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2,filename=filename, $
      out_sc_time                                 = out_sc_time[keep2]
      out_sc_min_energy_ind                       = out_sc_min_energy_ind[keep2]
 
-     ;;Are we safe?
-     nJee                                        = N_ELEMENTS(jee_tmp_time)
-     nJe_lc                                      = N_ELEMENTS(je_lc_tmp_time)
-     nESpec                                      = N_ELEMENTS(tmpeSpec.x)
-     IF ( nJee   NE nJe_lc ) OR $
-        ( nJe_lc NE nESpec ) OR $
-        ( nJe_lc NE nESpec ) $
-     THEN BEGIN
-        all_bad                                  = 0 ;Not throwing in the towel yet
-        WRITE_MESSAGE_TO_LOGFILE,badFile, $
-                                 STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'Unequal # of Je/Jee/eSpec inds'), $
-                                 /APPEND
-        ;;We'll handle Jee first. eSpec is the gold standard
-        tmpClosest                               = VALUE_CLOSEST(tmpeSpec.x,jee_tmp_time,diffs,/QUIET,BATCH_MODE=batch_mode)
-        keep                                     = WHERE(ABS(diffs) LT 0.05)
-        IF keep[0] NE -1 THEN BEGIN
-           jee_tmp_time                          = jee_tmp_time[keep]
-           jee_tmp_data                          = jee_tmp_data[keep]
-        ENDIF ELSE BEGIN
-           WRITE_MESSAGE_TO_LOGFILE,badFile, $
-                                    STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'No JEe inds within 0.05 s of eSpec'), $
-                                    /APPEND
-           all_bad                               = 1
-        ENDELSE
 
-        ;;Now handle je_lc
-        tmpClosest                               = VALUE_CLOSEST(tmpeSpec.x,je_lc_tmp_time,diffs,/QUIET,BATCH_MODE=batch_mode)
-        keep                                     = WHERE(ABS(diffs) LT 0.05)
-        IF keep[0] NE -1 THEN BEGIN
-           je_lc_tmp_time                        = je_lc_tmp_time[keep]
-           je_lc_tmp_data                        = je_lc_tmp_data[keep]
-           out_sc_pot                            = out_sc_pot[keep]
-           out_sc_time                           = out_sc_time[keep]
-           out_sc_min_energy_ind                 = out_sc_min_energy_ind[keep]
-        ENDIF ELSE BEGIN
-           WRITE_MESSAGE_TO_LOGFILE,badFile, $
-                                    STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'No Je_lc inds within 0.05 s of eSpec'), $
-                                    /APPEND
-           all_bad                               = 1
-        ENDELSE
+     success = ALIGN_FLUX_EFLUX_AND_ESPEC(je_lc_tmp_time,je_lc_tmp_data, $
+                                          jee_tmp_time,jee_tmp_data, $
+                                          tmpeSpec_lc.x, $
+                                          OUT_SC_POT=out_sc_pot, $
+                                          OUT_SC_TIME=out_sc_time, $
+                                          OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind, $
+                                          ORBSTR=orbStr, $
+                                          FLUXSTRARR=['Je_lc','JEe_lc','eSpec_lc'], $
+                                          LOGFILE=badFile, $
+                                          BATCH_MODE=batch_mode, $
+                                          /QUIET)
+     IF ~success THEN RETURN
 
-        IF KEYWORD_SET(all_bad) THEN RETURN
-     ENDIF
      STORE_DATA,'JEe_lc',DATA={x:jee_tmp_time,y:jee_tmp_data}
      STORE_DATA,'Je_lc',DATA={x:je_lc_tmp_time,y:je_lc_tmp_data}
-     STORE_DATA,'eSpec_lc',DATA={x:tmpeSpec.x,y:tmpeSpec.y,v:tmpeSpec.v}
+     STORE_DATA,'eSpec_lc',DATA={x:tmpeSpec_lc.x,y:tmpeSpec_lc.y,v:tmpeSpec_lc.v}
 
      ;;Now get 'em and send 'em packing!
-     GET_DATA,'JEe_lc',DATA=tmpjee
+     GET_DATA,'JEe_lc',DATA=tmpjee_lc
      GET_DATA,'Je_lc',DATA=tmpje_lc
-     GET_DATA,'eSpec_lc',DATA=tmpeSpec
+     GET_DATA,'eSpec_lc',DATA=tmpeSpec_lc
      ;;Because we need MLT
-     GET_FA_ORBIT,tmpeSpec.x,/TIME_ARRAY
+     GET_FA_ORBIT,tmpeSpec_lc.x,/TIME_ARRAY
      GET_DATA,'MLT',DATA=mlt
      mlt                                         = FLOAT(mlt.y)
      GET_DATA,'ILAT',DATA=ilat
      ilat                                        = FLOAT(ilat.y)
 
+     IF KEYWORD_SET(include_ions) THEN BEGIN
+        CHECK_DUPES,tmpjei_up.x,HAS_DUPES=jei_up_has_dupes,OUT_UNIQ_I=jei_up_uniq_i,IS_SORTED=is_jei_up_sorted,/QUIET
+        IF jei_up_has_dupes OR ~is_jei_up_sorted THEN BEGIN
+           tmpjei_up                                   = {x:tmpjei_up.x[jei_up_uniq_i],y:tmpjei_up.y[jei_up_uniq_i]}
+        ENDIF
+        CHECK_DUPES,tmpji_up.x,HAS_DUPES=ji_up_has_dupes,OUT_UNIQ_I=ji_up_uniq_i,IS_SORTED=is_ji_up_sorted,/QUIET
+        IF ji_up_has_dupes OR ~is_ji_up_sorted THEN BEGIN
+           tmpji_up                                 = {x:tmpji_up.x[ji_up_uniq_i],y:tmpji_up.y[ji_up_uniq_i]}
+        ENDIF
+        CHECK_DUPES,tmpiSpec_up.x,HAS_DUPES=iSpec_has_dupes,OUT_UNIQ_I=iSpec_uniq_i,IS_SORTED=is_iSpec_sorted,/QUIET
+        IF iSpec_has_dupes OR ~is_iSpec_sorted THEN BEGIN
+           tmpiSpec_up                                 = {x:tmpiSpec_up.x[iSpec_uniq_i],y:tmpiSpec_up.y[iSpec_uniq_i,*],v:tmpiSpec_up.v[iSpec_uniq_i,*]}
+        ENDIF
+
+     ;;remove junk first--all have to be finite (i.e., not NANs and such)
+        keep1                                    = WHERE(FINITE(tmpjei_up.y))
+        tmpjei_up.x                              = tmpjei_up.x[keep1]
+        tmpjei_up.y                              = tmpjei_up.y[keep1]
+
+        keep1                                    = WHERE(FINITE(tmpji_up.y))
+        tmpji_up.x                               = tmpji_up.x[keep1]
+        tmpji_up.y                               = tmpji_up.y[keep1]
+        out_sc_pot_i                             = out_sc_pot_i[keep1]
+        out_sc_time_i                            = out_sc_time_i[keep1]
+        out_sc_min_energy_ind_i                  = out_sc_min_energy_ind_i[keep1]
+
+        keep1                                    = FINITE(tmpiSpec_up.y)
+        nTimes                                   = N_ELEMENTS(tmpiSpec_up.y[*,0])
+        nEnergies                                = N_ELEMENTS(tmpiSpec_up.y[0,*])
+        keepRow                                  = MAKE_ARRAY(nTimes,/BYTE,VALUE=1)
+        FOR i=0,N_ELEMENTS(tmpiSpec_up.y[*,0])-1 DO BEGIN
+           test                                  = WHERE(keep1[i,*],tCount)
+           keepRow[i]                            = tCount EQ nEnergies ? 1 : 0
+        ENDFOR
+        tmpiSpec_up.x                               = tmpiSpec_up.x[WHERE(keepRow)]
+        tmpiSpec_up.y                               = tmpiSpec_up.y[WHERE(keepRow),*]
+        tmpiSpec_up.v                               = tmpiSpec_up.v[WHERE(keepRow),*]
+
+        ;;Now check for zeroes
+        keep2                                    = WHERE(ABS(tmpjei_up.y) GT 0.0)
+        jei_up_tmp_time                          = tmpjei_up.x[keep2]
+        jei_up_tmp_data                          = tmpjei_up.y[keep2]
+        
+        keep2                                    = WHERE(ABS(tmpji_up.y) GT 0.0)
+        ji_up_tmp_time                           = tmpji_up.x[keep2]
+        ji_up_tmp_data                           = tmpji_up.y[keep2]
+        out_sc_pot_i                             = out_sc_pot_i[keep2]
+        out_sc_time_i                            = out_sc_time_i[keep2]
+        out_sc_min_energy_ind_i                  = out_sc_min_energy_ind_i[keep2]
+
+
+        success = ALIGN_FLUX_EFLUX_AND_ESPEC(ji_up_tmp_time,ji_up_tmp_data, $
+                                             jei_up_tmp_time,jei_up_tmp_data, $
+                                             tmpiSpec_up.x, $
+                                             OUT_SC_POT=out_sc_pot_i, $
+                                             OUT_SC_TIME=out_sc_time_i, $
+                                             OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i, $
+                                             ORBSTR=orbStr, $
+                                             FLUXSTRARR=['Ji_up','JEi_up','iSpec_up'], $
+                                             LOGFILE=badFile, $
+                                             BATCH_MODE=batch_mode, $
+                                             /QUIET)
+        
+        STORE_DATA,'JEi_up',DATA={x:jei_up_tmp_time,y:jei_up_tmp_data}
+        STORE_DATA,'Ji_up',DATA={x:ji_up_tmp_time,y:ji_up_tmp_data}
+        STORE_DATA,'iSpec_up',DATA={x:tmpiSpec_up.x,y:tmpiSpec_up.y,v:tmpiSpec_up.v}
+        
+        ;;Now get 'em and send 'em packing!
+        ;; GET_DATA,'JEi_up',DATA=tmpjei_up
+        ;; GET_DATA,'Ji_up',DATA=tmpji_up
+        ;; GET_DATA,'iSpec_up',DATA=tmpiSpec_up
+        GET_DATA,'JEi_up',DATA=jei_up
+        GET_DATA,'Ji_up',DATA=ji_up
+        GET_DATA,'iSpec_up',DATA=iSpec_up
+        ;;Because we need MLT
+        ;; GET_FA_ORBIT,tmpiSpec_up.x,/TIME_ARRAY
+        ;; GET_DATA,'MLT',DATA=mlt
+        ;; mlt                                         = FLOAT(mlt.y)
+        ;; GET_DATA,'ILAT',DATA=ilat
+        ;; ilat                                        = FLOAT(ilat.y)
+        
+     ENDIF
+     ;;Are we safe?
+     ;; nJee                                        = N_ELEMENTS(jee_tmp_time)
+     ;; nJe_lc                                      = N_ELEMENTS(je_lc_tmp_time)
+     ;; nESpec                                      = N_ELEMENTS(tmpeSpec_lc.x)
+     ;; IF ( nJee   NE nJe_lc ) OR $
+     ;;    ( nJe_lc NE nESpec ) OR $
+     ;;    ( nJe_lc NE nESpec ) $
+     ;; THEN BEGIN
+     ;;    all_bad                                  = 0 ;Not throwing in the towel yet
+     ;;    WRITE_MESSAGE_TO_LOGFILE,badFile, $
+     ;;                             STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'Unequal # of Je/Jee/eSpec inds'), $
+     ;;                             /APPEND
+     ;;    ;;We'll handle Jee first. eSpec is the gold standard
+     ;;    tmpClosest                               = VALUE_CLOSEST(tmpeSpec_lc.x,jee_tmp_time,diffs,/QUIET,BATCH_MODE=batch_mode)
+     ;;    keep                                     = WHERE(ABS(diffs) LT 0.05)
+     ;;    IF keep[0] NE -1 THEN BEGIN
+     ;;       jee_tmp_time                          = jee_tmp_time[keep]
+     ;;       jee_tmp_data                          = jee_tmp_data[keep]
+     ;;    ENDIF ELSE BEGIN
+     ;;       WRITE_MESSAGE_TO_LOGFILE,badFile, $
+     ;;                                STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'No JEe inds within 0.05 s of eSpec'), $
+     ;;                                /APPEND
+     ;;       all_bad                               = 1
+     ;;    ENDELSE
+
+     ;;    ;;Now handle je_lc
+     ;;    tmpClosest                               = VALUE_CLOSEST(tmpeSpec_lc.x,je_lc_tmp_time,diffs,/QUIET,BATCH_MODE=batch_mode)
+     ;;    keep                                     = WHERE(ABS(diffs) LT 0.05)
+     ;;    IF keep[0] NE -1 THEN BEGIN
+     ;;       je_lc_tmp_time                        = je_lc_tmp_time[keep]
+     ;;       je_lc_tmp_data                        = je_lc_tmp_data[keep]
+     ;;       out_sc_pot                            = out_sc_pot[keep]
+     ;;       out_sc_time                           = out_sc_time[keep]
+     ;;       out_sc_min_energy_ind                 = out_sc_min_energy_ind[keep]
+     ;;    ENDIF ELSE BEGIN
+     ;;       WRITE_MESSAGE_TO_LOGFILE,badFile, $
+     ;;                                STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'No Je_lc inds within 0.05 s of eSpec'), $
+     ;;                                /APPEND
+     ;;       all_bad                               = 1
+     ;;    ENDELSE
+
+     ;;    IF KEYWORD_SET(all_bad) THEN RETURN
+     ;; ENDIF
+
      ;;Now make 'em cry
-     IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,tmpeSpec,tmpjee,tmpje_lc, $
+     IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,tmpeSpec_lc,tmpjee_lc,tmpje_lc, $
                                              mlt,ilat, $
                                              eSpecs_parsed, $
                                              SC_POT=out_sc_pot, $
@@ -337,10 +454,17 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2,filename=filename, $
                                              ERRORLOGFILE=badFile
      
 
-     ;;Save the electron stuff
-     PRINT,'Saving Newell file: ' + out_newell_file
-     SAVE,eSpecs_parsed,FILENAME=outNewellDir+out_newell_file
-
+     IF KEYWORD_SET(include_ions) THEN BEGIN
+        ;;Save the electron stuff
+        PRINT,'Saving Newell file with ions: ' + out_newell_file
+        SAVE,eSpecs_parsed,tmpeSpec_lc, $
+             jei_up,ji_up,iSpec_up, $
+             FILENAME=outNewellDir+out_newell_file
+     ENDIF ELSE BEGIN
+        ;;Save the electron stuff
+        PRINT,'Saving Newell file: ' + out_newell_file
+        SAVE,eSpecs_parsed,tmpeSpec_lc,FILENAME=outNewellDir+out_newell_file
+     ENDELSE
      IF nMatch EQ 0 THEN RETURN ;Leave if there are no Alfvén events here
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
