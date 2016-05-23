@@ -20,7 +20,7 @@
 ;*****************************
 ;Put code here:
 
-ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION
+ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION,/BATCH_MODE
 
 ;*****************************
 ;End routine:

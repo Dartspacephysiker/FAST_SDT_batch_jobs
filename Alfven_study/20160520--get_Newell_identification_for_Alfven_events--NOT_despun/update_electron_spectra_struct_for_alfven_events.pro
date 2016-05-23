@@ -17,6 +17,8 @@ PRO UPDATE_ELECTRON_SPECTRA_STRUCT_FOR_ALFVEN_EVENTS,alf_eSpec,eSpecs_parsed,par
      ;;                                   Jee:eSpecs_parsed.Jee[parsed_temp_i], $
      ;;                                   nBad_eSpec:eSpecs_parsed.nBad_eSpec[parsed_temp_i]}
      alf_eSpec.structs.x[alf_eSpec_i]           = eSpecs_parsed.x[parsed_temp_i]
+     alf_eSpec.structs.mlt[alf_eSpec_i]         = eSpecs_parsed.mlt[parsed_temp_i]
+     alf_eSpec.structs.ilat[alf_eSpec_i]        = eSpecs_parsed.ilat[parsed_temp_i]
      alf_eSpec.structs.mono[alf_eSpec_i]        = eSpecs_parsed.mono[parsed_temp_i]
      alf_eSpec.structs.broad[alf_eSpec_i]       = eSpecs_parsed.broad[parsed_temp_i]
      alf_eSpec.structs.diffuse[alf_eSpec_i]     = eSpecs_parsed.diffuse[parsed_temp_i]
