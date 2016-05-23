@@ -435,9 +435,13 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION,filename=filename, $
      GET_FA_ORBIT,tmpeSpec.x,/TIME_ARRAY
      GET_DATA,'MLT',DATA=mlt
      mlt       = mlt.y
+     GET_DATA,'ILAT',DATA=ilat
+     ilat      = ilat.y
 
      ;;Now do the thing!
-     IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,tmpeSpec,tmpjee,tmpje_lc,mlt,eSpecs_parsed, $
+     IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,tmpeSpec,tmpjee,tmpje_lc, $
+                                             mlt,ilat, $
+                                             ilat,eSpecs_parsed, $
                                              SC_POT=out_sc_pot, $
                                              /QUIET, $
                                              /BATCH_MODE

@@ -3,6 +3,8 @@
 FUNCTION MAKE_BLANK_ESPEC_STRUCTS,nSpectra
 
   event = { x:MAKE_ARRAY(nSpectra,/DOUBLE), $
+            MLT:MAKE_ARRAY(nSpectra,/FLOAT), $
+            ILAT:MAKE_ARRAY(nSpectra,/FLOAT), $
             mono:MAKE_ARRAY(nSpectra,/BYTE), $
             broad:MAKE_ARRAY(nSpectra,/BYTE), $
             diffuse:MAKE_ARRAY(nSpectra,/BYTE), $
