@@ -1,15 +1,20 @@
 ;2016/05/15 Here we are 
-PRO JOURNAL__20160523__TEST_AUTOMATED_FITTING_OF_NFLUX_FOR_ORB_1843
+PRO JOURNAL__20160523__TEST_AUTOMATED_FITTING_OF_NFLUX_FOR_ORB_1843__BURST
 
-  ;; eeb_or_ees             = 'eeb'
+  ;; Use burst bounds, optionally average
   ;;126  1997-02-07/20:49:41.061
   ;;226  1997-02-07/20:49:48.973
+  eeb_or_ees             = 'eeb'
   ;; bounds                 = [126:226:2]
+  spectra_avg_interval   = 4
+  bounds                 = [126:226]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
+  ;; bounds                 = [126:226:2]/spectra_avg_interval
 
-  eeb_or_ees             = 'ees'
+  ;; Use survey bounds
   ;; 16  1997-02-07/20:49:41.338
   ;; 28  1997-02-07/20:49:48.934
-  bounds                 = [16:28]
+  ;; eeb_or_ees             = 'ees'
+  ;; bounds                 = [16:28]
 
   t1Str                  = '97-02-07/20:49:31'
   t2Str                  = '97-02-07/20:50:19'
@@ -36,6 +41,7 @@ PRO JOURNAL__20160523__TEST_AUTOMATED_FITTING_OF_NFLUX_FOR_ORB_1843
      T1=t1, $
      T2=t2, $
      EEB_OR_EES=eeb_or_ees, $
+     SPECTRA_AVERAGE_INTERVAL=spectra_avg_interval, $
      SDT_TIME_INDS=bounds, $
      DENSITY_EST=n_est, $
      TEMPERATURE_EST=T, $
