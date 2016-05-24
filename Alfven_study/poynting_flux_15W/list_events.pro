@@ -53,7 +53,7 @@ PRO list_events,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=burst,
   get_data,'Je',data=jee
   get_fa_orbit,jee.x[0],jee.x[-1]
   ;; load DB file
-  dbDir = '/SPENCEdata/Research/Cusp/ACE_FAST/scripts_for_processing_Dartmouth_data/'
+  dbDir = '/SPENCEdata/Research/Satellites/FAST/OMNI_FAST/scripts_for_processing_Dartmouth_data/'
   dbFile = 'Dartdb_02282015--500-14999--maximus.sav'
   restore,dbDir + dbFile
 

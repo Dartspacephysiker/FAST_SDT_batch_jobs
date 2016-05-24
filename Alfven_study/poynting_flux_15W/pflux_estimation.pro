@@ -12,7 +12,7 @@ pro pflux_estimation,EVENTNUM=eventNum,ORBNUM=orbNum,ALFEVENTS=alfEvents,BURST=b
   defOrb = 1000  ;default orbit if none provided
 
   ;; load DB file
-  dbDir = '/SPENCEdata/Research/Cusp/ACE_FAST/scripts_for_processing_Dartmouth_data/'
+  dbDir = '/SPENCEdata/Research/Satellites/FAST/OMNI_FAST/scripts_for_processing_Dartmouth_data/'
   dbFile = 'Dartdb_02282015--500-14999--maximus.sav'
   restore,dbDir + dbFile
 

@@ -3,7 +3,7 @@ PRO ALFVEN_DAYSIDE_ELECTRONS_IONS_SUMPLOTS
 
   ;;what are we up to?
   hemi                = KEYWORD_SET(hemi) ? hemi : 'north'
-  inDir               = '/SPENCEdata/Research/Cusp/storms_Alfvens/journals/'
+  inDir               = '/SPENCEdata/Research/Satellites/FAST/storms_Alfvens/journals/'
   inFile              = 'journal__20160206__times_for_orbs_with_more_than_50_events_on_dayside_during_mainphase__check_for_msheath_electrons__'+hemi+'.sav'
   RESTORE,inDir+inFile
 
