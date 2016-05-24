@@ -5,7 +5,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION,filename=filename, $
 
   COMPILE_OPT idl2
 
-  dbDir                                  = '/SPENCEdata/Research/Cusp/database/dartdb/saves/'
+  dbDir                                  = '/SPENCEdata/Research/database/dartdb/saves/'
   dbTFile                                = 'Dartdb_20150814--500-16361_inc_lower_lats--burst_1000-16361--cdbtime.sav'
   dbOrbFile                              = 'Dartdb_20151222--500-16361_inc_lower_lats--burst_1000-16361--orbits.sav'
   as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'

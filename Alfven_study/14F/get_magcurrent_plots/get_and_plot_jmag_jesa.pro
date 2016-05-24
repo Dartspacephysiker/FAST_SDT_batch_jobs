@@ -45,7 +45,7 @@ pro get_and_plot_jmag_jesa,$
 
 ; if doing Chaston plots, get prepped 
   IF KEYWORD_SET(do_chastp) THEN BEGIN
-     chastondbdir='/SPENCEdata/Research/Cusp/database/current_db/'
+     chastondbdir='/SPENCEdata/Research/database/current_db/'
      outdir='/SPENCEdata/Research/Cusp/ACE_FAST/Compare_new_DB_with_Chastons/txtoutput/'
 
      orbit=10000

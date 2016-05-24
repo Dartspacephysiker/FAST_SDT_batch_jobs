@@ -2,7 +2,7 @@ IDL Version 8.3 (linux x86_64 m64). (c) 2013, Exelis Visual Information Solution
 Installation number: 212858-4.
 Licensed for use by: Dartmouth College
 
-Data dir set to /SPENCEdata/Research/Cusp/database/
+Data dir set to /SPENCEdata/Research/database/
 IDL> breakpoint,'/SPENCEdata/software/sdt/batch_jobs/explore_TEAMS/explore_teams.pro',101
 IDL> explore_teams
 timespan is from 1997-01-23/00:00:01 to 1997-01-23/11:46:09
