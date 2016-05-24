@@ -1,4 +1,4 @@
-PRO COMBINE_SPECTRA_ASSOCIATED_WITH_ALFVEN_WAVES
+PRO COMBINE_SPECTRA_ASSOCIATED_WITH_ALFVEN_WAVES,final_ident_hash,final_eSpec
 
   alf_eSpec_dir   = '/home/spencerh/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/batch_output/'
   alf_eSpec_fPref = 'Dartdb--Alfven--Newell_identification_of_electron_spectra--Orbit_'
@@ -28,7 +28,7 @@ PRO COMBINE_SPECTRA_ASSOCIATED_WITH_ALFVEN_WAVES
   ENDFOR
 
   
-
-  STOP
+  PRINT,'Saving to ' + outFilePref+'.sav ...'
+  save,final_ident_hash,final_eSpec,FILENAME=outFilePref+'.sav'
 
 END
