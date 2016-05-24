@@ -3,7 +3,7 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/alfven_stats_5__electron_spec_identification_wrapper.pro
 
 DataBaseRequest:
-    Orbits 500-16361
+    Orbits 3077-16361
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun
 PlotConfigurationFile: chaston_survey_5__super_pared__no_langmuir
