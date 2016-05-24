@@ -1,5 +1,5 @@
-PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2,filename=filename, $
-   energy_electrons=energy_electrons,energy_ions=energy_ions, $
+PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
+   ENERGY_ELECTRONS=energy_electrons,ENERGY_IONS=energy_ions, $
    T1=t1,T2=t2, $
    BATCH_MODE=batch_mode, $
    INCLUDE_IONS=include_ions
