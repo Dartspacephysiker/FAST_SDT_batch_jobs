@@ -4,8 +4,10 @@ PRO COMBINE_SPECTRA_ASSOCIATED_WITH_ALFVEN_WAVES,alf_specIdent_hash,alf_eSpec_st
   alf_eSpec_fPref = 'Dartdb--Alfven--Newell_identification_of_electron_spectra--Orbit_'
 
   despunStr       = '--NOT_despun'
-  first_orb       = 500
-  last_orb        = 4371
+  ;; first_orb       = 500
+  ;; last_orb        = 4371
+  first_orb       = 4372
+  last_orb        = 5451
 
   outFileDir      = '/SPENCEdata/Research/database/FAST/dartdb/electron_Newell_db/'
   outFilePref     = STRING(FORMAT='("Alfven_eSpec",A0,"--Newell_et_al_2009--orbits_",I0,"-",I0)', $
