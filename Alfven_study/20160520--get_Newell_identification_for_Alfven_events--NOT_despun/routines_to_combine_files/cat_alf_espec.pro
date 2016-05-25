@@ -6,7 +6,8 @@ PRO CAT_ALF_ESPEC,final_eSpec,final_ident_hash,alf_eSpec
   tempIdent       = CREATE_STRUCT(tempIdent,'ALF_INDICES',alf_eSpec.alf_indices)     
   tempIdx         = alf_eSpec.alf_indices[UNIQ(alf_eSpec.alf_indices)]
 
-  alf_eSpec       = {orbit:alf_eSpec.orbit, $
+  n_events        = N_ELEMENTS(alf_eSpec.time)
+  alf_eSpec       = {orbit:REPLICATE(alf_eSpec.orbit,n_events), $
                      interval:alf_eSpec.interval, $
                      time:alf_eSpec.time, $
                      idx:tempIdx, $
@@ -22,8 +23,7 @@ PRO CAT_ALF_ESPEC,final_eSpec,final_ident_hash,alf_eSpec
      final_ident_hash = tempHash
   ENDIF ELSE BEGIN
      
-     n_events     = N_ELEMENTS(alf_eSpec.time)
-     final_eSpec  = {orbit:[final_eSpec.orbit,REPLICATE(alf_eSpec.orbit,n_events)], $
+     final_eSpec  = {orbit:[final_eSpec.orbit,alf_eSpec.orbit], $
                      interval:[final_eSpec.interval,alf_eSpec.interval], $  
                      time:[final_eSpec.time,alf_eSpec.time], $
                      idx:[final_eSpec.idx,alf_eSpec.idx], $
