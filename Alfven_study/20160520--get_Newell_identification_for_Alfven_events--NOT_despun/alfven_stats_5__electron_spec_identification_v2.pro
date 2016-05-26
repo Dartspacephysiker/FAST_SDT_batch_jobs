@@ -459,6 +459,8 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
         PRINT,'Saving Newell file with ions: ' + out_newell_file
         SAVE,eSpecs_parsed,tmpeSpec_lc, $
              jei_up,ji_up,iSpec_up, $
+             out_sc_pot,out_sc_time, $
+             out_sc_pot_i,out_sc_time_i, $
              FILENAME=outNewellDir+out_newell_file
      ENDIF ELSE BEGIN
         ;;Save the electron stuff
