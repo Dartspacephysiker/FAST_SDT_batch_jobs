@@ -137,7 +137,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
   orbStr                                 = STRCOMPRESS(orbit_num,/REMOVE_ALL)
   match_i                                = WHERE(alfven_orblist EQ orbit_num,nMatch)
   IF nMatch EQ 0 THEN BEGIN
-     PRINT,'No matches! Leaving ...'
+     PRINT,'No Alfvén matches!'
      WRITE_MESSAGE_TO_LOGFILE,noEventsFile, $
                               STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'No Alfs'), $
                               /APPEND
@@ -162,7 +162,6 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
      electron_startstop_alfven_time_list            = LIST()
      temp_last_closest                              = MAKE_ARRAY(nMatch,VALUE=250,/FLOAT)
   ENDELSE
-
 
   ;;begin looping each interval
   FOR jjj=0,number_of_intervals-1 DO BEGIN
@@ -462,13 +461,13 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
         SAVE,eSpecs_parsed,tmpeSpec_lc, $
              jei_up,ji_up,iSpec_up, $
              out_sc_pot,out_sc_time, $
-             out_sc_pot_i,out_sc_time_i, $
+             out_sc_pot_i,out_sc_time_i,out_sc_min_energy_ind_i, $
              FILENAME=outNewellDir+out_newell_file
      ENDIF ELSE BEGIN
         ;;Save the electron stuff
         PRINT,'Saving Newell file: ' + out_newell_file
         SAVE,eSpecs_parsed,tmpeSpec_lc, $
-             out_sc_pot,out_sc_time, $
+             out_sc_pot,out_sc_time,out_sc_min_energy_ind, $
              FILENAME=outNewellDir+out_newell_file
      ENDELSE
      IF nMatch EQ 0 THEN CONTINUE ;Leave if there are no Alfvén events here
@@ -507,12 +506,12 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
                  temp_i                          = temp_i_stop
                  minitime                        = minstopdiff
               ENDELSE
-              CASE temp_i OF
-                 0: je_sampPeriod                = (n_tmp_times GT 1) ? eSpecs_parsed.x[1]-eSpecs_parsed.x[0] : 2.5
-                 n_tmp_times-1: je_sampPeriod    = eSpecs_parsed.x[-1]-eSpecs_parsed.x[-2]
-                 ELSE: je_sampPeriod             = eSpecs_parsed.x[temp_i]-eSpecs_parsed.x[temp_i-1]
-              ENDCASE
-              IF minitime LE je_sampPeriod THEN BEGIN
+              ;; CASE temp_i OF
+              ;;    0: je_sampPeriod                = (n_tmp_times GT 1) ? eSpecs_parsed.x[1]-eSpecs_parsed.x[0] : 2.5
+              ;;    n_tmp_times-1: je_sampPeriod    = eSpecs_parsed.x[-1]-eSpecs_parsed.x[-2]
+              ;;    ELSE: je_sampPeriod             = eSpecs_parsed.x[temp_i]-eSpecs_parsed.x[temp_i-1]
+              ;; ENDCASE
+              IF minitime LE 10. THEN BEGIN
                  tempCount                       = 1
                  keep_these_spectra_i            = [keep_these_spectra_i,temp_i]
                  hit_nSpectra                    = [hit_nSpectra,tempCount]
