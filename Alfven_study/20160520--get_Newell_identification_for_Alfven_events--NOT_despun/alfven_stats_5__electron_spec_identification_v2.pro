@@ -1,4 +1,5 @@
 PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
+   SKIP_IF_FILE_EXISTS=skip_if_file_exists, $
    ENERGY_ELECTRONS=energy_electrons,ENERGY_IONS=energy_ions, $
    T1=t1,T2=t2, $
    BATCH_MODE=batch_mode, $
@@ -168,6 +169,12 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
 
      ;;We're going to make output in any case. We're already here, after all!
      out_newell_file                             = newellStuff_pref + orbStr + '_' + STRCOMPRESS(jjj,/REMOVE_ALL) + '.sav'
+
+     IF KEYWORD_SET(skip_if_file_exists) AND FILE_TEST(outNewellDir+out_newell_file) THEN BEGIN
+        PRINT,'Skipping ' + out_newell_file + '...'
+        alfven_skip_this_orb                     = 1
+        CONTINUE
+     ENDIF
 
      PRINT,'time_range',time_to_str(time_ranges[jjj,0]),time_to_str(time_ranges[jjj,1])
      
@@ -470,7 +477,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
              out_sc_pot,out_sc_time,out_sc_min_energy_ind, $
              FILENAME=outNewellDir+out_newell_file
      ENDELSE
-     IF nMatch EQ 0 THEN CONTINUE ;Leave if there are no Alfvén events here
+     IF nMatch EQ 0 OR KEYWORD_SET(alfven_skip_this_orb) THEN CONTINUE ;Leave if there are no Alfvén events here
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;;Now figure out Alfvéns
@@ -540,8 +547,8 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
   ENDFOR
 
   ;;Now stitch together what we have
-  IF nMatch GT 0 THEN BEGIN
-     alf_eSpec                                      = MAKE_ELECTRON_SPECTRA_STRUCT_FOR_ALFVEN_EVENTS_V2(orb.y[0],nSpectra,alfvenDBindices_for_spectra, $
+  IF nMatch GT 0 AND ~alfven_skip_this_orb THEN BEGIN
+     alf_eSpec                                   = MAKE_ELECTRON_SPECTRA_STRUCT_FOR_ALFVEN_EVENTS_V2(orb.y[0],nSpectra,alfvenDBindices_for_spectra, $
                                                                                                         center_times,matched,nHits,hit_nSpectra,alf_spectra)
      
      PRINT,'Saving Alfven electron spectra to ' + outFile + '...'
