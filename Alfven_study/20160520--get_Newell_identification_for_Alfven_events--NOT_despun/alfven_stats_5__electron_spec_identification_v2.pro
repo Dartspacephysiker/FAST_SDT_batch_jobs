@@ -142,6 +142,10 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
                               STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'No Alfs'), $
                               /APPEND
 
+  ENDIF ELSE BEGIN
+     ;;set up output
+     outFile                             = outFile_pref + orbStr + '.sav'
+
      RESTORE,alfven_startstop_maxJ_file
 
      start_times                            = alfven_start_time[match_i]
@@ -157,9 +161,6 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
      electron_startstop_alfven_ind_list             = LIST()
      electron_startstop_alfven_time_list            = LIST()
      temp_last_closest                              = MAKE_ARRAY(nMatch,VALUE=250,/FLOAT)
-  ENDIF ELSE BEGIN
-     ;;set up output
-     outFile                             = outFile_pref + orbStr + '.sav'
   ENDELSE
 
 
