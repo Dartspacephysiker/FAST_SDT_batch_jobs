@@ -547,7 +547,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
   ENDFOR
 
   ;;Now stitch together what we have
-  IF nMatch GT 0 AND ~alfven_skip_this_orb THEN BEGIN
+  IF nMatch GT 0 AND ~KEYWORD_SET(alfven_skip_this_orb) THEN BEGIN
      alf_eSpec                                   = MAKE_ELECTRON_SPECTRA_STRUCT_FOR_ALFVEN_EVENTS_V2(orb.y[0],nSpectra,alfvenDBindices_for_spectra, $
                                                                                                         center_times,matched,nHits,hit_nSpectra,alf_spectra)
      
