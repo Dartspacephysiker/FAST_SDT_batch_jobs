@@ -37,13 +37,13 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
   ;; dat                                 = get_fa_ees(t,/st)
   ;;Jack Vernetti's recommendation
   dat                                    = GET_FA_EES(0.0, EN=1)
-  n_EESA_spectra                         = dat.index+1
-  last_index                             = LONG(dat.index)
-  
   IF dat.valid EQ 0 THEN BEGIN
      print,' ERROR: No FAST electron survey data -- GET_FA_EES(0.0, EN=1) returned invalid data'
     RETURN
   ENDIF ELSE BEGIN
+     n_EESA_spectra                      = dat.index+1
+     last_index                          = LONG(dat.index)
+  
      PRINT,'There are ' + STRCOMPRESS(n_EESA_spectra,/REMOVE_ALL) + ' EESA survey spectra currently loaded in SDT...'
   ENDELSE
 
@@ -467,7 +467,9 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
      ENDIF ELSE BEGIN
         ;;Save the electron stuff
         PRINT,'Saving Newell file: ' + out_newell_file
-        SAVE,eSpecs_parsed,tmpeSpec_lc,FILENAME=outNewellDir+out_newell_file
+        SAVE,eSpecs_parsed,tmpeSpec_lc, $
+             out_sc_pot,out_sc_time, $
+             FILENAME=outNewellDir+out_newell_file
      ENDELSE
      IF nMatch EQ 0 THEN CONTINUE ;Leave if there are no Alfvén events here
 
