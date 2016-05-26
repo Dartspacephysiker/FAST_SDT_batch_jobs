@@ -141,26 +141,27 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
      WRITE_MESSAGE_TO_LOGFILE,noEventsFile, $
                               STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'No Alfs'), $
                               /APPEND
+
+     RESTORE,alfven_startstop_maxJ_file
+
+     start_times                            = alfven_start_time[match_i]
+     stop_times                             = alfven_stop_time[match_i]
+     center_times                           = cdbTime[match_i]
+     matched                                = MAKE_ARRAY(nMatch,VALUE=255,/BYTE) ;If well-matched, matched[i] = jjj
+                                ;If loosely matched, matched[i] = 255-jjj-1
+     nHits                                          = MAKE_ARRAY(nMatch,VALUE=0,/INTEGER)
+     nSpectra                                       = 0
+     hit_nSpectra                                   = !NULL
+     alfvenDBindices_for_spectra                    = !NULL
+     orbInterval_for_spectra                        = !NULL
+     electron_startstop_alfven_ind_list             = LIST()
+     electron_startstop_alfven_time_list            = LIST()
+     temp_last_closest                              = MAKE_ARRAY(nMatch,VALUE=250,/FLOAT)
   ENDIF ELSE BEGIN
      ;;set up output
      outFile                             = outFile_pref + orbStr + '.sav'
   ENDELSE
 
-  RESTORE,alfven_startstop_maxJ_file
-
-  start_times                            = alfven_start_time[match_i]
-  stop_times                             = alfven_stop_time[match_i]
-  center_times                           = cdbTime[match_i]
-  matched                                = MAKE_ARRAY(nMatch,VALUE=255,/BYTE)  ;If well-matched, matched[i] = jjj
-                                                                               ;If loosely matched, matched[i] = 255-jjj-1
-  nHits                                          = MAKE_ARRAY(nMatch,VALUE=0,/INTEGER)
-  nSpectra                                       = 0
-  hit_nSpectra                                   = !NULL
-  alfvenDBindices_for_spectra                    = !NULL
-  orbInterval_for_spectra                        = !NULL
-  electron_startstop_alfven_ind_list             = LIST()
-  electron_startstop_alfven_time_list            = LIST()
-  temp_last_closest                              = MAKE_ARRAY(nMatch,VALUE=250,/FLOAT)
 
   ;;begin looping each interval
   FOR jjj=0,number_of_intervals-1 DO BEGIN
@@ -467,7 +468,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
         PRINT,'Saving Newell file: ' + out_newell_file
         SAVE,eSpecs_parsed,tmpeSpec_lc,FILENAME=outNewellDir+out_newell_file
      ENDELSE
-     IF nMatch EQ 0 THEN RETURN ;Leave if there are no Alfvén events here
+     IF nMatch EQ 0 THEN CONTINUE ;Leave if there are no Alfvén events here
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;;Now figure out Alfvéns
@@ -537,11 +538,13 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
   ENDFOR
 
   ;;Now stitch together what we have
-  alf_eSpec                                      = MAKE_ELECTRON_SPECTRA_STRUCT_FOR_ALFVEN_EVENTS_V2(orb.y[0],nSpectra,alfvenDBindices_for_spectra, $
-                                                                                                  center_times,matched,nHits,hit_nSpectra,alf_spectra)
-
-  PRINT,'Saving Alfven electron spectra to ' + outFile + '...'
-  SAVE,alf_eSpec,FILENAME=outDir+outFile
+  IF nMatch GT 0 THEN BEGIN
+     alf_eSpec                                      = MAKE_ELECTRON_SPECTRA_STRUCT_FOR_ALFVEN_EVENTS_V2(orb.y[0],nSpectra,alfvenDBindices_for_spectra, $
+                                                                                                        center_times,matched,nHits,hit_nSpectra,alf_spectra)
+     
+     PRINT,'Saving Alfven electron spectra to ' + outFile + '...'
+     SAVE,alf_eSpec,FILENAME=outDir+outFile
+  ENDIF
 
   RETURN 
 END
