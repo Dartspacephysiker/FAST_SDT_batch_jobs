@@ -301,7 +301,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
                                           LOGFILE=badFile, $
                                           BATCH_MODE=batch_mode, $
                                           /QUIET)
-     IF ~success THEN RETURN
+     ;; IF ~success THEN RETURN
 
      STORE_DATA,'JEe_lc',DATA={x:jee_tmp_time,y:jee_tmp_data}
      STORE_DATA,'Je_lc',DATA={x:je_lc_tmp_time,y:je_lc_tmp_data}
