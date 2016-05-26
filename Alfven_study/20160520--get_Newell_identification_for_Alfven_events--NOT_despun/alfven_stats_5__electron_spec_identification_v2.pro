@@ -465,7 +465,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
      IF KEYWORD_SET(include_ions) THEN BEGIN
         ;;Save the electron stuff
         PRINT,'Saving Newell file with ions: ' + out_newell_file
-        SAVE,eSpecs_parsed,tmpeSpec_lc, $
+        SAVE,eSpecs_parsed,tmpeSpec_lc,tmpjee_lc,tmpje_lc, $
              jei_up,ji_up,iSpec_up, $
              out_sc_pot,out_sc_time,out_sc_min_energy_ind, $
              out_sc_pot_i,out_sc_time_i,out_sc_min_energy_ind_i, $
@@ -473,7 +473,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
      ENDIF ELSE BEGIN
         ;;Save the electron stuff
         PRINT,'Saving Newell file: ' + out_newell_file
-        SAVE,eSpecs_parsed,tmpeSpec_lc, $
+        SAVE,eSpecs_parsed,tmpeSpec_lc,tmpjee_lc,tmpje_lc, $
              out_sc_pot,out_sc_time,out_sc_min_energy_ind, $
              FILENAME=outNewellDir+out_newell_file
      ENDELSE
