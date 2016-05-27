@@ -8,6 +8,7 @@ PRO JOURNAL__20160523__TEST_AUTOMATED_FITTING_OF_NFLUX_FOR_ORB_1843__BURST
   ;; bounds                 = [126:226:2]
   spectra_avg_interval   = 4
   bounds                 = [126:226]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
+  ;; bounds                 = [126:138]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                 = [126:226:2]/spectra_avg_interval
 
   ;; Use survey bounds
@@ -29,6 +30,8 @@ PRO JOURNAL__20160523__TEST_AUTOMATED_FITTING_OF_NFLUX_FOR_ORB_1843__BURST
   bulk_offset            = 0
 
   add_gaussian_estimate  = 1
+  add_oneCount_curve     = 1
+
   add_fitParams_text     = 1
   save_fitPlots          = 1
 
@@ -52,6 +55,7 @@ PRO JOURNAL__20160523__TEST_AUTOMATED_FITTING_OF_NFLUX_FOR_ORB_1843__BURST
      N_ENERGIES_BELOW_PEAK=n_below_peak, $
      N_ENERGIES_AFTER_PEAK=n_after_peak, $
      ADD_GAUSSIAN_ESTIMATE=add_gaussian_estimate, $
+     ADD_ONECOUNT_CURVE=add_oneCount_curve, $
      FIT_TOLERANCE=fit_tol, $
      MAX_ITERATIONS=max_iter, $
      ADD_FITPARAMS_TEXT=add_fitParams_text, $
