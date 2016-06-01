@@ -3,6 +3,7 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/redo_missing_orbs--20160531/alfven_stats_5__espec_redo_missing_wrapper.pro
 
 DataBaseRequest:
+    Orbits 14538-16361
     Orbits 1002
     Orbits 10036
     Orbits 10112
