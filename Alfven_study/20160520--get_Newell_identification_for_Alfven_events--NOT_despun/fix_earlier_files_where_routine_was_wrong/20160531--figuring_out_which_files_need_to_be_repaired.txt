@@ -1,0 +1,11 @@
+;2016/05/31
+OK, here's when I fixed the routine:
+commit feee908f8493c19beafd1ac5aa4529145537cf6d
+Author: Spencer Hatch (Vær så godt) <spencermarkhatch@gmail.com>
+Date:   Thu May 26 17:42:49 2016 -0400
+
+    Bro. You had the Newell et al. algorithm wrong.
+
+
+Use this command (from Newell_batch_output):
+find ./ ! -newermt "may 26, 2016 18:00" -ls > ../fix_earlier_files_where_routine_was_wrong/20160531--orbs_that_need_to_be_redone_because_Newell_algorithm_was_wrong.txt
