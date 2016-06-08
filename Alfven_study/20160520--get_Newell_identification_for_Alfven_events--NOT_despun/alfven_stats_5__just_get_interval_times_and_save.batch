@@ -1,0 +1,10 @@
+BatchJob: "alfven_stats_5__just_get_interval_times_and_save"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/alfven_stats_5__just_get_interval_times_and_save_wrapper.pro
+
+DataBaseRequest:
+    Orbits 500-16361
+    
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun
+PlotConfigurationFile: chaston_survey_5__super_pared__no_langmuir
