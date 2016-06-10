@@ -14,12 +14,15 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
   ;; dbDir                                  = '/SPENCEdata/Research/database/FAST/dartdb/saves/'
   ;; dbTFile                                = 'Dartdb_20150814--500-16361_inc_lower_lats--burst_1000-16361--cdbtime.sav'
   ;; dbOrbFile                              = 'Dartdb_20151222--500-16361_inc_lower_lats--burst_1000-16361--orbits.sav'
-  ;; as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
+  as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
   ;; alfven_startstop_maxJ_file             = './alfven_startstop_maxJ_times--500-16361_inc_lower_lats--burst_1000-16361.sav'
 
   todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
+
+  ;;For skipping the "get interval times" bit
   indDir                                 = as5_dir + 'je_time_ind_dir/'
   indFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
+  intervalArrFile                        = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
 
   outNewellDir                           = as5_dir + 'Newell_batch_output/'
   outFile_pref                           = 'Dartdb--Alfven--Newell_identification_of_electron_spectra--Orbit_'
@@ -44,7 +47,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
   ;; t=0
   ;; dat                                 = get_fa_ees(t,/st)
   ;;Jack Vernetti's recommendation
-  dat                                    = GET_FA_EES(0.0, EN=1)
+  dat                                    = GET_FA_EES(0.0D, EN=1)
   IF dat.valid EQ 0 THEN BEGIN
      print,' ERROR: No FAST electron survey data -- GET_FA_EES(0.0, EN=1) returned invalid data'
     RETURN
@@ -55,10 +58,33 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
      PRINT,'There are ' + STRCOMPRESS(n_EESA_spectra,/REMOVE_ALL) + ' EESA survey spectra currently loaded in SDT...'
   ENDELSE
 
-  ;; t1                                     = 0.0D
-  ;; t2                                     = 0.0D
-  ;; temp                                   = GET_FA_EES(t1,INDEX=0.0D)
-  ;; temp                                   = GET_FA_EES(t2,INDEX=DOUBLE(last_index))
+  t2                                     = 0.0D
+  temp                                   = GET_FA_EES(t2,INDEX=0.0D)
+  t1                                     = t2
+  temp                                   = GET_FA_EES(t2,/ADV)
+
+  
+  
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;First, see that we are able to match all points in this orb
+  RESTORE,intervalArrFile 
+
+  GET_FA_ORBIT,t1,t2
+  ;;now get orbit quantities
+  GET_DATA,'ORBIT',DATA=orb
+  orbit_num                              = orb.y[0]
+  orbStr                                 = STRCOMPRESS(orbit_num,/REMOVE_ALL)
+
+  number_of_intervals                    = intervalArr[orbit_num]
+  print,'number_of_intervals',number_of_intervals
+
+  indFile                                = STRING(FORMAT='(A0,I0,"--",I0,"_intervals.sav")', $
+                                                  indFilePref,orbit_num,number_of_intervals)
+
+  ;;This file gives us je,orbit_num,time_range_indices, and time_range
+  PRINT,'Restoring indFile ' + indFile + ' ...'
+  RESTORE,indDir+indFile
+
   ;; GET_2DT_TS,'j_2d_b','fa_ees',t1=t1,t2=t2,name='Je',energy=ENERGY_ELECTRONS
 
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -131,24 +157,6 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
   ;; time_ranges                            = je.x[time_range_indices]
   ;; number_of_intervals                    = N_ELEMENTS(time_ranges[*,0])
   
-  print,'number_of_intervals',number_of_intervals
-  
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;First, see that we are able to match all points in this orb
-  GET_FA_ORBIT,je.x[time_range_indices[0,0]],je.x[time_range_indices[0,1]]
-  ;;now get orbit quantities
-  GET_DATA,'ORBIT',DATA=orb
-  orbit_num                              = orb.y[0]
-  orbStr                                 = STRCOMPRESS(orbit_num,/REMOVE_ALL)
-
-  indFile                                = STRING(FORMAT='(A0,I0,"--",I0,"_intervals.sav")', $
-                                                  indFilePref,orbit_num,number_of_intervals)
-
-  ;;This file gives us je,orbit_num,time_range_indices, and time_range
-  PRINT,'Restoring indFile ' + indFile + ' ...'
-  RESTORE,indDir+indFile
-
   STORE_DATA,'Je',DATA=je
 
   ;;begin looping each interval
@@ -188,8 +196,9 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
         ;;elimnate ram from data
         ;; i_angle                                  = [180.0,360.0]
         ;; i_angle_up                               = [270.0,360.0]
-        i_angle_down                             = [180.0    ,180.0+lcw]
-        i_angle_down_ram                         = [180.0-lcw,180.0+lcw]
+        i_angle_down                             = [180.0    ,270.     ]
+        i_angle_down_lc                          = [180.0    ,180.0+lcw]
+        i_angle_down_lc_ram                      = [180.0-lcw,180.0+lcw]
         
      endif else begin
         ;; e_angle                                  = [360.-lcw,lcw]     ;	for Northern Hemis.
@@ -199,7 +208,8 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
         ;;eliminate ram from data
         ;; i_angle                                  = [0.0,180.0]
         ;; i_angle_up                               = [90.0,180.0]
-        i_angle_down                             = [0.,lcw]
+        i_angle_down                             = [0.,90.]
+        i_angle_down_lc                          = [0.,lcw]
         i_angle_down_ram                         = [0.-lcw,lcw]
         
      endelse
@@ -207,38 +217,82 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
      ;;get fields mode
      fields_mode=GET_FA_FIELDS('DataHdr_1032',time_ranges[jjj,0],time_ranges[jjj,1])
      
-     GET_SC_POTENTIAL,T1=t1,T2=t2,DATA=sc_pot
+     GET_SC_POTENTIAL,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],DATA=sc_pot
 
      ;;get moments/integrals of various fluxes
      GET_2DT_TS_POT,'je_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
-                    NAME='JEe_lc',ANGLE=e_angle,ENERGY=energy_electrons,SC_POT=sc_pot
+                    NAME='JEe_up',ANGLE=e_angle_up,ENERGY=energy_electrons,SC_POT=sc_pot
      GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
-                    NAME='Je_lc',ENERGY=energy_electrons,ANGLE=e_angle,SC_POT=sc_pot, $
+                    NAME='Je_up',ENERGY=energy_electrons,ANGLE=e_angle_up,SC_POT=sc_pot, $
                     OUT_SC_POT=out_sc_pot, $
                     OUT_SC_TIME=out_sc_time, $
                     OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind
-     GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='eSpec_lc',ANGLE=e_angle, $ ;RETRACE=1, $
+     GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='eSpec_up',ANGLE=e_angle_up, $ ;RETRACE=1, $
                  T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
+
+     GET_2DT_TS_POT,'je_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                    NAME='JEe_up_lc',ANGLE=e_angle_up_lc,ENERGY=energy_electrons,SC_POT=sc_pot
+     GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                    NAME='Je_up_lc',ENERGY=energy_electrons,ANGLE=e_angle_up_lc,SC_POT=sc_pot, $
+                    OUT_SC_POT=out_sc_pot, $
+                    OUT_SC_TIME=out_sc_time, $
+                    OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind
+     GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='eSpec_up_lc',ANGLE=e_angle_up_lc, $ ;RETRACE=1, $
+                 T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
+
      ;; IF KEYWORD_SET(include_ions) THEN BEGIN
         GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
-                       NAME='JEi_up',ENERGY=energy_ions,ANGLE=i_angle_up,SC_POT=sc_pot,/CALIB
+                       NAME='JEi_down',ENERGY=energy_ions,ANGLE=i_angle_down,SC_POT=sc_pot,/CALIB
         GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
-                       NAME='Ji_up',ENERGY=energy_ions,ANGLE=i_angle_up,SC_POT=sc_pot,/CALIB, $
+                       NAME='Ji_down',ENERGY=energy_ions,ANGLE=i_angle_down,SC_POT=sc_pot,/CALIB, $
                        OUT_SC_POT=out_sc_pot_i, $
                        OUT_SC_TIME=out_sc_time_i, $
                        OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i
-        GET_EN_SPEC,"fa_ies_c",UNITS='eflux',NAME='iSpec_up',ANGLE=i_angle_up,RETRACE=1, $
+        GET_EN_SPEC,"fa_ies_c",UNITS='eflux',NAME='iSpec_down',ANGLE=i_angle_down,RETRACE=1, $
+                    T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
+
+        GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                       NAME='JEi_down_lc',ENERGY=energy_ions,ANGLE=i_angle_down_lc,SC_POT=sc_pot,/CALIB
+        GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                       NAME='Ji_down_lc',ENERGY=energy_ions,ANGLE=i_angle_down_lc,SC_POT=sc_pot,/CALIB, $
+                       OUT_SC_POT=out_sc_pot_i, $
+                       OUT_SC_TIME=out_sc_time_i, $
+                       OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i
+        GET_EN_SPEC,"fa_ies_c",UNITS='eflux',NAME='iSpec_down_lc',ANGLE=i_angle_down_lc,RETRACE=1, $
+                    T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
+
+        GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                       NAME='JEi_down_lc_ram',ENERGY=energy_ions,ANGLE=i_angle_down_lc_ram,SC_POT=sc_pot,/CALIB
+        GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                       NAME='Ji_down_lc_ram',ENERGY=energy_ions,ANGLE=i_angle_down_lc_ram,SC_POT=sc_pot,/CALIB, $
+                       OUT_SC_POT=out_sc_pot_i, $
+                       OUT_SC_TIME=out_sc_time_i, $
+                       OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i
+        GET_EN_SPEC,"fa_ies_c",UNITS='eflux',NAME='iSpec_down_lc_ram',ANGLE=i_angle_down_lc_ram,RETRACE=1, $
                     T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
      ;; ENDIF     
 
      ;;Now get 'em all, see what we gots
-     GET_DATA,'JEe_lc',DATA=tmpjee_lc
-     GET_DATA,'Je_lc',DATA=tmpje_lc
-     GET_DATA,'eSpec_lc', DATA=tmpeSpec_lc
+     GET_DATA,'JEe_up',DATA=tmpjee_up
+     GET_DATA,'Je_up',DATA=tmpje_up
+     GET_DATA,'eSpec_up', DATA=tmpeSpec_up
+
+     GET_DATA,'JEe_up_lc',DATA=tmpjee_up_lc
+     GET_DATA,'Je_up_lc',DATA=tmpje_up_lc
+     GET_DATA,'eSpec_up_lc', DATA=tmpeSpec_up_lc
+
      ;; IF KEYWORD_SET(include_ions) THEN BEGIN
-        GET_DATA,'JEi_up',DATA=tmpjei_up
-        GET_DATA,'Ji_up',DATA=tmpji_up
-        GET_DATA,'iSpec_up', DATA=tmpiSpec_up
+        GET_DATA,'JEi_down',DATA=tmpjei_down
+        GET_DATA,'Ji_down',DATA=tmpji_down
+        GET_DATA,'iSpec_down', DATA=tmpiSpec_down
+
+        GET_DATA,'JEi_down_lc',DATA=tmpjei_down_lc
+        GET_DATA,'Ji_down_lc',DATA=tmpji_down_lc
+        GET_DATA,'iSpec_down_lc', DATA=tmpiSpec_down_lc
+
+        GET_DATA,'JEi_down_lc_ram',DATA=tmpjei_down_lc_ram
+        GET_DATA,'Ji_down_lc_ram',DATA=tmpji_down_lc_ram
+        GET_DATA,'iSpec_down_lc_ram', DATA=tmpiSpec_down_lc_ram
      ;; ENDIF
 
      ;;Check for dupes and/or sort
