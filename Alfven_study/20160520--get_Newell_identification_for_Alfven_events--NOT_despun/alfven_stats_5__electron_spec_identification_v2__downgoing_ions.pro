@@ -63,8 +63,6 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
   t1                                     = t2
   temp                                   = GET_FA_EES(t2,/ADV)
 
-  
-  
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;First, see that we are able to match all points in this orb
   RESTORE,intervalArrFile 
@@ -84,78 +82,6 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
   ;;This file gives us je,orbit_num,time_range_indices, and time_range
   PRINT,'Restoring indFile ' + indFile + ' ...'
   RESTORE,indDir+indFile
-
-  ;; GET_2DT_TS,'j_2d_b','fa_ees',t1=t1,t2=t2,name='Je',energy=ENERGY_ELECTRONS
-
-  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; ;;Welp, here we go!
-
-  ;; ;;remove spurious crap
-  ;; GET_DATA,'Je',DATA=tmpj
-  
-  ;; keep                                   = WHERE(FINITE(tmpj.y))
-  ;; tmpj.x                                 = tmpj.x[keep]
-  ;; tmpj.y                                 = tmpj.y[keep]
-  ;; keep                                   = WHERE(ABS(tmpj.y) GT 0.0)
-  ;; tx                                     = tmpj.x[keep]
-  ;; ty                                     = tmpj.y[keep]
-  
-  ;; ;;get timescale monotonic
-  ;; time_order                             = SORT(tx)
-  ;; tx                                     = tx[time_order]
-  ;; ty                                     = ty[time_order]
-  
-  ;; ;;throw away the first 10  points since they are often corrupted
-  ;; STORE_DATA,'Je',DATA={x:tx[10:N_ELEMENTS(tx)-1],y:ty[10:N_ELEMENTS(tx)-1]}
-
-  ;; ;;Use the electron data to define the time ranges for this orbit	
-  ;; GET_DATA,'Je',DATA=je
-  ;; part_res_je                            = MAKE_ARRAY(N_ELEMENTS(Je.x),/double)
-  ;; FOR j=1,N_ELEMENTS(Je.x)-1 DO BEGIN
-  ;;    part_res_je[j]                      = ABS(Je.x[j]-Je.x[j-1])
-  ;; ENDFOR
-  ;; part_res_Je[0]                         = part_res_Je[1]
-  ;; gap                                    = WHERE(part_res_je GT 10.0)
-  ;; IF gap[0] NE -1 THEN BEGIN
-  ;;    separate_start                      = [0,where(part_res_je GT 10.0)]
-  ;;    separate_stop                       = [where(part_res_je GT 10.0),N_ELEMENTS(Je.x)-1]
-  ;; ENDIF ELSE BEGIN
-  ;;    separate_start                      = [0]
-  ;;    separate_stop                       = [N_ELEMENTS(Je.x)-1]
-  ;; ENDELSE
-
-  ;; ;;remove esa burp when switched on
-  ;; turn_on                                = WHERE(part_res_je GT 300.0)
-  ;; IF turn_on[0] NE -1 THEN BEGIN
-  ;;    turn_on_separate                    = MAKE_ARRAY(N_ELEMENTS(turn_on),/DOUBLE)
-  ;;    FOR j=0,N_ELEMENTS(turn_on)-1 DO BEGIN
-  ;;       turn_on_separate[j]              = WHERE(separate_start EQ turn_on[j])
-  ;;    ENDFOR
-  ;;    separate_start[turn_on_separate+1]  = separate_start[turn_on_separate+1]+5
-  ;; ENDIF
-
-  ;; ;; loop through all of the EES distributions in SDT:
-  ;; ;; for I                               = 0L, last_index do begin
-  ;; ;;    didx                             = double(I)
-  ;; ;;    data                             = get_fa_ees(0.0, INDEX=didx)
-  ;; ;; endfor
-
-  ;; ;;identify time indices for each interval
-  ;; count                                  = 0.0
-  ;; FOR j=0,N_ELEMENTS(separate_start)-1 DO BEGIN
-  ;;    IF (separate_stop[j]-separate_start[j]) GT 10 THEN BEGIN
-  ;;       count                            = count+1
-  ;;       IF count EQ 1.0 THEN BEGIN
-  ;;          time_range_indices            = TRANSPOSE([separate_start[j]+1,separate_stop[j]-1])
-  ;;       ENDIF ELSE BEGIN
-  ;;          time_range_indices            = [time_range_indices,TRANSPOSE([separate_start[j],separate_stop[j]-1])]
-  ;;       ENDELSE
-  ;;    ENDIF
-  ;; ENDFOR
-  
-  ;; ;;identify interval times
-  ;; time_ranges                            = je.x[time_range_indices]
-  ;; number_of_intervals                    = N_ELEMENTS(time_ranges[*,0])
   
   STORE_DATA,'Je',DATA=je
 

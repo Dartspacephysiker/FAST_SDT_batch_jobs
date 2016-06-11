@@ -1,11 +1,14 @@
-PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
+;2016/06/11 I hosed it so badly. I totally screwed up the s/c potential.
+PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V3, $
    SKIP_IF_FILE_EXISTS=skip_if_file_exists, $
    ENERGY_ELECTRONS=energy_electrons,ENERGY_IONS=energy_ions, $
    T1=t1,T2=t2, $
+   JUST_SC_POT=just_sc_pot, $
    BATCH_MODE=batch_mode, $
    INCLUDE_IONS=include_ions
 
   COMPILE_OPT idl2
+
 
   dbDir                                  = '/SPENCEdata/Research/database/FAST/dartdb/saves/'
   dbTFile                                = 'Dartdb_20150814--500-16361_inc_lower_lats--burst_1000-16361--cdbtime.sav'
@@ -13,19 +16,27 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
   as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
   alfven_startstop_maxJ_file             = './alfven_startstop_maxJ_times--500-16361_inc_lower_lats--burst_1000-16361.sav'
 
+  ;;For skipping the "get interval times" bit
+  indDir                                 = as5_dir + 'je_time_ind_dir/'
+  indFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
+  intervalArrFile                        = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
+
   todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
   outDir                                 = as5_dir + 'batch_output/'
   outNewellDir                           = as5_dir + 'Newell_batch_output/'
   outFile_pref                           = 'Dartdb--Alfven--Newell_identification_of_electron_spectra--Orbit_'
+
+  newellStuff_pref_sc_pot                = 'Newell_et_al_identification_of_electron_spectra--Orbit_'
+
   IF KEYWORD_SET(include_ions) THEN BEGIN
      newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--ions_included--Orbit_'
   ENDIF ELSE BEGIN
-     newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--Orbit_'
+     newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--just_sc_pot--Orbit_'
   ENDELSE
+
   noEventsFile                           = 'Orbs_without_Alfven_events--'+todayStr+'.txt'
   badFile                                = 'Orbs_with_other_issues--'+todayStr+'.txt'
 
-  ;;energy ranges
   IF NOT KEYWORD_SET(energy_electrons) THEN BEGIN
      energy_electrons                    = [0.,30000.]                           ;use 0.0 for lower bound since the sc_pot is used to set this
   ENDIF
@@ -37,7 +48,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
   ;; t=0
   ;; dat                                 = get_fa_ees(t,/st)
   ;;Jack Vernetti's recommendation
-  dat                                    = GET_FA_EES(0.0, EN=1)
+  dat                                    = GET_FA_EES(0.0D, EN=1)
   IF dat.valid EQ 0 THEN BEGIN
      print,' ERROR: No FAST electron survey data -- GET_FA_EES(0.0, EN=1) returned invalid data'
     RETURN
@@ -48,121 +59,32 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
      PRINT,'There are ' + STRCOMPRESS(n_EESA_spectra,/REMOVE_ALL) + ' EESA survey spectra currently loaded in SDT...'
   ENDELSE
 
-  t1                                     = 0.0D
   t2                                     = 0.0D
-  temp                                   = GET_FA_EES(t1,INDEX=0.0D)
-  temp                                   = GET_FA_EES(t2,INDEX=DOUBLE(last_index))
-  GET_2DT_TS,'j_2d_b','fa_ees',t1=t1,t2=t2,name='Je',energy=ENERGY_ELECTRONS
+  temp                                   = GET_FA_EES(t2,INDEX=0.0D)
+  t1                                     = t2
+  temp                                   = GET_FA_EES(t2,/ADV)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;Welp, here we go!
-
-  ;;remove spurious crap
-  GET_DATA,'Je',DATA=tmpj
-  
-  keep                                   = WHERE(FINITE(tmpj.y))
-  tmpj.x                                 = tmpj.x[keep]
-  tmpj.y                                 = tmpj.y[keep]
-  keep                                   = WHERE(ABS(tmpj.y) GT 0.0)
-  tx                                     = tmpj.x[keep]
-  ty                                     = tmpj.y[keep]
-  
-  ;;get timescale monotonic
-  time_order                             = SORT(tx)
-  tx                                     = tx[time_order]
-  ty                                     = ty[time_order]
-  
-  ;;throw away the first 10  points since they are often corrupted
-  STORE_DATA,'Je',DATA={x:tx[10:N_ELEMENTS(tx)-1],y:ty[10:N_ELEMENTS(tx)-1]}
-
-  ;;Use the electron data to define the time ranges for this orbit	
-  GET_DATA,'Je',DATA=je
-  part_res_je                            = MAKE_ARRAY(N_ELEMENTS(Je.x),/double)
-  FOR j=1,N_ELEMENTS(Je.x)-1 DO BEGIN
-     part_res_je[j]                      = ABS(Je.x[j]-Je.x[j-1])
-  ENDFOR
-  part_res_Je[0]                         = part_res_Je[1]
-  gap                                    = WHERE(part_res_je GT 10.0)
-  IF gap[0] NE -1 THEN BEGIN
-     separate_start                      = [0,where(part_res_je GT 10.0)]
-     separate_stop                       = [where(part_res_je GT 10.0),N_ELEMENTS(Je.x)-1]
-  ENDIF ELSE BEGIN
-     separate_start                      = [0]
-     separate_stop                       = [N_ELEMENTS(Je.x)-1]
-  ENDELSE
-
-  ;;remove esa burp when switched on
-  turn_on                                = WHERE(part_res_je GT 300.0)
-  IF turn_on[0] NE -1 THEN BEGIN
-     turn_on_separate                    = MAKE_ARRAY(N_ELEMENTS(turn_on),/DOUBLE)
-     FOR j=0,N_ELEMENTS(turn_on)-1 DO BEGIN
-        turn_on_separate[j]              = WHERE(separate_start EQ turn_on[j])
-     ENDFOR
-     separate_start[turn_on_separate+1]  = separate_start[turn_on_separate+1]+5
-  ENDIF
-
-  ;; loop through all of the EES distributions in SDT:
-  ;; for I                               = 0L, last_index do begin
-  ;;    didx                             = double(I)
-  ;;    data                             = get_fa_ees(0.0, INDEX=didx)
-  ;; endfor
-
-  ;;identify time indices for each interval
-  count                                  = 0.0
-  FOR j=0,N_ELEMENTS(separate_start)-1 DO BEGIN
-     IF (separate_stop[j]-separate_start[j]) GT 10 THEN BEGIN
-        count                            = count+1
-        IF count EQ 1.0 THEN BEGIN
-           time_range_indices            = TRANSPOSE([separate_start[j]+1,separate_stop[j]-1])
-        ENDIF ELSE BEGIN
-           time_range_indices            = [time_range_indices,TRANSPOSE([separate_start[j],separate_stop[j]-1])]
-        ENDELSE
-     ENDIF
-  ENDFOR
-  
-  ;;identify interval times
-  time_ranges                            = je.x[time_range_indices]
-  number_of_intervals                    = N_ELEMENTS(time_ranges[*,0])
-  
-  print,'number_of_intervals',number_of_intervals
-  
-  
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;First, see that we are able to match all points in this orb
-  RESTORE,dbDir+dbOrbFile
+  RESTORE,intervalArrFile 
 
-  GET_FA_ORBIT,je.x[time_range_indices[0,0]],je.x[time_range_indices[0,1]]
+  GET_FA_ORBIT,t1,t2
   ;;now get orbit quantities
   GET_DATA,'ORBIT',DATA=orb
   orbit_num                              = orb.y[0]
   orbStr                                 = STRCOMPRESS(orbit_num,/REMOVE_ALL)
-  match_i                                = WHERE(alfven_orblist EQ orbit_num,nMatch)
-  IF nMatch EQ 0 THEN BEGIN
-     PRINT,'No Alfvén matches!'
-     WRITE_MESSAGE_TO_LOGFILE,noEventsFile, $
-                              STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'No Alfs'), $
-                              /APPEND
 
-  ENDIF ELSE BEGIN
-     ;;set up output
-     outFile                             = outFile_pref + orbStr + '.sav'
+  number_of_intervals                    = intervalArr[orbit_num]
+  print,'number_of_intervals',number_of_intervals
 
-     RESTORE,alfven_startstop_maxJ_file
+  indFile                                = STRING(FORMAT='(A0,I0,"--",I0,"_intervals.sav")', $
+                                                  indFilePref,orbit_num,number_of_intervals)
 
-     start_times                            = alfven_start_time[match_i]
-     stop_times                             = alfven_stop_time[match_i]
-     center_times                           = cdbTime[match_i]
-     matched                                = MAKE_ARRAY(nMatch,VALUE=255,/BYTE) ;If well-matched, matched[i] = jjj
-                                ;If loosely matched, matched[i] = 255-jjj-1
-     nHits                                          = MAKE_ARRAY(nMatch,VALUE=0,/INTEGER)
-     nSpectra                                       = 0
-     hit_nSpectra                                   = !NULL
-     alfvenDBindices_for_spectra                    = !NULL
-     orbInterval_for_spectra                        = !NULL
-     electron_startstop_alfven_ind_list             = LIST()
-     electron_startstop_alfven_time_list            = LIST()
-     temp_last_closest                              = MAKE_ARRAY(nMatch,VALUE=250,/FLOAT)
-  ENDELSE
+  ;;This file gives us je,orbit_num,time_range_indices, and time_range
+  PRINT,'Restoring indFile ' + indFile + ' ...'
+  RESTORE,indDir+indFile
+
+  STORE_DATA,'Je',DATA=je
 
   ;;begin looping each interval
   FOR jjj=0,number_of_intervals-1 DO BEGIN
@@ -180,6 +102,18 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
      
      je_tmp_time                                 = je.x[time_range_indices[jjj,0]:time_range_indices[jjj,1]]
      je_tmp_data                                 = je.y[time_range_indices[jjj,0]:time_range_indices[jjj,1]]
+
+     IF KEYWORD_SET(just_sc_pot) THEN BEGIN
+        out_newell_file_sc_pot                   = newellStuff_pref_sc_pot + orbStr + '_' + STRCOMPRESS(jjj,/REMOVE_ALL) + '.sav'
+
+        GET_SC_POTENTIAL,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],DATA=sc_pot
+
+        PRINT,'Saving potential to ' + out_newell_file_sc_pot
+        SAVE,sc_pot,FILENAME=outNewellDir+out_newell_file
+
+        PRINT,'Moving to next interval or file...'
+        CONTINUE
+     ENDIF
 
      STORE_DATA,'Je_tmp',DATA={x:je_tmp_time,y:je_tmp_data}
 
