@@ -1,6 +1,8 @@
 ;2016/06/11 Well, I suppose it's better to find out now than later, or maybe even never
 PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES__UCLA_DESPIN__201605_UPDATES
 
+  COMPILE_OPT idl2
+
   thisDir    = '/SPENCEdata/software/sdt/batch_jobs/map_Poyntingflux__20151217/'
 
   ;; alfFile    = 'alfTimes_and_alfOrbits--20160107_despun_DB.sav'
@@ -64,7 +66,7 @@ PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES__UCLA_DESPIN__201605_UPDATES
 
   STORE_DATA,'Je',DATA=je
 
-  these_i          = where(orbit EQ orbit_num) ;relevant indices
+  these_i          = where(orbit EQ orbit_num,nMatch) ;relevant indices
 
   IF these_i[0] NE -1 THEN BEGIN
 
@@ -72,10 +74,12 @@ PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES__UCLA_DESPIN__201605_UPDATES
      times         = MAKE_ARRAY(N_ELEMENTS(these_i),/DOUBLE)
      ratios        = MAKE_ARRAY(N_ELEMENTS(these_i),/DOUBLE)
 
-     GET_FA_ORBIT,cdbTime[these_i],/TIME_ARRAY
+     GET_FA_ORBIT,cdbTime[these_i],/TIME_ARRAY,/ALL
+     GET_DATA,'ORBIT',data=tmp
 
-     FOR j=0,N_ELEMENTS(these_i)-1 DO BEGIN
+     FOR j=0,nMatch-1 DO BEGIN
         tempMin    = MIN(ABS(tmp.x-cdbTime[these_i[j]]),tempMin_i)
+        ;; PRINT,"Min time difference: " + STRCOMPRESS(tempMin,/REMOVE_ALL)
         times[j]   = tmp.x[tempMin_i]
         times_i[j] = tempMin_i
      ENDFOR
@@ -90,6 +94,7 @@ PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES__UCLA_DESPIN__201605_UPDATES
      mag2          = (tmp2.y[times_i,0]*tmp2.y[times_i,0]+tmp2.y[times_i,1]*tmp2.y[times_i,1]+tmp2.y[times_i,2]*tmp2.y[times_i,2])^0.5
      ratio         = (mag2/mag1)
 
+     PRINT,'Saving mapping_ratio--orb_'+orbit_num
      SAVE,times,ratio,mag1,mag2,FILENAME=outDir+'mapping_ratio--orb_'+orbit_num
 
 
