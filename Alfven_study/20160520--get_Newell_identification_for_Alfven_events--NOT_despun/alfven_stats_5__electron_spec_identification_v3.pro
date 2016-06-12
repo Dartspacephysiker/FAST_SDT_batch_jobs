@@ -27,12 +27,12 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V3, $
   out_sc_pot_dir                         = as5_dir + 'just_potential/'
   outFile_pref                           = 'Dartdb--Alfven--Newell_identification_of_electron_spectra--Orbit_'
 
-  newellStuff_pref_sc_pot                = 'Newell_et_al_identification_of_electron_spectra--Orbit_'
+  newellStuff_pref_sc_pot                = 'Newell_et_al_identification_of_electron_spectra--just_sc_pot--Orbit_'
 
   IF KEYWORD_SET(include_ions) THEN BEGIN
      newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--ions_included--Orbit_'
   ENDIF ELSE BEGIN
-     newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--just_sc_pot--Orbit_'
+     newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--Orbit_'
   ENDELSE
 
   noEventsFile                           = 'Orbs_without_Alfven_events--'+todayStr+'.txt'
