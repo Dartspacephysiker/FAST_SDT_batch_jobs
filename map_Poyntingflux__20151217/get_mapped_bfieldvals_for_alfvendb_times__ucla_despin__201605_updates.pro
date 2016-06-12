@@ -1,5 +1,5 @@
 ;2016/06/11 Well, I suppose it's better to find out now than later, or maybe even never
-PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES__UCLA_DESPIN__201605_UPDATES
+PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES__UCLA_DESPIN__201605_UPDATES,orbit_num
 
   COMPILE_OPT idl2
 
@@ -28,32 +28,31 @@ PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES__UCLA_DESPIN__201605_UPDATES
   ;; t=0
   ;; dat                                 = get_fa_ees(t,/st)
   ;;Jack Vernetti's recommendation
-  dat                                    = GET_FA_EES(0.0D, EN=1)
-  IF dat.valid EQ 0 THEN BEGIN
-     print,' ERROR: No FAST electron survey data -- GET_FA_EES(0.0, EN=1) returned invalid data'
-    RETURN
-  ENDIF ELSE BEGIN
-     n_EESA_spectra                      = dat.index+1
-     last_index                          = LONG(dat.index)
+  ;; dat                                    = GET_FA_EES(0.0D, EN=1)
+  ;; IF dat.valid EQ 0 THEN BEGIN
+  ;;    print,' ERROR: No FAST electron survey data -- GET_FA_EES(0.0, EN=1) returned invalid data'
+  ;;   RETURN
+  ;; ENDIF ELSE BEGIN
+  ;;    n_EESA_spectra                      = dat.index+1
+  ;;    last_index                          = LONG(dat.index)
 
-     PRINT,'There are ' + STRCOMPRESS(n_EESA_spectra,/REMOVE_ALL) + ' EESA survey spectra currently loaded in SDT...'
-  ENDELSE
+  ;;    PRINT,'There are ' + STRCOMPRESS(n_EESA_spectra,/REMOVE_ALL) + ' EESA survey spectra currently loaded in SDT...'
+  ;; ENDELSE
 
-  t2                                     = 0.0D
-  temp                                   = GET_FA_EES(t2,INDEX=0.0D)
-  t1                                     = t2
-  temp                                   = GET_FA_EES(t2,/ADV)
+  ;; t2                                     = 0.0D
+  ;; temp                                   = GET_FA_EES(t2,INDEX=0.0D)
+  ;; t1                                     = t2
+  ;; temp                                   = GET_FA_EES(t2,/ADV)
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;First, see that we are able to match all points in this orb
   RESTORE,as5_dir+intervalArrFile
 
-  GET_FA_ORBIT,t1,t2
-  ;;now get orbit quantities
-  GET_DATA,'ORBIT',DATA=orb
-  orbit_num                              = orb.y[0]
+  ;; GET_FA_ORBIT,t1,t2
+  ;; ;;now get orbit quantities
+  ;; GET_DATA,'ORBIT',DATA=orb
+  ;; orbit_num                              = orb.y[0]
   orbStr                                 = STRCOMPRESS(orbit_num,/REMOVE_ALL)
-
   number_of_intervals                    = intervalArr[orbit_num]
   print,'number_of_intervals',number_of_intervals
 
@@ -61,10 +60,22 @@ PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES__UCLA_DESPIN__201605_UPDATES
                                                   indFilePref,orbit_num,number_of_intervals)
 
   ;;This file gives us je,orbit_num,time_range_indices, and time_range
-  PRINT,'Restoring indFile ' + indFile + ' ...'
-  RESTORE,indDir+indFile
+  IF FILE_TEST(indDir+indFile) THEN BEGIN
+     PRINT,'Restoring indFile ' + indFile + ' ...'
+     RESTORE,indDir+indFile
+  ENDIF ELSE BEGIN
+     PRINT,"File doesn't exist: " + indFile
+     PRINT,"Returning ..."
+     RETURN
+  ENDELSE
 
-  STORE_DATA,'Je',DATA=je
+  outFile = 'mapping_ratio--orb_'+orbStr+'.sav'
+
+  IF FILE_TEST(outDir+outFile) THEN BEGIN
+     PRINT,"File exists: " + outFile
+     PRINT,'Skipping ...'
+     RETURN
+  ENDIF
 
   these_i          = where(orbit EQ orbit_num,nMatch) ;relevant indices
 
@@ -75,7 +86,8 @@ PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES__UCLA_DESPIN__201605_UPDATES
      ratios        = MAKE_ARRAY(N_ELEMENTS(these_i),/DOUBLE)
 
      GET_FA_ORBIT,cdbTime[these_i],/TIME_ARRAY,/ALL
-     GET_DATA,'ORBIT',data=tmp
+     get_data,'ILAT',data=tmp
+     ;; GET_DATA,'ORBIT',data=tmp
 
      FOR j=0,nMatch-1 DO BEGIN
         tempMin    = MIN(ABS(tmp.x-cdbTime[these_i[j]]),tempMin_i)
@@ -85,7 +97,7 @@ PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES__UCLA_DESPIN__201605_UPDATES
      ENDFOR
 
      ;;Scale electron energy flux to 100km, pos flux earthward
-     get_data,'ILAT',data=tmp
+     ;; get_data,'ILAT',data=tmp
      get_data,'B_model',data=tmp1
      get_data,'BFOOT',data=tmp2
      ;; mag1 = (tmp1.y(*,0)*tmp1.y(*,0)+tmp1.y(*,1)*tmp1.y(*,1)+tmp1.y(*,2)*tmp1.y(*,2))^0.5
@@ -94,12 +106,12 @@ PRO GET_MAPPED_BFIELDVALS_FOR_ALFVENDB_TIMES__UCLA_DESPIN__201605_UPDATES
      mag2          = (tmp2.y[times_i,0]*tmp2.y[times_i,0]+tmp2.y[times_i,1]*tmp2.y[times_i,1]+tmp2.y[times_i,2]*tmp2.y[times_i,2])^0.5
      ratio         = (mag2/mag1)
 
-     PRINT,'Saving mapping_ratio--orb_'+orbit_num
-     SAVE,times,ratio,mag1,mag2,FILENAME=outDir+'mapping_ratio--orb_'+orbit_num
+     PRINT,'Saving ' + outFile
+     SAVE,times,ratio,mag1,mag2,FILENAME=outDir+outFile
 
 
   ENDIF ELSE BEGIN
-     PRINT,'No data for orbit ' + orbit_num + '!!!'
+     PRINT,'No data for orbit ' + orbStr + '!!!'
   ENDELSE
 
 END
