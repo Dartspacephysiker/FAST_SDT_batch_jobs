@@ -416,7 +416,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
      IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,tmpeSpec_lc,tmpjee_lc,tmpje_lc, $
                                              mlt,ilat,alt,orbit, $
                                              eSpecs_parsed, $
-                                             SC_POT=out_sc_pot, $
+                                             SC_POT=(-1.)*out_sc_pot, $ ;The reason for the negative is that that's what we actually get from V8_S
                                              /QUIET, $
                                              BATCH_MODE=batch_mode, $
                                              ORBSTR=orbStr, $

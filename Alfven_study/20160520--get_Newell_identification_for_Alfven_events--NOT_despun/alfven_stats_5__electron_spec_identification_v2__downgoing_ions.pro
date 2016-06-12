@@ -391,7 +391,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
      IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,tmpeSpec_up,tmpjee_up,tmpje_up, $
                                              mlt,ilat,alt,orbit, $
                                              eSpecs_parsed, $
-                                             SC_POT=out_sc_pot, $
+                                             SC_POT=(-1.)*out_sc_pot, $ ;The reason for the negative is that that's what we actually get from V8_S
                                              /QUIET, $
                                              BATCH_MODE=batch_mode, $
                                              ORBSTR=orbStr, $
@@ -401,7 +401,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
      IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,iSpec_down,jei_down,ji_down, $
                                              mlt,ilat,alt,orbit, $
                                              iSpecs_parsed, $
-                                             SC_POT=out_sc_pot_i, $
+                                             SC_POT=(-1.)*out_sc_pot, $ ;The reason for the negative is that that's what we actually get from V8_S
                                              /QUIET, $
                                              BATCH_MODE=batch_mode, $
                                              ORBSTR=orbStr, $
