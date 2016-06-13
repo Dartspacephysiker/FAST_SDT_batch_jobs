@@ -110,7 +110,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V3, $
         GET_SC_POTENTIAL,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],DATA=sc_pot
 
         PRINT,'Saving potential to ' + out_newell_file_sc_pot
-        SAVE,sc_pot,FILENAME=out_sc_pot_dir+out_newell_file
+        SAVE,sc_pot,FILENAME=out_sc_pot_dir+out_newell_file_sc_pot
 
         PRINT,'Moving to next interval or file...'
         CONTINUE
@@ -351,7 +351,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V3, $
      IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,tmpeSpec_lc,tmpjee_lc,tmpje_lc, $
                                              mlt,ilat,alt,orbit, $
                                              eSpecs_parsed, $
-                                             SC_POT=(-1.)*out_sc_pot, $ ;The reason for the negative is that that's what we actually get from V8_S
+                                             SC_POT=out_sc_pot, $ ;The reason for no negative is that the sign gets flipped get_2d_ts_pot
                                              /QUIET, $
                                              BATCH_MODE=batch_mode, $
                                              ORBSTR=orbStr, $

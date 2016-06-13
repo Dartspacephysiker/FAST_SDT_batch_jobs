@@ -14,13 +14,23 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
   alfven_startstop_maxJ_file             = './alfven_startstop_maxJ_times--500-16361_inc_lower_lats--burst_1000-16361.sav'
 
   todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
+ 
+  ;;For skipping the "get interval times" bit
+  indDir                                 = as5_dir + 'je_time_ind_dir/'
+  indFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
+  intervalArrFile                        = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
+
   outDir                                 = as5_dir + 'batch_output/'
   outNewellDir                           = as5_dir + 'Newell_batch_output/'
   outFile_pref                           = 'Dartdb--Alfven--Newell_identification_of_electron_spectra--Orbit_'
+
+  out_sc_pot_dir                         = as5_dir + 'just_potential/'
+  newellStuff_pref_sc_pot                = 'Newell_et_al_identification_of_electron_spectra--just_sc_pot--Orbit_'
+
   IF KEYWORD_SET(include_ions) THEN BEGIN
      newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--ions_included--Orbit_'
   ENDIF ELSE BEGIN
-     newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--Orbit_'
+     newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--min_electron_energy_30eV--Orbit_'
   ENDELSE
   noEventsFile                           = 'Orbs_without_Alfven_events--'+todayStr+'.txt'
   badFile                                = 'Orbs_with_other_issues--'+todayStr+'.txt'
@@ -37,7 +47,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
   ;; t=0
   ;; dat                                 = get_fa_ees(t,/st)
   ;;Jack Vernetti's recommendation
-  dat                                    = GET_FA_EES(0.0, EN=1)
+  dat                                    = GET_FA_EES(0.0D, EN=1)
   IF dat.valid EQ 0 THEN BEGIN
      print,' ERROR: No FAST electron survey data -- GET_FA_EES(0.0, EN=1) returned invalid data'
     RETURN
@@ -48,121 +58,60 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
      PRINT,'There are ' + STRCOMPRESS(n_EESA_spectra,/REMOVE_ALL) + ' EESA survey spectra currently loaded in SDT...'
   ENDELSE
 
-  t1                                     = 0.0D
   t2                                     = 0.0D
-  temp                                   = GET_FA_EES(t1,INDEX=0.0D)
-  temp                                   = GET_FA_EES(t2,INDEX=DOUBLE(last_index))
-  GET_2DT_TS,'j_2d_b','fa_ees',t1=t1,t2=t2,name='Je',energy=ENERGY_ELECTRONS
+  temp                                   = GET_FA_EES(t2,INDEX=0.0D)
+  t1                                     = t2
+  temp                                   = GET_FA_EES(t2,/ADV)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;Welp, here we go!
-
-  ;;remove spurious crap
-  GET_DATA,'Je',DATA=tmpj
-  
-  keep                                   = WHERE(FINITE(tmpj.y))
-  tmpj.x                                 = tmpj.x[keep]
-  tmpj.y                                 = tmpj.y[keep]
-  keep                                   = WHERE(ABS(tmpj.y) GT 0.0)
-  tx                                     = tmpj.x[keep]
-  ty                                     = tmpj.y[keep]
-  
-  ;;get timescale monotonic
-  time_order                             = SORT(tx)
-  tx                                     = tx[time_order]
-  ty                                     = ty[time_order]
-  
-  ;;throw away the first 10  points since they are often corrupted
-  STORE_DATA,'Je',DATA={x:tx[10:N_ELEMENTS(tx)-1],y:ty[10:N_ELEMENTS(tx)-1]}
-
-  ;;Use the electron data to define the time ranges for this orbit	
-  GET_DATA,'Je',DATA=je
-  part_res_je                            = MAKE_ARRAY(N_ELEMENTS(Je.x),/double)
-  FOR j=1,N_ELEMENTS(Je.x)-1 DO BEGIN
-     part_res_je[j]                      = ABS(Je.x[j]-Je.x[j-1])
-  ENDFOR
-  part_res_Je[0]                         = part_res_Je[1]
-  gap                                    = WHERE(part_res_je GT 10.0)
-  IF gap[0] NE -1 THEN BEGIN
-     separate_start                      = [0,where(part_res_je GT 10.0)]
-     separate_stop                       = [where(part_res_je GT 10.0),N_ELEMENTS(Je.x)-1]
-  ENDIF ELSE BEGIN
-     separate_start                      = [0]
-     separate_stop                       = [N_ELEMENTS(Je.x)-1]
-  ENDELSE
-
-  ;;remove esa burp when switched on
-  turn_on                                = WHERE(part_res_je GT 300.0)
-  IF turn_on[0] NE -1 THEN BEGIN
-     turn_on_separate                    = MAKE_ARRAY(N_ELEMENTS(turn_on),/DOUBLE)
-     FOR j=0,N_ELEMENTS(turn_on)-1 DO BEGIN
-        turn_on_separate[j]              = WHERE(separate_start EQ turn_on[j])
-     ENDFOR
-     separate_start[turn_on_separate+1]  = separate_start[turn_on_separate+1]+5
-  ENDIF
-
-  ;; loop through all of the EES distributions in SDT:
-  ;; for I                               = 0L, last_index do begin
-  ;;    didx                             = double(I)
-  ;;    data                             = get_fa_ees(0.0, INDEX=didx)
-  ;; endfor
-
-  ;;identify time indices for each interval
-  count                                  = 0.0
-  FOR j=0,N_ELEMENTS(separate_start)-1 DO BEGIN
-     IF (separate_stop[j]-separate_start[j]) GT 10 THEN BEGIN
-        count                            = count+1
-        IF count EQ 1.0 THEN BEGIN
-           time_range_indices            = TRANSPOSE([separate_start[j]+1,separate_stop[j]-1])
-        ENDIF ELSE BEGIN
-           time_range_indices            = [time_range_indices,TRANSPOSE([separate_start[j],separate_stop[j]-1])]
-        ENDELSE
-     ENDIF
-  ENDFOR
-  
-  ;;identify interval times
-  time_ranges                            = je.x[time_range_indices]
-  number_of_intervals                    = N_ELEMENTS(time_ranges[*,0])
-  
-  print,'number_of_intervals',number_of_intervals
-  
-  
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;First, see that we are able to match all points in this orb
-  RESTORE,dbDir+dbOrbFile
+  RESTORE,intervalArrFile 
 
-  GET_FA_ORBIT,je.x[time_range_indices[0,0]],je.x[time_range_indices[0,1]]
+  GET_FA_ORBIT,t1,t2
   ;;now get orbit quantities
   GET_DATA,'ORBIT',DATA=orb
   orbit_num                              = orb.y[0]
   orbStr                                 = STRCOMPRESS(orbit_num,/REMOVE_ALL)
-  match_i                                = WHERE(alfven_orblist EQ orbit_num,nMatch)
-  IF nMatch EQ 0 THEN BEGIN
-     PRINT,'No Alfvén matches!'
-     WRITE_MESSAGE_TO_LOGFILE,noEventsFile, $
-                              STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'No Alfs'), $
-                              /APPEND
 
-  ENDIF ELSE BEGIN
-     ;;set up output
-     outFile                             = outFile_pref + orbStr + '.sav'
+  number_of_intervals                    = intervalArr[orbit_num]
+  print,'number_of_intervals',number_of_intervals
 
-     RESTORE,alfven_startstop_maxJ_file
+  indFile                                = STRING(FORMAT='(A0,I0,"--",I0,"_intervals.sav")', $
+                                                  indFilePref,orbit_num,number_of_intervals)
 
-     start_times                            = alfven_start_time[match_i]
-     stop_times                             = alfven_stop_time[match_i]
-     center_times                           = cdbTime[match_i]
-     matched                                = MAKE_ARRAY(nMatch,VALUE=255,/BYTE) ;If well-matched, matched[i] = jjj
-                                ;If loosely matched, matched[i] = 255-jjj-1
-     nHits                                          = MAKE_ARRAY(nMatch,VALUE=0,/INTEGER)
-     nSpectra                                       = 0
-     hit_nSpectra                                   = !NULL
-     alfvenDBindices_for_spectra                    = !NULL
-     orbInterval_for_spectra                        = !NULL
-     electron_startstop_alfven_ind_list             = LIST()
-     electron_startstop_alfven_time_list            = LIST()
-     temp_last_closest                              = MAKE_ARRAY(nMatch,VALUE=250,/FLOAT)
-  ENDELSE
+  ;;This file gives us je,orbit_num,time_range_indices, and time_range
+  PRINT,'Restoring indFile ' + indFile + ' ...'
+  RESTORE,indDir+indFile
+  
+  STORE_DATA,'Je',DATA=je
+
+  ;; match_i                                = WHERE(alfven_orblist EQ orbit_num,nMatch)
+  ;; IF nMatch EQ 0 THEN BEGIN
+  ;;    PRINT,'No Alfvén matches!'
+  ;;    WRITE_MESSAGE_TO_LOGFILE,noEventsFile, $
+  ;;                             STRING(FORMAT='(A0,T20,A0,T40,A0)',orbStr,todayStr,'No Alfs'), $
+  ;;                             /APPEND
+
+  ;; ENDIF ELSE BEGIN
+  ;;    ;;set up output
+  ;;    outFile                             = outFile_pref + orbStr + '.sav'
+
+  ;;    RESTORE,alfven_startstop_maxJ_file
+
+  ;;    start_times                            = alfven_start_time[match_i]
+  ;;    stop_times                             = alfven_stop_time[match_i]
+  ;;    center_times                           = cdbTime[match_i]
+  ;;    matched                                = MAKE_ARRAY(nMatch,VALUE=255,/BYTE) ;If well-matched, matched[i] = jjj
+  ;;                               ;If loosely matched, matched[i] = 255-jjj-1
+  ;;    nHits                                          = MAKE_ARRAY(nMatch,VALUE=0,/INTEGER)
+  ;;    nSpectra                                       = 0
+  ;;    hit_nSpectra                                   = !NULL
+  ;;    alfvenDBindices_for_spectra                    = !NULL
+  ;;    orbInterval_for_spectra                        = !NULL
+  ;;    electron_startstop_alfven_ind_list             = LIST()
+  ;;    electron_startstop_alfven_time_list            = LIST()
+  ;;    temp_last_closest                              = MAKE_ARRAY(nMatch,VALUE=250,/FLOAT)
+  ;; ENDELSE
 
   ;;begin looping each interval
   FOR jjj=0,number_of_intervals-1 DO BEGIN
@@ -212,7 +161,26 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
      ;;get fields mode
      fields_mode=GET_FA_FIELDS('DataHdr_1032',time_ranges[jjj,0],time_ranges[jjj,1])
      
-     GET_SC_POTENTIAL,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],DATA=sc_pot
+     out_newell_file_sc_pot                   = newellStuff_pref_sc_pot + orbStr + '_' + STRCOMPRESS(jjj,/REMOVE_ALL) + '.sav'
+
+     IF FILE_TEST(out_sc_pot_dir+out_newell_file_sc_pot) THEN BEGIN
+        PRINT,"Restoring S/C pot file: " + out_newell_file_sc_pot
+        RESTORE,out_sc_pot_dir+out_newell_file_sc_pot
+        IF N_ELEMENTS(sc_pot) EQ 0 THEN BEGIN
+           get_potential = 1
+        ENDIF ELSE BEGIN
+           get_potential = 0
+        ENDELSE
+     ENDIF ELSE BEGIN
+        get_potential = 1
+     ENDELSE
+
+
+     IF KEYWORD_SET(get_potential) THEN BEGIN
+        GET_SC_POTENTIAL,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],DATA=sc_pot
+        PRINT,'Saving potential to ' + out_newell_file_sc_pot
+        SAVE,sc_pot,FILENAME=out_sc_pot_dir+out_newell_file_sc_pot
+     ENDIF
 
      ;;get moments/integrals of various fluxes
      GET_2DT_TS_POT,'je_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
@@ -416,7 +384,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
      IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,tmpeSpec_lc,tmpjee_lc,tmpje_lc, $
                                              mlt,ilat,alt,orbit, $
                                              eSpecs_parsed, $
-                                             SC_POT=(-1.)*out_sc_pot, $ ;The reason for the negative is that that's what we actually get from V8_S
+                                             SC_POT=out_sc_pot, $ 
                                              /QUIET, $
                                              BATCH_MODE=batch_mode, $
                                              ORBSTR=orbStr, $
@@ -438,83 +406,84 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2, $
              out_sc_pot,out_sc_time,out_sc_min_energy_ind, $
              FILENAME=outNewellDir+out_newell_file
      ENDELSE
-     IF nMatch EQ 0 OR KEYWORD_SET(alfven_skip_this_orb) THEN CONTINUE ;Leave if there are no Alfvén events here
+     ;; IF nMatch EQ 0 OR KEYWORD_SET(alfven_skip_this_orb) THEN CONTINUE ;Leave if there are no Alfvén events here
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;;Now figure out Alfvéns
      ;;Reset the inds
-     electron_startstop_alfven_inds              = !NULL
-     keep_these_spectra_i                        = !NULL
-     ;;get the relevant time range
-     ;; n_tmp_times = N_ELEMENTS(je_tmp_time)
-     n_tmp_times = N_ELEMENTS(eSpecs_parsed.x)
-     FOR iMatch=0,nMatch-1 DO BEGIN
-        tempCount                                = 0 ;assume there are no matches
-        IF (matched[iMatch] NE 255) THEN CONTINUE ;Don't get the same one twice
+     ;; electron_startstop_alfven_inds              = !NULL
+     ;; keep_these_spectra_i                        = !NULL
+     ;; ;;get the relevant time range
+     ;; ;; n_tmp_times = N_ELEMENTS(je_tmp_time)
+     ;; n_tmp_times = N_ELEMENTS(eSpecs_parsed.x)
+     ;; FOR iMatch=0,nMatch-1 DO BEGIN
+     ;;    tempCount                                = 0 ;assume there are no matches
+     ;;    IF (matched[iMatch] NE 255) THEN CONTINUE ;Don't get the same one twice
 
-        temp_inds                                = WHERE(eSpecs_parsed.x GE start_times[iMatch] AND eSpecs_parsed.x LE stop_times[iMatch],tempCount)
-        IF tempCount GT 0 THEN BEGIN
-           keep_these_spectra_i                  = [keep_these_spectra_i,temp_inds]
-           hit_nSpectra                          = [hit_nSpectra,tempCount]
-           matched[iMatch]                       = jjj
-           nHits[iMatch]++
-           alfvenDBindices_for_spectra           = [alfvenDBindices_for_spectra,REPLICATE(match_i[iMatch],tempCount)]
-           orbInterval_for_spectra               = [orbInterval_for_spectra,REPLICATE(jjj,tempCount)]
-        ENDIF ELSE BEGIN
-           minstartdiff                          = MIN(ABS(eSpecs_parsed.x-start_times[iMatch]),temp_i_start)
-           minstopdiff                           = MIN(ABS(eSpecs_parsed.x-stop_times[iMatch]),temp_i_stop)
-           minDiff                               = MIN([minstartdiff,minstopdiff],temp_ii_min)
-           IF minDiff LT temp_last_closest[iMatch] THEN BEGIN
-              temp_last_closest[iMatch]          = minDiff
+     ;;    temp_inds                                = WHERE(eSpecs_parsed.x GE start_times[iMatch] AND eSpecs_parsed.x LE stop_times[iMatch],tempCount)
+     ;;    IF tempCount GT 0 THEN BEGIN
+     ;;       keep_these_spectra_i                  = [keep_these_spectra_i,temp_inds]
+     ;;       hit_nSpectra                          = [hit_nSpectra,tempCount]
+     ;;       matched[iMatch]                       = jjj
+     ;;       nHits[iMatch]++
+     ;;       alfvenDBindices_for_spectra           = [alfvenDBindices_for_spectra,REPLICATE(match_i[iMatch],tempCount)]
+     ;;       orbInterval_for_spectra               = [orbInterval_for_spectra,REPLICATE(jjj,tempCount)]
+     ;;    ENDIF ELSE BEGIN
+     ;;       minstartdiff                          = MIN(ABS(eSpecs_parsed.x-start_times[iMatch]),temp_i_start)
+     ;;       minstopdiff                           = MIN(ABS(eSpecs_parsed.x-stop_times[iMatch]),temp_i_stop)
+     ;;       minDiff                               = MIN([minstartdiff,minstopdiff],temp_ii_min)
+     ;;       IF minDiff LT temp_last_closest[iMatch] THEN BEGIN
+     ;;          temp_last_closest[iMatch]          = minDiff
 
-              IF temp_ii_min EQ 0 THEN BEGIN
-                 temp_i                          = temp_i_start
-                 minitime                        = minstartdiff
-              ENDIF ELSE BEGIN
-                 temp_i                          = temp_i_stop
-                 minitime                        = minstopdiff
-              ENDELSE
-              ;; CASE temp_i OF
-              ;;    0: je_sampPeriod                = (n_tmp_times GT 1) ? eSpecs_parsed.x[1]-eSpecs_parsed.x[0] : 2.5
-              ;;    n_tmp_times-1: je_sampPeriod    = eSpecs_parsed.x[-1]-eSpecs_parsed.x[-2]
-              ;;    ELSE: je_sampPeriod             = eSpecs_parsed.x[temp_i]-eSpecs_parsed.x[temp_i-1]
-              ;; ENDCASE
-              IF minitime LE 10. THEN BEGIN
-                 tempCount                       = 1
-                 keep_these_spectra_i            = [keep_these_spectra_i,temp_i]
-                 hit_nSpectra                    = [hit_nSpectra,tempCount]
-                 electron_startstop_alfven_inds  = [[electron_startstop_alfven_inds],[temp_i,temp_i]]
-                 ;; electron_start_times         = [electron_start_times,eSpecs_parsed.x[temp_i]]
-                 ;; electron_stop_times          = [electron_stop_times,eSpecs_parsed.x[temp_i]]
-                 matched[iMatch]                 = 255-jjj-1
-                 nHits[iMatch]++
-                 alfvenDBindices_for_spectra     = [alfvenDBindices_for_spectra,match_i[iMatch]]
-                 orbInterval_for_spectra         = [orbInterval_for_spectra,REPLICATE(jjj,tempCount)]
-              ENDIF
-           ENDIF;;  ELSE BEGIN
-           ;;    PRINT,'Last match was better ...'
-           ;; ENDELSE
-        ENDELSE
-        nSpectra        += tempCount
-     ENDFOR
-     tmp_n_Alfvens_this_interval = N_ELEMENTS(keep_these_spectra_i)
-     IF tmp_n_Alfvens_this_interval EQ 0 THEN BEGIN
-        PRINT,"No Alfven events here!"
-        tmp_n_Alfvens_this_interval              = 0
-     ENDIF ELSE BEGIN
-        CAT_EVENTS_FROM_PARSED_SPECTRAL_STRUCT,alf_spectra,eSpecs_parsed,keep_these_spectra_i
-     ENDELSE        
+     ;;          IF temp_ii_min EQ 0 THEN BEGIN
+     ;;             temp_i                          = temp_i_start
+     ;;             minitime                        = minstartdiff
+     ;;          ENDIF ELSE BEGIN
+     ;;             temp_i                          = temp_i_stop
+     ;;             minitime                        = minstopdiff
+     ;;          ENDELSE
+     ;;          ;; CASE temp_i OF
+     ;;          ;;    0: je_sampPeriod                = (n_tmp_times GT 1) ? eSpecs_parsed.x[1]-eSpecs_parsed.x[0] : 2.5
+     ;;          ;;    n_tmp_times-1: je_sampPeriod    = eSpecs_parsed.x[-1]-eSpecs_parsed.x[-2]
+     ;;          ;;    ELSE: je_sampPeriod             = eSpecs_parsed.x[temp_i]-eSpecs_parsed.x[temp_i-1]
+     ;;          ;; ENDCASE
+     ;;          IF minitime LE 10. THEN BEGIN
+     ;;             tempCount                       = 1
+     ;;             keep_these_spectra_i            = [keep_these_spectra_i,temp_i]
+     ;;             hit_nSpectra                    = [hit_nSpectra,tempCount]
+     ;;             electron_startstop_alfven_inds  = [[electron_startstop_alfven_inds],[temp_i,temp_i]]
+     ;;             ;; electron_start_times         = [electron_start_times,eSpecs_parsed.x[temp_i]]
+     ;;             ;; electron_stop_times          = [electron_stop_times,eSpecs_parsed.x[temp_i]]
+     ;;             matched[iMatch]                 = 255-jjj-1
+     ;;             nHits[iMatch]++
+     ;;             alfvenDBindices_for_spectra     = [alfvenDBindices_for_spectra,match_i[iMatch]]
+     ;;             orbInterval_for_spectra         = [orbInterval_for_spectra,REPLICATE(jjj,tempCount)]
+     ;;          ENDIF
+     ;;       ENDIF;;  ELSE BEGIN
+     ;;       ;;    PRINT,'Last match was better ...'
+     ;;       ;; ENDELSE
+     ;;    ENDELSE
+     ;;    nSpectra        += tempCount
+     ;; ENDFOR
+     ;; tmp_n_Alfvens_this_interval = N_ELEMENTS(keep_these_spectra_i)
+     ;; IF tmp_n_Alfvens_this_interval EQ 0 THEN BEGIN
+     ;;    PRINT,"No Alfven events here!"
+     ;;    tmp_n_Alfvens_this_interval              = 0
+     ;; ENDIF ELSE BEGIN
+     ;;    CAT_EVENTS_FROM_PARSED_SPECTRAL_STRUCT,alf_spectra,eSpecs_parsed,keep_these_spectra_i
+     ;; ENDELSE
+     
 
   ENDFOR
 
   ;;Now stitch together what we have
-  IF nMatch GT 0 AND ~KEYWORD_SET(alfven_skip_this_orb) THEN BEGIN
-     alf_eSpec                                   = MAKE_ELECTRON_SPECTRA_STRUCT_FOR_ALFVEN_EVENTS_V2(orb.y[0],nSpectra,alfvenDBindices_for_spectra, $
-                                                                                                        center_times,matched,nHits,hit_nSpectra,alf_spectra)
+  ;; IF nMatch GT 0 AND ~KEYWORD_SET(alfven_skip_this_orb) THEN BEGIN
+  ;;    alf_eSpec                                   = MAKE_ELECTRON_SPECTRA_STRUCT_FOR_ALFVEN_EVENTS_V2(orb.y[0],nSpectra,alfvenDBindices_for_spectra, $
+  ;;                                                                                                       center_times,matched,nHits,hit_nSpectra,alf_spectra)
      
-     PRINT,'Saving Alfven electron spectra to ' + outFile + '...'
-     SAVE,alf_eSpec,FILENAME=outDir+outFile
-  ENDIF
+  ;;    PRINT,'Saving Alfven electron spectra to ' + outFile + '...'
+  ;;    SAVE,alf_eSpec,FILENAME=outDir+outFile
+  ;; ENDIF
 
   RETURN 
 END
