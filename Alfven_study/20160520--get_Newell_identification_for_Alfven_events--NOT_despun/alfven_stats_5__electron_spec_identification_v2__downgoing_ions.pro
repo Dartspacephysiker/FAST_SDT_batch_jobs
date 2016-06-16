@@ -25,7 +25,10 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
   intervalArrFile                        = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
 
   outNewellDir                           = as5_dir + 'Newell_batch_output/'
+  out_sc_pot_dir                         = as5_dir + 'just_potential/'
   outFile_pref                           = 'Dartdb--Alfven--Newell_identification_of_electron_spectra--Orbit_'
+
+  newellStuff_pref_sc_pot                = 'Newell_et_al_identification_of_electron_spectra--just_sc_pot--Orbit_'
 
   ;; IF KEYWORD_SET(include_ions) THEN BEGIN
      newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--downgoing_ions_upgoing_electrons--Orbit_'
@@ -143,7 +146,25 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
      ;;get fields mode
      fields_mode=GET_FA_FIELDS('DataHdr_1032',time_ranges[jjj,0],time_ranges[jjj,1])
      
-     GET_SC_POTENTIAL,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],DATA=sc_pot
+     out_newell_file_sc_pot                   = newellStuff_pref_sc_pot + orbStr + '_' + STRCOMPRESS(jjj,/REMOVE_ALL) + '.sav'
+
+     IF FILE_TEST(out_sc_pot_dir+out_newell_file_sc_pot) THEN BEGIN
+        PRINT,"Restoring S/C pot file: " + out_newell_file_sc_pot
+        RESTORE,out_sc_pot_dir+out_newell_file_sc_pot
+        IF N_ELEMENTS(sc_pot) EQ 0 THEN BEGIN
+           get_potential = 1
+        ENDIF ELSE BEGIN
+           get_potential = 0
+        ENDELSE
+     ENDIF ELSE BEGIN
+        get_potential = 1
+     ENDELSE
+
+     IF KEYWORD_SET(get_potential) THEN BEGIN
+        GET_SC_POTENTIAL,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],DATA=sc_pot
+        PRINT,'Saving potential to ' + out_newell_file_sc_pot
+        SAVE,sc_pot,FILENAME=out_sc_pot_dir+out_newell_file_sc_pot
+     ENDIF
 
      ;;get moments/integrals of various fluxes
      GET_2DT_TS_POT,'je_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
