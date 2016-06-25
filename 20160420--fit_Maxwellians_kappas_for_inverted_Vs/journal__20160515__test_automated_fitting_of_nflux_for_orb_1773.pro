@@ -1,8 +1,8 @@
 ;2016/05/15 Here we are 
 PRO JOURNAL__20160515__TEST_AUTOMATED_FITTING_OF_NFLUX_FOR_ORB_1773
 
-  t1Str = '97-2-1/09:26:30'
-  t2Str = '97-2-1/09:26:40'
+  t1Str = '97-2-1/09:26:20'
+  t2Str = '97-2-1/09:26:50'
   
   t1    = STR_TO_TIME(t1Str)
   t2    = STR_TO_TIME(t2Str)
