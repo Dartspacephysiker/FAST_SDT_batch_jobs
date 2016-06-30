@@ -46,7 +46,7 @@ PRO JOURNAL__20160629__ORB_1843__WHATS_WRONG_WITH_DENSITY
   save_fitPlots             = 1
 
   ;;Angle stuff
-  only_fieldaligned         = 0
+  only_fieldaligned         = 1
   electron_angleRange       = [0,360]
 
   max_iter                  = 1000
