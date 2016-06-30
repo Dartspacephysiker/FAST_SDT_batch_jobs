@@ -13,8 +13,10 @@ PRO ALFVEN_DAYSIDE_ELECTRONS,FILENAME=filename, $
                              PNG_OUREVENTS=png_ourevents, $
                              CONT_IF_FILE_EXISTS=cont_if_file_exists
 
-  plot_dir = '/SPENCEdata/software/sdt/batch_jobs/20160206--storms_Alfvens--msheath_mapping_in_dayside/'
+  SET_PLOT_DIR,plotDir,/FOR_SDT, $
+               ADD_SUFF='/20160206--storms_Alfvens--msheath_mapping_in_dayside'
 
+  outDir              = '/SPENCEdata/software/sdt/batch_jobs/20160206--storms_Alfvens--msheath_mapping_in_dayside/'
   hemi                = KEYWORD_SET(hemi) ? hemi : 'north'
   inDir               = '/SPENCEdata/Research/Satellites/FAST/storms_Alfvens/journals'
   inFile              = 'journal__20160206__times_for_orbs_with_more_than_50_events_on_dayside_during_mainphase__check_for_msheath_electrons__'+hemi+'.sav'
@@ -128,7 +130,7 @@ PRO ALFVEN_DAYSIDE_ELECTRONS,FILENAME=filename, $
      orbit=tmp.y(0)
      orbit_num=strcompress(string(tmp.y(0)),/remove_all)
                                 ;filename for output file
-     curfile = plot_dir + 'batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)
+     curfile = outDir + 'batch_output/'+'Dartmouth_as5_dflux_'+strcompress(orbit_num,/remove_all)+'_'+strcompress(jjj,/remove_all)
      IF KEYWORD_SET(burst) THEN BEGIN
         curfile = curfile + '--burst'
      ENDIF
@@ -886,7 +888,7 @@ PRO ALFVEN_DAYSIDE_ELECTRONS,FILENAME=filename, $
      IF KEYWORD_SET(png_ourevents) THEN BEGIN
         ;;cur_time = str_to_time(data_chast.time[jj])
         ;;IF cur_time GT time_ranges(jjj,0) AND cur_time LT time_ranges(jjj,1) THEN BEGIN
-        fname=plot_dir+'plots/orb_' + strcompress(orbit_num+'_'+string(jjj)+'_'+string(jj),/remove_all) + '--alfven_msheath_elecs--'+strcompress(jj,/remove_all)+'.ps'
+        fname=plotDir+'orb_' + strcompress(orbit_num+'_'+string(jjj)+'_'+string(jj),/remove_all) + '--alfven_msheath_elecs--'+strcompress(jj,/remove_all)+'.ps'
         plotstr = "B!Dz!N and J!Dmag!N for Dartmouth event " + str(jj)
         tplot_options,'title',plotstr
         cgPS_Open,fname,font=1

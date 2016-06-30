@@ -2,6 +2,8 @@
 ;Other work to be done includes identifying monoenergetic, inverted-V structures
 PRO JOURNAL__20160511__ORB10000__18_08_42
 
+  SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/20160420--fit_Maxwellians_kappas_for_inverted_Vs/Orbit_10000'
+
   eSpecUnits                = 'DF'
 
   ;;Contour plot options (units = 'DF' recommended if doing velocity
@@ -124,7 +126,7 @@ PRO JOURNAL__20160511__ORB10000__18_08_42
   ENDFOR
   legend = LEGEND(TARGET=plotArr[*],POSITION=[0.45,0.45],/NORMAL)
   PRINT,'Saving to ' + plotSN + '...'
-  window.save,plotSN
+  window.save,plotDir+plotSN
 
   ;;Get all the dist. functions for the time range of interest
   ;; FOR i=0,FIX(t2-t1)-1 DO BEGIN
@@ -136,7 +138,7 @@ PRO JOURNAL__20160511__ORB10000__18_08_42
      out_tStr = (STRMID(TIME_TO_STR(dat.time,/MSEC),11,11)).Replace(':', '_')
      outFN    = STRING(FORMAT='("Orb_",I0,"--",A0,"__",A0,"--particle_dist",A0)',orb,orbDate,out_tStr,eSpecUnits)
      ;;Open postscript, plot,and close
-     IF KEYWORD_SET(do_postscript) THEN cgPS_Open, FILENAME=outFN+'.ps'
+     IF KEYWORD_SET(do_postscript) THEN cgPS_Open, FILENAME=plotDir+outFN+'.ps'
      RAINBOW_COLORS,N_COLORS=nLevels
 
      ;; loadct2,43
@@ -152,7 +154,7 @@ PRO JOURNAL__20160511__ORB10000__18_08_42
 
      IF KEYWORD_SET(do_postscript) THEN BEGIN
         cgPS_Close
-        CGPS2RASTER,outFN+'.ps',outFN+plotExt,/DELETE_PS
+        CGPS2RASTER,plotDir+outFN+'.ps',plotDir+outFN+plotExt,/DELETE_PS
      ENDIF 
      
      dat      = get_fa_ees(t_temp,/ADVANCE)

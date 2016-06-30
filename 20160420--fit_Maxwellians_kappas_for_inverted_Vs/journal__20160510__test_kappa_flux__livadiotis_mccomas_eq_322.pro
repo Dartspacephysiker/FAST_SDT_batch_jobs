@@ -6,6 +6,7 @@ PRO JOURNAL__20160510__TEST_KAPPA_FLUX__LIVADIOTIS_MCCOMAS_EQ_322
   diff_angles     = 0
   diff_kappas     = 1
 
+  SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/20160420--fit_Maxwellians_kappas_for_inverted_Vs/Orbit_10000'
   saveDir         = '/SPENCEdata/software/sdt/batch_jobs/20160420--fit_Maxwellians_kappas_for_inverted_Vs/'
   savePlotPref    = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--test_kappa_nFlux__LM_eq_322'
   savePlot        = 1
@@ -93,8 +94,8 @@ PRO JOURNAL__20160510__TEST_KAPPA_FLUX__LIVADIOTIS_MCCOMAS_EQ_322
 
   IF KEYWORD_SET(savePlot) THEN BEGIN
      saveName = savePlotPref + saveDatN + '.png'
-     PRINT,'Saving plot to ' + saveDir+saveName + '...'
-     window.save,saveDir+saveName
+     PRINT,'Saving plot to ' + plotDir+saveName + '...'
+     window.save,plotDir+saveName
   ENDIF
 
   STOP

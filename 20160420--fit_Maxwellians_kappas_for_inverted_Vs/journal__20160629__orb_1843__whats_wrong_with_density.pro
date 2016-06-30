@@ -1,6 +1,8 @@
 ;2016/06/29 Trying to figure out why on earth our density estimates are so low
 PRO JOURNAL__20160629__ORB_1843__WHATS_WRONG_WITH_DENSITY
 
+  SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/kappa_fits/Orbit_1843'
+
   ;; Use burst bounds, optionally average
   ;;126  1997-02-07/20:49:41.061
   ;;226  1997-02-07/20:49:48.973

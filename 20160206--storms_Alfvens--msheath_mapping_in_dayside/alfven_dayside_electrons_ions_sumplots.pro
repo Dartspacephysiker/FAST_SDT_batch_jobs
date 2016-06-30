@@ -7,7 +7,9 @@ PRO ALFVEN_DAYSIDE_ELECTRONS_IONS_SUMPLOTS
   inFile              = 'journal__20160206__times_for_orbs_with_more_than_50_events_on_dayside_during_mainphase__check_for_msheath_electrons__'+hemi+'.sav'
   RESTORE,inDir+inFile
 
-  plotDir             = '/SPENCEdata/software/sdt/batch_jobs/20160206--storms_Alfvens--msheath_mapping_in_dayside/plots/'
+  SET_PLOT_DIR,plotDir,/FOR_SDT, $
+               ADD_SUFF='/20160206--storms_Alfvens--msheath_mapping_in_dayside'
+  ;; plotDir             = '/SPENCEdata/software/sdt/batch_jobs/20160206--storms_Alfvens--msheath_mapping_in_dayside/plots/'
   plotPref            = 'alfven_dayside_electrons_during_mainphase--'+hemi+'--'
   plotSuff            = '.ps'
 

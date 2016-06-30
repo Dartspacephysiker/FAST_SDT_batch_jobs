@@ -1,6 +1,8 @@
 ;2016/05/15 Here we are 
 PRO JOURNAL__20160515__TEST_AUTOMATED_FITTING_OF_NFLUX_FOR_ORB_10000
 
+  SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/kappa_fits/Orbit_10000'
+
   t1Str = '99-3-2/18:08:36'
   t2Str = '99-3-2/18:09:00'
   
@@ -37,7 +39,8 @@ PRO JOURNAL__20160515__TEST_AUTOMATED_FITTING_OF_NFLUX_FOR_ORB_10000
      FIT_TOLERANCE=fit_tol, $
      MAX_ITERATIONS=max_iter, $
      ADD_FITPARAMS_TEXT=add_fitParams_text, $
-     SAVE_FITPLOTS=save_fitPlots
+     SAVE_FITPLOTS=save_fitPlots, $
+     PLOTDIR=plotDir
   
 
 END

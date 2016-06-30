@@ -2,6 +2,9 @@
 ;Other work to be done includes identifying monoenergetic, inverted-V structures
 PRO JOURNAL__20160513__ORB10000__18_08_42__NFLUX
 
+  SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/kappas_fits/Orbit_10000'
+  outDir                    = '/SPENCEdata/software/sdt/batch_jobs/20160420--fit_Maxwellians_kappas_for_inverted_Vs/'
+
   eSpecUnits                = 'DF'
 
   ;;Contour plot options (units = 'DF' recommended if doing velocity
@@ -110,12 +113,13 @@ PRO JOURNAL__20160513__ORB10000__18_08_42__NFLUX
   ENDFOR
   legend = LEGEND(TARGET=plotArr[*],POSITION=[0.45,0.45],/NORMAL)
   PRINT,'Saving to ' + plotSN + '...'
-  window.save,plotSN
+  window.save,plotDir+plotSN
 
   ;;Bonus
   fu_spec2d,'n_2d_fs',dat,OUT_PARTIAL=dn_2d,ANGLE=e_angle ;,/integ_f,/integ_r ; plot partial density, partial integral densities
   fu_spec2d,'j_2d_fs',dat,OUT_PARTIAL=dj_2d,ANGLE=e_angle ;,/integ_f,/integ_r ; plot partial density, partial integral densities
 
-  SAVE,je_en,x,dn_2d,dj_2d,eSpec,bounds,orb,orbDate,nPlots,FILENAME='/SPENCEdata/software/sdt/batch_jobs/20160420--fit_Maxwellians_kappas_for_inverted_Vs/nFlux_and_eSpec--orb_10000__18_08_36-18_09_00.sav'
+  SAVE,je_en,x,dn_2d,dj_2d,eSpec,bounds,orb,orbDate,nPlots, $
+       FILENAME=outDir+'nFlux_and_eSpec--orb_10000__18_08_36-18_09_00.sav'
 
 END
