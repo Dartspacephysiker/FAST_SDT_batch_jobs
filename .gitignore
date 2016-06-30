@@ -28,3 +28,6 @@ plots/
 
 #No txtOutputDir
 txtOutput/
+
+#No saves_outputs dir
+saves_outputs_etc/
