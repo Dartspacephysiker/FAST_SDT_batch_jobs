@@ -1,8 +1,6 @@
  
 PRO JOURNAL__20160517__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_2,SAVE_PNG=save_png,SAVE_PS=save_ps
 
-  fileName                = 'McFadden_et_al_1998--Fig_2'
-
   ;; @startup
 
   survOrBurst             = 'eeb'
@@ -26,6 +24,8 @@ PRO JOURNAL__20160517__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_2,SAVE_PNG=save_png,SA
   red                     = 250
   green                   = 130
   black                   = 10
+
+  outPlotName             = 'McFadden_et_al_1998--Fig_2'
 
   ;;Get fields stuff, eFields and magFields
   FA_FIELDS_DESPIN,T1=t1Adj,T2=t2Adj,DAT=despun_E,/SLOW
@@ -224,11 +224,15 @@ PRO JOURNAL__20160517__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_2,SAVE_PNG=save_png,SA
 
   IF NOT KEYWORD_SET(dontShowPlots) THEN BEGIN
 
+     IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
+        SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/McFadden_et_al_1998'
+     ENDIF
+
      IF KEYWORD_SET(save_png) THEN BEGIN
-        CGPS_OPEN, './plots/'+fileName+'.ps',FONT=0;,XSIZE=4,YSIZE=7
+        CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=0;,XSIZE=4,YSIZE=7
      ENDIF ELSE BEGIN
         IF KEYWORD_SET(save_ps) THEN BEGIN
-           POPEN,'./plots/'+fileName,/PORT,FONT=-1;,XSIZE=4,YSIZE=7
+           POPEN,plotDir+outPlotName,/PORT,FONT=-1;,XSIZE=4,YSIZE=7
            DEVICE,/PALATINO,FONT_SIZE=8
         ENDIF ELSE BEGIN
            WINDOW,0,XSIZE=600,YSIZE=800

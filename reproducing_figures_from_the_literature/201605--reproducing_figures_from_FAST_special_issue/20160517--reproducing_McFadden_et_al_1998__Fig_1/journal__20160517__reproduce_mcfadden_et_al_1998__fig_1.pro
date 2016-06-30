@@ -46,6 +46,8 @@ PRO JOURNAL__20160517__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SA
   green                   = 130
   black                   = 10
 
+  outPlotName             = 'McFadden_et_al_1998--Fig_1'
+
   ;;Get fields stuff, eFields and magFields
   FA_FIELDS_DESPIN,T1=t1Adj,T2=t2Adj,DAT=despun_E
   GET_DATA,'E_NEAR_B',DATA=eNearB
@@ -338,12 +340,16 @@ PRO JOURNAL__20160517__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SA
 
   IF NOT KEYWORD_SET(dontShowPlots) THEN BEGIN
 
+     IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
+        SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/McFadden_et_al_1998'
+     ENDIF
+
      IF KEYWORD_SET(save_png) THEN BEGIN
-        CGPS_OPEN, './plots/McFadden_et_al_1998--Fig_1.ps',FONT=0;,XSIZE=4,YSIZE=7
+        CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=0;,XSIZE=4,YSIZE=7
      ENDIF ELSE BEGIN
         IF KEYWORD_SET(save_ps) THEN BEGIN
            ;; CGPS_OPEN, './plots/McFadden_et_al_1998--Fig_1.ps',FONT=0,XSIZE=4,YSIZE=7
-           POPEN,'./plots/McFadden_et_al_1998--Fig_1',/PORT,FONT=-1;,XSIZE=4,YSIZE=7
+           POPEN,plotDir+outPlotName,/PORT,FONT=-1;,XSIZE=4,YSIZE=7
            DEVICE,/PALATINO,FONT_SIZE=8
            ;; DEVICE,SET_FONT='Garamond*15'
            ;; !P.FONT = -1
