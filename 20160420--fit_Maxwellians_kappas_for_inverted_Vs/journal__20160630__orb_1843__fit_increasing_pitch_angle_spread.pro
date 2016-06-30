@@ -21,15 +21,16 @@ PRO JOURNAL__20160630__ORB_1843__FIT_INCREASING_PITCH_ANGLE_SPREAD
   ;; bounds                 = [16:28]
 
   ;;Angle stuff
-  append_fullRange          = 0
+  append_fullRange          = 1
   var_delta                 = 10
-  nAngleRanges              = 2
-  electron_angleRanges      = [[(INDGEN(nAngleRanges)+1)*(-var_delta)], $
-                               [(INDGEN(nAngleRanges)+1)*( var_delta)]]
+  nAngleRanges              = 17
+  offset                    = 0
+  electron_angleRanges      = [[(INDGEN(nAngleRanges)+1+offset)*(-var_delta)], $
+                               [(INDGEN(nAngleRanges)+1+offset)*( var_delta)]]
 
   ;;Append the full meal
   IF KEYWORD_SET(append_fullRange) THEN BEGIN
-     electron_angleRanges   = [[electron_angleRanges],[0,360]]
+     electron_angleRanges   = [[electron_angleRanges],TRANSPOSE([0,360])]
      nAngleRanges++
   ENDIF
 
@@ -49,8 +50,8 @@ PRO JOURNAL__20160630__ORB_1843__FIT_INCREASING_PITCH_ANGLE_SPREAD
   t2                        = STR_TO_TIME(t2Str)
 
   estimate_A_from_data      = 1
-  n_below_peak              = 5
-  n_after_peak              = 9
+  n_below_peak              = 4
+  n_after_peak              = 10
 
   bulk_offset               = 0
 
@@ -65,8 +66,8 @@ PRO JOURNAL__20160630__ORB_1843__FIT_INCREASING_PITCH_ANGLE_SPREAD
 
   kappa_est                 = 2.8
 
-  T_est_fac                 = 0.5
-  N_est_fac                 = 3.
+  T_est_fac                 = 0.4
+  N_est_fac                 = 2.
   bulkE_est_fac             = 1.0
 
   TGauss_est_fac            = 0.05
@@ -135,6 +136,11 @@ PRO JOURNAL__20160630__ORB_1843__FIT_INCREASING_PITCH_ANGLE_SPREAD
   ;;                              var_dim:dim, $
   ;;                              is_multiplicative:KEYWORD_SET(output_dens__energies), $
   ;;                              fName_suff:out_N_fN_str}
+
+  IF ~ARRAY_EQUAL(out_peak_dens.vars[0:nAngleRanges-1,*],electron_angleRanges) THEN BEGIN
+     PRINT,"Angle ranges don't match!"
+     STOP
+  ENDIF
 
   fit_N                     = out_fitted_params[3,*]
   fit_N_Gauss               = out_fitted_Gauss_params[3,*]
