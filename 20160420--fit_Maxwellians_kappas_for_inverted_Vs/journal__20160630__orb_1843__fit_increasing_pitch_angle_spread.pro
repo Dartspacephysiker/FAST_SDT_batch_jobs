@@ -56,7 +56,7 @@ PRO JOURNAL__20160630__ORB_1843__FIT_INCREASING_PITCH_ANGLE_SPREAD
   bulk_offset               = 0
 
   add_gaussian_estimate     = 1
-  add_oneCount_curve        = 0
+  add_oneCount_curve        = 1
 
   add_fitParams_text        = 1
   save_fitPlots             = 1

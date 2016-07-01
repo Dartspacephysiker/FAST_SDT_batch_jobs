@@ -17,9 +17,13 @@ PRO JOURNAL__20160630__ORB1843__20_49_47__ELECTRON_DIST_FUNC
   do_velocity                    = 1
   polarDist                      = 1
   do_postscript                  = 1
-  plotExt                        = '.gif'
-  ;; plotExt                        = '.png'
-  
+  do_gifs                        = 1
+  IF do_gifs THEN BEGIN
+     plotExt                     = '.gif'
+  ENDIF ELSE BEGIN
+     plotExt                     = '.png'
+  ENDELSE
+
   ;;fire up
   @startup
   ON_ERROR,0
@@ -171,7 +175,8 @@ PRO JOURNAL__20160630__ORB1843__20_49_47__ELECTRON_DIST_FUNC
 
      IF KEYWORD_SET(do_postscript) THEN BEGIN
         CGPS_CLOSE
-        CGPS2RASTER,plotDir+outFN+'.ps',plotDir+outFN+plotExt,/DELETE_PS
+        CGPS2RASTER,plotDir+outFN+'.ps',plotDir+outFN+plotExt,/DELETE_PS, $
+                    GIF=KEYWORD_SET(do_gifs)
      ENDIF 
      
      ;;Get new data
