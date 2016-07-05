@@ -19,7 +19,8 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V3, $
   ;;For skipping the "get interval times" bit
   indDir                                 = as5_dir + 'je_time_ind_dir/'
   indFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
-  intervalArrFile                        = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
+  intervalArrDir                         = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20160520--get_Newell_identification/"
+  intervalArrFile                        = "orb_and_num_intervals--0-16361.sav"                                                           ;;Use it to figure out which file to restore
 
   todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
   outDir                                 = as5_dir + 'batch_output/'
@@ -67,7 +68,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V3, $
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;First, see that we are able to match all points in this orb
-  RESTORE,intervalArrFile 
+  RESTORE,intervalArrDir+intervalArrFile 
 
   GET_FA_ORBIT,t1,t2
   ;;now get orbit quantities
