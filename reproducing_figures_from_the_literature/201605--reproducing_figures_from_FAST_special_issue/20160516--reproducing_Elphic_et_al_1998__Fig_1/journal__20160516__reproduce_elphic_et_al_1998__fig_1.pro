@@ -24,7 +24,7 @@
 
 PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE_PS=save_ps
 
-  energy_electrons        = [50.,30000.]
+  energy_electrons        = [50.,32000.]
   ucla_mag_despin         = 1
 
   t1Str                   = '97-2-1/09:25:30'
@@ -60,6 +60,7 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
   GET_DATA,'ALT',DATA=alt
   loss_cone_alt           = alt.y[0]*1000.0
   lcw                     = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
+  lcw                     = 30
   GET_DATA,'ILAT',DATA=ilat
   north_south             = ABS(ilat.y[0])/ilat.y[0]
   
@@ -144,13 +145,33 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
   ;; potential            = {x:magz.x,y:potential}
   STORE_DATA,'POTENTIAL',DATA={x:magz.x,y:potential/1000.-8000.}
   OPTIONS,'POTENTIAL','ytitle','Potential!C(V)' ; y title
+  OPTIONS,'POTENTIAL','yticks',5                           ; set y-axis labels
+  OPTIONS,'POTENTIAL','ytickname',['-8000','','-4000','','0'] ; set y-axis labels
+  OPTIONS,'POTENTIAL','ytickv',[-8000,-6000,-4000,-2000,0]            ; set y-axis labels
   YLIM,'POTENTIAL',-8500,1900
 
   ;;Calculate current from ESAs
   GET_2DT_TS,'j_2d_b','fa_ees',T1=t1,T2=t2, $
-             NAME='Je_lc',ENERGY=energy_electrons ;,ANGLE=e_angle
+             NAME='Je',ENERGY=energy_electrons ;,ANGLE=e_angle
+
+  GET_2DT_TS,'j_2d_b','fa_ees',T1=t1,T2=t2, $
+             NAME='Je_lc',ENERGY=energy_electrons,ANGLE=e_angle
 
   ;;Remove_crap
+  GET_DATA,'Je',DATA=tmp
+  keep1                   = WHERE(FINITE(tmp.y) NE 0)
+  tmp.x                   = tmp.x[keep1]
+  tmp.y                   = tmp.y[keep1]
+  keep2                   = WHERE(ABS(tmp.y) GT 0.0)
+  je_tmp_time          = tmp.x[keep2]
+  je_tmp_data          = tmp.y[keep2]
+  STORE_DATA,'Je',DATA={x:je_tmp_time,y:(-1.)*je_tmp_data}
+  YLIM,'Je',-1.e9,2.e9
+  OPTIONS,'Je','yticks',4                           ; set y-axis labels
+  OPTIONS,'Je','ytickname',['-1e9','0','1e9','2e9'] ; set y-axis labels
+  OPTIONS,'Je','ytickv',[-1e9,0,1e9,2e9]            ; set y-axis labels
+  OPTIONS,'Je','ytitle','Electron!CFlux!C(cm!U2!Ns!U-1!N)'
+
   GET_DATA,'Je_lc',DATA=tmp
   keep1                   = WHERE(FINITE(tmp.y) NE 0)
   tmp.x                   = tmp.x[keep1]
@@ -158,12 +179,7 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
   keep2                   = WHERE(ABS(tmp.y) GT 0.0)
   je_lc_tmp_time          = tmp.x[keep2]
   je_lc_tmp_data          = tmp.y[keep2]
-  STORE_DATA,'Je_lc',DATA={x:je_lc_tmp_time,y:(-1.)*je_lc_tmp_data}
-  YLIM,'Je_lc',-1.e9,2.e9
-  OPTIONS,'Je_lc','yticks',4                           ; set y-axis labels
-  OPTIONS,'Je_lc','ytickname',['-1e9','0','1e9','2e9'] ; set y-axis labels
-  OPTIONS,'Je_lc','ytickv',[-1e9,0,1e9,2e9]            ; set y-axis labels
-  OPTIONS,'Je_lc','ytitle','Electron!CFlux!C(cm!U2!Ns!U-1!N'
+
 
   ;;Get electron energy flux in loss cone
   GET_2DT_TS,'je_2d_b','fa_ees',T1=t1,T2=t2, $
@@ -214,20 +230,37 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
 
   ;;Now set them right again, store
   ;; magz                 = {x:magz.time,y:magz.comp1}
-  STORE_DATA,'dB_East',DATA={x:magz.x,y:magz.y}
+  STORE_DATA,'dB_East',DATA={x:magz.x,y:magz.y-magz.y[0]}
   OPTIONS,'dB_East','ytitle',CGGREEK('Delta') + 'B!DEast!N (nT)' ; y title
+  YLIM,'dB_East',-100,200
   OPTIONS,'dB_East','yticks',4                                   ; set y-axis labels
-  OPTIONS,'dB_East','ytickname',['-00','0','100','200']          ; set y-axis labels
+  OPTIONS,'dB_East','ytickname',['-100','0','100','200']          ; set y-axis labels
   OPTIONS,'dB_East','ytickv',[-100,0,100,200]                    ; set y-axis labels
   
 
   ;;Scale electron energy flux to 100km, pos flux earthward
   jee_ionos_tmp_data      = sgn_flx*jee_tmp_data*ratio
+  OPTIONS,'JEei','ytitle','Electron!CEnergy!CFlux!C(erg!U2!Ns!U-1!N)'
   STORE_DATA,'JEei',DATA={x:jee_tmp_time,y:jee_ionos_tmp_data}
   
   jee_tot_ionos_tmp_data  = sgn_flx*jee_tot_tmp_data*ratio
   STORE_DATA,'JEei_tot',DATA={x:jee_tot_tmp_time,y:jee_tot_ionos_tmp_data}
 
+  ;;Pedersen conductivity
+  charE                   = (jee_tmp_data/je_lc_tmp_data)*6.242*1.0e11/1000. ;in keV
+  ;; charE                   = (jee_tot_tmp_data/je_tmp_data)*6.242*1.0e11/1000. ;in keV
+
+  ped                     = 40. * charE * SQRT(jee_ionos_tmp_data)/(16.+charE^2.) > 1
+  ;; ped                     = 40. * charE * SQRT(jee_tot_tmp_data)/(16.+charE^2.) > 1
+  STORE_DATA,'Ped', DATA={x:jee_tmp_time,y:ped}
+  YLIM,'Ped',0.1,20,1                                                ; set y limits
+  OPTIONS,'Ped','ytitle',CGGREEK('Sigma')+ '!Dp!N (mho)'               ; y title
+  ;; OPTIONS,'Ped','spec',0                                               ; set for spectrogram
+  ;; OPTIONS,'Ped','x_no_interp',1                                        ; don't interpolate
+  ;; OPTIONS,'Ped','y_no_interp',1                                        ; don't interpolate
+  ;; OPTIONS,'Ped','yticks',2                                             ; set y-axis labels
+  ;; OPTIONS,'Ped','ytickname',['1','10']
+  ;; OPTIONS,'Ped','ytickv',[1,10]                                       ; set y-axis labels
 
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -239,9 +272,10 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
   STORE_DATA,'el_0', DATA=tmp                                          ; store data structure
   OPTIONS,'el_0','spec',1                                              ; set for spectrogram
   ZLIM,'el_0',6,9,0                                                    ; set z limits
-  YLIM,'el_0',4,30000,1                                                ; set y limits
+  YLIM,'el_0',5,30000,1                                                ; set y limits
   OPTIONS,'el_0','ytitle','e- downgoing !C!CEnergy (eV)'               ; y title
-  OPTIONS,'el_0','ztitle','Log Eflux!C!CeV/cm!U2!N-s-sr-eV'            ; z title
+  ;; OPTIONS,'el_0','ztitle','Log Eflux!C!CeV/cm!U2!N-s-sr-eV'            ; z title
+  OPTIONS,'el_0','ztitle','log eV!C!C/cm!U2!N-s-sr-eV' ; z title
   OPTIONS,'el_0','x_no_interp',1                                       ; don't interpolate
   OPTIONS,'el_0','y_no_interp',1                                       ; don't interpolate
   OPTIONS,'el_0','yticks',3                                            ; set y-axis labels
@@ -250,7 +284,9 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
   ;; OPTIONS,'el_0','panel_size',1.5                                        ; set panel size
 
   ;; Electron pitch angle spectrogram - survey data, remove retrace, >100 electrons
-  GET_PA_SPEC,"fa_ees_c",UNITS='eflux',NAME='el_pa',ENERGY=energy_electrons,RETRACE=1,T1=t1,T2=t2,/CALIB
+  GET_PA_SPEC,"fa_ees_c",UNITS='eflux',NAME='el_pa', $
+              ;; ENERGY=energy_electrons, $
+              RETRACE=1,T1=t1,T2=t2,/CALIB
   GET_DATA,'el_pa',DATA=tmp                                  ; get data structure
   tmp.y                   = tmp.y>1.e1                                         ; Remove zeros
   tmp.y                   = ALOG10(tmp.y)                                      ; Pre-log
@@ -258,8 +294,8 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
   OPTIONS,'el_pa','spec',1                                   ; set for spectrogram
   ZLIM,'el_pa',6,10,0                                        ; set z limits
   YLIM,'el_pa',0,360,0                                       ; set y limits
-  OPTIONS,'el_pa','ytitle','e- >50 eV!C!C Pitch Angle'       ; y title
-  OPTIONS,'el_pa','ztitle','Log Eflux!C!CeV/cm!U2!N-s-sr-eV' ; z title
+  OPTIONS,'el_pa','ytitle','Electron Pitch!CAngle (deg)'       ; y title
+  OPTIONS,'el_pa','ztitle','log eV!C!C/cm!U2!N-s-sr-eV' ; z title
   OPTIONS,'el_pa','x_no_interp',1                            ; don't interpolate
   OPTIONS,'el_pa','y_no_interp',1                            ; don't interpolate
   OPTIONS,'el_pa','yticks',4                                 ; set y-axis labels
@@ -290,7 +326,8 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
      
      LOADCT,39
      !p.charsize=1.3
-     TPLOT,['dB_East','jtemp','Je_lc','JEei','POTENTIAL','el_0','el_pa'],VAR_LABEL=['ALT','MLT','ILAT'],TRANGE=[t1,t2]
+     TPLOT,['dB_East','jtemp','Je','JEei','Ped','POTENTIAL','el_0','el_pa'], $
+           VAR_LABEL=['ALT','MLT','ILAT'],TRANGE=[t1,t2]
      ;; TPLOT_PANEL,VARIABLE='jtemp',OPLOTVAR='jtemp_fill'
 
      IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
