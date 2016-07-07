@@ -230,7 +230,7 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
 
   ;;Now set them right again, store
   ;; magz                 = {x:magz.time,y:magz.comp1}
-  STORE_DATA,'dB_East',DATA={x:magz.x,y:magz.y-magz.y[0]}
+  STORE_DATA,'dB_East',DATA={x:magz.x,y:magz.y-magz.y[0]+40}
   OPTIONS,'dB_East','ytitle',CGGREEK('Delta') + 'B!DEast!N (nT)' ; y title
   YLIM,'dB_East',-100,200
   OPTIONS,'dB_East','yticks',4                                   ; set y-axis labels
@@ -250,11 +250,11 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
   charE                   = (jee_tmp_data/je_lc_tmp_data)*6.242*1.0e11/1000. ;in keV
   ;; charE                   = (jee_tot_tmp_data/je_tmp_data)*6.242*1.0e11/1000. ;in keV
 
-  ped                     = 40. * charE * SQRT(jee_ionos_tmp_data)/(16.+charE^2.) > 1
+  ped                     = 40. * charE * SQRT(jee_ionos_tmp_data)/(16.+charE^2.) > 0.1
   ;; ped                     = 40. * charE * SQRT(jee_tot_tmp_data)/(16.+charE^2.) > 1
-  STORE_DATA,'Ped', DATA={x:jee_tmp_time,y:ped}
-  YLIM,'Ped',0.1,20,1                                                ; set y limits
+  YLIM,'Ped',0.1,40,1                                                ; set y limits
   OPTIONS,'Ped','ytitle',CGGREEK('Sigma')+ '!Dp!N (mho)'               ; y title
+  STORE_DATA,'Ped', DATA={x:jee_tmp_time,y:ped}
   ;; OPTIONS,'Ped','spec',0                                               ; set for spectrogram
   ;; OPTIONS,'Ped','x_no_interp',1                                        ; don't interpolate
   ;; OPTIONS,'Ped','y_no_interp',1                                        ; don't interpolate
