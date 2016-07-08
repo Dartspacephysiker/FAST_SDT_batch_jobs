@@ -51,22 +51,24 @@ PRO JOURNAL__20160708__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__GE
   add_gaussian_estimate     = 1
   add_oneCount_curve        = 1
 
-  no_plots                  = 0
+  no_plots                  = 1
   save_fitPlots             = 0
+  plot_full_fit             = 1
   add_fitParams_text        = 1
 
   ;;Angle stuff
   only_fieldaligned         = 0
   electron_angleRange       = [-135,135]
+  ;; electron_angleRange       = [-45,45]
   ;; electron_angleRange       = [-90,90]
 
   max_iter                  = 1000
-  fit_tol                   = 5e-2
+  fit_tol                   = 1e-3
 
   kappa_est                 = 2.8
 
-  T_est_fac                 = 0.5
-  N_est_fac                 = 3.
+  T_est_fac                 = 0.1
+  N_est_fac                 = 3.0
   bulkE_est_fac             = 1.0
 
   TGauss_est_fac            = 0.05
@@ -107,6 +109,7 @@ PRO JOURNAL__20160708__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__GE
      ELECTRON_ANGLERANGE=electron_angleRange, $
      NO_PLOTS=no_plots, $
      SAVE_FITPLOTS=save_fitPlots, $
+     PLOT_FULL_FIT=plot_full_fit, $
      PLOTDIR=plotDir, $
      OUTPUT_DENSITY_ESTIMATES=output_density_estimates, $
      OUTPUT_DENSITY__ERANGE=dens_est_eRange, $
@@ -132,8 +135,8 @@ PRO JOURNAL__20160708__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__GE
      END
   ENDCASE
 
-  GET_DATA,'Je',je
-  GET_DATA,'Jee',jee
+  GET_DATA,'Je',DATA=je
+  GET_DATA,'Jee',DATA=jee
 
   PRINT,'Saving ' + fitFile + ' ...'
   SAVE,out_kappa_fit_structs,out_gauss_fit_structs,je,jee,FILENAME=outDir+fitFile
@@ -150,6 +153,22 @@ PRO JOURNAL__20160708__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__GE
   PRINT,"NbadFits      : ",nBadFits
   PRINT,"NbadGaussFits : ",nBadGaussFits
   PRINT,"NBothBad      : ",N_ELEMENTS(CGSETINTERSECTION(badFits_i,badGaussFits_i))
+
+  PARSE_KAPPA_FIT_STRUCTS,out_kappa_fit_structs, $
+                      A=a, $
+                      STRUCT_A=Astruct, $
+                      NAMES_A=A_names, $
+                      CHI2=chi2, $
+                      PVAL=pVal, $
+                      FITSTATUS=fitStatus  
+
+  PARSE_KAPPA_FIT_STRUCTS,out_gauss_fit_structs, $
+                      A=AGauss, $
+                      STRUCT_A=AStructGauss, $
+                      NAMES_A=AGauss_names, $
+                      CHI2=chi2Gauss, $
+                      PVAL=pValGauss, $
+                      FITSTATUS=gaussfitStatus  
 
   STOP
 
