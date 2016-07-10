@@ -115,9 +115,9 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
   OPTIONS,'jtemp','ytickname',['-1e9','0','1e9','2e9'] ; set y-axis labels
   OPTIONS,'jtemp','ytickv',[-1e9,0,1e9,2e9]            ; set y-axis labels
   OPTIONS,'jtemp','ytitle','Electron!CFlux!C(cm!U2!Ns!U-1!N)'
-  OPTIONS,'jtemp,','tplot_routine','polyfill_tplot'
+  OPTIONS,'jtemp','tplot_routine','polyfill_tplot'
   ;; OPTIONS,'jtemp','color','808080'x
-  OPTIONS,'jtemp','color',250
+  OPTIONS,'jtemp','fill_color',250
 
   ;;make fill for this guy
   ;; jtemp_fill = {x:[magz.x[0],magz.x,magz.x[-1]],y:[0.,jtemp,0.]}
@@ -171,6 +171,8 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
   OPTIONS,'Je','ytickname',['-1e9','0','1e9','2e9'] ; set y-axis labels
   OPTIONS,'Je','ytickv',[-1e9,0,1e9,2e9]            ; set y-axis labels
   OPTIONS,'Je','ytitle','Electron!CFlux!C(cm!U2!Ns!U-1!N)'
+  OPTIONS,'Je','tplot_routine','polyfill_tplot'
+  OPTIONS,'Je','fill_color',250
 
   GET_DATA,'Je_lc',DATA=tmp
   keep1                   = WHERE(FINITE(tmp.y) NE 0)

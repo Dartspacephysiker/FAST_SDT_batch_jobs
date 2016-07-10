@@ -1,30 +1,8 @@
-;2016/05/16 Reproducing Fig. 1 from Elphic et al. [1998] as a step toward gaining confidence in our kappa fits
-;FA_FIELDS_PHASE: estimates the angle of the vector pointing towards the Sun and along the ambient magnetic
-;field in the spacecraft spin plane using on-board sun sensor and magnetometer data.
-;
-;FA_FIELDS_DESPIN: estimates despun spin plane electric field (original version, optimized for DC E-field
-;estimation (few Hz and below)).
-;
-;FA_FIELDS_DESPIN_SVY_LONG: newer version of FA_FIELDS_DESPIN, again optimized for DC E-field
-;estimation.
-;
-;FA_FIELDS_DESPIN_{4K,16K,HSBM}: newer versions of despin codes optimized for Burst and HSBM data;
-;HSBM supports three-axis despin. Results are stored as TPLOT quantities.
-;
-;FA_FIELDS_DESPIN_HG: refilters HG-type data from the original high-pass frequency of 3.5 kHz to 300 Hz, then
-;despins and stores as a TPLOT quantity.
-;
-;SIMPLE_DESPIN: a bare-bones despin routine that handles the transformation of contiguously sampled data from
-;pairs of antennas. No gain or offset adjustment is performed. Suitable for careful use on AC electric fields. Produces
-;FAST fields data structures.
-;
-;All the newer versions of DESPIN support spectral density estimation of the despun electric field data within the
-;routines themselves, rather than through a separate call to the spectral density estimation routines (see Spectral
-;Estimates below).
-
-PRO JOURNAL__20160517__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE_PS=save_ps
+PRO JOURNAL__20160709__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_KAPPA_VALS,SAVE_PNG=save_png,SAVE_PS=save_ps
 
   ;; @startup
+  fitDir  = '~/software/sdt/batch_jobs/saves_output_etc/'
+  fitFile = '20160710--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits.sav'
 
   survOrBurst             = 'eeb'
   iSurvOrBurst            = 'ieb'
@@ -46,7 +24,7 @@ PRO JOURNAL__20160517__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SA
   green                   = 130
   black                   = 10
 
-  outPlotName             = 'McFadden_et_al_1998--Fig_1'
+  outPlotName             = 'McFadden_et_al_1998--Fig_1--with_kappa'
 
   ;;Get fields stuff, eFields and magFields
   FA_FIELDS_DESPIN,T1=t1Adj,T2=t2Adj,DAT=despun_E
@@ -249,6 +227,46 @@ PRO JOURNAL__20160517__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SA
   OPTIONS,'charepanel','ytickname',['0','5e3','1.0e4','1.5e4','2.e4'] ; set y-axis labels
   OPTIONS,'charepanel','ytickv',[0.,5.e3,1.0e4,1.5e4,2.0e4]           ; set y-axis labels
 
+  ;;Now restore kappa file, get kappa vals
+  RESTORE,fitDir+fitFile
+    fitStatus = !NULL
+  ;; gaussFitStatus = !NULL
+  FOR i=0,N_ELEMENTS(out_kappa_fit_structs)-1 DO BEGIN
+     fitStatus = [fitStatus,out_kappa_fit_structs[i].fitStatus]
+     ;; gaussFitStatus = [gaussFitStatus,out_gauss_fit_structs[i].fitStatus]
+  ENDFOR
+  badFits_i = WHERE(fitStatus GT 0,nBadFits,COMPLEMENT=goodFits_i)  
+  ;; badGaussFits_i = WHERE(gaussFitStatus GT 0,nBadGaussFits)  
+
+  PARSE_KAPPA_FIT_STRUCTS,out_kappa_fit_structs, $
+                      A=a, $
+                      STRUCT_A=Astruct, $
+                      NAMES_A=A_names, $
+                      CHI2=chi2, $
+                      PVAL=pVal, $
+                      FITSTATUS=fitStatus  
+
+  ;; PARSE_KAPPA_FIT_STRUCTS,out_gauss_fit_structs, $
+  ;;                     A=AGauss, $
+  ;;                     STRUCT_A=AStructGauss, $
+  ;;                     NAMES_A=AGauss_names, $
+  ;;                     CHI2=chi2Gauss, $
+  ;;                     PVAL=pValGauss, $
+  ;;                     FITSTATUS=gaussfitStatus  
+  PRINT,"NbadFits      : ",nBadFits
+  ;; PRINT,"NbadGaussFits : ",nBadGaussFits
+  ;; PRINT,"NBothBad      : ",N_ELEMENTS(CGSETINTERSECTION(badFits_i,badGaussFits_i))
+
+  Astruct.kappa[badFits_i] = 0.01
+  ;; STORE_DATA,'kappa_fit',DATA={x:je.x[goodFits_i],y:Astruct.kappa[goodFits_i]}
+  STORE_DATA,'kappa_fit',DATA={x:je.x[0:-1:4],y:Astruct.kappa}
+  YLIM,'kappa_fit',1.0,100,1
+  OPTIONS,'kappa_fit','ytitle',"Kappa!CFit Val"
+  OPTIONS,'kappa_fit','psym',2 ;Asterisk
+  ;; OPTIONS,'kappa_fit','plotsym',1 ;Plus sign
+  ;; OPTIONS,'kappa_fit','linestyle',6 ;Asterisk
+
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;dB panel
 
@@ -369,7 +387,7 @@ PRO JOURNAL__20160517__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SA
      ;; LOADCT,74
      LOADCT,39
 
-     TPLOT,['el_0','el_pa','ion_180','ion_pa','E_ALONG_V','charepanel','dBpanel','JeF'],VAR_LABEL=['ALT','MLT','ILAT'],TRANGE=[t1,t2]
+     TPLOT,['el_0','el_pa','ion_180','ion_pa','E_ALONG_V','charepanel','kappa_fit','dBpanel','JeF'],VAR_LABEL=['ALT','MLT','ILAT'],TRANGE=[t1,t2]
      ;;got more than we need so smoothing can be nice
      ;; TLIMIT,t1+10.,t2-10.
 

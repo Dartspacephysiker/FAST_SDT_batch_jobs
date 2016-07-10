@@ -36,7 +36,7 @@ PRO JOURNAL__20160708__REPRODUCE_ELPHIC_FIG_1__INCLUDE_KAPPA_VALS,SAVE_PNG=save_
   t1                      = STR_TO_TIME(t1Str)
   t2                      = STR_TO_TIME(t2Str)
 
-  outPlotName             = 'Elphic_et_al_1998--Fig_1'
+  outPlotName             = 'Elphic_et_al_1998--Fig_1--with_kappa'
 
   ;;Get fields stuff, eFields and magFields
   FA_FIELDS_DESPIN,T1=t1,T2=t2,DAT=despun_E
@@ -118,9 +118,9 @@ PRO JOURNAL__20160708__REPRODUCE_ELPHIC_FIG_1__INCLUDE_KAPPA_VALS,SAVE_PNG=save_
   OPTIONS,'jtemp','ytickname',['-1e9','0','1e9','2e9'] ; set y-axis labels
   OPTIONS,'jtemp','ytickv',[-1e9,0,1e9,2e9]            ; set y-axis labels
   OPTIONS,'jtemp','ytitle','Electron!CFlux!C(cm!U2!Ns!U-1!N)'
-  OPTIONS,'jtemp,','tplot_routine','polyfill_tplot'
+  OPTIONS,'jtemp','tplot_routine','polyfill_tplot'
   ;; OPTIONS,'jtemp','color','808080'x
-  OPTIONS,'jtemp','color',250
+  OPTIONS,'jtemp','fill_color',250
 
   ;;make fill for this guy
   ;; jtemp_fill = {x:[magz.x[0],magz.x,magz.x[-1]],y:[0.,jtemp,0.]}
@@ -131,6 +131,8 @@ PRO JOURNAL__20160708__REPRODUCE_ELPHIC_FIG_1__INCLUDE_KAPPA_VALS,SAVE_PNG=save_
   ;; OPTIONS,'jtemp','line_fill',1
   ;; OPTIONS,'jtemp_fill,','tplot_routine','polyfill'
   ;; OPTIONS,'jtemp_fill','color','808080'x
+
+  ;; tplot,'jtemp'
 
   ;;calculate potential, since we're thinking about it
   magz                    = {time:magz.x,comp1:magz.y,ncomp:1}
@@ -188,6 +190,9 @@ PRO JOURNAL__20160708__REPRODUCE_ELPHIC_FIG_1__INCLUDE_KAPPA_VALS,SAVE_PNG=save_
   STORE_DATA,'kappa_fit',DATA={x:je.x,y:Astruct.kappa}
   YLIM,'kappa_fit',1.0,100,1
   OPTIONS,'kappa_fit','ytitle',"Kappa!CFit Val"
+  OPTIONS,'kappa_fit','psym',2 ;Asterisk
+  ;; OPTIONS,'kappa_fit','plotsym',1 ;Plus sign
+  ;; OPTIONS,'kappa_fit','linestyle',6 ;Asterisk
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Calculate current from ESAs
@@ -211,6 +216,8 @@ PRO JOURNAL__20160708__REPRODUCE_ELPHIC_FIG_1__INCLUDE_KAPPA_VALS,SAVE_PNG=save_
   OPTIONS,'Je','ytickname',['-1e9','0','1e9','2e9'] ; set y-axis labels
   OPTIONS,'Je','ytickv',[-1e9,0,1e9,2e9]            ; set y-axis labels
   OPTIONS,'Je','ytitle','Electron!CFlux!C(cm!U2!Ns!U-1!N)'
+  OPTIONS,'Je','tplot_routine','polyfill_tplot'
+  OPTIONS,'Je','fill_color',250
 
   GET_DATA,'Je_lc',DATA=tmp
   keep1                   = WHERE(FINITE(tmp.y) NE 0)

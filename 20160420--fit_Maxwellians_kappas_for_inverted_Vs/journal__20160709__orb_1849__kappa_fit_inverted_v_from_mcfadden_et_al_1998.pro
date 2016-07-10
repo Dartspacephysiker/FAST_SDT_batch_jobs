@@ -1,19 +1,19 @@
-;;07/08/16
-PRO JOURNAL__20160708__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__GET_KAPPA_VALUES_FIT_PARAMS_AND_NUMBER_AND_ENERGY_FLUXES
+;2016/07/09 Get those kappas!
+PRO JOURNAL__20160709__ORB_1849__KAPPA_FIT_INVERTED_V_FROM_MCFADDEN_ET_AL_1998
 
   COMPILE_OPT IDL2
 
-  SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/kappa_fits/Orbit_1773__Elphic_et_al_1998_inverted_V'
+  SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/kappa_fits/Orbit_1849__McFadden_et_al_inverted_V'
 
   outDir = '~/software/sdt/batch_jobs/saves_output_etc/'
   ;; fitFile = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'Elphic_et_al_1998--Kappa_fits_and_Gauss_fits.sav'
-  fitFile = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'--Elphic_et_al_1998--Kappa_fits_and_Gauss_fits--more_points_above_peak.sav'
+  fitFile = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits.sav'
   ;; Use burst bounds, optionally average
   ;;126  1997-02-07/20:49:41.061
   ;;226  1997-02-07/20:49:48.973
-  ;; eeb_or_ees                = 'ees'
+  eeb_or_ees                = 'eeb'
 
-  ;; spectra_avg_interval      = 0
+  spectra_avg_interval      = 4
   ;; bounds                    = [160:210:50]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                 = [126:138]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                 = [126:226:2]/spectra_avg_interval
@@ -21,8 +21,8 @@ PRO JOURNAL__20160708__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__GE
   ;; Use survey bounds
   ;; 16  1997-02-07/20:49:41.338
   ;; 28  1997-02-07/20:49:48.934
-  eeb_or_ees             = 'ees'
-  ;; bounds                 = [0:19]
+  ;; eeb_or_ees             = 'ees'
+  ;; bounds                 = [16:28]
 
   do_all_times           = 1
   add_full_fits          = 1
@@ -37,15 +37,15 @@ PRO JOURNAL__20160708__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__GE
   dens_est_eRange           = [30,3.5e4]
   only_dens_estimates       = 0
 
-  t1Str                     = '97-02-01/09:26:15'
-  t2Str                     = '97-02-01/09:27:10'
-  
-  t1                        = STR_TO_TIME(t1Str)
-  t2                        = STR_TO_TIME(t2Str)
+  t1Str                   = '97-02-08/10:11:22'
+  t2Str                   = '97-02-08/10:11:52'
+
+  t1                      = STR_TO_TIME(t1Str)
+  t2                      = STR_TO_TIME(t2Str)
 
   estimate_A_from_data      = 1
-  n_below_peak              = 2
-  n_after_peak              = 12
+  n_below_peak              = 3
+  n_after_peak              = 7
 
   bulk_offset               = 0
 
@@ -53,27 +53,25 @@ PRO JOURNAL__20160708__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__GE
   add_oneCount_curve        = 1
 
   no_plots                  = 1
-  save_fitPlots             = 0
+  save_fitPlots             = 1
   plot_full_fit             = 1
   add_fitParams_text        = 1
 
   ;;Angle stuff
   only_fieldaligned         = 0
-  electron_angleRange       = [-135,135]
-  ;; electron_angleRange       = [-45,45]
-  ;; electron_angleRange       = [-90,90]
+  electron_angleRange       = [-12,12]
 
   max_iter                  = 1000
   fit_tol                   = 1e-3
 
   kappa_est                 = 2.8
 
-  T_est_fac                 = 0.1
-  N_est_fac                 = 3.0
+  T_est_fac                 = 1.5
+  N_est_fac                 = 0.8
   bulkE_est_fac             = 1.0
 
-  TGauss_est_fac            = 0.05
-  NGauss_est_fac            = 1.2
+  TGauss_est_fac            = 0.5
+  NGauss_est_fac            = 0.8
   bulkEGauss_est_fac        = 0.8
 
   estFacs                   = {T:T_est_fac, $
@@ -123,7 +121,7 @@ PRO JOURNAL__20160708__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__GE
      OUT_KAPPA_FIT_STRUCTS=out_kappa_fit_structs, $
      OUT_GAUSS_FIT_STRUCTS=out_gauss_fit_structs, $
      ADD_FULL_FITS=add_full_fits
-     
+
 
   CASE eeb_or_ees OF
      'eeb': BEGIN
@@ -172,5 +170,6 @@ PRO JOURNAL__20160708__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__GE
                       FITSTATUS=gaussfitStatus  
 
   STOP
+  
 
 END
