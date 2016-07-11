@@ -23,6 +23,7 @@ Alfven_study_14F/output_alfven_stats/*
 
 #No dflux files
 #*dflux_*
+
 #No plot dir
 plots/
 
@@ -30,4 +31,4 @@ plots/
 txtOutput/
 
 #No saves_outputs dir
-saves_outputs_etc/
+saves_output_etc/

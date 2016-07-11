@@ -5,30 +5,30 @@ PRO JOURNAL__20160708__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__GE
 
   SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/kappa_fits/Orbit_1773__Elphic_et_al_1998_inverted_V'
 
-  outDir = '~/software/sdt/batch_jobs/saves_output_etc/'
-  ;; fitFile = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'Elphic_et_al_1998--Kappa_fits_and_Gauss_fits.sav'
-  fitFile = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'--Elphic_et_al_1998--Kappa_fits_and_Gauss_fits--more_points_above_peak.sav'
+  outDir                    = '~/software/sdt/batch_jobs/saves_output_etc/'
+  ;; fitFile                = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'Elphic_et_al_1998--Kappa_fits_and_Gauss_fits.sav'
+  fitFile                   = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'--Elphic_et_al_1998--Kappa_fits_and_Gauss_fits--more_points_above_peak.sav'
   ;; Use burst bounds, optionally average
   ;;126  1997-02-07/20:49:41.061
   ;;226  1997-02-07/20:49:48.973
-  ;; eeb_or_ees                = 'ees'
+  ;; eeb_or_ees             = 'ees'
 
-  ;; spectra_avg_interval      = 0
-  ;; bounds                    = [160:210:50]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
+  ;; spectra_avg_interval   = 0
+  ;; bounds                 = [160:210:50]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                 = [126:138]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                 = [126:226:2]/spectra_avg_interval
 
   ;; Use survey bounds
   ;; 16  1997-02-07/20:49:41.338
   ;; 28  1997-02-07/20:49:48.934
-  eeb_or_ees             = 'ees'
+  eeb_or_ees                = 'ees'
   ;; bounds                 = [0:19]
 
-  do_all_times           = 1
-  add_full_fits          = 1
+  do_all_times              = 1
+  add_full_fits             = 1
 
-  energy_electrons       = [3e1,3.6e4]
-  min_peak_energy        = 300
+  energy_electrons          = [3e1,3.6e4]
+  min_peak_energy           = 300
 
   output_density_estimates  = 0
   output_dens__energies     = 0
@@ -60,8 +60,8 @@ PRO JOURNAL__20160708__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__GE
   ;;Angle stuff
   only_fieldaligned         = 0
   electron_angleRange       = [-135,135]
-  ;; electron_angleRange       = [-45,45]
-  ;; electron_angleRange       = [-90,90]
+  ;; electron_angleRange    = [-45,45]
+  ;; electron_angleRange    = [-90,90]
 
   max_iter                  = 1000
   fit_tol                   = 1e-3
@@ -122,8 +122,10 @@ PRO JOURNAL__20160708__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__GE
      OUT_FITTED_GAUSS_PARAMS=out_fitted_Gauss_params, $
      OUT_KAPPA_FIT_STRUCTS=out_kappa_fit_structs, $
      OUT_GAUSS_FIT_STRUCTS=out_gauss_fit_structs, $
+     OUT_SYNTHETIC_SDT_KAPPA_STRUCTS=out_synthetic_SDT_kappa_structs, $
+     OUT_SYNTHETIC_SDT_GAUSS_STRUCTS=out_synthetic_SDT_gauss_structs, $
      ADD_FULL_FITS=add_full_fits
-     
+  
 
   CASE eeb_or_ees OF
      'eeb': BEGIN
@@ -140,36 +142,49 @@ PRO JOURNAL__20160708__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__GE
   GET_DATA,'Jee',DATA=jee
 
   PRINT,'Saving ' + fitFile + ' ...'
-  SAVE,out_kappa_fit_structs,out_gauss_fit_structs,je,jee,FILENAME=outDir+fitFile
+  IF N_ELEMENTS(out_synthetic_SDT_kappa_structs) GT 0 THEN BEGIN
+     SAVE,out_kappa_fit_structs,out_gauss_fit_structs, $
+          je,jee, $
+          out_synthetic_SDT_kappa_structs,out_synthetic_SDT_gauss_structs, $
+          FILENAME=outDir+fitFile
+  ENDIF ELSE BEGIN
+     SAVE,out_kappa_fit_structs,out_gauss_fit_structs, $
+          je,jee, $
+          FILENAME=outDir+fitFile
+  ENDELSE
 
-  fitStatus = !NULL
-  gaussFitStatus = !NULL
+  fitStatus                 = !NULL
+  gaussFitStatus            = !NULL
   FOR i=0,N_ELEMENTS(out_kappa_fit_structs)-1 DO BEGIN
-     fitStatus = [fitStatus,out_kappa_fit_structs[i].fitStatus]
-     gaussFitStatus = [gaussFitStatus,out_gauss_fit_structs[i].fitStatus]
+     fitStatus              = [fitStatus,out_kappa_fit_structs[i].fitStatus]
+     gaussFitStatus         = [gaussFitStatus,out_gauss_fit_structs[i].fitStatus]
   ENDFOR
-  badFits_i = WHERE(fitStatus GT 0,nBadFits)  
-  badGaussFits_i = WHERE(gaussFitStatus GT 0,nBadGaussFits)  
+  badFits_i                 = WHERE(fitStatus GT 0,nBadFits)  
+  badGaussFits_i            = WHERE(gaussFitStatus GT 0,nBadGaussFits)  
 
+  PRINT,""
+  PRINT,"****************************************"
+  PRINT,'NTotalFits    : ',N_ELEMENTS(fitStatus)
+  PRINT,''
   PRINT,"NbadFits      : ",nBadFits
   PRINT,"NbadGaussFits : ",nBadGaussFits
   PRINT,"NBothBad      : ",N_ELEMENTS(CGSETINTERSECTION(badFits_i,badGaussFits_i))
 
   PARSE_KAPPA_FIT_STRUCTS,out_kappa_fit_structs, $
-                      A=a, $
-                      STRUCT_A=Astruct, $
-                      NAMES_A=A_names, $
-                      CHI2=chi2, $
-                      PVAL=pVal, $
-                      FITSTATUS=fitStatus  
+                          A=a, $
+                          STRUCT_A=Astruct, $
+                          NAMES_A=A_names, $
+                          CHI2=chi2, $
+                          PVAL=pVal, $
+                          FITSTATUS=fitStatus  
 
   PARSE_KAPPA_FIT_STRUCTS,out_gauss_fit_structs, $
-                      A=AGauss, $
-                      STRUCT_A=AStructGauss, $
-                      NAMES_A=AGauss_names, $
-                      CHI2=chi2Gauss, $
-                      PVAL=pValGauss, $
-                      FITSTATUS=gaussfitStatus  
+                          A=AGauss, $
+                          STRUCT_A=AStructGauss, $
+                          NAMES_A=AGauss_names, $
+                          CHI2=chi2Gauss, $
+                          PVAL=pValGauss, $
+                          FITSTATUS=gaussfitStatus  
 
   STOP
 
