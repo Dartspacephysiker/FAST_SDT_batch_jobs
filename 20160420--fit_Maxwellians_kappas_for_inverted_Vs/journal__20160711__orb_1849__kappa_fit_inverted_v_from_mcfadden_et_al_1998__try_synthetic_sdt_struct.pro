@@ -146,22 +146,25 @@ PRO JOURNAL__20160711__ORB_1849__KAPPA_FIT_INVERTED_V_FROM_MCFADDEN_ET_AL_1998__
   GET_DATA,'Jee',DATA=jee
 
   PRINT,'Saving ' + fitFile + ' ...'
+  kappaFits = TEMPORARY(out_kappa_fit_structs)
+  gaussFits = TEMPORARY(out_gauss_fit_structs)
   IF N_ELEMENTS(synthStr_SDT_kappa) GT 0 THEN BEGIN
-     SAVE,out_kappa_fit_structs,out_gauss_fit_structs, $
+     
+     SAVE,kappaFits,gaussFits, $
           je,jee, $
           synthStr_SDT_kappa,synthStr_SDT_gauss, $
           FILENAME=outDir+fitFile
   ENDIF ELSE BEGIN
-     SAVE,out_kappa_fit_structs,out_gauss_fit_structs, $
+     SAVE,kappaFits,gaussFits, $
           je,jee, $
           FILENAME=outDir+fitFile
   ENDELSE
 
   fitStatus                    = !NULL
   gaussFitStatus               = !NULL
-  FOR i=0,N_ELEMENTS(out_kappa_fit_structs)-1 DO BEGIN
-     fitStatus                 = [fitStatus,out_kappa_fit_structs[i].fitStatus]
-     gaussFitStatus            = [gaussFitStatus,out_gauss_fit_structs[i].fitStatus]
+  FOR i=0,N_ELEMENTS(kappaFits)-1 DO BEGIN
+     fitStatus                 = [fitStatus,kappaFits[i].fitStatus]
+     gaussFitStatus            = [gaussFitStatus,gaussFits[i].fitStatus]
   ENDFOR
   badFits_i                    = WHERE(fitStatus GT 0,nBadFits)  
   badGaussFits_i               = WHERE(gaussFitStatus GT 0,nBadGaussFits)  
@@ -174,7 +177,7 @@ PRO JOURNAL__20160711__ORB_1849__KAPPA_FIT_INVERTED_V_FROM_MCFADDEN_ET_AL_1998__
   PRINT,"NbadGaussFits : ",nBadGaussFits
   PRINT,"NBothBad      : ",N_ELEMENTS(CGSETINTERSECTION(badFits_i,badGaussFits_i))
 
-  PARSE_KAPPA_FIT_STRUCTS,out_kappa_fit_structs, $
+  PARSE_KAPPA_FIT_STRUCTS,kappaFits, $
                           A=a, $
                           STRUCT_A=Astruct, $
                           NAMES_A=A_names, $
@@ -182,7 +185,7 @@ PRO JOURNAL__20160711__ORB_1849__KAPPA_FIT_INVERTED_V_FROM_MCFADDEN_ET_AL_1998__
                           PVAL=pVal, $
                           FITSTATUS=fitStatus  
 
-  PARSE_KAPPA_FIT_STRUCTS,out_gauss_fit_structs, $
+  PARSE_KAPPA_FIT_STRUCTS,gaussFits, $
                           A=AGauss, $
                           STRUCT_A=AStructGauss, $
                           NAMES_A=AGauss_names, $
