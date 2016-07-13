@@ -1,5 +1,6 @@
-;;07/11/16
-PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURRENTS,SAVE_PNG=save_png,SAVE_PS=save_ps
+;;07/12/16
+PRO JOURNAL__20160712__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURRENTS__PSYM,SAVE_PNG=save_png,SAVE_PS=save_ps, $
+   USE_JE_CURRENT=use_Je_current
 
   COMPILE_OPT IDL2
 
@@ -53,7 +54,7 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
 
      mintime              = MIN(ABS(t1-db_fac.x),ind1)
      mintime              = MIN(ABS(t2-db_fac.x),ind2)
-     
+
      magx                 = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,0]}
      magy                 = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,2]}
      magz                 = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,1]}
@@ -77,21 +78,21 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
      lcw                     = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
      GET_DATA,'ILAT',DATA=ilat
      north_south             = ABS(ilat.y[0])/ilat.y[0]
-     
+
      if north_south EQ -1 then begin
         eAngle              = [180.-lcw,180+lcw] ; for Southern Hemis.
 
         ;;Eliminate ram from data
         iAngle              = [180.0,360.0]
         iAngle=[270.0,360.0]
-        
+
      endif else begin
         eAngle              = [360.-lcw,lcw] ;	for Northern Hemis.
 
         ;;Eliminate ram from data
         iAngle              = [0.0,180.0]
         iAngle           = [90.0,180.0]
-        
+
      endelse
   ENDIF ELSE BEGIN
      eAngle = [360.-30.,30.]
@@ -105,7 +106,7 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   GET_EN_SPEC,'fa_' + survOrBurst + '_c',UNITS='eflux',NAME='el_0',ANGLE=eAngle,RETRACE=1,T1=t1,T2=t2,/CALIB
   GET_DATA,'el_0', DATA=tmp                                            ; get data structure
-  tmp.y                   = tmp.y>1.e1                                 ; Remove zeros 
+  tmp.y                   = tmp.y>1.e1                                 ; Remove zeros
   tmp.y                   = ALOG10(tmp.y)                              ; Pre-log
   STORE_DATA,'el_0', DATA=tmp                                          ; store data structure
   OPTIONS,'el_0','spec',1                                              ; set for spectrogram
@@ -249,8 +250,8 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
      fitStatus = [fitStatus,out_kappa_fit_structs[i].fitStatus]
      gaussFitStatus = [gaussFitStatus,out_gauss_fit_structs[i].fitStatus]
   ENDFOR
-  badFits_i = WHERE(fitStatus GT 0,nBadFits,COMPLEMENT=goodFits_i)  
-  badGaussFits_i = WHERE(gaussFitStatus GT 0,nBadGaussFits)  
+  badFits_i = WHERE(fitStatus GT 0,nBadFits,COMPLEMENT=goodFits_i)
+  badGaussFits_i = WHERE(gaussFitStatus GT 0,nBadGaussFits)
 
   PARSE_KAPPA_FIT_STRUCTS,out_kappa_fit_structs, $
                           A=a, $
@@ -259,7 +260,7 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
                           NAMES_A=A_names, $
                           CHI2=chi2, $
                           PVAL=pVal, $
-                          FITSTATUS=fitStatus  
+                          FITSTATUS=fitStatus
 
   PARSE_KAPPA_FIT_STRUCTS,out_gauss_fit_structs, $
                           A=AGauss, $
@@ -268,7 +269,7 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
                           NAMES_A=AGauss_names, $
                           CHI2=chi2Gauss, $
                           PVAL=pValGauss, $
-                          FITSTATUS=gaussfitStatus  
+                          FITSTATUS=gaussfitStatus
 
   nFits                    = N_ELEMENTS(Astruct.kappa)
   PRINT,""
@@ -294,7 +295,7 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
   ;;Four-current panel (it's like four-cheese pizza)
 
   ;;Get mag current
-  jMag = GET_CURRENT_FROM_FLUXMAG(t1,t2, $
+  jMag = GET_CURRENT_FROM_FLUXMAG(t1Adj,t2Adj, $
                                   db_fac,vel, $
                                   USE_DESPUN=ucla_mag_despin, $
                                   SDTNAME__JMAG=jMagName, $
@@ -317,20 +318,27 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
   ;; magz_interp             = {time:magz.x,comp1:jMag,ncomp:1}
   ;; FA_FIELDS_COMBINE,magz,chartot_interp,RESULT=chartot_interp,/INTERP,DELT_T=50.,/TALK
 
-  ;;Align to Je
-  FA_FIELDS_COMBINE,kappaStr,{time:Je.x,comp1:Je_current,ncomp:1},RESULT=Je_interp,/INTERP,DELT_T=50.,/TALK
-  FA_FIELDS_COMBINE,kappaStr,{time:Ji.x,comp1:Ji_current,ncomp:1},RESULT=Ji_interp,/INTERP,DELT_T=50.,/TALK
-  ;; FA_FIELDS_COMBINE,kappaStr,Jtot_interp,RESULT=Jtot_interp,/INTERP,DELT_T=50.,/TALK
+  ;;Align to kappa fits
+  ;; FA_FIELDS_COMBINE,kappaStr,{time:Je.x,comp1:Je_current,ncomp:1},RESULT=Je_interp,/INTERP,DELT_T=50.,/TALK
+  ;; FA_FIELDS_COMBINE,kappaStr,{time:Ji.x,comp1:Ji_current,ncomp:1},RESULT=Ji_interp,/INTERP,DELT_T=50.,/TALK
+  ;; ;; FA_FIELDS_COMBINE,kappaStr,Jtot_interp,RESULT=Jtot_interp,/INTERP,DELT_T=50.,/TALK
   FA_FIELDS_COMBINE,kappaStr,{time:Jee.x,comp1:chartot,ncomp:1},RESULT=chartot_interp,/INTERP,DELT_T=50.,/TALK
-  FA_FIELDS_COMBINE,kappaStr,{time:jMag.x,comp1:jMag.y,ncomp:1},RESULT=magz_interp,/INTERP,DELT_T=50.,/TALK
-  
+  ;; FA_FIELDS_COMBINE,kappaStr,{time:jMag.x,comp1:jMag.y,ncomp:1},RESULT=magz_interp,/INTERP,DELT_T=50.,/TALK
+
+  ;;Align to Je
+  FA_FIELDS_COMBINE,{time:Je.x,comp1:Je_current,ncomp:1},{time:Ji.x,comp1:Ji_current,ncomp:1},RESULT=Ji_interp,/INTERP,DELT_T=50.,/TALK
+  FA_FIELDS_COMBINE,{time:Je.x,comp1:Je_current,ncomp:1},{time:jMag.x,comp1:jMag.y,ncomp:1},RESULT=jMag_interp,/INTERP,DELT_T=50.,/TALK
+
   ;;Fix what we did to poor magz
   ;; Je_interp               = {x:Je_interp.time,y:Je_interp.comp1}
   ;; Ji_interp               = {x:Ji_interp.time,y:Ji_interp.comp1}
   ;; Jtot_interp             = {x:Je_interp.time,y:Je_interp.y+Ji_interp.y}
-  Jtot_interp             = {x:kappaStr.time,y:Je_interp+Ji_interp}
+  ;; Jtot_interp             = {x:kappaStr.time,y:Je_interp+Ji_interp}
   ;; chartot_interp          = {x:chartot_interp.time,y:chartot_interp.comp1}
-  ;; magz_interp             = {x:magz_interp.time,y:magz_interp.comp1}
+  ;; jMag_interp             = {x:jMag_interp.time,y:jMag_interp.comp1}
+
+  Jtot_interp             = {x:Je.x,y:Je_current+Ji_interp}
+
   STORE_DATA,'Je',DATA=Je
 
   ;; kappa_current = KNIGHT_RELATION__DORS_KLETZING_11(Astruct.kappa[goodFits_i],Astruct.temp[goodFits_i],Astruct.N[goodFits_i], $
@@ -342,6 +350,10 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
   badDens = WHERE(Astruct.N GT 1,nBD)
   IF nBD GT 0 THEN BEGIN
      kappa_current[badDens] = !VALUES.D_NAN
+  ENDIF
+  badFit                       = WHERE(fitStatus GT 0,nBF)
+  IF nBF GT 0 THEN BEGIN
+     kappa_current[badFit]     = !VALUES.D_NAN
   ENDIF
   ;; badKappa = WHERE(~FINITE(kappa_current))
   ;; IF badKappa[0] NE -1 THEN BEGIN
@@ -356,14 +368,14 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
   IF nBD GT 0 THEN BEGIN
      maxwell_current[badDens] = !VALUES.D_NAN
   ENDIF
+  badFit                       = WHERE(gaussFitStatus GT 0,nBF)
+  IF nBF GT 0 THEN BEGIN
+     maxwell_current[badFit]   = !VALUES.D_NAN
+  ENDIF
   ;; badMaxwell = WHERE(~FINITE(maxwell_current))
   ;; IF badMaxwell[0] NE -1 THEN BEGIN
   ;;    maxwell_current[badMaxwell] = 0.0D
   ;; ENDIF
-
-  PRINT_DIAGNOSTICS__BIG_KAPPA_AND_GAUSS_CURRENT,jMag.y[50:-50],chartot_interp, $
-     kappa_current,kappaTime,Astruct, $
-     maxwell_current,gaussTime,AstructGauss
 
   ;;Get integrated-kappa-model current
   ;; Je_kappa_model = MAKE_ARRAY(nFits,/DOUBLE,VALUE=0.0D)
@@ -374,30 +386,58 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
 
   ;;Set up plot
   IF KEYWORD_SET(use_Je_current) THEN BEGIN
-     esa_current = Je_interp
+     esa_current = Je_current
      esa_name    = 'e- ESA'
   ENDIF ELSE BEGIN
      esa_current = Jtot_interp.y
      esa_name    = 'e- and i+ ESA'
   ENDELSE
-  
-  STORE_DATA,'fourcheese',DATA={x:[[kappaStr.time],[kappaStr.time],[kappaStr.time],[kappaStr.time]], $
-                                ;; y:[[magz_interp],[esa_current],[kappa_current],[maxwell_current]]}
-                                y:[[maxwell_current],[kappa_current],[esa_current],[magz_interp]]}
 
-  OPTIONS,'fourcheese','tplot_routine','mplot'
-  OPTIONS,'fourcheese','ytitle','Current!C('+CGGREEK('mu')+'A/m!U2!Ns)'
-  OPTIONS,'fourcheese','labels',['Maxwellian Model','Kappa model',esa_name,'Fluxmag']
-  ;; OPTIONS,'fourcheese','psym',['','','*','*']
-  YLIM,'fourcheese',-4,0
-  OPTIONS,'fourcheese','colors',[20,blue,green,red]
-  OPTIONS,'fourcheese','labflag',1
-  ;; OPTIONS,'fourcheese','yticks',7                                                  ; set y-axis labels
-  ;; OPTIONS,'fourcheese','ytickname',['-3.0','-2.5','-2.0','-1.5','-1.0','-0.5','0'] ; set y-axis labels
-  ;; OPTIONS,'fourcheese','ytickv',[-3.0,-2.5,-2.0,-1.5,-1.0,-0.5,0.0]                ; set y-axis labels
-  OPTIONS,'fourcheese','yticks',5                                    ; set y-axis labels
-  OPTIONS,'fourcheese','ytickname',['-4.0','-3.0','-2.0','-1.0','0'] ; set y-axis labels
-  OPTIONS,'fourcheese','ytickv',[-4.0,-3.0,-2.0,-1.0,0.0]            ; set y-axis labels
+  ;; STORE_DATA,'fourcheese',DATA={x:[[kappaStr.time],[kappaStr.time]], $
+  ;;                               ;; y:[[jMag_interp],[esa_current],[kappa_current],[maxwell_current]]}
+  ;;                               y:[[esa_current],[jMag_interp]]}
+  ;; STORE_DATA,'fourcheese',DATA={x:[[kappaStr.time],[kappaStr.time]], $
+  ;;                               ;; y:[[jMag_interp],[esa_current],[kappa_current],[maxwell_current]]}
+  ;;                               y:[[esa_current],[jMag_interp]]}
+
+  ;;Store all data for this chocolatier
+  STORE_DATA,'onecheese',DATA={x:[Je.x], $
+                                ;; y:[[jMag_interp],[esa_current],[kappa_current],[maxwell_current]]}
+                                y:esa_current}
+  STORE_DATA,'fourcheese',DATA={x:jMag.x, $
+                                ;; y:[[jMag_interp],[esa_current],[kappa_current],[maxwell_current]]}
+                                y:jMag.y}
+  STORE_DATA,'toppings',DATA={x:[[kappaStr.time],[kappaStr.time]], $
+                              ;; y:[[jMag_interp],[esa_current],[kappa_current],[maxwell_current]]}
+                              y:[[maxwell_current],[kappa_current]]}
+
+  OPTIONS,'onecheese','colors',green
+  OPTIONS,'onecheese','tplot_routine','mplot'
+  OPTIONS,'onecheese','ytitle','Current!C('+CGGREEK('mu')+'A/m!U2!Ns)'
+  YLIM,   'onecheese',-4,0
+  ;; OPTIONS,'onecheese','yticks',7                                                  ; set y-axis labels
+  ;; OPTIONS,'onecheese','ytickname',['-3.0','-2.5','-2.0','-1.5','-1.0','-0.5','0'] ; set y-axis labels
+  ;; OPTIONS,'onecheese','ytickv',[-3.0,-2.5,-2.0,-1.5,-1.0,-0.5,0.0]                ; set y-axis labels
+  OPTIONS,'onecheese','labels',esa_name
+  OPTIONS,'onecheese','labflag',3
+  OPTIONS,'onecheese','labpos',-0.5
+  OPTIONS,'onecheese','yticks',5                                    ; set y-axis labels
+  OPTIONS,'onecheese','ytickname',['-4.0','-3.0','-2.0','-1.0','0'] ; set y-axis labels
+  OPTIONS,'onecheese','ytickv',[-4.0,-3.0,-2.0,-1.0,0.0]            ; set y-axis labels
+
+  OPTIONS,'fourcheese','colors',red
+  OPTIONS,'fourcheese','labels','Fluxgate mag'
+  OPTIONS,'fourcheese','labflag',3
+  OPTIONS,'fourcheese','labpos',-1.5
+  ;; OPTIONS,'fourcheese','labels',['Maxwellian Model','Kappa model',esa_name,'Fluxmag']
+  ;; OPTIONS,'fourcheese','labels',[esa_name,'!CFluxmag']
+
+  ;; OPTIONS,'toppings','labels',['Maxwellian Model','Kappa model',esa_name,'Fluxmag']
+  OPTIONS,'toppings','labels' ,['Maxwellian Model','Kappa model']
+  OPTIONS,'toppings','psym'   ,1
+  OPTIONS,'toppings','colors' ,[20,blue]
+  OPTIONS,'toppings','labflag',3
+  OPTIONS,'toppings','labpos',[-3.5,-2.5]
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;dB panel
@@ -429,7 +469,7 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
   FOR i=1,N_ELEMENTS(Je_integ_interp)-1 DO BEGIN
      Je_integ_interp[i]         = TSUM(position[0:i],Je_interp[0:i])
   ENDFOR
-  
+
   ;;Fix what we did to poor magz
   magz                    = {x:magz.time,y:magz.comp1}
   Je                      = {x:Je.time,y:(-1.)*Je.comp1}
@@ -437,7 +477,7 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
 
   ;; Fix it up, get the numbers back to nanotesla
   ;; jtemp = 1.0e-3*(deltaBx)/1.26e-6  * (DOUBLE(1. / 1.6e-9))
-  Je_integ_interp = Je_integ_interp*1.0e3*1.26e-6*1.6e-9
+  Je_integ_interp = Je_integ_interp*(-1.0e3)*1.26e-6*1.6e-9
   Je_integ_interp = Je_integ_interp+(magz.y[0]-Je_integ_interp[0])
 
   ;;Get orbit stuff
@@ -469,19 +509,19 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
   YLIM,'dBpanel',100,300,STYLE=1
 
   ;; Electron flux
-  GET_2DT,'j_2d_fs','fa_eeb_c',name='JeF',t1=t1,t2=t2,energy=[20,30000],ANGLE=eAngle
+  GET_2DT,'j_2d_fs','fa_eeb_c',name='JeF',t1=t1,t2=t2,energy=[100,30000],ANGLE=eAngle
   GET_DATA,'JeF',DATA=tmp
-  tmp.y                   = tmp.y>1.e1 ; Remove zeros 
+  tmp.y                   = tmp.y>1.e1 ; Remove zeros
   ;; tmp.y                   = ALOG10(tmp.y)     ; Pre-log
   STORE_DATA,'JeF',DATA={x:tmp.x,y:tmp.y}
   YLIM,'JeF',1.e8,2.e9,1                              ; set y limits
-  OPTIONS,'JeF','ytitle','Electrons!C!C1/(cm!U2!N-s)' ; set y title 
+  OPTIONS,'JeF','ytitle','Electrons!C!C1/(cm!U2!N-s)' ; set y title
   OPTIONS,'JeF','colors',green
   ;; OPTIONS,'JeF','tplot_routine','pmplot'                                ; set 2 color plot
-  ;; OPTIONS,'JeF','labels',['Downgoing!C Electrons','Upgoing!C Electrons '] ; set color label
+  OPTIONS,'JeF','labels','Downgoing!C Electrons' ; set color label
   ;; OPTIONS,'JeF','labflag',3                                               ; set color label
   ;; OPTIONS,'JeF','labpos',[5.e7]                                     ; set color label
-  ;; OPTIONS,'JeF','panel_size',1                                            ; set panel size 
+  ;; OPTIONS,'JeF','panel_size',1                                            ; set panel size
   ;; OPTIONS,'JeF','bins',[1,0]
 
 ;; GET_2DT,'j_2d_b','fa_' + survOrBurst + '_c',NAME='JeF',T1=t1,T2=t2,ENERGY=energy_electrons,ANGLE=eAngle,/CALIB
@@ -492,6 +532,26 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
   ;; OPTIONS,'Je','labels','Downgoing!C Electrons' ; set color label
   ;; OPTIONS,'Je','labflag',1                      ; set color label
   ;; OPTIONS,'Je','panel_size',1                                            ; set panel size
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;Some text output?
+  ;; PRINT_DIAGNOSTICS__BIG_KAPPA_AND_GAUSS_CURRENT,jMag.y[50:-50],chartot_interp, $
+  ;;    kappa_current,kappaTime,Astruct, $
+  ;;    maxwell_current,gaussTime,AstructGauss
+
+  PRINT_KAPPA_FITS,chartot_interp, $
+                   kappa_current, $
+                   out_kappa_fit_structs ;, $
+                   ;; OUTFILE=kappaTxtFile, $
+                   ;; OUTDIR=outDir
+
+  PRINT_KAPPA_FITS,chartot_interp, $
+                   maxwell_current, $
+                   out_gauss_fit_structs;, $
+                   ;; OUTFILE=gaussTxtFile, $
+                   ;; OUTDIR=outDir
+
+
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;FOR PLOTTING
@@ -515,15 +575,20 @@ PRO JOURNAL__20160711__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__INCLUDE_FOUR_CURREN
            WINDOW,0,XSIZE=700,YSIZE=900
         ENDELSE
      ENDELSE
-     
+
      ;; LOADCT,74
      LOADCT,39
 
-     TPLOT,['el_0','el_pa','ion_180','ion_pa','E_ALONG_V','charepanel','fourcheese','kappa_fit','dBpanel','JeF'],VAR_LABEL=['ALT','MLT','ILAT'],TRANGE=[t1,t2]
+     TPLOT,['el_0','el_pa','ion_180','ion_pa','E_ALONG_V', $
+            'charepanel','dBpanel','JeF','onecheese','kappa_fit'], $
+           VAR_LABEL=['ALT','MLT','ILAT'], $
+           TRANGE=[t1,t2]
      ;;got more than we need so smoothing can be nice
      ;; TLIMIT,t1+10.,t2-10.
 
 
+     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
+     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings' ;,PSYM=1
      IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
         ;; CGPS_CLOSE, PNG=KEYWORD_SET(save_png),DELETE_PS=KEYWORD_SET(save_png);, WIDTH=1000
         PCLOSE

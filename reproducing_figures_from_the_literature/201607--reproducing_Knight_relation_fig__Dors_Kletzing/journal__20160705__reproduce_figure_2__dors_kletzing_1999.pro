@@ -1,5 +1,5 @@
 ;;07/05/16
-PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999
+PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png
 
   COMPILE_OPT IDL2
 
@@ -14,11 +14,36 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999
                            100,100,100,100,100, $
                            1e6,1e6,1e6,1e6,1e6]
 
-  kappa                 = [1.5,3,5,10,0, $
-                           1.5,3,5,10,0, $
-                           1.5,3,5,10,0, $
-                           1.5,3,5,10,0, $
-                           1.5,3,5,10,0]
+  ;;More extreme
+  kappa                 = [1.6,1.9,3,5,10, $
+                           1.6,1.9,3,5,10, $
+                           1.6,1.9,3,5,10, $
+                           1.6,1.9,3,5,10, $
+                           1.6,1.9,3,5,10]
+  ;;Less extreme; why even show k = 10?
+  ;; kappa                 = [1.8,3,5,10,0, $
+  ;;                          1.8,3,5,10,0, $
+  ;;                          1.8,3,5,10,0, $
+  ;;                          1.8,3,5,10,0, $
+  ;;                          1.8,3,5,10,0]
+
+  lineStyle             = ['-','__',"--","-.",":", $
+                           '-','__',"--","-.",":", $
+                           '-','__',"--","-.",":", $
+                           '-','__',"--","-.",":", $
+                           '-','__',"--","-.",":"]
+
+  color                 = ['orange','red','green','blue','black', $
+                           'orange','red','green','blue','black', $
+                           'orange','red','green','blue','black', $
+                           'orange','red','green','blue','black', $
+                           'orange','red','green','blue','black']
+
+  ;; R_B                   = [  3,  3,  3,  3, $
+  ;;                           10, 10, 10, 10, $
+  ;;                           30, 30, 30, 30, $
+  ;;                          100,100,100,100, $
+  ;;                          1e6,1e6,1e6,1e6]
 
   ;; kappa                 = [3,5,10,0, $
   ;;                          3,5,10,0, $
@@ -26,27 +51,27 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999
   ;;                          3,5,10,0, $
   ;;                          3,5,10,0]
 
-  in_potBar             = 10.D^(DOUBLE(INDGEN(25)/4.-2))
-
-  nPlots                = N_ELEMENTS(R_B)
-  plotArr               = MAKE_ARRAY(nPlots,/OBJ)
-
   ;; lineStyle             = [':',"--","-.","-", $
   ;;                          ':',"--","-.","-", $
   ;;                          ':',"--","-.","-", $
   ;;                          ':',"--","-.","-", $
   ;;                          ':',"--","-.","-"]
 
-  lineStyle             = ['__',':',"--","-.","-", $
-                           '__',':',"--","-.","-", $
-                           '__',':',"--","-.","-", $
-                           '__',':',"--","-.","-", $
-                           '__',':',"--","-.","-"]
+  ;; color                 = ['red','green','blue','black', $
+  ;;                          'red','green','blue','black', $
+  ;;                          'red','green','blue','black', $
+  ;;                          'red','green','blue','black', $
+  ;;                          'red','green','blue','black']
+
+  in_potBar             = 10.D^(DOUBLE(INDGEN(25)/4.-2))
+
+  nPlots                = N_ELEMENTS(R_B)
+  plotArr               = MAKE_ARRAY(nPlots,/OBJ)
 
   lineThick             = 1.0
 
   xRange                = [1e-2,1e4]
-  yRange                = [5.5e-7,1e-3]
+  yRange                = [3e-7,1e-3]
   xTitle                = 'e$\Delta\Phi$/K!Dth!N'
   yTitle                = 'Current Density (A m!U-2!N)'
   fontSize              = 18
@@ -63,7 +88,7 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999
      PRINT,"kappa: ",kTemp
      PRINT,"R_B  : ",RTemp
      ;; plotName           = STRING(FORMAT='("Kappa = ",I0,", R_B = ",I0)',kTemp,RTemp)
-     plotName           = STRING(FORMAT='("Kappa = ",I0)',kTemp)
+     plotName           = STRING(FORMAT='("Kappa = ",F0.1)',kTemp)
 
      kappa_j            = KNIGHT_RELATION__DORS_KLETZING_11(kTemp,T_m,dens_m,pot,RTemp, $
                                                             IN_POTBAR=in_potBar, $
@@ -81,12 +106,13 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999
                                XTITLE=xTitle, $
                                YTITLE=yTitle, $
                                LINESTYLE=lineStyle[iPlot], $
+                               COLOR=color[iPlot], $
                                FONT_SIZE=fontSize, $
                                THICK=lineThick, $
                                OVERPLOT=iPlot GT 0, $
                                CURRENT=window)
 
-     IF kTemp EQ 10 THEN BEGIN
+     IF kTemp EQ 5 THEN BEGIN
         maxwell_j       = KNIGHT_RELATION__DORS_KLETZING_4(T_m,dens_m,pot,RTemp, $
                                                            IN_POTBAR=in_potBar, $
                                                            OUT_POTBAR=potBar)
@@ -95,13 +121,14 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999
         IF KEYWORD_SET(make_abs) THEN BEGIN
            maxwell_j    = ABS(maxwell_j)
         ENDIF
-        plotArr[iPlot]  = PLOT(in_potBar, $
+        plotArr[iPlot]  = PLOT(in_potBar,maxwell_j, $
                                NAME='Maxwellian', $
                                XRANGE=xRange, $
                                YRANGE=yRange, $
                                XLOG=1, $
                                YLOG=1, $
                                LINESTYLE=lineStyle[iPlot], $
+                               COLOR=color[iPlot], $
                                THICK=lineThick, $
                                /OVERPLOT, $
                                CURRENT=window)
@@ -128,13 +155,19 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999
                              /NORMAL)
 
   
+  IF KEYWORD_SET(save_png) THEN BEGIN
+     SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/Dors_Kletzing_1999/'
 
+     plotSN = 'Dors_Kletzing_1999__Figure_2.png'
+     PRINT,'Saving ' + plotSN + ' ...'
+     window.Save,plotDir+plotSN
+     window.Close
+     window = !NULL
+  ENDIF
 
   ;; FOR k=0,n_RB_texts-1 DO BEGIN
      
   ;;    textObjArr[k] = TEXT(
   ;; ENDFOR
-
-  STOP
 
 END

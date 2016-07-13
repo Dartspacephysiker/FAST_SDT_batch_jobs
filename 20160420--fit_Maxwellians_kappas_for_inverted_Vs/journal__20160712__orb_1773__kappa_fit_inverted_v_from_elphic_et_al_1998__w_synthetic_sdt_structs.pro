@@ -1,21 +1,19 @@
-;2016/07/11 Now we're going to try these synthetic SDT structures
-PRO JOURNAL__20160711__ORB_1849__KAPPA_FIT_INVERTED_V_FROM_MCFADDEN_ET_AL_1998__TRY_SYNTHETIC_SDT_STRUCT
+PRO JOURNAL__20160712__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__W_SYNTHETIC_SDT_STRUCTS
 
   COMPILE_OPT IDL2
 
-  SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/kappa_fits/Orbit_1849__McFadden_et_al_inverted_V'
+  SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/kappa_fits/Orbit_1773__McFadden_et_al_inverted_V'
 
   try_synthetic_SDT_struct     = 1
 
   outDir                       = '~/software/sdt/batch_jobs/saves_output_etc/'
-  ;; fitFile                   = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'Elphic_et_al_1998--Kappa_fits_and_Gauss_fits.sav'
-  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--synthetic_SDT_structs.sav'
+  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'--Elphic_et_al_1998--Kappa_fits_and_Gauss_fits--synthetic_SDT_structs.sav'
   ;; Use burst bounds, optionally average
   ;;126  1997-02-07/20:49:41.061
   ;;226  1997-02-07/20:49:48.973
-  eeb_or_ees                   = 'eeb'
+  ;; eeb_or_ees                   = 'eeb'
 
-  spectra_avg_interval         = 4
+  ;; spectra_avg_interval         = 0
   ;; bounds                    = [160:210:50]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                    = [126:138]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                    = [126:226:2]/spectra_avg_interval
@@ -28,9 +26,10 @@ PRO JOURNAL__20160711__ORB_1849__KAPPA_FIT_INVERTED_V_FROM_MCFADDEN_ET_AL_1998__
 
   do_all_times                 = 1
   add_full_fits                = 1
+  fit_each_angle               = 0
 
   energy_electrons             = [3e1,3.6e4]
-  min_peak_energy              = 900
+  min_peak_energy              = 100
 
   output_density_estimates     = 0
   output_dens__energies        = 0
@@ -39,8 +38,11 @@ PRO JOURNAL__20160711__ORB_1849__KAPPA_FIT_INVERTED_V_FROM_MCFADDEN_ET_AL_1998__
   dens_est_eRange              = [30,3.5e4]
   only_dens_estimates          = 0
 
-  t1Str                        = '97-02-08/10:11:22'
-  t2Str                        = '97-02-08/10:11:52'
+  ;; t1Str                        = '97-02-01/09:26:15'
+  ;; t2Str                        = '97-02-01/09:27:10'
+  
+  t1Str                        = '97-02-01/09:26:00'
+  t2Str                        = '97-02-01/09:27:20'
 
   t1                           = STR_TO_TIME(t1Str)
   t2                           = STR_TO_TIME(t2Str)
@@ -62,18 +64,19 @@ PRO JOURNAL__20160711__ORB_1849__KAPPA_FIT_INVERTED_V_FROM_MCFADDEN_ET_AL_1998__
 
   ;;Angle stuff
   only_fieldaligned            = 0
-  electron_angleRange          = [-30,30]
+  electron_angleRange          = [-135,135]
+  ;; electron_angleRange          = [-14,14]
 
   max_iter                     = 1000
-  fit_tol                      = 5e-3
+  fit_tol                      = 1e-2
 
-  kappa_est                    = 3.0
+  kappa_est                    = 1.9
 
-  T_est_fac                    = 0.6
-  N_est_fac                    = 2.1
+  T_est_fac                    = 0.3
+  N_est_fac                    = 7.0
   bulkE_est_fac                = 1.0
 
-  TGauss_est_fac               = 0.3
+  TGauss_est_fac               = 0.05
   NGauss_est_fac               = 1.0
   bulkEGauss_est_fac           = 1.0
 
@@ -90,6 +93,7 @@ PRO JOURNAL__20160711__ORB_1849__KAPPA_FIT_INVERTED_V_FROM_MCFADDEN_ET_AL_1998__
      ENERGY_ELECTRONS=energy_electrons, $
      EEB_OR_EES=eeb_or_ees, $
      SPECTRA_AVERAGE_INTERVAL=spectra_avg_interval, $
+     FIT_EACH_ANGLE=fit_each_angle, $
      SDT_TIME_INDS=bounds, $
      DO_ALL_TIMES=do_all_times, $
      MIN_PEAK_ENERGY=min_peak_energy, $
