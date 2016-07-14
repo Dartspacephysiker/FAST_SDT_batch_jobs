@@ -5,11 +5,9 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
 
   SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/kappa_fits/Orbit_1849__McFadden_et_al_inverted_V'
 
-  try_synthetic_SDT_struct     = 1
-
   outDir                       = '~/software/sdt/batch_jobs/saves_output_etc/'
   ;; fitFile                   = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'Elphic_et_al_1998--Kappa_fits_and_Gauss_fits.sav'
-  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--synthetic_SDT_structs.sav'
+  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--fit_each_angle.sav'
   ;; Use burst bounds, optionally average
   ;;126  1997-02-07/20:49:41.061
   ;;226  1997-02-07/20:49:48.973
@@ -24,11 +22,12 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
   ;; 16  1997-02-07/20:49:41.338
   ;; 28  1997-02-07/20:49:48.934
   ;; eeb_or_ees                = 'ees'
-  ;; bounds                    = [16:28]
+  bounds                    = [46:54:spectra_avg_interval]
 
-  do_all_times                 = 1
+  do_all_times                 = 0
   add_full_fits                = 1
   fit_each_angle               = 1
+  average_over_angleRange      = 0
 
   energy_electrons             = [3e1,3.6e4]
   min_peak_energy              = 900
@@ -60,11 +59,12 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
   save_fitPlots                = 0
   plot_full_fit                = 1
   add_fitParams_text           = 1
+  add_angle_label              = 1
 
   ;;Angle stuff
   only_fieldaligned            = 0
-  electron_angleRange          = [-30,30]
-  electron_angleRange          = [-180,180]
+  electron_angleRange          = [-20,20]
+  ;; electron_angleRange          = [-180,180]
 
   max_iter                     = 1000
   fit_tol                      = 5e-3
@@ -93,6 +93,8 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
      EEB_OR_EES=eeb_or_ees, $
      SPECTRA_AVERAGE_INTERVAL=spectra_avg_interval, $
      FIT_EACH_ANGLE=fit_each_angle, $
+     FIT_EACH__AVERAGE_OVER_ANGLERANGE=average_over_angleRange, $
+     FIT_EACH__SYNTH_SDT_STRUCT=fit_each__synth_sdt_struct, $
      SDT_TIME_INDS=bounds, $
      DO_ALL_TIMES=do_all_times, $
      MIN_PEAK_ENERGY=min_peak_energy, $
@@ -112,6 +114,7 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
      FIT_TOLERANCE=fit_tol, $
      MAX_ITERATIONS=max_iter, $
      ADD_FITPARAMS_TEXT=add_fitParams_text, $
+     ADD_ANGLE_LABEL=add_angle_label, $
      ONLY_FIT_FIELDALIGNED_ANGLE=only_fieldaligned, $
      ELECTRON_ANGLERANGE=electron_angleRange, $
      NO_PLOTS=no_plots, $
@@ -183,6 +186,7 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
   PARSE_KAPPA_FIT_STRUCTS,kappaFits, $
                           A=a, $
                           STRUCT_A=Astruct, $
+                          TIME=time, $
                           NAMES_A=A_names, $
                           CHI2=chi2, $
                           PVAL=pVal, $
@@ -191,6 +195,7 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
   PARSE_KAPPA_FIT_STRUCTS,gaussFits, $
                           A=AGauss, $
                           STRUCT_A=AStructGauss, $
+                          TIME=time, $
                           NAMES_A=AGauss_names, $
                           CHI2=chi2Gauss, $
                           PVAL=pValGauss, $
