@@ -8,6 +8,8 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
   outDir                       = '~/software/sdt/batch_jobs/saves_output_etc/'
   ;; fitFile                   = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'Elphic_et_al_1998--Kappa_fits_and_Gauss_fits.sav'
   fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)+'--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--fit_each_angle.sav'
+  saveData                     = 1
+
   ;; Use burst bounds, optionally average
   ;;126  1997-02-07/20:49:41.061
   ;;226  1997-02-07/20:49:48.973
@@ -27,6 +29,7 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
   do_all_times                 = 0
   add_full_fits                = 1
   fit_each_angle               = 1
+  synthPackage                 = 1
   average_over_angleRange      = 0
 
   energy_electrons             = [3e1,3.6e4]
@@ -94,7 +97,7 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
      SPECTRA_AVERAGE_INTERVAL=spectra_avg_interval, $
      FIT_EACH_ANGLE=fit_each_angle, $
      FIT_EACH__AVERAGE_OVER_ANGLERANGE=average_over_angleRange, $
-     FIT_EACH__SYNTH_SDT_STRUCT=fit_each__synth_sdt_struct, $
+     FIT_EACH__SYNTH_SDT_STRUCT=synthPackage, $
      SDT_TIME_INDS=bounds, $
      DO_ALL_TIMES=do_all_times, $
      MIN_PEAK_ENERGY=min_peak_energy, $
@@ -151,20 +154,8 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
   GET_DATA,'Je',DATA=je
   GET_DATA,'Jee',DATA=jee
 
-  PRINT,'Saving ' + fitFile + ' ...'
-  kappaFits = TEMPORARY(out_kappa_fit_structs)
-  gaussFits = TEMPORARY(out_gauss_fit_structs)
-  IF N_ELEMENTS(synthStr_SDT_kappa) GT 0 THEN BEGIN
-     
-     SAVE,kappaFits,gaussFits, $
-          je,jee, $
-          synthStr_SDT_kappa,synthStr_SDT_gauss, $
-          FILENAME=outDir+fitFile
-  ENDIF ELSE BEGIN
-     SAVE,kappaFits,gaussFits, $
-          je,jee, $
-          FILENAME=outDir+fitFile
-  ENDELSE
+  kappaFits                    = TEMPORARY(out_kappa_fit_structs)
+  gaussFits                    = TEMPORARY(out_gauss_fit_structs)
 
   fitStatus                    = !NULL
   gaussFitStatus               = !NULL
@@ -201,8 +192,51 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
                           PVAL=pValGauss, $
                           FITSTATUS=gaussfitStatus  
 
-  STOP
-  
+  IF KEYWORD_SET(saveData) THEN BEGIN
+     saveStr = 'SAVE,'
+     IF N_ELEMENTS(je) GT 0 THEN BEGIN
+        saveStr += 'je,'
+     ENDIF
+     IF N_ELEMENTS(jee) GT 0 THEN BEGIN
+        saveStr += 'jee,'
+     ENDIF
+     IF N_ELEMENTS(kappaFits) GT 0 THEN BEGIN
+        saveStr += 'kappaFits,'
+     ENDIF
+     IF N_ELEMENTS(gaussFits) GT 0 THEN BEGIN
+        saveStr += 'gaussFits,'
+     ENDIF
+
+     IF N_ELEMENTS(synthStr_SDT_kappa) GT 0 THEN BEGIN
+        saveStr += 'synthStr_SDT_kappa,'
+     ENDIF
+     IF N_ELEMENTS(synthStr_SDT_gauss) GT 0 THEN BEGIN
+        saveStr += 'synthStr_SDT_gauss,'
+     ENDIF
+
+     IF N_ELEMENTS(synthPackage) GT 0 THEN BEGIN
+        saveStr += 'synthPackage,'
+     ENDIF
+
+     PRINT,'Saving ' + fitFile + ' ...'
+
+     saveStr += 'FILENAME=outDir+fitFile'
+     good     = EXECUTE(saveStr)
+  ENDIF
+
+
+  ;; IF N_ELEMENTS(synthStr_SDT_kappa) GT 0 THEN BEGIN
+     
+  ;;    SAVE,kappaFits,gaussFits, $
+  ;;         je,jee, $
+  ;;         synthStr_SDT_kappa,synthStr_SDT_gauss, $
+  ;;         FILENAME=outDir+fitFile
+  ;; ENDIF ELSE BEGIN
+  ;;    SAVE,kappaFits,gaussFits, $
+  ;;         je,jee, $
+  ;;         FILENAME=outDir+fitFile
+  ;; ENDELSE
+
 
 END
 
