@@ -24,11 +24,12 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
   ;; 16  1997-02-07/20:49:41.338
   ;; 28  1997-02-07/20:49:48.934
   ;; eeb_or_ees                = 'ees'
-  bounds                    = [46:54:spectra_avg_interval]
+  ;; bounds                    = [46:54:spectra_avg_interval]
 
-  do_all_times                 = 0
+  do_all_times                 = 1
   add_full_fits                = 1
   fit_each_angle               = 1
+  fit_each__skip_bad_fits      = 1
   synthPackage                 = 1
   average_over_angleRange      = 0
 
@@ -49,6 +50,8 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
   t2                           = STR_TO_TIME(t2Str)
 
   estimate_A_from_data         = 1
+  dont_print_estimates         = 1
+
   n_below_peak                 = 2
   n_after_peak                 = 7
   dont_fit_below_thresh_value  = 1
@@ -98,6 +101,7 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
      FIT_EACH_ANGLE=fit_each_angle, $
      FIT_EACH__AVERAGE_OVER_ANGLERANGE=average_over_angleRange, $
      FIT_EACH__SYNTH_SDT_STRUCT=synthPackage, $
+     FIT_EACH__SKIP_BAD_FITS=fit_each__skip_bad_fits, $
      SDT_TIME_INDS=bounds, $
      DO_ALL_TIMES=do_all_times, $
      MIN_PEAK_ENERGY=min_peak_energy, $
@@ -108,6 +112,7 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
      BULK_OFFSET=bulk_offset, $
      ESTIMATE_FITPARAMS_FROM_SDT_DAT=estimate_A_from_data, $
      ESTIMATE_FACTORS=estFacs, $
+     DONT_PRINT_ESTIMATES=dont_print_estimates, $
      DONT_FIT_BELOW_THRESH_VALUE=dont_fit_below_thresh_value, $
      N_ENERGIES_BELOW_PEAK=n_below_peak, $
      N_ENERGIES_AFTER_PEAK=n_after_peak, $
@@ -224,7 +229,8 @@ PRO JOURNAL__20160714__ORB_1849__FIT_EACH_ANGLE
      good     = EXECUTE(saveStr)
   ENDIF
 
-
+  PRINT,"DONE!"
+  
   ;; IF N_ELEMENTS(synthStr_SDT_kappa) GT 0 THEN BEGIN
      
   ;;    SAVE,kappaFits,gaussFits, $
