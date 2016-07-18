@@ -87,7 +87,7 @@ PRO JOURNAL__20160630__ORB_1843__FIT_INCREASING_PITCH_ANGLE_SPREAD
      time_for_dens_output   = (iRange EQ nAngleRanges-1)
      IF time_FOR_dens_output THEN PRINT,'Time for densities, seäor'
 
-     KAPPA_FLUX__FIT_ABOVE_PEAK__BULKANGLE_0__EFLUX_UNITS, $ ;X,A,F,pders, $
+     KAPPA_EFLUX_FIT, $ ;X,A,F,pders, $
         T1=t1, $
         T2=t2, $
         EEB_OR_EES=eeb_or_ees, $

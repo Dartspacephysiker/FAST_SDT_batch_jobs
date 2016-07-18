@@ -92,7 +92,7 @@ PRO JOURNAL__20160716__ORB_1849__FIT_EACH_ANGLE__SCOPING_OUT_2D_DIST_FITTING
                                   NGauss:NGauss_est_fac, $
                                   B_EGauss:bulkEGauss_est_fac}
 
-  KAPPA_FLUX__FIT_ABOVE_PEAK__BULKANGLE_0__EFLUX_UNITS, $ ;X,A,F,pders, $
+  KAPPA_EFLUX_FIT, $ ;X,A,F,pders, $
      T1=t1, $
      T2=t2, $
      ENERGY_ELECTRONS=energy_electrons, $

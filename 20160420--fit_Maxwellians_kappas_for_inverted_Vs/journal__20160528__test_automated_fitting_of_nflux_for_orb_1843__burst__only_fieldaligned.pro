@@ -43,7 +43,7 @@ PRO JOURNAL__20160528__TEST_AUTOMATED_FITTING_OF_NFLUX_FOR_ORB_1843__BURST__ONLY
 
   kappa_est              = 3.0
 
-  KAPPA_FLUX__FIT_ABOVE_PEAK__BULKANGLE_0__EFLUX_UNITS, $ ;X,A,F,pders, $
+  KAPPA_EFLUX_FIT, $ ;X,A,F,pders, $
      T1=t1, $
      T2=t2, $
      EEB_OR_EES=eeb_or_ees, $

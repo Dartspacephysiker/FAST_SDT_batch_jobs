@@ -69,7 +69,7 @@ PRO JOURNAL__20160629__ORB_1843__WHATS_WRONG_WITH_DENSITY
                                NGauss:NGauss_est_fac, $
                                B_EGauss:bulkEGauss_est_fac}
 
-  KAPPA_FLUX__FIT_ABOVE_PEAK__BULKANGLE_0__EFLUX_UNITS, $ ;X,A,F,pders, $
+  KAPPA_EFLUX_FIT, $ ;X,A,F,pders, $
      T1=t1, $
      T2=t2, $
      EEB_OR_EES=eeb_or_ees, $

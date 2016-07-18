@@ -81,7 +81,7 @@ PRO JOURNAL__20160709__ORB_1849__KAPPA_FIT_INVERTED_V_FROM_MCFADDEN_ET_AL_1998
                                NGauss:NGauss_est_fac, $
                                B_EGauss:bulkEGauss_est_fac}
 
-  KAPPA_FLUX__FIT_ABOVE_PEAK__BULKANGLE_0__EFLUX_UNITS, $ ;X,A,F,pders, $
+  KAPPA_EFLUX_FIT, $ ;X,A,F,pders, $
      T1=t1, $
      T2=t2, $
      ENERGY_ELECTRONS=energy_electrons, $

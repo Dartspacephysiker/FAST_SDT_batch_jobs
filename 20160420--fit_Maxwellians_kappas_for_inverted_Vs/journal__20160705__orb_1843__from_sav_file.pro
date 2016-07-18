@@ -72,7 +72,7 @@ PRO JOURNAL__20160705__ORB_1843__FROM_SAV_FILE
                                NGauss:NGauss_est_fac, $
                                B_EGauss:bulkEGauss_est_fac}
 
-  KAPPA_FLUX__FIT_ABOVE_PEAK__BULKANGLE_0__EFLUX_UNITS, $ ;X,A,F,pders, $
+  KAPPA_EFLUX_FIT, $ ;X,A,F,pders, $
      T1=t1, $
      T2=t2, $
      LOAD_DAT_FROM_FILE=inDir+inFile, $

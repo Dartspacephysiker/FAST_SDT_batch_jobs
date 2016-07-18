@@ -77,7 +77,7 @@ PRO JOURNAL__20160707__ORB_1773__KAPPA_FIT_INVERTED_V_FROM_ELPHIC_ET_AL_1998__TE
                                NGauss:NGauss_est_fac, $
                                B_EGauss:bulkEGauss_est_fac}
 
-  KAPPA_FLUX__FIT_ABOVE_PEAK__BULKANGLE_0__EFLUX_UNITS, $ ;X,A,F,pders, $
+  KAPPA_EFLUX_FIT, $ ;X,A,F,pders, $
      T1=t1, $
      T2=t2, $
      EEB_OR_EES=eeb_or_ees, $
