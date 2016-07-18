@@ -3,6 +3,8 @@ PRO JOURNAL__20160716__ORB_1849__FIT_EACH_ANGLE__SCOPING_OUT_2D_DIST_FITTING
 
   COMPILE_OPT IDL2
 
+  !EXCEPT = 0
+
   SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/kappa_fits/Orbit_1849__McFadden_et_al_inverted_V'
 
   outDir                       = '~/software/sdt/batch_jobs/saves_output_etc/'
@@ -30,6 +32,7 @@ PRO JOURNAL__20160716__ORB_1849__FIT_EACH_ANGLE__SCOPING_OUT_2D_DIST_FITTING
   add_full_fits                = 1
   fit_each_angle               = 1
   fit_each__skip_bad_fits      = 1
+  min_anglefits_for_keep       = 2
   synthPackage                 = 1
   average_over_angleRange      = 0
 
@@ -56,6 +59,8 @@ PRO JOURNAL__20160716__ORB_1849__FIT_EACH_ANGLE__SCOPING_OUT_2D_DIST_FITTING
   n_after_peak                 = 7
   dont_fit_below_thresh_value  = 1
   bulk_offset                  = 0
+  dont_take_stock_of_bulkangle = 1
+
 
   add_gaussian_estimate        = 1
   use_SDT_Gaussian_fit         = 0
@@ -69,16 +74,17 @@ PRO JOURNAL__20160716__ORB_1849__FIT_EACH_ANGLE__SCOPING_OUT_2D_DIST_FITTING
 
   ;;Angle stuff
   only_fieldaligned            = 0
-  electron_angleRange          = [-90,90]
+  ;; electron_angleRange          = [-90,90]
+  electron_angleRange          = [-20,20]
   ;; electron_angleRange          = [-180,180]
 
   max_iter                     = 1000
-  fit_tol                      = 5e-3
+  fit_tol                      = 1e-2
 
   kappa_est                    = 3.0
 
   T_est_fac                    = 0.6
-  N_est_fac                    = 2.1
+  N_est_fac                    = 2.0
   bulkE_est_fac                = 1.0
 
   TGauss_est_fac               = 0.3
@@ -92,7 +98,7 @@ PRO JOURNAL__20160716__ORB_1849__FIT_EACH_ANGLE__SCOPING_OUT_2D_DIST_FITTING
                                   NGauss:NGauss_est_fac, $
                                   B_EGauss:bulkEGauss_est_fac}
 
-  KAPPA_EFLUX_FIT, $ ;X,A,F,pders, $
+  KAPPA_EFLUX_FIT, $
      T1=t1, $
      T2=t2, $
      ENERGY_ELECTRONS=energy_electrons, $
@@ -102,6 +108,7 @@ PRO JOURNAL__20160716__ORB_1849__FIT_EACH_ANGLE__SCOPING_OUT_2D_DIST_FITTING
      FIT_EACH__AVERAGE_OVER_ANGLERANGE=average_over_angleRange, $
      FIT_EACH__SYNTH_SDT_STRUCT=synthPackage, $
      FIT_EACH__SKIP_BAD_FITS=fit_each__skip_bad_fits, $
+     FIT_EACH__MIN_ANGLEFITS_FOR_KEEP=min_anglefits_for_keep, $
      SDT_TIME_INDS=bounds, $
      DO_ALL_TIMES=do_all_times, $
      MIN_PEAK_ENERGY=min_peak_energy, $
@@ -110,6 +117,7 @@ PRO JOURNAL__20160716__ORB_1849__FIT_EACH_ANGLE__SCOPING_OUT_2D_DIST_FITTING
      KAPPA_EST=kappa_est, $
      SDT_DAT=dat, $
      BULK_OFFSET=bulk_offset, $
+     DONT_TAKE_STOCK_OF_BULKANGLE=dont_take_stock_of_bulkangle, $
      ESTIMATE_FITPARAMS_FROM_SDT_DAT=estimate_A_from_data, $
      ESTIMATE_FACTORS=estFacs, $
      DONT_PRINT_ESTIMATES=dont_print_estimates, $
@@ -123,7 +131,7 @@ PRO JOURNAL__20160716__ORB_1849__FIT_EACH_ANGLE__SCOPING_OUT_2D_DIST_FITTING
      MAX_ITERATIONS=max_iter, $
      ADD_FITPARAMS_TEXT=add_fitParams_text, $
      ADD_ANGLE_LABEL=add_angle_label, $
-     ONLY_FIT_FIELDALIGNED_ANGLE=only_fieldaligned, $
+     ;; ONLY_FIT_FIELDALIGNED_ANGLE=only_fieldaligned, $
      ELECTRON_ANGLERANGE=electron_angleRange, $
      NO_PLOTS=no_plots, $
      SAVE_FITPLOTS=save_fitPlots, $
@@ -135,13 +143,11 @@ PRO JOURNAL__20160716__ORB_1849__FIT_EACH_ANGLE__SCOPING_OUT_2D_DIST_FITTING
      OUTPUT_DENS__ANGLES=output_dens__angles, $
      OUT_DENS_STRUCT=out_dens, $
      ONLY_DENS_ESTIMATES=only_dens_estimates, $
-     OUT_FITTED_PARAMS=out_fitted_params, $
-     OUT_FITTED_GAUSS_PARAMS=out_fitted_Gauss_params, $
-     OUT_KAPPA_FIT_STRUCTS=out_kappa_fit_structs, $
-     OUT_GAUSS_FIT_STRUCTS=out_gauss_fit_structs, $
-     TRY_SYNTHETIC_SDT_STRUCT=try_synthetic_SDT_struct, $
-     OUT_SYNTHETIC_SDT_KAPPA_STRUCTS=synthStr_SDT_kappa, $
-     OUT_SYNTHETIC_SDT_GAUSS_STRUCTS=synthStr_SDT_gauss, $
+     OUT_FITTED_PARAMS=out_kappaParams, $
+     OUT_FITTED_GAUSS_PARAMS=out_gaussParams, $
+     OUT_KAPPA_FIT_STRUCTS=kappaFits, $
+     OUT_GAUSS_FIT_STRUCTS=gaussFits, $
+     OUT_STRINGS=strings, $
      ADD_FULL_FITS=add_full_fits
 
 
@@ -158,26 +164,6 @@ PRO JOURNAL__20160716__ORB_1849__FIT_EACH_ANGLE__SCOPING_OUT_2D_DIST_FITTING
 
   GET_DATA,'Je',DATA=je
   GET_DATA,'Jee',DATA=jee
-
-  kappaFits                    = TEMPORARY(out_kappa_fit_structs)
-  gaussFits                    = TEMPORARY(out_gauss_fit_structs)
-
-  fitStatus                    = !NULL
-  gaussFitStatus               = !NULL
-  FOR i=0,N_ELEMENTS(kappaFits)-1 DO BEGIN
-     fitStatus                 = [fitStatus,kappaFits[i].fitStatus]
-     gaussFitStatus            = [gaussFitStatus,gaussFits[i].fitStatus]
-  ENDFOR
-  badFits_i                    = WHERE(fitStatus GT 0,nBadFits)  
-  badGaussFits_i               = WHERE(gaussFitStatus GT 0,nBadGaussFits)  
-
-  PRINT,""
-  PRINT,"****************************************"
-  PRINT,'NTotalFits    : ',N_ELEMENTS(fitStatus)
-  PRINT,''
-  PRINT,"NbadFits      : ",nBadFits
-  PRINT,"NbadGaussFits : ",nBadGaussFits
-  PRINT,"NBothBad      : ",N_ELEMENTS(CGSETINTERSECTION(badFits_i,badGaussFits_i))
 
   PARSE_KAPPA_FIT_STRUCTS,kappaFits, $
                           A=a, $
@@ -197,6 +183,9 @@ PRO JOURNAL__20160716__ORB_1849__FIT_EACH_ANGLE__SCOPING_OUT_2D_DIST_FITTING
                           PVAL=pValGauss, $
                           FITSTATUS=gaussfitStatus  
 
+  PRINT_KAPPA_LOOP_FIT_SUMMARY,fitStatus,gaussfitStatus
+
+
   IF KEYWORD_SET(saveData) THEN BEGIN
      saveStr = 'SAVE,'
      IF N_ELEMENTS(je) GT 0 THEN BEGIN
@@ -212,15 +201,19 @@ PRO JOURNAL__20160716__ORB_1849__FIT_EACH_ANGLE__SCOPING_OUT_2D_DIST_FITTING
         saveStr += 'gaussFits,'
      ENDIF
 
-     IF N_ELEMENTS(synthStr_SDT_kappa) GT 0 THEN BEGIN
-        saveStr += 'synthStr_SDT_kappa,'
-     ENDIF
-     IF N_ELEMENTS(synthStr_SDT_gauss) GT 0 THEN BEGIN
-        saveStr += 'synthStr_SDT_gauss,'
-     ENDIF
+     ;; IF N_ELEMENTS(synthStr_SDT_kappa) GT 0 THEN BEGIN
+     ;;    saveStr += 'synthStr_SDT_kappa,'
+     ;; ENDIF
+     ;; IF N_ELEMENTS(synthStr_SDT_gauss) GT 0 THEN BEGIN
+     ;;    saveStr += 'synthStr_SDT_gauss,'
+     ;; ENDIF
 
      IF N_ELEMENTS(synthPackage) GT 0 THEN BEGIN
         saveStr += 'synthPackage,'
+     ENDIF
+
+     IF N_ELEMENTS(strings) GT 0 THEN BEGIN
+        saveStr += 'strings,'
      ENDIF
 
      PRINT,'Saving ' + fitFile + ' ...'
@@ -231,18 +224,5 @@ PRO JOURNAL__20160716__ORB_1849__FIT_EACH_ANGLE__SCOPING_OUT_2D_DIST_FITTING
 
   PRINT,"DONE!"
   
-  ;; IF N_ELEMENTS(synthStr_SDT_kappa) GT 0 THEN BEGIN
-     
-  ;;    SAVE,kappaFits,gaussFits, $
-  ;;         je,jee, $
-  ;;         synthStr_SDT_kappa,synthStr_SDT_gauss, $
-  ;;         FILENAME=outDir+fitFile
-  ;; ENDIF ELSE BEGIN
-  ;;    SAVE,kappaFits,gaussFits, $
-  ;;         je,jee, $
-  ;;         FILENAME=outDir+fitFile
-  ;; ENDELSE
-
-
 END
 
