@@ -12,16 +12,16 @@ PRO JOURNAL__20160715__ORB_1849__SCREWING_AROUND_WITH_FULLY_FITTED_DISTS
   SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/kappa_fits/Orbit_1849__McFadden_et_al_inverted_V'
 
   outDir   = '~/software/sdt/batch_jobs/saves_output_etc/'
-  fitFile  = '20160715--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--fit_each_angle.sav'
+  fitFile  = '20160716--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--fit_each_angle.sav'
 
-  savePlot = 1
+  savePlot = 0
   savePref = 'Orb_1849--Currents_obtained_from_J_2D_B'
   saveDir  = '~/Desktop/'
 
   RESTORE,outDir+fitFile
 
   energy = [1000,3.2e4]
-  angle  = [-20,20] 
+  angle  = [-45,45] 
 
   saveSuff =  STRING(FORMAT='("--eRange_",I0,"-",I0,"--' + $
                      'aRange_",F0.1,"-",F0.1)', $
@@ -62,7 +62,7 @@ PRO JOURNAL__20160715__ORB_1849__SCREWING_AROUND_WITH_FULLY_FITTED_DISTS
 
   xTitle = "Seconds since " + TIME_TO_STR(times[0],/MSEC)
   yTitle = "Current (microA/m!U2!N)"
-  yRange = [0,1.2]
+  yRange = [0,3.2]
 
   FOR i=0,2 DO BEGIN
      plotArr[0] = PLOT(times-times[0],currents[i,*], $
