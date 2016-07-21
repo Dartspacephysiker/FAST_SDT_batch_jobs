@@ -6,13 +6,13 @@ PRO JOURNAL__20160718__ORBIT_1849__ANGULAR_DENSITY_DISTRIBUTIONS_FOR_HORSESHOE__
   SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/kappa_fits/Orbit_1849__McFadden_et_al_inverted_V'
 
   outDir                       = '~/software/sdt/batch_jobs/saves_output_etc/'
-  fitFile                      = '20160718--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--ees--fit_each_angle--solid_fits_from_three_times.sav'
+  fitFile                      = '20160718--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit_each_angle--solid_fits_from_three_times.sav'
   
   ;; RESTORE,outDir+fitFile
 
-  eeb_or_ees                   = 'ees'
+  eeb_or_ees                   = 'eeb'
 
-  ;; spectra_avg_interval         = 4
+  spectra_avg_interval         = 4
   ;; bounds                    = [160:210:50]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                    = [126:138]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                    = [126:226:2]/spectra_avg_interval
@@ -27,7 +27,7 @@ PRO JOURNAL__20160718__ORBIT_1849__ANGULAR_DENSITY_DISTRIBUTIONS_FOR_HORSESHOE__
   add_full_fits                = 1
   fit_each_angle               = 1
   fit_each__skip_bad_fits      = 1
-  fit_each__show_and_prompt    = 1
+  fit_each__show_and_prompt    = 0
   fit_fail__user_prompt        = 0
   dont_take_stock_of_bulkangle = 1
   start_from_fieldaligned      = 1
@@ -55,7 +55,7 @@ PRO JOURNAL__20160718__ORBIT_1849__ANGULAR_DENSITY_DISTRIBUTIONS_FOR_HORSESHOE__
   dont_print_estimates         = 0
 
   n_below_peak                 = 2
-  n_after_peak                 = 5
+  n_above_peak                 = 5
   dont_fit_below_thresh_value  = 1
   bulk_offset                  = 0
 
@@ -64,7 +64,7 @@ PRO JOURNAL__20160718__ORBIT_1849__ANGULAR_DENSITY_DISTRIBUTIONS_FOR_HORSESHOE__
   add_oneCount_curve           = 1
 
   no_plots                     = 1
-  save_fitPlots                = 1
+  save_fitPlots                = 0
   saveData                     = 1
   plot_full_fit                = 1
   add_fitParams_text           = 1
@@ -125,7 +125,7 @@ PRO JOURNAL__20160718__ORBIT_1849__ANGULAR_DENSITY_DISTRIBUTIONS_FOR_HORSESHOE__
      TRIM_ENERGIES_BELOW_PEAK=trim_energies_below_peak, $
      DONT_FIT_BELOW_THRESH_VALUE=dont_fit_below_thresh_value, $
      N_ENERGIES_BELOW_PEAK=n_below_peak, $
-     N_ENERGIES_AFTER_PEAK=n_after_peak, $
+     N_ENERGIES_ABOVE_PEAK=n_above_peak, $
      CHECK_FOR_HIGHER_FLUX_PEAKS__SET_CORRESPONDING_PEAK_ENERGY=check_for_higher_flux_peaks__set_corresponding_peak_energy, $
      FIT_TOLERANCE=fit_tol, $
      MAX_ITERATIONS=max_iter, $

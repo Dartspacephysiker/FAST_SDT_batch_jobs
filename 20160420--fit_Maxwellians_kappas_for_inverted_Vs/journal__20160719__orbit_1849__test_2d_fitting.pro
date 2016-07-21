@@ -6,13 +6,13 @@ PRO JOURNAL__20160719__ORBIT_1849__TEST_2D_FITTING
   SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/kappa_fits/Orbit_1849__McFadden_et_al_inverted_V'
 
   outDir                       = '~/software/sdt/batch_jobs/saves_output_etc/'
-  fitFile                      = '20160719--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--ees--fit_each_angle--solid_fits_from_three_times.sav'
+  fitFile                      = '20160720--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times.sav'
   
   ;; RESTORE,outDir+fitFile
 
-  eeb_or_ees                   = 'ees'
+  eeb_or_ees                   = 'eeb'
 
-  ;; spectra_avg_interval         = 4
+  spectra_avg_interval         = 4
   ;; bounds                    = [160:210:50]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                    = [126:138]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                    = [126:226:2]/spectra_avg_interval
@@ -26,11 +26,11 @@ PRO JOURNAL__20160719__ORBIT_1849__TEST_2D_FITTING
   do_all_times                 = 1
   add_full_fits                = 1
   fit_each_angle               = 1
+  start_from_fieldaligned      = 1
   fit_each__skip_bad_fits      = 1
   fit_each__show_and_prompt    = 1
   fit_fail__user_prompt        = 0
   dont_take_stock_of_bulkangle = 1
-  start_from_fieldaligned      = 1
 
   synthPackage                 = 1
   average_over_angleRange      = 0
@@ -76,7 +76,10 @@ PRO JOURNAL__20160719__ORBIT_1849__TEST_2D_FITTING
   ;; electron_angleRange          = [-180,180]
 
   max_iter                     = 1000
+  fit2d_max_iter               = 1000
+
   fit_tol                      = 1e-2
+  fit2d_tol                    = 1e-3
 
   kappa_est                    = 1.8
 
@@ -106,6 +109,7 @@ PRO JOURNAL__20160719__ORBIT_1849__TEST_2D_FITTING
      FIT_EACH__AVERAGE_OVER_ANGLERANGE=fit_each__average_over_angleRange, $
      FIT_EACH__SYNTH_SDT_STRUCT=synthPackage, $
      FIT_EACH__SKIP_BAD_FITS=fit_each__skip_bad_fits, $
+     FIT_EACH__START_FROM_FIELDALIGNED=start_from_fieldaligned, $
      FIT_EACH__SHOW_AND_PROMPT=fit_each__show_and_prompt, $
      FIT_FAIL__USER_PROMPT=fit_fail__user_prompt, $
      SDT_TIME_INDS=bounds, $
@@ -127,7 +131,9 @@ PRO JOURNAL__20160719__ORBIT_1849__TEST_2D_FITTING
      N_ENERGIES_ABOVE_PEAK=n_above_peak, $
      CHECK_FOR_HIGHER_FLUX_PEAKS__SET_CORRESPONDING_PEAK_ENERGY=check_for_higher_flux_peaks__set_corresponding_peak_energy, $
      FIT_TOLERANCE=fit_tol, $
+     FIT2D_TOLERANCE=fit2d_tol, $
      MAX_ITERATIONS=max_iter, $
+     FIT2D_MAX_ITERATIONS=fit2d_max_iter, $
      ADD_GAUSSIAN_ESTIMATE=add_gaussian_estimate, $
      USE_SDT_GAUSSIAN_FIT=use_SDT_Gaussian_fit, $
      ADD_ONECOUNT_CURVE=add_oneCount_curve, $
