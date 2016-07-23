@@ -1,5 +1,5 @@
 ;;07/12/16
-PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__2D, $
+PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__2D__SAVE_FOR_OFFLINE, $
    SAVE_DATA=save_data, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps, $
@@ -14,9 +14,26 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
      use_je_current  = 1
   ENDIF
 
+  ;; GET_DATA,'ion_pa',    DATA=ion_pa_originalsk                                
+  ;; GET_DATA,'E_ALONG_V', DATA=eAlongV_originalsk
+  ;; GET_DATA,'dB_fac_v',  DATA=db_fac_originalsk
+  ;; GET_DATA,'ALT',       DATA=alt_originalsk
+  ;; GET_DATA,'ILAT',      DATA=ilat_originalsk
+  ;; GET_DATA,'el_0',      DATA=el_0_originalsk
+  ;; GET_DATA,'el_pa',     DATA=el_pa_originalsk
+  ;; GET_DATA,'ion_180',   DATA=ion_180_originalsk
+  ;; GET_DATA,'ion_pa',    DATA=ion_pa_originalsk                                
+  ;; GET_DATA,'Je',        DATA=Je_originalsk
+  ;; GET_DATA,'Jee',       DATA=Jee_originalsk
+  ;; GET_DATA,'Ji',        DATA=Ji_originalsk
+  ;; GET_DATA,'Jei',       DATA=Jei_originalsk
+  ;; GET_DATA,'fa_vel',    DATA=vel_originalsk
+  ;; GET_DATA,'B_model',   DATA=B_model_originalsk
+  ;; GET_DATA,'JeF',       DATA=JeF_originalsk
+
   use_data_dens      = 1
 
-  R_B                = 3 ;For calculating Maxwellian and Kappa current
+  R_B                = 3        ;For calculating Maxwellian and Kappa current
 
   fitDir             = '~/software/sdt/batch_jobs/saves_output_etc/'
   fitFile            = '20160721--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times.sav'
@@ -72,10 +89,15 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
                                           GET_TODAY_STRING(/DO_YYYYMMDD_FMT), $
                                           R_B)
 
+  saveStr                        = 'SAVE,'
+  offlineFile                    = 'orb_1849--' + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--burst_offline.sav'
+
   ;;Get fields stuff, eFields and magFields
   FA_FIELDS_DESPIN,T1=t1Adj,T2=t2Adj,DAT=despun_E
   GET_DATA,'E_NEAR_B',DATA=eNearB
   GET_DATA,'E_ALONG_V',DATA=eAlongV
+  GET_DATA,'E_ALONG_V',DATA=eAlongV_originalsk
+  saveStr+='eAlongV_originalsk,'
   STORE_DATA,'E_ALONG_V',DATA={x:eAlongV.x,y:SMOOTH(eAlongV.y,160,/EDGE_TRUNCATE)} 
   OPTIONS,'E_ALONG_V','ytitle','E Along V!C(mV/m)'
   YLIM,'E_ALONG_V',-1000,1000
@@ -86,6 +108,8 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
         UCLA_MAG_DESPIN
 
         GET_DATA,'dB_fac_v',DATA=db_fac
+        GET_DATA,'dB_fac_v',DATA=db_fac_originalsk
+        saveStr+='db_fac_originalsk,'
      ENDIF
 
      mintime                     = MIN(ABS(t1-db_fac.x),ind1)
@@ -110,9 +134,13 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   IF KEYWORD_SET(do_losscone) THEN BEGIN
      ;;Define loss cone angle
      GET_DATA,'ALT',DATA=alt
+     GET_DATA,'ALT',DATA=alt_originalsk
+     saveStr+='alt_originalsk,'
      loss_cone_alt               = alt.y[0]*1000.0
      lcw                         = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
      GET_DATA,'ILAT',DATA=ilat
+     GET_DATA,'ILAT',DATA=ilat_originalsk
+     saveStr+='ilat_originalsk,'
      north_south                 = ABS(ilat.y[0])/ilat.y[0]
 
      if north_south EQ -1 then begin
@@ -141,9 +169,11 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   iAngleChari                    = iAngle
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   GET_EN_SPEC,'fa_' + survOrBurst + '_c',UNITS='eflux',NAME='el_0',ANGLE=eAngle,RETRACE=1,T1=t1,T2=t2,/CALIB
-  GET_DATA,'el_0', DATA=tmp                                            ; get data structure
-  tmp.y                          = tmp.y>1.e1                                 ; Remove zeros
-  tmp.y                          = ALOG10(tmp.y)                              ; Pre-log
+  GET_DATA,'el_0', DATA=tmp     ; get data structure
+  GET_DATA,'el_0', DATA=el_0_originalsk
+  saveStr+='el_0_originalsk,'
+  tmp.y                          = tmp.y>1.e1                          ; Remove zeros
+  tmp.y                          = ALOG10(tmp.y)                       ; Pre-log
   STORE_DATA,'el_0', DATA=tmp                                          ; store data structure
   OPTIONS,'el_0','spec',1                                              ; set for spectrogram
   ZLIM,'el_0',7,9,0                                                    ; set z limits
@@ -160,9 +190,11 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Electron pitch angle spectrogram - survey data, remove retrace, >100 electrons
   GET_PA_SPEC,'fa_' + survOrBurst + '_c',UNITS='eflux',NAME='el_pa',ENERGY=energy_electrons,/SHIFT90,RETRACE=1,T1=t1,T2=t2,/CALIB
-  GET_DATA,'el_pa',DATA=tmp                                  ; get data structure
-  tmp.y                          = tmp.y>1.e1                       ; Remove zeros
-  tmp.y                          = ALOG10(tmp.y)                    ; Pre-log
+  GET_DATA,'el_pa',DATA=tmp     ; get data structure
+  GET_DATA,'el_pa',DATA=el_pa_originalsk
+  saveStr+='el_pa_originalsk,'                               ; get data structure
+  tmp.y                          = tmp.y>1.e1                ; Remove zeros
+  tmp.y                          = ALOG10(tmp.y)             ; Pre-log
   STORE_DATA,'el_pa',DATA=tmp                                ; store data structure
   OPTIONS,'el_pa','spec',1                                   ; set for spectrogram
   ZLIM,'el_pa',7,9,0                                         ; set z limits
@@ -181,9 +213,10 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   ionAngle                       = [0,180]
   ionAStr                        = STRCOMPRESS(ionAngle,/REMOVE_ALL)
   GET_EN_SPEC,'fa_' + iSurvOrBurst + '_c',UNITS='eflux',NAME='ion_180',ANGLE=ionAngle,RETRACE=1,T1=t1,T2=t2
-  GET_DATA,'ion_180',DATA=tmp                                                            ; get data structure
-  tmp.y                          = tmp.y > 1.                                                                     ; Remove zeros
-  tmp.y                          = ALOG10(tmp.y)                                                                  ; Pre-log
+  GET_DATA,'ion_180',DATA=tmp   ; get data structure
+  GET_DATA,'ion_180',DATA=ion_180_originalsk
+  saveStr+='ion_180_originalsk,'
+  tmp.y                          = ALOG10(tmp.y)                                         ; Pre-log
   STORE_DATA,'ion_180',DATA=tmp                                                          ; store data structure
   OPTIONS,'ion_180','spec',1                                                             ; set for spectrogram
   ZLIM,'ion_180',5,7,0                                                                   ; set z limits
@@ -200,9 +233,11 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Ion pitch angle spectrogram - survey data, remove retrace, >10 ions
   GET_PA_SPEC,'fa_' + iSurvOrBurst + '_c',UNITS='eflux',NAME='ion_pa',ENERGY=[10,30000],RETRACE=1,/SHIFT90,T1=t1,T2=t2
-  GET_DATA,'ion_pa',DATA=tmp                                ; get data structure
-  tmp.y                          = tmp.y > 1.                                        ; Remove zeros
-  tmp.y                          = ALOG10(tmp.y)                                     ; Pre-log
+  GET_DATA,'ion_pa',DATA=tmp    ; get data structure
+  GET_DATA,'ion_pa',DATA=ion_pa_originalsk
+  saveStr+='ion_pa_originalsk,'                                
+  tmp.y                          = tmp.y > 1.               ; Remove zeros
+  tmp.y                          = ALOG10(tmp.y)            ; Pre-log
   STORE_DATA,'ion_pa',DATA=tmp                              ; store data structure
   OPTIONS,'ion_pa','spec',1                                 ; set for spectrogram
   ZLIM,'ion_pa',5,7,0                                       ; set z limits
@@ -223,15 +258,23 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   GET_2DT,'je_2d_fs','fa_' + iSurvOrBurst + '_c',NAME='Jei',T1=t1,T2=t2,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
   ;;Remove_crap
   GET_DATA,'Je',DATA=tmp
+  GET_DATA,'Je',DATA=Je_originalsk
+  saveStr+='Je_originalsk,'
   keep1                          = WHERE(FINITE(tmp.y) NE 0)
   keep2                          = WHERE(ABS(tmp.y) GT 0.0)
   GET_DATA,'Jee',DATA=tmp
+  GET_DATA,'Jee',DATA=Jee_originalsk
+  saveStr+='Jee_originalsk,'
   keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
   keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
   GET_DATA,'Ji',DATA=tmp
+  GET_DATA,'Ji',DATA=Ji_originalsk
+  saveStr+='Ji_originalsk,'
   keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
   keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
   GET_DATA,'Jei',DATA=tmp
+  GET_DATA,'Jei',DATA=Jei_originalsk
+  saveStr+='Jei_originalsk,'
   keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
   keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
   GET_DATA,'Je',DATA=tmp
@@ -389,9 +432,9 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
                               potName,potTitleStr, $
                               USE_JE_CURRENT=use_je_current, $
                               USE_JMAG_CURRENT=use_jMag_current ;, $
-                              ;; /BOTH_USE_KAPPA_BULKENERGY, $
-                              
-                              ;; /BOTH_USE_MAXWELL_BULKENERGY
+  ;; /BOTH_USE_KAPPA_BULKENERGY, $
+  
+  ;; /BOTH_USE_MAXWELL_BULKENERGY
 
   IF KEYWORD_SET(use_data_dens) THEN BEGIN
      kappaDens = kappa2D.dens
@@ -400,14 +443,14 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
      kappaDens = kappa2D.dataDens
      gaussDens = gauss2D.dataDens
   ENDELSE
-     
+  
 
   GET_KAPPA_AND_MAXWELLIAN_CURRENT,AStruct,AStructGauss, $
                                    kappaPot,gaussPot,R_B, $
                                    kappa_current,gauss_current,obs_current, $
                                    DENSITY_KAPPA2D=kappaDens, $
                                    DENSITY_GAUSS2D=gaussDens ;, $
-                                   ;; /MAKE_CURRENTS_POSITIVE
+  ;; /MAKE_CURRENTS_POSITIVE
 
   
   STORE_DATA,'onecheese',DATA={x:kappaTime, $
@@ -454,6 +497,8 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   ;;Get speed and position for calculation of mag stuff
   GET_FA_ORBIT,magz.x,/TIME_ARRAY,/ALL
   GET_DATA,'fa_vel',DATA=vel
+  GET_DATA,'fa_vel',DATA=vel_originalsk
+  saveStr+='vel_originalsk,'
   speed                          = SQRT(vel.y[*,0]^2+vel.y[*,1]^2+vel.y[*,2]^2)*1000.0
 
   old_pos                        = 0.
@@ -492,7 +537,8 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   ;;Get orbit stuff
   ;; GET_FA_ORBIT,magz.x,/TIME_ARRAY,/ALL
   GET_DATA,'B_model',DATA=tmp1
-
+  GET_DATA,'B_model',DATA=B_model_originalsk
+  saveStr+='B_model_originalsk,'
   ;;Now make me smile, do the model subtraction
   JeDat                          = Je_integ_interp > 1
   IF KEYWORD_SET(ucla_mag_despin) THEN BEGIN
@@ -513,6 +559,8 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   ;; Electron flux
   GET_2DT,'j_2d_fs','fa_eeb_c',name='JeF',t1=t1,t2=t2,energy=[100,30000],ANGLE=eAngle
   GET_DATA,'JeF',DATA=tmp
+  GET_DATA,'JeF',DATA=JeF_originalsk
+  saveStr+='JeF_originalsk,'
   tmp.y                          = tmp.y>1.e1 ; Remove zeros
   STORE_DATA,'JeF',DATA={x:tmp.x,y:tmp.y}
   YLIM,'JeF',1.e8,2.e9,1                              ; set y limits
@@ -548,6 +596,11 @@ PRO JOURNAL__20160722__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
                       OUTDIR=outDir
 
   ENDIF
+
+  saveStr += 'FILENAME="'+offlineFile + '"'
+
+  PRINT,"Saving to " + offlineFile + " ..."
+  this     = EXECUTE(saveStr)
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Save data?
