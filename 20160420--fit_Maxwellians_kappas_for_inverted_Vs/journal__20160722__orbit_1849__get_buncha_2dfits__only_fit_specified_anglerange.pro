@@ -8,7 +8,8 @@ PRO JOURNAL__20160722__ORBIT_1849__GET_BUNCHA_2DFITS__ONLY_FIT_SPECIFIED_ANGLERA
   outDir                       = '~/software/sdt/batch_jobs/saves_output_etc/'
   ;; fitFile                      = '20160721--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times.sav'
   ;; fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--40to40.sav'
-  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--30to30.sav'
+  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150.sav'
+  ;; fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--30to30.sav'
   ;; fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times.sav'
 
   eeb_or_ees                   = 'eeb'
@@ -78,11 +79,11 @@ PRO JOURNAL__20160722__ORBIT_1849__GET_BUNCHA_2DFITS__ONLY_FIT_SPECIFIED_ANGLERA
 
   ;;Angle stuff
   only_fieldaligned            = 0
-  electron_angleRange          = [-28,28]
-  ;; electron_angleRange          = [-40,40]
+  ;; electron_angleRange          = [-28,28]
+  electron_angleRange          = [-40,40]
   ;; fit2D_density_angleRange     = [-180-electron_angleRange[0],180-electron_angleRange[1]]
-  fit2D_density_angleRange     = [-30,30]
-  ;; fit2D_density_angleRange     = [-40,40]
+  ;; fit2D_density_angleRange     = [-30,30]
+  fit2D_density_angleRange     = [-150,150]
  ;; electron_angleRange          = [-180,180]
 
   max_iter                     = 1000
