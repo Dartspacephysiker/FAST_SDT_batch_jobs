@@ -16,26 +16,8 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
 
   
   offlineFile                    = 'orb_1849--20160723--burst_offline.sav'
-  RESTORE,offlineFile
 
-  STORE_DATA,'ion_pa',    DATA=ion_pa_originalsk                                
-  STORE_DATA,'E_ALONG_V', DATA=eAlongV_originalsk
-  STORE_DATA,'dB_fac_v',  DATA=db_fac_originalsk
-  STORE_DATA,'ALT',       DATA=alt_originalsk
-  STORE_DATA,'ILAT',      DATA=ilat_originalsk
-  STORE_DATA,'el_0',      DATA=el_0_originalsk
-  STORE_DATA,'el_pa',     DATA=el_pa_originalsk
-  STORE_DATA,'ion_180',   DATA=ion_180_originalsk
-  STORE_DATA,'ion_pa',    DATA=ion_pa_originalsk                                
-  STORE_DATA,'Je',        DATA=Je_originalsk
-  STORE_DATA,'Jee',       DATA=Jee_originalsk
-  STORE_DATA,'Ji',        DATA=Ji_originalsk
-  STORE_DATA,'Jei',       DATA=Jei_originalsk
-  STORE_DATA,'fa_vel',    DATA=vel_originalsk
-  STORE_DATA,'B_model',   DATA=B_model_originalsk
-  STORE_DATA,'JeF',       DATA=JeF_originalsk
-
-  use_data_dens      = 1
+  use_data_dens      = 0
 
   R_B                = 3        ;For calculating Maxwellian and Kappa current
 
@@ -59,6 +41,28 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
 
   outSaveFile                    = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998_Fig_1--four_currents--2dfits' + $
                                    outSuff + '.sav'
+
+  ;;Restore the offlineFile
+  RESTORE,fitDir+offlineFile
+
+  STORE_DATA,'ion_pa',    DATA=ion_pa_originalsk                                
+  STORE_DATA,'E_ALONG_V', DATA=eAlongV_originalsk
+  STORE_DATA,'dB_fac_v',  DATA=db_fac_originalsk
+  STORE_DATA,'ALT',       DATA=alt_originalsk
+  STORE_DATA,'ILAT',      DATA=ilat_originalsk
+  STORE_DATA,'el_0',      DATA=el_0_originalsk
+  STORE_DATA,'el_pa',     DATA=el_pa_originalsk
+  STORE_DATA,'ion_180',   DATA=ion_180_originalsk
+  STORE_DATA,'ion_pa',    DATA=ion_pa_originalsk                                
+  STORE_DATA,'Je',        DATA=Je_originalsk
+  STORE_DATA,'Jee',       DATA=Jee_originalsk
+  STORE_DATA,'Ji',        DATA=Ji_originalsk
+  STORE_DATA,'Jei',       DATA=Jei_originalsk
+  STORE_DATA,'fa_vel',    DATA=vel_originalsk
+  STORE_DATA,'B_model',   DATA=B_model_originalsk
+  STORE_DATA,'JeF',       DATA=JeF_originalsk
+
+
 
   ;;Restore up front so it doesn't corrupt future variables
   RESTORE,fitDir+fitFile
@@ -89,9 +93,10 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   blue                           = 80
   black                          = 10
 
-  outPlotName                    = STRING(FORMAT='(A0,"--McFadden_et_al_1998--Fig_1--with_kappa_and_four_currents--RB_",G0.0)', $
+  outPlotName                    = STRING(FORMAT='(A0,"--McFadden_et_al_1998--Fig_1--with_kappa_and_four_currents--RB_",G0.0,A0)', $
                                           GET_TODAY_STRING(/DO_YYYYMMDD_FMT), $
-                                          R_B)
+                                          R_B, $
+                                          outSuff)
 
   offlineFile                    = 'orb_1849--20160723--burst_offline.sav'
 

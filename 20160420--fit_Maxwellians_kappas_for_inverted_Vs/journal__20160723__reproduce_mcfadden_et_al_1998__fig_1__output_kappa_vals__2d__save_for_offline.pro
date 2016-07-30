@@ -53,6 +53,8 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   kappaTxtFile                 = '20160722--McFadden_et_al_1998--Kappa_fits.txt'
   gaussTxtFile                 = '20160722--McFadden_et_al_1998--Gauss_fits.txt'
 
+  offlineFile                    = 'orb_1849--' + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--burst_offline.sav'
+
   outSaveFile                    = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998_Fig_1--four_currents--2dfits' + $
                                    outSuff + '.sav'
 
@@ -85,12 +87,12 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   blue                           = 80
   black                          = 10
 
-  outPlotName                    = STRING(FORMAT='(A0,"--McFadden_et_al_1998--Fig_1--with_kappa_and_four_currents--RB_",G0.0)', $
+  outPlotName                    = STRING(FORMAT='(A0,"--McFadden_et_al_1998--Fig_1--with_kappa_and_four_currents--RB_",G0.0,A0)', $
                                           GET_TODAY_STRING(/DO_YYYYMMDD_FMT), $
-                                          R_B)
+                                          R_B, $
+                                          outSuff)
 
   saveStr                        = 'SAVE,'
-  offlineFile                    = 'orb_1849--' + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--burst_offline.sav'
 
   ;;Get fields stuff, eFields and magFields
   FA_FIELDS_DESPIN,T1=t1Adj,T2=t2Adj,DAT=despun_E
@@ -108,9 +110,10 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
         UCLA_MAG_DESPIN
 
         GET_DATA,'dB_fac_v',DATA=db_fac
-        GET_DATA,'dB_fac_v',DATA=db_fac_originalsk
-        saveStr+='db_fac_originalsk,'
      ENDIF
+
+     GET_DATA,'dB_fac_v',DATA=db_fac_originalsk
+     saveStr+='db_fac_originalsk,'
 
      mintime                     = MIN(ABS(t1-db_fac.x),ind1)
      mintime                     = MIN(ABS(t2-db_fac.x),ind2)
@@ -597,7 +600,7 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
 
   ENDIF
 
-  saveStr += 'FILENAME="'+offlineFile + '"'
+  saveStr += 'FILENAME="'+fitDir+offlineFile + '"'
 
   PRINT,"Saving to " + offlineFile + " ..."
   this     = EXECUTE(saveStr)
