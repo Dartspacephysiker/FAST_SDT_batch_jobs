@@ -77,6 +77,11 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
   ;;                  kappa_current, maxwell_current, R_B
   RESTORE,saveDir+inSaveFile
 
+  IF N_ELEMENTS(fit2DKappa_inf_list) NE N_ELEMENTS(fit2DGauss_inf_list) THEN BEGIN
+     PRINT,"These lists are out of order! You're about to enter a world of confusion and pain, and I beg you reconsider."
+     STOP
+  ENDIF
+
   kappa2D            = PARSE_KAPPA_FIT2D_INFO_LIST(fit2DKappa_inf_list, $
                                                    HIGHDENSITY_THRESHOLD=highDens_thresh, $
                                                    KAPPA_LOWTHRESHOLD=lKappa_thresh, $

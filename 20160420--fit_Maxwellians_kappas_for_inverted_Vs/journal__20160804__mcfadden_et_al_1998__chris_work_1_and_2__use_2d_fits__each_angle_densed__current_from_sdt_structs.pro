@@ -13,6 +13,7 @@
 ;
 ; In this pro, we're simply plotting the current obtained from the SDT routine J_2D_FS
 PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EACH_ANGLE_DENSED__CURRENT_FROM_SDT_STRUCTS, $
+   ADD_LINEAR_FITS=add_linear_fits, $
    USE_JE_CURRENT=use_je_current, $
    USE_JMAG_CURRENT=use_jMag_current, $
    HIGHDENS_THRESH=highDens_thresh, $
@@ -29,12 +30,6 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
   ;;What we were using in the journal from the other day to generate these fit files
   eAngleCharE        = [330,30]
   energy_electrons   = [100.,36000.]
-
-  ;;Defaults
-  ;; defR_B              = 3.0
-  ;; IF N_ELEMENTS(magRatio1) EQ 0 THEN BEGIN
-  ;;    magRatio1        = defR_B
-  ;; ENDIF
 
   KAPPA_FITFILE_STRING,outSuff, $
                        ;; R_B=magRatio1, $
@@ -69,17 +64,30 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
   ;;                  kappa_current, maxwell_current, R_B
   RESTORE,saveDir+inSaveFile
 
+  IF N_ELEMENTS(fit2DKappa_inf_list) NE N_ELEMENTS(fit2DGauss_inf_list) THEN BEGIN
+     PRINT,"These lists are out of order! You're about to enter a world of confusion and pain, and I beg you reconsider."
+     STOP
+  ENDIF
+
   kappa2D            = PARSE_KAPPA_FIT2D_INFO_LIST(fit2DKappa_inf_list, $
                                                    HIGHDENSITY_THRESHOLD=highDens_thresh, $
                                                    KAPPA_LOWTHRESHOLD=lKappa_thresh, $
                                                    KAPPA_HIGHTHRESHOLD=hKappa_thresh, $
-                                                   /DESTROY_INFO_LIST)
+                                                   /DESTROY_INFO_LIST, $
+                                                   OUT_GOOD_I=includeK_i, $
+                                                   OUT_GOOD_T=includeK_t, $
+                                                   OUT_BAD_I=excludeK_i, $
+                                                   OUT_BAD_T=excludeK_t)
 
   gauss2D            = PARSE_KAPPA_FIT2D_INFO_LIST(fit2DGauss_inf_list, $
                                                    HIGHDENSITY_THRESHOLD=highDens_thresh, $
                                                    KAPPA_LOWTHRESHOLD=lKappa_thresh, $
                                                    KAPPA_HIGHTHRESHOLD=100.1, $
-                                                   /DESTROY_INFO_LIST)
+                                                   /DESTROY_INFO_LIST, $
+                                                   OUT_GOOD_I=includeG_i, $
+                                                   OUT_GOOD_T=includeG_t, $
+                                                   OUT_BAD_I=excludeG_i, $
+                                                   OUT_BAD_T=excludeG_t)
 
   PARSE_KAPPA_FIT_STRUCTS,kappa2D.params1D, $
                           A=a, $
@@ -147,7 +155,7 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
                (KEYWORD_SET(orbit) ? '!C(FAST orbit ' +STRCOMPRESS(orbit,/REMOVE_ALL) + ')' : '')
 
   xTitle    = obsName1 + ' Current (microA/m!U2!N)'
-  yTitle    = 'Model Current (microA/m!U2!N)'
+  yTitle    = 'SDT-Derived Current (microA/m!U2!N)'
 
   WINDOW_CUSTOM_SETUP,NPLOTROWS=1, $
                       NPLOTCOLUMNS=1, $
@@ -160,7 +168,7 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
                       XTITLE=xTitle, $
                       YTITLE=yTitle, $
                       ;; ROW_NAMES=[plotTitle1,plotTitle2], $
-                      ROW_NAMES=potTitleStr1, $
+                      ;; ROW_NAMES=potTitleStr1, $
                       /MAKE_NEW, $
                       CURRENT_WINDOW=window, $
                       ;; WINDOW_DIMENSIONS=[800,900]
@@ -175,6 +183,9 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
   yRange   = [0,2.5]
 
   plotArr1 = PLOT_KAPPA_MAXWELL_AND_OBSERVED_CURRENT(kappa_current1,gauss_current1,obs_current1, $
+                                                     EXCLUDE_KAPPA_I=excludeK_i, $
+                                                     EXCLUDE_GAUSS_I=excludeG_i, $
+                                                     ADD_LINEAR_FITS=add_linear_fits, $
                                                      ;; MAGRATIO=magRatio1, $
                                                      OBSNAME=obsName1, $
                                                      POSITION=WINDOW_CUSTOM_NEXT_POS(), $

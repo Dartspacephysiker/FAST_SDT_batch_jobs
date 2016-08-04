@@ -71,7 +71,6 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
   fitFile            = '20160804--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times.sav'
 
   fitFile            = '20160804--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150.sav'
-  outSuff            = '--150_to_150'
 
   inSaveFile         = '20160804--McFadden_et_al_1998_Fig_1--four_currents--2dfits' + outSuff + '.sav'
 
@@ -91,17 +90,30 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
   ;;                  kappa_current, maxwell_current, R_B
   RESTORE,saveDir+inSaveFile
 
+  IF N_ELEMENTS(fit2DKappa_inf_list) NE N_ELEMENTS(fit2DGauss_inf_list) THEN BEGIN
+     PRINT,"These lists are out of order! You're about to enter a world of confusion and pain, and I beg you reconsider."
+     STOP
+  ENDIF
+
   kappa2D            = PARSE_KAPPA_FIT2D_INFO_LIST(fit2DKappa_inf_list, $
                                                    HIGHDENSITY_THRESHOLD=highDens_thresh, $
                                                    KAPPA_LOWTHRESHOLD=lKappa_thresh, $
                                                    KAPPA_HIGHTHRESHOLD=hKappa_thresh, $
-                                                   /DESTROY_INFO_LIST)
+                                                   /DESTROY_INFO_LIST, $
+                                                   OUT_GOOD_I=includeK_i, $
+                                                   OUT_GOOD_T=includeK_t, $
+                                                   OUT_BAD_I=excludeK_i, $
+                                                   OUT_BAD_T=excludeK_t)
 
   gauss2D            = PARSE_KAPPA_FIT2D_INFO_LIST(fit2DGauss_inf_list, $
                                                    HIGHDENSITY_THRESHOLD=highDens_thresh, $
                                                    KAPPA_LOWTHRESHOLD=lKappa_thresh, $
                                                    KAPPA_HIGHTHRESHOLD=100.1, $
-                                                   /DESTROY_INFO_LIST)
+                                                   /DESTROY_INFO_LIST, $
+                                                   OUT_GOOD_I=includeG_i, $
+                                                   OUT_GOOD_T=includeG_t, $
+                                                   OUT_BAD_I=excludeG_i, $
+                                                   OUT_BAD_T=excludeG_t)
 
   PARSE_KAPPA_FIT_STRUCTS,kappa2D.params1D, $
                           A=a, $
@@ -210,6 +222,15 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
   KAPPA_FLIP_CURRENT,kappa_current3,gauss_current3,obs_current3
   ;; ENDIF
 
+  ;;Now junk the junk
+  ;; kappa_current1[WHERE(excludeK_i)] = 0.0D
+  ;; kappa_current2[WHERE(excludeK_i)] = 0.0D
+  ;; kappa_current3[WHERE(excludeK_i)] = 0.0D
+
+  ;; gauss_current1[WHERE(excludeG_i)] = 0.0D
+  ;; gauss_current2[WHERE(excludeG_i)] = 0.0D
+  ;; gauss_current3[WHERE(excludeG_i)] = 0.0D
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Now for plotting
 
@@ -276,6 +297,8 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
   yRange   = [0,3.0]
 
   plotArr1 = PLOT_KAPPA_MAXWELL_AND_OBSERVED_CURRENT(kappa_current1,gauss_current1,obs_current1, $
+                                                     EXCLUDE_KAPPA_I=excludeK_i, $
+                                                     EXCLUDE_GAUSS_I=excludeG_i, $
                                                      ADD_LINEAR_FITS=add_linear_fits, $
                                                      ;; MAGRATIO=magRatio1, $
                                                      OBSNAME=obsName1, $
@@ -291,6 +314,8 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
                                                      BUFFER=buffer)
   
   plotArr2 = PLOT_KAPPA_MAXWELL_AND_OBSERVED_CURRENT(kappa_current2,gauss_current2,obs_current2, $
+                                                     EXCLUDE_KAPPA_I=excludeK_i, $
+                                                     EXCLUDE_GAUSS_I=excludeG_i, $
                                                      ADD_LINEAR_FITS=add_linear_fits, $
                                                      ;; MAGRATIO=magRatio2, $
                                                      OBSNAME=obsName2, $
@@ -309,6 +334,8 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
                                                      BUFFER=buffer)
   
   plotArr3 = PLOT_KAPPA_MAXWELL_AND_OBSERVED_CURRENT(kappa_current3,gauss_current3,obs_current3, $
+                                                     EXCLUDE_KAPPA_I=excludeK_i, $
+                                                     EXCLUDE_GAUSS_I=excludeG_i, $
                                                      ADD_LINEAR_FITS=add_linear_fits, $
                                                      ;; MAGRATIO=magRatio3, $
                                                      OBSNAME=obsName3, $
@@ -345,6 +372,8 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
      PRINT_KAPPA_GAUSS_CORRS_FOR_VARIOUS_MAGRATIOS,AStruct,AStructGauss, $
         obs_current1, $
         kappaPot1,gaussPot1, $
+        EXCLUDE_KAPPA_I=excludeK_i, $
+        EXCLUDE_GAUSS_I=excludeG_i, $
         DENSITY_KAPPA2D=kappa2D.dens, $
         DENSITY_GAUSS2D=gauss2D.dens, $
         RBCORRLUN=RBCorrLun
@@ -356,6 +385,8 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
      PRINT_KAPPA_GAUSS_CORRS_FOR_VARIOUS_MAGRATIOS,AStruct,AStructGauss, $
         obs_current2, $
         kappaPot2,gaussPot2, $
+        EXCLUDE_KAPPA_I=excludeK_i, $
+        EXCLUDE_GAUSS_I=excludeG_i, $
         DENSITY_KAPPA2D=kappa2D.dens, $
         DENSITY_GAUSS2D=gauss2D.dens, $
         RBCORRLUN=RBCorrLun
@@ -367,6 +398,8 @@ PRO JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
      PRINT_KAPPA_GAUSS_CORRS_FOR_VARIOUS_MAGRATIOS,AStruct,AStructGauss, $
         obs_current3, $
         kappaPot3,gaussPot3, $
+        EXCLUDE_KAPPA_I=excludeK_i, $
+        EXCLUDE_GAUSS_I=excludeG_i, $
         DENSITY_KAPPA2D=kappa2D.dens, $
         DENSITY_GAUSS2D=gauss2D.dens, $
         RBCORRLUN=RBCorrLun

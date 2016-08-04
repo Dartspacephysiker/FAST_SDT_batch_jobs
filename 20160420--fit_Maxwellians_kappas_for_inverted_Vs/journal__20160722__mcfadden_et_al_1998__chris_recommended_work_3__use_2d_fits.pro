@@ -25,8 +25,6 @@ PRO JOURNAL__20160722__MCFADDEN_ET_AL_1998__CHRIS_RECOMMENDED_WORK_3__USE_2D_FIT
    MAGRATIO=magRatio, $
    USE_JE_CURRENT=use_je_current, $
    USE_JMAG_CURRENT=use_jMag_current, $
-   ;; USE_CHARE_POT=use_charE_pot, $
-   ;; USE_BULKENERGY_POT=use_bulkEnergy_pot, $
    NO_CHARI_FOR_POT=no_charI_for_pot, $
    ALL_USE_KAPPA_BULKENERGY=both_use_kappa_bulkenergy, $
    ALL_USE_MAXWELL_BULKENERGY=both_use_maxwell_bulkenergy, $
@@ -34,7 +32,6 @@ PRO JOURNAL__20160722__MCFADDEN_ET_AL_1998__CHRIS_RECOMMENDED_WORK_3__USE_2D_FIT
    YLOG=yLog, $
    XRANGE=xRange, $
    YRANGE=yRange, $
-   KAPPA_MAX=kappa_max, $
    EXCLUDE_BAD_FITS=exclude_bad_fits, $
    SAVE_PLOT=save_plot
 
@@ -101,7 +98,6 @@ PRO JOURNAL__20160722__MCFADDEN_ET_AL_1998__CHRIS_RECOMMENDED_WORK_3__USE_2D_FIT
                               potName,potTitleStr, $
                               USE_JE_CURRENT=use_je_current, $
                               USE_JMAG_CURRENT=use_jMag_current, $
-                              ;; USE_CHARE_POT=use_charE_pot, $
                               USE_BULKENERGY_POT=use_bulkEnergy_pot, $
                               BOTH_USE_KAPPA_BULKENERGY=both_use_kappa_bulkenergy, $
                               BOTH_USE_MAXWELL_BULKENERGY=both_use_maxwell_bulkenergy, $
@@ -126,23 +122,7 @@ PRO JOURNAL__20160722__MCFADDEN_ET_AL_1998__CHRIS_RECOMMENDED_WORK_3__USE_2D_FIT
 
   window             = WINDOW(DIMENSIONS=[1000,750])
 
-  ;;    plotTitle = 'Model Currents vs. ' + obsName + ' Current' + $
-  ;;                   (KEYWORD_SET(orbit) ? '!C(FAST orbit ' +STRCOMPRESS(orbit,/REMOVE_ALL) + ')' : '')
-  ;;    xTitle    = 'Observed Current (' + CGGREEK('mu') + 'A/m!U2!N)'
-  ;;    yTitle    = 'Model Current (' + CGGREEK('mu') + 'A/m!U2!N)'
-
-  ;; WINDOW_CUSTOM_SETUP,NPLOTROWS=2, $
-  ;;                     NPLOTCOLUMNS=1, $
-  ;;                     WINDOW_TITLE=plotTitle, $
-  ;;                     XTITLE=xTitle, $
-  ;;                     YTITLE=yTitle, $
-  ;;                     /MAKE_NEW, $
-  ;;                     CURRENT_WINDOW=window, $
-  ;;                     WINDOW_DIMENSIONS=[1000,800]
-
-
   xRange = [2e3,2.5e4]
-  ;; xRange = [MIN(kappaPot),MAX(kappaPot)]
   xLog   = 1
   yLog   = 0
 

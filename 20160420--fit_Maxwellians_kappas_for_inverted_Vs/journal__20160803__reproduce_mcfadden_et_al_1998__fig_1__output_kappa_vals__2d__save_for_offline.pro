@@ -34,7 +34,7 @@ PRO JOURNAL__20160803__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
 
   use_data_dens      = 0
 
-  R_B                = 10.0        ;For calculating Maxwellian and Kappa current
+  R_B                = 5.0      ;For calculating Maxwellian and Kappa current
 
   fitDir             = '~/software/sdt/batch_jobs/saves_output_etc/'
 
@@ -86,7 +86,7 @@ PRO JOURNAL__20160803__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   blue                           = 80
   black                          = 10
 
-  outPlotName                    = STRING(FORMAT='(A0,"--McFadden_et_al_1998--Fig_1--with_kappa_and_four_currents",A0)', $
+  outPlotName                    = STRING(FORMAT='(A0,"--McFadden_et_al_1998--Fig_1--with_kappa_and_four_currents--butnowitsright--",A0)', $
                                           GET_TODAY_STRING(/DO_YYYYMMDD_FMT), $
                                           outSuff)
 
@@ -324,17 +324,30 @@ PRO JOURNAL__20160803__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   OPTIONS,'charepanel','ytickv',[0.,5.e3,1.0e4,1.5e4,2.0e4]           ; set y-axis labels
 
   ;;Now get kappa vals from file restored at beginning of routine
+  IF N_ELEMENTS(fit2DKappa_inf_list) NE N_ELEMENTS(fit2DGauss_inf_list) THEN BEGIN
+     PRINT,"These lists are out of order! You're about to enter a world of confusion and pain, and I beg you reconsider."
+     STOP
+  ENDIF
+
   kappa2D            = PARSE_KAPPA_FIT2D_INFO_LIST(fit2DKappa_inf_list, $
                                                    HIGHDENSITY_THRESHOLD=highDens_thresh, $
                                                    KAPPA_LOWTHRESHOLD=lKappa_thresh, $
                                                    KAPPA_HIGHTHRESHOLD=hKappa_thresh, $
-                                                   /DESTROY_INFO_LIST)
+                                                   /DESTROY_INFO_LIST, $
+                                                   OUT_GOOD_I=includeK_i, $
+                                                   OUT_GOOD_T=includeK_t, $
+                                                   OUT_BAD_I=excludeK_i, $
+                                                   OUT_BAD_T=excludeK_t)
 
   gauss2D            = PARSE_KAPPA_FIT2D_INFO_LIST(fit2DGauss_inf_list, $
                                                    HIGHDENSITY_THRESHOLD=highDens_thresh, $
                                                    KAPPA_LOWTHRESHOLD=lKappa_thresh, $
                                                    KAPPA_HIGHTHRESHOLD=100.1, $
-                                                   /DESTROY_INFO_LIST)
+                                                   /DESTROY_INFO_LIST, $
+                                                   OUT_GOOD_I=includeG_i, $
+                                                   OUT_GOOD_T=includeG_t, $
+                                                   OUT_BAD_I=excludeG_i, $
+                                                   OUT_BAD_T=excludeG_t)
 
   PARSE_KAPPA_FIT_STRUCTS,kappa2D.params1D, $
                           A=a, $
@@ -359,7 +372,7 @@ PRO JOURNAL__20160803__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   badGaussFits_i               = WHERE(gaussFitStatus NE 0,nBadGaussFits)
   PRINT,""
   PRINT,"****************************************"
-  PRINT,'NTotalFits    : ',N_ELEMENTS(nFits)
+  PRINT,'NTotalFits    : ',nFits
   PRINT,''
   PRINT,"NbadFits      : ",nBadFits
   PRINT,"NbadGaussFits : ",nBadGaussFits
