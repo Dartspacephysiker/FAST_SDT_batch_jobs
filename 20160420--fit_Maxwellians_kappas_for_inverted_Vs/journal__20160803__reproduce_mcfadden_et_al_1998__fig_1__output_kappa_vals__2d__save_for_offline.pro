@@ -1,12 +1,13 @@
 ;;07/12/16
-PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__2D__SAVE_FOR_OFFLINE, $
+PRO JOURNAL__20160803__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__2D__SAVE_FOR_OFFLINE, $
    SAVE_DATA=save_data, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps, $
    HIGHDENSITY_THRESHOLD=highDens_thresh, $
    KAPPA_LOWTHRESHOLD=lKappa_thresh, $
    KAPPA_HIGHTHRESHOLD=hKappa_thresh, $
-   USE_JE_CURRENT=use_je_current
+   USE_JE_CURRENT=use_je_current, $
+   SDT_CALC__NO_MODEL=SDT_calc__no_model
 
   COMPILE_OPT IDL2
 
@@ -31,29 +32,27 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   ;; GET_DATA,'B_model',   DATA=B_model_originalsk
   ;; GET_DATA,'JeF',       DATA=JeF_originalsk
 
-  use_data_dens      = 1
+  use_data_dens      = 0
 
-  R_B                = 3        ;For calculating Maxwellian and Kappa current
+  R_B                = 10.0        ;For calculating Maxwellian and Kappa current
 
   fitDir             = '~/software/sdt/batch_jobs/saves_output_etc/'
-  fitFile            = '20160721--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times.sav'
 
-  fitFile            = '20160723--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150.sav'
-  outSuff            = '--150_to_150' + (KEYWORD_SET(use_data_dens) ? "--data_dens" : "")
+  fitFile            = '20160804--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150.sav'
 
-  ;; fitFile            = '20160722--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--30to30.sav'
-  ;; outSuff            = '--30_to_30'
-
-  ;; fitFile            = '20160722--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--40to40.sav'
-  ;; outSuff            = '--40_to_40'
-
-  ;; fitFile_noFA       = '20160722--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times_nostart_from_fieldaligned--90to90.sav'
-
-
-  kappaTxtFile                 = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits.txt'
-  gaussTxtFile                 = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Gauss_fits.txt'
+  kappaTxtFile                 = '20160804--McFadden_et_al_1998--Kappa_fits.txt'
+  gaussTxtFile                 = '20160804--McFadden_et_al_1998--Gauss_fits.txt'
 
   offlineFile                    = 'orb_1849--' + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--burst_offline.sav'
+
+  KAPPA_FITFILE_STRING,outSuff, $
+                       R_B=R_B, $
+                       USE_DATA_DENS=use_data_dens, $
+                       SDT_CALC__NO_MODEL=SDT_calc__no_model, $
+                       LKAPPA_THRESH=lKappa_thresh, $
+                       HKAPPA_THRESH=hKappa_thresh, $
+                       HIGHDENS_THRESH=highDens_thresh
+
 
   outSaveFile                    = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998_Fig_1--four_currents--2dfits' + $
                                    outSuff + '.sav'
@@ -87,9 +86,8 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   blue                           = 80
   black                          = 10
 
-  outPlotName                    = STRING(FORMAT='(A0,"--McFadden_et_al_1998--Fig_1--with_kappa_and_four_currents--RB_",G0.0,A0)', $
+  outPlotName                    = STRING(FORMAT='(A0,"--McFadden_et_al_1998--Fig_1--with_kappa_and_four_currents",A0)', $
                                           GET_TODAY_STRING(/DO_YYYYMMDD_FMT), $
-                                          R_B, $
                                           outSuff)
 
   saveStr                        = 'SAVE,'
@@ -430,7 +428,7 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
            Ji:Ji_kappa_interp}
 
   SETUP_POTENTIAL_AND_CURRENT,setup, $ 
-                              obs_current,obsName,obsSff, $
+                              obs_current,obsName,obsSuff, $
                               kappaPot,gaussPot, $
                               potName,potTitleStr, $
                               USE_JE_CURRENT=use_je_current, $
@@ -440,39 +438,46 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   ;; /BOTH_USE_MAXWELL_BULKENERGY
 
   IF KEYWORD_SET(use_data_dens) THEN BEGIN
-     kappaDens = kappa2D.dens
-     gaussDens = gauss2D.dens
-  ENDIF ELSE BEGIN
      kappaDens = kappa2D.dataDens
      gaussDens = gauss2D.dataDens
+  ENDIF ELSE BEGIN
+     kappaDens = kappa2D.dens
+     gaussDens = gauss2D.dens
   ENDELSE
   
 
-  GET_KAPPA_AND_MAXWELLIAN_CURRENT,AStruct,AStructGauss, $
-                                   kappaPot,gaussPot,R_B, $
-                                   kappa_current,gauss_current,obs_current, $
-                                   DENSITY_KAPPA2D=kappaDens, $
-                                   DENSITY_GAUSS2D=gaussDens ;, $
-  ;; /MAKE_CURRENTS_POSITIVE
+  CASE 1 OF
+     KEYWORD_SET(SDT_calc__no_model): BEGIN
+        GET_2DFIT_KAPPA_AND_MAXWELLIAN_CURRENT,kappa2D,gauss2D, $
+                                               kappa_current,gauss_current, $
+                                               ENERGY_ELECTRONS=energy_electrons, $
+                                               ANGLE=eAngleCharE
+     END
+     ELSE: BEGIN
+        GET_KAPPA_AND_MAXWELLIAN_CURRENT,AStruct,AStructGauss, $
+                                         kappaPot,gaussPot,R_B, $
+                                         kappa_current,gauss_current,obs_current, $
+                                         DENSITY_KAPPA2D=kappaDens, $
+                                         DENSITY_GAUSS2D=gaussDens ;, $
+     END
+  ENDCASE
 
   
   STORE_DATA,'onecheese',DATA={x:kappaTime, $
-                               ;; y:[[jMag_interp],[obs_current],[kappa_current],[gauss_current]]}
+
                                y:obs_current}
   STORE_DATA,'fourcheese',DATA={x:jMag.x, $
-                                ;; y:[[jMag_interp],[obs_current],[kappa_current],[gauss_current]]}
+
                                 y:jMag.y}
   STORE_DATA,'toppings',DATA={x:[[kappaStr.time],[kappaStr.time]], $
-                              ;; y:[[jMag_interp],[obs_current],[kappa_current],[gauss_current]]}
+
                               y:[[gauss_current],[kappa_current]]}
 
   OPTIONS,'onecheese','colors',green
   OPTIONS,'onecheese','tplot_routine','mplot'
   OPTIONS,'onecheese','ytitle','Current!C('+CGGREEK('mu')+'A/m!U2!Ns)'
   YLIM,   'onecheese',-4,0
-  ;; OPTIONS,'onecheese','yticks',7                                                  ; set y-axis labels
-  ;; OPTIONS,'onecheese','ytickname',['-3.0','-2.5','-2.0','-1.5','-1.0','-0.5','0'] ; set y-axis labels
-  ;; OPTIONS,'onecheese','ytickv',[-3.0,-2.5,-2.0,-1.5,-1.0,-0.5,0.0]                ; set y-axis labels
+
   OPTIONS,'onecheese','labels',obsName
   OPTIONS,'onecheese','labflag',3
   OPTIONS,'onecheese','labpos',-0.5
@@ -484,10 +489,7 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   OPTIONS,'fourcheese','labels','Fluxgate mag'
   OPTIONS,'fourcheese','labflag',3
   OPTIONS,'fourcheese','labpos',-1.5
-  ;; OPTIONS,'fourcheese','labels',['Maxwellian Model','Kappa model',obs_name,'Fluxmag']
-  ;; OPTIONS,'fourcheese','labels',[obs_name,'!CFluxmag']
 
-  ;; OPTIONS,'toppings','labels',['Maxwellian Model','Kappa model',obs_name,'Fluxmag']
   OPTIONS,'toppings','labels' ,['Maxwellian Model','Kappa model']
   OPTIONS,'toppings','psym'   ,1
   OPTIONS,'toppings','colors' ,[20,blue]
@@ -538,7 +540,6 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
   Je_integ_interp                = Je_integ_interp+(magz.y[0]-Je_integ_interp[0])
 
   ;;Get orbit stuff
-  ;; GET_FA_ORBIT,magz.x,/TIME_ARRAY,/ALL
   GET_DATA,'B_model',DATA=tmp1
   GET_DATA,'B_model',DATA=B_model_originalsk
   saveStr+='B_model_originalsk,'
@@ -633,28 +634,19 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
      ENDIF
 
      IF KEYWORD_SET(save_png) THEN BEGIN
-        CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=0 ;,XSIZE=4,YSIZE=7
+        CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=0 
      ENDIF ELSE BEGIN
         IF KEYWORD_SET(save_ps) THEN BEGIN
-           ;; CGPS_OPEN, './plots/McFadden_et_al_1998--Fig_1.ps',FONT=0,XSIZE=4,YSIZE=7
-           POPEN,plotDir+outPlotName,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
+
+           POPEN,plotDir+outPlotName,/PORT,FONT=-1 
            DEVICE,/PALATINO,FONT_SIZE=8
-           ;; DEVICE,SET_FONT='Garamond*15'
-           ;; !P.FONT            = -1
+
         ENDIF ELSE BEGIN
            WINDOW,0,XSIZE=700,YSIZE=900
         ENDELSE
      ENDELSE
 
-     ;; LOADCT,74
      LOADCT,39
-
-     ;; TPLOT,['el_0','el_pa','ion_180','ion_pa','E_ALONG_V', $
-     ;;        'charepanel','dBpanel','JeF','onecheese','kappa_fit'], $
-     ;;       VAR_LABEL=['ALT','MLT','ILAT'], $
-     ;;       TRANGE=[t1,t2]
-     ;;got more than we need so smoothing can be nice
-     ;; TLIMIT,t1+10.,t2-10.
 
      TPLOT,['E_ALONG_V','charepanel','onecheese','kappa_fit'], $
            VAR_LABEL=['ALT','MLT','ILAT'], $
@@ -665,12 +657,10 @@ PRO JOURNAL__20160723__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
      TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
      TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
      IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
-        ;; CGPS_CLOSE, PNG=KEYWORD_SET(save_png),DELETE_PS=KEYWORD_SET(save_png);, WIDTH=1000
+
         PCLOSE
      ENDIF ELSE BEGIN
-        ;; IF KEYWORD_SET(save_ps) THEN BEGIN
-        ;;    PCLOSE
-        ;; ENDIF
+
      ENDELSE
   ENDIF
 
