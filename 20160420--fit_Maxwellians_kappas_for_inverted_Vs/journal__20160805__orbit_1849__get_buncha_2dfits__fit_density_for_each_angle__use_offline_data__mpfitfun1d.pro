@@ -1,5 +1,5 @@
 ;;08/03/16 But what if you tried it the other way?
-PRO JOURNAL__20160803__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE__USE_OFFLINE_DATA
+PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE__USE_OFFLINE_DATA__MPFITFUN1D
 
   COMPILE_OPT IDL2
 
@@ -10,7 +10,7 @@ PRO JOURNAL__20160803__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
 
   outDir                       = '~/software/sdt/batch_jobs/saves_output_etc/'
 
-  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150.sav'
+  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d.sav'
 
   diff_eFlux_file              = 'orb_1849--diff_eflux--eeb--output_from_get_losscone_and_eflux_data.sav'
 
@@ -34,8 +34,10 @@ PRO JOURNAL__20160803__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   vary_bulk_energy             = 1
   fit2d__only_fit_densAngles   = 1
 
+  use_mpFit1D                  = 1
+
   fit_each__skip_bad_fits      = 1
-  fit_each__show_and_prompt    = 1
+  fit_each__show_and_prompt    = 0
   fit_fail__user_prompt        = 0
   dont_take_stock_of_bulkangle = 1
 
@@ -63,15 +65,16 @@ PRO JOURNAL__20160803__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   t2                           = STR_TO_TIME(t2Str)
 
   estimate_A_from_data         = 1
-  dont_print_estimates         = 0
+  dont_print_estimates         = 1
+  dont_print_fitinfo           = 0
 
   n_below_peak                 = 2
-  n_above_peak                 = 5
+  n_above_peak                 = 7
   dont_fit_below_thresh_value  = 1
   bulk_offset                  = 0
 
   add_gaussian_estimate        = 1
-  use_SDT_Gaussian_fit         = 0
+
   add_oneCount_curve           = 1
 
   no_plots                     = 1
@@ -90,8 +93,8 @@ PRO JOURNAL__20160803__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   fit2D_density_angleRange     = [-150,150]
  ;; electron_angleRange          = [-180,180]
 
-  max_iter                     = 1000
-  fit2d_max_iter               = 1000
+  max_iter                     = 4000
+  fit2d_max_iter               = 4000
 
   fit_tol                      = 1e-3
   fit2d_tol                    = 1e-3
@@ -144,6 +147,7 @@ PRO JOURNAL__20160803__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
      ESTIMATE_FITPARAMS_FROM_SDT_DAT=estimate_A_from_data, $
      ESTIMATE_FACTORS=estFacs, $
      DONT_PRINT_ESTIMATES=dont_print_estimates, $
+     DONT_PRINT_FITINFO=dont_print_fitInfo, $
      TRIM_ENERGIES_BELOW_PEAK=trim_energies_below_peak, $
      DONT_FIT_BELOW_THRESH_VALUE=dont_fit_below_thresh_value, $
      N_ENERGIES_BELOW_PEAK=n_below_peak, $
@@ -155,6 +159,7 @@ PRO JOURNAL__20160803__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
      FIT2D_MAX_ITERATIONS=fit2d_max_iter, $
      ADD_GAUSSIAN_ESTIMATE=add_gaussian_estimate, $
      USE_SDT_GAUSSIAN_FIT=use_SDT_Gaussian_fit, $
+     USE_MPFIT1D=use_mpFit1D, $
      ADD_ONECOUNT_CURVE=add_oneCount_curve, $
      ADD_FITPARAMS_TEXT=add_fitParams_text, $
      ADD_ANGLE_LABEL=add_angle_label, $
@@ -203,7 +208,8 @@ PRO JOURNAL__20160803__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
                           NAMES_A=A_names, $
                           CHI2=chi2, $
                           PVAL=pVal, $
-                          FITSTATUS=fitStatus  
+                          FITSTATUS=fitStatus, $
+                          USE_MPFIT1D=use_mpFit1D
 
   PARSE_KAPPA_FIT_STRUCTS,gaussFits, $
                           A=AGauss, $
@@ -212,7 +218,9 @@ PRO JOURNAL__20160803__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
                           NAMES_A=AGauss_names, $
                           CHI2=chi2Gauss, $
                           PVAL=pValGauss, $
-                          FITSTATUS=gaussfitStatus  
+                          FITSTATUS=gaussfitStatus, $
+                          USE_MPFIT1D=use_mpFit1D
+
 
   PRINT_KAPPA_LOOP_FIT_SUMMARY,fitStatus,gaussfitStatus
 
