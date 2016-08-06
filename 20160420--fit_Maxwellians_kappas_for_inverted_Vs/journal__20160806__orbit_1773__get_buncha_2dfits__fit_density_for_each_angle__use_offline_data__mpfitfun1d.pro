@@ -1,22 +1,22 @@
 ;;08/03/16 But what if you tried it the other way?
-PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE__USE_OFFLINE_DATA__MPFITFUN1D
+PRO JOURNAL__20160806__ORBIT_1773__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE__USE_OFFLINE_DATA__MPFITFUN1D
 
   COMPILE_OPT IDL2
 
   SET_PLOT_DIR,plotDir, $
                /FOR_SDT, $
                /ADD_TODAY, $
-               ADD_SUFF='/kappa_fits/Orbit_1849__McFadden_et_al_inverted_V'
+               ADD_SUFF='/kappa_fits/Orbit_1773__Elphic_et_al_inverted_V'
 
   outDir                       = '~/software/sdt/batch_jobs/saves_output_etc/'
 
-  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d.sav'
+  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--Elphic_et_al_1998--Kappa_fits_and_Gauss_fits--ees--fit2d--all_times--150to150--mpfitfun1d.sav'
 
-  diff_eFlux_file              = 'orb_1849--diff_eflux--eeb--output_from_get_losscone_and_eflux_data.sav'
+  diff_eFlux_file              = 'orb_1773--diff_eflux--ees--output_from_get_losscone_and_eflux_data.sav'
 
-  eeb_or_ees                   = 'eeb'
+  ;; eeb_or_ees                   = 'eeb'
 
-  spectra_avg_interval         = 4
+  ;; spectra_avg_interval         = 4
   ;; bounds                    = [160:210:50]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                    = [126:138]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                    = [126:226:2]/spectra_avg_interval
@@ -24,7 +24,7 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   ;; Use survey bounds
   ;; 16  1997-02-07/20:49:41.338
   ;; 28  1997-02-07/20:49:48.934
-  ;; eeb_or_ees                = 'ees'
+  eeb_or_ees                = 'ees'
   ;; bounds                    = [46:54:spectra_avg_interval]
 
   do_all_times                 = 1
@@ -57,13 +57,11 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   dens_est_eRange              = [30,3.5e4]
   only_dens_estimates          = 0
 
-  t1Str                        = '97-02-08/10:11:22'
-  ;; t1Str                        = '97-02-08/10:11:36'
-  ;; t2Str                        = '97-02-08/10:11:52'
-  t2Str                        = '97-02-08/10:11:52'
-
-  t1                           = STR_TO_TIME(t1Str)
-  t2                           = STR_TO_TIME(t2Str)
+  t1Str                       = '97-02-01/09:26:15'
+  t2Str                       = '97-02-01/09:27:10'
+  
+  t1                          = STR_TO_TIME(t1Str)
+  t2                          = STR_TO_TIME(t2Str)
 
   estimate_A_from_data         = 1
   dont_print_estimates         = 1
@@ -222,7 +220,6 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
                           PVAL=pValGauss, $
                           FITSTATUS=gaussfitStatus, $
                           USE_MPFIT1D=use_mpFit1D
-
 
   PRINT_KAPPA_LOOP_FIT_SUMMARY,fitStatus,gaussfitStatus
 
