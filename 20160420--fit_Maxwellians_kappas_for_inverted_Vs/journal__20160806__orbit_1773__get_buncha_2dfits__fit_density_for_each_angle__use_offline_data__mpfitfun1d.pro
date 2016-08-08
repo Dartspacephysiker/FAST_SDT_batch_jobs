@@ -31,13 +31,13 @@ PRO JOURNAL__20160806__ORBIT_1773__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   add_full_fits                = 1
   fit_each_angle               = 1
   start_from_fieldaligned      = 0
-  vary_bulk_energy             = 1
+  vary_bulk_energy             = 0
   fit2d__only_fit_densAngles   = 1
 
   use_mpFit1D                  = 1
 
   fit_each__skip_bad_fits      = 1
-  fit_each__show_and_prompt    = 0
+  fit_each__show_and_prompt    = 1
   fit2d__show_each_candidate   = 0
   fit_fail__user_prompt        = 0
   dont_take_stock_of_bulkangle = 1
@@ -48,7 +48,7 @@ PRO JOURNAL__20160806__ORBIT_1773__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   average_over_angleRange      = 0
 
   energy_electrons             = [3e1,3.6e4]
-  min_peak_energy              = 900
+  min_peak_energy              = 400
 
   output_density_estimates     = 0
   output_dens__energies        = 0
@@ -68,8 +68,8 @@ PRO JOURNAL__20160806__ORBIT_1773__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   dont_print_fitinfo           = 0
 
   n_below_peak                 = 3
-  n_above_peak                 = 9
-  dont_fit_below_thresh_value  = 1
+  n_above_peak                 = 7
+  dont_fit_below_thresh_value  = 0
   bulk_offset                  = 0
 
   add_gaussian_estimate        = 1
@@ -86,10 +86,10 @@ PRO JOURNAL__20160806__ORBIT_1773__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   ;;Angle stuff
   only_fieldaligned            = 0
   ;; electron_angleRange          = [-28,28]
-  electron_angleRange          = [-32,32]
+  electron_angleRange          = [-40,40]
   ;; fit2D_density_angleRange     = [-180-electron_angleRange[0],180-electron_angleRange[1]]
   ;; fit2D_density_angleRange     = [-30,30]
-  fit2D_density_angleRange     = [-90,90]
+  fit2D_density_angleRange     = [-150,150]
  ;; electron_angleRange          = [-180,180]
 
   max_iter                     = 4000
@@ -98,10 +98,10 @@ PRO JOURNAL__20160806__ORBIT_1773__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   fit_tol                      = 1e-3
   fit2d_tol                    = 1e-3
 
-  kappa_est                    = 2.7
+  kappa_est                    = 3.5
 
-  T_est_fac                    = 1.3
-  N_est_fac                    = 7.0
+  T_est_fac                    = 0.8
+  N_est_fac                    = 10.0
   bulkE_est_fac                = 1.0
 
   TGauss_est_fac               = 0.3

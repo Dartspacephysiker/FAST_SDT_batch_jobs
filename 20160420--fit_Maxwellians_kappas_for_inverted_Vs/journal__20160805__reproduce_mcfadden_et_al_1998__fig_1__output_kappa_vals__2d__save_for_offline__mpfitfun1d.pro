@@ -36,11 +36,11 @@ PRO JOURNAL__20160805__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTPUT_KAPPA_VALS__
 
   use_data_dens      = 0
 
-  R_B                = 5.0      ;For calculating Maxwellian and Kappa current
+  R_B                = 3.0      ;For calculating Maxwellian and Kappa current
 
   fitDir             = '~/software/sdt/batch_jobs/saves_output_etc/'
 
-  fitFile            = '20160805--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d.sav'
+  fitFile            = '20160806--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d.sav'
 
   kappaTxtFile                 = '20160805--McFadden_et_al_1998--Kappa_fits.txt'
   gaussTxtFile                 = '20160805--McFadden_et_al_1998--Gauss_fits.txt'

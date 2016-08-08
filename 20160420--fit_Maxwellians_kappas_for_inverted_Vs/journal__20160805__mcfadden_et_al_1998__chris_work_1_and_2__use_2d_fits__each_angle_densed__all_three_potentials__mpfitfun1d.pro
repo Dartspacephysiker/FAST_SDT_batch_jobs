@@ -13,11 +13,11 @@
 ;
 
 ;;Here are the calls I made to do some damage:
-;SET_TXTOUTPUT_DIR,txtOutputDir,/FOR_SDT,/ADD_TODAY 
-;OPENW,lun,txtOutputDir+'20160804--linear_fits--kappa_and_gauss--orbit_1849.txt',/GET_LUN
-;JOURNAL__20160804__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EACH_ANGLE_DENSED__ALL_THREE_POTENTIALS,/PRINT_KAPPA_GAUSS_CORR,/ADD_LINEAR_FITS,/SAVE_PLOT,RBCORRLUN=lun 
-;CLOSE,lun 
-;FREE_LUN,lun
+;; SET_TXTOUTPUT_DIR,txtOutputDir,/FOR_SDT,/ADD_TODAY 
+;; OPENW,lun,txtOutputDir+'20160806--linear_fits--kappa_and_gauss--orbit_1849.txt',/GET_LUN
+;; JOURNAL__20160805__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EACH_ANGLE_DENSED__ALL_THREE_POTENTIALS__MPFITFUN1D,/PRINT_KAPPA_GAUSS_CORR,/ADD_LINEAR_FITS,/SAVE_PLOT,RBCORRLUN=lun 
+;; CLOSE,lun 
+;; FREE_LUN,lun
 ;
 PRO JOURNAL__20160805__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EACH_ANGLE_DENSED__ALL_THREE_POTENTIALS__MPFITFUN1D, $
    ADD_LINEAR_FITS=add_linear_fits, $
@@ -71,9 +71,9 @@ PRO JOURNAL__20160805__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
 
   ;;inFiles
   saveDir            = '~/software/sdt/batch_jobs/saves_output_etc/'
-  fitFile            = '20160805--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d.sav'
+  fitFile            = '20160806--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d.sav'
 
-  inSaveFile         = '20160805--McFadden_et_al_1998_Fig_1--four_currents--2dfits' + outSuff + '.sav'
+  inSaveFile         = '20160806--McFadden_et_al_1998_Fig_1--four_currents--2dfits' + outSuff + '.sav'
 
   ;;outFiles
   SET_PLOT_DIR,plotDir,/FOR_SDT,/ADD_TODAY

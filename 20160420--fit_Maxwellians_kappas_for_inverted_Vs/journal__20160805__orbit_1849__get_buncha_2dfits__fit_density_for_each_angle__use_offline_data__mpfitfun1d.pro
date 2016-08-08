@@ -29,9 +29,9 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
 
   do_all_times                 = 1
   add_full_fits                = 1
-  fit_each_angle               = 1
+  fit_each_angle               = 0
   start_from_fieldaligned      = 0
-  vary_bulk_energy             = 1
+  vary_bulk_energy             = 0
   fit2d__only_fit_densAngles   = 1
 
   use_mpFit1D                  = 1
@@ -47,14 +47,14 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   synthPackage                 = 1
   average_over_angleRange      = 0
 
-  energy_electrons             = [3e1,3.6e4]
-  min_peak_energy              = 900
+  energy_electrons             = [3e1,3.3e4]
+  min_peak_energy              = 800
 
   output_density_estimates     = 0
   output_dens__energies        = 0
 
   output_dens__angles          = 0
-  dens_est_eRange              = [30,3.5e4]
+  dens_est_eRange              = [30,3.3e4]
   only_dens_estimates          = 0
 
   t1Str                        = '97-02-08/10:11:22'
@@ -71,7 +71,7 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
 
   n_below_peak                 = 3
   n_above_peak                 = 9
-  dont_fit_below_thresh_value  = 1
+  dont_fit_below_thresh_value  = 0
   bulk_offset                  = 0
 
   add_gaussian_estimate        = 1
@@ -88,10 +88,10 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   ;;Angle stuff
   only_fieldaligned            = 0
   ;; electron_angleRange          = [-28,28]
-  electron_angleRange          = [-32,32]
+  electron_angleRange          = [-40,40]
   ;; fit2D_density_angleRange     = [-180-electron_angleRange[0],180-electron_angleRange[1]]
   ;; fit2D_density_angleRange     = [-30,30]
-  fit2D_density_angleRange     = [-90,90]
+  fit2D_density_angleRange     = [-150,150]
  ;; electron_angleRange          = [-180,180]
 
   max_iter                     = 4000

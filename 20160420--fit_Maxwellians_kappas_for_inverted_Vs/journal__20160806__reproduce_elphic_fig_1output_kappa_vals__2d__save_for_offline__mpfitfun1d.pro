@@ -40,7 +40,7 @@ PRO JOURNAL__20160806__REPRODUCE_ELPHIC_FIG_1OUTPUT_KAPPA_VALS__2D__SAVE_FOR_OFF
 
   fitDir             = '~/software/sdt/batch_jobs/saves_output_etc/'
 
-  fitFile            = '20160805--Elphic_et_al_1998--Kappa_fits_and_Gauss_fits--ees--fit2d--all_times--150to150--mpfitfun1d.sav'
+  fitFile            = '20160806--Elphic_et_al_1998--Kappa_fits_and_Gauss_fits--ees--fit2d--all_times--150to150--mpfitfun1d.sav'
 
   kappaTxtFile                = '20160806--Elphic_et_al_1998--Kappa_fits.txt'
   gaussTxtFile                = '20160806--Elphic_et_al_1998--Gauss_fits.txt'
