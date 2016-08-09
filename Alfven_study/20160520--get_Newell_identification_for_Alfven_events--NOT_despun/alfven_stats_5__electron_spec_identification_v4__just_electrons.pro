@@ -3,7 +3,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
    SKIP_IF_FILE_EXISTS=skip_if_file_exists, $
    ENERGY_ELECTRONS=energy_electrons, $
    EEB_OR_EES=eeb_or_ees, $
-   T1=t1,T2=t2, $
+   T1=t1,T2=t2
    ;; JUST_SC_POT=just_sc_pot, $
 
   COMPILE_OPT idl2
@@ -93,8 +93,9 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
                     ;; SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
                     NAME__DIFF_EFLUX=name__diff_eFlux, $
                     ANGLE=e_angle, $
+                    /FIT_EACH_ANGLE ;, $
+                    ;; /FIT_EACH_ANGLE=fit_each_angle ;, $
                     ;; ONLY_FIT_FIELDALIGNED_ANGLE=only_fit_fieldaligned_angle, $
-                    /FIT_EACH_ANGLE=fit_each_angle ;, $
                     ;; TRY_SYNTHETIC_SDT_STRUCT=try_synthetic_SDT_struct
 
      GET_DATA,name__diff_eFlux,DATA=diff_eFlux
