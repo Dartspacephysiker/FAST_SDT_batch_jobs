@@ -10,7 +10,7 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
 
   outDir                       = '~/software/sdt/batch_jobs/saves_output_etc/'
 
-  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d.sav'
+  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d--saveme.sav'
 
   diff_eFlux_file              = 'orb_1849--diff_eflux--eeb--output_from_get_losscone_and_eflux_data.sav'
 
@@ -19,8 +19,10 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   spectra_avg_interval         = 4
   ;; bounds                    = [160:210:50]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                    = [126:138]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
-  ;; bounds                    = [126:226:2]/spectra_avg_interval
+  ;; ;; bounds                    = [126:226:2]/spectra_avg_interval
 
+  ;; bounds                       = [87,88,89,90,91,95,99]
+  ;; bounds  = INDGEN(5)
   ;; Use survey bounds
   ;; 16  1997-02-07/20:49:41.338
   ;; 28  1997-02-07/20:49:48.934
@@ -31,8 +33,11 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   add_full_fits                = 1
   fit_each_angle               = 0
   start_from_fieldaligned      = 0
-  vary_bulk_energy             = 0
-  fit2d__only_fit_densAngles   = 1
+  start_from_fa__vary_bulk_e   = 0
+  fit2d__only_fit_densAngles   = 0
+  fit2d__only_fit_eAngles      = 1
+  fit2D__only_fit_peak_eRange  = 1
+  fit2D__keep_wholeFit         = 1  
 
   use_mpFit1D                  = 1
 
@@ -67,10 +72,11 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
 
   estimate_A_from_data         = 1
   dont_print_estimates         = 1
-  dont_print_fitinfo           = 0
+  dont_print_fitinfo           = 1
+  print_2DWinInfo              = 1
 
   n_below_peak                 = 3
-  n_above_peak                 = 9
+  n_above_peak                 = 7
   dont_fit_below_thresh_value  = 0
   bulk_offset                  = 0
 
@@ -88,9 +94,10 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   ;;Angle stuff
   only_fieldaligned            = 0
   ;; electron_angleRange          = [-28,28]
-  electron_angleRange          = [-40,40]
+  electron_angleRange          = [-30,30]
   ;; fit2D_density_angleRange     = [-180-electron_angleRange[0],180-electron_angleRange[1]]
   ;; fit2D_density_angleRange     = [-30,30]
+  ;; fit2D_density_angleRange     = [-150,150]
   fit2D_density_angleRange     = [-150,150]
  ;; electron_angleRange          = [-180,180]
 
@@ -130,12 +137,15 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
      FIT_EACH__SYNTH_SDT_STRUCT=synthPackage, $
      FIT_EACH__SKIP_BAD_FITS=fit_each__skip_bad_fits, $
      FIT_EACH__START_FROM_FIELDALIGNED=start_from_fieldaligned, $
-     FIT_EACH__VARY_BULK_ENERGY=vary_bulk_energy, $
+     START_FROM_FA__VARY_BULK_E=start_from_fa__vary_bulk_e, $
      FIT_EACH__SHOW_AND_PROMPT=fit_each__show_and_prompt, $
      FIT2D__SHOW_AND_PROMPT__EACH_CANDIDATE=fit2d__show_each_candidate, $
      FIT_EACH__1DFIT_TO_DENSITY_AT_EACH_ANGLE=fit_each__1dfit_to_density_at_each_angle, $
      FIT_FAIL__USER_PROMPT=fit_fail__user_prompt, $
      FIT2D__ONLY_FIT_DENSANGLES=fit2d__only_fit_densAngles, $
+     FIT2D__ONLY_FIT_ELECTRON_ANGLES=fit2d__only_fit_eAngles, $
+     FIT2D__ONLY_FIT_ERANGE_AROUND_PEAK=fit2D__only_fit_peak_eRange, $
+     FIT2D__KEEP_WHOLEFIT=fit2D__keep_wholeFit, $
      SDT_TIME_INDS=bounds, $
      DO_ALL_TIMES=do_all_times, $
      MIN_PEAK_ENERGY=min_peak_energy, $
@@ -150,6 +160,8 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
      ESTIMATE_FACTORS=estFacs, $
      DONT_PRINT_ESTIMATES=dont_print_estimates, $
      DONT_PRINT_FITINFO=dont_print_fitInfo, $
+     PRINT_2DFITINFO=print_2DFitInfo, $
+     PRINT_2DWININFO=print_2DWinInfo, $
      TRIM_ENERGIES_BELOW_PEAK=trim_energies_below_peak, $
      DONT_FIT_BELOW_THRESH_VALUE=dont_fit_below_thresh_value, $
      N_ENERGIES_BELOW_PEAK=n_below_peak, $

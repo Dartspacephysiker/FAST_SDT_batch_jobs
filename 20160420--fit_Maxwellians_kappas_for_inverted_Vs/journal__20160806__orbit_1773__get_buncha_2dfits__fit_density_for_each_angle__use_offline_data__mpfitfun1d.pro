@@ -31,13 +31,16 @@ PRO JOURNAL__20160806__ORBIT_1773__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   add_full_fits                = 1
   fit_each_angle               = 1
   start_from_fieldaligned      = 0
-  vary_bulk_energy             = 0
-  fit2d__only_fit_densAngles   = 1
+  start_from_fa__vary_bulk_e   = 0
+  fit2d__only_fit_densAngles   = 0
+  fit2d__only_fit_eAngles      = 1
+  fit2D__only_fit_peak_eRange  = 1
+  fit2D__keep_wholeFit         = 1  
 
   use_mpFit1D                  = 1
 
   fit_each__skip_bad_fits      = 1
-  fit_each__show_and_prompt    = 1
+  fit_each__show_and_prompt    = 0
   fit2d__show_each_candidate   = 0
   fit_fail__user_prompt        = 0
   dont_take_stock_of_bulkangle = 1
@@ -65,7 +68,8 @@ PRO JOURNAL__20160806__ORBIT_1773__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
 
   estimate_A_from_data         = 1
   dont_print_estimates         = 1
-  dont_print_fitinfo           = 0
+  dont_print_fitinfo           = 1
+  print_2DWinInfo              = 1
 
   n_below_peak                 = 3
   n_above_peak                 = 7
@@ -86,7 +90,7 @@ PRO JOURNAL__20160806__ORBIT_1773__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   ;;Angle stuff
   only_fieldaligned            = 0
   ;; electron_angleRange          = [-28,28]
-  electron_angleRange          = [-40,40]
+  electron_angleRange          = [-30,30]
   ;; fit2D_density_angleRange     = [-180-electron_angleRange[0],180-electron_angleRange[1]]
   ;; fit2D_density_angleRange     = [-30,30]
   fit2D_density_angleRange     = [-150,150]
@@ -98,13 +102,13 @@ PRO JOURNAL__20160806__ORBIT_1773__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   fit_tol                      = 1e-3
   fit2d_tol                    = 1e-3
 
-  kappa_est                    = 3.5
+  kappa_est                    = 3.0
 
-  T_est_fac                    = 0.8
+  T_est_fac                    = 1.0
   N_est_fac                    = 10.0
   bulkE_est_fac                = 1.0
 
-  TGauss_est_fac               = 0.3
+  TGauss_est_fac               = 0.8
   NGauss_est_fac               = 1.0
   bulkEGauss_est_fac           = 1.0
 
@@ -128,12 +132,15 @@ PRO JOURNAL__20160806__ORBIT_1773__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
      FIT_EACH__SYNTH_SDT_STRUCT=synthPackage, $
      FIT_EACH__SKIP_BAD_FITS=fit_each__skip_bad_fits, $
      FIT_EACH__START_FROM_FIELDALIGNED=start_from_fieldaligned, $
-     FIT_EACH__VARY_BULK_ENERGY=vary_bulk_energy, $
+     START_FROM_FA__VARY_BULK_E=start_from_fa__vary_bulk_e, $
      FIT_EACH__SHOW_AND_PROMPT=fit_each__show_and_prompt, $
      FIT2D__SHOW_AND_PROMPT__EACH_CANDIDATE=fit2d__show_each_candidate, $
      FIT_EACH__1DFIT_TO_DENSITY_AT_EACH_ANGLE=fit_each__1dfit_to_density_at_each_angle, $
      FIT_FAIL__USER_PROMPT=fit_fail__user_prompt, $
      FIT2D__ONLY_FIT_DENSANGLES=fit2d__only_fit_densAngles, $
+     FIT2D__ONLY_FIT_ELECTRON_ANGLES=fit2d__only_fit_eAngles, $
+     FIT2D__ONLY_FIT_ERANGE_AROUND_PEAK=fit2D__only_fit_peak_eRange, $
+     FIT2D__KEEP_WHOLEFIT=fit2D__keep_wholeFit, $
      SDT_TIME_INDS=bounds, $
      DO_ALL_TIMES=do_all_times, $
      MIN_PEAK_ENERGY=min_peak_energy, $
@@ -148,6 +155,8 @@ PRO JOURNAL__20160806__ORBIT_1773__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
      ESTIMATE_FACTORS=estFacs, $
      DONT_PRINT_ESTIMATES=dont_print_estimates, $
      DONT_PRINT_FITINFO=dont_print_fitInfo, $
+     PRINT_2DFITINFO=print_2DFitInfo, $
+     PRINT_2DWININFO=print_2DWinInfo, $
      TRIM_ENERGIES_BELOW_PEAK=trim_energies_below_peak, $
      DONT_FIT_BELOW_THRESH_VALUE=dont_fit_below_thresh_value, $
      N_ENERGIES_BELOW_PEAK=n_below_peak, $

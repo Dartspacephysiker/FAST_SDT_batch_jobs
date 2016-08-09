@@ -26,6 +26,8 @@ PRO JOURNAL__20160805__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
    MAGRATIO2=magRatio3, $
    USE_JE_CURRENT=use_je_current, $
    USE_JMAG_CURRENT=use_jMag_current, $
+   FIT2D__USE_DATA_DENS=use_data_dens, $
+   FIT2D__CALC_FITDENS_OVER_ARANGE=calc_fitDens__aRange, $
    HIGHDENS_THRESH=highDens_thresh, $
    KAPPA_LOWTHRESHOLD=lKappa_thresh, $
    KAPPA_HIGHTHRESHOLD=hKappa_thresh, $
@@ -47,7 +49,7 @@ PRO JOURNAL__20160805__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
   energy_electrons    = [100.,36000.]
 
   ;;Defaults
-  defR_B              = 3.0
+  defR_B              = 10.0
   IF N_ELEMENTS(magRatio1) EQ 0 THEN BEGIN
      magRatio1        = defR_B
   ENDIF
@@ -62,7 +64,7 @@ PRO JOURNAL__20160805__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
 
   KAPPA_FITFILE_STRING,outSuff, $
                        R_B=magRatio1, $
-                       ;; USE_DATA_DENS=use_data_dens, $
+                       USE_DATA_DENS=use_data_dens, $
                        ;; SDT_CALC__NO_MODEL=SDT_calc__no_model, $
                        LKAPPA_THRESH=lKappa_thresh, $
                        HKAPPA_THRESH=hKappa_thresh, $
@@ -71,9 +73,9 @@ PRO JOURNAL__20160805__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
 
   ;;inFiles
   saveDir            = '~/software/sdt/batch_jobs/saves_output_etc/'
-  fitFile            = '20160806--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d.sav'
+  fitFile            = '20160809--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d--saveme.sav'
 
-  inSaveFile         = '20160806--McFadden_et_al_1998_Fig_1--four_currents--2dfits' + outSuff + '.sav'
+  inSaveFile         = '20160809--McFadden_et_al_1998_Fig_1--four_currents--2dfits' + outSuff + '.sav'
 
   ;;outFiles
   SET_PLOT_DIR,plotDir,/FOR_SDT,/ADD_TODAY
@@ -176,6 +178,19 @@ PRO JOURNAL__20160805__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
                               /BOTH_USE_MAXWELL_BULKENERGY
 
 
+  kappaDens = KAPPA__SELECT_2DFIT_DENS(kappa2D, $
+                                       USE_DATA_DENS=use_data_dens, $
+                                       CALC_FITDENS_OVER_ELECTRON_ARANGE=calc_fitDens__aRange, $
+                                       ELECTRON_ANGLERANGE=(N_ELEMENTS(calc_fitDens__aRange) EQ 2 ? calc_fitDens__aRange : eAngleChare), $
+                                       FITTYPE__STRING='Kappa')
+
+  gaussDens = KAPPA__SELECT_2DFIT_DENS(gauss2D, $
+                                       USE_DATA_DENS=use_data_dens, $
+                                       CALC_FITDENS_OVER_ELECTRON_ARANGE=calc_fitDens__aRange, $
+                                       ELECTRON_ANGLERANGE=(N_ELEMENTS(calc_fitDens__aRange) EQ 2 ? calc_fitDens__aRange : eAngleChare), $
+                                       ;; ELECTRON_ANGLERANGE=eAngleChare, $
+                                       FITTYPE__STRING='Maxwell')
+
   ;; kappaPotBPD      = CREATEBOXPLOTDATA(AStruct.bulk_energy)
   ;; gaussPotBPD      = CREATEBOXPLOTDATA(AStructGauss.bulk_energy)
 
@@ -190,8 +205,8 @@ PRO JOURNAL__20160805__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
         GET_KAPPA_AND_MAXWELLIAN_CURRENT,AStruct,AStructGauss, $
                                          kappaPot1,gaussPot1,magRatio1, $
                                          kappa_current1,gauss_current1,obs_current1, $
-                                         DENSITY_KAPPA2D=kappa2D.dens, $
-                                         DENSITY_GAUSS2D=gauss2D.dens
+                                         DENSITY_KAPPA2D=kappaDens, $
+                                         DENSITY_GAUSS2D=gaussDens
      END
   ENDCASE
   
@@ -206,16 +221,16 @@ PRO JOURNAL__20160805__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
   GET_KAPPA_AND_MAXWELLIAN_CURRENT,AStruct,AStructGauss, $
                                    kappaPot2,gaussPot2,magRatio2, $
                                    kappa_current2,gauss_current2,obs_current2, $
-                                   DENSITY_KAPPA2D=kappa2D.dens, $
-                                   DENSITY_GAUSS2D=gauss2D.dens
+                                   DENSITY_KAPPA2D=kappaDens, $
+                                   DENSITY_GAUSS2D=gaussDens
   ;;    END
   ;; ENDCASE
 
   GET_KAPPA_AND_MAXWELLIAN_CURRENT,AStruct,AStructGauss, $
                                    kappaPot3,gaussPot3,magRatio3, $
                                    kappa_current3,gauss_current3,obs_current3, $
-                                   DENSITY_KAPPA2D=kappa2D.dens, $
-                                   DENSITY_GAUSS2D=gauss2D.dens
+                                   DENSITY_KAPPA2D=kappaDens, $
+                                   DENSITY_GAUSS2D=gaussDens
 
 
   ;; IF KEYWORD_SET(make_currents_positive) THEN BEGIN
@@ -377,8 +392,8 @@ PRO JOURNAL__20160805__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
         kappaPot1,gaussPot1, $
         EXCLUDE_KAPPA_I=excludeK_i, $
         EXCLUDE_GAUSS_I=excludeG_i, $
-        DENSITY_KAPPA2D=kappa2D.dens, $
-        DENSITY_GAUSS2D=gauss2D.dens, $
+        DENSITY_KAPPA2D=kappaDens, $
+        DENSITY_GAUSS2D=gaussDens, $
         RBCORRLUN=RBCorrLun
 
      PRINTF,RBCorrLun,''
@@ -390,8 +405,8 @@ PRO JOURNAL__20160805__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
         kappaPot2,gaussPot2, $
         EXCLUDE_KAPPA_I=excludeK_i, $
         EXCLUDE_GAUSS_I=excludeG_i, $
-        DENSITY_KAPPA2D=kappa2D.dens, $
-        DENSITY_GAUSS2D=gauss2D.dens, $
+        DENSITY_KAPPA2D=kappaDens, $
+        DENSITY_GAUSS2D=gaussDens, $
         RBCORRLUN=RBCorrLun
 
      PRINTF,RBCorrLun,''
@@ -403,8 +418,8 @@ PRO JOURNAL__20160805__MCFADDEN_ET_AL_1998__CHRIS_WORK_1_AND_2__USE_2D_FITS__EAC
         kappaPot3,gaussPot3, $
         EXCLUDE_KAPPA_I=excludeK_i, $
         EXCLUDE_GAUSS_I=excludeG_i, $
-        DENSITY_KAPPA2D=kappa2D.dens, $
-        DENSITY_GAUSS2D=gauss2D.dens, $
+        DENSITY_KAPPA2D=kappaDens, $
+        DENSITY_GAUSS2D=gaussDens, $
         RBCORRLUN=RBCorrLun
 
   ENDIF
