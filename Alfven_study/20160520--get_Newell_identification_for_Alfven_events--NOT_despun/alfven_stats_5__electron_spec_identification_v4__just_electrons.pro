@@ -14,7 +14,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
   indDir                                 = as5_dir + 'je_time_ind_dir/'
   indFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
   intervalArrDir                         = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20160520--get_Newell_identification/"
-  intervalArrFile                        = "orb_and_num_intervals--0-16361.sav"                                                           ;;Use it to figure out which file to restore
+  intervalArrFile                        = "cleaned_Je__Je_tRanges__and_Je_tRange_inds--20160706--orbs_500-16362.sav"                                                           ;;Use it to figure out which file to restore
 
   todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
   outNewellDir                           = as5_dir + 'Newell_batch_output__just_electrons/'
@@ -56,15 +56,22 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
   orbit_num                              = orb.y[0]
   orbStr                                 = STRCOMPRESS(orbit_num,/REMOVE_ALL)
 
-  number_of_intervals                    = intervalArr[orbit_num]
+
+
+  ;; number_of_intervals                    = intervalArr[orbit_num]
+  ;;This file gives us je,orbit_num,time_range_indices, and time_range
+  number_of_intervals                    = N_ELEMENTS((je_trange_inds_hash[orbit_num])[*,0])
   print,'number_of_intervals',number_of_intervals
 
   indFile                                = STRING(FORMAT='(A0,I0,"--",I0,"_intervals.sav")', $
                                                   indFilePref,orbit_num,number_of_intervals)
 
-  ;;This file gives us je,orbit_num,time_range_indices, and time_range
-  PRINT,'Restoring indFile ' + indFile + ' ...'
-  RESTORE,indDir+indFile
+  je                                     = je_hash[orbit_num]
+  nSpecRemoved_thisorbit                 = n_EESA_spectra-N_ELEMENTS(je.x)
+
+  time_ranges                            = je_trange_hash[orbit_num] 
+  time_range_indices                     = je_trange_inds_hash[orbit_num]  ;; PRINT,'Restoring indFile ' + indFile + ' ...'
+  ;; RESTORE,indDir+indFile
 
   STORE_DATA,'Je',DATA=je
 
@@ -138,6 +145,7 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
              ephemInfo, $
              sc_pot, $
              fields_mode, $
+             nSpecRemoved_thisorbit, $
              FILENAME=outNewellDir+out_newell_file
 
         ;; SAVE,eSpecs_parsed,tmpeSpec_lc,tmpjee_lc,tmpje_lc, $
