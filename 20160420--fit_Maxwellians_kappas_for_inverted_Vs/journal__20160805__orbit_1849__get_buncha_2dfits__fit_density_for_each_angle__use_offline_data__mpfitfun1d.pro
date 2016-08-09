@@ -10,7 +10,8 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
 
   outDir                       = '~/software/sdt/batch_jobs/saves_output_etc/'
 
-  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d--saveme.sav'
+  ;; fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d--saveme.sav'
+  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d--notindividualfit.sav'
 
   diff_eFlux_file              = 'orb_1849--diff_eflux--eeb--output_from_get_losscone_and_eflux_data.sav'
 
@@ -34,20 +35,20 @@ PRO JOURNAL__20160805__ORBIT_1849__GET_BUNCHA_2DFITS__FIT_DENSITY_FOR_EACH_ANGLE
   fit_each_angle               = 0
   start_from_fieldaligned      = 0
   start_from_fa__vary_bulk_e   = 0
-  fit2d__only_fit_densAngles   = 0
-  fit2d__only_fit_eAngles      = 1
+  fit2d__only_fit_densAngles   = 1
+  fit2d__only_fit_eAngles      = 0
   fit2D__only_fit_peak_eRange  = 1
   fit2D__keep_wholeFit         = 1  
 
   use_mpFit1D                  = 1
 
   fit_each__skip_bad_fits      = 1
-  fit_each__show_and_prompt    = 0
+  fit_each__show_and_prompt    = 1
   fit2d__show_each_candidate   = 0
   fit_fail__user_prompt        = 0
   dont_take_stock_of_bulkangle = 1
 
-  fit_each__1dfit_to_density_at_each_angle = 1
+  fit_each__1dfit_to_density_at_each_angle = 0
 
   synthPackage                 = 1
   average_over_angleRange      = 0
