@@ -10,7 +10,7 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
   outDir                                 = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
 
   ;;For skipping the "get interval times" bit
-  indFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
+  ;; indFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
   intervalArrDir                         = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20160520--get_Newell_identification/"
   intervalArrFile                        = "cleaned_Je__Je_tRanges__and_Je_tRange_inds--20160706--orbs_500-16362.sav" ;Use it to figure out which file to restore
 
@@ -61,8 +61,12 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
   number_of_intervals                    = N_ELEMENTS((je_trange_inds_hash[orbit_num])[*,0])
   print,'number_of_intervals',number_of_intervals
 
-  indFile                                = STRING(FORMAT='(A0,I0,"--",I0,"_intervals.sav")', $
-                                                  indFilePref,orbit_num,number_of_intervals)
+  ;; indFile                                = STRING(FORMAT='(A0,I0,"--",I0,"_intervals.sav")', $
+  ;;                                                 indFilePref,orbit_num,number_of_intervals)
+  IF (WHERE(je_keys EQ orbit_num))[0] EQ -1 THEN BEGIN
+     PRINT,'No good data available for orbit ' + orbStr + '! Exiting ...'
+     RETURN
+  ENDIF
 
   je                                     = je_hash[orbit_num]
   nSpecRemoved_thisorbit                 = n_EESA_spectra-N_ELEMENTS(je.x)
