@@ -1,28 +1,26 @@
-;2016/06/11 I hosed it so badly. I totally screwed up the s/c potential.
-PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
+;2016/08/09 
+PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
    SKIP_IF_FILE_EXISTS=skip_if_file_exists, $
    ENERGY_ELECTRONS=energy_electrons, $
    EEB_OR_EES=eeb_or_ees, $
    T1=t1,T2=t2
-   ;; JUST_SC_POT=just_sc_pot, $
 
   COMPILE_OPT idl2
 
-  as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
+  outDir                                 = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
 
   ;;For skipping the "get interval times" bit
-  indDir                                 = as5_dir + 'je_time_ind_dir/'
   indFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
   intervalArrDir                         = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20160520--get_Newell_identification/"
-  intervalArrFile                        = "cleaned_Je__Je_tRanges__and_Je_tRange_inds--20160706--orbs_500-16362.sav"                                                           ;;Use it to figure out which file to restore
+  intervalArrFile                        = "cleaned_Je__Je_tRanges__and_Je_tRange_inds--20160706--orbs_500-16362.sav" ;Use it to figure out which file to restore
 
   todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
-  outNewellDir                           = as5_dir + 'Newell_batch_output__just_electrons/'
+  outNewellDir                           = outDir + 'do_the_Newell_2009/Newell_batch_output__just_electrons/'
   outFile_pref                           = 'Dartdb--e-_spectra__all_angles_energies--' + eeb_or_ees + '--Orbit_'
 
 
   IF NOT KEYWORD_SET(energy_electrons) THEN BEGIN
-     energy_electrons                    = [0.,35000.]                           ;use 0.0 for lower bound since the sc_pot is used to set this
+     energy_electrons                    = [0.,35000.] ;use 0.0 for lower bound since the sc_pot is used to set this
   ENDIF
   e_angle                                = [-180,180]
 
@@ -33,11 +31,11 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
   dat                                    = GET_FA_EES(0.0D, EN=1)
   IF dat.valid EQ 0 THEN BEGIN
      print,' ERROR: No FAST electron survey data -- GET_FA_EES(0.0, EN=1) returned invalid data'
-    RETURN
+     RETURN
   ENDIF ELSE BEGIN
      n_EESA_spectra                      = dat.index+1
      last_index                          = LONG(dat.index)
-  
+     
      PRINT,'There are ' + STRCOMPRESS(n_EESA_spectra,/REMOVE_ALL) + ' EESA survey spectra currently loaded in SDT...'
   ENDELSE
 
@@ -98,12 +96,13 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
      GET_DIFF_EFLUX,T1=je_tmp_time[0],T2=je_tmp_time[-1], $
                     EEB_OR_EES=eeb_or_ees, $
                     ;; SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
+                    /CALC_GEOM_FACTORS, $
                     NAME__DIFF_EFLUX=name__diff_eFlux, $
                     ANGLE=e_angle, $
                     /FIT_EACH_ANGLE ;, $
-                    ;; /FIT_EACH_ANGLE=fit_each_angle ;, $
-                    ;; ONLY_FIT_FIELDALIGNED_ANGLE=only_fit_fieldaligned_angle, $
-                    ;; TRY_SYNTHETIC_SDT_STRUCT=try_synthetic_SDT_struct
+     ;; /FIT_EACH_ANGLE=fit_each_angle ;, $
+     ;; ONLY_FIT_FIELDALIGNED_ANGLE=only_fit_fieldaligned_angle, $
+     ;; TRY_SYNTHETIC_SDT_STRUCT=try_synthetic_SDT_struct
 
      GET_DATA,name__diff_eFlux,DATA=diff_eFlux
 
@@ -135,22 +134,22 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
                   fa_pos:fa_pos.y}
 
      ;;get fields mode
-     fields_mode = GET_FA_FIELDS('DataHdr_1032',time_ranges[jjj,0],time_ranges[jjj,1])
+     ;; fields_mode = GET_FA_FIELDS('DataHdr_1032',time_ranges[jjj,0],time_ranges[jjj,1])
      
-     GET_SC_POTENTIAL,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],DATA=sc_pot
+     ;; GET_SC_POTENTIAL,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],DATA=sc_pot
 
-        ;;Save the electron stuff
-        PRINT,'Saving Newell file: ' + out_newell_file
-        SAVE,diff_eFlux, $
-             ephemInfo, $
-             sc_pot, $
-             fields_mode, $
-             nSpecRemoved_thisorbit, $
-             FILENAME=outNewellDir+out_newell_file
+     ;;Save the electron stuff
+     PRINT,'Saving Newell file: ' + out_newell_file
+     SAVE,diff_eFlux, $
+          ephemInfo, $
+          ;; sc_pot, $
+          ;; fields_mode, $
+          nSpecRemoved_thisorbit, $
+          FILENAME=outNewellDir+out_newell_file
 
-        ;; SAVE,eSpecs_parsed,tmpeSpec_lc,tmpjee_lc,tmpje_lc, $
-        ;;      out_sc_pot,out_sc_time,out_sc_min_energy_ind, $
-        ;;      FILENAME=outNewellDir+out_newell_file
+     ;; SAVE,eSpecs_parsed,tmpeSpec_lc,tmpjee_lc,tmpje_lc, $
+     ;;      out_sc_pot,out_sc_time,out_sc_min_energy_ind, $
+     ;;      FILENAME=outNewellDir+out_newell_file
      ;; ENDELSE
   ENDFOR
 
