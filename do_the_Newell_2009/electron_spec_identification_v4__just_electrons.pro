@@ -15,7 +15,7 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
   intervalArrFile                        = "cleaned_Je__Je_tRanges__and_Je_tRange_inds--20160706--orbs_500-16362.sav" ;Use it to figure out which file to restore
 
   todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
-  outNewellDir                           = outDir + 'do_the_Newell_2009/Newell_batch_output__just_electrons/'
+  outNewellDir                           = outDir + 'do_the_Newell_2009/batch_output__just_electrons/'
   outFile_pref                           = 'Dartdb--e-_spectra__all_angles_energies--' + eeb_or_ees + '--Orbit_'
 
 
