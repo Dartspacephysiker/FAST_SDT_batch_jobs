@@ -54,7 +54,11 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
   orbit_num                              = orb.y[0]
   orbStr                                 = STRCOMPRESS(orbit_num,/REMOVE_ALL)
 
-
+  ;;Get us out (of the U.N.!) in case there is nothing to talk about
+  IF (WHERE(je_keys EQ orbit_num))[0] EQ -1 THEN BEGIN
+     PRINT,'No good data available for orbit ' + orbStr + '! Exiting ...'
+     RETURN
+  ENDIF
 
   ;; number_of_intervals                    = intervalArr[orbit_num]
   ;;This file gives us je,orbit_num,time_range_indices, and time_range
@@ -63,10 +67,6 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
 
   ;; indFile                                = STRING(FORMAT='(A0,I0,"--",I0,"_intervals.sav")', $
   ;;                                                 indFilePref,orbit_num,number_of_intervals)
-  IF (WHERE(je_keys EQ orbit_num))[0] EQ -1 THEN BEGIN
-     PRINT,'No good data available for orbit ' + orbStr + '! Exiting ...'
-     RETURN
-  ENDIF
 
   je                                     = je_hash[orbit_num]
   nSpecRemoved_thisorbit                 = n_EESA_spectra-N_ELEMENTS(je.x)

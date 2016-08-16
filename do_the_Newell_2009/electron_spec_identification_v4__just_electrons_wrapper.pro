@@ -7,7 +7,7 @@
 ; The following commented out lines are probably
 ; not needed for calling "alfven_stats_5":
 ;device,decomposed=0
-;@startup
+@startup
 ;loadct2,43
 ;cols=get_colors()
 ;time_stamp,off=1
@@ -28,4 +28,4 @@ ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS,EEB_OR_EES='ees'
 
 exit
 
-end
+;; end
