@@ -4,15 +4,18 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
   COMPILE_OPT IDL2
 
   ;;Outfile stuff
-  outFile                 = 'cleaned_Je__Je_tRanges__and_Je_tRange_inds.sav'
+  ;; outFile                 = 'cleaned_Je__Je_tRanges__and_Je_tRange_inds.sav'
+  outFile                 = 'cleaned_Je__Je_tRanges__and_Je_tRange_inds__0-50000.sav'
 
   ;;For skipping the "get interval times" bit
-  as5_dir                 = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
+  as5_dir                 = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
   indDir                  = as5_dir + 'je_time_ind_dir/'
   indFilePref             = "je_and_cleaned_time_range_indices--orbit_"
 
-  intervalArrDir          = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20160520--get_Newell_identification/"
-  intervalArrFile         = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
+  intervalArrDir          = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/"
+  ;; intervalArrFile         = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
+  ;; intervalArrFile         = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
+  intervalArrFile         = "orb_and_num_intervals__0-50000.sav" ;;Use it to figure out which file to restore
 
   RESTORE,intervalArrDir+intervalArrFile 
 
@@ -85,3 +88,4 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
 
 
 END
+
