@@ -4,7 +4,7 @@ PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
 
   COMPILE_OPT idl2
 
-  as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
+  as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
   todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
   indDir                                 = as5_dir + 'je_time_ind_dir/'
 
