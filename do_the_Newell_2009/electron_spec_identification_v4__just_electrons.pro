@@ -13,7 +13,7 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
   ;; indFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
   ;; intervalArrDir                         = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20160520--get_Newell_identification/"
   ;; intervalArrFile                        = "cleaned_Je__Je_tRanges__and_Je_tRange_inds--20160706--orbs_500-16362.sav" ;Use it to figure out which file to restore
-  intervalArrDir                         = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun"
+  intervalArrDir                         = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/"
   intervalArrFile                        = "cleaned_Je__Je_tRanges__and_Je_tRange_inds__0-50000--20160824--orbs_500-50000.sav"
 
   todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
