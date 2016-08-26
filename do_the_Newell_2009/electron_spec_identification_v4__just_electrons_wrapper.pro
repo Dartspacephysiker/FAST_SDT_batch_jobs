@@ -21,7 +21,7 @@
 ;*****************************
 ;Put code here:
 
-ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS,EEB_OR_EES='ees'
+ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS_V2,EEB_OR_EES='ees'
 
 ;*****************************
 ;End routine:
