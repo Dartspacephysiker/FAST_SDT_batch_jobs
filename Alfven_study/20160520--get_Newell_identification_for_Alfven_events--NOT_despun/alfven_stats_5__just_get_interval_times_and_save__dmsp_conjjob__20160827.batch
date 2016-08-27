@@ -1,0 +1,18 @@
+BatchJob: "alfven_stats_5__just_get_interval_times_and_save__dmspconjjob_20160827"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/alfven_stats_5__just_get_interval_times_and_save__dmspconjjob_wrapper.pro
+
+DataBaseRequest:
+    Orbits 30001-50000
+    Orbits 10241-10242
+    Orbits 10247-10248
+    Orbits 9859
+    Orbits 12137
+    Orbits 12278
+    Orbits 12543
+
+
+    
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun
+PlotConfigurationFile: chaston_survey_5__super_pared__no_langmuir

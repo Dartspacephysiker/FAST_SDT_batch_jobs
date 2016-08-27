@@ -1,12 +1,29 @@
 PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
    ENERGY_ELECTRONS=energy_electrons, $
-   T1=t1,T2=t2
+   T1=t1,T2=t2, $
+   ALTERNATIVE_OUTDIR=altOutDir, $
+   ALTERNATIVE_FILEPREFIX=altPrefix
 
   COMPILE_OPT idl2
 
   as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
   todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
-  indDir                                 = as5_dir + 'je_time_ind_dir/'
+
+  defDir                                 = as5_dir + 'je_time_ind_dir/'
+  defFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
+
+  filePref                               = KEYWORD_SET(altPrefix) ? altPrefix : defFilePref
+
+  IF KEYWORD_SET(altOutDir) THEN BEGIN
+     IF FILE_TEST(altOutDir) THEN BEGIN
+        outDir                           = altOutDir
+     ENDIF ELSE BEGIN
+        PRINT,"Provided directory doesn't exist! Switching to default."
+        outDir                           = defDir
+     ENDELSE
+  ENDIF ELSE BEGIN
+     outDir                              = defDir
+  ENDELSE
 
   ;;energy ranges
   IF NOT KEYWORD_SET(energy_electrons) THEN BEGIN
@@ -106,11 +123,11 @@ PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
   GET_DATA,'ORBIT',DATA=orb
   orbit_num                              = orb.y[0]
   orbStr                                 = STRCOMPRESS(orbit_num,/REMOVE_ALL)
-  outFile                                = STRING(FORMAT='("je_and_cleaned_time_range_indices--orbit_",I0,"--",I0,"_intervals.sav")', $
-                                                  orbit_num,number_of_intervals)
+  outFile                                = STRING(FORMAT='(A0,I0,"--",I0,"_intervals.sav")', $
+                                                  filePref,orbit_num,number_of_intervals)
   PRINT,'Saving ' + outFile + ' ...'
   SAVE,je,orbit_num,time_range_indices,number_of_intervals,time_ranges, $
-       FILENAME=indDir+outFile
+       FILENAME=outDir+outFile
 
   RETURN 
 END
