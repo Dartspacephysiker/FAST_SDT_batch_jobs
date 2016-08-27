@@ -2,7 +2,8 @@ PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
    ENERGY_ELECTRONS=energy_electrons, $
    T1=t1,T2=t2, $
    ALTERNATIVE_OUTDIR=altOutDir, $
-   ALTERNATIVE_FILEPREFIX=altPrefix
+   ALTERNATIVE_FILEPREFIX=altPrefix, $
+   DUPEREPORTDIR=dupeReportDir
 
   COMPILE_OPT idl2
 
@@ -26,6 +27,10 @@ PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
   ENDIF ELSE BEGIN
      outDir                              = defDir
   ENDELSE
+
+  IF ~KEYWORD_SET(dupeReportDir) THEN BEGIN
+     dupeReportDir                       = './'
+  ENDIF
 
   ;;energy ranges
   IF NOT KEYWORD_SET(energy_electrons) THEN BEGIN
@@ -140,7 +145,7 @@ PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
 
   ;;...and if there were dupes, report that too
   IF nDupes GT 0 THEN BEGIN
-     OPENW,dupeLun,as5_dir+dupeReportFile,/GET_LUN
+     OPENW,dupeLun,dupeReportDir+dupeReportFile,/GET_LUN,/APPEND
      PRINTF,dupeLun,FORMAT='(I0,T10,I0,T20,I0)',orbit_num,nOrig,nDupes
      CLOSE,dupeLun
      FREE_LUN,dupeLun
