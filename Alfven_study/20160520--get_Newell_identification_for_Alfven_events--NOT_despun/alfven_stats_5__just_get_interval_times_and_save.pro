@@ -14,6 +14,8 @@ PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
 
   filePref                               = KEYWORD_SET(altPrefix) ? altPrefix : defFilePref
 
+  dupeReportFile                         = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--DUPE_REPORT--as5__just_get_interval_times_and_save.txt'
+
   IF KEYWORD_SET(altOutDir) THEN BEGIN
      IF FILE_TEST(altOutDir) THEN BEGIN
         outDir                           = altOutDir
@@ -69,6 +71,12 @@ PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
   tx                                     = tx[time_order]
   ty                                     = ty[time_order]
   
+  ;;Ensure no duplicates
+  nDupes      = N_ELEMENTS(tx) - N_ELEMENTS(UNIQ(tx))
+  IF nDupes GT 0 THEN BEGIN
+     nOrig    = N_ELEMENTS(tx)
+  ENDIF
+
   ;;throw away the first 10  points since they are often corrupted
   STORE_DATA,'Je',DATA={x:tx[10:N_ELEMENTS(tx)-1],y:ty[10:N_ELEMENTS(tx)-1]}
 
@@ -125,9 +133,18 @@ PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
   orbStr                                 = STRCOMPRESS(orbit_num,/REMOVE_ALL)
   outFile                                = STRING(FORMAT='(A0,I0,"--",I0,"_intervals.sav")', $
                                                   filePref,orbit_num,number_of_intervals)
+
   PRINT,'Saving ' + outFile + ' ...'
   SAVE,je,orbit_num,time_range_indices,number_of_intervals,time_ranges, $
        FILENAME=outDir+outFile
+
+  ;;...and if there were dupes, report that too
+  IF nDupes GT 0 THEN BEGIN
+     OPENW,dupeLun,as5_dir+dupeReportFile,/GET_LUN
+     PRINTF,dupeLun,FORMAT='(I0,T10,I0,T20,I0)',orbit_num,nOrig,nDupes
+     CLOSE,dupeLun
+     FREE_LUN,dupeLun
+  ENDIF
 
   RETURN 
 END
