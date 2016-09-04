@@ -1,5 +1,13 @@
 ;;09/02/16
-PRO JOURNAL__20160902__FIGURE_OUT_ANISOTROPY_FACTOR_FOR_BULK_E
+PRO JOURNAL__20160902__FIGURE_OUT_ANISOTROPY_FACTOR_FOR_BULK_E, $
+   PLOT_BULKE_FACTOR=plot_bulke_factor, $
+   POLARPLOT_BULKE_FACTOR=polarPlot_bulke_factor, $
+   PLOT_BULKE_MODEL_V_DATA_COMPARISON=plot_comparison, $
+   PLOT_FLUX_PEAKS=plot_flux_peaks, $
+   PLOTDIR=plotDir, $
+   ORBIT=orbit, $
+   SAVE_PLOTS=save_plots
+
 
   COMPILE_OPT IDL2
 
@@ -24,7 +32,15 @@ PRO JOURNAL__20160902__FIGURE_OUT_ANISOTROPY_FACTOR_FOR_BULK_E
                                           bestAngle_i, $
                                           BULK_ENERGY=P[0], $
                                           MIN_ENERGY=minEn, $
+                                          PLOT_BULKE_FACTOR=plot_bulke_factor, $
+                                          PLOT_BULKE_MODEL_V_DATA_COMPARISON=plot_comparison, $
+                                          POLARPLOT_BULKE_FACTOR=polarPlot_bulke_factor, $
+                                          PLOT_FLUX_PEAKS=plot_flux_peaks, $
+                                          PLOTDIR=plotDir, $
+                                          ORBIT=orbit, $
+                                          SAVE_PLOTS=save_plots, $
                                           OUT_PEAK_ENERGIES=peakEn__en, $
+                                          OUT_PEAK_FLUXES=peakEn__flux, $
                                           OUT_ANGLES=peakEn__angle)
 
 

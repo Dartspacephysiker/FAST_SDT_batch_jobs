@@ -1,25 +1,27 @@
-;;08/03/16 But what if you tried it the other way?
-PRO JOURNAL__20160902__ORBIT_1849__OUTRIGHT_2DFIT__USE_OFFLINE_DATA
+;;09/03/2016 Need some dat
+
+PRO JOURNAL__20160903__ORBIT_1773__OUTRIGHT_2DFIT__ONLY_TIMES_WITH_NO_ICWS
 
   COMPILE_OPT IDL2
 
   SET_PLOT_DIR,plotDir, $
                /FOR_SDT, $
                /ADD_TODAY, $
-               ADD_SUFF='/kappa_fits/Orbit_1849__McFadden_et_al_inverted_V--outright_2d'
+               ADD_SUFF='/kappa_fits/Orbit_1773__Elphic_et_al_inverted_V'
 
   outDir                       = '~/software/sdt/batch_jobs/saves_output_etc/'
 
-  ;; fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d--saveme.sav'
-  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d--notindividualfit.sav'
+  fitFile                      = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + $
+                                 '--Elphic_et_al_1998--Kappa_fits_and_Gauss_fits--ees--horseshoe2d.sav'
 
-  ;; diff_eFlux_file              = 'orb_1849--diff_eflux--eeb--output_from_get_losscone_and_eflux_data.sav'
+  ;; diff_eFlux_file              = 'orb_1773--diff_eflux--ees--output_from_get_losscone_and_eflux_data.sav'
 
-  eeb_or_ees                   = 'eeb'
+  eeb_or_ees                   = 'ees'
+
 
   electron_angleRange          = [-40,40]
 
-  spectra_average_interval     = 6
+  ;; spectra_average_interval     = 6
   ;; bounds                    = [160:210:50]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                    = [126:138]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; ;; bounds                    = [126:226:2]/spectra_avg_interval
@@ -44,7 +46,7 @@ PRO JOURNAL__20160902__ORBIT_1849__OUTRIGHT_2DFIT__USE_OFFLINE_DATA
 
   fit1D__skip_bad_fits         = 1
   fit1D__show_and_prompt       = 0
-  fit2D__show_each_candidate   = 0
+  fit2D__show_each_candidate   = 1
   fit_fail__user_prompt        = 0
 
   synthPackage                 = 1
@@ -53,12 +55,13 @@ PRO JOURNAL__20160902__ORBIT_1849__OUTRIGHT_2DFIT__USE_OFFLINE_DATA
   energy_electrons             = [3e1,3.3e4]
   ;; electron_lca                 = 40
   electron_lca                 = 150
-  min_peak_energy              = 800
+  min_peak_energy              = 400
 
-  t1Str                        = '97-02-08/10:11:22'
-  ;; t1Str                        = '97-02-08/10:11:36'
-  ;; t2Str                        = '97-02-08/10:11:52'
-  t2Str                        = '97-02-08/10:11:52'
+  ;; t1Str                       = '97-02-01/09:26:15'
+  ;; t2Str                       = '97-02-01/09:27:10'
+  
+  t1Str                       = '97-02-01/09:26:10'
+  t2Str                       = '97-02-01/09:27:09'
 
   t1                           = STR_TO_TIME(t1Str)
   t2                           = STR_TO_TIME(t2Str)
