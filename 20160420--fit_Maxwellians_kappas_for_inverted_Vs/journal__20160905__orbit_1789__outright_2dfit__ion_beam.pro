@@ -3,6 +3,8 @@ PRO JOURNAL__20160905__ORBIT_1789__OUTRIGHT_2DFIT__ION_BEAM
 
   COMPILE_OPT IDL2
 
+  orbit                        = 1789 ;for outplot
+
   SET_PLOT_DIR,plotDir, $
                /FOR_SDT, $
                /ADD_TODAY, $
@@ -19,7 +21,7 @@ PRO JOURNAL__20160905__ORBIT_1789__OUTRIGHT_2DFIT__ION_BEAM
 
   electron_angleRange          = [-40,40]
 
-  spectra_average_interval     = 6
+  spectra_average_interval     = 4
   ;; bounds                    = [160:210:50]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; bounds                    = [126:138]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
   ;; ;; bounds                    = [126:226:2]/spectra_avg_interval
@@ -276,7 +278,10 @@ PRO JOURNAL__20160905__ORBIT_1789__OUTRIGHT_2DFIT__ION_BEAM
 
   pap    = PLOT_KAPPA_FITPARAMS__TIME_SERIES(fit2DK, $
                                              /KAPPA, $
-                                            /SUPPRESS_LINEPLOT)
+                                             /SUPPRESS_LINEPLOT, $
+                                             PLOTDIR=plotDir, $
+                                             ORBIT=orbit, $
+                                             /SAVEPLOT)
 
   ;; pap   = PLOT(time-time[0],this.fitParams[2,*],YLOG=1,SYMBOL='*',LINESTYLE='')
   PRINT,FORMAT='("(N above k = 2.5)/nTot : ",I0,"/",I0)', $

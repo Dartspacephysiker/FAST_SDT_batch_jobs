@@ -4,6 +4,9 @@ PRO JOURNAL__20160903__ORBIT_1773__OUTRIGHT_2DFIT__ONLY_TIMES_WITH_NO_ICWS
 
   COMPILE_OPT IDL2
 
+  orbit                        = 1773 ;for outplot
+  save_kappa_plot              = 1
+
   SET_PLOT_DIR,plotDir, $
                /FOR_SDT, $
                /ADD_TODAY, $
@@ -46,7 +49,7 @@ PRO JOURNAL__20160903__ORBIT_1773__OUTRIGHT_2DFIT__ONLY_TIMES_WITH_NO_ICWS
 
   fit1D__skip_bad_fits         = 1
   fit1D__show_and_prompt       = 0
-  fit2D__show_each_candidate   = 1
+  fit2D__show_each_candidate   = 0
   fit_fail__user_prompt        = 0
 
   synthPackage                 = 1
@@ -92,7 +95,7 @@ PRO JOURNAL__20160903__ORBIT_1773__OUTRIGHT_2DFIT__ONLY_TIMES_WITH_NO_ICWS
   fit2D_max_iter               = 4000
 
   fit_tol                      = 1e-3
-  fit2D_tol                    = 1e-3
+  fit2D_tol                    = 1e-4
 
   kappa_est                    = 2.7
 
@@ -271,13 +274,25 @@ PRO JOURNAL__20160903__ORBIT_1773__OUTRIGHT_2DFIT__ONLY_TIMES_WITH_NO_ICWS
 
   PRINT,"DONE!"
 
-  this  = PARSE_KAPPA_FIT2D_INFO_LIST_V2(fit2DKappa_inf_list) 
-  that  = LIST_TO_1DARRAY(this.params1d) 
-  those = REFORM(that,5,N_ELEMENTS(fit2Dkappa_inf_list))
+  fit2DK = PARSE_KAPPA_FIT2D_INFO_LIST_V2(fit2DKappa_inf_list, $
+                                         FIT_TYPE='Kappa') 
 
-  pap   = plot(time-time[0],those[2,*],YLOG=1,SYMBOL='*',LINESTYLE='')
-  PRINT,FORMAT='("(N above k = 2.5)/nTot : ",I0,"/",I0)', $
-        N_ELEMENTS(WHERE(those[2,*] LE 2.5)), $
+  fit2DG = PARSE_KAPPA_FIT2D_INFO_LIST_V2(fit2DGauss_inf_list, $
+                                         FIT_TYPE='Maxwellian') 
+
+  pap    = PLOT_KAPPA_FITPARAMS__TIME_SERIES(fit2DK, $
+                                             /KAPPA, $
+                                             ORBIT=orbit, $
+                                             PLOTDIR=plotDir, $
+                                             SAVEPLOT=save_kappa_plot, $
+                                             /SUPPRESS_LINEPLOT)
+  
+  chiPlot  = PLOT(TOTAL(fit2dg.chi2-fit2dk.chi2,/CUMULATIVE),LINESTYLE='',SYMBOL='*')
+
+
+  ;; pap   = PLOT(time-time[0],this.fitParams[2,*],YLOG=1,SYMBOL='*',LINESTYLE='')
+  PRINT,FORMAT='("(N w/ k ≤ 2.5)/nTot : ",I0,"/",I0)', $
+        N_ELEMENTS(WHERE(fit2DK.fitParams[2,*] LE 2.5)), $
         N_ELEMENTS(fit2DKappa_inf_list)
 
   STOP
