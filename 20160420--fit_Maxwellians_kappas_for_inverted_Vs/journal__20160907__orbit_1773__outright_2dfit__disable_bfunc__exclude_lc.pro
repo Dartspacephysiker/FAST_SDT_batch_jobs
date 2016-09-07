@@ -51,7 +51,8 @@ PRO JOURNAL__20160907__ORBIT_1773__OUTRIGHT_2DFIT__DISABLE_BFUNC__EXCLUDE_LC
 
   fit1D__skip_bad_fits          = 1
   fit1D__show_and_prompt        = 0
-  fit2D__show_each_candidate    = 0
+  fit2D__show_each_candidate    = 1
+  fit2D__add_boundaries         = 1
   fit_fail__user_prompt         = 0
 
   synthPackage                  = 1
@@ -88,7 +89,7 @@ PRO JOURNAL__20160907__ORBIT_1773__OUTRIGHT_2DFIT__DISABLE_BFUNC__EXCLUDE_LC
 
   no_plots                      = 1
   save_fitPlots                 = 1
-  saveData                      = 1
+  saveData                      = 0
   plot_full_fit                 = 1
   add_fitParams_text            = 1
   add_angle_label               = 1
@@ -189,6 +190,7 @@ PRO JOURNAL__20160907__ORBIT_1773__OUTRIGHT_2DFIT__DISABLE_BFUNC__EXCLUDE_LC
      ADD_ONECOUNT_CURVE=add_oneCount_curve, $
      ADD_FITPARAMS_TEXT=add_fitParams_text, $
      ADD_ANGLE_LABEL=add_angle_label, $
+     FIT2D__ADD_BOUNDARIES=fit2D__add_boundaries, $
      ELECTRON_ANGLERANGE=electron_angleRange, $
      ELECTRON_LOSSCONE_ANGLE=electron_lca, $
      NO_PLOTS=no_plots, $
