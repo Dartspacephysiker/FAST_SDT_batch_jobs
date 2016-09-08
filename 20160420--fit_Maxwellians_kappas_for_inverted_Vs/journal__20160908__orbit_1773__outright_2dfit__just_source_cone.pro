@@ -22,7 +22,7 @@ PRO JOURNAL__20160908__ORBIT_1773__OUTRIGHT_2DFIT__JUST_SOURCE_CONE
   eeb_or_ees                   = 'ees'
 
 
-  electron_angleRange          = [-40,40]
+  electron_angleRange          = [-30,30]
 
   ;; spectra_average_interval     = 6
   ;; bounds                    = [160:210:50]/spectra_avg_interval & bounds  = bounds[uniq(bounds)]
@@ -30,6 +30,7 @@ PRO JOURNAL__20160908__ORBIT_1773__OUTRIGHT_2DFIT__JUST_SOURCE_CONE
   ;; ;; bounds                    = [126:226:2]/spectra_avg_interval
 
   ;; bounds                       = [87,88,89,90,91,95,99]
+  ;; bounds                        = [88:187]
   ;; bounds  = INDGEN(5)
   ;; Use survey bounds
   ;; 16  1997-02-07/20:49:41.338
@@ -51,7 +52,7 @@ PRO JOURNAL__20160908__ORBIT_1773__OUTRIGHT_2DFIT__JUST_SOURCE_CONE
 
   fit1D__skip_bad_fits          = 1
   fit1D__show_and_prompt        = 0
-  fit2D__show_each_candidate    = 1
+  fit2D__show_each_candidate    = 0
   fit2D__add_boundaries         = 1
   fit_fail__user_prompt         = 0
 
@@ -89,7 +90,7 @@ PRO JOURNAL__20160908__ORBIT_1773__OUTRIGHT_2DFIT__JUST_SOURCE_CONE
 
   no_plots                      = 1
   save_fitPlots                 = 1
-  saveData                      = 0
+  saveData                      = 1
   plot_full_fit                 = 1
   add_fitParams_text            = 1
   add_angle_label               = 1
@@ -318,42 +319,59 @@ PRO JOURNAL__20160908__ORBIT_1773__OUTRIGHT_2DFIT__JUST_SOURCE_CONE
                                              SAVEPLOT=save_kappa_plot, $
                                              /SUPPRESS_LINEPLOT)
   
-  chiPlot  = PLOT(TOTAL(fit2dg.chi2-fit2dk.chi2,/CUMULATIVE),LINESTYLE='',SYMBOL='*')
+  pap    = PLOT_KAPPA_FITPARAMS__TIME_SERIES(fit2DK, $
+                                             /ADD_GAUSSFIT, $
+                                             GAUSS_FIT2D_STRUCT=fit2DG, $
+                                             /CHI2_DIFF, $
+                                             ORBIT=orbit, $
+                                             PLOTNAMEPREF=plotNamePref, $
+                                             PLOTDIR=plotDir, $
+                                             SAVEPLOT=save_kappa_plot, $
+                                             /SUPPRESS_LINEPLOT)
+  
+  pap    = PLOT_KAPPA_FITPARAMS__TIME_SERIES(fit2DK, $
+                                             /ADD_GAUSSFIT, $
+                                             GAUSS_FIT2D_STRUCT=fit2DG, $
+                                             /FITDENS, $
+                                             ORBIT=orbit, $
+                                             PLOTNAMEPREF=plotNamePref, $
+                                             PLOTDIR=plotDir, $
+                                             SAVEPLOT=save_kappa_plot, $
+                                             /SUPPRESS_LINEPLOT)
 
+  ;; xTickFont_size   = 16
+  ;; xTickFont_style  =  1      
+  ;; yTickFont_size   = 16
+  ;; yTickFont_style  =  1      
+  ;; symSize          =  2.0            
+  ;; symThick         =  2.0           
+  ;; thick            =  N_ELEMENTS(thick) GT 0 ? thick : 3.0
+  ;; xStyle           = 1
 
-  xTickFont_size   = 16
-  xTickFont_style  =  1      
-  yTickFont_size   = 16
-  yTickFont_style  =  1      
-  symSize          =  2.0            
-  symThick         =  2.0           
-  thick            =  N_ELEMENTS(thick) GT 0 ? thick : 3.0
-  xStyle           = 1
-
-  dummy            = LABEL_DATE(DATE_FORMAT=['%H:%I:%S'])
-  x_values         = UTC_TO_JULDAY(fit2DK.SDT.time)
-  xRange           = [x_values[1]-(1/20864.),x_values[-1]+(1/20864.)]
-  xTitle           = 'Time since ' + TIME_TO_STR(fit2DK.SDT[1].time-1,/MSEC)
+  ;; dummy            = LABEL_DATE(DATE_FORMAT=['%H:%I:%S'])
+  ;; x_values         = UTC_TO_JULDAY(fit2DK.SDT.time)
+  ;; xRange           = [x_values[1]-(1/20864.),x_values[-1]+(1/20864.)]
+  ;; xTitle           = 'Time since ' + TIME_TO_STR(fit2DK.SDT[1].time-1,/MSEC)
 
   
-  chiPlotNorm      = PLOT(x_values,TOTAL(fit2dg.chi2/(fit2dg.dof-fit2dg.npegged)-$
-                                fit2dk.chi2/(fit2dk.dof-fit2dk.npegged), $
-                                /CUMULATIVE), $
-                          YTITLE='SUM($\Delta \Chi$!U2!N/DOF (GaussFit - kappaFit))', $
-                          XTITLE=xTitle, $
-                          XRANGE=xRange, $
-                          XTICKFORMAT=KEYWORD_SET(no_time_label) ? $
-                          !NULL : 'LABEL_DATE', $
-                          XTICKUNITS=KEYWORD_SET(no_time_label) ? $
-                          !NULL : 'Time', $
-                          LINESTYLE='', $
-                          SYMBOL='*')
+  ;; chiPlotNorm      = PLOT(x_values,TOTAL(fit2dg.chi2/(fit2dg.dof-fit2dg.npegged)-$
+  ;;                               fit2dk.chi2/(fit2dk.dof-fit2dk.npegged), $
+  ;;                               /CUMULATIVE), $
+  ;;                         YTITLE='SUM($\Delta \Chi$!U2!N/DOF (GaussFit - kappaFit))', $
+  ;;                         XTITLE=xTitle, $
+  ;;                         XRANGE=xRange, $
+  ;;                         XTICKFORMAT=KEYWORD_SET(no_time_label) ? $
+  ;;                         !NULL : 'LABEL_DATE', $
+  ;;                         XTICKUNITS=KEYWORD_SET(no_time_label) ? $
+  ;;                         !NULL : 'Time', $
+  ;;                         LINESTYLE='', $
+  ;;                         SYMBOL='*')
   
 
-  chi2DiffName = 'chi2_diff--orb_' + STRCOMPRESS(orbit,/REMOVE_ALL) + $
-     plotNamePref+'--time_series.png'
-  PRINT,'saving chi2 diff  to : ' + chi2DiffName
-  chiPlotNorm.Save,plotDir+chi2DiffName
+  ;; chi2DiffName = 'chi2_diff--orb_' + STRCOMPRESS(orbit,/REMOVE_ALL) + $
+  ;;    plotNamePref+'--time_series.png'
+  ;; PRINT,'saving chi2 diff  to : ' + chi2DiffName
+  ;; chiPlotNorm.Save,plotDir+chi2DiffName
 
   ;; pap   = PLOT(time-time[0],this.fitParams[2,*],YLOG=1,SYMBOL='*',LINESTYLE='')
   PRINT,FORMAT='("(N w/ k ≤ 2.5)/nTot : ",I0,"/",I0)', $
