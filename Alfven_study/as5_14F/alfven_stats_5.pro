@@ -335,9 +335,9 @@ pro alfven_stats_5,filename=filename,energy_electrons=energy_electrons,energy_io
            get_data,'dB_fac_v',data=db_fac
            mintime=min(abs(time_ranges(jjj,0)-db_fac.x),ind1)
            mintime=min(abs(time_ranges(jjj,1)-db_fac.x),ind2)
-           
-           magx={x:db_fac.x(ind1:ind2),y:db_fac.y(ind1:ind2,0)}
-           magy={x:db_fac.x(ind1:ind2),y:db_fac.y(ind1:ind2,2)}
+                                                                ;   From UCLA_MAG_DESPIN:
+           magx={x:db_fac.x(ind1:ind2),y:db_fac.y(ind1:ind2,0)} ;   "Field-aligned velocity-based coordinates defined as:    "
+           magy={x:db_fac.x(ind1:ind2),y:db_fac.y(ind1:ind2,2)} ;   "z (ind 2)-along B, y (ind 1)-cross track (BxV), x (ind 0)-along track ((BxV)xB)." (I added "ind" marks)
            magz={x:db_fac.x(ind1:ind2),y:db_fac.y(ind1:ind2,1)}
         endelse
         

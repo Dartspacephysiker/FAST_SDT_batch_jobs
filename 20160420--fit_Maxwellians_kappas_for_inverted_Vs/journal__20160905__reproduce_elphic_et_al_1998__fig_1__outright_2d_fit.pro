@@ -12,7 +12,8 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
    KAPPA_LOWTHRESHOLD=lKappa_thresh, $
    KAPPA_HIGHTHRESHOLD=hKappa_thresh, $
    USE_JE_CURRENT=use_je_current, $
-   SDT_CALC__NO_MODEL=SDT_calc__no_model
+   SDT_CALC__NO_MODEL=SDT_calc__no_model, $
+   USE_OFFLINE_FILE=use_offline_file
 
   COMPILE_OPT IDL2
 
@@ -22,31 +23,16 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
 
   use_mpFit1D        = 1
 
-  ;; GET_DATA,'ion_pa',    DATA=ion_pa_originalsk                                
-  ;; GET_DATA,'E_ALONG_V', DATA=eAlongV_originalsk
-  ;; GET_DATA,'dB_fac_v',  DATA=db_fac_originalsk
-  ;; GET_DATA,'ALT',       DATA=alt_originalsk
-  ;; GET_DATA,'ILAT',      DATA=ilat_originalsk
-  ;; GET_DATA,'el_0',      DATA=el_0_originalsk
-  ;; GET_DATA,'el_pa',     DATA=el_pa_originalsk
-  ;; GET_DATA,'ion_180',   DATA=ion_180_originalsk
-  ;; GET_DATA,'ion_pa',    DATA=ion_pa_originalsk                                
-  ;; GET_DATA,'Je',        DATA=Je_originalsk
-  ;; GET_DATA,'Jee',       DATA=Jee_originalsk
-  ;; GET_DATA,'Ji',        DATA=Ji_originalsk
-  ;; GET_DATA,'Jei',       DATA=Jei_originalsk
-  ;; GET_DATA,'fa_vel',    DATA=vel_originalsk
-  ;; GET_DATA,'B_model',   DATA=B_model_originalsk
-  ;; GET_DATA,'JeF',       DATA=JeF_originalsk
-
-  R_B        = 30.0      ;For calculating Maxwellian and Kappa current
+  
+  ;; R_B        = 20.0      ;Works best for the end of the arc
+  R_B        = 25.0      ;Works best toward beginning of arc
 
   fitDir     = '~/software/sdt/batch_jobs/saves_output_etc/'
 
-  fitFile    = '20160905--Elphic_et_al_1998--Kappa_fits_and_Gauss_fits--ees--horseshoe2d.sav'
+  fitFile    = '20160908--Elphic_et_al_1998--Kappa_fits_and_Gauss_fits--ees--horseshoe2d--fit_above_400_eV--No_bFunc--exc_LCA.sav'
 
-  kappaTxtFile  = '20160905--Elphic_et_al_1998--Kappa_fits.txt'
-  gaussTxtFile  = '20160905--Elphic_et_al_1998--Gauss_fits.txt'
+  kappaTxtFile  = '20160908--Elphic_et_al_1998--Kappa_fits.txt'
+  gaussTxtFile  = '20160908--Elphic_et_al_1998--Gauss_fits.txt'
 
   offlineFile   = 'orb_1773--' + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--survey_offline.sav'
 
@@ -80,7 +66,7 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
   survOrBurst                 = 'ees'
   iSurvOrBurst                = 'ies'
 
-  energy_electrons            = [100.,32000.]
+  energy_electrons            = [400.,32000.]
   energy_ions                 = [10.,32000.]
   ucla_mag_despin             = 1
   do_losscone                 = 0
@@ -88,7 +74,7 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
   ;; t1Str                    = '97-02-01/09:25:30'
   ;; t2Str                    = '97-02-01/09:27:59'
   
-  t1Str                       = '97-02-01/09:26:15'
+  t1Str                       = '97-02-01/09:26:10'
   t2Str                       = '97-02-01/09:27:10'
   
   t1                          = STR_TO_TIME(t1Str)
@@ -105,19 +91,135 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
   blue                        = 80
   black                       = 10
 
+  CASE KEYWORD_SET(use_offline_file) OF
+     1: BEGIN
+        IF FILE_TEST(fitDir+offlineFile) THEN BEGIN
+           RESTORE,fitDir+offlineFile
+
+           IF N_ELEMENTS(eAlongV_originalsk) GT 0 THEN BEGIN
+              STORE_DATA,'E_ALONG_V', DATA=eAlongV_originalsk
+           ENDIF ELSE BEGIN
+              hosedIt = 1
+           ENDELSE
+
+           IF N_ELEMENTS(db_fac_originalsk) GT 0 THEN BEGIN
+              STORE_DATA,'dB_fac_v',  DATA=db_fac_originalsk
+           ENDIF ELSE BEGIN
+              hosedIt = 1
+           ENDELSE
+
+           IF KEYWORD_SET(do_losscone) THEN BEGIN
+              IF N_ELEMENTS(alt_originalsk) GT 0 THEN BEGIN
+                 STORE_DATA,'ALT',       DATA=alt_originalsk
+              ENDIF ELSE BEGIN
+                 hosedIt = 1
+              ENDELSE
+
+              IF N_ELEMENTS(ilat_originalsk) GT 0 THEN BEGIN
+                 STORE_DATA,'ILAT',      DATA=ilat_originalsk
+              ENDIF ELSE BEGIN
+                 hosedIt = 1
+              ENDELSE
+           ENDIF
+
+           IF N_ELEMENTS(ILAT_jee_originalsk) GT 0 THEN BEGIN
+              STORE_DATA,'ILAT_jee',DATA=ILAT_jee_originalsk
+           ENDIF ELSE BEGIN
+              hosedIt = 1
+           ENDELSE
+
+           IF N_ELEMENTS(BFOOT_originalsk) GT 0 THEN BEGIN
+              STORE_DATA,'BFOOT',DATA=BFOOT_originalsk
+           ENDIF ELSE BEGIN
+              hosedIt = 1
+           ENDELSE
+
+           IF N_ELEMENTS(B_model_originalsk) GT 0 THEN BEGIN
+              STORE_DATA,'B_model',DATA=B_model_originalsk
+           ENDIF ELSE BEGIN
+              hosedIt = 1
+           ENDELSE
+
+           IF N_ELEMENTS(el_0_originalsk) GT 0 THEN BEGIN
+              STORE_DATA,'el_0',      DATA=el_0_originalsk
+           ENDIF ELSE BEGIN
+              hosedIt = 1
+           ENDELSE
+
+           IF N_ELEMENTS(el_pa_originalsk) GT 0 THEN BEGIN
+              STORE_DATA,'el_pa',     DATA=el_pa_originalsk
+           ENDIF ELSE BEGIN
+              hosedIt = 1
+           ENDELSE
+
+           IF N_ELEMENTS(Jee2_originalsk) GT 0 THEN BEGIN
+              STORE_DATA,'Jee2_originalsk',DATA=Jee2_originalsk
+           ENDIF ELSE BEGIN
+              hosedIt = 1
+           ENDELSE
+
+           IF N_ELEMENTS(Je_originalsk) GT 0 THEN BEGIN
+              STORE_DATA,'Je',        DATA=Je_originalsk
+           ENDIF ELSE BEGIN
+              hosedIt = 1
+           ENDELSE
+
+           IF N_ELEMENTS(Jee_originalsk) GT 0 THEN BEGIN
+              STORE_DATA,'Jee',       DATA=Jee_originalsk
+           ENDIF ELSE BEGIN
+              hosedIt = 1
+           ENDELSE
+
+           IF N_ELEMENTS(Ji_originalsk) GT 0 THEN BEGIN
+              STORE_DATA,'Ji',        DATA=Ji_originalsk
+           ENDIF ELSE BEGIN
+              hosedIt = 1
+           ENDELSE
+
+           IF N_ELEMENTS(Jei_originalsk) GT 0 THEN BEGIN
+              STORE_DATA,'Jei',       DATA=Jei_originalsk
+           ENDIF ELSE BEGIN
+              hosedIt = 1
+           ENDELSE
+
+           IF N_ELEMENTS(vel_originalsk) GT 0 THEN BEGIN
+              STORE_DATA,'fa_vel',    DATA=vel_originalsk
+           ENDIF ELSE BEGIN
+              hosedIt = 1
+           ENDELSE
+
+
+           have_offline = ~KEYWORD_SET(hosedIt)
+           IF ~have_offline THEN BEGIN
+              PRINT,"Couldn't use offline file!"
+           ENDIF
+        ENDIF ELSE BEGIN
+           have_offline       = 0
+           PRINT,"Couldn't find offline file!"
+        ENDELSE
+     END
+     ELSE: BEGIN
+        have_offline          = 0
+     END
+  ENDCASE
+
   saveStr                        = 'SAVE,'
 
   ;;Get fields stuff, eFields and magFields
-  FA_FIELDS_DESPIN,T1=t1Adj,T2=t2Adj,DAT=despun_E
-  GET_DATA,'E_NEAR_B',DATA=eNearB
+  IF ~have_offline THEN BEGIN
+     FA_FIELDS_DESPIN,T1=t1Adj,T2=t2Adj,DAT=despun_E
+     saveStr+='eAlongV_originalsk,'
+     GET_DATA,'E_NEAR_B',DATA=eNearB
+     GET_DATA,'E_ALONG_V',DATA=eAlongV_originalsk
+  ENDIF
   GET_DATA,'E_ALONG_V',DATA=eAlongV
-  GET_DATA,'E_ALONG_V',DATA=eAlongV_originalsk
-  saveStr+='eAlongV_originalsk,'
   STORE_DATA,'E_ALONG_V',DATA={x:eAlongV.x,y:SMOOTH(eAlongV.y,160,/EDGE_TRUNCATE)}
+
   OPTIONS,'E_ALONG_V','ytitle','E Along V!C(mV/m)'
   YLIM,'E_ALONG_V',-1000,1000
 
   IF KEYWORD_SET(ucla_mag_despin) THEN BEGIN
+
      GET_DATA,'dB_fac_v',DATA=db_fac
      IF SIZE(db_fac,/TYPE) NE 8 THEN BEGIN
         UCLA_MAG_DESPIN
@@ -145,19 +247,26 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
 
   ENDELSE
 
-  GET_FA_ORBIT,magz.x,/TIME_ARRAY,/ALL
+
+  IF ~have_offline THEN BEGIN 
+     GET_FA_ORBIT,magz.x,/TIME_ARRAY,/ALL
+  ENDIF
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Now the easy ones, ripped right from the crib sheet
   IF KEYWORD_SET(do_losscone) THEN BEGIN
      ;;Define loss cone angle
      GET_DATA,'ALT',DATA=alt
-     GET_DATA,'ALT',DATA=alt_originalsk
-     saveStr+='alt_originalsk,'
+     IF ~have_offline THEN BEGIN 
+        GET_DATA,'ALT',DATA=alt_originalsk
+        saveStr+='alt_originalsk,'
+     ENDIF
      loss_cone_alt            = alt.y[0]*1000.0
      lcw                      = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
      GET_DATA,'ILAT',DATA=ilat
-     GET_DATA,'ILAT',DATA=ilat_originalsk
-     saveStr+='ilat_originalsk,'
+     IF ~have_offline THEN BEGIN 
+        GET_DATA,'ILAT',DATA=ilat_originalsk
+        saveStr+='ilat_originalsk,'
+     ENDIF
      north_south              = ABS(ilat.y[0])/ilat.y[0]
 
      if north_south EQ -1 then begin
@@ -186,8 +295,10 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
   iAngleChari                 = [135.,225.]
   ;;Get speed and position for calculation of mag stuff
   GET_DATA,'fa_vel',DATA=vel
-  GET_DATA,'fa_vel',DATA=vel_originalsk
-  saveStr+='vel_originalsk,'
+  IF ~have_offline THEN BEGIN 
+     GET_DATA,'fa_vel',DATA=vel_originalsk
+     saveStr+='vel_originalsk,'
+  ENDIF
   speed                       = SQRT(vel.y[*,0]^2+vel.y[*,1]^2+vel.y[*,2]^2)*1000.0
 
   old_pos                     = 0.
@@ -245,11 +356,15 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Calculate current from ESAs
-  GET_2DT_TS,'j_2d_b','fa_ees',T1=t1,T2=t2, $
-             NAME='Je',ENERGY=energy_electrons ;,ANGLE=eAngle
+  IF ~have_offline THEN BEGIN
+     GET_2DT_TS,'j_2d_b','fa_ees',T1=t1,T2=t2, $
+                NAME='Je',ENERGY=energy_electrons ;,ANGLE=eAngle
 
-  GET_2DT_TS,'j_2d_b','fa_ees',T1=t1,T2=t2, $
-             NAME='Je_lc',ENERGY=energy_electrons,ANGLE=eAngle
+     GET_2DT_TS,'j_2d_b','fa_ees',T1=t1,T2=t2, $
+                NAME='Je_lc',ENERGY=energy_electrons,ANGLE=eAngle
+     GET_DATA,'Je_lc',DATA=Je_lc_originalsk
+     saveStr+='Je_lc_originalsk,'
+  ENDIF
 
   ;;Remove_crap
   GET_DATA,'Je',DATA=tmp
@@ -269,9 +384,6 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
   OPTIONS,'Je','fill_color',250
 
   GET_DATA,'Je_lc',DATA=tmp
-  GET_DATA,'Je_lc',DATA=tmp
-  GET_DATA,'Je_lc',DATA=Je_lc_originalsk
-  saveStr+='Je_lc_originalsk,'
   keep1                       = WHERE(FINITE(tmp.y) NE 0)
   tmp.x                       = tmp.x[keep1]
   tmp.y                       = tmp.y[keep1]
@@ -281,15 +393,22 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
 
 
   ;;Get electron energy flux in loss cone
-  GET_2DT_TS,'je_2d_b','fa_ees',T1=t1,T2=t2, $
-             NAME='JEe',ENERGY=energy_electrons,ANGLE=eAngle
+  IF ~have_offline THEN BEGIN
+     GET_2DT_TS,'je_2d_b','fa_ees',T1=t1,T2=t2, $
+                NAME='JEe',ENERGY=energy_electrons,ANGLE=eAngle
 
-  GET_2DT_TS,'je_2d_b','fa_ees',T1=t1,T2=t2, $
-             NAME='JEe_tot',ENERGY=energy_electrons
+     GET_2DT_TS,'je_2d_b','fa_ees',T1=t1,T2=t2, $
+                NAME='JEe_tot',ENERGY=energy_electrons
 
-  GET_DATA,'JEe',DATA=tmp
-  GET_DATA,'JEe',DATA=JEe2_originalsk
-  saveStr+='JEe2_originalsk,'
+     GET_DATA,'JEe',DATA=tmp
+     GET_DATA,'JEe',DATA=JEe2_originalsk
+     saveStr+='JEe2_originalsk,'
+
+     GET_DATA,'JEe_tot',DATA=JEe_tot_originalsk
+     saveStr+='JEe_tot_originalsk,'
+  ENDIF ELSE BEGIN
+     GET_DATA,'Jee2_originalsk',DATA=tmp
+  ENDELSE
   ;;remove crap
   keep1                       = WHERE(FINITE(tmp.y) NE 0)
   tmp.x                       = tmp.x[keep1]
@@ -300,8 +419,6 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
   STORE_DATA,'JEe',DATA={x:jee_tmp_time,y:jee_tmp_data}
 
   GET_DATA,'JEe_tot',DATA=tmp
-  GET_DATA,'JEe_tot',DATA=JEe_tot_originalsk
-  saveStr+='JEe_tot_originalsk,'
   ;;remove crap
   keep1                       = WHERE(FINITE(tmp.y) NE 0)
   tmp.x                       = tmp.x[keep1]
@@ -313,17 +430,23 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
   STORE_DATA,'JEe_tot',DATA={x:jee_tot_tmp_time,y:jee_tot_tmp_data}
 
   ;;Get ratios for mapping to 100 km as well as signs for ensuring downward is positive
-  GET_FA_ORBIT,jee_tmp_time,/TIME_ARRAY,/ALL
-  GET_DATA,'ILAT',DATA=tmp
-  GET_DATA,'ILAT',DATA=ILAT_jee_originalsk
-  saveStr+='ILAT_jee_originalsk,'
+  IF ~have_offline THEN BEGIN
+     GET_FA_ORBIT,jee_tmp_time,/TIME_ARRAY,/ALL
+     GET_DATA,'ILAT',DATA=tmp
+     GET_DATA,'ILAT',DATA=ILAT_jee_originalsk
+     saveStr+='ILAT_jee_originalsk,'
+
+     GET_DATA,'B_model',DATA=B_model_originalsk
+     saveStr+='B_model_originalsk,'
+     GET_DATA,'BFOOT',DATA=BFOOT_originalsk
+     saveStr+='BFOOT_originalsk,'
+  ENDIF ELSE BEGIN
+     GET_DATA,'ILAT_jee',DATA=tmp
+  ENDELSE
+
   sgn_flx                     = tmp.y/ABS(tmp.y)
   GET_DATA,'B_model',DATA=tmp1
-  GET_DATA,'B_model',DATA=B_model_originalsk
-  saveStr+='B_model_originalsk,'
   GET_DATA,'BFOOT',DATA=tmp2
-  GET_DATA,'BFOOT',DATA=BFOOT_originalsk
-  saveStr+='BFOOT_originalsk,'
   mag1                        = (tmp1.y[*,0]*tmp1.y[*,0]+tmp1.y[*,1]*tmp1.y[*,1]+tmp1.y[*,2]*tmp1.y[*,2])^0.5
   mag2                        = (tmp2.y[*,0]*tmp2.y[*,0]+tmp2.y[*,1]*tmp2.y[*,1]+tmp2.y[*,2]*tmp2.y[*,2])^0.5
   ratio                       = (mag2/mag1)
@@ -360,10 +483,13 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Now the easy ones, ripped right from the crib sheet
-  GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='el_0',ANGLE=eAngle,RETRACE=1,T1=t1,T2=t2,/CALIB
+  IF ~have_offline THEN BEGIN
+     GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='el_0',ANGLE=eAngle,RETRACE=1,T1=t1,T2=t2,/CALIB
+     GET_DATA,'el_0', DATA=el_0_originalsk
+     saveStr+='el_0_originalsk,'
+  ENDIF
+
   GET_DATA,'el_0', DATA=tmp                                            ; get data structure
-  GET_DATA,'el_0', DATA=el_0_originalsk
-  saveStr+='el_0_originalsk,'
   tmp.y                       = tmp.y>1.e1                             ; Remove zeros 
   tmp.y                       = ALOG10(tmp.y)                          ; Pre-log
   STORE_DATA,'el_0', DATA=tmp                                          ; store data structure
@@ -381,12 +507,14 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
   ;; OPTIONS,'el_0','panel_size',1.5                                        ; set panel size
 
   ;; Electron pitch angle spectrogram - survey data, remove retrace, >100 electrons
-  GET_PA_SPEC,"fa_ees_c",UNITS='eflux',NAME='el_pa', $
-              ;; ENERGY=energy_electrons, $
-              RETRACE=1,T1=t1,T2=t2,/CALIB
+  IF ~have_offline THEN BEGIN
+     GET_PA_SPEC,"fa_ees_c",UNITS='eflux',NAME='el_pa', $
+                 ;; ENERGY=energy_electrons, $
+                 RETRACE=1,T1=t1,T2=t2,/CALIB
+     GET_DATA,'el_pa',DATA=el_pa_originalsk
+     saveStr+='el_pa_originalsk,'                          ; get data structure
+  ENDIF
   GET_DATA,'el_pa',DATA=tmp                                ; get data structure
-  GET_DATA,'el_pa',DATA=el_pa_originalsk
-  saveStr+='el_pa_originalsk,'                               ; get data structure
   tmp.y                       = tmp.y>1.e1                 ; Remove zeros
   tmp.y                       = ALOG10(tmp.y)              ; Pre-log
   STORE_DATA,'el_pa',DATA=tmp                              ; store data structure
@@ -403,30 +531,40 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Chare panel
-  GET_2DT,'j_2d_fs','fa_' + survOrBurst + '_c',NAME='Je',T1=t1,T2=t2,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
-  GET_2DT,'je_2d_fs','fa_' + survOrBurst + '_c',NAME='Jee',T1=t1,T2=t2,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
-  GET_2DT,'j_2d_fs','fa_' + iSurvOrBurst + '_c',NAME='Ji',T1=t1,T2=t2,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
-  GET_2DT,'je_2d_fs','fa_' + iSurvOrBurst + '_c',NAME='Jei',T1=t1,T2=t2,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
+  IF ~have_offline THEN BEGIN
+
+     GET_2DT,'j_2d_fs','fa_' + survOrBurst + '_c',NAME='Je',T1=t1,T2=t2, $
+             ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
+     GET_2DT,'je_2d_fs','fa_' + survOrBurst + '_c',NAME='Jee',T1=t1,T2=t2, $
+             ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
+
+     GET_2DT,'j_2d_fs','fa_' + iSurvOrBurst + '_c',NAME='Ji',T1=t1,T2=t2, $
+             ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
+     GET_2DT,'je_2d_fs','fa_' + iSurvOrBurst + '_c',NAME='Jei',T1=t1,T2=t2, $
+             ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
+
+     GET_DATA,'Je',DATA=Je_originalsk
+     saveStr+='Je_originalsk,'
+     GET_DATA,'Jee',DATA=Jee_originalsk
+     saveStr+='Jee_originalsk,'
+
+     GET_DATA,'Ji',DATA=Ji_originalsk
+     saveStr+='Ji_originalsk,'
+     GET_DATA,'Jei',DATA=Jei_originalsk
+     saveStr+='Jei_originalsk,'
+  ENDIF
   ;;Remove_crap
   GET_DATA,'Je',DATA=tmp
-  GET_DATA,'Je',DATA=Je_originalsk
-  saveStr+='Je_originalsk,'
   keep1                       = WHERE(FINITE(tmp.y) NE 0)
   keep2                       = WHERE(ABS(tmp.y) GT 0.0)
   GET_DATA,'Jee',DATA=tmp
-  GET_DATA,'Jee',DATA=Jee_originalsk
-  saveStr+='Jee_originalsk,'
   keep1                       = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
   keep2                       = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
   GET_DATA,'Ji',DATA=tmp
-  GET_DATA,'Ji',DATA=Ji_originalsk
-  saveStr+='Ji_originalsk,'
   keep1                       = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
   keep1                       = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
   keep2                       = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
   GET_DATA,'Jei',DATA=tmp
-  GET_DATA,'Jei',DATA=Jei_originalsk
-  saveStr+='Jei_originalsk,'
   keep1                       = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
   keep1                       = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
   keep2                       = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
@@ -506,13 +644,13 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
                                                    OUT_BAD_T=excludeG_t, $
                                                      FIT_TYPE='Maxwellian')
 
-  PARSE_KAPPA_2DFITS,kappa2D.params1D, $
+  PARSE_KAPPA_2DFITS,kappa2D.fitParams, $
                           STRUCT_A=AStruct, $
                           NAMES_A=ANames
 
-  PARSE_KAPPA_FIT_STRUCTS,gauss2D.params1D, $
-                          STRUCT_A=AStructGauss, $
-                          NAMES_A=AGaussNames
+  PARSE_KAPPA_2DFits,gauss2D.fitParams, $
+                     STRUCT_A=AStructGauss, $
+                     NAMES_A=AGaussNames
 
   nFits                        = N_ELEMENTS(aStruct.kappa)
   ;; badFits_i                    = WHERE(fitStatus NE 0,nBadFits)
@@ -644,7 +782,7 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
   OPTIONS,'onecheese','colors',green
   OPTIONS,'onecheese','tplot_routine','mplot'
   OPTIONS,'onecheese','ytitle','Current!C('+CGGREEK('mu')+'A/m!U2!Ns)'
-  YLIM,   'onecheese',-2,0
+  YLIM,   'onecheese',-1.25,0
 
   OPTIONS,'onecheese','labels',obsName
   OPTIONS,'onecheese','labflag',3
@@ -654,8 +792,10 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
   ;; OPTIONS,'onecheese','ytickv',[-4.0,-3.0,-2.0,-1.0,0.0]            ; set y-axis labels
   ;; OPTIONS,'onecheese','ytickname',['-2.0','-1.0','0'] ; set y-axis labels
   ;; OPTIONS,'onecheese','ytickv',[-2.0,-1.0,0.0]            ; set y-axis labels
-  OPTIONS,'onecheese','ytickname',['-1.5','-1.0','-0.5','0'] ; set y-axis labels
-  OPTIONS,'onecheese','ytickv',[-1.5,-1.0,-0.5,0.0]            ; set y-axis labels
+  ;; OPTIONS,'onecheese','ytickname',['-1.5','-1.0','-0.5','0'] ; set y-axis labels
+  ;; OPTIONS,'onecheese','ytickv',[-1.5,-1.0,-0.5,0.0]            ; set y-axis labels
+  OPTIONS,'onecheese','ytickname',['-1.0','-0.5','0'] ; set y-axis labels
+  OPTIONS,'onecheese','ytickv',[-1.0,-0.5,0.0]            ; set y-axis labels
 
   OPTIONS,'fourcheese','colors',red
   OPTIONS,'fourcheese','labels','Fluxgate mag'
@@ -694,11 +834,13 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
                       OUTDIR=outDir
   ENDIF
 
-  saveStr += 'FILENAME="'+fitDir+offlineFile + '"'
+  IF ~have_offline THEN BEGIN
+     saveStr += 'FILENAME="'+fitDir+offlineFile + '"'
 
-  PRINT,"Saving to " + offlineFile + " ..."
-  this     = EXECUTE(saveStr)
-
+     PRINT,"Saving to " + offlineFile + " ..."
+     PRINT,'Savestr: ' + saveStr
+     this     = EXECUTE(saveStr)
+  ENDIF
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Save data?
   IF KEYWORD_SET(save_data) THEN BEGIN
@@ -746,7 +888,7 @@ PRO JOURNAL__20160905__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
      TPLOT,['Ped','POTENTIAL','el_0','el_pa','onecheese','kappa_fit'], $
            VAR_LABEL=['ALT','MLT','ILAT'],TITLE='ORBIT 1773',TRANGE=[t1,t2]
 
-     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
+     ;; TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
      TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
      IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
         PCLOSE
