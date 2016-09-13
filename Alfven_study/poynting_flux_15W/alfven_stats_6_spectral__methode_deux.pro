@@ -1,4 +1,6 @@
-PRO ALFVEN_STATS_6_SPECTRAL, $
+;2016/09/12 The idea here is to prep the FFT chunks BEFORE doing the E-over-B test, so that we can calc the timestamps, frequency
+;limits and bandpass filter BEFORE calculating the Poynting flux
+PRO ALFVEN_STATS_6_SPECTRAL__METHODE_DEUX, $
    FILENAME=filename, $
    ENERGY_ELECTRONS=energy_electrons, $
    ENERGY_IONS=energy_ions, $
