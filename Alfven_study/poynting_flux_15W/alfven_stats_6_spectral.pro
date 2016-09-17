@@ -4,16 +4,21 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
    SHOW_ALF_EVENTS_FROM_MAXIMUS=show_maximus_events, $
    ENERGY_ELECTRONS=energy_electrons, $
    ENERGY_IONS=energy_ions, $
-   ANALYSE_NOISE=analyse_noise, $
    T1=t1, $
    T2=t2, $
    BURST=burst, $
    ONLY_FASTSRVY_DATA=only_128Ss_data, $
    OVERRIDE_FREQ_BOUNDS=override_freq_bounds, $
+   MIN_FREQ=min_freq, $
+   MAX_FREQ=max_freq, $
+   INCLUDE_E_NEAR_B=include_E_near_B, $
+   FULL_PFLUX_CALC=full_pFlux, $
    UCLA_MAG_DESPIN=ucla_mag_despin, $
    KEEP_ALFVEN_ONLY=keep_alfven_only, $
+   NO_PLOTS=no_plots, $
    PNG_SUMPLOT=png_sumplot, $
    PNG_OUREVENTS=png_ourevents, $
+   BIGWINDOW=bigWindow, $
    DONTSHOWPLOTS=dontShowPlots, $
    CONT_IF_FILE_EXISTS=cont_if_file_exists
 
@@ -26,6 +31,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
      SET_PLOT_DIR,outPlotDir,/FOR_SDT,ADD_SUFF='/as6_spectral/'
   ENDIF
 
+  IF N_ELEMENTS(full_pFlux     )     EQ 0 THEN full_pFlux          = 1
   IF N_ELEMENTS(ucla_mag_despin)     EQ 0 THEN ucla_mag_despin     = 1
   IF N_ELEMENTS(below_auroral_oval)  EQ 0 THEN below_auroral_oval  = 1
   IF N_ELEMENTS(only_128Ss_data)     EQ 0 THEN only_128Ss_data     = 1
@@ -38,32 +44,37 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
   ;;The way this works is that we estimate f_spA ≤ k_perp * λe < f_spB
   ;;Frequency details under "***Frequency conditions***"
-  f_spA         = 0.05
-  f_spB         = 1./f_spA
-  freqRes       = 0.05D         ;Frequencies rounded to this number
-  ;; freqRes       = 0.1D         ;Frequencies rounded to this number
-  FGMagRolloff  = 20.0          ;in Hz
+  f_spA          = 0.1
+  f_spB          = 1./f_spA
+  freqRes        = 0.125D         ;Frequencies rounded to this number
+  ;; freqRes     = 0.1D         ;Frequencies rounded to this number
+  FGMagRolloff   = 20.0          ;in Hz
 
 
   ;;For FFTs of Mag and E data
-  FFTLen        = 1024
-  nFFTAvg       = 1
+  FFTLen         = 1024
+  nFFTAvg        = 1
 
-  maxPeriod     = 1/100.
-  minPeriod     = 1/132.
-  eFSampFact    = 4         ;The fact is, E-field data gets sampled a million times faster!
+  maxPeriod      = 1/100.
+  minPeriod      = 1/132.
+  eFSampFact     = 4         ;The fact is, E-field data gets sampled a million times faster!
   freqPlotRange  = [0.1,FGMagRolloff]
   override_freq  = [0.0,FGMagRolloff]
-  FFTSlide      = 1.0
+  FFTSlide       = 1.0
+
+  ;;Filter stuff
+  lowPole        = 8 ;Slay that low-freq garbage
+  highPole       = 4
+  FFTdb          = 50 ;For digital filter coeffs. IDL doc says "50 is a good choice."
 
   ;;***Thresholds on power spectra***        
   ;;(See section with the same label below to investigate how I came up with these)
-  BSpecThresh   = 0.01          ;in     nT^2/Hz
-  ESpecThresh   = 0.01          ;in (mV/m)^2/Hz
+  BSpecThresh    = 0.01          ;in     nT^2/Hz
+  ESpecThresh    = 0.01          ;in (mV/m)^2/Hz
   ;;...And thresholds on integrated spectra
-  BIntegThresh  = 0.2           ; in nT
-  EIntegThresh  = 0.2           ; in mV/m
-  ebAlfRat      = 10.0
+  BIntegThresh   = 0.2           ; in nT
+  EIntegThresh   = 0.2           ; in mV/m
+  ebAlfRat       = 10.0
 
   ;;Other screenings
   current_threshold               = 1.0  ;microA/m^2
@@ -71,12 +82,18 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
   delta_E_threshold               = 10.0 ; mV/m
   esa_j_delta_bj_ratio_threshold  = 0.02
   electron_eflux_ionos_threshold  = 0.05  ;ergs/cm^2/s
-  eb_to_alfven_speed              = 50.0 ; factor by which the event can differ from model Alfven speed and still be called an Alfven wave 
+  eb_to_alfven_speed              = 10.0 ; factor by which the event can differ from model Alfven speed and still be called an Alfven wave 
                                 ;(applies only to the lower limit for e over b the upper limit is taken care of by the requiremenst that delta_b exceed 5 nT
+
+  mu_0           = DOUBLE(4.0D*!PI*1e-7)
 
   ;;energy ranges
   IF NOT KEYWORD_SET(energy_electrons) THEN energy_electrons = [0.,30000.] ;use 0.0 for lower bound since the sc_pot is used to set this
   IF NOT KEYWORD_SET(energy_ions)     THEN energy_ions       = [0.,500.]   ;use 0.0 for lower bound since the sc_pot is used to set this
+
+  ;;For plots
+  xWinSize    = KEYWORD_SET(bigWindow) ? 1100 : 800
+  yWinSize    = KEYWORD_SET(bigWindow) ? 800  : 600
 
   ;; IF no data exists, return to main
   t   = 0
@@ -263,6 +280,11 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            GET_DATA,'MagDCcomp3',DATA=magz
         ENDIF ELSE BEGIN
            GET_DATA,'dB_fac_v',DATA=db_fac
+           IF SIZE(db_fac,/TYPE) NE 8 THEN BEGIN
+              PRINT,"Couldn't get despun mag data! Outta sight ..."
+              RETURN
+           ENDIF
+
            mintime = MIN(ABS(tmpT1-db_fac.x),ind1)
            mintime = MIN(ABS(tmpT2-db_fac.x),ind2)
            ;;   From UCLA_MAG_DESPIN: "Field-aligned velocity-based coordinates defined as:    "
@@ -272,15 +294,54 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            magx = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,0]} 
            magy = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,2]} 
            magz = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,1]}
-        endelse
+
+           GET_DATA,'MAG_FLAGS',DATA=magFlag
+           nFlag = N_ELEMENTS(magFlag.x)
+           badB = WHERE(magFlag.y GE 16,nBadB)
+           IF nBadB GT 0 THEN BEGIN
+              PRINT,'Bad magfield data! Removing ...'
+              rmInds = !NULL
+              keepInds = LINDGEN(N_ELEMENTS(magz.x))
+              FOR k=0,nBadB-1 DO BEGIN
+                 temp1 = magFlag.x[badB[k]]
+                 temp2 = badB[k] EQ (nFlag-1) ? $
+                         magFlag.x[badB[k]] + (magFlag.x[badB[k]]-magFlag.x[badB[k]-1]) : $
+                         magFlag.x[badB[k]+1]
+                 IF (temp2 LT magz.x[0]) OR (temp1 GT magz.x[-1]) THEN CONTINUE
+
+                 mintime = MIN(ABS(temp1-magz.x),ind1)
+                 mintime = MIN(ABS(temp2-magz.x),ind2)
+                 rmInds = [rmInds, (ind1[0] EQ ind2[0]) ? ind1 : [ind1:ind2]]
+              ENDFOR
+              PRINT,'Junking ' + STRCOMPRESS(N_ELEMENTS(rmInds),/REMOVE_ALL) + ' bad mag inds ...'
+              REMOVE,rmInds,keepInds
+              magx = {x:db_fac.x[keepInds],y:db_fac.y[keepInds]} 
+              magy = {x:db_fac.x[keepInds],y:db_fac.y[keepInds]} 
+              magz = {x:db_fac.x[keepInds],y:db_fac.y[keepInds]}
+           ENDIF
+
+
+        ENDELSE
         
         ;;E field
-        FA_FIELDS_DESPIN,efieldV58,efieldV1214 ;,/SLOW
+        FA_FIELDS_DESPIN,efieldV58,efieldV1214,T1=tmpT1,T2=tmpT2 ;,/SLOW
         ;; GET_DATA,'E_NEAR_B',DATA=eNearB
+
+        IF ~efieldV58.valid OR ~efieldV58.valid THEN BEGIN
+           PRINT,FORMAT='("efieldV58.valid : ",I0)',efieldV58.valid
+           PRINT,FORMAT='("efieldV1214.valid : ",I0)',efieldV1214.valid
+           PRINT,'Returning ...'
+           RETURN
+        ENDIF
+
         GET_DATA,'E_ALONG_V',DATA=eAlongV
         IF SIZE(eAlongV,/TYPE) NE 8 THEN BEGIN
            PRINT,"Couldn't get E_ALONG_V!" 
            STOP
+        ENDIF
+
+        IF KEYWORD_SET(include_E_near_B) THEN BEGIN
+           GET_DATA,'E_NEAR_B',DATA=eNearB
         ENDIF
 
         ;;Now check sorted/dupes
@@ -298,6 +359,10 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         IF eAVHasDupes OR ~eAVIsSort THEN BEGIN
            PRINT,'EAV has dupes/is not sorted! Sorting ...'
            eAlongV = {x:eAlongV.x[eAVUniq_i],y:eAlongV.y[eAVUniq_i]}
+
+           IF KEYWORD_SET(include_E_near_B) THEN BEGIN
+              eNearB = {x:eNearB.x[eAVUniq_i],y:eNearB.y[eAVUniq_i]}
+           ENDIF
         ENDIF
 
         ;;Get eAlongV at same res (I think this always means reducing the res. of eField
@@ -326,6 +391,16 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                           /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
                           ;; DELT_T=minPeriod, $
                           /TALK
+
+        IF KEYWORD_SET(include_E_near_B) THEN BEGIN
+           FA_FIELDS_COMBINE,{TIME:magz.x,COMP1:magz.y}, $
+                             {TIME:eNearB.x,COMP1:eNearB.y}, $
+                             RESULT=eNearBInterp, $
+                             /INTERP, $
+                             /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
+                             ;; DELT_T=minPeriod, $
+                             /TALK
+        ENDIF
         ;; ;;Make sure we have same num points 
         ;; IF N_ELEMENTS(eAlongVInterp) NE N_ELEMENTS(magz.x) THEN BEGIN 
         ;;    PRINT,"Bogus! Why didn't these match?" 
@@ -367,7 +442,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         FFTCount      = 0l
         dt         = FLTARR(nbufs)
         
-        fftBin_i   = MAKE_ARRAY(2,num_ffts,/LONG)
+        fftBin_i   = MAKE_ARRAY(2,num_ffts,/LONG) ;You'll want this guy. He tells you just where exactly you are.
         FOR i=0,nbufs-1 DO BEGIN
            n_start           = LONG(strtM_i[i])
            n_stop            = n_start + ntot - 1l
@@ -443,21 +518,32 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ;;   a. oxygen cyc. freq., 
         ;;   b. freq. arising from k_perp * λe ≤ f_spB, or 
         ;;   c. rolloff of the fluxgate magnetometer's recursive filter
-        ;; freqBounds = ROUND([TRANSPOSE(freqLim*f_spA), $
-        ;;                     TRANSPOSE((oxy_cycDC < (fGRollers < ( freqLim*f_spB ) ) ) )] $
-        ;;                    /freqRes)*freqRes
-        freqBounds = [TRANSPOSE(freqLim*f_spA), $
-                      TRANSPOSE((oxy_cycDC < (fGRollers < ( freqLim*f_spB ) ) ) )]
+        freqBounds = ROUND([TRANSPOSE(freqLim*f_spA), $
+                            TRANSPOSE((oxy_cycDC < (fGRollers < ( freqLim*f_spB ) ) ) )] $
+                           /freqRes)*freqRes
+        ;; freqBounds = [TRANSPOSE(freqLim*f_spA), $
+        ;;               TRANSPOSE((oxy_cycDC < (fGRollers < ( freqLim*f_spB ) ) ) )]
         IF KEYWORD_SET(override_freq_bounds) THEN BEGIN
            freqBounds[0,*] = override_freq[0]
            freqBounds[1,*] = override_freq[1]
         ENDIF
-        
+        IF KEYWORD_SET(min_freq) THEN BEGIN
+           freqBounds[0,*] = freqBounds[0,*] > min_freq        
+           PRINT,'Minimum frequency set to ' + STRCOMPRESS(min_freq,/REMOVE_ALL) + ' Hz'
+        ENDIF
+        IF KEYWORD_SET(max_freq) THEN BEGIN
+           freqBounds[1,*] = freqBounds[1,*] < max_freq
+           PRINT,'Maximum frequency set to ' + STRCOMPRESS(max_freq,/REMOVE_ALL) + ' Hz'
+        ENDIF
+
+
         ;; filtMag    = MAKE_ARRAY(3,N_ELEMENTS(magz.y),VALUE=0.0)
         filtMag    = MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0)
         filtMag2   = MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0)
+        filtMag3   = MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0)
         filteAV    = MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0)
-
+        filteNB    = KEYWORD_SET(include_E_near_B) ? $
+                     MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0) : !NULL
         FOR k=0,FFTCount-1 DO BEGIN
 
            IF KEYWORD_SET(only_128Ss_data) THEN BEGIN
@@ -465,6 +551,20 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            ENDIF
 
            tmpI    = [fftBin_i[0,k]:fftBin_i[1,k]]
+
+           ;;Check for streaks
+           helper = 0
+           IF k LT (FFTCount-1) THEN BEGIN
+              WHILE ( fftBin_i[0,k+helper+1] EQ (fftBin_i[1,k+helper]+1) ) AND $
+                 ( ( k+helper ) LT FFTCount-2  )                           AND $
+                 (ABS(sRates[k]-sRates[k+helper+1]) LT 0.5) $ ;;Make sure samprates same
+              DO BEGIN
+                 tmpI = [tmpI,[fftBin_i[0,k+helper+1]:fftBin_i[1,k+helper+1]]]
+                 helper++
+              ENDWHILE
+              ;; PRINT,'Catted ' + STRCOMPRESS(helper,/REMOVE_ALL) + 'FFT ind things'
+              k += helper
+           ENDIF
 
            tmpB    = {  TIME         : magz.x[tmpI]          , $
                         ;; COMP1        : magx.y[tmpI]          , $
@@ -482,7 +582,15 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            tmpBAlt  = {  TIME         : magy.x[tmpI]          , $
                         COMP1        : magy.y[tmpI]          , $
                         NCOMP        : 1                     , $
-                        DATA_NAME    : 'Cross-track MagData' , $
+                        DATA_NAME    : 'along-B MagData' , $
+                        VALID        : 1                     , $
+                        PROJECT_NAME : 'FAST'                , $
+                        UNITS_NAME   : 'nT'                  , $
+                        CALIBRATED   : 1}
+           tmpBAlt2  = {  TIME         : magx.x[tmpI]          , $
+                        COMP1        : magx.y[tmpI]          , $
+                        NCOMP        : 1                     , $
+                        DATA_NAME    : 'along-v MagData' , $
                         VALID        : 1                     , $
                         PROJECT_NAME : 'FAST'                , $
                         UNITS_NAME   : 'nT'                  , $
@@ -502,16 +610,45 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
            ;; FA_FIELDS_FILTER,tmp,freqPlotRange
            ;; FA_FIELDS_FILTER,tmp,freqBounds[*,k]
-           FA_FIELDS_FILTER,tmpB,freqBounds[*,k]
-           FA_FIELDS_FILTER,tmpBAlt,freqBounds[*,k]
-           FA_FIELDS_FILTER,tmpE,freqBounds[*,k]
+           FA_FIELDS_FILTER,tmpB,freqBounds[*,k], $
+                            DB=FFTdb, $
+                            POLES=[lowPole,highPole]
+           FA_FIELDS_FILTER,tmpBAlt,freqBounds[*,k], $
+                            DB=FFTdb, $
+                            POLES=[lowPole,highPole]
+           FA_FIELDS_FILTER,tmpBAlt2,freqBounds[*,k], $
+                            DB=FFTdb, $
+                            POLES=[lowPole,highPole]
+           FA_FIELDS_FILTER,tmpE,freqBounds[*,k], $
+                            DB=FFTdb, $
+                            POLES=[lowPole,highPole]
 
            ;; filtMag[*,tmpI] = [[tmp.comp1],[tmp.comp2],[tmp.comp3]]
            ;; filteAV[tmpI]   = tmp.comp4
            ;; filtMag[*,tmpI] = [[tmp.comp1],[tmp.comp2],[tmp.comp3]]
            filtMag[tmpI]  = tmpB.comp1
            filtMag2[tmpI] = tmpBAlt.comp1
+           filtMag3[tmpI] = tmpBAlt2.comp1
            filteAV[tmpI]  = tmpE.comp1
+
+           IF KEYWORD_SET(include_E_near_B) THEN BEGIN
+              tmpG    = {  TIME         : magz.x[tmpI]          , $
+                           ;; COMP1        : magx.y[tmpI]          , $
+                           ;; COMP2        : magy.y[tmpI]          , $
+                           ;; COMP3        : magz.y[tmpI]          , $
+                           COMP1        : eNearBInterp[tmpI]   , $
+                           NCOMP        : 1                     , $
+                           DATA_NAME    : 'eNearBStuff'        , $
+                           VALID        : 1                     , $
+                           PROJECT_NAME : 'FAST'                , $
+                           UNITS_NAME   : 'mV/m'                , $
+                           CALIBRATED   : 1}
+              FA_FIELDS_FILTER,tmpG,freqBounds[*,k], $
+                            DB=FFTdb, $
+                            POLES=[lowPole,highPole]
+              filteNB[tmpI]  = tmpG.comp1
+           ENDIF
+
         ENDFOR
 
         ;;UNDER CONSTRUCTION 
@@ -634,6 +771,24 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                         UNITS_NAME   : 'mV/m'                , $
                         CALIBRATED   : 1}
         
+        IF KEYWORD_SET(include_E_near_B) THEN BEGIN
+           eNearBTmp   = {TIME         :  eNearB.x            , $
+                           COMP1        :  eNearB.y            , $
+                           NCOMP        : 1                     , $
+                           VALID        : 1                     , $
+                           DATA_NAME    :'E Along V'            , $
+                           PROJECT_NAME : 'FAST'                , $
+                           UNITS_NAME   : 'mV/m'                , $
+                           CALIBRATED   : 1}
+           eNearBFilt  = {TIME         : magz.x                , $
+                           COMP1        : filteNB               , $
+                           NCOMP        : 1                     , $
+                           VALID        : 1                     , $
+                           DATA_NAME    :'ENB_intrpFilt'        , $
+                           PROJECT_NAME : 'FAST'                , $
+                           UNITS_NAME   : 'mV/m'                , $
+                           CALIBRATED   : 1}
+        ENDIF
 
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ;;iii. Fourier transform/Hanning window for E and B-field data
@@ -669,168 +824,220 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                               N_AVE=nFFTAvg, $
                               SLIDE=FFTSlide)
 
-        ;;Make some adjustments to the data
-        magSpecLims      = [1e-3,1e2]
-        eAVSpecLims      = [1.e-2,1.e2]
-        GET_DATA,'MagSpec',DATA=tmp
-        tmp.V *= 1000.
-        STORE_DATA,'MagSpec',DATA=tmp
-        OPTIONS,'MagSpec','ytitle','Frequency (Hz)'
-        OPTIONS,'MagSpec','zTitle',magSpec.units_name
-        ZLIM,'MagSpec',magSpecLims[0],magSpecLims[1],1
-        OPTIONS,'MagSpec','panel_size',2.0
-        IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'MagSpec',0,yLimUpper,0
-
-        GET_DATA,'MagSpecFilt',DATA=tmp
-        tmp.V *= 1000.
-        STORE_DATA,'MagSpecFilt',DATA=tmp
-        OPTIONS,'MagSpecFilt','ytitle','Frequency (Hz)'
-        OPTIONS,'MagSpecFilt','zTitle',magSpecFilt.units_name
-        ZLIM,'MagSpecFilt',magSpecLims[0],magSpecLims[1],1
-        IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'MagSpecFilt',0,yLimUpper,0
-        OPTIONS,'MagSpecFilt','panel_size',2.0
-
-        STORE_DATA,'MagZ',DATA=magz
-
-        GET_DATA,'EAVSpec',DATA=tmp
-        tmp.V *= 1000.
-        STORE_DATA,'EAVSpec',DATA=TEMPORARY(tmp)
-        ZLIM,'EAVSpec',eAVSpecLims[0],eAVSpecLims[1],1 ; set z limits
-        IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'EAVSpec',0,yLimUpper,0
-        OPTIONS,'EAVSpec','ytitle','Frequency (Hz)'
-        OPTIONS,'EAVSpec','ztitle','Log ' + eAVSpec.units_name ; z title
-        OPTIONS,'EAVSpec','panel_size',2.0
-
-        GET_DATA,'EAVSpecFilt',DATA=tmp
-        tmp.V *= 1000.
-        STORE_DATA,'EAVSpecFilt',DATA=TEMPORARY(tmp)
-        ZLIM,'EAVSpecFilt',eAVSpecLims[0],eAVSpecLims[1],1 ; set z limits
-        IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'EAVSpecFilt',0,yLimUpper,0
-        OPTIONS,'EAVSpecFilt','ytitle','Frequency (Hz)'
-        OPTIONS,'EAVSpecFilt','ztitle',eAVSpecFilt.units_name ; z title
-        OPTIONS,'EAVSpecFilt','panel_size',2.0
-
-        ;;Time to see where this is all happening. Where is the rolloff?
-        ;; GET_DATA,'MagSpec',DATA=dat 
-        ;; junk = MIN(ABS(dat.x-STR_TO_TIME('1998-03-10/18:50:49')),ind) 
-        ;; PRINT,ALOG10(dat.y[ind,*]) 
-        ;; junkPlot = PLOT(dat.v,dat.y[ind,*],YLOG=1,YRANGE=magSpecLims)
-
-        ;;Prep TPLOT nonsense
-        red                     = 250
-        green                   = 130
-        black                   = 10
-
-        STORE_DATA,'magzPanel',DATA={x:magzTmp.time, $
-                                     y:magzTmp.comp1}
-        OPTIONS,'magzPanel','ytitle','E-W Despun!CMag. Field (nT)'
-        OPTIONS,'magzPanel','labflag',-1 ;evenly spaced
-        OPTIONS,'magzPanel','labels','NoFilt'
-        OPTIONS,'magzPanel','panel_size',2.0
-
-        STORE_DATA,'magzFilt',DATA={x:magzFilt.time, $
-                                    y:magzFilt.comp1}
-        OPTIONS,'magzFilt','colors',red
-        OPTIONS,'magzFilt','labels','Filtered'
-
-
-        OPTIONS,'eAVPanel','labels','NoFilt'
-        STORE_DATA,'eAVPanel',DATA={x:eAlongVTmp.time, $
-                                    y:eAlongVTmp.comp1}
-        OPTIONS,'eAVPanel','ytitle','E along V (mV/m)'
-        OPTIONS,'eAVPanel','labflag',-1 ;evenly spaced
-        OPTIONS,'eAVPanel','panel_size',2.0
-
-        STORE_DATA,'eAVFilt',DATA={x:eAlongVFilt.time, $
-                                   y:eAlongVFilt.comp1}
-        OPTIONS,'eAVFilt','colors',red
-        OPTIONS,'eAVFilt','labels','Filtered'
-
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        ;;PLOTS
-
-        ;;Little test to see diff
-        ;; this = magzfilt.comp1-magztmp.comp1
-        ;; plot = PLOT(this)
-
-        ;; TPLOT,['magzPanel','eAVPanel','MagSpec','MagSpecFilt','EAVSpec','EAVSpecFiltInterp']
-        TPLOT,['magzPanel','eAVPanel','MagSpec','EAVSpec','MagSpecFilt','EAVSpecFilt'], $
-              TRANGE=(KEYWORD_SET(t1) AND KEYWORD_SET(t2)) ? [t1,t2] : !NULL
-        TPLOT_PANEL,VARIABLE='magzPanel',OPLOTVAR='magzFilt'
-        TPLOT_PANEL,VARIABLE='eAVPanel',OPLOTVAR='eAVFilt'
-
-        IF KEYWORD_SET(show_maximus_events) THEN BEGIN
-           LOAD_MAXIMUS_AND_CDBTIME,maximus,cdbTime, $
-                                    /DO_DESPUNDB, $
-                                    GOOD_I=good_i, $
-                                    HEMI__GOOD_I='BOTH'
-           ii = WHERE(maximus.orbit[good_i] EQ orbit,nOrb)
-
-           STORE_DATA,'alfTimes',DATA={x:cdbTime[good_i[ii]], $
-                                       y:MAKE_ARRAY(nOrb,VALUE=10)}
-           OPTIONS,'alfTimes','psym',1 ;Plus
-           TPLOT_PANEL,VARIABLE='MagSpecFilt',OPLOTVAR='alfTimes'
-
-           ;; PRINT,maximus.time[good_i[ii]]
-
-           magAlf_i = VALUE_LOCATE(magSpec.time,cdbTime[good_i[ii]])
-           magAlf_t = magSpec.time[magAlf_i[UNIQ(magAlf_i)]]
-
-           FOR lm=0,N_ELEMENTS(magAlf_t)-1 DO BEGIN
-              PRINT,FORMAT='(I0,T10,A0)',lm,TIME_TO_STR(magAlf_t[lm],/MS)
-           ENDFOR
-
+        IF KEYWORD_SET(include_E_near_B) THEN BEGIN
+           spec = FA_FIELDS_SPEC(eNearBFilt, $
+                                 /STORE, $
+                                 T_NAME='ENBSpecFilt', $
+                                 STRUCTURE=eNBSpecFilt, $
+                                 NPTS=FFTLen, $
+                                 N_AVE=nFFTAvg, $
+                                 SLIDE=FFTSlide)
         ENDIF
 
-        ;;***Thresholds on power spectra***
-        ;;All of the following plots are for trying to figure out appropriate threshold values for E and B
-
-        ;; GET_DATA,'EAVSpecFiltInterp',DATA=tmpE
+        ;;Clean 'em up
         GET_DATA,'EAVSpecFilt',DATA=tmpE
         GET_DATA,'MagSpecFilt',DATA=tmpB        
         tmpE.y[WHERE(~FINITE(tmpE.y) OR tmpE.y LT ESpecThresh)] = 0.0
         tmpB.y[WHERE(~FINITE(tmpB.y) OR tmpB.y LT BSpecThresh)] = 0.0
-        ;; junk = MIN(ABS(dat.x-STR_TO_TIME()),ind)
+        tmpE.v *= 1000. ;To Hz
+        tmpB.v *= 1000. ;To Hz
 
-        CASE orbit OF
-           6127: BEGIN
-              plotTime = '1998-03-10/18:52:13.178'
-           END
-           9859: BEGIN
-              plotTime = '1999-02-17/18:50:00'
-              plotTime = '1999-02-17/18:46:20'
-           END
-           ELSE: BEGIN
-              plotTime = TIME_TO_STR(timeFFT[0],/MSEC)
-           END
-        ENDCASE
-        ;; plotTime = '1998-03-10/18:50:49'
-        ;; plotTime = '1998-03-10/19:20:48.412'
-        junk = MIN(ABS(tmpE.x-STR_TO_TIME(plotTime)),ind)
-        doze = PLOT(tmpE.v, $
-                    ;; ALOG10(tmpE.y[ind,*]), $
-                    tmpE.y[ind,*], $
-                    YLOG=1, $
-                    XRANGE=freqPlotRange, $
-                    YRANGE=eAVSpecLims, $
-                    ;; YRANGE=ALOG10([magSpecLims[0],magSpecLims[1]]), $
-                    XTITLE='Frequency (Hz)', $
-                    YTITLE=eAVSpecFilt.units_name, $
-                    TITLE=TIME_TO_STR(tmpE.x[ind],/MS))
+        IF ~KEYWORD_SET(no_plots) THEN BEGIN
+           ;;Make some adjustments to the data
+           magSpecLims      = [1e-3,1e2]
+           eAVSpecLims      = [1.e-2,1.e2]
+           GET_DATA,'MagSpec',DATA=tmp
+           tmp.V *= 1000.
+           STORE_DATA,'MagSpec',DATA=tmp
+           OPTIONS,'MagSpec','ytitle','Frequency!C(Hz)'
+           OPTIONS,'MagSpec','zTitle',magSpec.units_name
+           ZLIM,'MagSpec',magSpecLims[0],magSpecLims[1],1
+           OPTIONS,'MagSpec','panel_size',2.0
+           IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'MagSpec',0,yLimUpper,0
+
+           GET_DATA,'MagSpecFilt',DATA=tmp
+           tmp.V *= 1000.
+           STORE_DATA,'MagSpecFilt',DATA=tmp
+           OPTIONS,'MagSpecFilt','ytitle','Frequency!C(Hz)'
+           OPTIONS,'MagSpecFilt','zTitle','E-W B-field!C!C'+magSpecFilt.units_name
+           ZLIM,'MagSpecFilt',magSpecLims[0],magSpecLims[1],1
+           IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'MagSpecFilt',0,yLimUpper,0
+           OPTIONS,'MagSpecFilt','panel_size',2.0
+
+           STORE_DATA,'MagZ',DATA=magz
+
+           GET_DATA,'EAVSpec',DATA=tmp
+           tmp.V *= 1000.
+           STORE_DATA,'EAVSpec',DATA=TEMPORARY(tmp)
+           ZLIM,'EAVSpec',eAVSpecLims[0],eAVSpecLims[1],1 ; set z limits
+           IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'EAVSpec',0,yLimUpper,0
+           OPTIONS,'EAVSpec','ytitle','Frequency!C(Hz)'
+           OPTIONS,'EAVSpec','ztitle','Log ' + eAVSpec.units_name ; z title
+           OPTIONS,'EAVSpec','panel_size',2.0
+
+           GET_DATA,'EAVSpecFilt',DATA=tmp
+           tmp.V *= 1000.
+           STORE_DATA,'EAVSpecFilt',DATA=TEMPORARY(tmp)
+           ZLIM,'EAVSpecFilt',eAVSpecLims[0],eAVSpecLims[1],1 ; set z limits
+           IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'EAVSpecFilt',0,yLimUpper,0
+           OPTIONS,'EAVSpecFilt','ztitle','E along V!C!C' + eAVSpecFilt.units_name
+           OPTIONS,'EAVSpecFilt','ytitle','Frequency!C(Hz)'
+           ;; OPTIONS,'EAVSpecFilt','ztitle',eAVSpecFilt.units_name ; z title
+           OPTIONS,'EAVSpecFilt','panel_size',2.0
+
+           IF KEYWORD_SET(include_E_near_B) THEN BEGIN
+              GET_DATA,'ENBSpecFilt',DATA=tmp
+              tmp.V *= 1000.
+              STORE_DATA,'ENBSpecFilt',DATA=TEMPORARY(tmp)
+              ZLIM,'ENBSpecFilt',eAVSpecLims[0],eAVSpecLims[1],1 ; set z limits
+              IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'ENBSpecFilt',0,yLimUpper,0
+              OPTIONS,'ENBSpecFilt','ztitle','E Near B!C!C'+eNBSpecFilt.units_name
+              OPTIONS,'ENBSpecFilt','ytitle','Frequency!C(Hz)'
+              OPTIONS,'ENBSpecFilt','panel_size',2.0
+           ENDIF
+           ;;Time to see where this is all happening. Where is the rolloff?
+           ;; GET_DATA,'MagSpec',DATA=dat 
+           ;; junk = MIN(ABS(dat.x-STR_TO_TIME('1998-03-10/18:50:49')),ind) 
+           ;; PRINT,ALOG10(dat.y[ind,*]) 
+           ;; junkPlot = PLOT(dat.v,dat.y[ind,*],YLOG=1,YRANGE=magSpecLims)
+
+           ;;Prep TPLOT nonsense
+           red                     = 250
+           green                   = 130
+           black                   = 10
+
+           STORE_DATA,'magzPanel',DATA={x:magzTmp.time, $
+                                        y:magzTmp.comp1}
+           OPTIONS,'magzPanel','ytitle','E-W B-field!C!C(nT)'
+           OPTIONS,'magzPanel','labflag',-1 ;evenly spaced
+           OPTIONS,'magzPanel','labels','NoFilt'
+           OPTIONS,'magzPanel','panel_size',2.0
+
+           STORE_DATA,'magzFilt',DATA={x:magzFilt.time, $
+                                       y:magzFilt.comp1}
+           OPTIONS,'magzFilt','colors',red
+           OPTIONS,'magzFilt','labels','Filtered'
 
 
-        junk = MIN(ABS(tmpB.x-STR_TO_TIME(plotTime)),ind)
-        doze = PLOT(tmpB.v, $
-                    ;; ALOG10(tmpB.y[ind,*]), $
-                    tmpB.y[ind,*], $
-                    YLOG=1, $
-                    XRANGE=freqPlotRange, $
-                    ;; YRANGE=ALOG10([magSpecLims[0],magSpecLims[1]]), $
-                    YRANGE=[magSpecLims[0],magSpecLims[1]], $
-                    XTITLE='Frequency (Hz)', $
-                    YTITLE=magSpecFilt.units_name, $
-                    TITLE=TIME_TO_STR(tmpB.x[ind],/MS))
+           OPTIONS,'eAVPanel','labels','NoFilt'
+           STORE_DATA,'eAVPanel',DATA={x:eAlongVTmp.time, $
+                                       y:eAlongVTmp.comp1}
+           OPTIONS,'eAVPanel','ytitle','E along V!C!C(mV/m)'
+           OPTIONS,'eAVPanel','labflag',-1 ;evenly spaced
+           OPTIONS,'eAVPanel','panel_size',2.0
 
+           STORE_DATA,'eAVFilt',DATA={x:eAlongVFilt.time, $
+                                      y:eAlongVFilt.comp1}
+           OPTIONS,'eAVFilt','colors',red
+           OPTIONS,'eAVFilt','labels','Filtered'
+
+           IF KEYWORD_SET(include_E_near_B) THEN BEGIN
+              OPTIONS,'eNBPanel','labels','Not Filtered'
+              STORE_DATA,'eNBPanel',DATA={x:eNearBTmp.time, $
+                                          y:eNearBTmp.comp1}
+              OPTIONS,'eNBPanel','ytitle','E Near B!C!C(mV/m)'
+              OPTIONS,'eNBPanel','labflag',-1 ;evenly spaced
+              OPTIONS,'eNBPanel','panel_size',2.0
+
+              STORE_DATA,'eNBFilt',DATA={x:eNearBFilt.time, $
+                                         y:eNearBFilt.comp1}
+              OPTIONS,'eNBFilt','colors',red
+              OPTIONS,'eNBFilt','labels','Filtered'
+           ENDIF
+
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+           ;;PLOTS
+
+           ;;Little test to see diff
+           ;; this = magzfilt.comp1-magztmp.comp1
+           ;; plot = PLOT(this)
+
+           ;; TPLOT,['magzPanel','eAVPanel','MagSpec','MagSpecFilt','EAVSpec','EAVSpecFiltInterp']
+           tPlotArr = ['magzPanel','eAVPanel','MagSpec','EAVSpec','MagSpecFilt','EAVSpecFilt']
+           IF KEYWORD_SET(include_E_near_B) THEN tPlotArr = [tPlotArr[0:1],'eNBPanel', $
+                                                             tPlotArr[2:5],'ENBSpecFilt']
+
+           myWindow = 8
+           WINDOW,myWindow,XSIZE=xWinSize,YSIZE=yWinSize
+           TPLOT,tPlotArr, $
+                 TRANGE=(KEYWORD_SET(t1) AND KEYWORD_SET(t2)) ? [t1,t2] : !NULL, $
+                 WINDOW=myWindow
+
+           TPLOT_PANEL,VARIABLE='magzPanel',OPLOTVAR='magzFilt'
+           TPLOT_PANEL,VARIABLE='eAVPanel',OPLOTVAR='eAVFilt'
+           TPLOT_PANEL,VARIABLE='eNBPanel',OPLOTVAR='eNBFilt'
+
+           IF KEYWORD_SET(show_maximus_events) THEN BEGIN
+              LOAD_MAXIMUS_AND_CDBTIME,maximus,cdbTime, $
+                                       /DO_DESPUNDB, $
+                                       GOOD_I=good_i, $
+                                       HEMI__GOOD_I='BOTH'
+              ii = WHERE(maximus.orbit[good_i] EQ orbit,nOrb)
+
+              STORE_DATA,'alfTimes',DATA={x:cdbTime[good_i[ii]], $
+                                          y:MAKE_ARRAY(nOrb,VALUE=10)}
+              OPTIONS,'alfTimes','psym',1 ;Plus
+              TPLOT_PANEL,VARIABLE='MagSpecFilt',OPLOTVAR='alfTimes'
+
+              ;; PRINT,maximus.time[good_i[ii]]
+
+              magAlf_i = VALUE_LOCATE(magSpec.time,cdbTime[good_i[ii]])
+              magAlf_t = magSpec.time[magAlf_i[UNIQ(magAlf_i)]]
+
+              maxPFlux      = maximus.pFluxEst[good_i[ii]]
+
+              FOR lm=0,N_ELEMENTS(magAlf_t)-1 DO BEGIN
+                 PRINT,FORMAT='(I0,T10,A0)',lm,TIME_TO_STR(magAlf_t[lm],/MS)
+              ENDFOR
+
+           ENDIF
+
+           ;;***Thresholds on power spectra***
+           ;;All of the following plots are for trying to figure out appropriate threshold values for E and B
+
+           ;; GET_DATA,'EAVSpecFiltInterp',DATA=tmpE
+           ;; junk = MIN(ABS(dat.x-STR_TO_TIME()),ind)
+
+           ;; CASE orbit OF
+           ;;    6127: BEGIN
+           ;;       plotTime = '1998-03-10/18:52:13.178'
+           ;;    END
+           ;;    9859: BEGIN
+           ;;       plotTime = '1999-02-17/18:50:00'
+           ;;       plotTime = '1999-02-17/18:46:20'
+           ;;    END
+           ;;    ELSE: BEGIN
+           ;;       plotTime = TIME_TO_STR(timeFFT[0],/MSEC)
+           ;;    END
+           ;; ENDCASE
+           ;; ;; plotTime = '1998-03-10/18:50:49'
+           ;; ;; plotTime = '1998-03-10/19:20:48.412'
+           ;; junk = MIN(ABS(tmpE.x-STR_TO_TIME(plotTime)),ind)
+           ;; doze = PLOT(tmpE.v, $
+           ;;             ;; ALOG10(tmpE.y[ind,*]), $
+           ;;             tmpE.y[ind,*], $
+           ;;             YLOG=1, $
+           ;;             XRANGE=freqPlotRange, $
+           ;;             YRANGE=eAVSpecLims, $
+           ;;             ;; YRANGE=ALOG10([magSpecLims[0],magSpecLims[1]]), $
+           ;;             XTITLE='Frequency (Hz)', $
+           ;;             YTITLE=eAVSpecFilt.units_name, $
+           ;;             TITLE=TIME_TO_STR(tmpE.x[ind],/MS))
+
+
+           ;; junk = MIN(ABS(tmpB.x-STR_TO_TIME(plotTime)),ind)
+           ;; doze = PLOT(tmpB.v, $
+           ;;             ;; ALOG10(tmpB.y[ind,*]), $
+           ;;             tmpB.y[ind,*], $
+           ;;             YLOG=1, $
+           ;;             XRANGE=freqPlotRange, $
+           ;;             ;; YRANGE=ALOG10([magSpecLims[0],magSpecLims[1]]), $
+           ;;             YRANGE=[magSpecLims[0],magSpecLims[1]], $
+           ;;             XTITLE='Frequency (Hz)', $
+           ;;             YTITLE=magSpecFilt.units_name, $
+           ;;             TITLE=TIME_TO_STR(tmpB.x[ind],/MS))
+
+        ENDIF
 
         ;;E-Over-B Test
         nThings  = N_ELEMENTS(magDens)
@@ -892,91 +1099,93 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ;;    magz_Alf_i[*,m] = [magz_start_i,magz_stop_i]
         ;; ENDFOR
 
-        dummy           = LABEL_DATE(DATE_FORMAT=['%I:%S%2'])
-        x_values        = UTC_TO_JULDAY(timeFFT)
-        xRange          = [MIN(x_values),MAX(x_values)]
-        xTickFormat     = 'LABEL_DATE'
-        xTickUnits      = 'Time'
+        IF ~KEYWORD_SET(no_plots) THEN BEGIN
+           dummy           = LABEL_DATE(DATE_FORMAT=['%I:%S%2'])
+           x_values        = UTC_TO_JULDAY(timeFFT)
+           xRange          = [MIN(x_values),MAX(x_values)]
+           xTickFormat     = 'LABEL_DATE'
+           xTickUnits      = 'Time'
 
-        BFieldCol       = 'Black'
-        EFieldCol       = 'Red'
-        pFluxCol        = 'Blue'
-        window          = WINDOW(DIMENSIONS=[800,600])
-        margin          = [0.15, 0.25, 0.15, 0.15]
+           BFieldCol       = 'Black'
+           EFieldCol       = 'Red'
+           pFluxCol        = 'Blue'
+           window          = WINDOW(DIMENSIONS=[800,600])
+           margin          = [0.12, 0.12, 0.12, 0.12]
 
-        BPlot       = PLOT(x_values[winFFT_i], $
-                           (SQRT(BSpecSum))[winFFT_i], $
-                           ;; NAME='E-f', $
-                           COLOR=BFieldCol, $
-                           SYMBOL='+', $
-                           LINESTYLE='', $
-                           AXIS_STYLE=1, $
-                           ;; XTITLE='Time', $
-                           ;; YTITLE='(mV/m)$^2$', $
-                           YTITLE='nT', $
-                           XRANGE=xRange, $
-                           XTICKFORMAT=xTickFormat, $
-                           XTICKUNITS=xTickUnits, $
-                           MARGIN=margin, $
-                           ;; /OVERPLOT, $
-                           CURRENT=window)
+           ;; BPlot       = PLOT(x_values[winFFT_i], $
+           ;;                    (SQRT(BSpecSum))[winFFT_i], $
+           ;;                    ;; NAME='E-f', $
+           ;;                    COLOR=BFieldCol, $
+           ;;                    SYMBOL='+', $
+           ;;                    LINESTYLE='', $
+           ;;                    AXIS_STYLE=1, $
+           ;;                    ;; XTITLE='Time', $
+           ;;                    ;; YTITLE='(mV/m)$^2$', $
+           ;;                    YTITLE='nT', $
+           ;;                    XRANGE=xRange, $
+           ;;                    XTICKFORMAT=xTickFormat, $
+           ;;                    XTICKUNITS=xTickUnits, $
+           ;;                    MARGIN=margin, $
+           ;;                    ;; /OVERPLOT, $
+           ;;                    CURRENT=window)
 
-        EPlot       = PLOT(x_values[winFFT_i], $
-                           (SQRT(ESpecSum))[winFFT_i], $
-                           ;; NAME='E-f', $
-                           COLOR=EFieldCol, $
-                           SYMBOL='*', $
-                           LINESTYLE='', $
-                           AXIS_STYLE=0, $
-                           YRANGE=SQRT([MIN(ESpecSum),MAX(ESpecSum)]), $
-                           ;; XTITLE='Time', $
-                           ;; YTITLE='(mV/m)$^2$', $
-                           ;; YTITLE='mV/m', $
-                           XRANGE=xRange, $
-                           XTICKFORMAT=xTickFormat, $
-                           XTICKUNITS=xTickUnits, $
-                           MARGIN=margin, $
-                           ;; /OVERPLOT, $
-                           CURRENT=window)
+           ;; EPlot       = PLOT(x_values[winFFT_i], $
+           ;;                    (SQRT(ESpecSum))[winFFT_i], $
+           ;;                    ;; NAME='E-f', $
+           ;;                    COLOR=EFieldCol, $
+           ;;                    SYMBOL='*', $
+           ;;                    LINESTYLE='', $
+           ;;                    AXIS_STYLE=0, $
+           ;;                    YRANGE=SQRT([MIN(ESpecSum),MAX(ESpecSum)]), $
+           ;;                    ;; XTITLE='Time', $
+           ;;                    ;; YTITLE='(mV/m)$^2$', $
+           ;;                    ;; YTITLE='mV/m', $
+           ;;                    XRANGE=xRange, $
+           ;;                    XTICKFORMAT=xTickFormat, $
+           ;;                    XTICKUNITS=xTickUnits, $
+           ;;                    MARGIN=margin, $
+           ;;                    ;; /OVERPLOT, $
+           ;;                    CURRENT=window)
 
-        EAxis           = AXIS('Y',LOCATION='RIGHT', $
-                               TITLE='mV/m', $
-                               COLOR=EFieldCol, $
-                               TARGET=EPlot, $
-                               AXIS_RANGE=SQRT([MIN(ESpecSum),MAX(ESpecSum)]))
+           ;; EAxis           = AXIS('Y',LOCATION='RIGHT', $
+           ;;                        TITLE='mV/m', $
+           ;;                        COLOR=EFieldCol, $
+           ;;                        TARGET=EPlot, $
+           ;;                        AXIS_RANGE=SQRT([MIN(ESpecSum),MAX(ESpecSum)]))
 
-        mu_0           = DOUBLE(4.0D*!PI*1e-7)
-        pFBMag         = SQRT(BSpecSum)*1.e-9*SQRT(ESpecSum)/mu_0
-        pFMagPlot      = PLOT(x_values[winFFT_i], $
-                              pFBMag[winFFT_i], $
-                              YTITLE='EM Flux along B (mW/m$^2$)', $
-                              COLOR=pFluxCol, $
+           pFBMag         = SQRT(BSpecSum)*1.e-9*SQRT(ESpecSum)/mu_0
+           pFMagPlot      = PLOT(x_values[winFFT_i], $
+                                 pFBMag[winFFT_i], $
+                                 YTITLE='EM Flux along B (mW/m$^2$)', $
+                                 COLOR=pFluxCol, $
+                                 XRANGE=xRange, $
+                                 XTICKFORMAT=xTickFormat, $
+                                 XTICKUNITS=xTickUnits, $
+                                 SYMBOL='*', $
+                                 LINESTYLE='')
+
+           
+           EoverBPlot  = PLOT(x_values, $
+                              E_over_B/va_mlt, $
+                              ;; NAME='E-f', $
+                              YTITLE='E_over_B/v$_A$', $
+                              COLOR=EFieldCol, $
+                              SYMBOL='*', $
+                              LINESTYLE='', $
+                              YRANGE=[1e-3,1e3], $
+                              /YLOG, $
+                              ;; XTITLE='Time', $
+                              ;; YTITLE='(mV/m)$^2$', $
+                              ;; YTITLE='mV/m', $
                               XRANGE=xRange, $
                               XTICKFORMAT=xTickFormat, $
-                              XTICKUNITS=xTickUnits, $
-                              SYMBOL='*', $
-                              LINESTYLE='')
+                              XTICKUNITS=xTickUnits) ;, $
+           ;; /OVERPLOT, $
+           ;; CURRENT=window)
 
-                              
-        EoverBPlot  = PLOT(x_values, $
-                           E_over_B/va_mlt, $
-                           ;; NAME='E-f', $
-                           YTITLE='E_over_B/v$_A$', $
-                           COLOR=EFieldCol, $
-                           SYMBOL='*', $
-                           LINESTYLE='', $
-                           YRANGE=[1e-3,1e3], $
-                           /YLOG, $
-                           ;; XTITLE='Time', $
-                           ;; YTITLE='(mV/m)$^2$', $
-                           ;; YTITLE='mV/m', $
-                           XRANGE=xRange, $
-                           XTICKFORMAT=xTickFormat, $
-                           XTICKUNITS=xTickUnits);, $
-                           ;; /OVERPLOT, $
-                           ;; CURRENT=window)
+        ENDIF
 
-        STOP
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ;;iv. Calculate Poynting flux
         ;;v. Screenings
         ;;	1. Keep all data, but let screenings happen on the fly
@@ -988,16 +1197,242 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ;;		b. Requirement that E and B be above noise level (“but maybe it’s all noise!”)
 
         ;;Get Poynting flux ests
-        pFluxB =       filtMag *filteAV/mu_0        ;Poynting flux along B
-        pFluxP = (-1.)*filtMag2*filteAV/mu_0        ;Poynting flux perp to B and to (Bxv)xB
-                                                    ;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+        IF KEYWORD_SET(full_pFlux) THEN BEGIN
+           pFluxB = filtMag*filteAV/mu_0 ;Poynting flux along B
+           pFluxP = (filteNB*filtMag3-1.*filtMag2*filteAV)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
+                                ;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+           pFluxV = (-1.)*filteNB*filtMag/mu_0
 
-        ;;get the proton cyc frequency for smoothing the e field data later
-        proton_cyc_freq = 1.6e-19*SQRT(magx.y^2+magy.y^2+magz.y^2)*1.0e-9/1.67e-27/(2.*!DPI) ; in Hz
+        ENDIF ELSE BEGIN
+           pFluxB =       filtMag *filteAV/mu_0 ;Poynting flux along B
+           pFluxP = (-1.)*filtMag2*filteAV/mu_0 ;Poynting flux perp to B and to (Bxv)xB
+                                ;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+
+        ENDELSE
+        pFluxB *= 1e-9 ;Junk that nano prefix in nT
+        pFluxP *= 1e-9
+
+        IF ~KEYWORD_SET(no_plots) THEN BEGIN
+           window2     = WINDOW(DIMENSIONS=[800,600])
+           symTransp   = 70
+
+           x_values    = UTC_TO_JULDAY(magz.x)
+
+           ;; yRange      = [MIN(pFluxP),MAX(pFluxP)]
+           pFluxyRange = [(MIN(pFluxP) < MIN(pFluxB)),(MAX(pFluxP) > MAX(pFluxB))]
+
+           IF KEYWORD_SET(show_maximus_events) THEN BEGIN
+              ;; maxPFluxRange = [MIN(maxPFlux),MAX(maxPFlux)]
+
+              pFluxyRange[0] = pFluxyRange[0] < MIN(maxPFlux)
+              pFluxyRange[1] = pFluxyRange[1] > MAX(maxPFlux)
+
+              maxPFluxRange = pFluxYRange
+           ENDIF
+
+           @plot_stormstats_defaults.pro
+
+           pFluxBPlot  = PLOT(x_values[winAlf_i], $
+                              pFluxB[winAlf_i], $
+                              NAME='Along B', $
+                              COLOR=BFieldCol, $
+                              SYMBOL='+', $
+                              LINESTYLE='', $
+                              AXIS_STYLE=KEYWORD_SET(show_maximus_events) ? 1 : !NULL, $
+                              SYM_TRANSPARENCY=symTransp, $
+                              ;; XTITLE='Time', $
+                              ;; YTITLE='(mV/m)$^2$', $
+                              YTITLE='Poynting Flux (mW/m$^2$)', $
+                              XRANGE=xRange, $
+                              YRANGE=pFluxyRange, $
+                              XTICKFORMAT=xTickFormat, $
+                              XTICKUNITS=xTickUnits, $
+                              XTICKFONT_SIZE=xTickFont_size, $
+                              XTICKFONT_STYLE=xTickFont_style, $
+                              YTICKFONT_SIZE=yTickFont_size, $
+                              YTICKFONT_STYLE=yTickFont_style, $
+                              MARGIN=KEYWORD_SET(show_maximus_events) ? margin : !NULL, $
+                              ;; /OVERPLOT, $
+                              CURRENT=window2)
+
+           pFluxPPlot  = PLOT(x_values[winAlf_i], $
+                              pFluxP[winAlf_i], $
+                              NAME='Cross-track', $
+                              COLOR=EFieldCol, $
+                              SYMBOL='*', $
+                              LINESTYLE='', $
+                              SYM_TRANSPARENCY=symTransp, $
+                              YRANGE=pFluxyRange, $
+                              XRANGE=xRange, $
+                              XTICKFORMAT=xTickFormat, $
+                              XTICKUNITS=xTickUnits, $
+                              MARGIN=KEYWORD_SET(show_maximus_events) ? margin : !NULL, $
+                              ;; OVERPLOT=KEYWORD_SET(show_maximus_events), $
+                              /OVERPLOT, $
+                              CURRENT=window2)
+
+           IF KEYWORD_SET(show_maximus_events) THEN BEGIN
+
+              maxPFluxPlot  = PLOT(UTC_TO_JULDAY(cdbTime[good_i[ii]]), $
+                                   maxPFlux, $
+                                   NAME='IAW Database', $
+                                   COLOR='Blue', $
+                                   SYMBOL='+', $
+                                   LINESTYLE='', $
+                                   AXIS_STYLE=0, $
+                                   SYM_TRANSPARENCY=symTransp, $
+                                   YRANGE=maxPFluxRange, $
+                                   XRANGE=xRange, $
+                                   XTICKFORMAT=xTickFormat, $
+                                   XTICKUNITS=xTickUnits, $
+                                   MARGIN=margin, $
+                                   ;; /OVERPLOT, $
+                                   CURRENT=window2)
+
+              IAWFluxAxis  = AXIS('Y',LOCATION='RIGHT', $
+                                  TITLE='(mW/m$^2$)', $
+                                  COLOR='Blue', $
+                                  TARGET=maxPFluxPlot, $
+                                  AXIS_RANGE=maxPFluxRange)
+
+              legend = LEGEND(TARGET=[pFluxBPlot,pFluxPPlot,maxPFluxPlot], $
+                              FONT_SIZE=14, $
+                              /NORMAL, $
+                              POSITION=[0.38,0.88])
+           ENDIF ELSE BEGIN
+
+              legend = LEGEND(TARGET=[pFluxBPlot,pFluxPPlot], $
+                              FONT_SIZE=14, $
+                              /NORMAL, $
+                              POSITION=[0.38,0.88])
+           ENDELSE
+           ;; pFluxBPlot  = PLOT(x_values[winAlf_i], $
+           ;;                     pFluxB[winAlf_i], $
+           ;;                    ;; NAME='E-f', $
+           ;;                    COLOR=BFieldCol, $
+           ;;                    SYMBOL='+', $
+           ;;                    LINESTYLE='', $
+           ;;                    AXIS_STYLE=1, $
+           ;;                    SYM_TRANSPARENCY=symTransp, $
+           ;;                    ;; XTITLE='Time', $
+           ;;                    ;; YTITLE='(mV/m)$^2$', $
+           ;;                    YTITLE='PFlux along B!CmW/m$^2$', $
+           ;;                    XRANGE=xRange, $
+           ;;                    YRANGE=pFluxyRange, $
+           ;;                    XTICKFORMAT=xTickFormat, $
+           ;;                    XTICKUNITS=xTickUnits, $
+           ;;                    MARGIN=margin, $
+           ;;                    ;; /OVERPLOT, $
+           ;;                    CURRENT=window2)
+
+           ;; pFluxPPlot  = PLOT(x_values[winAlf_i], $
+           ;;                    pFluxP[winAlf_i], $
+           ;;                    ;; NAME='E-f', $
+           ;;                    COLOR=EFieldCol, $
+           ;;                    SYMBOL='*', $
+           ;;                    LINESTYLE='', $
+           ;;                    ;; AXIS_STYLE=0, $
+           ;;                    SYM_TRANSPARENCY=symTransp, $
+           ;;                    YRANGE=pFluxyRange, $
+           ;;                    ;; XTITLE='Time', $
+           ;;                    ;; YTITLE='(mV/m)$^2$', $
+           ;;                    ;; YTITLE='mV/m', $
+           ;;                    XRANGE=xRange, $
+           ;;                    XTICKFORMAT=xTickFormat, $
+           ;;                    XTICKUNITS=xTickUnits, $
+           ;;                    MARGIN=margin, $
+           ;;                    /OVERPLOT, $
+           ;;                    CURRENT=window2)
+
+           ;; pFluxPPlot  = PLOT(x_values[winAlf_i], $
+           ;;                    pFluxP[winAlf_i], $
+           ;;                    ;; NAME='E-f', $
+           ;;                    COLOR=EFieldCol, $
+           ;;                    SYMBOL='*', $
+           ;;                    LINESTYLE='', $
+           ;;                    AXIS_STYLE=0, $
+           ;;                    SYM_TRANSPARENCY=symTransp, $
+           ;;                    YRANGE=[MIN(pFluxP),MAX(pFluxP)], $
+           ;;                    ;; XTITLE='Time', $
+           ;;                    ;; YTITLE='(mV/m)$^2$', $
+           ;;                    ;; YTITLE='mV/m', $
+           ;;                    XRANGE=xRange, $
+           ;;                    XTICKFORMAT=xTickFormat, $
+           ;;                    XTICKUNITS=xTickUnits, $
+           ;;                    MARGIN=margin, $
+           ;;                    ;; /OVERPLOT, $
+           ;;                    CURRENT=window2)
+
+           ;; pFluxPAxis  = AXIS('Y',LOCATION='RIGHT', $
+           ;;                        TITLE='Cross-track pFlux!C(mW/m$^2$)', $
+           ;;                        COLOR=EFieldCol, $
+           ;;                        TARGET=pFluxPPlot, $
+           ;;                        AXIS_RANGE=[MIN(pFluxP),MAX(pFluxP)])
+
+        ENDIF
+
+        ;;We used to get the proton cyc frequency for smoothing the e field data later
+        ;;Now we don't, because the bandpass thing does all the smoothing one could hope for.
+        ;; proton_cyc_freq = 1.6e-19*SQRT(magx.y^2+magy.y^2+magz.y^2)*1.0e-9/1.67e-27/(2.*!DPI) ; in Hz
         
         ;;get_orbit data
         GET_FA_ORBIT,je_tmp_time,/TIME_ARRAY,/ALL
         
+        GET_DATA,'fa_vel',DATA=vel
+        speed = SQRT(vel.y[*,0]^2+vel.y[*,1]^2+vel.y[*,2]^2)*1000.0
+        
+        magFriend        = {x:magz.x,y:magz.y}
+        magFriend        = {x:magFriend.x,y:filtMag}
+
+        ;;get position of each mag point
+        position         = MAKE_ARRAY(N_ELEMENTS(magFriend.x),/DOUBLE)
+        speed_point_inds = VALUE_CLOSEST2(vel.x,magFriend.x)
+        speed_mag_point  = speed[speed_point_inds]
+        position[0:-2]   = TOTAL((magFriend.x[1:-1]-magFriend.x[0:-2])*speed_mag_point,/CUMULATIVE)
+
+        ;;calculate the current from mag
+        deltaBX          = DERIV(position,magFriend.y)
+        jtemp            = ABS(1.0e-3*(deltaBx)/1.26e-6)
+        sign_jtemp       = ABS(deltaBx)/deltaBx
+        STORE_DATA,'jtemp',DATA={x:magFriend.x,y:jtemp}
+
+        ;;Apply current threshold
+        winAlf_i         = winAlf_i[WHERE(jtemp[winAlf_i] GE current_threshold)]
+
+        IF ~KEYWORD_SET(no_plots) THEN BEGIN
+           dummy           = LABEL_DATE(DATE_FORMAT=['%I:%S%2'])
+           x_values        = UTC_TO_JULDAY(magz.x)
+           xRange          = [MIN(x_values),MAX(x_values)]
+           xTickFormat     = 'LABEL_DATE'
+           xTickUnits      = 'Time'
+
+           BFieldCol       = 'Black'
+           EFieldCol       = 'Red'
+           pFluxCol        = 'Blue'
+           window          = WINDOW(DIMENSIONS=[800,600])
+           margin          = [0.12, 0.12, 0.12, 0.12]
+
+           sjTemp           = sign_jtemp*jtemp
+           jPlot           = PLOT(x_values[winAlf_i], $
+                                  sjTemp[winAlf_i], $
+                                  ;; NAME='E-f', $
+                                  COLOR=BFieldCol, $
+                                  SYMBOL='+', $
+                                  LINESTYLE='', $
+                                  AXIS_STYLE=1, $
+                                  SYM_TRANSPARENCY=symTransp, $
+                                  ;; XTITLE='Time', $
+                                  ;; YTITLE='(mV/m)$^2$', $
+                                  YTITLE='Alf Current ($\mu$A/m$^2$)', $
+                                  XRANGE=xRange, $
+                                  YRANGE=[MIN(sjTemp[winAlf_i]),MAX(sjTemp[winAlf_i])], $
+                                  XTICKFORMAT=xTickFormat, $
+                                  XTICKUNITS=xTickUnits, $
+                                  MARGIN=margin, $
+                                  ;; /OVERPLOT, $
+                                  CURRENT=window2)
+        ENDIF
+
         ;;define loss cone angle
         GET_DATA,'ALT',DATA=alt
         loss_cone_alt = alt.y[0]*1000.0
@@ -1073,7 +1508,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=tmpT1,T2=tmpT2, $
                           NAME='Ji_up',ENERGY=energy_ions,ANGLE=i_angle_up,SC_POT=sc_pot
            
-        endelse
+        ENDELSE
         
         GET_DATA,'Je_tot',DATA=tmp
         GET_DATA,'Ji_tot',DATA=tmpi
@@ -1179,66 +1614,6 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         jee_tot_ionos_tmp_data = sgn_flx*jee_tot_tmp_data*ratio
         STORE_DATA,'JEei_tot',DATA={x:jee_tot_tmp_time,y:jee_tot_ionos_tmp_data}
         
-        GET_DATA,'fa_vel',DATA=vel
-        speed = SQRT(vel.y[*,0]^2+vel.y[*,1]^2+vel.y[*,2]^2)*1000.0
-        
-        ;;get position of each mag point
-        old_pos = 0.
-        position = MAKE_ARRAY(N_ELEMENTS(magz.x),/DOUBLE)
-        speed_mag_point = MAKE_ARRAY(N_ELEMENTS(magz.x),/DOUBLE)
-        FOR j=0L,N_ELEMENTS(magz.x)-2 DO BEGIN
-           speed_point_ind = MIN(ABS(vel.x-magz.x[j]),ind)
-
-           speed_mag_point[j] = speed[ind]
-           samplingperiod = magz.x(j+1)-magz.x[j]
-
-           position[j] = old_pos+speed_mag_point[j]*samplingperiod
-           old_pos = position[j]
-        endfor
-        
-        
-        ;;calculate the total ion outflow for this interval
-        part_res_ji        = MAKE_ARRAY(N_ELEMENTS(ji_up_tmp_time),/DOUBLE)
-        position_ji        = MAKE_ARRAY(N_ELEMENTS(Ji_up_tmp_time),/DOUBLE)
-        position_ji[0]     = 0.0
-        FOR j=1,N_ELEMENTS(ji_tmp_time)-1 DO BEGIN
-           part_res_ji[j]  = ABS(ji_up_tmp_time(j-1)-ji_up_tmp_time[j])
-
-           IF part_res_ji[j] EQ 0.0 THEN part_res_ji[j] = part_res_ji(j-1)
-
-           position_ji[j]  = position_ji(j-1)+speed[j]*part_res_Ji[j]
-        endfor
-        part_res_Ji[0]     = part_res_Ji[1]
-        ji_tot[jjj]        = int_tabulated(position_ji,ji_tmp_data*SQRT(ratio))       ;mapped to ionosphere sqrt due to intergration in x 
-        ji_up_tot[jjj]     = int_tabulated(position_ji,ji_up_tmp_data*SQRT(ratio)) ;mapped to ionosphere sqrt due to intergration in x 
-        
-        
-        PRINT,'ji_tot : ',ji_tot[jjj]
-        
-        ;;calculate the total electron downflux at the spacecraft altitude over this interval
-        part_res_je        = MAKE_ARRAY(N_ELEMENTS(jee_tmp_data),/DOUBLE)
-        position_je        = MAKE_ARRAY(N_ELEMENTS(jee_tmp_time),/DOUBLE)
-        position_je[0]     = 0.0
-        FOR j=1,N_ELEMENTS(je_tmp_time)-1 DO BEGIN
-           part_res_je[j]  = ABS(jee_tmp_time(j-1)-jee_tmp_time[j])
-           IF part_res_je[j] EQ 0.0 THEN part_res_je[j] = part_res_je(j-1)
-           position_je[j]  = position_je(j-1)+speed[j]*part_res_Je[j]
-        endfor
-        part_res_Je[0]     = part_res_Je[1]
-        jee_tot[jjj]       = int_tabulated(position_je,jee_tmp_data*SQRT(ratio)) ;mapped to ionosphere sqrt due to intergration in x 
-        
-        ;;calculate the current from mag
-        ;; deltaBX     = deriv(position,magz.y)
-        ;; jtemp       = ABS(1.0e-3*(deltaBx)/1.26e-6)
-        ;; sign_jtemp  = ABS(deltaBx)/deltaBx
-        ;; STORE_DATA,'jtemp',DATA={x:magz.x,y:jtemp}
-
-        ;;terminate the intervals before the last point
-        IF sign_jtemp[N_ELEMENTS(jtemp)-1]*sign_jtemp[N_ELEMENTS(jtemp)-2] NE -1 THEN BEGIN
-           sign_jtemp[N_ELEMENTS(jtemp)-1] = -1*sign_jtemp[N_ELEMENTS(jtemp)-1]
-        ENDIF
-
-        
         ;;IF we want to save a summary plot
         IF KEYWORD_SET(png_sumplot) THEN BEGIN
            CGPS_OPEN, outPlotDir+'as5Spec_orbit' + STRCOMPRESS(orbit_num+'_'+STRING(jjj), $
@@ -1260,30 +1635,11 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            ENDIF
         ENDELSE
 
-        start_points = [0]
-        stop_points = [0]
+        ;;get intervals for looping
+        start_points = winAlfFFT_i[0,*]
+        stop_points  = winAlfFFT_i[1,*]
         
-        ;;get current intervals
-        FOR j=1L,N_ELEMENTS(sign_jtemp)-2 DO BEGIN
-
-           IF sign_jtemp[j]+sign_jtemp(j-1) EQ 0.0 THEN BEGIN
-              start_points = [start_points,j]
-           ENDIF
-           IF sign_jtemp[j]+sign_jtemp(j+1) EQ 0.0 THEN BEGIN
-              stop_points = [stop_points,j]
-           ENDIF
-
-        endfor
-
-        IF sign_jtemp[0]+sign_jtemp[1] NE 0.0 THEN BEGIN
-           stop_points = stop_points[1:N_ELEMENTS(stop_points)-1]
-        ENDIF
-
-        ;;eliminate single points
-        non_single_points = WHERE(stop_points NE start_points)
-
-        start_points = start_points(non_single_points)
-        stop_points = stop_points(non_single_points)
+        STOP
 
         ;;define the current intervals
         ;;in this array 	0-interval start index
@@ -1330,11 +1686,11 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ;;		41-integrated downgoing electron flux from total distribution over that interval at ionosphere
 
         
-        current_intervals = MAKE_ARRAY(N_ELEMENTS(start_points),42,/DOUBLE)
-        current_intervals[*,0] = start_points
-        current_intervals[*,1] = stop_points
-        current_intervals[*,2] = sign_jtemp(start_points)
-        current_intervals[*,3] = 1
+        FFTintervals = MAKE_ARRAY(N_ELEMENTS(start_points),42,/DOUBLE)
+        FFTintervals[*,0] = start_points
+        FFTintervals[*,1] = stop_points
+        FFTintervals[*,2] = sign_jtemp(start_points)
+        FFTintervals[*,3] = 1
         
         intervalparts_electrons_old=-1
         intervalparts_ions_old=-1
@@ -1342,38 +1698,38 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         FOR j=0L,N_ELEMENTS(start_points)-1 DO BEGIN
            
            ;;define the interval points 
-           intervalfields = (current_intervals[j,0])+FINDGEN(current_intervals[j,1]+1-current_intervals[j,0])
-           tempz = magz.y[intervalfields]
-           fields_res_interval = magz.x[intervalfields]-magz.x[intervalfields-1]
-           ;;help,magz,/ST
-           ;;print,'current_indices ',current_intervals[j,0],current_intervals[j,1]
-           intervalparts_electrons = WHERE(je_tmp_time GE magz.x(current_intervals[j,0]) and je_tmp_time LE magz.x(current_intervals[j,1]))
-           intervalparts_ions = WHERE(ji_up_tmp_time GE magz.x(current_intervals[j,0]) and ji_up_tmp_time LE magz.x(current_intervals[j,1]))
+           intervalfields = (FFTintervals[j,0])+FINDGEN(FFTintervals[j,1]+1-FFTintervals[j,0])
+           tempz = magFriend.y[intervalfields]
+           fields_res_interval = magFriend.x[intervalfields]-magFriend.x[intervalfields-1]
+           ;;help,magFriend,/ST
+           ;;print,'current_indices ',FFTintervals[j,0],FFTintervals[j,1]
+           intervalparts_electrons = WHERE(je_tmp_time GE magFriend.x(FFTintervals[j,0]) and je_tmp_time LE magFriend.x(FFTintervals[j,1]))
+           intervalparts_ions = WHERE(ji_up_tmp_time GE magFriend.x(FFTintervals[j,0]) and ji_up_tmp_time LE magFriend.x(FFTintervals[j,1]))
            IF intervalparts_electrons[0] EQ -1 THEN BEGIN
-              minitime = MIN(ABS(je_tmp_time-magz.x(current_intervals[j,0])),intervalparts_electrons)
+              minitime = MIN(ABS(je_tmp_time-magFriend.x(FFTintervals[j,0])),intervalparts_electrons)
            ENDIF
            IF intervalparts_ions[0] EQ -1 THEN BEGIN
-              minitime = MIN(ABS(ji_up_tmp_time-magz.x(current_intervals[j,0])),intervalparts_ions)
+              minitime = MIN(ABS(ji_up_tmp_time-magFriend.x(FFTintervals[j,0])),intervalparts_ions)
            ENDIF
 
            ;;get the current from b and determine IF to keep this event
-           jmax = MAX(jtemp[intervalfields],indjmax)
-           current_intervals[j,4] = jmax*sign_jtemp(start_points[j])
-           IF jmax LE current_threshold THEN BEGIN
-              current_intervals[j,3] = 0.0
-           ENDIF
+           ;; jmax = MAX(jtemp[intervalfields],indjmax)
+           ;; FFTintervals[j,4] = jmax*sign_jtemp(start_points[j])
+           ;; IF jmax LE current_threshold THEN BEGIN
+           ;;    FFTintervals[j,3] = 0.0
+           ;; ENDIF
            
            ;;define the time of the max current
-           current_intervals[j,20] = magz.x[intervalfields[indjmax]]
+           FFTintervals[j,20] = magFriend.x[intervalfields[indjmax]]
            
            
            ;;get the electron current and determine IF to keep this event
            sign=-1.*je_tmp_data[intervalparts_electrons]/ABS(je_tmp_data[intervalparts_electrons])
            maxJe = MAX(ABS(je_tmp_data[intervalparts_electrons]),ind)
            maxJe = maxJe*sign[ind]*1.6e-9 ;;in microA/m2
-           current_intervals[j,5] = maxJe
+           FFTintervals[j,5] = maxJe
            IF ABS(maxJe)/ABS(jmax) LE esa_j_delta_bj_ratio_threshold THEN BEGIN
-              current_intervals[j,3] = 0.0
+              FFTintervals[j,3] = 0.0
            ENDIF
            
            ;;get the electron energy flux and dtermine IF to keep this event
@@ -1393,40 +1749,40 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
 
 
-           current_intervals[j,6] = maxJEe_ionos
-           current_intervals[j,40] = maxJEe_tot_ionos
+           FFTintervals[j,6] = maxJEe_ionos
+           FFTintervals[j,40] = maxJEe_tot_ionos
            IF ABS(maxJEe_ionos) LE electron_eflux_ionos_threshold and ABS(maxJEe_tot_ionos-maxJEe_ionos) LE electron_eflux_ionos_threshold THEN BEGIN ;note change from previously when only downgoing fluxes where considered.
-              current_intervals[j,3] = 0.0				      
+              FFTintervals[j,3] = 0.0				      
            ENDIF
            
            ;;get width of current filament in time (s)
-           time_width = magz.x(current_intervals[j,1])-magz.x(current_intervals[j,0])
+           time_width = magFriend.x(FFTintervals[j,1])-magFriend.x(FFTintervals[j,0])
            
-           current_intervals[j,15] = time_width
+           FFTintervals[j,15] = time_width
            ;;get width of the current filament at this altitude
            
-           width = speed_mag_point(current_intervals[j,0])*ABS(magz.x(current_intervals[j,0])-magz.x(current_intervals[j,1]))
-           ;;print,'speed',speed_mag_point(current_intervals[j,0])
-           current_intervals[j,16] = width
+           width = speed_mag_point[FFTintervals[j,0]]*ABS(magFriend.x(FFTintervals[j,0])-magFriend.x(FFTintervals[j,1]))
+           ;;print,'speed',speed_mag_point(FFTintervals[j,0])
+           FFTintervals[j,16] = width
            
            ;;get the integrated electron dflux in ionosphere over this interval
            IF intervalparts_electrons[0] NE -1 THEN BEGIN
               IF N_ELEMENTS(intervalparts_electrons) EQ 1 THEN BEGIN 
                  
-                 current_intervals[j,7] = width*jee_tmp_data[intervalparts_electrons]
-                 current_intervals[j,41] = width*jee_tot_tmp_data[intervalparts_electrons]
+                 FFTintervals[j,7] = width*jee_tmp_data[intervalparts_electrons]
+                 FFTintervals[j,41] = width*jee_tot_tmp_data[intervalparts_electrons]
               ENDIF ELSE BEGIN
                  ;;interpolate particle data to same resolution as the fields data
-                 jee_tmp_data_fields_res_interval = interpol(jee_tmp_data[intervalparts_electrons],jee_tmp_time[intervalparts_electrons],magz.x[intervalfields])
-                 jee_tot_tmp_data_fields_res_interval = interpol(jee_tot_tmp_data[intervalparts_electrons],jee_tot_tmp_time[intervalparts_electrons],magz.x[intervalfields])
-                 current_intervals[j,7] = int_tabulated(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,jee_tmp_data_fields_res_interval,/DOUBLE)
-                 current_intervals[j,41] = int_tabulated(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,jee_tot_tmp_data_fields_res_interval,/DOUBLE)
+                 jee_tmp_data_fields_res_interval = interpol(jee_tmp_data[intervalparts_electrons],jee_tmp_time[intervalparts_electrons],magFriend.x[intervalfields])
+                 jee_tot_tmp_data_fields_res_interval = interpol(jee_tot_tmp_data[intervalparts_electrons],jee_tot_tmp_time[intervalparts_electrons],magFriend.x[intervalfields])
+                 FFTintervals[j,7] = int_tabulated(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,jee_tmp_data_fields_res_interval,/DOUBLE)
+                 FFTintervals[j,41] = int_tabulated(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,jee_tot_tmp_data_fields_res_interval,/DOUBLE)
                  
               endelse
               
               ;;map result to ionosphere (sqrt of B since have integrated in x)
-              current_intervals[j,7] = current_intervals[j,7]*SQRT(ratio(intervalparts_electrons[0]))
-              current_intervals[j,41] = current_intervals[j,41]*SQRT(ratio(intervalparts_electrons[0]))
+              FFTintervals[j,7] = FFTintervals[j,7]*SQRT(ratio(intervalparts_electrons[0]))
+              FFTintervals[j,41] = FFTintervals[j,41]*SQRT(ratio(intervalparts_electrons[0]))
            ENDIF
            
            
@@ -1436,71 +1792,71 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
               IF N_ELEMENTS(intervalparts_ions) EQ 1 THEN BEGIN 
                  ;;IF intervalparts_ions[0] NE intervalparts_ions_old(N_ELEMENTS(intervalparts_ions_old)-1) or valid_old EQ 0.0 THEN BEGIN
                  
-                 current_intervals[j,12] = width*ji_tmp_data[intervalparts_ions]
-                 current_intervals[j,13] = width*ji_up_tmp_data[intervalparts_ions]
+                 FFTintervals[j,12] = width*ji_tmp_data[intervalparts_ions]
+                 FFTintervals[j,13] = width*ji_up_tmp_data[intervalparts_ions]
                  ;;ENDIF
               ENDIF ELSE BEGIN
                  ;;IF  intervalparts_ions[0] EQ intervalparts_ions_old(N_ELEMENTS(intervalparts_ions_old)-1) and valid_old EQ 1.0 THEN intervalparts_ions = intervalparts_ions(1:N_ELEMENTS(intervalparts_ions)-1)
                  ;;IF N_ELEMENTS(intervalparts_ions) EQ 1 THEN BEGIN 
-                 ;;current_intervals[j,12] = speed[intervalparts_ions]*part_res_ji[intervalparts_ions]*ji_up_tmp_data[intervalparts_ions]/2.0
+                 ;;FFTintervals[j,12] = speed[intervalparts_ions]*part_res_ji[intervalparts_ions]*ji_up_tmp_data[intervalparts_ions]/2.0
                  
                  ;;ENDIF ELSE BEGIN
                  
                  
                  ;;interpolate particle data to same resolaution as the fields data
-                 ji_tmp_data_fields_res_interval = INTERPOL(ji_tmp_data[intervalparts_ions],ji_tmp_time[intervalparts_ions],magz.x[intervalfields])
-                 ji_up_tmp_data_fields_res_interval = INTERPOL(ji_up_tmp_data[intervalparts_ions],ji_up_tmp_time[intervalparts_ions],magz.x[intervalfields])
+                 ji_tmp_data_fields_res_interval = INTERPOL(ji_tmp_data[intervalparts_ions],ji_tmp_time[intervalparts_ions],magFriend.x[intervalfields])
+                 ji_up_tmp_data_fields_res_interval = INTERPOL(ji_up_tmp_data[intervalparts_ions],ji_up_tmp_time[intervalparts_ions],magFriend.x[intervalfields])
                  
-                 current_intervals[j,12] = INT_TABULATED(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,ji_tmp_data_fields_res_interval,/DOUBLE)
-                 current_intervals[j,13] = INT_TABULATED(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,ji_up_tmp_data_fields_res_interval,/DOUBLE)
+                 FFTintervals[j,12] = INT_TABULATED(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,ji_tmp_data_fields_res_interval,/DOUBLE)
+                 FFTintervals[j,13] = INT_TABULATED(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,ji_up_tmp_data_fields_res_interval,/DOUBLE)
                  
               endelse
               
               ;;map result to ionosphere (sqrt of B since have integrated in x)
-              current_intervals[j,12] = current_intervals[j,12]*SQRT(ratio[intervalparts_ions[0]])
-              current_intervals[j,13] = current_intervals[j,13]*SQRT(ratio[intervalparts_ions[0]])
+              FFTintervals[j,12] = FFTintervals[j,12]*SQRT(ratio[intervalparts_ions[0]])
+              FFTintervals[j,13] = FFTintervals[j,13]*SQRT(ratio[intervalparts_ions[0]])
            ENDIF
            
            ;;get max electron characteristic energy over this interval
            C_E = MAX(charE[intervalparts_electrons])
            C_E_tot = MAX(charE_tot[intervalparts_electrons])
 
-           current_intervals[j,8] = C_E
-           current_intervals[j,39] = C_E_tot
+           FFTintervals[j,8] = C_E
+           FFTintervals[j,39] = C_E_tot
 
            ;;get max upgoing ion energy flux over this interval
            maxJEi = MAX(ABS(jei_up_tmp_data[intervalparts_ions]),ind)
-           current_intervals[j,9] = maxJEi
+           FFTintervals[j,9] = maxJEi
            
            ;;get max ion flux over this interval
            sign_ion=-1.*ji_tmp_data[intervalparts_ions]/ABS(ji_tmp_data[intervalparts_ions])
            maxJi = MAX(ABS(ji_tmp_data[intervalparts_ions]),ind)
            maxJi = maxJi*sign_ion[ind]
-           current_intervals[j,10] = maxJi
+           FFTintervals[j,10] = maxJi
            
            ;;get max upgoing ion flux over this interval
            maxJi_up = MAX(ABS(ji_up_tmp_data[intervalparts_ions]),ind)
-           current_intervals[j,11] = maxJi_up
+           FFTintervals[j,11] = maxJi_up
            
            ;;get max characteristic ion energy over this interval
            C_Ei = MAX(charEi[intervalparts_ions])
-           current_intervals[j,14] = C_Ei
+           FFTintervals[j,14] = C_Ei
            
            
            
            ;;fields sample period
-           current_intervals[j,26] = magz.x[intervalfields[indjmax]+1]-magz.x[intervalfields[indjmax]]
+           FFTintervals[j,26] = magFriend.x[intervalfields[indjmax]+1]-magFriend.x[intervalfields[indjmax]]
            
            ;;get mag field amplitude
-           db = MAX(magz.y[intervalfields])-MIN(magz.y[intervalfields])
-           median_db = MEDIAN(magz.y[intervalfields])
-           current_intervals[j,17] = db
-           current_intervals[j,24] = median_db
-           IF db LT delta_b_threshold THEN current_intervals[j,3] = 0.0 ;threshold for reliablity of identification
+           db = MAX(magFriend.y[intervalfields])-MIN(magFriend.y[intervalfields])
+           median_db = MEDIAN(magFriend.y[intervalfields])
+           FFTintervals[j,17] = db
+           FFTintervals[j,24] = median_db
+           IF db LT delta_b_threshold THEN FFTintervals[j,3] = 0.0 ;threshold for reliablity of identification
            
            ;;get elec field amplitude
            ;;smooth to below proton gyro freq.
-           smooth_int = CEIL((1./proton_cyc_freq[intervalfields[indjmax]])/current_intervals[j,26])
+           smooth_int = CEIL((1./proton_cyc_freq[intervalfields[indjmax]])/FFTintervals[j,26])
            IF smooth_int GT 1.0 and smooth_int LE N_ELEMENTS(intervalfields)/4.0 THEN BEGIN
               efield_smooth = SMOOTH(fields.comp2[intervalfields],smooth_int) 
            ENDIF ELSE BEGIN
@@ -1508,14 +1864,14 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            ENDELSE 
            de = MAX(efield_smooth)-MIN(efield_smooth)
            median_de = MEDIAN(fields.comp2[intervalfields])
-           current_intervals[j,18] = de
-           current_intervals[j,25] = median_de
-           IF de LT delta_E_threshold THEN current_intervals[j,3] = 0.0 ;threshold for reliablity of identification
+           FFTintervals[j,18] = de
+           FFTintervals[j,25] = median_de
+           IF de LT delta_E_threshold THEN FFTintervals[j,3] = 0.0 ;threshold for reliablity of identification
            
-           current_intervals[j,35] = 0.
-           current_intervals[j,36] = 0.
-           current_intervals[j,37] = 0.
-           current_intervals[j,38] = 0.
+           FFTintervals[j,35] = 0.
+           FFTintervals[j,36] = 0.
+           FFTintervals[j,37] = 0.
+           FFTintervals[j,38] = 0.
 
            ;;now get orbit quantities
            GET_DATA,'ORBIT',DATA=orb
@@ -1523,29 +1879,29 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            GET_DATA,'ALT',DATA=alt
            GET_DATA,'ILAT',DATA=ilat
 
-           mintime = MIN(ABS(mlt.x-magz.x[intervalfields[indjmax]]),ind)
+           mintime = MIN(ABS(mlt.x-magFriend.x[intervalfields[indjmax]]),ind)
            
-           current_intervals[j,19] = orb.y[ind]
-           current_intervals[j,21] = alt.y[ind]	
-           current_intervals[j,22] = mlt.y[ind]	
-           current_intervals[j,23] = ilat.y[ind]
+           FFTintervals[j,19] = orb.y[ind]
+           FFTintervals[j,21] = alt.y[ind]	
+           FFTintervals[j,22] = mlt.y[ind]	
+           FFTintervals[j,23] = ilat.y[ind]
            
            ;;fields_mode
-           mintime = MIN(ABS(fields_mode.time-magz.x[intervalfields[indjmax]]),ind)
-           current_intervals[j,27] = fields_mode.comp1(13,ind)
+           mintime = MIN(ABS(fields_mode.time-magFriend.x[intervalfields[indjmax]]),ind)
+           FFTintervals[j,27] = fields_mode.comp1(13,ind)
            
            ;;sc potential
-           mintime = MIN(ABS(sc_pot.x-magz.x[intervalfields[indjmax]]),ind)
-           current_intervals[j,34]=-1*sc_pot.y[ind]
+           mintime = MIN(ABS(sc_pot.x-magFriend.x[intervalfields[indjmax]]),ind)
+           FFTintervals[j,34]=-1*sc_pot.y[ind]
            
            ;;e over b test
-           ;; va = 1000.0*alfven_speed_mlt(current_intervals[j,21],current_intervals[j,22])
-           e_over_b = (1.0e-3*current_intervals[j,18])/(current_intervals[j,17]*1.0e-9)
-           IF e_over_b/va LT 1.0/eb_to_alfven_speed THEN current_intervals[j,3] = 0.0
+           ;; va = 1000.0*alfven_speed_mlt(FFTintervals[j,21],FFTintervals[j,22])
+           e_over_b = (1.0e-3*FFTintervals[j,18])/(FFTintervals[j,17]*1.0e-9)
+           IF e_over_b/va LT 1.0/eb_to_alfven_speed THEN FFTintervals[j,3] = 0.0
            
            intervalparts_electrons_old = intervalparts_electrons
            intervalparts_ions_old = intervalparts_ions	
-           valid_old = current_intervals[j,3]
+           valid_old = FFTintervals[j,3]
         endfor
         
      ENDIF ELSE BEGIN
@@ -1553,7 +1909,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
      ENDELSE
      
      ;;remove crap data
-     keep = WHERE(current_intervals[*,3] NE 0.0)
+     keep = WHERE(FFTintervals[*,3] NE 0.0)
      PRINT,'keep',keep
      IF KEYWORD_SET(keep_alfven_only) THEN BEGIN
         IF keep[0] EQ -1 THEN BEGIN
@@ -1561,7 +1917,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            keep = !NULL
         ENDIF ELSE BEGIN
            PRINT,'number of events: ',N_ELEMENTS(keep)
-           current_intervals = current_intervals[keep,*]
+           FFTintervals = FFTintervals[keep,*]
         ENDELSE
      ENDIF
 
@@ -1569,7 +1925,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
      PRINT,filename,jjj
      OPENW,unit1,filename,/GET_LUN
-     PRINTF,unit1,N_ELEMENTS(current_intervals[*,0]),N_ELEMENTS(keep)
+     PRINTF,unit1,N_ELEMENTS(FFTintervals[*,0]),N_ELEMENTS(keep)
 
      PRINTF,unit1,' Column No.  	1-Orbit number'
      PRINTF,unit1,'			2-Alfvenic = 1 non-Alfvenic = 0'
@@ -1612,16 +1968,16 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
      PRINTF,unit1,'			39-interval stop time'
 
      PRINTF,unit1,FORMAT='("total electron dflux at ionosphere from single integ.",T68,G16.6)',Jee_tot[jjj]
-     PRINTF,unit1,FORMAT='("total electron dflux at ionosphere from total of intervals",T68,G16.6)',TOTAL(current_intervals[*,7])
-     PRINTF,unit1,FORMAT='("total Alfven electron dflux at ionosphere",T68,G16.6)',TOTAL(current_intervals[keep,7])
+     PRINTF,unit1,FORMAT='("total electron dflux at ionosphere from total of intervals",T68,G16.6)',TOTAL(FFTintervals[*,7])
+     PRINTF,unit1,FORMAT='("total Alfven electron dflux at ionosphere",T68,G16.6)',TOTAL(FFTintervals[keep,7])
      PRINTF,unit1,FORMAT='("total ion outflow at ionosphere from single integ",T68,G16.6)',Ji_tot[jjj]
-     PRINTF,unit1,FORMAT='("total ion outflow at ionosphere from total of intervals",T68,G16.6)',TOTAL(current_intervals[*,12])
-     PRINTF,unit1,FORMAT='("total Alfven ion outflow at ionosphere",T68,G16.6)',TOTAL(current_intervals[keep,12])
+     PRINTF,unit1,FORMAT='("total ion outflow at ionosphere from total of intervals",T68,G16.6)',TOTAL(FFTintervals[*,12])
+     PRINTF,unit1,FORMAT='("total Alfven ion outflow at ionosphere",T68,G16.6)',TOTAL(FFTintervals[keep,12])
      PRINTF,unit1,FORMAT='("total upward only ion outflow at ionosphere from single integ.",T68,G16.6)',Ji_up_tot[jjj]
-     PRINTF,unit1,FORMAT='("total upward only ion outflow at ionosphere from total of intervals",T68,G16.6)',TOTAL(current_intervals[*,13])
-     PRINTF,unit1,FORMAT='("total Alfven upward only ion outflow at ionosphere",T68,G16.6)',TOTAL(current_intervals[keep,13])						
+     PRINTF,unit1,FORMAT='("total upward only ion outflow at ionosphere from total of intervals",T68,G16.6)',TOTAL(FFTintervals[*,13])
+     PRINTF,unit1,FORMAT='("total Alfven upward only ion outflow at ionosphere",T68,G16.6)',TOTAL(FFTintervals[keep,13])						
 
-     FOR jj=0L,N_ELEMENTS(current_intervals[*,0])-1 DO BEGIN
+     FOR jj=0L,N_ELEMENTS(FFTintervals[*,0])-1 DO BEGIN
 
         ;;Want pngs of each of OUR events?
         IF KEYWORD_SET(png_ourevents) THEN BEGIN
@@ -1635,8 +1991,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            !P.CHARSIZE = 1.3
 
 
-           TPLOT,['MagZ','jtemp'] ,VAR_LABEL=['ALT','MLT','ILAT'], $
-                 TRANGE=[magz.x[current_intervals[jj,0]],magz.x[current_intervals[jj,1]]]
+           TPLOT,['MagFriend','jtemp'] ,VAR_LABEL=['ALT','MLT','ILAT'], $
+                 TRANGE=[magFriend.x[FFTintervals[jj,0]],magFriend.x[FFTintervals[jj,1]]]
            CGPS_CLOSE, /PNG,/DELETE_PS, WIDTH=1000
 
         ENDIF
@@ -1650,28 +2006,29 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            CGPS_OPEN,fname,FONT=1
            LOADCT,39
            !p.charsize = 1.3
-           TPLOT,['MagZ','jtemp','eField'] , $
+           TPLOT,['MagFriend','jtemp','eField'] , $
                  VAR_LABEL=['ALT','MLT','ILAT'], $
-                 TRANGE=[magz.x[current_intervals[jj,0]],magz.x[current_intervals[jj,1]]]
+                 TRANGE=[magFriend.x[FFTintervals[jj,0]],magFriend.x[FFTintervals[jj,1]]]
            CGPS_CLOSE, /PNG, /DELETE_PS
         ENDIF
-        PRINTF,unit1,FORMAT='(I9,G13.6,A24,34G13.6,A24,A24)',current_intervals[jj,19],current_intervals[jj,3],TIME_TO_STR(current_intervals[jj,20],/MS),$
-               current_intervals[jj,21],current_intervals[jj,22],current_intervals[jj,23],current_intervals[jj,4],$
-               current_intervals[jj,5],current_intervals[jj,6],current_intervals[jj,40],current_intervals[jj,7],$
-               current_intervals[jj,41],current_intervals[jj,8],current_intervals[jj,39],$ ;;Counting from 1, jj,39 is item 14
-               current_intervals[jj,9],current_intervals[jj,10],current_intervals[jj,11],current_intervals[jj,12],$
-               current_intervals[jj,13],current_intervals[jj,14],current_intervals[jj,15],current_intervals[jj,16],$
-               current_intervals[jj,17],current_intervals[jj,18],current_intervals[jj,26],current_intervals[jj,27],$
-               current_intervals[jj,28],current_intervals[jj,29],current_intervals[jj,30],current_intervals[jj,31],$
-               current_intervals[jj,32],current_intervals[jj,33],current_intervals[jj,34],current_intervals[jj,35],$
-               current_intervals[jj,36],current_intervals[jj,37],current_intervals[jj,38], $
-               TIME_TO_STR(magz.x(current_intervals[jj,0]),/MS), TIME_TO_STR(magz.x(current_intervals[jj,1]),/MS)
+        PRINTF,unit1,FORMAT='(I9,G13.6,A24,34G13.6,A24,A24)',FFTintervals[jj,19],FFTintervals[jj,3],TIME_TO_STR(FFTintervals[jj,20],/MS),$
+               FFTintervals[jj,21],FFTintervals[jj,22],FFTintervals[jj,23],FFTintervals[jj,4],$
+               FFTintervals[jj,5],FFTintervals[jj,6],FFTintervals[jj,40],FFTintervals[jj,7],$
+               FFTintervals[jj,41],FFTintervals[jj,8],FFTintervals[jj,39],$ ;;Counting from 1, jj,39 is item 14
+               FFTintervals[jj,9],FFTintervals[jj,10],FFTintervals[jj,11],FFTintervals[jj,12],$
+               FFTintervals[jj,13],FFTintervals[jj,14],FFTintervals[jj,15],FFTintervals[jj,16],$
+               FFTintervals[jj,17],FFTintervals[jj,18],FFTintervals[jj,26],FFTintervals[jj,27],$
+               FFTintervals[jj,28],FFTintervals[jj,29],FFTintervals[jj,30],FFTintervals[jj,31],$
+               FFTintervals[jj,32],FFTintervals[jj,33],FFTintervals[jj,34],FFTintervals[jj,35],$
+               FFTintervals[jj,36],FFTintervals[jj,37],FFTintervals[jj,38], $
+               TIME_TO_STR(magFriend.x(FFTintervals[jj,0]),/MS), $
+               TIME_TO_STR(magFriend.x(FFTintervals[jj,1]),/MS)
 
         
-     endfor
+     ENDFOR
      FREE_LUN,unit1
 
 
-  endfor
+  ENDFOR
 
 END
