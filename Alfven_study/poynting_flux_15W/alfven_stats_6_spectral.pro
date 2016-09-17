@@ -1636,8 +1636,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ENDELSE
 
         ;;get intervals for looping
-        start_points = winAlfFFT_i[0,*]
-        stop_points  = winAlfFFT_i[1,*]
+        start_points = REFORM(winAlfFFT_i[0,*])
+        stop_points  = REFORM(winAlfFFT_i[1,*])
         
         STOP
 
@@ -1713,11 +1713,11 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            ENDIF
 
            ;;get the current from b and determine IF to keep this event
-           ;; jmax = MAX(jtemp[intervalfields],indjmax)
-           ;; FFTintervals[j,4] = jmax*sign_jtemp(start_points[j])
-           ;; IF jmax LE current_threshold THEN BEGIN
-           ;;    FFTintervals[j,3] = 0.0
-           ;; ENDIF
+           jmax = MAX(jtemp[intervalfields],indjmax)
+           FFTintervals[j,4] = jmax*sign_jtemp(start_points[j])
+           IF jmax LE current_threshold THEN BEGIN
+              FFTintervals[j,3] = 0.0
+           ENDIF
            
            ;;define the time of the max current
            FFTintervals[j,20] = magFriend.x[intervalfields[indjmax]]
@@ -1856,6 +1856,10 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            
            ;;get elec field amplitude
            ;;smooth to below proton gyro freq.
+
+           PRINT,'This is where you have work to do.'
+           STOP
+
            smooth_int = CEIL((1./proton_cyc_freq[intervalfields[indjmax]])/FFTintervals[j,26])
            IF smooth_int GT 1.0 and smooth_int LE N_ELEMENTS(intervalfields)/4.0 THEN BEGIN
               efield_smooth = SMOOTH(fields.comp2[intervalfields],smooth_int) 
