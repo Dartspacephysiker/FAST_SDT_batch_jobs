@@ -1,6 +1,6 @@
 *
 Header :this is the 'chaston_survey_5__9859__tadrith' configuration file
-Header :created on Mon Sep  5 07:11:54 2016
+Header :created on Fri Sep 16 15:17:58 2016
 *
 *
 Description : 
@@ -13,15 +13,15 @@ Config Name:			'chaston_survey_5__9859__tadrith'
 Config MenuPosition:		6, -14
 Config MenuSize:		300, 300
 Config DefaultSourceId:	'?'
-Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
+Config CurrentPlotWindow:	'chaston_survey_5__9859__tadrith:0 - DA'
 
 	PlotWinStandard
 	{
-	PlotWin Name:		'chaston_survey_5:0 - DA'
-	PlotWin Position:	389, 151
+	PlotWin Name:		'chaston_survey_5__9859__tadrith:0 - DA'
+	PlotWin Position:	386, 129
 	PlotWin Size:		900, 600
 	PlotWin PlotsPage:	6
-	PlotWin TopPlotOfPage:	'Eesa Survey:  Energy'
+	PlotWin TopPlotOfPage:	'V4_S'
 	PlotWin DefaultDataBaseResponse:	2451227 65763.1 2451227 73712.5 '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit9859_r;/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit9860_r'
 '
 
@@ -38,15 +38,16 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 ScaleTypes:	TIME LINEAR LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
 		Plot2 MaxLimits:	73712.5, 360, 800, 1, 1, 1
 		Plot2 MinLimits:	65763.1, 0, 0, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -77,15 +78,16 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LOG LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 ScaleTypes:	TIME LOG LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
 		Plot2 MaxLimits:	73712.5, 40000, 800, 1, 1, 1
 		Plot2 MinLimits:	65763.1, 1, 0, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -116,15 +118,16 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 ScaleTypes:	TIME LINEAR LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
 		Plot2 MaxLimits:	73712.5, 32, 255, 1, 1, 1
 		Plot2 MinLimits:	65763.1, 0, 0, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -155,93 +158,16 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 ScaleTypes:	TIME LINEAR LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
 		Plot2 MaxLimits:	73712.5, 48, 255, 1, 1, 1
 		Plot2 MinLimits:	65763.1, 0, 0, 0, 0, 0
-		Plot2 UseOff:		FALSE
-		Plot2 LinOff:		0
-		Plot2 LogOff:		0
-		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
-		Plot2 LinePointsMode:	GRAPH_MODE_LINE
-		Plot2 PointsPlot:	1
-		Plot2 UseBrk:		FALSE
-		Plot2 BrkInt:		10
-		Plot2 ErrorBar:		SDT_EBAR_NONE
-		Plot2 NSymbols:		0
-		Plot2 LineFont:		Solid
-		Plot2 LineColor:	White
-		Plot2 Accum:		TRUE 0 48 0 1
-		Plot2 Accum:		TRUE 0 1 0 1
-		Plot2 ColorLimits:	COLORMAP 239 1
-		Plot2 EndPlot:
-		}
-		PlotType
-		{
-		Plot2 SourceName:	'FAST'
-		Plot2 QtyName:		'Sesa Survey:  Angle'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
-		Plot2 NPanels:		1
-		Plot2 QtyTitleName:	'Sesa Survey:  Angle'
-		Plot2 PlotYTitleName:	'SesaSurvey Angle'
-		Plot2 PlotYSubTitleName:	'Deg'
-		Plot2 PlotZTitleName:	'Counts'
-		Plot2 PlotZSubTitleName:	'#'
-		Plot2 HeightUnits:	1
-		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
-		Plot2 RedLimits:	FALSE 0 0
-		Plot2 YellowLimits:	FALSE 0 0
-		Plot2 NAxes:		3
-		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	73712.5, 32, 255, 1, 1, 1
-		Plot2 MinLimits:	65763.1, 0, 0, 0, 0, 0
-		Plot2 UseOff:		FALSE
-		Plot2 LinOff:		0
-		Plot2 LogOff:		0
-		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
-		Plot2 LinePointsMode:	GRAPH_MODE_LINE
-		Plot2 PointsPlot:	1
-		Plot2 UseBrk:		FALSE
-		Plot2 BrkInt:		10
-		Plot2 ErrorBar:		SDT_EBAR_NONE
-		Plot2 NSymbols:		0
-		Plot2 LineFont:		Solid
-		Plot2 LineColor:	White
-		Plot2 Accum:		TRUE 0 32 0 1
-		Plot2 Accum:		TRUE 0 1 0 1
-		Plot2 ColorLimits:	COLORMAP 239 1
-		Plot2 EndPlot:
-		}
-		PlotType
-		{
-		Plot2 SourceName:	'FAST'
-		Plot2 QtyName:		'Sesa Survey:  Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
-		Plot2 NPanels:		1
-		Plot2 QtyTitleName:	'Sesa Survey:  Energy'
-		Plot2 PlotYTitleName:	'SesaSurvey Energy'
-		Plot2 PlotYSubTitleName:	'-'
-		Plot2 PlotZTitleName:	'Counts'
-		Plot2 PlotZSubTitleName:	'#'
-		Plot2 HeightUnits:	1
-		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
-		Plot2 RedLimits:	FALSE 0 0
-		Plot2 YellowLimits:	FALSE 0 0
-		Plot2 NAxes:		3
-		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	73712.5, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	65763.1, 0, 0, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -314,6 +240,42 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
 		Plot2 MaxLimits:	73712.5, 32768, 0, 0
+		Plot2 MinLimits:	65763.1, -32768, 0, 0
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'V4_S'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'V4_S'
+		Plot2 PlotYTitleName:	'V4_S'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	73712.5, 32768, 1, 1
 		Plot2 MinLimits:	65763.1, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -724,320 +686,6 @@ Config CurrentPlotWindow:	'chaston_survey_5:0 - DA'
 		Plot2 NSymbols:		0
 		Plot2 LineFont:		Solid
 		Plot2 LineColor:	White
-		Plot2 ColorLimits:	COLORMAP 239 1
-		Plot2 EndPlot:
-		}
-		PlotType
-		{
-		Plot2 SourceName:	'FAST'
-		Plot2 QtyName:		'Teams H+, O+ Survey Distribution'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
-		Plot2 NPanels:		1
-		Plot2 QtyTitleName:	'Teams H+, O+ Survey Distribution'
-		Plot2 PlotYTitleName:	'Position'
-		Plot2 PlotYSubTitleName:	'_'
-		Plot2 PlotZTitleName:	'Count'
-		Plot2 PlotZSubTitleName:	'-'
-		Plot2 HeightUnits:	1
-		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
-		Plot2 RedLimits:	FALSE 0 0
-		Plot2 YellowLimits:	FALSE 0 0
-		Plot2 NAxes:		5
-		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	LINEAR LINEAR LINEAR LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	8, 16, 255, 0, 0, 0, 0, 0, 0, 0
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-		Plot2 UseOff:		FALSE
-		Plot2 LinOff:		0
-		Plot2 LogOff:		0
-		Plot2 ContourStyle:	SDT_CONTOUR_STYLE_LINE
-		Plot2 LinePointsMode:	GRAPH_MODE_LINE
-		Plot2 PointsPlot:	1
-		Plot2 UseBrk:		FALSE
-		Plot2 BrkInt:		10
-		Plot2 ErrorBar:		SDT_EBAR_NONE
-		Plot2 NSymbols:		0
-		Plot2 LineFont:		Solid
-		Plot2 LineColor:	White
-		Plot2 ColorLimits:	COLORMAP 239 1
-		Plot2 EndPlot:
-		}
-		PlotType
-		{
-		Plot2 SourceName:	'FAST'
-		Plot2 QtyName:		'Teams H+, O+ Survey Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
-		Plot2 NPanels:		1
-		Plot2 QtyTitleName:	'Teams H+, O+ Survey Energy'
-		Plot2 PlotYTitleName:	'TmsHOSurvey Engy'
-		Plot2 PlotYSubTitleName:	'eV'
-		Plot2 PlotZTitleName:	'Counts'
-		Plot2 PlotZSubTitleName:	'#'
-		Plot2 HeightUnits:	1
-		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
-		Plot2 RedLimits:	FALSE 0 0
-		Plot2 YellowLimits:	FALSE 0 0
-		Plot2 NAxes:		3
-		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	73712.5, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	65763.1, 0, 0, 0, 0, 0
-		Plot2 UseOff:		FALSE
-		Plot2 LinOff:		0
-		Plot2 LogOff:		0
-		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
-		Plot2 LinePointsMode:	GRAPH_MODE_LINE
-		Plot2 PointsPlot:	1
-		Plot2 UseBrk:		FALSE
-		Plot2 BrkInt:		10
-		Plot2 ErrorBar:		SDT_EBAR_NONE
-		Plot2 NSymbols:		0
-		Plot2 LineFont:		Solid
-		Plot2 LineColor:	White
-		Plot2 Accum:		FALSE 1 15000 0 48
-		Plot2 Accum:		FALSE 0 1 0 0.2
-		Plot2 Accum:		TRUE 0 360 -90 90 0 63
-		Plot2 ColorLimits:	COLORMAP 239 1
-		Plot2 EndPlot:
-		}
-		PlotType
-		{
-		Plot2 SourceName:	'FAST'
-		Plot2 QtyName:		'Teams H+, O+ Survey Phi'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
-		Plot2 NPanels:		1
-		Plot2 QtyTitleName:	'Teams H+, O+ Survey Phi'
-		Plot2 PlotYTitleName:	'TmsHOSurvey Phi'
-		Plot2 PlotYSubTitleName:	'_'
-		Plot2 PlotZTitleName:	'Counts'
-		Plot2 PlotZSubTitleName:	'#'
-		Plot2 HeightUnits:	1
-		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
-		Plot2 RedLimits:	FALSE 0 0
-		Plot2 YellowLimits:	FALSE 0 0
-		Plot2 NAxes:		3
-		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	73712.5, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	65763.1, 0, 0, 0, 0, 0
-		Plot2 UseOff:		FALSE
-		Plot2 LinOff:		0
-		Plot2 LogOff:		0
-		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
-		Plot2 LinePointsMode:	GRAPH_MODE_LINE
-		Plot2 PointsPlot:	1
-		Plot2 UseBrk:		FALSE
-		Plot2 BrkInt:		10
-		Plot2 ErrorBar:		SDT_EBAR_NONE
-		Plot2 NSymbols:		0
-		Plot2 LineFont:		Solid
-		Plot2 LineColor:	White
-		Plot2 Accum:		TRUE 0 360 -90 90 0 63
-		Plot2 Accum:		FALSE 0 1 0 0.2
-		Plot2 Accum:		TRUE 1 15000 0 47
-		Plot2 ColorLimits:	COLORMAP 239 1
-		Plot2 EndPlot:
-		}
-		PlotType
-		{
-		Plot2 SourceName:	'FAST'
-		Plot2 QtyName:		'Teams H+, O+ Survey Theta'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
-		Plot2 NPanels:		1
-		Plot2 QtyTitleName:	'Teams H+, O+ Survey Theta'
-		Plot2 PlotYTitleName:	'TmsHOSurvey Theta'
-		Plot2 PlotYSubTitleName:	'_'
-		Plot2 PlotZTitleName:	'Counts'
-		Plot2 PlotZSubTitleName:	'#'
-		Plot2 HeightUnits:	1
-		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
-		Plot2 RedLimits:	FALSE 0 0
-		Plot2 YellowLimits:	FALSE 0 0
-		Plot2 NAxes:		3
-		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	73712.5, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	65763.1, 0, 0, 0, 0, 0
-		Plot2 UseOff:		FALSE
-		Plot2 LinOff:		0
-		Plot2 LogOff:		0
-		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
-		Plot2 LinePointsMode:	GRAPH_MODE_LINE
-		Plot2 PointsPlot:	1
-		Plot2 UseBrk:		FALSE
-		Plot2 BrkInt:		10
-		Plot2 ErrorBar:		SDT_EBAR_NONE
-		Plot2 NSymbols:		0
-		Plot2 LineFont:		Solid
-		Plot2 LineColor:	White
-		Plot2 Accum:		TRUE 0 360 -90 90 0 63
-		Plot2 Accum:		FALSE 0 1 0 0.2
-		Plot2 Accum:		TRUE 1 15000 0 47
-		Plot2 ColorLimits:	COLORMAP 239 1
-		Plot2 EndPlot:
-		}
-		PlotType
-		{
-		Plot2 SourceName:	'FAST'
-		Plot2 QtyName:		'Teams He+,++ Survey Distribution'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
-		Plot2 NPanels:		1
-		Plot2 QtyTitleName:	'Teams He+,++ Survey Distribution'
-		Plot2 PlotYTitleName:	'Position'
-		Plot2 PlotYSubTitleName:	'_'
-		Plot2 PlotZTitleName:	'Count'
-		Plot2 PlotZSubTitleName:	'-'
-		Plot2 HeightUnits:	1
-		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
-		Plot2 RedLimits:	FALSE 0 0
-		Plot2 YellowLimits:	FALSE 0 0
-		Plot2 NAxes:		5
-		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	LINEAR LINEAR LINEAR LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	8, 16, 255, 0, 0, 0, 0, 0, 0, 0
-		Plot2 MinLimits:	0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-		Plot2 UseOff:		FALSE
-		Plot2 LinOff:		0
-		Plot2 LogOff:		0
-		Plot2 ContourStyle:	SDT_CONTOUR_STYLE_LINE
-		Plot2 LinePointsMode:	GRAPH_MODE_LINE
-		Plot2 PointsPlot:	1
-		Plot2 UseBrk:		FALSE
-		Plot2 BrkInt:		10
-		Plot2 ErrorBar:		SDT_EBAR_NONE
-		Plot2 NSymbols:		0
-		Plot2 LineFont:		Solid
-		Plot2 LineColor:	White
-		Plot2 ColorLimits:	COLORMAP 239 1
-		Plot2 EndPlot:
-		}
-		PlotType
-		{
-		Plot2 SourceName:	'FAST'
-		Plot2 QtyName:		'Teams He+,++ Survey Energy'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
-		Plot2 NPanels:		1
-		Plot2 QtyTitleName:	'Teams He+,++ Survey Energy'
-		Plot2 PlotYTitleName:	'TmsHeSurvey Engy'
-		Plot2 PlotYSubTitleName:	'eV'
-		Plot2 PlotZTitleName:	'Counts'
-		Plot2 PlotZSubTitleName:	'#'
-		Plot2 HeightUnits:	1
-		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
-		Plot2 RedLimits:	FALSE 0 0
-		Plot2 YellowLimits:	FALSE 0 0
-		Plot2 NAxes:		3
-		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	73712.5, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	65763.1, 0, 0, 0, 0, 0
-		Plot2 UseOff:		FALSE
-		Plot2 LinOff:		0
-		Plot2 LogOff:		0
-		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
-		Plot2 LinePointsMode:	GRAPH_MODE_LINE
-		Plot2 PointsPlot:	1
-		Plot2 UseBrk:		FALSE
-		Plot2 BrkInt:		10
-		Plot2 ErrorBar:		SDT_EBAR_NONE
-		Plot2 NSymbols:		0
-		Plot2 LineFont:		Solid
-		Plot2 LineColor:	White
-		Plot2 Accum:		FALSE 1 15000 0 48
-		Plot2 Accum:		FALSE 0 1 0 0.3
-		Plot2 Accum:		TRUE 0 360 -90 90 0 63
-		Plot2 ColorLimits:	COLORMAP 239 1
-		Plot2 EndPlot:
-		}
-		PlotType
-		{
-		Plot2 SourceName:	'FAST'
-		Plot2 QtyName:		'Teams He+,++ Survey Phi'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
-		Plot2 NPanels:		1
-		Plot2 QtyTitleName:	'Teams He+,++ Survey Phi'
-		Plot2 PlotYTitleName:	'TmsHeSurvey Phi'
-		Plot2 PlotYSubTitleName:	'_'
-		Plot2 PlotZTitleName:	'Counts'
-		Plot2 PlotZSubTitleName:	'#'
-		Plot2 HeightUnits:	1
-		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
-		Plot2 RedLimits:	FALSE 0 0
-		Plot2 YellowLimits:	FALSE 0 0
-		Plot2 NAxes:		3
-		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	73712.5, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	65763.1, 0, 0, 0, 0, 0
-		Plot2 UseOff:		FALSE
-		Plot2 LinOff:		0
-		Plot2 LogOff:		0
-		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
-		Plot2 LinePointsMode:	GRAPH_MODE_LINE
-		Plot2 PointsPlot:	1
-		Plot2 UseBrk:		FALSE
-		Plot2 BrkInt:		10
-		Plot2 ErrorBar:		SDT_EBAR_NONE
-		Plot2 NSymbols:		0
-		Plot2 LineFont:		Solid
-		Plot2 LineColor:	White
-		Plot2 Accum:		TRUE 0 360 -90 90 0 63
-		Plot2 Accum:		FALSE 0 1 0 0.2
-		Plot2 Accum:		TRUE 1 15000 0 47
-		Plot2 ColorLimits:	COLORMAP 239 1
-		Plot2 EndPlot:
-		}
-		PlotType
-		{
-		Plot2 SourceName:	'FAST'
-		Plot2 QtyName:		'Teams He+,++ Survey Theta'
-		Plot2 DataBaseResponse:	'SameAsPlotWindow'
-		Plot2 NPanels:		1
-		Plot2 QtyTitleName:	'Teams He+,++ Survey Theta'
-		Plot2 PlotYTitleName:	'TmsHeSurvey Theta'
-		Plot2 PlotYSubTitleName:	'_'
-		Plot2 PlotZTitleName:	'Counts'
-		Plot2 PlotZSubTitleName:	'#'
-		Plot2 HeightUnits:	1
-		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
-		Plot2 RedLimits:	FALSE 0 0
-		Plot2 YellowLimits:	FALSE 0 0
-		Plot2 NAxes:		3
-		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	73712.5, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	65763.1, 0, 0, 0, 0, 0
-		Plot2 UseOff:		FALSE
-		Plot2 LinOff:		0
-		Plot2 LogOff:		0
-		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
-		Plot2 LinePointsMode:	GRAPH_MODE_LINE
-		Plot2 PointsPlot:	1
-		Plot2 UseBrk:		FALSE
-		Plot2 BrkInt:		10
-		Plot2 ErrorBar:		SDT_EBAR_NONE
-		Plot2 NSymbols:		0
-		Plot2 LineFont:		Solid
-		Plot2 LineColor:	White
-		Plot2 Accum:		TRUE 0 360 -90 90 0 63
-		Plot2 Accum:		FALSE 0 1 0 0.2
-		Plot2 Accum:		TRUE 1 15000 0 47
 		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}

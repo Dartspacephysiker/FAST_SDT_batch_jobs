@@ -1,13 +1,15 @@
 PRO ALFVEN_STATS_6_SPECTRAL, $
    FILENAME=filename, $
+   BELOW_AURORAL_OVAL=below_auroral_oval, $
+   SHOW_ALF_EVENTS_FROM_MAXIMUS=show_maximus_events, $
    ENERGY_ELECTRONS=energy_electrons, $
    ENERGY_IONS=energy_ions, $
    ANALYSE_NOISE=analyse_noise, $
    T1=t1, $
    T2=t2, $
-   FILTERFREQ=filterfreq, $
    BURST=burst, $
-   HEAVY=heavy, $
+   ONLY_FASTSRVY_DATA=only_128Ss_data, $
+   OVERRIDE_FREQ_BOUNDS=override_freq_bounds, $
    UCLA_MAG_DESPIN=ucla_mag_despin, $
    KEEP_ALFVEN_ONLY=keep_alfven_only, $
    PNG_SUMPLOT=png_sumplot, $
@@ -18,74 +20,98 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
   ;; COMPILE_OPT idl2
   ;; COMPILE_OPT strictArr
 
-  IF N_ELEMENTS(ucla_mag_despin)     EQ 0 THEN ucla_mag_despin     = 1
-  IF N_ELEMENTS(below_auroral_oval)  EQ 0 THEN below_auroral_oval  = 1
   outDir = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/poynting_flux_15W/'
 
   IF KEYWORD_SET(png_sumplot) THEN BEGIN
      SET_PLOT_DIR,outPlotDir,/FOR_SDT,ADD_SUFF='/as6_spectral/'
   ENDIF
 
+  IF N_ELEMENTS(ucla_mag_despin)     EQ 0 THEN ucla_mag_despin     = 1
+  IF N_ELEMENTS(below_auroral_oval)  EQ 0 THEN below_auroral_oval  = 1
   IF N_ELEMENTS(only_128Ss_data)     EQ 0 THEN only_128Ss_data     = 1
   IF N_ELEMENTS(yLim_to_mag_rolloff) EQ 0 THEN yLim_to_mag_rolloff = 1
-  yLimUpper         = 23
+  yLimUpper         = 20
+
+  IF KEYWORD_SET(only_128Ss_data) THEN BEGIN
+     PRINT,"Excluding periods for which sample rate of FG mag is ≤ 128 S/s …"
+  ENDIF
+
+  ;;The way this works is that we estimate f_spA ≤ k_perp * λe < f_spB
+  ;;Frequency details under "***Frequency conditions***"
+  f_spA         = 0.05
+  f_spB         = 1./f_spA
+  freqRes       = 0.05D         ;Frequencies rounded to this number
+  ;; freqRes       = 0.1D         ;Frequencies rounded to this number
+  FGMagRolloff  = 20.0          ;in Hz
+
 
   ;;For FFTs of Mag and E data
-  FFTLen            = 1024
-  nFFTAvg           = 1
+  FFTLen        = 1024
+  nFFTAvg       = 1
 
-  maxPeriod         = 1/100.
-  minPeriod         = 1/132.
-  eFSampFact        = 4         ;The fact is, E-field data gets sampled a million times faster!
-  FFTFreqRange      = [0.1,19.0]
-  FFTSlide          = 0.0
+  maxPeriod     = 1/100.
+  minPeriod     = 1/132.
+  eFSampFact    = 4         ;The fact is, E-field data gets sampled a million times faster!
+  freqPlotRange  = [0.1,FGMagRolloff]
+  override_freq  = [0.0,FGMagRolloff]
+  FFTSlide      = 1.0
 
-  current_threshold = 1.0       ;microA/m^2
-  delta_b_threshold = 5.0       ; nT
-  delta_E_threshold = 10.0      ; mV/m
-  esa_j_delta_bj_ratio_threshold = 0.02
-  electron_eflux_ionos_threshold = 0.05 ;ergs/cm^2/s
-  eb_to_alfven_speed = 10.0             ; factor by which the event can differ from model Alfven speed and still be called an Alfven wave 
+  ;;***Thresholds on power spectra***        
+  ;;(See section with the same label below to investigate how I came up with these)
+  BSpecThresh   = 0.01          ;in     nT^2/Hz
+  ESpecThresh   = 0.01          ;in (mV/m)^2/Hz
+  ;;...And thresholds on integrated spectra
+  BIntegThresh  = 0.2           ; in nT
+  EIntegThresh  = 0.2           ; in mV/m
+  ebAlfRat      = 10.0
+
+  ;;Other screenings
+  current_threshold               = 1.0  ;microA/m^2
+  delta_b_threshold               = 5.0  ; nT
+  delta_E_threshold               = 10.0 ; mV/m
+  esa_j_delta_bj_ratio_threshold  = 0.02
+  electron_eflux_ionos_threshold  = 0.05  ;ergs/cm^2/s
+  eb_to_alfven_speed              = 50.0 ; factor by which the event can differ from model Alfven speed and still be called an Alfven wave 
                                 ;(applies only to the lower limit for e over b the upper limit is taken care of by the requiremenst that delta_b exceed 5 nT
 
   ;;energy ranges
-  IF not keyword_set(energy_electrons) THEN energy_electrons = [0.,30000.] ;use 0.0 for lower bound since the sc_pot is used to set this
-  IF not keyword_set(energy_ions) THEN energy_ions = [0.,500.]             ;use 0.0 for lower bound since the sc_pot is used to set this
+  IF NOT KEYWORD_SET(energy_electrons) THEN energy_electrons = [0.,30000.] ;use 0.0 for lower bound since the sc_pot is used to set this
+  IF NOT KEYWORD_SET(energy_ions)     THEN energy_ions       = [0.,500.]   ;use 0.0 for lower bound since the sc_pot is used to set this
 
   ;; IF no data exists, return to main
-  t = 0
-  dat = get_fa_ees(t,/st)
+  t   = 0
+  dat = GET_FA_EES(t,/ST)
   IF dat.valid eq 0 THEN BEGIN
-     print,' ERROR: No FAST electron survey data -- get_fa_ees(t,/st) returned invalid data'
-;     return
+     PRINT,' ERROR: No FAST electron survey data -- get_fa_ees(t,/ST) returned invalid data'
+;     RETURN
   ENDIF
 
   ;; Electron current - line plot
-  IF keyword_set(burst) THEN BEGIN
-     get_2dt_ts,'j_2d_b','fa_eeb',t1=t1,t2=t2,NAME='Je',ENERGY=energy_electrons
+  IF KEYWORD_SET(burst) THEN BEGIN
+     GET_2DT_TS,'j_2d_b','fa_eeb',T1=t1,T2=t2,NAME='Je',ENERGY=energy_electrons
   ENDIF ELSE BEGIN
-     get_2dt_ts,'j_2d_b','fa_ees',t1=t1,t2=t2,NAME='Je',ENERGY=energy_electrons
+     GET_2DT_TS,'j_2d_b','fa_ees',T1=t1,T2=t2,NAME='Je',ENERGY=energy_electrons
   endelse
   
   ;;remove spurious crap
   GET_DATA,'Je',DATA=tmpj
   
-  keep = WHERE(FINITE(tmpj.y) NE 0)
-  tmpj.x = tmpj.x[keep]
-  tmpj.y = tmpj.y[keep]
+  keep        = WHERE(FINITE(tmpj.y) NE 0)
+  tmpj.x      = tmpj.x[keep]
+  tmpj.y      = tmpj.y[keep]
   
-  keep = WHERE(ABS(tmpj.y) GT 0.0)
-  tx = tmpj.x[keep]
-  ty = tmpj.y[keep]
+  keep        = WHERE(ABS(tmpj.y) GT 0.0)
+  tx          = tmpj.x[keep]
+  ty          = tmpj.y[keep]
   
   ;;get timescale monotonic
-  time_order = sort(tx)
-  tx = tx[time_order]
-  ty = ty[time_order]
+  time_order  = SORT(tx)
+  tx          = tx[time_order]
+  ty          = ty[time_order]
   
   
   ;;throw away the first 10  points since they are often corrupted
-  IF not keyword_set(burst) THEN BEGIN
+  IF not KEYWORD_SET(burst) THEN BEGIN
      STORE_DATA,'Je',DATA={x:tx[10:N_ELEMENTS(tx)-1],y:ty[10:N_ELEMENTS(tx)-1]}
   ENDIF ELSE BEGIN
      STORE_DATA,'Je',DATA={x:tx,y:ty}
@@ -97,36 +123,36 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
   GET_DATA,'MLT',DATA=mlt
   GET_DATA,'ILAT',DATA=ilat
   IF KEYWORD_SET(below_auroral_oval) THEN BEGIN
-     keep = WHERE(ABS(ilat.y) GE 50.0 )
-     belowAurOvalStr='--below_aur_oval'
+     keep             = WHERE(ABS(ilat.y) GE 50.0 )
+     belowAurOvalStr  = '--below_aur_oval'
   ENDIF ELSE BEGIN
-     keep = WHERE(ABS(ilat.y) GT AURORAL_ZONE(mlt.y,7,/lat)/(!DPI)*180.)
-     belowAurOvalStr=''
+     keep             = WHERE(ABS(ilat.y) GT AURORAL_ZONE(mlt.y,7,/LAT)/(!DPI)*180.)
+     belowAurOvalStr  = ''
   ENDELSE
 
   STORE_DATA,'Je',DATA={x:je.x[keep],y:je.y[keep]}
 
   ;;Use the electron data to define the time ranges for this orbit	
   GET_DATA,'Je',DATA=je
-  part_res_je = MAKE_ARRAY(N_ELEMENTS(Je.x),/double)
+  part_res_je         = MAKE_ARRAY(N_ELEMENTS(Je.x),/DOUBLE)
   FOR j=1,N_ELEMENTS(Je.x)-1 DO BEGIN
-     part_res_je[j] = ABS(Je.x[j]-Je.x[j-1])
+     part_res_je[j]   = ABS(Je.x[j]-Je.x[j-1])
   endfor
-  part_res_Je[0] = part_res_Je[1]
-  gap = WHERE(part_res_je GT 10.0)
+  part_res_Je[0]      = part_res_Je[1]
+  gap                 = WHERE(part_res_je GT 10.0)
   IF gap[0] NE -1 THEN BEGIN
-     separate_start = [0,WHERE(part_res_je GT 10.0)]
-     separate_stop = [WHERE(part_res_je GT 10.0),N_ELEMENTS(Je.x)-1]
+     separate_start   = [0,WHERE(part_res_je GT 10.0)]
+     separate_stop    = [WHERE(part_res_je GT 10.0),N_ELEMENTS(Je.x)-1]
   ENDIF ELSE BEGIN
-     separate_start = [0]
-     separate_stop = [N_ELEMENTS(Je.x)-1]
+     separate_start   = [0]
+     separate_stop    = [N_ELEMENTS(Je.x)-1]
   endelse
   
   ;;remove esa burp when switched on
-  IF not keyword_set(burst) THEN BEGIN
+  IF not KEYWORD_SET(burst) THEN BEGIN
      turn_on = WHERE(part_res_je GT 300.0)
      IF turn_on[0] NE -1 THEN BEGIN
-        turn_on_separate = MAKE_ARRAY(N_ELEMENTS(turn_on),/double)
+        turn_on_separate = MAKE_ARRAY(N_ELEMENTS(turn_on),/DOUBLE)
         FOR j=0,N_ELEMENTS(turn_on)-1 DO turn_on_separate[j] = WHERE(separate_start EQ turn_on[j])
         separate_start[turn_on_separate+1] = separate_start[turn_on_separate+1]+5
      ENDIF
@@ -149,43 +175,47 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
   time_ranges          = je.x[time_range_indices]
   number_of_intervals  = N_ELEMENTS(time_ranges[*,0])
   
-  print,'number_of_intervals',number_of_intervals
+  PRINT,'number_of_intervals',number_of_intervals
   
-  ji_tot               = MAKE_ARRAY(number_of_intervals,/double)
-  ji_up_tot            = MAKE_ARRAY(number_of_intervals,/double)
-  jee_tot              = MAKE_ARRAY(number_of_intervals,/double)
-  Ji_tot_alf           = MAKE_ARRAY(number_of_intervals,/double)
-  Ji_up_tot_alf        = MAKE_ARRAY(number_of_intervals,/double)
-  Jee_tot_alf          = MAKE_ARRAY(number_of_intervals,/double)
+  ji_tot               = MAKE_ARRAY(number_of_intervals,/DOUBLE)
+  ji_up_tot            = MAKE_ARRAY(number_of_intervals,/DOUBLE)
+  jee_tot              = MAKE_ARRAY(number_of_intervals,/DOUBLE)
+  Ji_tot_alf           = MAKE_ARRAY(number_of_intervals,/DOUBLE)
+  Ji_up_tot_alf        = MAKE_ARRAY(number_of_intervals,/DOUBLE)
+  Jee_tot_alf          = MAKE_ARRAY(number_of_intervals,/DOUBLE)
   
   ;;get despun mag data IF keyword set
-  IF keyword_set(ucla_mag_despin) THEN ucla_mag_despin
+  IF KEYWORD_SET(ucla_mag_despin) THEN ucla_mag_despin
   
   ;;begin looping each interval
   FOR jjj=0,number_of_intervals-1 DO BEGIN
-     print,'time_range',TIME_TO_STR(time_ranges[jjj,0]),TIME_TO_STR(time_ranges[jjj,1])
+     tmpT1 = time_ranges[jjj,0]
+     tmpT2 = time_ranges[jjj,1]
+
+     PRINT,'time_range',TIME_TO_STR(tmpT1),TIME_TO_STR(tmpT2)
      
+
      ;;get orbit number for filenames		
      GET_DATA,'ORBIT',DATA=tmp
-     orbit = tmp.y[0]
-     orbit_num = STRCOMPRESS(STRING(tmp.y[0]),/REMOVE_ALL)
+     orbit      = tmp.y[0]
+     orbit_num  = STRCOMPRESS(STRING(tmp.y[0]),/REMOVE_ALL)
 
                                 ;filename for output file
      IF KEYWORD_SET(burst) THEN BEGIN
-        curfile = outDir + 'batch_output__burst/'+'Dartmouth_as5_spectral_'+STRCOMPRESS(orbit_num,/REMOVE_ALL)+'_'+STRCOMPRESS(jjj,/REMOVE_ALL)+'--'+belowAurOvalStr + '--burst'
+        curfile     = outDir + 'batch_output__burst/'+'Dartmouth_as5_spectral_'+STRCOMPRESS(orbit_num,/REMOVE_ALL)+'_'+STRCOMPRESS(jjj,/REMOVE_ALL)+'--'+belowAurOvalStr + '--burst'
      ENDIF ELSE BEGIN
         IF KEYWORD_SET(ucla_mag_despin) THEN BEGIN
-           curfile = outDir + 'batch_output/'+'Dartmouth_as5_spectral_'+STRCOMPRESS(orbit_num,/REMOVE_ALL)+'_'+STRCOMPRESS(jjj,/REMOVE_ALL)+'--'+belowAurOvalStr + '--ucla_mag_despin'
+           curfile  = outDir + 'batch_output/'+'Dartmouth_as5_spectral_'+STRCOMPRESS(orbit_num,/REMOVE_ALL)+'_'+STRCOMPRESS(jjj,/REMOVE_ALL)+'--'+belowAurOvalStr + '--ucla_mag_despin'
         ENDIF ELSE BEGIN
-           curfile = outDir + 'batch_output/'+'Dartmouth_as5_spectral_'+STRCOMPRESS(orbit_num,/REMOVE_ALL)+'_'+STRCOMPRESS(jjj,/REMOVE_ALL)+'--'+belowAurOvalStr
+           curfile  = outDir + 'batch_output/'+'Dartmouth_as5_spectral_'+STRCOMPRESS(orbit_num,/REMOVE_ALL)+'_'+STRCOMPRESS(jjj,/REMOVE_ALL)+'--'+belowAurOvalStr
         ENDELSE
      ENDELSE
      
      ;;make sure we're not overwriting
      IF FILE_TEST(curfile) THEN BEGIN
         IF NOT KEYWORD_SET(cont_if_file_exists) THEN BEGIN
-           right_now = strmid(timestamp(),0,13)
-           curfile = curfile + "--" + right_now
+           right_now  = strmid(timestamp(),0,13)
+           curfile    = curfile + "--" + right_now
         ENDIF ELSE BEGIN
            IF KEYWORD_SET(cont_if_file_exists) THEN BEGIN
               PRINT,"Not overwriting file " + curfile + "! Returning..."
@@ -199,73 +229,26 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
      
      STORE_DATA,'Je_tmp',DATA={x:je_tmp_time,y:je_tmp_data}
      
-     ;;get fields quantities
-     ;; data_valid = 1.0
-     ;; dat = get_fa_fields('MagDC',t,/start)
-     ;; IF dat.valid eq 0 THEN BEGIN
-     ;;    print,' ERROR: No FAST mag data-get_fa_fields returned invalid data'
-     ;;    data_valid = 0.0
-     ;; ENDIF ELSE BEGIN
-     ;;    IF not keyword_set(ucla_mag_despin) THEN field=get_fa_fields('MagDC',time_ranges[jjj,0],time_ranges[jjj,1],/store)
-     ;;    dat = get_fa_fields('V5-V8_S',t,/start)
-     ;;    IF dat.valid eq 0 THEN BEGIN
-     ;;       print,' ERROR: No FAST V5-V8 data-get_fa_fields returned invalid data'
-     ;;       data_valid = 0.0
-     ;;    ENDIF ELSE BEGIN
-     ;;       spacecraft_potential = get_fa_fields('V8_S',time_ranges[jjj,0],time_ranges[jjj,1])
-     ;;       efieldV58 = get_fa_fields('V5-V8_S',time_ranges[jjj,0],time_ranges[jjj,1])
-     ;;       efieldV1214 = get_fa_fields('V1-V2_S',time_ranges[jjj,0],time_ranges[jjj,1])
-     ;;       IF efieldV1214.valid eq 0 THEN BEGIN
-     ;;          print,'No V1-V2_S data - trying V1-V4_S'
-     ;;          efieldV1214 = get_fa_fields('V1-V4_S',time_ranges[jjj,0],time_ranges[jjj,1])
-     ;;          IF efieldV1214.valid eq 0 AND KEYWORD_SET(burst) THEN BEGIN
-     ;;             print,'No V1-V4_S data - trying V1-V2_4k (burst)'
-     ;;             efieldV1214 = get_fa_fields('V1-V2_4k',time_ranges[jjj,0],time_ranges[jjj,1])
-     ;;             IF efieldV1214.valid eq 0 THEN BEGIN
-     ;;                print,'No V1-V2_4k data - trying V1-V4_4k (burst)'
-     ;;                efieldV1214 = get_fa_fields('V1-V4_4k',time_ranges[jjj,0],time_ranges[jjj,1])
-     ;;                IF efieldV1214.valid eq 0 THEN BEGIN
-     ;;                   print,'No FAST fields data-get_fa_fields returned invalid data'
-     ;;                   data_valid = 0.0
-     ;;                ENDIF
-     ;;             ENDIF
-     ;;          ENDIF ELSE BEGIN
-     ;;             print,'No FAST fields data-get_fa_fields returned invalid data'
-     ;;             data_valid = 0.0
-     ;;          endelse
-     ;;       ENDIF 
-     ;;    endelse
-
-     ;; endelse
-     
-     dat = get_fa_fields('MagDC',t,/start)
-     IF dat.valid EQ 0 THEN BEGIN
-        PRINT,' ERROR: No FAST mag data-get_fa_fields returned invalid data'
-     ENDIF 
+     magDC = GET_FA_FIELDS('MagDC',t,/START,/CALIBRATE,/REPAIR)
+     ;; dat = get_fa_fields('MagDC',t,/START)
+     ;; IF magDC.valid EQ 0 THEN BEGIN
+     ;;    PRINT,' ERROR: No FAST mag data-get_fa_fields returned invalid data'
+     ;;    RETURN
+     ;; ENDIF 
      
      ;;Get two types of potential. Which DO we like better?
-     spacecraft_potential = GET_FA_FIELDS('V8_S',time_ranges[jjj,0],time_ranges[jjj,1])
-     sc_pot2              = GET_FA_POTENTIAL(time_ranges[jjj,0],time_ranges[jjj,1])
+     ;;JOURNAL__20160917__SEE_IF_SDT_CANNED_SC_POT[...] shows why I chose canned SDT routines
+     sc_pot  = GET_FA_POTENTIAL(tmpT1,tmpT2, $
+                                 ;; /SPIN, $
+                                 /REPAIR)
+
+     sc_pot  = {x:sc_pot.time, $
+                y:(-1.)*sc_pot.comp1, $ ;;Reverse sign of pot here for use with GET_2DT_TS_POT
+                valid:sc_pot.valid} 
 
      ;; IF data_valid NE 0.0 THEN BEGIN
-     IF (sc_pot2.valid) AND (dat.valid) THEN BEGIN
+     IF (sc_pot.valid) AND (magDC.valid) THEN BEGIN
         
-        ;;get E field and B field on same time scale
-        ;; efields_combine=combinets({x:efieldV1214.time,y:efieldV1214.comp1},{x:efieldV58.time,y:efieldV58.comp1})
-        ;; FA_FIELDS_COMBINE,efieldV1214,efieldV58,result=efields_combine,/talk
-        
-        ;;get magnitude of electric and magnetic field
-        ;; FOR k=0,10,1 DO BEGIN
-        ;;    print, "This is efieldV1214.comp1["+STRING(k)+"]: " + STRING(efieldV1214.comp1[k])
-        ;;    print, "This is efieldV58.comp1["+STRING(k)+"]: " + STRING(efieldV58.comp1[k])
-        ;;    print, "This is efields_combine["+STRING(k)+"]: " + STRING(efields_combine[k])
-        ;; endfor
-        ;; help, efieldV1214,/str
-        ;; help, efieldV58,/str
-        ;; help,efields_combine
-        ;; efield={x:efieldV1214.time,y:SQRT(efieldV1214.comp1^2+efields_combine^2)}
-
-
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ;;Get Mag and E field data
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -274,36 +257,39 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ;;		a. Use Strangeway despinning, find coords that complement E_along_V
         ;;		b. Need to use Bob model to subtract the background field
 
-        IF not keyword_set(ucla_mag_despin) THEN BEGIN
+        IF not KEYWORD_SET(ucla_mag_despin) THEN BEGIN
            GET_DATA,'MagDCcomp1',DATA=magx
            GET_DATA,'MagDCcomp2',DATA=magy
            GET_DATA,'MagDCcomp3',DATA=magz
         ENDIF ELSE BEGIN
            GET_DATA,'dB_fac_v',DATA=db_fac
-           mintime = MIN(ABS(time_ranges[jjj,0]-db_fac.x),ind1)
-           mintime = MIN(ABS(time_ranges[jjj,1]-db_fac.x),ind2)
-                                ;   From UCLA_MAG_DESPIN:
-           magx = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,0]} ;   "Field-aligned velocity-based coordinates defined as:    "
-           magy = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,2]} ;   "z (ind 2)-along B, y (ind 1)-cross track (BxV), x (ind 0)-along track ((BxV)xB)." (I added "ind" marks)
+           mintime = MIN(ABS(tmpT1-db_fac.x),ind1)
+           mintime = MIN(ABS(tmpT2-db_fac.x),ind2)
+           ;;   From UCLA_MAG_DESPIN: "Field-aligned velocity-based coordinates defined as:    "
+           ;;x (ind 0)-along track ((BxV)xB),
+           ;;y (ind 1)-cross track (BxV), 
+           ;;z (ind 2)-along B" (I added "ind" marks)
+           magx = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,0]} 
+           magy = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,2]} 
            magz = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,1]}
         endelse
         
         ;;E field
-        FA_FIELDS_DESPIN,efieldV58,efieldV1214,/SLOW
+        FA_FIELDS_DESPIN,efieldV58,efieldV1214 ;,/SLOW
         ;; GET_DATA,'E_NEAR_B',DATA=eNearB
         GET_DATA,'E_ALONG_V',DATA=eAlongV
         IF SIZE(eAlongV,/TYPE) NE 8 THEN BEGIN
            PRINT,"Couldn't get E_ALONG_V!" 
            STOP
         ENDIF
-        ;; OPTIONS,'E_ALONG_V','ytitle','E Along V!C(mV/m)'
-        ;; YLIM,'E_ALONG_V',-1000,1000
 
         ;;Now check sorted/dupes
         CHECK_DUPES,magz.x,HAS_DUPES=magHasDupes, $
                     IS_SORTED=magIsSort,OUT_UNIQ_I=magUniq_i,/QUIET
         IF magHasDupes OR ~magIsSort THEN BEGIN
            PRINT,'Mag has dupes/is not sorted! Sorting ...'
+           magx = {x:magx.x[magUniq_i],y:magx.y[magUniq_i]}
+           magy = {x:magy.x[magUniq_i],y:magy.y[magUniq_i]}
            magz = {x:magz.x[magUniq_i],y:magz.y[magUniq_i]}
         ENDIF
 
@@ -314,435 +300,111 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            eAlongV = {x:eAlongV.x[eAVUniq_i],y:eAlongV.y[eAVUniq_i]}
         ENDIF
 
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        ;;ii. Restrict to periods with 128 S/s 
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        magPeriod        = magz.x
-        magPeriod[*]     = 0
-        magPeriod[0:-2]  = (SHIFT(magz.x,-1)-magz.x)[0:-2]
-        magPeriod[-1]    = magPeriod[-2]
-        bigGaps          = WHERE(magPeriod GT 10,nBigGaps)
-        IF nBigGaps GT 0 THEN BEGIN
-           PRINT,'Big gaps magz! Decide!'
-        ENDIF
-        CASE 1 OF
-           KEYWORD_SET(only_128Ss_data): BEGIN
-              keepMag_i  = WHERE(magPeriod LE maxPeriod AND $
-                                       magPeriod GE minPeriod,nBigGaps)
-           END
-           ELSE: BEGIN
-              keepMag_i  = WHERE(magPeriod LE maxPeriod,nBigGaps)
-
-              ;;Get data with appropriate sample rates
-              CHECK_DUPES,magPeriod,HAS_DUPES=magPeriodDupes, $
-                          IS_SORTED=magPeriodIsSort,OUT_UNIQ_I=magPeriodUniq_i,/QUIET
-              
-              PRINT,'You still need to handle this ... someday'
-
-           END
-        ENDCASE
-        GET_STREAKS,keepMag_i,START_I=strtMag_ii,STOP_I=stpMag_ii, $
-                    OUT_STREAKLENS=magStreakLens, $
-                    MIN_STREAK_TO_KEEP=FFTLen
-        
-        eAVPeriod        = eAlongV.x
-        eAVPeriod[*]     = 0
-        eAVPeriod[0:-2]  = (SHIFT(eAlongV.x,-1)-eAlongV.x)[0:-2]
-        eAVPeriod[-1]    = eAVPeriod[-2]
-        bigGaps          = WHERE(eAVPeriod GT 10,nBigGaps)
-        IF nBigGaps GT 0 THEN BEGIN
-           PRINT,'Big gaps eAlongV! Decide!'
-        ENDIF
-        CASE 1 OF
-           KEYWORD_SET(only_128Ss_data): BEGIN
-              keepeAV_i  = WHERE(eAVPeriod LE (maxPeriod/eFSampFact) AND $
-                                       eAVPeriod GE (minPeriod/eFSampFact),nBigGaps)
-           END
-           ELSE: BEGIN
-              keepeAV_i  = WHERE(eAVPeriod LE maxPeriod,nBigGaps)
-
-              ;;Get data with appropriate sample rates
-              CHECK_DUPES,eAVPeriod,HAS_DUPES=eAVPeriodDupes, $
-                          IS_SORTED=eAVPeriodIsSort,OUT_UNIQ_I=eAVPeriodUniq_i,/QUIET
-              
-           END
-        ENDCASE
-        GET_STREAKS,keepeAV_i,START_I=strteAV_ii,STOP_I=stpeAV_ii, $
-                    OUT_STREAKLENS=eAVStreakLens, $
-                    MIN_STREAK_TO_KEEP=FFTLen
-        
-        ;;Loop over streaks, smooth with Hanning window
-        nMagSmooth  = TOTAL(stpMag_ii-strtMag_ii)
-        regMag      = MAKE_ARRAY(nMagSmooth,VALUE=0.0)
-        smoothMag   = MAKE_ARRAY(nMagSmooth,VALUE=0.0)
-        smoothMagT  = MAKE_ARRAY(nMagSmooth,VALUE=0.0,/DOUBLE)
-        gotEm       = 0
-        FOR k=0,N_ELEMENTS(strtMag_ii)-1 DO BEGIN
-           
-           tmpInds              = gotEm + [strtMag_ii[k]:stpMag_ii[k]] - strtMag_ii[k]
-           tmpData              = magz.y[keepMag_i[strtMag_ii[k]:stpMag_ii[k]]]
-
-           regMag[tmpInds]      = tmpData
-           smoothMag[tmpInds]   = FF_SMOOTH(tmpData,FFTLen-1, $
-                                          SM_FUNCT=HANNING(FFTLen-1) ) ;, $
-                                          ;; /DETREND)
-           smoothMagT[tmpInds]  = magz.x[keepMag_i[strtMag_ii[k]:stpMag_ii[k]]]
-
-           gotEm               += (stpMag_ii[k]-strtMag_ii[k])
-        ENDFOR
-
-        neAVSmooth  = TOTAL(stpeAV_ii-strteAV_ii)
-        regeAV      = MAKE_ARRAY(neAVSmooth,VALUE=0.0)
-        smootheAV   = MAKE_ARRAY(neAVSmooth,VALUE=0.0)
-        smootheAVT  = MAKE_ARRAY(neAVSmooth,VALUE=0.0,/DOUBLE)
-        gotEm       = 0
-        FOR k=0,N_ELEMENTS(strteAV_ii)-1 DO BEGIN
-           
-           tmpInds              = gotEm + [strteAV_ii[k]:stpeAV_ii[k]] - strteAV_ii[k]
-           tmpData              = eAlongV.y[keepeAV_i[strteAV_ii[k]:stpeAV_ii[k]]]
-
-           regeAV[tmpInds]      = tmpData
-           smootheAV[tmpInds]   = FF_SMOOTH(tmpData,FFTLen-1, $
-                                          SM_FUNCT=HANNING(FFTLen-1) ) ;, $
-                                          ;; /DETREND)
-           smootheAVT[tmpInds]  = eAlongV.x[keepeAV_i[strteAV_ii[k]:stpeAV_ii[k]]]
-
-           gotEm               += (stpeAV_ii[k]-strteAV_ii[k])
-        ENDFOR
-
-
-        ;;Get data with the right stuff
-        ;; magTmp  = {x:magz.x[keepMag_i], $
-        ;;            y:magz.y[keepMag_i]}
-        ;; eAVTmp  = {x:eAlongV.x[keepeAV_i], $
-        ;;            y:eAlongV.y[keepeAV_i]}
-        magTmp  = {x:smoothMagT, $
-                   y:regMag}
-        eAVTmp  = {x:smootheAVT, $
-                   y:regeAV}
-
-        magSm   = {x:smoothMagT, $
-                   y:smoothMag}
-        eAVSm   = {x:smootheAVT, $
-                   y:smootheAV}
-        
-
-        
-        ;; magzTmp = {TIME:        magz.x[keepMag_i], $
-        ;;            COMP1:       magz.y[keepMag_i], $
-        magzTmp = {TIME:        magTmp.x, $
-                   COMP1:       magTmp.y, $
-        ;; magzTmp            = {TIME         : magz.x                , $
-        ;;                       COMP1        : magz.y                , $
-                              NCOMP        : 1                     , $
-                              DATA_NAME    : 'Cross-track MagData' , $
-                              VALID        : 1                     , $
-                              PROJECT_NAME : 'FAST'                , $
-                              UNITS_NAME   : 'nT'                  , $
-                              CALIBRATED   : 1}
-        ;; magzFilt           = {TIME         : magz.x                , $
-        ;;                       COMP1        : magz.y                , $
-        ;; magzFilt           = {TIME         : magSm.x                , $
-        ;;                       COMP1        : magSm.y                , $
-        magzFilt           = {TIME         : magTmp.x                , $
-                              COMP1        : magTmp.y                , $
-                              NCOMP        : 1                     , $
-                              DATA_NAME    : 'Cross-track MagData' , $
-                              VALID        : 1                     , $
-                              PROJECT_NAME : 'FAST'                , $
-                              UNITS_NAME   : 'nT'                  , $
-                              CALIBRATED   : 1}
-
-        FA_FIELDS_FILTER,magzFilt,FFTFreqRange
-
-        ;; eAlongVTmp      = {TIME      :  eAlongV.x[keepeAV_i], $
-        ;;                    COMP1     :  eAlongV.y[keepeAV_i], $
-        eAlongVTmp      = {TIME      :  eAVTmp.x, $
-                           COMP1     :  eAVTmp.y, $
-        ;; eAlongVTmp         = {TIME         : eAlongV.x  , $
-        ;;                       COMP1        : eAlongV.y  , $
-                              NCOMP        : 1          , $
-                              VALID        : 1          , $
-                              DATA_NAME    :'E Along V' , $
-                              PROJECT_NAME : 'FAST'     , $
-                              UNITS_NAME   : 'mV/m'     , $
-                              CALIBRATED   : 1}
-        ;; eAlongVFilt        = {TIME         : eAlongV.x  , $
-        ;;                       COMP1        : eAlongV.y  , $
-        ;; eAlongVFilt        = {TIME         : eAVSm.x  , $
-        ;;                       COMP1        : eAVSm.y  , $
-        eAlongVFilt        = {TIME         : eAVTmp.x  , $
-                              COMP1        : eAVTmp.y  , $
-                              NCOMP        : 1          , $
-                              VALID        : 1          , $
-                              DATA_NAME    :'E Along V' , $
-                              PROJECT_NAME : 'FAST'     , $
-                              UNITS_NAME   : 'mV/m'     , $
-                              CALIBRATED   : 1}
-        
-        FA_FIELDS_FILTER,eAlongVFilt,FFTFreqRange
-        FA_FIELDS_COMBINE,magzTmp,eAlongVTmp, $
+        ;;Get eAlongV at same res (I think this always means reducing the res. of eField
+        ;; magzTmp      = {TIME         : magz.x                , $
+        ;;                 COMP1        : magz.y                , $
+        ;;                 NCOMP        : 1                     , $
+        ;;                 DATA_NAME    : 'Cross-track MagData' , $
+        ;;                 VALID        : 1                     , $
+        ;;                 PROJECT_NAME : 'FAST'                , $
+        ;;                 UNITS_NAME   : 'nT'                  , $
+        ;;                 CALIBRATED   : 1}
+        ;; eAlongVTmp   = {TIME         :  eAlongV.x            , $
+        ;;                 COMP1        :  eAlongV.y            , $
+        ;;                 NCOMP        : 1                     , $
+        ;;                 VALID        : 1                     , $
+        ;;                 DATA_NAME    :'E Along V'            , $
+        ;;                 PROJECT_NAME : 'FAST'                , $
+        ;;                 UNITS_NAME   : 'mV/m'                , $
+        ;;                 CALIBRATED   : 1}
+        ;; FA_FIELDS_COMBINE,magzTmp,eAlongVTmp, $
+                          ;; eAlongVTmp, $
+        FA_FIELDS_COMBINE,{TIME:magz.x,COMP1:magz.y}, $
+                          {TIME:eAlongV.x,COMP1:eAlongV.y}, $
                           RESULT=eAlongVInterp, $
                           /INTERP, $
-                          DELT_T=minPeriod, $
+                          /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
+                          ;; DELT_T=minPeriod, $
                           /TALK
-        FA_FIELDS_COMBINE,magzFilt,eAlongVFilt, $
-                          RESULT=eAlongVFiltInterp, $
-                          /INTERP, $
-                          DELT_T=minPeriod, $
-                          /TALK
-
-        eAlongVInterp      = {TIME         : magzTmp.time   , $
-                              COMP1        : eAlongVInterp  , $
-                              NCOMP        : 1              , $
-                              DATA_NAME    : 'eAVInterp', $
-                              VALID        :	1              , $
-                              PROJECT_NAME :	'FAST'         , $
-                              UNITS_NAME   :	'mV/m'         , $
-                              CALIBRATED   :	1}
-        eAlongVFiltInterp  = {TIME         : magzTmp.time   , $
-                              COMP1        : eAlongVFiltInterp  , $
-                              NCOMP        : 1              , $
-                              DATA_NAME    : 'eAVInterpFilt', $
-                              VALID        :	1              , $
-                              PROJECT_NAME :	'FAST'         , $
-                              UNITS_NAME   :	'mV/m'         , $
-                              CALIBRATED   :	1}
-
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        ;;iii. Fourier transform/Hanning window for E and B-field data
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        ;;	1. Fourier details
-        ;;		a. Decide length of Fourier transform
-        ;;		b. High frequency set by roll-off of fluxgate mag.
-        ;;		c. 2pi lambda_e sets low-frequency end
-        ;;			i. Use density model already in place for calculating omega_p
-
-        ;;Transform!
-        spec = FA_FIELDS_SPEC(magzTmp, $
-                              /STORE, $
-                              T_NAME='MagSpec', $
-                              STRUCTURE=magSpec, $
-                              N_AVE=nFFTAvg, $
-                              SLIDE=FFTSlide)
-        spec = FA_FIELDS_SPEC(eAlongVTmp, $
-                              /STORE, $
-                              T_NAME='EAVSpec', $
-                              STRUCTURE=eAVSpec, $
-                              N_AVE=nFFTAvg, $
-                              SLIDE=FFTSlide)
-        spec = FA_FIELDS_SPEC(magzFilt, $
-                              /STORE, $
-                              T_NAME='MagSpecFilt', $
-                              STRUCTURE=magSpecFilt, $
-                              N_AVE=nFFTAvg, $
-                              SLIDE=FFTSlide)
-        spec = FA_FIELDS_SPEC(eAlongVFilt, $
-                              /STORE, $
-                              T_NAME='EAVSpecFilt', $
-                              STRUCTURE=eAVSpecFilt, $
-                              N_AVE=nFFTAvg, $
-                              SLIDE=FFTSlide)
-        spec = FA_FIELDS_SPEC(eAlongVFiltInterp, $
-                              /STORE, $
-                              T_NAME='EAVSpecFiltInterp', $
-                              STRUCTURE=eAVSpecFiltInterp, $
-                              N_AVE=nFFTAvg, $
-                              SLIDE=FFTSlide)
-
-        ;;Make some adjustments to the data
-        GET_DATA,'MagSpec',DATA=tmp
-        tmp.V *= 1000.
-        STORE_DATA,'MagSpec',DATA=tmp
-        OPTIONS,'MagSpec','ytitle','Frequency (Hz)'
-        OPTIONS,'MagSpec','zTitle',magSpec.units_name
-        ZLIM,'MagSpec',1e-3,1e4,1
-        IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'MagSpec',0,yLimUpper,0
-
-        GET_DATA,'MagSpecFilt',DATA=tmp
-        tmp.V *= 1000.
-        STORE_DATA,'MagSpecFilt',DATA=tmp
-        OPTIONS,'MagSpecFilt','ytitle','Frequency (Hz)'
-        OPTIONS,'MagSpecFilt','zTitle',magSpecFilt.units_name
-        ZLIM,'MagSpecFilt',1e-3,1e4,1
-        IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'MagSpecFilt',0,yLimUpper,0
-
-        STORE_DATA,'MagZ',DATA=magz
-
-        GET_DATA,'EAVSpec',DATA=tmp
-        tmp.V *= 1000.
-        STORE_DATA,'EAVSpec',DATA=TEMPORARY(tmp)
-        ZLIM,'EAVSpec',1.e-3,1.e3,1                            ; set z limits
-        IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'EAVSpec',0,yLimUpper,0
-        OPTIONS,'EAVSpec','ytitle','Frequency (Hz)'
-        OPTIONS,'EAVSpec','ztitle','Log ' + eAVSpec.units_name ; z title
-
-        GET_DATA,'EAVSpecFilt',DATA=tmp
-        tmp.V *= 1000.
-        STORE_DATA,'EAVSpecFilt',DATA=TEMPORARY(tmp)
-        ZLIM,'EAVSpecFilt',1.e-3,1.e3,1                            ; set z limits
-        IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'EAVSpecFilt',0,yLimUpper,0
-        OPTIONS,'EAVSpecFilt','ytitle','Frequency (Hz)'
-        OPTIONS,'EAVSpecFilt','ztitle',eAVSpecFilt.units_name ; z title
-
-        GET_DATA,'EAVSpecFiltInterp',DATA=tmp
-        tmp.V *= 1000.
-        STORE_DATA,'EAVSpecFiltInterp',DATA=TEMPORARY(tmp)
-        ZLIM,'EAVSpecFiltInterp',1.e-3,1.e3,1                            ; set z limits
-        IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'EAVSpecFiltInterp',0,yLimUpper,0
-        OPTIONS,'EAVSpecFiltInterp','ytitle','Frequency (Hz)'
-        OPTIONS,'EAVSpecFiltInterp','ztitle',eAVSpecFilt.units_name ; z title
-
-
-        ;;Time to see where this is all happening. Where is the rolloff?
-        GET_DATA,'MagSpec',DATA=dat 
-        junk = MIN(ABS(dat.x-STR_TO_TIME('1998-03-10/18:50:49')),ind) 
-        PRINT,ALOG10(dat.y[ind,*]) 
-        junkPlot = PLOT(dat.v,dat.y[ind,*],YLOG=1)
-
-        ;;Prep TPLOT nonsense
-        red                     = 250
-        green                   = 130
-        black                   = 10
-
-        ;; STORE_DATA,'magzPanel',DATA={x:[[magzTmp.time],[magzFilt.time]], $
-        ;;                             y:[[magzTmp.comp1],[magzFilt.comp1]]}
-        ;; OPTIONS,'magzPanel','tplot_routine','mplot'
-        ;; OPTIONS,'magzPanel','labels',['NoFilt','0-20 Hz']
-        ;; OPTIONS,'magzPanel','colors',[red,green]
-        STORE_DATA,'magzPanel',DATA={x:magzTmp.time, $
-                                     y:magzTmp.comp1}
-        OPTIONS,'magzPanel','ytitle','E-W Despun!CMag. Field (nT)'
-        OPTIONS,'magzPanel','labflag',-1 ;evenly spaced
-        OPTIONS,'magzPanel','labels','NoFilt'
-
-        STORE_DATA,'magzFilt',DATA={x:magzFilt.time, $
-                                    y:magzFilt.comp1}
-        OPTIONS,'magzFilt','colors',red
-        OPTIONS,'magzFilt','labels','Filtered'
-
-        ;;What's up with this silly plotting of the gap in mag data for orb 6127?
-        ;;I can't make it go away, and yet it doesn't appear in the plots of E-field data!!
-        ;; k = 4 & inds = [k*10000:(k+1)*10000]
-        ;; this = PLOT(dat.x[inds]-dat.x[0],dat.y[inds])
-        ;; GET_DATA,'magzPanel',DATA=dat
-        ;; PRINT,TIME_TO_STR(magzTmp.time[60691],/MS)
-        ;; PRINT,TIME_TO_STR(magzTmp.comp1[60692],/MS)
-
-
-
-        ;; STORE_DATA,'eAVPanel',DATA={x:[eAlongV.x,eAlongVTmp.time], $
-        ;;                             y:[eAlongV.y,eAlongVTmp.comp1]}
-        ;; OPTIONS,'eAVPanel','tplot_routine','mplot'
-        ;; OPTIONS,'eAVPanel','labels',['NoFilt','0-20 Hz']
-        OPTIONS,'eAVPanel','labels','NoFilt'
-        ;; OPTIONS,'eAVPanel','colors',[red,green]
-        ;; OPTIONS,'eAVPanel','colors',red
-        STORE_DATA,'eAVPanel',DATA={x:eAlongVTmp.time, $
-                                    y:eAlongVTmp.comp1}
-        OPTIONS,'eAVPanel','ytitle','E along V (mV/m)'
-        OPTIONS,'eAVPanel','labflag',-1 ;evenly spaced
-
-        STORE_DATA,'eAVFilt',DATA={x:eAlongVFilt.time, $
-                                   y:eAlongVFilt.comp1}
-        OPTIONS,'eAVFilt','colors',red
-        ;; OPTIONS,'eAVFilt','labels','0-20 Hz'
-        OPTIONS,'eAVFilt','labels','Filtered'
-        ;; OPTIONS,'eAVFilt','labflag',-1 ;evenly spaced
-        ;; OPTIONS,'eAVFilt','labpos',-1.5
-
-        ;;Plot, also overplot good Alfvén events
-
-        ;;Little test to see diff
-        ;; this = magzfilt.comp1-magztmp.comp1
-        ;; plot = PLOT(this)
-
-        ;; TPLOT,['magzPanel','eAVPanel','MagSpec','EAVSpec']
-        TPLOT,['magzPanel','eAVPanel','MagSpec','MagSpecFilt','EAVSpec','EAVSpecFiltInterp']
-        ;; TPLOT,['magzPanel','eAVPanel','MagSpec','MagSpecFilt','EAVSpec','EAVSpecFilt']
-        TPLOT_PANEL,VARIABLE='magzPanel',OPLOTVAR='magzFilt'
-        TPLOT_PANEL,VARIABLE='eAVPanel',OPLOTVAR='eAVFilt'
-
-        LOAD_MAXIMUS_AND_CDBTIME,maximus,cdbTime, $
-                                 /DO_DESPUNDB, $
-                                 GOOD_I=good_i, $
-                                 HEMI__GOOD_I='BOTH'
-        ii = WHERE(maximus.orbit[good_i] EQ orbit,nOrb)
-
-        STORE_DATA,'alfTimes',DATA={x:cdbTime[good_i[ii]], $
-                                    y:MAKE_ARRAY(nOrb,VALUE=10)}
-        OPTIONS,'alfTimes','psym',1 ;Plus
-        TPLOT_PANEL,VARIABLE='MagSpec',OPLOTVAR='alfTimes'
-
-        ;; OPLOT,cdbtime[good_i[ii]]-t,MAKE_ARRAY(N_ELEMENTS(ii),VALUE=10),PSYM=1
-        ;; PRINT,maximus.time[good_i[ii]]
-
-        magAlf_i = VALUE_LOCATE(magSpec.time,cdbTime[good_i[ii]])
-        magAlf_t = magSpec.time[magAlf_i[UNIQ(magAlf_i)]]
-
-        FOR lm=0,N_ELEMENTS(magAlf_t)-1 DO BEGIN
-           PRINT,FORMAT='(I0,T10,A0)',lm,TIME_TO_STR(magAlf_t[lm],/MS)
-        ENDFOR
-
-        ;;Trying to figure out appropriate threshold values for E
-
-        GET_DATA,'EAVSpecFiltInterp',DATA=tmpE
-        tmpE.y[WHERE(~FINITE(tmpE.y))] = 0.0
-        ;; junk = MIN(ABS(dat.x-STR_TO_TIME('1998-03-10/18:50:49')),ind)
-        ;; junk = MIN(ABS(dat.x-STR_TO_TIME('1998-03-10/18:52:13.178')),ind)
-        junk = MIN(ABS(tmpE.x-STR_TO_TIME('1998-03-10/19:20:48.412')),ind)
-        doze = PLOT(tmpE.v, $
-                    ;; ALOG10(tmpE.y[ind,*]), $
-                    tmpE.y[ind,*], $
-                    YLOG=1, $
-                    XRANGE=FFTFreqRange, $
-                    ;; YRANGE=ALOG10([1e-3,1e4]), $
-                    YRANGE=[1e-3,1e4], $
-                    XTITLE='Frequency (Hz)', $
-                    YTITLE=eAVSpecFilt.units_name, $
-                    TITLE=TIME_TO_STR(tmpE.x[ind],/MS))
-
-
-        GET_DATA,'MagSpecFilt',DATA=tmpB        
-        tmpB.y[WHERE(~FINITE(tmpE.y))] = 0.0
-        junk = MIN(ABS(tmpB.x-STR_TO_TIME('1998-03-10/19:20:48.412')),ind)
-        doze = PLOT(tmpB.v, $
-                    ;; ALOG10(tmpB.y[ind,*]), $
-                    tmpB.y[ind,*], $
-                    YLOG=1, $
-                    XRANGE=FFTFreqRange, $
-                    ;; YRANGE=ALOG10([1e-3,1e4]), $
-                    YRANGE=[1e-3,1e4], $
-                    XTITLE='Frequency (Hz)', $
-                    YTITLE=magSpecFilt.units_name, $
-                    TITLE=TIME_TO_STR(tmpB.x[ind],/MS))
-        ;; e_over_b = 
-        ;;magz.y=smooth(magz.y,40)
-        ;; STORE_DATA,'Magz_smooth',DATA={x:magz.x,y:magz.y}
-        ;; IF keyword_set(filterfreq) THEN BEGIN
-           
-        ;;    magz = filter(magz,filterfreq,'magfilt','l')
-        ;;    ;;remove end effects of the filter by cutting off the first/last 2s
-        ;;    sf = magz.x[1]-magz.x[0]
-        ;;    np = N_ELEMENTS(magz.x)
-        ;;    padding = round(2.0/sf)
-        ;;    magz={x:magz.x(padding:np-padding),y:magz.y(padding:np-padding)}
-        ;;    STORE_DATA,'MagZ',DATA=magz
+        ;; ;;Make sure we have same num points 
+        ;; IF N_ELEMENTS(eAlongVInterp) NE N_ELEMENTS(magz.x) THEN BEGIN 
+        ;;    PRINT,"Bogus! Why didn't these match?" 
+        ;;    RETURN 
         ;; ENDIF
+
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ;;ii. Restrict to periods with 128 S/s?
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ;;NOTE, we just use FA_FIELDS_BUFS to separate into various sampling frequencies because frankly, it does a great job.
+        ;;See JOURNAL__20160916__MAKE_SURE … addressing this question, and try feeding it orbit 6127. You'll see.
+        FA_FIELDS_BUFS,{time:magz.x},FFTLen, $
+                       BUF_STARTS=strtM_i, $
+                       BUF_ENDS=stopM_i, $
+                       DELTA_T=1.0e-5 ;Allowable error
+
+        ntot = long(nFFTAvg) * long(FFTLen)
+        ;; BREAK THE DATA INTO BUFFERS
+        FA_FIELDS_BUFS,{time:magz.x}, ntot, $
+                       BUF_STARTS=strtM_i, $
+                       BUF_ENDS=stopM_i, $
+                       DELTA_T=1.0e-5 ;Allowable error
+                       
         
+        IF strtM_i[0] EQ stopM_i[0] THEN BEGIN
+           PRINT, 'FA_FIELDS_SPEC: Unable to extract continuous buffers from'
+           PRINT, 'time series data - try changing NFFTAVG and FFTLEN to get a '
+           PRINT, 'smaller buffer size.'
+           RETURN
+        endif
+        
+        nbufs = N_ELEMENTS(strtM_i)
+        
+        ;; ESTIMATE THE SIZE OF THE RESULT
+        all        = TOTAL( stopM_i-strtM_i ) + nbufs    
+        num_ffts   = LONG(all/(ntot *  FFTSlide))
+        num_freqs  = FFTLen/2+1.
+        timeFFT    = DBLARR(num_ffts)
+        FFTCount      = 0l
+        dt         = FLTARR(nbufs)
+        
+        fftBin_i   = MAKE_ARRAY(2,num_ffts,/LONG)
+        FOR i=0,nbufs-1 DO BEGIN
+           n_start           = LONG(strtM_i[i])
+           n_stop            = n_start + ntot - 1l
+
+           dt[i]             = magz.x[n_start+1] - magz.x[n_start]
+           
+           WHILE (n_stop LE stopM_i[i]) DO BEGIN            
+              timeFFT[FFTCount]    = magz.x[(n_start+n_stop)/2]
+              fftBin_i[*,FFTCount] = [n_start,n_stop]
+              FFTCount++
+              n_start           = n_start + LONG(ntot*FFTSlide)            
+              n_stop            = n_start + ntot - 1l
+           ENDWHILE
+           
+           ;;Humdiddle
+           norm_dt           = MEDIAN(dt)
+           abnorm            = WHERE(dt NE norm_dt)    
+           
+        ENDFOR
+        
+        ;; keepMe               = WHERE(timeFFT GE 1.0,nKeepFFT)
+        timeFFT              = timeFFT[0:FFTCount-1]
+        fftBin_i             = fftBin_i[*,LINDGEN(FFTCount)]
+
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ;;Get density estimates for all good times
+        ;;We use the density model already in place from ALFVEN_STATS_5 for calculating omega_p
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-        ;;now get orbit quantities
+        ;;First, orb quantities
         GET_DATA,'ORBIT',DATA=orb
         GET_DATA,'MLT',DATA=mlt
         GET_DATA,'ALT',DATA=alt
         GET_DATA,'ILAT',DATA=ilat
         GET_DATA,'fa_vel',DATA=vel
         
-
-        ephemI_magSpec = VALUE_LOCATE(mlt.x,magSpec.time)
+        ephemI_magSpec = VALUE_LOCATE(mlt.x,timeFFT)
         
         magOrb   = orb.y[ephemI_magSpec]
         magAlt   = alt.y[ephemI_magSpec]	
@@ -751,50 +413,568 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         magSpd   = SQRT(vel.y[ephemI_magSpec,0]^2 + $
                         vel.y[ephemI_magSpec,1]^2 + $
                         vel.y[ephemI_magSpec,2]^2)*1000.0                        ;Speed in m/s
-        magDens  = DENS_MLT(magAlt,magMLT,OUT_VA_KM_PER_SEC=va_mlt) ;in cm^-3
-        magDens *= 1.0e6 ;Dens est in m^-3
-        va_mlt  *= 1000. ;Get estimate of v_A in meters
+        magDens  = DENS_MLT(magAlt,magMLT,OUT_VA_KM_PER_SEC=va_mlt)              ;in cm^-3
+        magDens *= 1.0e6                                                         ;Dens est in m^-3
+        va_mlt  *= 1000.                                                         ;Get estimate of v_A in meters
 
-        ;;What's the lower bound on frequency?
-        ;; const    = 0.0029949602 ;in meter^0.5
-        const    = 2.9949602e-8 ;in meter^0.5
-        lowFreq  = const * SQRT(magDens) * magSpd
+        ;;What are the bounds on frequency?
+        ;;As noted at beginning, we estimate f_spA ≤ k_perp * λe < f_spB
+        ;; const    = 2.9949602e-8 ;in meter^0.5
+        const    = 2.9949602e-8  ;in meter^0.5
+        freqLim  = const * SQRT(magDens) * magSpd
 
-        PRINT,lowFreq
-        ;; fMin     = MIN(
+        sRates     = 1.D/REFORM((magz.x[fftBin_i[0,*]+1]-magz.x[fftBin_i[0,*]]))
 
+        ;;Now get oxygen gyro freq
+        ;;...Need DC mag field for this
+        magDC_i = VALUE_LOCATE(magDC.time,timeFFT)
+
+        ;;Oxygen cyclotron frequency is one of three possible upper bounds
+        ;;NOTE: Use DC mag data! Despun data gives perturb. in B, which shortchanges cyc. freq.!
+        oxy_cycDC = 1.6e-19*SQRT(magDC.comp1[magDC_i]^2+$
+                                 magDC.comp2[magDC_i]^2+$
+                                 magDC.comp3[magDC_i]^2)* $
+                  1.0e-9/2.6567e-26/(2.*!DPI) ; in Hz
+
+        fGRollers  = FGMagRolloff * sRates / (128.) ;;The rolloff for sampling at whatever frequency
+        ;;************Frequency conditions************
+        ;;->LOW frequency bound is given by condition f_spA ≤ k_perp * λe
+        ;;->HIGH frequency bound is least of either 
+        ;;   a. oxygen cyc. freq., 
+        ;;   b. freq. arising from k_perp * λe ≤ f_spB, or 
+        ;;   c. rolloff of the fluxgate magnetometer's recursive filter
+        ;; freqBounds = ROUND([TRANSPOSE(freqLim*f_spA), $
+        ;;                     TRANSPOSE((oxy_cycDC < (fGRollers < ( freqLim*f_spB ) ) ) )] $
+        ;;                    /freqRes)*freqRes
+        freqBounds = [TRANSPOSE(freqLim*f_spA), $
+                      TRANSPOSE((oxy_cycDC < (fGRollers < ( freqLim*f_spB ) ) ) )]
+        IF KEYWORD_SET(override_freq_bounds) THEN BEGIN
+           freqBounds[0,*] = override_freq[0]
+           freqBounds[1,*] = override_freq[1]
+        ENDIF
+        
+        ;; filtMag    = MAKE_ARRAY(3,N_ELEMENTS(magz.y),VALUE=0.0)
+        filtMag    = MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0)
+        filtMag2   = MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0)
+        filteAV    = MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0)
+
+        FOR k=0,FFTCount-1 DO BEGIN
+
+           IF KEYWORD_SET(only_128Ss_data) THEN BEGIN
+              IF (sRates[k] GE 1./minPeriod) OR (sRates[k] LE 1./maxPeriod) THEN CONTINUE
+           ENDIF
+
+           tmpI    = [fftBin_i[0,k]:fftBin_i[1,k]]
+
+           tmpB    = {  TIME         : magz.x[tmpI]          , $
+                        ;; COMP1        : magx.y[tmpI]          , $
+                        ;; COMP2        : magy.y[tmpI]          , $
+                        ;; COMP3        : magz.y[tmpI]          , $
+                        ;; COMP4        : eAlongVInterp[tmpI]   , $
+                        ;; NCOMP        : 4                     , $
+                        COMP1        : magz.y[tmpI]          , $
+                        NCOMP        : 1                     , $
+                        DATA_NAME    : 'Cross-track MagData' , $
+                        VALID        : 1                     , $
+                        PROJECT_NAME : 'FAST'                , $
+                        UNITS_NAME   : 'nT'                  , $
+                        CALIBRATED   : 1}
+           tmpBAlt  = {  TIME         : magy.x[tmpI]          , $
+                        COMP1        : magy.y[tmpI]          , $
+                        NCOMP        : 1                     , $
+                        DATA_NAME    : 'Cross-track MagData' , $
+                        VALID        : 1                     , $
+                        PROJECT_NAME : 'FAST'                , $
+                        UNITS_NAME   : 'nT'                  , $
+                        CALIBRATED   : 1}
+
+           tmpE    = {  TIME         : magz.x[tmpI]          , $
+                        ;; COMP1        : magx.y[tmpI]          , $
+                        ;; COMP2        : magy.y[tmpI]          , $
+                        ;; COMP3        : magz.y[tmpI]          , $
+                        COMP1        : eAlongVInterp[tmpI]   , $
+                        NCOMP        : 1                     , $
+                        DATA_NAME    : 'eAlongVStuff'        , $
+                        VALID        : 1                     , $
+                        PROJECT_NAME : 'FAST'                , $
+                        UNITS_NAME   : 'mV/m'                , $
+                        CALIBRATED   : 1}
+
+           ;; FA_FIELDS_FILTER,tmp,freqPlotRange
+           ;; FA_FIELDS_FILTER,tmp,freqBounds[*,k]
+           FA_FIELDS_FILTER,tmpB,freqBounds[*,k]
+           FA_FIELDS_FILTER,tmpBAlt,freqBounds[*,k]
+           FA_FIELDS_FILTER,tmpE,freqBounds[*,k]
+
+           ;; filtMag[*,tmpI] = [[tmp.comp1],[tmp.comp2],[tmp.comp3]]
+           ;; filteAV[tmpI]   = tmp.comp4
+           ;; filtMag[*,tmpI] = [[tmp.comp1],[tmp.comp2],[tmp.comp3]]
+           filtMag[tmpI]  = tmpB.comp1
+           filtMag2[tmpI] = tmpBAlt.comp1
+           filteAV[tmpI]  = tmpE.comp1
+        ENDFOR
+
+        ;;UNDER CONSTRUCTION 
+        ;;I was trying to be expeditious here and filter more stuff on the fly, but 
+        ;;    I think it's no use
+        ;;UNDER CONSTRUCTION
+
+        ;; fHist       = HISTOGRAM(roundedFreq, $
+        ;;                         BINSIZE=freqRes/2.D,LOCATIONS=Freqs, $
+        ;;                         REVERSE_INDICES=fH_revI, $
+        ;;                         MIN=MIN(roundedFreq)-freqRes/4.D)
+        ;; omegaP_i    = WHERE(fHist GT 0,nOmegaPEsts)
+        ;; FOR k=0,nOmegaPEsts-1 DO BEGIN
+        ;;    ;;Any streaks to be had?
+        ;;    tmpi = omegaP_i[k]
+        ;;    tmpFreq = Freqs[omegaP_i[k]]
+        ;;    PRINT,tmpFreq
+
+        ;;    IF fH_revI[tmpi] EQ fH_revI[tmpi+1] THEN CONTINUE
+
+        ;;    tmpFreqI = fH_revI[fH_revI[tmpi]:fH_revI[tmpi+1]-1]
+
+           
+        ;;    GET_STREAKS,tmpFreqI,START_I=tmpStrt_ii,STOP_I=tmpStop_ii, $
+        ;;                SINGLE_I=tmpSing_ii, $
+        ;;                OUT_STREAKLENS=tmpStrkLen
+        ;;    PRINT,tmpStrkLen
+
+        ;;    nFFTsThisLoop = N_ELEMENTS(tmpFreqI)
+        ;;    IF N_ELEMENTS(tmpStrkLen) EQ 1 THEN BEGIN
+
+        ;;       filtInds     = [fftBin_i[0,tmpFreqI],fftBin_i[1,tmpFreqI]]
+        ;;       nFilterLoops = 1
+              
+        ;;    ENDIF ELSE BEGIN
+        ;;       tmpFFTBins = fftBin_i[*,tmpFreqI]
+        ;;       diffs      = tmpFFTBins[0,1:-1]-tmpFFTBins[1,0:-2]
+
+        ;;       GET_STREAKS,diffs,START_I=tmpStrt_ii,STOP_I=tmpStop_ii, $
+        ;;                   SINGLE_I=tmpSing_ii, $
+        ;;                   OUT_STREAKLENS=tmpStrkLen
+        ;;       nFilterLoops = N_ELEMENTS(tmpStrkLen)
+        ;;    ENDELSE
+
+        ;;    PRINT,'N Filter Loops   : ' + STRCOMPRESS(nFilterLoops,/REMOVE_ALL)
+        ;;    PRINT,'N FFTs this loop : ' + STRCOMPRESS(nFFTsThisLoop,/REMOVE_ALL)
+        ;;    ;; tmpMagZ  = {
+        ;;    ;; FA_FIELDS_FILTER,magzFilt,freqPlotRange
+        ;;    ;; FA_FIELDS_FILTER,eAlongVFilt,freqPlotRange ;Warning: don't use RECURSIVE KW--
+        ;;    ;;                      ;causes phase shift
+
+        ;; ENDFOR
+
+
+
+        ;;Now just pick up periods with 128 S/s, in case we want them
+        ;; periodM     = magz.x[strtM_i+1] - magz.x[strtM_i]
+        ;; periodE     = eAlongV.x[strtE_i+1] - eAlongV.x[strtE_i]
+        ;; goodMStreak = WHERE(periodM LE maxPeriod AND periodM GE minPeriod,nGoodM)
+        ;; goodEStreak = WHERE(periodE LE maxPeriod/eFSampFact AND $
+        ;;                     periodE GE minPeriod/eFSampFact,nGoodE)
+
+        magzTmp      = {TIME         : magz.x                , $
+                        COMP1        : magz.y                , $
+                        NCOMP        : 1                     , $
+                        DATA_NAME    : 'Cross-track dB' , $
+                        VALID        : 1                     , $
+                        PROJECT_NAME : 'FAST'                , $
+                        UNITS_NAME   : 'nT'                  , $
+                        CALIBRATED   : 1}
+        ;; magzFilt     = {TIME         : magz.x                , $
+        ;;                 COMP1        : magz.y                , $
+        magzFilt     = {TIME         : magz.x                , $
+                        ;; COMP1        : filtMag[2,*]          , $
+                        COMP1        : filtMag               , $
+                        NCOMP        : 1                     , $
+                        DATA_NAME    : 'X-track dB (filt)'   , $
+                        VALID        : 1                     , $
+                        PROJECT_NAME : 'FAST'                , $
+                        UNITS_NAME   : 'nT'                  , $
+                        CALIBRATED   : 1}
+        ;; magyFilt     = {TIME         : magy.x                , $ ;remember, this is along B
+        ;;                 COMP1        : filtMag[1,*]          , $
+        ;;                 NCOMP        : 1                     , $
+        ;;                 DATA_NAME    : 'b Along B!Do!N'      , $
+        ;;                 VALID        : 1                     , $
+        ;;                 PROJECT_NAME : 'FAST'                , $
+        ;;                 UNITS_NAME   : 'nT'                  , $
+        ;;                 CALIBRATED   : 1}
+        ;; magxFilt     = {TIME         : magx.x                , $ ;remember, this along track
+        ;;                 COMP1        : filtMag[0,*]          , $
+        ;;                 NCOMP        : 1                     , $
+        ;;                 DATA_NAME    : 'b Along Track'       , $
+        ;;                 VALID        : 1                     , $
+        ;;                 PROJECT_NAME : 'FAST'                , $
+        ;;                 UNITS_NAME   : 'nT'                  , $
+        ;;                 CALIBRATED   : 1}
+
+        ;; eAlongVTmp   = {TIME      :  eAVTmp.x                , $
+        ;;                 COMP1     :  eAVTmp.y                , $
+        eAlongVTmp   = {TIME         :  eAlongV.x            , $
+                        COMP1        :  eAlongV.y            , $
+                        NCOMP        : 1                     , $
+                        VALID        : 1                     , $
+                        DATA_NAME    :'E Along V'            , $
+                        PROJECT_NAME : 'FAST'                , $
+                        UNITS_NAME   : 'mV/m'                , $
+                        CALIBRATED   : 1}
+
+        ;; eAlongVFilt  = {TIME         : eAVTmp.x              , $
+        ;;                 COMP1        : eAVTmp.y              , $
+        ;; eAlongVFilt  = {TIME         : eAlongV.x             , $
+        ;;                 COMP1        : eAlongV.y             , $
+        eAlongVFilt  = {TIME         : magz.x                , $
+                        COMP1        : filteAV               , $
+                        NCOMP        : 1                     , $
+                        VALID        : 1                     , $
+                        DATA_NAME    :'EAV_intrpFilt'        , $
+                        PROJECT_NAME : 'FAST'                , $
+                        UNITS_NAME   : 'mV/m'                , $
+                        CALIBRATED   : 1}
+        
+
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ;;iii. Fourier transform/Hanning window for E and B-field data
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+        ;;Transform!
+        spec = FA_FIELDS_SPEC(magzTmp, $
+                              /STORE, $
+                              T_NAME='MagSpec', $
+                              STRUCTURE=magSpec, $
+                              NPTS=FFTLen, $
+                              N_AVE=nFFTAvg, $
+                              SLIDE=FFTSlide)
+        spec = FA_FIELDS_SPEC(eAlongVTmp, $
+                              /STORE, $
+                              T_NAME='EAVSpec', $
+                              STRUCTURE=eAVSpec, $
+                              NPTS=FFTLen, $
+                              N_AVE=nFFTAvg, $
+                              SLIDE=FFTSlide)
+        spec = FA_FIELDS_SPEC(magzFilt, $
+                              /STORE, $
+                              T_NAME='MagSpecFilt', $
+                              STRUCTURE=magSpecFilt, $
+                              NPTS=FFTLen, $
+                              N_AVE=nFFTAvg, $
+                              SLIDE=FFTSlide)
+        spec = FA_FIELDS_SPEC(eAlongVFilt, $
+                              /STORE, $
+                              T_NAME='EAVSpecFilt', $
+                              STRUCTURE=eAVSpecFilt, $
+                              NPTS=FFTLen, $
+                              N_AVE=nFFTAvg, $
+                              SLIDE=FFTSlide)
+
+        ;;Make some adjustments to the data
+        magSpecLims      = [1e-3,1e2]
+        eAVSpecLims      = [1.e-2,1.e2]
+        GET_DATA,'MagSpec',DATA=tmp
+        tmp.V *= 1000.
+        STORE_DATA,'MagSpec',DATA=tmp
+        OPTIONS,'MagSpec','ytitle','Frequency (Hz)'
+        OPTIONS,'MagSpec','zTitle',magSpec.units_name
+        ZLIM,'MagSpec',magSpecLims[0],magSpecLims[1],1
+        OPTIONS,'MagSpec','panel_size',2.0
+        IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'MagSpec',0,yLimUpper,0
+
+        GET_DATA,'MagSpecFilt',DATA=tmp
+        tmp.V *= 1000.
+        STORE_DATA,'MagSpecFilt',DATA=tmp
+        OPTIONS,'MagSpecFilt','ytitle','Frequency (Hz)'
+        OPTIONS,'MagSpecFilt','zTitle',magSpecFilt.units_name
+        ZLIM,'MagSpecFilt',magSpecLims[0],magSpecLims[1],1
+        IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'MagSpecFilt',0,yLimUpper,0
+        OPTIONS,'MagSpecFilt','panel_size',2.0
+
+        STORE_DATA,'MagZ',DATA=magz
+
+        GET_DATA,'EAVSpec',DATA=tmp
+        tmp.V *= 1000.
+        STORE_DATA,'EAVSpec',DATA=TEMPORARY(tmp)
+        ZLIM,'EAVSpec',eAVSpecLims[0],eAVSpecLims[1],1 ; set z limits
+        IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'EAVSpec',0,yLimUpper,0
+        OPTIONS,'EAVSpec','ytitle','Frequency (Hz)'
+        OPTIONS,'EAVSpec','ztitle','Log ' + eAVSpec.units_name ; z title
+        OPTIONS,'EAVSpec','panel_size',2.0
+
+        GET_DATA,'EAVSpecFilt',DATA=tmp
+        tmp.V *= 1000.
+        STORE_DATA,'EAVSpecFilt',DATA=TEMPORARY(tmp)
+        ZLIM,'EAVSpecFilt',eAVSpecLims[0],eAVSpecLims[1],1 ; set z limits
+        IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'EAVSpecFilt',0,yLimUpper,0
+        OPTIONS,'EAVSpecFilt','ytitle','Frequency (Hz)'
+        OPTIONS,'EAVSpecFilt','ztitle',eAVSpecFilt.units_name ; z title
+        OPTIONS,'EAVSpecFilt','panel_size',2.0
+
+        ;;Time to see where this is all happening. Where is the rolloff?
+        ;; GET_DATA,'MagSpec',DATA=dat 
+        ;; junk = MIN(ABS(dat.x-STR_TO_TIME('1998-03-10/18:50:49')),ind) 
+        ;; PRINT,ALOG10(dat.y[ind,*]) 
+        ;; junkPlot = PLOT(dat.v,dat.y[ind,*],YLOG=1,YRANGE=magSpecLims)
+
+        ;;Prep TPLOT nonsense
+        red                     = 250
+        green                   = 130
+        black                   = 10
+
+        STORE_DATA,'magzPanel',DATA={x:magzTmp.time, $
+                                     y:magzTmp.comp1}
+        OPTIONS,'magzPanel','ytitle','E-W Despun!CMag. Field (nT)'
+        OPTIONS,'magzPanel','labflag',-1 ;evenly spaced
+        OPTIONS,'magzPanel','labels','NoFilt'
+        OPTIONS,'magzPanel','panel_size',2.0
+
+        STORE_DATA,'magzFilt',DATA={x:magzFilt.time, $
+                                    y:magzFilt.comp1}
+        OPTIONS,'magzFilt','colors',red
+        OPTIONS,'magzFilt','labels','Filtered'
+
+
+        OPTIONS,'eAVPanel','labels','NoFilt'
+        STORE_DATA,'eAVPanel',DATA={x:eAlongVTmp.time, $
+                                    y:eAlongVTmp.comp1}
+        OPTIONS,'eAVPanel','ytitle','E along V (mV/m)'
+        OPTIONS,'eAVPanel','labflag',-1 ;evenly spaced
+        OPTIONS,'eAVPanel','panel_size',2.0
+
+        STORE_DATA,'eAVFilt',DATA={x:eAlongVFilt.time, $
+                                   y:eAlongVFilt.comp1}
+        OPTIONS,'eAVFilt','colors',red
+        OPTIONS,'eAVFilt','labels','Filtered'
+
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ;;PLOTS
+
+        ;;Little test to see diff
+        ;; this = magzfilt.comp1-magztmp.comp1
+        ;; plot = PLOT(this)
+
+        ;; TPLOT,['magzPanel','eAVPanel','MagSpec','MagSpecFilt','EAVSpec','EAVSpecFiltInterp']
+        TPLOT,['magzPanel','eAVPanel','MagSpec','EAVSpec','MagSpecFilt','EAVSpecFilt'], $
+              TRANGE=(KEYWORD_SET(t1) AND KEYWORD_SET(t2)) ? [t1,t2] : !NULL
+        TPLOT_PANEL,VARIABLE='magzPanel',OPLOTVAR='magzFilt'
+        TPLOT_PANEL,VARIABLE='eAVPanel',OPLOTVAR='eAVFilt'
+
+        IF KEYWORD_SET(show_maximus_events) THEN BEGIN
+           LOAD_MAXIMUS_AND_CDBTIME,maximus,cdbTime, $
+                                    /DO_DESPUNDB, $
+                                    GOOD_I=good_i, $
+                                    HEMI__GOOD_I='BOTH'
+           ii = WHERE(maximus.orbit[good_i] EQ orbit,nOrb)
+
+           STORE_DATA,'alfTimes',DATA={x:cdbTime[good_i[ii]], $
+                                       y:MAKE_ARRAY(nOrb,VALUE=10)}
+           OPTIONS,'alfTimes','psym',1 ;Plus
+           TPLOT_PANEL,VARIABLE='MagSpecFilt',OPLOTVAR='alfTimes'
+
+           ;; PRINT,maximus.time[good_i[ii]]
+
+           magAlf_i = VALUE_LOCATE(magSpec.time,cdbTime[good_i[ii]])
+           magAlf_t = magSpec.time[magAlf_i[UNIQ(magAlf_i)]]
+
+           FOR lm=0,N_ELEMENTS(magAlf_t)-1 DO BEGIN
+              PRINT,FORMAT='(I0,T10,A0)',lm,TIME_TO_STR(magAlf_t[lm],/MS)
+           ENDFOR
+
+        ENDIF
+
+        ;;***Thresholds on power spectra***
+        ;;All of the following plots are for trying to figure out appropriate threshold values for E and B
+
+        ;; GET_DATA,'EAVSpecFiltInterp',DATA=tmpE
+        GET_DATA,'EAVSpecFilt',DATA=tmpE
+        GET_DATA,'MagSpecFilt',DATA=tmpB        
+        tmpE.y[WHERE(~FINITE(tmpE.y) OR tmpE.y LT ESpecThresh)] = 0.0
+        tmpB.y[WHERE(~FINITE(tmpB.y) OR tmpB.y LT BSpecThresh)] = 0.0
+        ;; junk = MIN(ABS(dat.x-STR_TO_TIME()),ind)
+
+        CASE orbit OF
+           6127: BEGIN
+              plotTime = '1998-03-10/18:52:13.178'
+           END
+           9859: BEGIN
+              plotTime = '1999-02-17/18:50:00'
+              plotTime = '1999-02-17/18:46:20'
+           END
+           ELSE: BEGIN
+              plotTime = TIME_TO_STR(timeFFT[0],/MSEC)
+           END
+        ENDCASE
+        ;; plotTime = '1998-03-10/18:50:49'
+        ;; plotTime = '1998-03-10/19:20:48.412'
+        junk = MIN(ABS(tmpE.x-STR_TO_TIME(plotTime)),ind)
+        doze = PLOT(tmpE.v, $
+                    ;; ALOG10(tmpE.y[ind,*]), $
+                    tmpE.y[ind,*], $
+                    YLOG=1, $
+                    XRANGE=freqPlotRange, $
+                    YRANGE=eAVSpecLims, $
+                    ;; YRANGE=ALOG10([magSpecLims[0],magSpecLims[1]]), $
+                    XTITLE='Frequency (Hz)', $
+                    YTITLE=eAVSpecFilt.units_name, $
+                    TITLE=TIME_TO_STR(tmpE.x[ind],/MS))
+
+
+        junk = MIN(ABS(tmpB.x-STR_TO_TIME(plotTime)),ind)
+        doze = PLOT(tmpB.v, $
+                    ;; ALOG10(tmpB.y[ind,*]), $
+                    tmpB.y[ind,*], $
+                    YLOG=1, $
+                    XRANGE=freqPlotRange, $
+                    ;; YRANGE=ALOG10([magSpecLims[0],magSpecLims[1]]), $
+                    YRANGE=[magSpecLims[0],magSpecLims[1]], $
+                    XTITLE='Frequency (Hz)', $
+                    YTITLE=magSpecFilt.units_name, $
+                    TITLE=TIME_TO_STR(tmpB.x[ind],/MS))
+
+
+        ;;E-Over-B Test
         nThings  = N_ELEMENTS(magDens)
         ESpecSum = MAKE_ARRAY(nThings,/FLOAT)
         BSpecSum = MAKE_ARRAY(nThings,/FLOAT)
         
-        freqs        = tmpB.v
-        upFreqBound  = FFTFreqRange[1]
-        
         FOR m=0,nThings-1 DO BEGIN
-           tmpF_i    = WHERE(freqs GE lowFreq[m] AND freqs LE upFreqBound)
-         ESpecSum[m] = TOTAL(tmpE.y[m,tmpF_i])
-         BSpecSum[m] = TOTAL(tmpB.y[m,tmpF_i])
+           ;;Frequency limits
+           tmpF_i    = WHERE(tmpE.v GE freqBounds[0,m] AND tmpE.v LE freqBounds[1,m])
+
+           ;;"Intergrate," as some have it, and apply test
+           ;; ESpecSum[m] = TOTAL(tmpE.y[m,tmpF_i])
+           ;; BSpecSum[m] = TOTAL(tmpB.y[m,tmpF_i])
+           ESpecSum[m] = INT_TABULATED(tmpE.v[tmpF_i],tmpE.y[m,tmpF_i])
+           BSpecSum[m] = INT_TABULATED(tmpB.v[tmpF_i],tmpB.y[m,tmpF_i])
+
         ENDFOR
 
-        ;; ESpecSum *= 1e-3
-        ;; BSpecSum *= 1e-9
+        ;;APPLY E-OVER-B TEST
+        ;;The winning FFT will correspond to the correct sample rate, $
+        ;;will meet thresholds on integrated power spectrum amplitudes, $
+        ;;and will, of course, satisfy this order-of-mag E-over-B test
+        E_over_B  = MAKE_ARRAY(N_ELEMENTS(BSpecSum),VALUE=0,/FLOAT)
+        nz_B      = WHERE(BSpecSum GE 1e-15)
+        E_over_B[nz_B]  = (SQRT(ESpecSum[nz_B])*1e-3)/(SQRT(BSpecSum[nz_B])*1e-9)
+        winFFT_i  = WHERE( ( (E_over_B/va_mlt) GE 1.0/eb_to_alfven_speed )      AND $
+                           ( (E_over_B/va_mlt) LE eb_to_alfven_speed     )      AND $
+                           (sRates LE 1./minPeriod) AND (sRates GE 1./maxPeriod) AND $
+                           (SQRT(ESpecSum) GE EIntegThresh)                      AND $
+                           (SQRT(BSpecSum) GE BIntegThresh),nFFTWin)
 
-        ;;Apply
+        IF winFFT_i[0] EQ -1 THEN BEGIN
+           PRINT,"Didn't get any Alfvénic ANYTHING here. Next interval (or orbit) ..."
+           CONTINUE
+        ENDIF
 
-        E_over_B  = (ESpecSum*1e-3)/(BSpecSum*1e-9)
-        winFFT_i  = WHERE( ( (E_over_B/va_mlt) GE 1.0/eb_to_alfven_speed ) AND $
-                           ( (E_over_B/va_mlt) LE 10.0*eb_to_alfven_speed ),nWin)
+        winAlfFFT_i   = FFTBin_i[*,winFFT_i]
+        diffAlfFFT_i  = winAlfFFT_i[1,*]-winAlfFFT_i[0,*]
+        nWin          = TOTAL(diffAlfFFT_i) + nFFTWin
+        winAlf_i      = MAKE_ARRAY(nWin,/LONG)
 
-        GET_STREAKS,winFFT_i,START_I=strtWin_ii,STOP_I=stpWin_ii, $
-                    SINGLE_I=singleWin_ii, $
-                    OUT_STREAKLENS=FFTStreakLens
-        nFFTStreaks = N_ELEMENTS(FFTStreakLens)
-        magz_Alf_i  = MAKE_ARRAY(2,nFFTStreaks,/LONG)
-        FOR m=0,nFFTStreaks-1 DO BEGIN
-           junk     = MIN(ABS(tmpB.x[winFFT_i[strtWin_ii[m]]]-magzTmp.time),magz_start_i)
-           junk     = MIN(ABS(tmpB.x[winFFT_i[stpWin_ii[m]]]-magzTmp.time),magz_stop_i)
-           magz_Alf_i[*,m] = [magz_start_i,magz_stop_i]
+        soFar         = 0
+        FOR k=0,nFFTWin-1 DO BEGIN
+           next       = diffAlfFFT_i[k]
+           winAlf_i[soFar:(soFar+next)] = [winAlfFFT_i[0,k]:winAlfFFT_i[1,k]]
+           soFar     += next + 1
         ENDFOR
+        
+
+        PRINT,'Got ' + STRCOMPRESS(nWin,/REMOVE_ALL) + ' winning indices !'
+        ;; GET_STREAKS,winFFT_i,START_I=strtWin_ii,STOP_I=stopWin_ii, $
+        ;;             SINGLE_I=singleWin_ii, $
+        ;;             OUT_STREAKLENS=FFTStreakLens
+        ;; nFFTStreaks = N_ELEMENTS(FFTStreakLens)
+        ;; magz_Alf_i  = MAKE_ARRAY(2,nFFTStreaks,/LONG)
+        ;; FOR m=0,nFFTStreaks-1 DO BEGIN
+        ;;    junk     = MIN(ABS(tmpB.x[winFFT_i[strtWin_ii[m]]]-magzTmp.time),magz_start_i)
+        ;;    junk     = MIN(ABS(tmpB.x[winFFT_i[stopWin_ii[m]]]-magzTmp.time),magz_stop_i)
+        ;;    magz_Alf_i[*,m] = [magz_start_i,magz_stop_i]
+        ;; ENDFOR
+
+        dummy           = LABEL_DATE(DATE_FORMAT=['%I:%S%2'])
+        x_values        = UTC_TO_JULDAY(timeFFT)
+        xRange          = [MIN(x_values),MAX(x_values)]
+        xTickFormat     = 'LABEL_DATE'
+        xTickUnits      = 'Time'
+
+        BFieldCol       = 'Black'
+        EFieldCol       = 'Red'
+        pFluxCol        = 'Blue'
+        window          = WINDOW(DIMENSIONS=[800,600])
+        margin          = [0.15, 0.25, 0.15, 0.15]
+
+        BPlot       = PLOT(x_values[winFFT_i], $
+                           (SQRT(BSpecSum))[winFFT_i], $
+                           ;; NAME='E-f', $
+                           COLOR=BFieldCol, $
+                           SYMBOL='+', $
+                           LINESTYLE='', $
+                           AXIS_STYLE=1, $
+                           ;; XTITLE='Time', $
+                           ;; YTITLE='(mV/m)$^2$', $
+                           YTITLE='nT', $
+                           XRANGE=xRange, $
+                           XTICKFORMAT=xTickFormat, $
+                           XTICKUNITS=xTickUnits, $
+                           MARGIN=margin, $
+                           ;; /OVERPLOT, $
+                           CURRENT=window)
+
+        EPlot       = PLOT(x_values[winFFT_i], $
+                           (SQRT(ESpecSum))[winFFT_i], $
+                           ;; NAME='E-f', $
+                           COLOR=EFieldCol, $
+                           SYMBOL='*', $
+                           LINESTYLE='', $
+                           AXIS_STYLE=0, $
+                           YRANGE=SQRT([MIN(ESpecSum),MAX(ESpecSum)]), $
+                           ;; XTITLE='Time', $
+                           ;; YTITLE='(mV/m)$^2$', $
+                           ;; YTITLE='mV/m', $
+                           XRANGE=xRange, $
+                           XTICKFORMAT=xTickFormat, $
+                           XTICKUNITS=xTickUnits, $
+                           MARGIN=margin, $
+                           ;; /OVERPLOT, $
+                           CURRENT=window)
+
+        EAxis           = AXIS('Y',LOCATION='RIGHT', $
+                               TITLE='mV/m', $
+                               COLOR=EFieldCol, $
+                               TARGET=EPlot, $
+                               AXIS_RANGE=SQRT([MIN(ESpecSum),MAX(ESpecSum)]))
+
+        mu_0           = DOUBLE(4.0D*!PI*1e-7)
+        pFBMag         = SQRT(BSpecSum)*1.e-9*SQRT(ESpecSum)/mu_0
+        pFMagPlot      = PLOT(x_values[winFFT_i], $
+                              pFBMag[winFFT_i], $
+                              YTITLE='EM Flux along B (mW/m$^2$)', $
+                              COLOR=pFluxCol, $
+                              XRANGE=xRange, $
+                              XTICKFORMAT=xTickFormat, $
+                              XTICKUNITS=xTickUnits, $
+                              SYMBOL='*', $
+                              LINESTYLE='')
+
+                              
+        EoverBPlot  = PLOT(x_values, $
+                           E_over_B/va_mlt, $
+                           ;; NAME='E-f', $
+                           YTITLE='E_over_B/v$_A$', $
+                           COLOR=EFieldCol, $
+                           SYMBOL='*', $
+                           LINESTYLE='', $
+                           YRANGE=[1e-3,1e3], $
+                           /YLOG, $
+                           ;; XTITLE='Time', $
+                           ;; YTITLE='(mV/m)$^2$', $
+                           ;; YTITLE='mV/m', $
+                           XRANGE=xRange, $
+                           XTICKFORMAT=xTickFormat, $
+                           XTICKUNITS=xTickUnits);, $
+                           ;; /OVERPLOT, $
+                           ;; CURRENT=window)
 
         STOP
         ;;iv. Calculate Poynting flux
@@ -807,32 +987,16 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ;;		a. Requirement that Pflux be > 1 mW/m2, corresponding to visible aurora
         ;;		b. Requirement that E and B be above noise level (“but maybe it’s all noise!”)
 
+        ;;Get Poynting flux ests
+        pFluxB =       filtMag *filteAV/mu_0        ;Poynting flux along B
+        pFluxP = (-1.)*filtMag2*filteAV/mu_0        ;Poynting flux perp to B and to (Bxv)xB
+                                                    ;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
 
-        ;;get mag and efield data on same time scale
-        ;;SMH Try this to make fa_fields_combine stop crying                        
-        ;; magz   = {time:magz.x,comp1:magz.y,ncomp:1}
-        ;; efield = {time:efield.x,comp1:efield.y}
-        
-        
-        ;; fields=combinets(magz,efield)
-        ;; FA_FIELDS_COMBINE,magz,efield,result=fields,/interp,delt_t=50.,/talk
-        ;; fields = {time:magz.time,comp1:magz.comp1,comp2:fields,ncomp:2}
-
-        ;;I'm hoping this means magz is pared down somewhere else
-
-        ;; dens=combinets(magz,langmuir)
-        ;; langmuir={time:langmuir.x,comp1:langmuir.y,ncomp:1}
-        ;; FA_FIELDS_COMBINE,magz,langmuir,result=dens,/talk
-        ;; dens={time:magz.time,comp1:magz.comp1,comp2:dens,ncomp:2}
-
-        ;; magz={x:magz.time,y:magz.comp1}
-        ;; langmuir={x:langmuir.time,y:langmuir.comp1}
-
-        ;;get the prootn cyc frequency for smoothing the e field data later
+        ;;get the proton cyc frequency for smoothing the e field data later
         proton_cyc_freq = 1.6e-19*SQRT(magx.y^2+magy.y^2+magz.y^2)*1.0e-9/1.67e-27/(2.*!DPI) ; in Hz
         
         ;;get_orbit data
-        get_fa_orbit,je_tmp_time,/time_array,/all
+        GET_FA_ORBIT,je_tmp_time,/TIME_ARRAY,/ALL
         
         ;;define loss cone angle
         GET_DATA,'ALT',DATA=alt
@@ -842,264 +1006,161 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         north_south = ABS(ilat.y[0])/ilat.y[0]
         
         IF north_south EQ -1 THEN BEGIN
-           e_angle=[180.-lcw,180+lcw] ; for Southern Hemis.
-           ;;i_angle=[270.0,90.0]	
+           e_angle = [180.-lcw,180+lcw] ; for Southern Hemis.
+           ;;i_angle = [270.0,90.0]	
            ;;elimnate ram from data
-           i_angle=[180.0,360.0]
-           i_angle_up=[270.0,360.0]
+           i_angle = [180.0,360.0]
+           i_angle_up = [270.0,360.0]
            
         ENDIF ELSE BEGIN
-           e_angle=[360.-lcw,lcw] ;	for Northern Hemis.
-           ;;i_angle=[90.,270.0]
+           e_angle = [360.-lcw,lcw] ;	for Northern Hemis.
+           ;;i_angle = [90.,270.0]
            ;;eliminate ram from data
-           i_angle=[0.0,180.0]
-           i_angle_up=[90.0,180.0]
+           i_angle = [0.0,180.0]
+           i_angle_up = [90.0,180.0]
            
         endelse
-        
         
         ;;get fields mode
-        fields_mode = get_fa_fields('DataHdr_1032',time_ranges[jjj,0],time_ranges[jjj,1])
+        fields_mode = GET_FA_FIELDS('DataHdr_1032',tmpT1,tmpT2)
         
-        ;;get the spacecraft potential per spin
-        spin_period = 4.946     ; seconds
-        
-        ;;get_sample_rate
-        v8={x:spacecraft_potential.time,y:spacecraft_potential.comp1}
-        
-        v8_dt = ABS(v8.x-shift(v8.x,-1))
-        v8_dt[0] = v8_dt[1]
-        v8_dt[N_ELEMENTS(v8.x)-1] = v8_dt[N_ELEMENTS(v8.x)-2]
-
-        ;;get maxima within a 1 spin window
-        j_range = WHERE(v8.x LT v8.x(N_ELEMENTS(v8.x)-1)-spin_period)
-        index_max = MAX(j_range)
-        print,index_max
-        pot = MAKE_ARRAY(N_ELEMENTS(v8.x),/double)
-        FOR j=0L,index_max DO BEGIN
-           ;;spin_range=WHERE(v8.x GE v8.x(j) and v8.x LE v8.x(j)+spin_period)
-           spin_range = j+findgen(ceil(spin_period/V8_dt(j)))
-           pot[j] = MAX(ABS(v8.y[spin_range]),ind)
-           sign = v8.y[spin_range[ind]]/ABS(v8.y[spin_range[ind]])
-           pot[j]=sign*pot[j]
-                                ;print,j,pot[j]
-        endfor
-        pot[index_max+1:N_ELEMENTS(v8.x)-1] = pot[j_range[index_max]]
-        sc_pot={x:v8.x,y:pot}
-        STORE_DATA,'S_Pot',DATA=sc_pot ;note this is actualy the negative of the sp. potential this corrected in the file output
-
         ;;get moments/integrals of various fluxes
-        IF keyword_set(burst) THEN BEGIN
+        IF KEYWORD_SET(burst) THEN BEGIN
 
-           get_2dt_ts,'je_2d_b','fa_eeb',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
+           GET_2DT_TS,'je_2d_b','fa_eeb',T1=tmpT1,T2=tmpT2, $
                       NAME='JEe_tot',ENERGY=energy_electrons
-           get_2dt_ts,'je_2d_b','fa_eeb',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                      NAME='JEe',angle=e_angle,ENERGY=energy_electrons
-           get_2dt_ts,'j_2d_b','fa_eeb',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                      NAME='Je',ENERGY=energy_electrons
-           get_2dt_ts,'j_2d_b','fa_eeb',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                      NAME='Je_lc',ENERGY=energy_electrons,angle=e_angle
+           GET_2DT_TS,'j_2d_b','fa_eeb',T1=tmpT1,T2=tmpT2, $
+                      NAME='Je_tot',ENERGY=energy_electrons
+
+           ;;Now loss-coners
+           GET_2DT_TS,'je_2d_b','fa_eeb',T1=tmpT1,T2=tmpT2, $
+                      NAME='JEe_lc',ANGLE=e_angle,ENERGY=energy_electrons
+           GET_2DT_TS,'j_2d_b','fa_eeb',T1=tmpT1,T2=tmpT2, $
+                      NAME='Je_lc',ENERGY=energy_electrons,ANGLE=e_angle
            
-           get_2dt_ts,'je_2d_b','fa_ieb',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                      NAME='JEi',ENERGY=energy_ions
-           get_2dt_ts,'j_2d_b','fa_ieb',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                      NAME='Ji',ENERGY=energy_ions
-           get_2dt_ts,'je_2d_b','fa_ieb',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                      NAME='JEi_up',ENERGY=energy_ions,angle=i_angle
-           get_2dt_ts,'j_2d_b','fa_ieb',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                      NAME='Ji_up',ENERGY=energy_ions,angle=i_angle
+           GET_2DT_TS,'je_2d_b','fa_ieb',T1=tmpT1,T2=tmpT2, $
+                      NAME='JEi_tot',ENERGY=energy_ions
+           GET_2DT_TS,'j_2d_b','fa_ieb',T1=tmpT1,T2=tmpT2, $
+                      NAME='Ji_tot',ENERGY=energy_ions
+
+           ;;Now players' club
+           GET_2DT_TS,'je_2d_b','fa_ieb',T1=tmpT1,T2=tmpT2, $
+                      NAME='JEi_up',ENERGY=energy_ions,ANGLE=i_angle
+           GET_2DT_TS,'j_2d_b','fa_ieb',T1=tmpT1,T2=tmpT2, $
+                      NAME='Ji_up',ENERGY=energy_ions,ANGLE=i_angle
            
         ENDIF ELSE BEGIN
            
-           get_2dt_ts_pot,'je_2d_b','fa_ees',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                          NAME='JEe_tot',ENERGY=energy_electrons,sc_pot=sc_pot
-           get_2dt_ts_pot,'je_2d_b','fa_ees',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                          NAME='JEe',angle=e_angle,ENERGY=energy_electrons,sc_pot=sc_pot
-           get_2dt_ts_pot,'j_2d_b','fa_ees',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                          NAME='Je',ENERGY=energy_electrons,sc_pot=sc_pot
-           get_2dt_ts_pot,'j_2d_b','fa_ees',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                          NAME='Je_lc',ENERGY=energy_electrons,angle=e_angle,sc_pot=sc_pot
+           GET_2DT_TS_POT,'je_2d_b','fa_ees',T1=tmpT1,T2=tmpT2, $
+                          NAME='JEe_tot',ENERGY=energy_electrons,SC_POT=sc_pot
+           GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=tmpT1,T2=tmpT2, $
+                          NAME='Je_tot',ENERGY=energy_electrons,SC_POT=sc_pot
+
+           ;;Now loss-coners
+           GET_2DT_TS_POT,'je_2d_b','fa_ees',T1=tmpT1,T2=tmpT2, $
+                          NAME='JEe_lc',ANGLE=e_angle,ENERGY=energy_electrons,SC_POT=sc_pot
+           GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=tmpT1,T2=tmpT2, $
+                          NAME='Je_lc',ENERGY=energy_electrons,ANGLE=e_angle,SC_POT=sc_pot
            
-           get_2dt_ts_pot,'je_2d_b','fa_ies',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                          NAME='JEi',ENERGY=energy_ions,angle=i_angle,sc_pot=sc_pot
-           get_2dt_ts_pot,'j_2d_b','fa_ies',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                          NAME='Ji',ENERGY=energy_ions,angle=i_angle,sc_pot=sc_pot
-           get_2dt_ts_pot,'je_2d_b','fa_ies',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                          NAME='JEi_up',ENERGY=energy_ions,angle=i_angle_up,sc_pot=sc_pot
-           get_2dt_ts_pot,'j_2d_b','fa_ies',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-                          NAME='Ji_up',ENERGY=energy_ions,angle=i_angle_up,sc_pot=sc_pot
-           
-           ;; IF keyword_set(heavy) THEN BEGIN
-              
-           ;;    get_2dt_pot,'je_2d','fa_tsp_eq',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-           ;;                NAME='JEp_up',ENERGY=energy_ions,angle=i_angle_up,sc_pot=sc_pot
-           ;;    get_2dt_pot,'je_2d','fa_tso_eq',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-           ;;                NAME='JEo_up',ENERGY=energy_ions,angle=i_angle_up,sc_pot=sc_pot
-           ;;    get_2dt_pot,'je_2d','fa_tsh_eq',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-           ;;                NAME='JEh_up',ENERGY=energy_ions,angle=i_angle_up,sc_pot=sc_pot
-              
-           ;;    get_2dt_pot,'j_2d','fa_tsp_eq',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-           ;;                NAME='Jp_up',ENERGY=energy_ions,angle=i_angle_up,sc_pot=sc_pot
-           ;;    get_2dt_pot,'j_2d','fa_tso_eq',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-           ;;                NAME='Jo_up',ENERGY=energy_ions,angle=i_angle_up,sc_pot=sc_pot
-           ;;    get_2dt_pot,'j_2d','fa_tsh_eq',t1=time_ranges[jjj,0],t2=time_ranges[jjj,1], $
-           ;;                NAME='Jh_up',ENERGY=energy_ions,angle=i_angle_up,sc_pot=sc_pot
-           ;; ENDIF
+           GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=tmpT1,T2=tmpT2, $
+                          NAME='JEi_tot',ENERGY=energy_ions,ANGLE=i_angle,SC_POT=sc_pot
+           GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=tmpT1,T2=tmpT2, $
+                          NAME='Ji_tot',ENERGY=energy_ions,ANGLE=i_angle,SC_POT=sc_pot
+
+           ;;Now players' club
+           GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=tmpT1,T2=tmpT2, $
+                          NAME='JEi_up',ENERGY=energy_ions,ANGLE=i_angle_up,SC_POT=sc_pot
+           GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=tmpT1,T2=tmpT2, $
+                          NAME='Ji_up',ENERGY=energy_ions,ANGLE=i_angle_up,SC_POT=sc_pot
            
         endelse
         
-        GET_DATA,'Je',DATA=tmp
-        GET_DATA,'Ji',DATA=tmpi
+        GET_DATA,'Je_tot',DATA=tmp
+        GET_DATA,'Ji_tot',DATA=tmpi
         ;;remove crap
-        keep1 = WHERE(finite(tmp.y) NE 0 and finite(tmpi.y) NE 0)
-        tmp.x = tmp.x(keep1)
-        tmp.y = tmp.y(keep1)
-        keep2 = WHERE(ABS(tmp.y) GT 0.0 and ABS(tmpi.y) GT 0.0)
-        je_tmp_time = tmp.x(keep2)
-        je_tmp_data = tmp.y(keep2)
-        STORE_DATA,'Je',DATA={x:je_tmp_time,y:je_tmp_data}
+        keep1        = WHERE(FINITE(tmp.y) NE 0 and FINITE(tmpi.y) NE 0)
+        tmp.x        = tmp.x[keep1]
+        tmp.y        = tmp.y[keep1]
+        keep2        = WHERE(ABS(tmp.y) GT 0.0 and ABS(tmpi.y) GT 0.0)
+        je_tmp_time  = tmp.x[keep2]
+        je_tmp_data  = tmp.y[keep2]
+        STORE_DATA,'Je_tot',DATA={x:je_tmp_time,y:je_tmp_data}
         
-        GET_DATA,'JEe',DATA=tmp
+        GET_DATA,'JEe_lc',DATA=tmp
         ;;remove crap
-        ;;keep=WHERE(finite(tmp.y) NE 0)
-        tmp.x = tmp.x(keep1)
-        tmp.y = tmp.y(keep1)
-        ;;keep=WHERE(ABS(tmp.y) GT 0.0)
-        jee_tmp_time = tmp.x(keep2)
-        jee_tmp_data = tmp.y(keep2)
-        STORE_DATA,'JEe',DATA={x:jee_tmp_time,y:jee_tmp_data}
+        ;;keep            = WHERE(FINITE(tmp.y) NE 0)
+        tmp.x             = tmp.x[keep1]
+        tmp.y             = tmp.y[keep1]
+        ;;keep            = WHERE(ABS(tmp.y) GT 0.0)
+        jee_tmp_time      = tmp.x[keep2]
+        jee_tmp_data      = tmp.y[keep2]
+        STORE_DATA,'JEe_lc',DATA={x:jee_tmp_time,y:jee_tmp_data}
         
         GET_DATA,'JEe_tot',DATA=tmp
         ;;remove crap
-        ;;keep=WHERE(finite(tmp.y) NE 0)
-        tmp.x = tmp.x(keep1)
-        tmp.y = tmp.y(keep1)
-        ;;keep=WHERE(ABS(tmp.y) GT 0.0)
-        jee_tot_tmp_time = tmp.x(keep2)
-        jee_tot_tmp_data = tmp.y(keep2)
+        ;;keep            = WHERE(FINITE(tmp.y) NE 0)
+        tmp.x             = tmp.x[keep1]
+        tmp.y             = tmp.y[keep1]
+        ;;keep            = WHERE(ABS(tmp.y) GT 0.0)
+        jee_tot_tmp_time  = tmp.x[keep2]
+        jee_tot_tmp_data  = tmp.y[keep2]
         STORE_DATA,'JEe_tot',DATA={x:jee_tot_tmp_time,y:jee_tot_tmp_data}
         
         GET_DATA,'Je_lc',DATA=tmp
         ;;remove_crap
-        ;;keep=WHERE(finite(tmp.y) NE 0)
-        tmp.x = tmp.x(keep1)
-        tmp.y = tmp.y(keep1)
-        ;;keep=WHERE(ABS(tmp.y) GT 0.0)
-        je_lc_tmp_time = tmp.x(keep2)
-        je_lc_tmp_data = tmp.y(keep2)
+        ;;keep            = WHERE(FINITE(tmp.y) NE 0)
+        tmp.x             = tmp.x[keep1]
+        tmp.y             = tmp.y[keep1]
+        ;;keep            = WHERE(ABS(tmp.y) GT 0.0)
+        je_lc_tmp_time    = tmp.x[keep2]
+        je_lc_tmp_data    = tmp.y[keep2]
         STORE_DATA,'Je_lc',DATA={x:je_lc_tmp_time,y:je_lc_tmp_data}
         
-        GET_DATA,'Ji',DATA=tmp
+        GET_DATA,'Ji_tot',DATA=tmp
         ;;remove crap	
-        ;;keep1=WHERE(finite(tmp.y) NE 0)
-        tmp.x = tmp.x(keep1)
-        tmp.y = tmp.y(keep1)
-        ;;keep2=WHERE(ABS(tmp.y) GT 0.0)
-        ji_tmp_time = tmp.x(keep2)
-        ji_tmp_data = 2.0*tmp.y(keep2) ;;the 2.0 here is because of the 1/2 angular range I use to exclude ram ions
-        STORE_DATA,'Ji',DATA={x:ji_tmp_time,y:ji_tmp_data}
+        ;;keep1           = WHERE(FINITE(tmp.y) NE 0)
+        tmp.x             = tmp.x[keep1]
+        tmp.y             = tmp.y[keep1]
+        ;;keep2           = WHERE(ABS(tmp.y) GT 0.0)
+        ji_tmp_time       = tmp.x[keep2]
+        ji_tmp_data       = 2.0*tmp.y[keep2] ;;the 2.0 here is because of the 1/2 angular range I use to exclude ram ions
+        STORE_DATA,'Ji_tot',DATA={x:ji_tmp_time,y:ji_tmp_data}
         
-        GET_DATA,'JEi',DATA=tmp
+        GET_DATA,'JEi_tot',DATA=tmp
         ;;remove crap
-        ;;keep=WHERE(finite(tmp.y) NE 0)
-        tmp.x = tmp.x(keep1)
-        tmp.y = tmp.y(keep1)
-        ;;keep=WHERE(ABS(tmp.y) GT 0.0)
-        jEi_tmp_time = tmp.x(keep2)
-        jEi_tmp_data = tmp.y(keep2)
-        STORE_DATA,'JEi',DATA={x:jEi_tmp_time,y:jEi_tmp_data}
+        ;;keep            = WHERE(FINITE(tmp.y) NE 0)
+        tmp.x             = tmp.x[keep1]
+        tmp.y             = tmp.y[keep1]
+        ;;keep            = WHERE(ABS(tmp.y) GT 0.0)
+        jEi_tmp_time      = tmp.x[keep2]
+        jEi_tmp_data      = tmp.y[keep2]
+        STORE_DATA,'JEi_tot',DATA={x:jEi_tmp_time,y:jEi_tmp_data}
         
         GET_DATA,'JEi_up',DATA=tmp
         ;;remove crap
-        ;;keep=WHERE(finite(tmp.y) NE 0)
-        tmp.x = tmp.x(keep1)
-        tmp.y = tmp.y(keep1)
-        ;;keep=WHERE(ABS(tmp.y) GT 0.0)
-        jEi_up_tmp_time = tmp.x(keep2)
-        jEi_up_tmp_data = tmp.y(keep2)
+        ;;keep            = WHERE(FINITE(tmp.y) NE 0)
+        tmp.x             = tmp.x[keep1]
+        tmp.y             = tmp.y[keep1]
+        ;;keep            = WHERE(ABS(tmp.y) GT 0.0)
+        jEi_up_tmp_time   = tmp.x[keep2]
+        jEi_up_tmp_data   = tmp.y[keep2]
         STORE_DATA,'JEi_up',DATA={x:jEi_up_tmp_time,y:jEi_up_tmp_data}
         
         GET_DATA,'Ji_up',DATA=tmp
         ;;remove crap
-        ;;keep=WHERE(finite(tmp.y) NE 0)
-        tmp.x = tmp.x(keep1)
-        tmp.y = tmp.y(keep1)
-        ;;keep=WHERE(ABS(tmp.y) GT 0.0)
-        ji_up_tmp_time = tmp.x(keep2)
-        ji_up_tmp_data = 2.0*tmp.y(keep2) ;the 2.0 here is because of the 1/2 angular range I use to exclude ram ions
+        ;;keep          = WHERE(FINITE(tmp.y) NE 0)
+        tmp.x           = tmp.x[keep1]
+        tmp.y           = tmp.y[keep1]
+        ;;keep          = WHERE(ABS(tmp.y) GT 0.0)
+        ji_up_tmp_time  = tmp.x[keep2]
+        ji_up_tmp_data  = 2.0*tmp.y[keep2] ;the 2.0 here is because of the 1/2 angular range I use to exclude ram ions
         STORE_DATA,'Ji_up',DATA={x:ji_up_tmp_time,y:ji_up_tmp_data}
         
         
-        ;; IF keyword_set(heavy) THEN BEGIN
-           
-        ;;    GET_DATA,'JEp_up',DATA=tmp
-        ;;    ;;remove crap
-        ;;    keep1 = WHERE(finite(tmp.y) NE 0)
-        ;;    tmp.x = tmp.x(keep1)
-        ;;    tmp.y = tmp.y(keep1)
-        ;;    keep2 = WHERE(ABS(tmp.y) GT 0.0)
-        ;;    jEp_up_tmp_time = tmp.x(keep2)
-        ;;    jEp_up_tmp_data = tmp.y(keep2)
-        ;;    STORE_DATA,'JEp_up',DATA={x:jEp_up_tmp_time,y:jEp_up_tmp_data}
-           
-        ;;    GET_DATA,'Jp_up',DATA=tmp
-        ;;    ;;remove crap
-        ;;    ;;keep=WHERE(finite(tmp.y) NE 0)
-        ;;    tmp.x = tmp.x(keep1)
-        ;;    tmp.y = tmp.y(keep1)
-        ;;    ;;keep=WHERE(ABS(tmp.y) GT 0.0)
-        ;;    jp_up_tmp_time = tmp.x(keep2)
-        ;;    jp_up_tmp_data = 2.0*tmp.y(keep2) ;the 2.0 here is because of the 1/2 angular range I use to exclude ram ions
-        ;;    STORE_DATA,'Jp_up',DATA={x:jp_up_tmp_time,y:jp_up_tmp_data}
-           
-           
-        ;;    GET_DATA,'JEo_up',DATA=tmp
-        ;;    ;;remove crap
-        ;;    ;;keep=WHERE(finite(tmp.y) NE 0)
-        ;;    tmp.x = tmp.x(keep1)
-        ;;    tmp.y = tmp.y(keep1)
-        ;;    ;;keep=WHERE(ABS(tmp.y) GT 0.0)
-        ;;    jEo_up_tmp_time = tmp.x(keep2)
-        ;;    jEo_up_tmp_data = tmp.y(keep2)
-        ;;    STORE_DATA,'JEo_up',DATA={x:jEo_up_tmp_time,y:jEo_up_tmp_data}
-           
-        ;;    GET_DATA,'Jo_up',DATA=tmp
-        ;;    ;;remove crap
-        ;;    ;;keep=WHERE(finite(tmp.y) NE 0)
-        ;;    tmp.x = tmp.x(keep1)
-        ;;    tmp.y = tmp.y(keep1)
-        ;;    ;;keep=WHERE(ABS(tmp.y) GT 0.0)
-        ;;    jo_up_tmp_time = tmp.x(keep2)
-        ;;    jo_up_tmp_data = 2.0*tmp.y(keep2) ;the 2.0 here is because of the 1/2 angular range I use to exclude ram ions
-        ;;    STORE_DATA,'Jo_up',DATA={x:jo_up_tmp_time,y:jo_up_tmp_data}
-           
-           
-        ;;    GET_DATA,'JEh_up',DATA=tmp
-        ;;    ;;remove crap
-        ;;    keep1 = WHERE(finite(tmp.y) NE 0)
-        ;;    tmp.x = tmp.x(keep1)
-        ;;    tmp.y = tmp.y(keep1)
-        ;;    keep2 = WHERE(ABS(tmp.y) GT 0.0)
-        ;;    jEh_up_tmp_time = tmp.x(keep2)
-        ;;    jEh_up_tmp_data = tmp.y(keep2)
-        ;;    STORE_DATA,'JEh_up',DATA={x:jEh_up_tmp_time,y:jEh_up_tmp_data}
-           
-        ;;    GET_DATA,'Jh_up',DATA=tmp
-        ;;    ;;remove crap
-        ;;                         ;keep=WHERE(finite(tmp.y) NE 0)
-        ;;    tmp.x = tmp.x(keep1)
-        ;;    tmp.y = tmp.y(keep1)
-        ;;    ;;keep=WHERE(ABS(tmp.y) GT 0.0)
-        ;;    jh_up_tmp_time = tmp.x(keep2)
-        ;;    jh_up_tmp_data = 2.0*tmp.y(keep2) ;the 2.0 here is because of the 1/2 angular range I use to exclude ram ions
-        ;;    STORE_DATA,'Jh_up',DATA={x:jh_up_tmp_time,y:jh_up_tmp_data}
-           
-        ;; ENDIF
         ;;get ion end electron characteristic energies
-        
-        chare=(jee_tmp_data/je_lc_tmp_data)*6.242*1.0e11
-        chare_tot=(jee_tot_tmp_data/je_tmp_data)*6.242*1.0e11
-        charei=(JEi_up_tmp_data/ji_up_tmp_data)*6.242*1.0e11
+        chare = (jee_tmp_data/je_lc_tmp_data)*6.242*1.0e11
+        chare_tot = (jee_tot_tmp_data/je_tmp_data)*6.242*1.0e11
+        charei = (JEi_up_tmp_data/ji_up_tmp_data)*6.242*1.0e11
         STORE_DATA,'CharE',DATA={x:jee_tmp_time,y:chare}
         STORE_DATA,'CharE_tot',DATA={x:jee_tot_tmp_time,y:chare_tot}
         STORE_DATA,'CharEi',DATA={x:jei_up_tmp_time,y:charei}
@@ -1111,7 +1172,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         GET_DATA,'BFOOT',DATA=tmp2
         mag1 = (tmp1.y[*,0]*tmp1.y[*,0]+tmp1.y[*,1]*tmp1.y[*,1]+tmp1.y[*,2]*tmp1.y[*,2])^0.5
         mag2 = (tmp2.y[*,0]*tmp2.y[*,0]+tmp2.y[*,1]*tmp2.y[*,1]+tmp2.y[*,2]*tmp2.y[*,2])^0.5
-        ratio = (mag2/mag1)
+        ratio = mag2/mag1
         jee_ionos_tmp_data = sgn_flx*jee_tmp_data*ratio
         STORE_DATA,'JEei',DATA={x:jee_tmp_time,y:jee_ionos_tmp_data}
         
@@ -1122,90 +1183,94 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         speed = SQRT(vel.y[*,0]^2+vel.y[*,1]^2+vel.y[*,2]^2)*1000.0
         
         ;;get position of each mag point
-        ;;samplingperiod=magz.x(300)-magz.x(299)
-        ;;position=MAKE_ARRAY(N_ELEMENTS(magz.x),/double)
-        ;;position=speed(300)*samplingperiod*findgen(N_ELEMENTS(magz.x))
-        ;;speed_mag_point=speed(300)
-        
         old_pos = 0.
-        position = MAKE_ARRAY(N_ELEMENTS(magz.x),/double)
-        speed_mag_point = MAKE_ARRAY(N_ELEMENTS(magz.x),/double)
+        position = MAKE_ARRAY(N_ELEMENTS(magz.x),/DOUBLE)
+        speed_mag_point = MAKE_ARRAY(N_ELEMENTS(magz.x),/DOUBLE)
         FOR j=0L,N_ELEMENTS(magz.x)-2 DO BEGIN
            speed_point_ind = MIN(ABS(vel.x-magz.x[j]),ind)
-           ;;print,ind
-           speed_mag_point[j]=speed[ind]
+
+           speed_mag_point[j] = speed[ind]
            samplingperiod = magz.x(j+1)-magz.x[j]
-           ;;position=MAKE_ARRAY(N_ELEMENTS(magz.x),/double)
-           position[j]=old_pos+speed_mag_point[j]*samplingperiod
+
+           position[j] = old_pos+speed_mag_point[j]*samplingperiod
            old_pos = position[j]
         endfor
         
         
         ;;calculate the total ion outflow for this interval
-        part_res_ji = MAKE_ARRAY(N_ELEMENTS(ji_up_tmp_time),/double)
-        position_ji = MAKE_ARRAY(N_ELEMENTS(Ji_up_tmp_time),/double)
-        position_ji[0]=0.0
+        part_res_ji        = MAKE_ARRAY(N_ELEMENTS(ji_up_tmp_time),/DOUBLE)
+        position_ji        = MAKE_ARRAY(N_ELEMENTS(Ji_up_tmp_time),/DOUBLE)
+        position_ji[0]     = 0.0
         FOR j=1,N_ELEMENTS(ji_tmp_time)-1 DO BEGIN
-           part_res_ji[j]=ABS(ji_up_tmp_time(j-1)-ji_up_tmp_time[j])
-           IF part_res_ji[j] EQ 0.0 THEN part_res_ji[j]=part_res_ji(j-1)
-           position_ji[j]=position_ji(j-1)+speed[j]*part_res_Ji[j]
+           part_res_ji[j]  = ABS(ji_up_tmp_time(j-1)-ji_up_tmp_time[j])
+
+           IF part_res_ji[j] EQ 0.0 THEN part_res_ji[j] = part_res_ji(j-1)
+
+           position_ji[j]  = position_ji(j-1)+speed[j]*part_res_Ji[j]
         endfor
-        part_res_Ji[0]=part_res_Ji[1]
-        ji_tot[jjj]=int_tabulated(position_ji,ji_tmp_data*SQRT(ratio))       ;mapped to ionosphere sqrt due to intergration in x 
-        ji_up_tot[jjj]=int_tabulated(position_ji,ji_up_tmp_data*SQRT(ratio)) ;mapped to ionosphere sqrt due to intergration in x 
+        part_res_Ji[0]     = part_res_Ji[1]
+        ji_tot[jjj]        = int_tabulated(position_ji,ji_tmp_data*SQRT(ratio))       ;mapped to ionosphere sqrt due to intergration in x 
+        ji_up_tot[jjj]     = int_tabulated(position_ji,ji_up_tmp_data*SQRT(ratio)) ;mapped to ionosphere sqrt due to intergration in x 
         
         
-        print,'ji_tot',ji_tot[jjj]
+        PRINT,'ji_tot : ',ji_tot[jjj]
         
         ;;calculate the total electron downflux at the spacecraft altitude over this interval
-        part_res_je = MAKE_ARRAY(N_ELEMENTS(jee_tmp_data),/double)
-        position_je = MAKE_ARRAY(N_ELEMENTS(jee_tmp_time),/double)
-        position_je[0]=0.0
+        part_res_je        = MAKE_ARRAY(N_ELEMENTS(jee_tmp_data),/DOUBLE)
+        position_je        = MAKE_ARRAY(N_ELEMENTS(jee_tmp_time),/DOUBLE)
+        position_je[0]     = 0.0
         FOR j=1,N_ELEMENTS(je_tmp_time)-1 DO BEGIN
-           part_res_je[j]=ABS(jee_tmp_time(j-1)-jee_tmp_time[j])
-           IF part_res_je[j] EQ 0.0 THEN part_res_je[j]=part_res_je(j-1)
-           position_je[j]=position_je(j-1)+speed[j]*part_res_Je[j]
+           part_res_je[j]  = ABS(jee_tmp_time(j-1)-jee_tmp_time[j])
+           IF part_res_je[j] EQ 0.0 THEN part_res_je[j] = part_res_je(j-1)
+           position_je[j]  = position_je(j-1)+speed[j]*part_res_Je[j]
         endfor
-        part_res_Je[0]=part_res_Je[1]
-        jee_tot[jjj]=int_tabulated(position_je,jee_tmp_data*SQRT(ratio)) ;mapped to ionosphere sqrt due to intergration in x 
+        part_res_Je[0]     = part_res_Je[1]
+        jee_tot[jjj]       = int_tabulated(position_je,jee_tmp_data*SQRT(ratio)) ;mapped to ionosphere sqrt due to intergration in x 
         
         ;;calculate the current from mag
-        deltaBX = deriv(position,magz.y)
-        jtemp = ABS(1.0e-3*(deltaBx)/1.26e-6)
-        sign_jtemp = ABS(deltaBx)/deltaBx
-        STORE_DATA,'jtemp',DATA={x:magz.x,y:jtemp}
+        ;; deltaBX     = deriv(position,magz.y)
+        ;; jtemp       = ABS(1.0e-3*(deltaBx)/1.26e-6)
+        ;; sign_jtemp  = ABS(deltaBx)/deltaBx
+        ;; STORE_DATA,'jtemp',DATA={x:magz.x,y:jtemp}
 
         ;;terminate the intervals before the last point
-        IF sign_jtemp(N_ELEMENTS(jtemp)-1)*sign_jtemp(N_ELEMENTS(jtemp)-2) NE -1 THEN sign_jtemp[N_ELEMENTS(jtemp)-1] = -1*sign_jtemp[N_ELEMENTS(jtemp)-1]
+        IF sign_jtemp[N_ELEMENTS(jtemp)-1]*sign_jtemp[N_ELEMENTS(jtemp)-2] NE -1 THEN BEGIN
+           sign_jtemp[N_ELEMENTS(jtemp)-1] = -1*sign_jtemp[N_ELEMENTS(jtemp)-1]
+        ENDIF
 
         
         ;;IF we want to save a summary plot
         IF KEYWORD_SET(png_sumplot) THEN BEGIN
-           cgPS_Open, outPlotDir+'as5Spec_orbit' + STRCOMPRESS(orbit_num+'_'+STRING(jjj),/REMOVE_ALL) + '.ps', font=1
-           loadct,39
-           !p.charsize=1.3
-           tplot,['Je','CharE','JEei','Ji','JEi','MagZ','jtemp'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges[jjj,0],time_ranges[jjj,1]]
-           cgPS_Close, /PNG, /Delete_PS, Width=1000
+           CGPS_OPEN, outPlotDir+'as5Spec_orbit' + STRCOMPRESS(orbit_num+'_'+STRING(jjj), $
+                                                               /REMOVE_ALL) + '.ps',FONT=1
+           LOADCT,39
+           !P.CHARSIZE = 1.3
+           TPLOT,['Je_tot','CharE','JEei','Ji_tot','JEi_tot','MagZ','jtemp'] , $
+                 VAR_LABEL=['ALT','MLT','ILAT'], $
+                 TRANGE=[tmpT1,tmpT2]
+           CGPS_CLOSE,/PNG,/DELETE_PS,WIDTH=1000
         ENDIF ELSE BEGIN 
            IF NOT KEYWORD_SET(dontShowPlots) THEN BEGIN
-              window,0,xsize=600,ysize=800
-              loadct,39
-              !p.charsize=1.3
-              tplot,['Je','CharE','JEei','Ji','JEi','MagZ'] ,var_label=['ALT','MLT','ILAT'],trange=[time_ranges[jjj,0],time_ranges[jjj,1]]
+              WINDOW,0,XSIZE=600,YSIZE=800
+              LOADCT,39
+              !P.CHARSIZE = 1.3
+              TPLOT,['Je_tot','CharE','JEei','Ji_tot','JEi_tot','MagZ'] , $
+                    VAR_LABEL=['ALT','MLT','ILAT'], $
+                    TRANGE=[tmpT1,tmpT2]
            ENDIF
         ENDELSE
 
-        start_points=[0]
-        stop_points=[0]
+        start_points = [0]
+        stop_points = [0]
         
         ;;get current intervals
         FOR j=1L,N_ELEMENTS(sign_jtemp)-2 DO BEGIN
 
            IF sign_jtemp[j]+sign_jtemp(j-1) EQ 0.0 THEN BEGIN
-              start_points=[start_points,j]
+              start_points = [start_points,j]
            ENDIF
            IF sign_jtemp[j]+sign_jtemp(j+1) EQ 0.0 THEN BEGIN
-              stop_points=[stop_points,j]
+              stop_points = [stop_points,j]
            ENDIF
 
         endfor
@@ -1265,7 +1330,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ;;		41-integrated downgoing electron flux from total distribution over that interval at ionosphere
 
         
-        current_intervals = MAKE_ARRAY(N_ELEMENTS(start_points),42,/double)
+        current_intervals = MAKE_ARRAY(N_ELEMENTS(start_points),42,/DOUBLE)
         current_intervals[*,0] = start_points
         current_intervals[*,1] = stop_points
         current_intervals[*,2] = sign_jtemp(start_points)
@@ -1280,7 +1345,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            intervalfields = (current_intervals[j,0])+FINDGEN(current_intervals[j,1]+1-current_intervals[j,0])
            tempz = magz.y[intervalfields]
            fields_res_interval = magz.x[intervalfields]-magz.x[intervalfields-1]
-           ;;help,magz,/st
+           ;;help,magz,/ST
            ;;print,'current_indices ',current_intervals[j,0],current_intervals[j,1]
            intervalparts_electrons = WHERE(je_tmp_time GE magz.x(current_intervals[j,0]) and je_tmp_time LE magz.x(current_intervals[j,1]))
            intervalparts_ions = WHERE(ji_up_tmp_time GE magz.x(current_intervals[j,0]) and ji_up_tmp_time LE magz.x(current_intervals[j,1]))
@@ -1315,8 +1380,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            ;;print,'intervalparts_electrons',intervalparts_electrons
            ;;help,jee_tmp_time
            ;;help,je_tmp_time
-           ;;print,'jee start stop ',TIME_TO_STR(jee_tmp_time[0],/ms),TIME_TO_STR(jee_tmp_time(N_ELEMENTS(jee_tmp_time)-1),/ms)
-           ;;print,'je start stop ',TIME_TO_STR(je_tmp_time[0],/ms),TIME_TO_STR(jee_tmp_time(N_ELEMENTS(jee_tmp_time)-1),/ms)
+           ;;print,'jee start stop ',TIME_TO_STR(jee_tmp_time[0],/MS),TIME_TO_STR(jee_tmp_time(N_ELEMENTS(jee_tmp_time)-1),/MS)
+           ;;print,'je start stop ',TIME_TO_STR(je_tmp_time[0],/MS),TIME_TO_STR(jee_tmp_time(N_ELEMENTS(jee_tmp_time)-1),/MS)
            
            sign = jee_ionos_tmp_data[intervalparts_electrons]/ABS(jee_ionos_tmp_data[intervalparts_electrons]) ;note corrected direction (i.e.-1) from Alfven_stats_4-positive is now really downwards
            maxJEe_ionos = MAX(ABS(jee_ionos_tmp_data[intervalparts_electrons]),ind)
@@ -1333,24 +1398,6 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            IF ABS(maxJEe_ionos) LE electron_eflux_ionos_threshold and ABS(maxJEe_tot_ionos-maxJEe_ionos) LE electron_eflux_ionos_threshold THEN BEGIN ;note change from previously when only downgoing fluxes where considered.
               current_intervals[j,3] = 0.0				      
            ENDIF
-           
-           ;; IF keyword_set(heavy) THEN BEGIN
-              
-           ;;    minitime = MIN(ABS(Jp_up_tmp_time-current_intervals[j,20]),ind_OH)
-           ;;    current_intervals[j,28] = Jp_up_tmp_data(ind_OH)
-           ;;    C_Ep = JEp_up_tmp_data(ind_OH)/Jp_up_tmp_data(ind_OH)*6.242*1.0e11
-           ;;    current_intervals[j,29] = C_Ep
-              
-           ;;    current_intervals[j,30] = Jo_up_tmp_data(ind_OH)
-           ;;    C_Eo = JEo_up_tmp_data(ind_OH)/Jo_up_tmp_data(ind_OH)*6.242*1.0e11
-           ;;    current_intervals[j,31] = C_Eo
-              
-           ;;    minitime = MIN(ABS(Jh_up_tmp_time-current_intervals[j,20]),ind_h)
-           ;;    current_intervals[j,32] = Jh_up_tmp_data(ind_h)
-           ;;    C_Eh = JEh_up_tmp_data(ind_h)/Jh_up_tmp_data(ind_h)*6.242*1.0e11
-           ;;    current_intervals[j,33] = C_Eh
-              
-           ;; ENDIF
            
            ;;get width of current filament in time (s)
            time_width = magz.x(current_intervals[j,1])-magz.x(current_intervals[j,0])
@@ -1372,8 +1419,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                  ;;interpolate particle data to same resolution as the fields data
                  jee_tmp_data_fields_res_interval = interpol(jee_tmp_data[intervalparts_electrons],jee_tmp_time[intervalparts_electrons],magz.x[intervalfields])
                  jee_tot_tmp_data_fields_res_interval = interpol(jee_tot_tmp_data[intervalparts_electrons],jee_tot_tmp_time[intervalparts_electrons],magz.x[intervalfields])
-                 current_intervals[j,7] = int_tabulated(findgen(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,jee_tmp_data_fields_res_interval,/double)
-                 current_intervals[j,41] = int_tabulated(findgen(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,jee_tot_tmp_data_fields_res_interval,/double)
+                 current_intervals[j,7] = int_tabulated(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,jee_tmp_data_fields_res_interval,/DOUBLE)
+                 current_intervals[j,41] = int_tabulated(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,jee_tot_tmp_data_fields_res_interval,/DOUBLE)
                  
               endelse
               
@@ -1393,7 +1440,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                  current_intervals[j,13] = width*ji_up_tmp_data[intervalparts_ions]
                  ;;ENDIF
               ENDIF ELSE BEGIN
-                 ;;IF  intervalparts_ions[0] EQ intervalparts_ions_old(N_ELEMENTS(intervalparts_ions_old)-1) and valid_old EQ 1.0 THEN intervalparts_ions=intervalparts_ions(1:N_ELEMENTS(intervalparts_ions)-1)
+                 ;;IF  intervalparts_ions[0] EQ intervalparts_ions_old(N_ELEMENTS(intervalparts_ions_old)-1) and valid_old EQ 1.0 THEN intervalparts_ions = intervalparts_ions(1:N_ELEMENTS(intervalparts_ions)-1)
                  ;;IF N_ELEMENTS(intervalparts_ions) EQ 1 THEN BEGIN 
                  ;;current_intervals[j,12] = speed[intervalparts_ions]*part_res_ji[intervalparts_ions]*ji_up_tmp_data[intervalparts_ions]/2.0
                  
@@ -1404,12 +1451,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                  ji_tmp_data_fields_res_interval = INTERPOL(ji_tmp_data[intervalparts_ions],ji_tmp_time[intervalparts_ions],magz.x[intervalfields])
                  ji_up_tmp_data_fields_res_interval = INTERPOL(ji_up_tmp_data[intervalparts_ions],ji_up_tmp_time[intervalparts_ions],magz.x[intervalfields])
                  
-                 current_intervals[j,12] = INT_TABULATED(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,ji_tmp_data_fields_res_interval,/double)
-                 current_intervals[j,13] = INT_TABULATED(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,ji_up_tmp_data_fields_res_interval,/double)
-                 ;;print,'ji_tot_alf',Ji_tot_alf[jjj]
-                 
-                 
-                 ;;endelse
+                 current_intervals[j,12] = INT_TABULATED(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,ji_tmp_data_fields_res_interval,/DOUBLE)
+                 current_intervals[j,13] = INT_TABULATED(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,ji_up_tmp_data_fields_res_interval,/DOUBLE)
                  
               endelse
               
@@ -1469,20 +1512,6 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            current_intervals[j,25] = median_de
            IF de LT delta_E_threshold THEN current_intervals[j,3] = 0.0 ;threshold for reliablity of identification
            
-           ;;get max and min L. probe currents
-           smooth_int = ceil((1./proton_cyc_freq[intervalfields[indjmax]])/current_intervals[j,26])
-           ;; IF smooth_int GT 1.0 and smooth_int LE N_ELEMENTS(intervalfields)/4.0 THEN dens_smooth=smooth(dens.comp2[intervalfields],smooth_int) ELSE dens_smooth=dens.comp2[intervalfields]
-           
-           ;; dens_max = MAX(dens_smooth)
-           ;; dens_min = MIN(dens_smooth)
-           ;; probe_time = MIN(ABS(dens_probe.x-magz.x[intervalfields[indjmax]]),probe_ind)
-           
-           
-           ;; median_dens = MEDIAN(dens.comp2[intervalfields])
-           ;; current_intervals[j,35] = dens_probe.y(probe_ind)
-           ;; current_intervals[j,36] = dens_max
-           ;; current_intervals[j,37] = dens_min
-           ;; current_intervals[j,38] = median_dens
            current_intervals[j,35] = 0.
            current_intervals[j,36] = 0.
            current_intervals[j,37] = 0.
@@ -1510,10 +1539,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            current_intervals[j,34]=-1*sc_pot.y[ind]
            
            ;;e over b test
-           PRINT,"Need to insert Alfvén speed from above"
-           WAIT,1.0
            ;; va = 1000.0*alfven_speed_mlt(current_intervals[j,21],current_intervals[j,22])
-           e_over_b=(1.0e-3*current_intervals[j,18])/(current_intervals[j,17]*1.0e-9)
+           e_over_b = (1.0e-3*current_intervals[j,18])/(current_intervals[j,17]*1.0e-9)
            IF e_over_b/va LT 1.0/eb_to_alfven_speed THEN current_intervals[j,3] = 0.0
            
            intervalparts_electrons_old = intervalparts_electrons
@@ -1525,26 +1552,23 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         STOP
      ENDELSE
      
-;;remove crap data
+     ;;remove crap data
      keep = WHERE(current_intervals[*,3] NE 0.0)
-     print,'keep',keep
-     IF keyword_set(keep_alfven_only) THEN BEGIN
+     PRINT,'keep',keep
+     IF KEYWORD_SET(keep_alfven_only) THEN BEGIN
         IF keep[0] EQ -1 THEN BEGIN
            PRINT,"No meaningful data here! Not producing file..."
            keep = !NULL
         ENDIF ELSE BEGIN
-           print,'number of events: ',N_ELEMENTS(keep)
+           PRINT,'number of events: ',N_ELEMENTS(keep)
            current_intervals = current_intervals[keep,*]
         ENDELSE
      ENDIF
 
-;;IF jjj GT 0 or not keyword_set(filename) then
-;;filename = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/as5_14F/'+'Dartmouth_as5_dflux_'+STRCOMPRESS(orbit_num+'_'+string[jjj]+"_magcal_v"
-;;+ STRING(version)+"_burst",/REMOVE_ALL)
-     IF jjj GT 0 or not keyword_set(filename) THEN filename = curfile
+     IF jjj GT 0 or not KEYWORD_SET(filename) THEN filename = curfile
 
-     print,filename,jjj
-     openw,unit1,filename,/get_lun
+     PRINT,filename,jjj
+     OPENW,unit1,filename,/GET_LUN
      PRINTF,unit1,N_ELEMENTS(current_intervals[*,0]),N_ELEMENTS(keep)
 
      PRINTF,unit1,' Column No.  	1-Orbit number'
@@ -1601,25 +1625,20 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
         ;;Want pngs of each of OUR events?
         IF KEYWORD_SET(png_ourevents) THEN BEGIN
-           ;;cur_time = str_to_time(data_chast.time[jj])
-           ;;IF cur_time GT time_ranges[jjj,0] AND cur_time LT time_ranges[jjj,1] THEN BEGIN
            fname = outPlotDir+'orb_' + STRCOMPRESS(orbit_num+'_'+STRING(jjj)+'_' + $
                                                    STRING(jj),/REMOVE_ALL) + $
                    '--Dart_as5Spec_event_'+STRCOMPRESS(jj,/REMOVE_ALL)+'.ps'
            plotstr = "B!Dz!N and J!Dmag!N for Dartmouth spec event " + str(jj)
-           tplot_options,'title',plotstr
-           cgPS_Open,fname,font=1
-           loadct,39
-           !p.charsize = 1.3
-;;                      tfirst = magz.x(current_intervals[jj,0])
-;;                      tlast = magz.x(current_intervals[jj,1])
-           tplot,['MagZ','jtemp'] ,var_label=['ALT','MLT','ILAT'], $
-                 trange=[magz.x[current_intervals[jj,0]],magz.x[current_intervals[jj,1]]]
-           cgPS_Close, /PNG,/delete_ps, WIDTH=1000
-;;            ENDIF
-           ;;; ENDIF ELSE PRINT,$
-           ;;  FORMAT='("Chaston event[",I-0,"]: ",A-0," outside range (FOR jjj=",I-0,")")',$
-           ;;  jj,data_chast.time[jj],jjj
+           TPLOT_OPTIONS,'title',plotstr
+           CGPS_OPEN,fname,FONT=1
+           LOADCT,39
+           !P.CHARSIZE = 1.3
+
+
+           TPLOT,['MagZ','jtemp'] ,VAR_LABEL=['ALT','MLT','ILAT'], $
+                 TRANGE=[magz.x[current_intervals[jj,0]],magz.x[current_intervals[jj,1]]]
+           CGPS_CLOSE, /PNG,/DELETE_PS, WIDTH=1000
+
         ENDIF
         IF KEYWORD_SET(png_lots_of_quantities_ourevents) THEN BEGIN
            STORE_DATA,'eField',DATA={x:fields.time,y:fields.comp2,yTitle:'E!Dsp!N'}
@@ -1627,17 +1646,16 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                    STRCOMPRESS(orbit_num+'_'+STRING(jjj)+'_'+STRING(jj),/REMOVE_ALL) + $
                    '--Dart_specEvent_'+STRCOMPRESS(jj,/REMOVE_ALL)+'.ps'
            plotstr = "Event " + str(jj)
-           tplot_options,'title',plotstr
-           cgPS_Open,fname,font=1
-           loadct,39
+           TPLOT_OPTIONS,'title',plotstr
+           CGPS_OPEN,fname,FONT=1
+           LOADCT,39
            !p.charsize = 1.3
-           tplot,['MagZ','jtemp','eField'] , $
+           TPLOT,['MagZ','jtemp','eField'] , $
                  VAR_LABEL=['ALT','MLT','ILAT'], $
                  TRANGE=[magz.x[current_intervals[jj,0]],magz.x[current_intervals[jj,1]]]
            CGPS_CLOSE, /PNG, /DELETE_PS
         ENDIF
-        PRINTF,unit1,FORMAT='(I9,G13.6,A24,34G13.6,A24,A24)',current_intervals[jj,19],current_intervals[jj,3],TIME_TO_STR(current_intervals[jj,20],/ms),$
-;			PRINTF,unit1,FORMAT='(I9,G13.6,A24,31G13.6)',current_intervals[jj,19],current_intervals[jj,3],TIME_TO_STR(current_intervals[jj,20],/ms),$
+        PRINTF,unit1,FORMAT='(I9,G13.6,A24,34G13.6,A24,A24)',current_intervals[jj,19],current_intervals[jj,3],TIME_TO_STR(current_intervals[jj,20],/MS),$
                current_intervals[jj,21],current_intervals[jj,22],current_intervals[jj,23],current_intervals[jj,4],$
                current_intervals[jj,5],current_intervals[jj,6],current_intervals[jj,40],current_intervals[jj,7],$
                current_intervals[jj,41],current_intervals[jj,8],current_intervals[jj,39],$ ;;Counting from 1, jj,39 is item 14
@@ -1647,11 +1665,11 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                current_intervals[jj,28],current_intervals[jj,29],current_intervals[jj,30],current_intervals[jj,31],$
                current_intervals[jj,32],current_intervals[jj,33],current_intervals[jj,34],current_intervals[jj,35],$
                current_intervals[jj,36],current_intervals[jj,37],current_intervals[jj,38], $
-               TIME_TO_STR(magz.x(current_intervals[jj,0]),/ms), TIME_TO_STR(magz.x(current_intervals[jj,1]),/ms)
+               TIME_TO_STR(magz.x(current_intervals[jj,0]),/MS), TIME_TO_STR(magz.x(current_intervals[jj,1]),/MS)
 
         
      endfor
-     free_lun,unit1
+     FREE_LUN,unit1
 
 
   endfor
