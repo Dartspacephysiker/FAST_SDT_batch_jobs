@@ -90,9 +90,10 @@ PRO JOURNAL__20160920__PLOT_SHADED_PFLUX_ALONG_FAST_TRACK
         ;; dummy           = LABEL_DATE(DATE_FORMAT=['%I:%S%2'])
 
         tmpI            = [strt_i[k]:stop_i[k]]
-        ilatTmp         = invCoords[1,tmpI]
+        ;; ilatTmp         = invCoords[1,tmpI]
+        pFluxTmp        = pFluxB[tmpI]
 
-        goodGuys        = WHERE(ABS(ilatTmp) GT 0.001,nGood, $
+        goodGuys        = WHERE(ABS(pFluxTmp) GT 0.001,nGood, $
                                 COMPLEMENT=killZero,NCOMPLEMENT=nKill)
 
         IF nGood EQ 0 THEN CONTINUE
