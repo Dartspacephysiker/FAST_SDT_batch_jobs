@@ -108,6 +108,9 @@ PRO JOURNAL__20160921__DO_PLOT_WITH_PFLUX_ALONG_FAST_TRACK__POLAR
   polyVerts = MAKE_ARRAY(nPointsTotal,2,nPFluxB-1)
 
   ;;Vertices
+  PRINT,'Vertices'
+  PRINT,0,nHMid+1,nHMid+1+nVMid+1,(nHMid+1)*2+nVMid+1
+
   polyVerts[0,*,*] = coords[*,[0:nPFluxB-2]]
   ;; polyVerts[nHMid+1,*,*] = [coords[0,[1:nPFluxB-1]],coords[1,[1:nPFluxB-1]]]
   polyVerts[nHMid+1,*,*] = coords[*,[1:nPFluxB-1]]
@@ -116,8 +119,8 @@ PRO JOURNAL__20160921__DO_PLOT_WITH_PFLUX_ALONG_FAST_TRACK__POLAR
   ;; polyVerts[(nHMid+1)*2+nVMid+1,*,*] = [coordTry[0,[1:nPFluxB-1]],coordTry[1,[1:nPFluxB-1]]]
   polyVerts[(nHMid+1)*2+nVMid+1,*,*] = coordTry[*,[0:nPFluxB-2]]
 
-
   ;;First and last horizontal row (and last
+  PRINT,'Now horizontals'
   FOR k=1,nHMid DO BEGIN
 
      PRINT,k
@@ -138,9 +141,8 @@ PRO JOURNAL__20160921__DO_PLOT_WITH_PFLUX_ALONG_FAST_TRACK__POLAR
 
 
   ;;Left and right vertical rows
+  PRINT,'Now verticals'
   FOR k=nHMid+2,(nHMid+1+nVMid) DO BEGIN
-
-     PRINT,k
 
      vScaleCounter = k-nHMid-1
 
