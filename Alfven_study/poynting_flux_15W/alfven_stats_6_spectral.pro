@@ -20,7 +20,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
    PNG_OUREVENTS=png_ourevents, $
    BIGWINDOW=bigWindow, $
    DONTSHOWPLOTS=dontShowPlots, $
-   CONT_IF_FILE_EXISTS=cont_if_file_exists
+   CONT_IF_FILE_EXISTS=cont_if_file_exists, $
+   SAVE_LIL_DATA_PACKAGE=save_lil_package
 
   ;; COMPILE_OPT idl2
   ;; COMPILE_OPT strictArr
@@ -967,30 +968,6 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            TPLOT_PANEL,VARIABLE='eAVPanel',OPLOTVAR='eAVFilt'
            TPLOT_PANEL,VARIABLE='eNBPanel',OPLOTVAR='eNBFilt'
 
-           IF KEYWORD_SET(show_maximus_events) THEN BEGIN
-              LOAD_MAXIMUS_AND_CDBTIME,maximus,cdbTime, $
-                                       /DO_DESPUNDB, $
-                                       GOOD_I=good_i, $
-                                       HEMI__GOOD_I='BOTH'
-              ii = WHERE(maximus.orbit[good_i] EQ orbit,nOrb)
-
-              STORE_DATA,'alfTimes',DATA={x:cdbTime[good_i[ii]], $
-                                          y:MAKE_ARRAY(nOrb,VALUE=10)}
-              OPTIONS,'alfTimes','psym',1 ;Plus
-              TPLOT_PANEL,VARIABLE='MagSpecFilt',OPLOTVAR='alfTimes'
-
-              ;; PRINT,maximus.time[good_i[ii]]
-
-              magAlf_i = VALUE_LOCATE(magSpec.time,cdbTime[good_i[ii]])
-              magAlf_t = magSpec.time[magAlf_i[UNIQ(magAlf_i)]]
-
-              maxPFlux      = maximus.pFluxEst[good_i[ii]]
-
-              FOR lm=0,N_ELEMENTS(magAlf_t)-1 DO BEGIN
-                 PRINT,FORMAT='(I0,T10,A0)',lm,TIME_TO_STR(magAlf_t[lm],/MS)
-              ENDFOR
-
-           ENDIF
 
            ;;***Thresholds on power spectra***
            ;;All of the following plots are for trying to figure out appropriate threshold values for E and B
@@ -1036,6 +1013,33 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            ;;             XTITLE='Frequency (Hz)', $
            ;;             YTITLE=magSpecFilt.units_name, $
            ;;             TITLE=TIME_TO_STR(tmpB.x[ind],/MS))
+
+        ENDIF
+
+        IF KEYWORD_SET(show_maximus_events) OR KEYWORD_SET(save_lil_package) THEN BEGIN
+           LOAD_MAXIMUS_AND_CDBTIME,maximus,cdbTime, $
+                                    /DO_DESPUNDB, $
+                                    GOOD_I=good_i, $
+                                    HEMI__GOOD_I='BOTH'
+           ii = WHERE(maximus.orbit[good_i] EQ orbit,nOrb)
+
+           IF KEYWORD_SET(show_maximus_events) AND ~KEYWORD_SET(no_plots) THEN BEGIN
+              STORE_DATA,'alfTimes',DATA={x:cdbTime[good_i[ii]], $
+                                          y:MAKE_ARRAY(nOrb,VALUE=10)}
+              OPTIONS,'alfTimes','psym',1 ;Plus
+              TPLOT_PANEL,VARIABLE='MagSpecFilt',OPLOTVAR='alfTimes'
+           ENDIF
+
+           ;; PRINT,maximus.time[good_i[ii]]
+
+           magAlf_i = VALUE_LOCATE(magSpec.time,cdbTime[good_i[ii]])
+           magAlf_t = magSpec.time[magAlf_i[UNIQ(magAlf_i)]]
+
+           maxPFlux      = maximus.pFluxEst[good_i[ii]]
+
+           ;; FOR lm=0,N_ELEMENTS(magAlf_t)-1 DO BEGIN
+           ;;    PRINT,FORMAT='(I0,T10,A0)',lm,TIME_TO_STR(magAlf_t[lm],/MS)
+           ;; ENDFOR
 
         ENDIF
 
@@ -1197,7 +1201,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ;;		b. Requirement that E and B be above noise level (“but maybe it’s all noise!”)
 
         ;;Get Poynting flux ests
-        IF KEYWORD_SET(full_pFlux) THEN BEGIN
+        IF KEYWORD_SET(full_pFlux) OR KEYWORD_SET(save_lil_package) THEN BEGIN
            pFluxB = filtMag*filteAV/mu_0 ;Poynting flux along B
            pFluxP = (filteNB*filtMag3-1.*filtMag2*filteAV)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
                                 ;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
@@ -1375,12 +1379,66 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ;;Now we don't, because the bandpass thing does all the smoothing one could hope for.
         ;; proton_cyc_freq = 1.6e-19*SQRT(magx.y^2+magy.y^2+magz.y^2)*1.0e-9/1.67e-27/(2.*!DPI) ; in Hz
         
+        IF KEYWORD_SET(save_lil_package) THEN BEGIN
+
+           GET_FA_ORBIT,magz.x,/TIME_ARRAY,/ALL
+           GET_DATA,'ORBIT',DATA=orb
+           GET_DATA,'MLT',DATA=mlt
+           GET_DATA,'ALT',DATA=alt
+           GET_DATA,'ILAT',DATA=ilat
+           GET_DATA,'fa_vel',DATA=vel
+           magMLT  = mlt.y
+           magILAT = ilat.y
+           magTJUL = UTC_TO_JULDAY(orb.x)
+           magTUTC = orb.x
+
+           ;; GET_FA_ORBIT,cdbTime[good_i[ii]],/TIME_ARRAY,/ALL
+           ;; GET_DATA,'ORBIT',DATA=orb
+           ;; GET_DATA,'MLT',DATA=mlt
+           ;; GET_DATA,'ALT',DATA=alt
+           ;; GET_DATA,'ILAT',DATA=ilat
+           ;; GET_DATA,'fa_vel',DATA=vel
+
+           ;; maxMLT  = mlt.y
+           ;; maxILAT = ilat.y
+           ;; maxTJUL = UTC_TO_JULDAY(orb.x)
+           ;; maxTUTC = orb.x
+           good_i = good_i[ii]
+
+           savePackageName = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + "--orb_" + orbit_num + $
+                             '--pFlux_package.sav'
+           PRINT,"Saving data package to " + savePackageName + ' ...'
+           SAVE,maxPFlux,good_i,pFluxB,pFluxP,magMLT,magILAT,magTJul,magTUTC, $
+                FILENAME=outDir+savePackageName
+
+           response = ''
+           cont     = 0
+           WHILE ~cont DO BEGIN
+              READ,response,PROMPT='Quit now? (y/n)'
+              CASE STRUPCASE(response) OF
+                 'Y': BEGIN
+                    cont = 1
+                    RETURN
+                 END
+                 'N': BEGIN
+                    cont = 1
+                 END
+                 ELSE: BEGIN
+                    PRINT,"Invalid! Try again"
+                    cont = 0
+                 END
+              ENDCASE
+           ENDWHILE
+
+        ENDIF
+
         ;;get_orbit data
         GET_FA_ORBIT,je_tmp_time,/TIME_ARRAY,/ALL
         
         GET_DATA,'fa_vel',DATA=vel
         speed = SQRT(vel.y[*,0]^2+vel.y[*,1]^2+vel.y[*,2]^2)*1000.0
         
+        ;;Options. Do you want to go by magz, or filtered magz?
         magFriend        = {x:magz.x,y:magz.y}
         magFriend        = {x:magFriend.x,y:filtMag}
 
