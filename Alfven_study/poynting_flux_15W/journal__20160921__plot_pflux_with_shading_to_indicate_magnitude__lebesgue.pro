@@ -1,5 +1,5 @@
 ;;09/20/16
-PRO JOURNAL__20160920__PLOT_PFLUX_WITH_SHADING_TO_INDICATE_MAGNITUDE
+PRO JOURNAL__20160921__PLOT_PFLUX_WITH_SHADING_TO_INDICATE_MAGNITUDE__LEBESGUE
 
   COMPILE_OPT IDL2
 
@@ -16,7 +16,7 @@ PRO JOURNAL__20160920__PLOT_PFLUX_WITH_SHADING_TO_INDICATE_MAGNITUDE
     stride = 1
 
     ;;Rainbow colors
-    LOADCT,70
+    LOADCT,72
     TVLCT,r,g,b,/GET
     r = REVERSE(r)
     g = REVERSE(g)
@@ -31,6 +31,184 @@ PRO JOURNAL__20160920__PLOT_PFLUX_WITH_SHADING_TO_INDICATE_MAGNITUDE
   PFluxB   = PFluxB[0:-1:stride]
   PFluxP   = PFluxP[0:-1:stride]
 
+
+  dat      = pFluxB
+  nDivisions = 254
+  datMinMax  = [MIN(dat),MAX(dat)]
+  datRange   = datMinMax[1]-datMinMax[0]
+
+  datDelt  = (datRange)/FLOAT(nDivisions)
+
+  levels   = INDGEN(nDivisions+1)/FLOAT(nDivisions)*datRange+datMinMax[0]
+  posLevels = levels[WHERE(levels GT 0,nPosLevels)]
+  negLevels = levels[WHERE(levels LT 0,nNegLevels)]
+
+  posColorInds = [(255-nPoslevels):255]
+
+  nThisLevel    = MAKE_ARRAY(nDivisions,VALUE=0,/LONG)
+  nThisPosLevel = MAKE_ARRAY(nPosLevels,VALUE=0,/LONG)
+  nThisNegLevel = MAKE_ARRAY(nNegLevels,VALUE=0,/LONG)
+
+  indThisLevel = LIST()
+  FOR k=0,nDivisions-1 DO BEGIN
+     ;; indThisLevel.Add,WHERE((dat GE levels[k]) AND (dat LE levels[k+1]),nTmp)
+     indThisLevel.Add,WHERE((dat GT levels[k]),nTmp)
+     nThisLevel[k] = nTmp
+  ENDFOR
+
+  indThisPosLevel = LIST()
+  FOR k=0,nPosLevels-1 DO BEGIN
+     ;; indThisLevel.Add,WHERE((dat GE levels[k]) AND (dat LE levels[k+1]),nTmp)
+     indThisPosLevel.Add,WHERE((dat GE posLevels[k]),nTmp)
+     nThisPosLevel[k] = nTmp
+  ENDFOR
+
+  indThisNegLevel = LIST()
+  FOR k=0,nNegLevels-1 DO BEGIN
+     ;; indThisLevel.Add,WHERE((dat GE levels[k]) AND (dat LE levels[k+1]),nTmp)
+     indThisNegLevel.Add,WHERE((dat LE negLevels[k]),nTmp)
+     nThisNegLevel[k] = nTmp
+  ENDFOR
+
+  indZeroLevel = LIST()  
+  indZeroLevel.Add,WHERE((dat GE MAX(negLevels)) AND (dat LE MIN(posLevels)),nZero)
+
+  ;;Plot all these guys
+  ;; scPlotArr = MAKE_ARRAY(nPosLevels,/OBJ)
+  ;; isPlot    = MAKE_ARRAY(nPosLevels,/BYTE,VALUE=0B)
+  ;; havePlot  = 0
+  xTot      = MAKE_ARRAY(TOTAL(nThisPosLevel),/FLOAT)
+  yTot      = MAKE_ARRAY(TOTAL(nThisPosLevel),/FLOAT)
+  ;; colorTot  = MAKE_ARRAY(3,TOTAL(nThisPosLevel),/FLOAT)
+  colorTot  = MAKE_ARRAY(TOTAL(nThisPosLevel),/FLOAT)
+
+  curInd    = 0
+  FOR k=0,nPosLevels-1 DO BEGIN
+     IF nThisPosLevel[k] EQ 0 THEN CONTINUE
+
+
+     ;; isPlot[k]    = 1
+     x            = magTUTC[indThisPosLevel[k]]-magTUTC[0]
+     y            = REPLICATE(posLevels[k],nThisPosLevel[k])
+     colorInd     = 256-nPosLevels+k
+     color        = [r[colorInd],g[colorInd],b[colorInd]]
+
+     tmpInds      = [curInd:(curInd+nThisPosLevel[k]-1)]
+     xTot[tmpInds] = x
+     yTot[tmpInds] = y
+     colorTot[tmpInds] = REPLICATE(colorInd,nThisPosLevel[k])     
+     ;; colorTot[*,tmpInds] = [TRANSPOSE(REPLICATE(color[0],nThisPosLevel[k])), $
+     ;;                        TRANSPOSE(REPLICATE(color[1],nThisPosLevel[k])), $
+     ;;                        TRANSPOSE(REPLICATE(color[2],nThisPosLevel[k]))]
+     ;; scPlotArr[k] = SCATTERPLOT(x, $
+     ;;                            y, $
+     ;;                            ;; XRANGE=[MIN(x),MAX(x)], $
+     ;;                            XRANGE=[MIN(magTUTC-magTUTC[0]),MAX(magTUTC-magTUTC[0])], $
+     ;;                            ;; YRANGE=[MIN(posLevels),MAX(posLevels)], $
+     ;;                            YRANGE=[MIN(posLevels),MAX(posLevels)], $
+     ;;                            SYMBOL='+', $
+     ;;                            SYM_COLOR=color, $
+     ;;                            OVERPLOT=havePlot, $
+     ;;                            CURRENT=window)
+
+
+     curInd += nThisPosLevel[k]
+
+     ;; havePlot     = 1
+  ENDFOR
+
+  scPlotArr = SCATTERPLOT(xTot, $
+                          yTot, $
+                          ;; XRANGE=[MIN(x),MAX(x)], $
+                          XRANGE=[MIN(magTUTC-magTUTC[0]),MAX(magTUTC-magTUTC[0])], $
+                          ;; YRANGE=[MIN(posLevels),MAX(posLevels)], $
+                          YRANGE=[MIN(posLevels),MAX(posLevels)], $
+                          SYMBOL='Square', $
+                          /SYM_FILLED, $
+                          SYM_SIZE=0.3, $
+                          RGB_TABLE=[TRANSPOSE(r),TRANSPOSE(g),TRANSPOSE(b)], $
+                          MAGNITUDE=colorTot, $
+                          ;; SYM_COLOR=color, $
+                          OVERPLOT=havePlot, $
+                          CURRENT=window)
+
+     
+
+  ;;Now the list of lists
+  masterPosList = LIST()
+  FOR k=0,nPosLevels-2 DO BEGIN
+
+     tmpList = LIST()
+     IF nThisPosLevel[k] EQ 0 THEN BEGIN
+        ;; tmpList.Add,-1
+        masterPosList.Add,tmpList
+        CONTINUE
+     ENDIF
+
+     l1_i = indThisPosLevel[k]
+
+     GET_STREAKS,l1_i, $
+                 START_I=start_ii, $
+                 STOP_I=stop_ii, $
+                 SINGLE_I=single_ii, $
+                 N_STREAKS=n_streaks, $
+                 /QUIET
+
+     IF n_streaks GT 0 THEN BEGIN
+
+        nPolygons = 0
+        FOR kk=0,n_streaks-1 DO BEGIN
+           polyFirst = l1_i[start_ii[kk]]
+           polyLast  = l1_i[stop_ii[kk]]
+
+           ;;Check level above
+           IF nThisPosLevel[k+1] EQ 0 THEN CONTINUE ;This is a plateau
+
+           l2_ii = WHERE( (indThisPosLevel[k+1] GE polyFirst) AND $
+                          (indThisPosLevel[k+1] LE polyLast),nLevel2)
+
+           IF nLevel2 EQ 0 THEN CONTINUE ;This particular polygon is a plateau
+
+           l2_i     = (indThisPosLevel[k+1])[l2_ii]
+           CASE nLevel2 OF
+              1: BEGIN ;;Triangle thing
+                 ;;First column indexes 
+                 polygon = [[polyFirst,k],[polyLast,k], $
+                            [l2_i,k+1], $
+                            [polyFirst,k]]
+              END
+              ELSE: BEGIN ;;More than 1, so we've got a polygon
+
+                 testMin1 = MIN(ABS(polyFirst-l2_i),ii_1)
+                 testMin2 = MIN(ABS(polyLast-l2_i),ii_2)
+                 
+                 IF ii_1 EQ ii_2 THEN STOP
+
+                 polygon = [[polyFirst,k],[polyLast,k], $
+                            [l2_i[ii_2],k+1],[l2_i[ii_1],k+1], $
+                            [polyFirst,k]]
+
+              END
+           ENDCASE
+           tmpList.Add,polygon
+           nPolygons++
+        ENDFOR
+
+
+
+
+     ENDIF ELSE BEGIN
+        is_single_point = 1
+     ENDELSE
+
+     masterPosList.Add,tmpList
+     
+
+  ENDFOR
+
+
+
+  STOP
 
 
   IF ~KEYWORD_SET(skip_to_map) THEN BEGIN
