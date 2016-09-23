@@ -26,7 +26,7 @@ PRO JOURNAL__20160921__TEST_MAP_COORD_CONVERSION, $
      END
      'POLAR STEREOGRAPHIC': BEGIN
         ;; bratitude = 5*INDGEN(8) + 50
-        bratitude = [50,60,70,80,90]
+        bratitude = [60,70,80,90]
      END
   ENDCASE
   plotLat   = bratitude
@@ -76,10 +76,11 @@ PRO JOURNAL__20160921__TEST_MAP_COORD_CONVERSION, $
      junk = MIN(ABS(latitude-plotLat[k]),lat_i)
 
      plotArr[k] =PLOT(convArr[*,*,lat_i], $
-                      TITLE=mapProjType + ' (Cartesian conversion)', $
+                      ;; TITLE=mapProjType + ' (Cartesian conversion)', $
                       NAME=plotNames[k], $
                       ;; XRANGE=plotRanges[0,*], $
                       ;; YRANGE=plotRanges[1,*], $
+                      AXIS_STYLE=0, $
                       XRANGE=xRange, $
                       YRANGE=yRange, $
                       COLOR=color[k], $
