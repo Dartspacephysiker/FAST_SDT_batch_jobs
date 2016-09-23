@@ -2,6 +2,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
    FILENAME=filename, $
    BELOW_AURORAL_OVAL=below_auroral_oval, $
    SHOW_ALF_EVENTS_FROM_MAXIMUS=show_maximus_events, $
+   COMPARE_AVERAGE_POYNTING_FLUXES=compare_pFluxes__specMethod_maximus, $
    ENERGY_ELECTRONS=energy_electrons, $
    ENERGY_IONS=energy_ions, $
    T1=t1, $
@@ -32,10 +33,11 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
      SET_PLOT_DIR,outPlotDir,/FOR_SDT,ADD_SUFF='/as6_spectral/'
   ENDIF
 
-  IF N_ELEMENTS(full_pFlux     )     EQ 0 THEN full_pFlux          = 1
-  IF N_ELEMENTS(ucla_mag_despin)     EQ 0 THEN ucla_mag_despin     = 1
-  IF N_ELEMENTS(below_auroral_oval)  EQ 0 THEN below_auroral_oval  = 1
-  IF N_ELEMENTS(only_128Ss_data)     EQ 0 THEN only_128Ss_data     = 1
+  IF N_ELEMENTS(full_pFlux         ) EQ 0 THEN full_pFlux          = 1
+  IF N_ELEMENTS(include_E_near_B   ) EQ 0 THEN include_E_near_B    = KEYWORD_SET(full_pFlux)
+  IF N_ELEMENTS(ucla_mag_despin    ) EQ 0 THEN ucla_mag_despin     = 1
+  IF N_ELEMENTS(below_auroral_oval ) EQ 0 THEN below_auroral_oval  = 1
+  IF N_ELEMENTS(only_128Ss_data    ) EQ 0 THEN only_128Ss_data     = 1
   IF N_ELEMENTS(yLim_to_mag_rolloff) EQ 0 THEN yLim_to_mag_rolloff = 1
   yLimUpper         = 20
 
@@ -59,8 +61,11 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
   maxPeriod      = 1/100.
   minPeriod      = 1/132.
   eFSampFact     = 4         ;The fact is, E-field data gets sampled a million times faster!
+
   freqPlotRange  = [0.1,FGMagRolloff]
-  override_freq  = [0.0,FGMagRolloff]
+  ;; override_freq  = [0.0,FGMagRolloff]
+  override_freq  = [0.125,0.5] ;Brambles et al. [2011] supplementary matieral
+
   FFTSlide       = 1.0
 
   ;;Filter stuff
@@ -109,7 +114,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
      GET_2DT_TS,'j_2d_b','fa_eeb',T1=t1,T2=t2,NAME='Je',ENERGY=energy_electrons
   ENDIF ELSE BEGIN
      GET_2DT_TS,'j_2d_b','fa_ees',T1=t1,T2=t2,NAME='Je',ENERGY=energy_electrons
-  endelse
+  ENDELSE
   
   ;;remove spurious crap
   GET_DATA,'Je',DATA=tmpj
@@ -127,13 +132,19 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
   tx          = tx[time_order]
   ty          = ty[time_order]
   
+  ;;kill dupes
+  dupe_i      = WHERE(ABS(tx[1:-1]-tx[0:-2]) LT 0.0001,nDupes, $
+                      COMPLEMENT=keep,NCOMPLEMENT=nKeep)
+  PRINT,STRCOMPRESS(nDupes,/REMOVE_ALL) + ' Je duplicates here'
+  tx          = tx[keep]
+  ty          = ty[keep]
   
   ;;throw away the first 10  points since they are often corrupted
-  IF not KEYWORD_SET(burst) THEN BEGIN
-     STORE_DATA,'Je',DATA={x:tx[10:N_ELEMENTS(tx)-1],y:ty[10:N_ELEMENTS(tx)-1]}
+  IF NOT KEYWORD_SET(burst) THEN BEGIN
+     STORE_DATA,'Je',DATA={x:tx[10:nKeep-1],y:ty[10:nKeep-1]}
   ENDIF ELSE BEGIN
      STORE_DATA,'Je',DATA={x:tx,y:ty}
-  endelse
+  ENDELSE
   
   ;;eliminate data from latitudes below the Holzworth/Meng auroral oval 
   GET_DATA,'Je',DATA=je
@@ -464,6 +475,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            
         ENDFOR
         
+        ;;Shrink these arrays
         ;; keepMe               = WHERE(timeFFT GE 1.0,nKeepFFT)
         timeFFT              = timeFFT[0:FFTCount-1]
         fftBin_i             = fftBin_i[*,LINDGEN(FFTCount)]
@@ -519,11 +531,16 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ;;   a. oxygen cyc. freq., 
         ;;   b. freq. arising from k_perp * λe ≤ f_spB, or 
         ;;   c. rolloff of the fluxgate magnetometer's recursive filter
-        freqBounds = ROUND([TRANSPOSE(freqLim*f_spA), $
-                            TRANSPOSE((oxy_cycDC < (fGRollers < ( freqLim*f_spB ) ) ) )] $
-                           /freqRes)*freqRes
+        ;; freqBounds = ROUND([TRANSPOSE(freqLim*f_spA), $
+        ;;                     TRANSPOSE((oxy_cycDC < (fGRollers < ( freqLim*f_spB ) ) ) )] $
+        ;;                    /freqRes)*freqRes
         ;; freqBounds = [TRANSPOSE(freqLim*f_spA), $
         ;;               TRANSPOSE((oxy_cycDC < (fGRollers < ( freqLim*f_spB ) ) ) )]
+
+        freqBounds = [CEIL(TRANSPOSE(freqLim*f_spA)/freqRes), $
+                      FLOOR(TRANSPOSE((oxy_cycDC < (fGRollers < ( freqLim*f_spB ) ) ) ) $
+                            /freqRes)]*freqRes
+
         IF KEYWORD_SET(override_freq_bounds) THEN BEGIN
            freqBounds[0,*] = override_freq[0]
            freqBounds[1,*] = override_freq[1]
@@ -651,66 +668,6 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            ENDIF
 
         ENDFOR
-
-        ;;UNDER CONSTRUCTION 
-        ;;I was trying to be expeditious here and filter more stuff on the fly, but 
-        ;;    I think it's no use
-        ;;UNDER CONSTRUCTION
-
-        ;; fHist       = HISTOGRAM(roundedFreq, $
-        ;;                         BINSIZE=freqRes/2.D,LOCATIONS=Freqs, $
-        ;;                         REVERSE_INDICES=fH_revI, $
-        ;;                         MIN=MIN(roundedFreq)-freqRes/4.D)
-        ;; omegaP_i    = WHERE(fHist GT 0,nOmegaPEsts)
-        ;; FOR k=0,nOmegaPEsts-1 DO BEGIN
-        ;;    ;;Any streaks to be had?
-        ;;    tmpi = omegaP_i[k]
-        ;;    tmpFreq = Freqs[omegaP_i[k]]
-        ;;    PRINT,tmpFreq
-
-        ;;    IF fH_revI[tmpi] EQ fH_revI[tmpi+1] THEN CONTINUE
-
-        ;;    tmpFreqI = fH_revI[fH_revI[tmpi]:fH_revI[tmpi+1]-1]
-
-           
-        ;;    GET_STREAKS,tmpFreqI,START_I=tmpStrt_ii,STOP_I=tmpStop_ii, $
-        ;;                SINGLE_I=tmpSing_ii, $
-        ;;                OUT_STREAKLENS=tmpStrkLen
-        ;;    PRINT,tmpStrkLen
-
-        ;;    nFFTsThisLoop = N_ELEMENTS(tmpFreqI)
-        ;;    IF N_ELEMENTS(tmpStrkLen) EQ 1 THEN BEGIN
-
-        ;;       filtInds     = [fftBin_i[0,tmpFreqI],fftBin_i[1,tmpFreqI]]
-        ;;       nFilterLoops = 1
-              
-        ;;    ENDIF ELSE BEGIN
-        ;;       tmpFFTBins = fftBin_i[*,tmpFreqI]
-        ;;       diffs      = tmpFFTBins[0,1:-1]-tmpFFTBins[1,0:-2]
-
-        ;;       GET_STREAKS,diffs,START_I=tmpStrt_ii,STOP_I=tmpStop_ii, $
-        ;;                   SINGLE_I=tmpSing_ii, $
-        ;;                   OUT_STREAKLENS=tmpStrkLen
-        ;;       nFilterLoops = N_ELEMENTS(tmpStrkLen)
-        ;;    ENDELSE
-
-        ;;    PRINT,'N Filter Loops   : ' + STRCOMPRESS(nFilterLoops,/REMOVE_ALL)
-        ;;    PRINT,'N FFTs this loop : ' + STRCOMPRESS(nFFTsThisLoop,/REMOVE_ALL)
-        ;;    ;; tmpMagZ  = {
-        ;;    ;; FA_FIELDS_FILTER,magzFilt,freqPlotRange
-        ;;    ;; FA_FIELDS_FILTER,eAlongVFilt,freqPlotRange ;Warning: don't use RECURSIVE KW--
-        ;;    ;;                      ;causes phase shift
-
-        ;; ENDFOR
-
-
-
-        ;;Now just pick up periods with 128 S/s, in case we want them
-        ;; periodM     = magz.x[strtM_i+1] - magz.x[strtM_i]
-        ;; periodE     = eAlongV.x[strtE_i+1] - eAlongV.x[strtE_i]
-        ;; goodMStreak = WHERE(periodM LE maxPeriod AND periodM GE minPeriod,nGoodM)
-        ;; goodEStreak = WHERE(periodE LE maxPeriod/eFSampFact AND $
-        ;;                     periodE GE minPeriod/eFSampFact,nGoodE)
 
         magzTmp      = {TIME         : magz.x                , $
                         COMP1        : magz.y                , $
@@ -1016,39 +973,51 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
         ENDIF
 
-        IF KEYWORD_SET(show_maximus_events) OR KEYWORD_SET(save_lil_package) THEN BEGIN
+        IF KEYWORD_SET(show_maximus_events) OR KEYWORD_SET(save_lil_package) $
+           OR KEYWORD_SET(compare_pFluxes__specMethod_maximus)               $
+        THEN BEGIN
            LOAD_MAXIMUS_AND_CDBTIME,maximus,cdbTime, $
                                     /DO_DESPUNDB, $
                                     GOOD_I=good_i, $
                                     HEMI__GOOD_I='BOTH'
            ii = WHERE(maximus.orbit[good_i] EQ orbit,nOrb)
 
-           IF KEYWORD_SET(show_maximus_events) AND ~KEYWORD_SET(no_plots) THEN BEGIN
-              STORE_DATA,'alfTimes',DATA={x:cdbTime[good_i[ii]], $
-                                          y:MAKE_ARRAY(nOrb,VALUE=10)}
-              OPTIONS,'alfTimes','psym',1 ;Plus
-              TPLOT_PANEL,VARIABLE='MagSpecFilt',OPLOTVAR='alfTimes'
-           ENDIF
+           IF ii[0] NE -1 THEN BEGIN
 
-           ;; PRINT,maximus.time[good_i[ii]]
+              great_i = good_i[ii]
+              IF KEYWORD_SET(show_maximus_events) AND ~KEYWORD_SET(no_plots) THEN BEGIN
+                 STORE_DATA,'alfTimes',DATA={x:cdbTime[great_i], $
+                                             y:MAKE_ARRAY(nOrb,VALUE=10)}
+                 OPTIONS,'alfTimes','psym',1 ;Plus
+                 TPLOT_PANEL,VARIABLE='MagSpecFilt',OPLOTVAR='alfTimes'
+              ENDIF
 
-           magAlf_i = VALUE_LOCATE(magSpec.time,cdbTime[good_i[ii]])
-           magAlf_t = magSpec.time[magAlf_i[UNIQ(magAlf_i)]]
+              ;; PRINT,maximus.time[great_i]
 
-           maxPFlux      = maximus.pFluxEst[good_i[ii]]
+              maximus_t = cdbTime[great_i]
+              width_t   = maximus.width_time[great_i]
 
-           ;; FOR lm=0,N_ELEMENTS(magAlf_t)-1 DO BEGIN
-           ;;    PRINT,FORMAT='(I0,T10,A0)',lm,TIME_TO_STR(magAlf_t[lm],/MS)
-           ;; ENDFOR
+              magAlf_i  = VALUE_LOCATE(magSpec.time,maximus_t)
+              magAlf_t  = magSpec.time[magAlf_i[UNIQ(magAlf_i)]]
 
+              maxPFlux  = maximus.pFluxEst[great_i]
+
+              ;; FOR lm=0,N_ELEMENTS(magAlf_t)-1 DO BEGIN
+              ;;    PRINT,FORMAT='(I0,T10,A0)',lm,TIME_TO_STR(magAlf_t[lm],/MS)
+              ;; ENDFOR
+
+           ENDIF ELSE BEGIN
+              PRINT,"No good Alf events here!"
+              badMaximus = 1
+           ENDELSE
         ENDIF
 
         ;;E-Over-B Test
-        nThings  = N_ELEMENTS(magDens)
-        ESpecSum = MAKE_ARRAY(nThings,/FLOAT)
-        BSpecSum = MAKE_ARRAY(nThings,/FLOAT)
+        ;; nThings  = N_ELEMENTS(magDens)
+        ESpecSum = MAKE_ARRAY(FFTCount,/FLOAT)
+        BSpecSum = MAKE_ARRAY(FFTCount,/FLOAT)
         
-        FOR m=0,nThings-1 DO BEGIN
+        FOR m=0,FFTCount-1 DO BEGIN
            ;;Frequency limits
            tmpF_i    = WHERE(tmpE.v GE freqBounds[0,m] AND tmpE.v LE freqBounds[1,m])
 
@@ -1071,7 +1040,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                            ( (E_over_B/va_mlt) LE eb_to_alfven_speed     )      AND $
                            (sRates LE 1./minPeriod) AND (sRates GE 1./maxPeriod) AND $
                            (SQRT(ESpecSum) GE EIntegThresh)                      AND $
-                           (SQRT(BSpecSum) GE BIntegThresh),nFFTWin)
+                           (SQRT(BSpecSum) GE BIntegThresh),nWinFFT)
 
         IF winFFT_i[0] EQ -1 THEN BEGIN
            PRINT,"Didn't get any Alfvénic ANYTHING here. Next interval (or orbit) ..."
@@ -1080,18 +1049,18 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
         winAlfFFT_i   = FFTBin_i[*,winFFT_i]
         diffAlfFFT_i  = winAlfFFT_i[1,*]-winAlfFFT_i[0,*]
-        nWin          = TOTAL(diffAlfFFT_i) + nFFTWin
-        winAlf_i      = MAKE_ARRAY(nWin,/LONG)
+        nWinPts       = TOTAL(diffAlfFFT_i) + nWinFFT
+        winAlf_i      = MAKE_ARRAY(nWinPts,/LONG) ;The full array of Alfvénic indices stuff!
 
         soFar         = 0
-        FOR k=0,nFFTWin-1 DO BEGIN
+        FOR k=0,nWinFFT-1 DO BEGIN
            next       = diffAlfFFT_i[k]
            winAlf_i[soFar:(soFar+next)] = [winAlfFFT_i[0,k]:winAlfFFT_i[1,k]]
            soFar     += next + 1
         ENDFOR
         
 
-        PRINT,'Got ' + STRCOMPRESS(nWin,/REMOVE_ALL) + ' winning indices !'
+        PRINT,'Got ' + STRCOMPRESS(nWinPts,/REMOVE_ALL) + ' winning indices !'
         ;; GET_STREAKS,winFFT_i,START_I=strtWin_ii,STOP_I=stopWin_ii, $
         ;;             SINGLE_I=singleWin_ii, $
         ;;             OUT_STREAKLENS=FFTStreakLens
@@ -1225,7 +1194,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            ;; yRange      = [MIN(pFluxP),MAX(pFluxP)]
            pFluxyRange = [(MIN(pFluxP) < MIN(pFluxB)),(MAX(pFluxP) > MAX(pFluxB))]
 
-           IF KEYWORD_SET(show_maximus_events) THEN BEGIN
+           IF KEYWORD_SET(show_maximus_events) AND ~KEYWORD_SET(badMaximus) THEN BEGIN
               ;; maxPFluxRange = [MIN(maxPFlux),MAX(maxPFlux)]
 
               pFluxyRange[0] = pFluxyRange[0] < MIN(maxPFlux)
@@ -1275,9 +1244,9 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                               /OVERPLOT, $
                               CURRENT=window2)
 
-           IF KEYWORD_SET(show_maximus_events) THEN BEGIN
+           IF KEYWORD_SET(show_maximus_events) AND ~KEYWORD_SET(badMaximus) THEN BEGIN
 
-              maxPFluxPlot  = PLOT(UTC_TO_JULDAY(cdbTime[good_i[ii]]), $
+              maxPFluxPlot  = PLOT(UTC_TO_JULDAY(cdbTime[great_i]), $
                                    maxPFlux, $
                                    NAME='IAW Database', $
                                    COLOR='Blue', $
@@ -1375,6 +1344,82 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
         ENDIF
 
+        IF KEYWORD_SET(compare_pFluxes__specMethod_maximus) THEN BEGIN
+           tAvgFFTPFluxB = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
+           tAvgFFTPFluxP = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
+           tAvgMaxPFlux  = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
+           
+           totTime       = 0.
+           totMax_ii     = !NULL
+           totWeightPFB  = 0
+           totWeightPFP  = 0
+           FOR k=0,nWinFFT-1 DO BEGIN
+              strtMag_i     = winAlfFFT_i[0,k]
+              stopMag_i     = winAlfFFT_i[1,k]
+              tmpLength     = FLOAT(stopMag_i-strtMag_i+1)
+
+              tmpTime       = tmpLength / sRates[winFFT_i[k]]
+
+              weightPFB     = TOTAL(pFluxB[strtMag_i:stopMag_i])
+              weightPFP     = TOTAL(pFluxP[strtMag_i:stopMag_i])
+
+              tAvgFFTPfluxB[k] = weightPFB / tmpLength
+              tAvgFFTPfluxP[k] = weightPFP / tmpLength
+
+              totWeightPFB += weightPFB
+              totWeightPFP += weightPFP
+              totTime      += tmpTime
+
+
+              ;;Get Maximus Pfluxes falling in this neighborhood
+              tmpMax_ii     = WHERE((cdbTime[great_i] GE magz.x[winAlfFFT_i[0,k]]) AND $
+                                   (cdbTime[great_i] LE magz.x[winAlfFFT_i[1,k]]),nTmpMax)
+              totMax_ii     = [totMax_ii,tmpMax_ii]
+
+              IF nTmpMax GT 0 THEN BEGIN
+                 tAvgMaxPFlux[k] = TOTAL(maxPFlux[tmpMax_ii]*width_t[tmpMax_ii]) / tmpTime
+              ENDIF
+
+           ENDFOR
+
+           PRINT,'Time-averaged Poynting flux over this little period '
+           PRINT,FORMAT='(A0,T25,A0,T50,A0)',"Maximus", $
+                 "Spec Method (along B)", $
+                 "Spec Method (perp)"
+           FOR k=0,nWinFFT-1 DO BEGIN
+              PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+                    tAvgMaxPFlux[k], $
+                    tAvgFFTPFluxB[k], $
+                    tAvgFFTPFluxP[k]
+           ENDFOR
+
+           PRINT,''
+           PRINT,'Totals'
+           PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+                 TOTAL(maxPFlux[totMax_ii]*width_t[totMax_ii])/totTime, $
+                 totWeightPFB/totTime, $
+                 totWeightPFP/totTime
+           PRINT,''
+           PRINT,'Straight Averages'
+           PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+                 MEAN(maxPFlux[totMax_ii]), $
+                 MEAN(pFluxB[winAlf_i]), $
+                 MEAN(pFluxP[winAlf_i])
+           PRINT,''
+           PRINT,'Log Averages'
+           PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+                 MEAN(ALOG10(maxPFlux[totMax_ii])), $
+                 MEAN(ALOG10(ABS(pFluxB[winAlf_i]))), $
+                 MEAN(ALOG10(ABS(pFluxP[winAlf_i])))
+           PRINT,''
+           PRINT,'Medians'
+           PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+                 MEDIAN(maxPFlux[totMax_ii]), $
+                 MEDIAN(pFluxB[winAlf_i]), $
+                 MEDIAN(pFluxP[winAlf_i])
+        ENDIF
+
+        STOP
         ;;We used to get the proton cyc frequency for smoothing the e field data later
         ;;Now we don't, because the bandpass thing does all the smoothing one could hope for.
         ;; proton_cyc_freq = 1.6e-19*SQRT(magx.y^2+magy.y^2+magz.y^2)*1.0e-9/1.67e-27/(2.*!DPI) ; in Hz
@@ -1392,7 +1437,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            magTJUL = UTC_TO_JULDAY(orb.x)
            magTUTC = orb.x
 
-           ;; GET_FA_ORBIT,cdbTime[good_i[ii]],/TIME_ARRAY,/ALL
+           ;; GET_FA_ORBIT,cdbTime[great_i],/TIME_ARRAY,/ALL
            ;; GET_DATA,'ORBIT',DATA=orb
            ;; GET_DATA,'MLT',DATA=mlt
            ;; GET_DATA,'ALT',DATA=alt
@@ -1512,7 +1557,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            i_angle = [0.0,180.0]
            i_angle_up = [90.0,180.0]
            
-        endelse
+        ENDELSE
         
         ;;get fields mode
         fields_mode = GET_FA_FIELDS('DataHdr_1032',tmpT1,tmpT2)
@@ -1836,7 +1881,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                  FFTintervals[j,7] = int_tabulated(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,jee_tmp_data_fields_res_interval,/DOUBLE)
                  FFTintervals[j,41] = int_tabulated(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,jee_tot_tmp_data_fields_res_interval,/DOUBLE)
                  
-              endelse
+              ENDELSE
               
               ;;map result to ionosphere (sqrt of B since have integrated in x)
               FFTintervals[j,7] = FFTintervals[j,7]*SQRT(ratio(intervalparts_electrons[0]))
@@ -1868,7 +1913,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                  FFTintervals[j,12] = INT_TABULATED(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,ji_tmp_data_fields_res_interval,/DOUBLE)
                  FFTintervals[j,13] = INT_TABULATED(FINDGEN(N_ELEMENTS(intervalfields))*speed_mag_point[intervalfields]*fields_res_interval,ji_up_tmp_data_fields_res_interval,/DOUBLE)
                  
-              endelse
+              ENDELSE
               
               ;;map result to ionosphere (sqrt of B since have integrated in x)
               FFTintervals[j,12] = FFTintervals[j,12]*SQRT(ratio[intervalparts_ions[0]])

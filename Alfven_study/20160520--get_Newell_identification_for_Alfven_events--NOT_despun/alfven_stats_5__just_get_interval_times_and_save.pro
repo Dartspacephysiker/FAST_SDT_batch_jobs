@@ -11,7 +11,8 @@ PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
   todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
 
   defDir                                 = as5_dir + 'je_time_ind_dir/'
-  defFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
+  ;; defFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
+  defFilePref                            = "je_and_cleaned_time_range_indices--noDupes--orbit_"
 
   filePref                               = KEYWORD_SET(altPrefix) ? altPrefix : defFilePref
 
@@ -56,7 +57,7 @@ PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
   t2                                     = 0.0D
   temp                                   = GET_FA_EES(t1,INDEX=0.0D)
   temp                                   = GET_FA_EES(t2,INDEX=DOUBLE(last_index))
-  GET_2DT_TS,'j_2d_b','fa_ees',t1=t1,t2=t2,name='Je',energy=energy_electrons
+  GET_2DT_TS,'j_2d_b','fa_ees',T1=t1,T2=t2,NAME='Je',ENERGY=energy_electrons
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Welp, here we go!
@@ -76,6 +77,13 @@ PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
   tx                                     = tx[time_order]
   ty                                     = ty[time_order]
   
+  ;;kill dupes
+  dupe_i      = WHERE(ABS(tx[1:-1]-tx[0:-2]) LT 0.0001,nDupes, $
+                      COMPLEMENT=keep,NCOMPLEMENT=nKeep)
+  PRINT,STRCOMPRESS(nDupes,/REMOVE_ALL) + ' Je duplicates here'
+  tx          = tx[keep]
+  ty          = ty[keep]
+  
   ;;Ensure no duplicates
   nDupes      = N_ELEMENTS(tx) - N_ELEMENTS(UNIQ(tx))
   IF nDupes GT 0 THEN BEGIN
@@ -87,7 +95,7 @@ PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
 
   ;;Use the electron data to define the time ranges for this orbit	
   GET_DATA,'Je',DATA=je
-  part_res_je                            = MAKE_ARRAY(N_ELEMENTS(Je.x),/double)
+  part_res_je                            = MAKE_ARRAY(N_ELEMENTS(Je.x),/DOUBLE)
   FOR j=1,N_ELEMENTS(Je.x)-1 DO BEGIN
      part_res_je[j]                      = ABS(Je.x[j]-Je.x[j-1])
   ENDFOR
