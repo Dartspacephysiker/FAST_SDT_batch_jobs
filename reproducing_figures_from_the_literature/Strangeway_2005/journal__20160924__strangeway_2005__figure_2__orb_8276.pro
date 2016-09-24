@@ -58,7 +58,7 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_2__ORB_8276, $
 
 @tplot_com
 
-  outPlotName             = 'Strangeway_et_al_2005__ion_outflow--Fig_1'
+  outPlotName             = 'Strangeway_et_al_2005__ion_outflow--Fig_2'
 
   IF N_ELEMENTS(use_fac) EQ 0 AND N_ELEMENTS(use_fac_v) EQ 0 THEN use_fac = 1
 
