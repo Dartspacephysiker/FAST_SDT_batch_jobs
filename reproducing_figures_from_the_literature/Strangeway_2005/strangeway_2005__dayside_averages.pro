@@ -15,6 +15,10 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
    BATCH_MODE=batch_mode, $
    NO_HASH_UPDATE=no_hash_update
 
+  ;;problem orbits:
+  ;;8283
+  ;;8273(?)
+
 ; Input needed on:
 ; (a) Northern/southern hemisphere limits
 ; (b) ESA data limits
@@ -429,6 +433,23 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   ;; options,'JEe','labpos',[4.e0,5.e-1]                                     ; set color label
   ;; options,'JEe','labflag',3                                               ; set color label
   GET_DATA,'JEe',DATA=tmp
+  keep  = WHERE(FINITE(tmp.y))
+  tmp.x = tmp.x[keep]
+  tmp.y = tmp.y[keep]
+  
+  keep  = WHERE(ABS(tmp.y) GT 0.0)
+  tmp.x = tmp.x[keep]
+  tmp.y = tmp.y[keep]
+  
+  ;;get timescale monotonic
+  time_order = SORT(tmp.x)
+  tmp.x = tmp.x[time_order]
+  tmp.y = tmp.y[time_order]
+
+  ;;Throw away first ten points
+  tmp.x = tmp.x[9:N_ELEMENTS(tmp.x)-1]
+  tmp.y = tmp.y[9:N_ELEMENTS(tmp.x)-1]
+  
   tmp.y = SMOOTH(tmp.y,5)
   doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
   STORE_DATA,'JEe',DATA={x:tS_1s,y:doDat}
@@ -447,6 +468,23 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   ;; options,'Je','labflag',3                                               ; set color label
   ;; options,'Je','labpos',[4.e8,5.e7]                                      ; set color label
   GET_DATA,'Je',DATA=tmp
+  keep  = WHERE(FINITE(tmp.y))
+  tmp.x = tmp.x[keep]
+  tmp.y = tmp.y[keep]
+  
+  keep  = WHERE(ABS(tmp.y) GT 0.0)
+  tmp.x = tmp.x[keep]
+  tmp.y = tmp.y[keep]
+  
+  ;;get timescale monotonic
+  time_order = SORT(tmp.x)
+  tmp.x = tmp.x[time_order]
+  tmp.y = tmp.y[time_order]
+
+  ;;Throw away first ten points
+  tmp.x = tmp.x[9:N_ELEMENTS(tmp.x)-1]
+  tmp.y = tmp.y[9:N_ELEMENTS(tmp.x)-1]
+  
   tmp.y = SMOOTH(tmp.y,5)
   doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
   STORE_DATA,'Je',DATA={x:tS_1s,y:doDat}
@@ -466,6 +504,23 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   ;; options,'Ji','labflag',3   ; set color label
   ;; options,'Ji','labpos',[2.e7,1.e6]  ; set color label
   GET_DATA,'Ji',DATA=tmp
+  keep  = WHERE(FINITE(tmp.y))
+  tmp.x = tmp.x[keep]
+  tmp.y = tmp.y[keep]
+  
+  keep  = WHERE(ABS(tmp.y) GT 0.0)
+  tmp.x = tmp.x[keep]
+  tmp.y = tmp.y[keep]
+  
+  ;;get timescale monotonic
+  time_order = SORT(tmp.x)
+  tmp.x = tmp.x[time_order]
+  tmp.y = tmp.y[time_order]
+
+  ;;Throw away first ten points
+  tmp.x = tmp.x[9:N_ELEMENTS(tmp.x)-1]
+  tmp.y = tmp.y[9:N_ELEMENTS(tmp.x)-1]
+  
   tmp.y = SMOOTH((-1.)*tmp.y,5)
   doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
   STORE_DATA,'Ji',DATA={x:tS_1s,y:doDat}
@@ -804,174 +859,380 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   ji       [WHERE(~FINITE(ji       ))]  = 0.0     
 
   ;;Indices divvying up hemispheres as well as day/nightside
-  day_i  = WHERE(mlt GE 6.0 AND mlt LT 18.0 AND (ABS(ilat) GE minILAT),nDay)
-  ngt_i  = WHERE(mlt GE 18.0 OR mlt LT 6.0  AND (ABS(ilat) GE minILAT),nNgt)
+  day_i    = WHERE(mlt GE 6.0 AND mlt LT 18.0 AND (ABS(ilat) GE minILAT),nDay)
+  ngt_i    = WHERE(mlt GE 18.0 OR mlt LT 6.0  AND (ABS(ilat) GE minILAT),nNgt)
 
-  all_i       = WHERE(ABS(ilat) GE minILAT,nAll)
-  north_i     = WHERE(ilat GE minILAT,nNorth)
-  south_i     = WHERE(ilat LE -1.*minILAT,nSouth)
+  all_i    = WHERE(ABS(ilat) GE minILAT,nAll)
+  north_i  = WHERE(ilat GE minILAT,nNorth)
+  south_i  = WHERE(ilat LE -1.*minILAT,nSouth)
 
-  dayN_i = CGSETINTERSECTION(day_i,north_i)
-  ngtN_i = CGSETINTERSECTION(ngt_i,north_i)
-  dayS_i = CGSETINTERSECTION(day_i,south_i)
-  ngtS_i = CGSETINTERSECTION(ngt_i,south_i)
-
-  ;;Time ranges
-  day_tRange  = [MIN(time[day_i]),MAX(time[day_i])]
-  ngt_tRange  = [MIN(time[ngt_i]),MAX(time[ngt_i])]
-
-  dayN_tRange = [MIN(time[dayN_i]),MAX(time[dayN_i])]
-  ngtN_tRange = [MIN(time[ngtN_i]),MAX(time[ngtN_i])]
-  dayS_tRange = [MIN(time[dayS_i]),MAX(time[dayS_i])]
-  ngtS_tRange = [MIN(time[ngtS_i]),MAX(time[ngtS_i])]
-
-  dayN_len    = MAX(position[dayN_i])-MIN(position[dayN_i])
-  dayS_len    = MAX(position[dayS_i])-MIN(position[dayS_i])
-
-  ngtN_len    = MAX(position[ngtN_i])-MIN(position[ngtN_i])
-  ngtS_len    = MAX(position[ngtS_i])-MIN(position[ngtS_i])
-
-  day_len     = dayN_len + dayS_len
-  ngt_len     = ngtN_len + ngtS_len
-
-  north_len   = dayN_len + ngtN_len
-  south_len   = dayS_len + ngtS_len
-
-  all_len     = north_len+south_len
+  dayN_i   = CGSETINTERSECTION(day_i,north_i)
+  ngtN_i   = CGSETINTERSECTION(ngt_i,north_i)
+  dayS_i   = CGSETINTERSECTION(day_i,south_i)
+  ngtS_i   = CGSETINTERSECTION(ngt_i,south_i)
 
   GET_DATA,'DSP_integ',DATA=DSP
 
-  ;;Averages
-  eAlongVAvg        = MEAN(eAlongV[all_i])
-  eAlongVAvg_N      = MEAN(eAlongV[north_i])
-  eAlongVAvg_S      = MEAN(eAlongV[south_i])
-  eAlongVAvg_day    = MEAN(eAlongV[day_i])
-  eAlongVAvg_ngt    = MEAN(eAlongV[ngt_i])
-  eAlongVAvg_dayN   = MEAN(eAlongV[dayN_i])
-  eAlongVAvg_ngtN   = MEAN(eAlongV[ngtN_i])
-  eAlongVAvg_dayS   = MEAN(eAlongV[dayS_i])
-  eAlongVAvg_ngtS   = MEAN(eAlongV[ngtS_i])
+  ;;Initialize variables (wow)
+  day_tRange        = 0.
+  ngt_tRange        = 0.
+  dayN_tRange       = 0.
+  ngtN_tRange       = 0.
+  dayS_tRange       = 0.
+  ngtS_tRange       = 0.
+  dayN_len          = 0.
+  dayS_len          = 0.
+  ngtN_len          = 0.
+  ngtS_len          = 0.
+  day_len           = 0.
+  ngt_len           = 0.
+  north_len         = 0.
+  south_len         = 0.
+  all_len           = 0.
 
-  dB_perpAvg        = MEAN(dB_perp[all_i])
-  dB_perpAvg_N      = MEAN(dB_perp[north_i])
-  dB_perpAvg_S      = MEAN(dB_perp[south_i])
-  dB_perpAvg_day    = MEAN(dB_perp[day_i])
-  dB_perpAvg_ngt    = MEAN(dB_perp[ngt_i])
-  dB_perpAvg_dayN   = MEAN(dB_perp[dayN_i])
-  dB_perpAvg_ngtN   = MEAN(dB_perp[ngtN_i])
-  dB_perpAvg_dayS   = MEAN(dB_perp[dayS_i])
-  dB_perpAvg_ngtS   = MEAN(dB_perp[ngtS_i])
+  eAlongVAvg        = 0.
+  eAlongVAvg_N      = 0.
+  eAlongVAvg_S      = 0.
+  eAlongVAvg_day    = 0.
+  eAlongVAvg_ngt    = 0.
+  eAlongVAvg_dayN   = 0.
+  eAlongVAvg_ngtN   = 0.
+  eAlongVAvg_dayS   = 0.
+  eAlongVAvg_ngtS   = 0.
 
-  pFAlongBAvg       = MEAN(pFAlongB[all_i])
-  pFAlongBAvg_N     = MEAN(pFAlongB[north_i])
-  pFAlongBAvg_S     = MEAN(pFAlongB[south_i])
-  pFAlongBAvg_day   = MEAN(pFAlongB[day_i])
-  pFAlongBAvg_ngt   = MEAN(pFAlongB[ngt_i])
-  pFAlongBAvg_dayN  = MEAN(pFAlongB[dayN_i])
-  pFAlongBAvg_ngtN  = MEAN(pFAlongB[ngtN_i])
-  pFAlongBAvg_dayS  = MEAN(pFAlongB[dayS_i])
-  pFAlongBAvg_ngtS  = MEAN(pFAlongB[ngtS_i])
+  dB_perpAvg        = 0.
+  dB_perpAvg_N      = 0.
+  dB_perpAvg_S      = 0.
+  dB_perpAvg_day    = 0.
+  dB_perpAvg_ngt    = 0.
+  dB_perpAvg_dayN   = 0.
+  dB_perpAvg_ngtN   = 0.
+  dB_perpAvg_dayS   = 0.
+  dB_perpAvg_ngtS   = 0.
 
-  jeAvg             = MEAN(je[all_i])
-  jeAvg_N           = MEAN(je[north_i])
-  jeAvg_S           = MEAN(je[south_i])
-  jeAvg_day         = MEAN(je[day_i])
-  jeAvg_ngt         = MEAN(je[ngt_i])
-  jeAvg_dayN        = MEAN(je[dayN_i])
-  jeAvg_ngtN        = MEAN(je[ngtN_i])
-  jeAvg_dayS        = MEAN(je[dayS_i])
-  jeAvg_ngtS        = MEAN(je[ngtS_i])
+  pFAlongBAvg       = 0.
+  pFAlongBAvg_N     = 0.
+  pFAlongBAvg_S     = 0.
+  pFAlongBAvg_day   = 0.
+  pFAlongBAvg_ngt   = 0.
+  pFAlongBAvg_dayN  = 0.
+  pFAlongBAvg_ngtN  = 0.
+  pFAlongBAvg_dayS  = 0.
+  pFAlongBAvg_ngtS  = 0.
 
-  JEeAvg            = MEAN(JEe[all_i])
-  JEeAvg_N          = MEAN(JEe[north_i])
-  JEeAvg_S          = MEAN(JEe[south_i])
-  JEeAvg_day        = MEAN(JEe[day_i])
-  JEeAvg_ngt        = MEAN(JEe[ngt_i])
-  JEeAvg_dayN       = MEAN(JEe[dayN_i])
-  JEeAvg_ngtN       = MEAN(JEe[ngtN_i])
-  JEeAvg_dayS       = MEAN(JEe[dayS_i])
-  JEeAvg_ngtS       = MEAN(JEe[ngtS_i])
+  jeAvg             = 0.
+  jeAvg_N           = 0.
+  jeAvg_S           = 0.
+  jeAvg_day         = 0.
+  jeAvg_ngt         = 0.
+  jeAvg_dayN        = 0.
+  jeAvg_ngtN        = 0.
+  jeAvg_dayS        = 0.
+  jeAvg_ngtS        = 0.
 
-  JiAvg             = MEAN(Ji[all_i])
-  JiAvg_N           = MEAN(Ji[north_i])
-  JiAvg_S           = MEAN(Ji[south_i])
-  JiAvg_day         = MEAN(Ji[day_i])
-  JiAvg_ngt         = MEAN(Ji[ngt_i])
-  JiAvg_dayN        = MEAN(Ji[dayN_i])
-  JiAvg_ngtN        = MEAN(Ji[ngtN_i])
-  JiAvg_dayS        = MEAN(Ji[dayS_i])
-  JiAvg_ngtS        = MEAN(Ji[ngtS_i])
+  JEeAvg            = 0.
+  JEeAvg_N          = 0.
+  JEeAvg_S          = 0.
+  JEeAvg_day        = 0.
+  JEeAvg_ngt        = 0.
+  JEeAvg_dayN       = 0.
+  JEeAvg_ngtN       = 0.
+  JEeAvg_dayS       = 0.
+  JEeAvg_ngtS       = 0.
 
-  ;;Integrals
-  eAlongVInt        = INT_TABULATED(position[all_i],eAlongV[all_i])/all_len
-  eAlongVInt_N      = INT_TABULATED(position[north_i],eAlongV[north_i])/north_len
-  eAlongVInt_S      = INT_TABULATED(position[south_i],eAlongV[south_i])/south_len
-  eAlongVInt_day    = INT_TABULATED(position[day_i],eAlongV[day_i])/day_len
-  eAlongVInt_ngt    = INT_TABULATED(position[ngt_i],eAlongV[ngt_i])/ngt_len
-  eAlongVInt_dayN   = INT_TABULATED(position[dayN_i],eAlongV[dayN_i])/dayN_len
-  eAlongVInt_ngtN   = INT_TABULATED(position[ngtN_i],eAlongV[ngtN_i])/ngtN_len
-  eAlongVInt_dayS   = INT_TABULATED(position[dayS_i],eAlongV[dayS_i])/dayS_len
-  eAlongVInt_ngtS   = INT_TABULATED(position[ngtS_i],eAlongV[ngtS_i])/ngtS_len
+  JiAvg             = 0.
+  JiAvg_N           = 0.
+  JiAvg_S           = 0.
+  JiAvg_day         = 0.
+  JiAvg_ngt         = 0.
+  JiAvg_dayN        = 0.
+  JiAvg_ngtN        = 0.
+  JiAvg_dayS        = 0.
+  JiAvg_ngtS        = 0.
 
-  dB_perpInt        = INT_TABULATED(position[all_i],dB_perp[all_i])/all_len
-  dB_perpInt_N      = INT_TABULATED(position[north_i],dB_perp[north_i])/north_len
-  dB_perpInt_S      = INT_TABULATED(position[south_i],dB_perp[south_i])/south_len
-  dB_perpInt_day    = INT_TABULATED(position[day_i],dB_perp[day_i])/day_len
-  dB_perpInt_ngt    = INT_TABULATED(position[ngt_i],dB_perp[ngt_i])/ngt_len
-  dB_perpInt_dayN   = INT_TABULATED(position[dayN_i],dB_perp[dayN_i])/dayN_len
-  dB_perpInt_ngtN   = INT_TABULATED(position[ngtN_i],dB_perp[ngtN_i])/ngtN_len
-  dB_perpInt_dayS   = INT_TABULATED(position[dayS_i],dB_perp[dayS_i])/dayS_len
-  dB_perpInt_ngtS   = INT_TABULATED(position[ngtS_i],dB_perp[ngtS_i])/ngtS_len
+  eAlongVInt        = 0.
+  eAlongVInt_N      = 0.
+  eAlongVInt_S      = 0.
+  eAlongVInt_day    = 0.
+  eAlongVInt_ngt    = 0.
+  eAlongVInt_dayN   = 0.
+  eAlongVInt_ngtN   = 0.
+  eAlongVInt_dayS   = 0.
+  eAlongVInt_ngtS   = 0.
 
-  pFAlongBInt       = INT_TABULATED(position[all_i],pFAlongB[all_i])/all_len
-  pFAlongBInt_N     = INT_TABULATED(position[north_i],pFAlongB[north_i])/north_len
-  pFAlongBInt_S     = INT_TABULATED(position[south_i],pFAlongB[south_i])/south_len
-  pFAlongBInt_day   = INT_TABULATED(position[day_i],pFAlongB[day_i])/day_len
-  pFAlongBInt_ngt   = INT_TABULATED(position[ngt_i],pFAlongB[ngt_i])/ngt_len
-  pFAlongBInt_dayN  = INT_TABULATED(position[dayN_i],pFAlongB[dayN_i])/dayN_len
-  pFAlongBInt_ngtN  = INT_TABULATED(position[ngtN_i],pFAlongB[ngtN_i])/ngtN_len
-  pFAlongBInt_dayS  = INT_TABULATED(position[dayS_i],pFAlongB[dayS_i])/dayS_len
-  pFAlongBInt_ngtS  = INT_TABULATED(position[ngtS_i],pFAlongB[ngtS_i])/ngtS_len
+  dB_perpInt        = 0.
+  dB_perpInt_N      = 0.
+  dB_perpInt_S      = 0.
+  dB_perpInt_day    = 0.
+  dB_perpInt_ngt    = 0.
+  dB_perpInt_dayN   = 0.
+  dB_perpInt_ngtN   = 0.
+  dB_perpInt_dayS   = 0.
+  dB_perpInt_ngtS   = 0.
 
-  JeInt             = INT_TABULATED(position[all_i],Je[all_i])/all_len
-  JeInt_N           = INT_TABULATED(position[north_i],Je[north_i])/north_len
-  JeInt_S           = INT_TABULATED(position[south_i],Je[south_i])/south_len
-  JeInt_day         = INT_TABULATED(position[day_i],Je[day_i])/day_len
-  JeInt_ngt         = INT_TABULATED(position[ngt_i],Je[ngt_i])/ngt_len
-  JeInt_dayN        = INT_TABULATED(position[dayN_i],Je[dayN_i])/dayN_len
-  JeInt_ngtN        = INT_TABULATED(position[ngtN_i],Je[ngtN_i])/ngtN_len
-  JeInt_dayS        = INT_TABULATED(position[dayS_i],Je[dayS_i])/dayS_len
-  JeInt_ngtS        = INT_TABULATED(position[ngtS_i],Je[ngtS_i])/ngtS_len
+  pFAlongBInt       = 0.
+  pFAlongBInt_N     = 0.
+  pFAlongBInt_S     = 0.
+  pFAlongBInt_day   = 0.
+  pFAlongBInt_ngt   = 0.
+  pFAlongBInt_dayN  = 0.
+  pFAlongBInt_ngtN  = 0.
+  pFAlongBInt_dayS  = 0.
+  pFAlongBInt_ngtS  = 0.
 
-  JeeInt            = INT_TABULATED(position[all_i],Jee[all_i])/all_len
-  JeeInt_N          = INT_TABULATED(position[north_i],Jee[north_i])/north_len
-  JeeInt_S          = INT_TABULATED(position[south_i],Jee[south_i])/south_len
-  JEeInt_day        = INT_TABULATED(position[day_i],JEe[day_i])/day_len
-  JEeInt_ngt        = INT_TABULATED(position[ngt_i],JEe[ngt_i])/ngt_len
-  JeeInt_dayN       = INT_TABULATED(position[dayN_i],Jee[dayN_i])/dayN_len
-  JeeInt_ngtN       = INT_TABULATED(position[ngtN_i],Jee[ngtN_i])/ngtN_len
-  JeeInt_dayS       = INT_TABULATED(position[dayS_i],Jee[dayS_i])/dayS_len
-  JeeInt_ngtS       = INT_TABULATED(position[ngtS_i],Jee[ngtS_i])/ngtS_len
+  jeInt             = 0.
+  jeInt_N           = 0.
+  jeInt_S           = 0.
+  jeInt_day         = 0.
+  jeInt_ngt         = 0.
+  jeInt_dayN        = 0.
+  jeInt_ngtN        = 0.
+  jeInt_dayS        = 0.
+  jeInt_ngtS        = 0.
 
-  JiInt             = INT_TABULATED(position[all_i],Ji[all_i])/all_len
-  JiInt_N           = INT_TABULATED(position[north_i],Ji[north_i])/north_len
-  JiInt_S           = INT_TABULATED(position[south_i],Ji[south_i])/south_len
-  JiInt_day         = INT_TABULATED(position[day_i],Ji[day_i])/day_len
-  JiInt_ngt         = INT_TABULATED(position[ngt_i],Ji[ngt_i])/ngt_len
-  JiInt_dayN        = INT_TABULATED(position[dayN_i],Ji[dayN_i])/dayN_len
-  JiInt_ngtN        = INT_TABULATED(position[ngtN_i],Ji[ngtN_i])/ngtN_len
-  JiInt_dayS        = INT_TABULATED(position[dayS_i],Ji[dayS_i])/dayS_len
-  JiInt_ngtS        = INT_TABULATED(position[ngtS_i],Ji[ngtS_i])/ngtS_len
+  JEeInt            = 0.
+  JEeInt_N          = 0.
+  JEeInt_S          = 0.
+  JEeInt_day        = 0.
+  JEeInt_ngt        = 0.
+  JEeInt_dayN       = 0.
+  JEeInt_ngtN       = 0.
+  JEeInt_dayS       = 0.
+  JEeInt_ngtS       = 0.
 
+  JiInt             = 0.
+  JiInt_N           = 0.
+  JiInt_S           = 0.
+  JiInt_day         = 0.
+  JiInt_ngt         = 0.
+  JiInt_dayN        = 0.
+  JiInt_ngtN        = 0.
+  JiInt_dayS        = 0.
+  JiInt_ngtS        = 0.
+
+  IF day_i[0] NE -1 THEN BEGIN
+
+     eAlongVAvg_day    = MEAN(eAlongV[day_i])
+     dB_perpAvg_day    = MEAN(dB_perp[day_i])
+     pFAlongBAvg_day   = MEAN(pFAlongB[day_i])
+
+     jeAvg_day         = MEAN(je[day_i])
+     JEeAvg_day        = MEAN(JEe[day_i])
+     JiAvg_day         = MEAN(Ji[day_i])
+
+     IF dayN_i[0] NE -1 THEN BEGIN
+        dayN_tRange       = [MIN(time[dayN_i]),MAX(time[dayN_i])]
+        dayN_len          = MAX(position[dayN_i])-MIN(position[dayN_i])
+
+        eAlongVAvg_dayN   = MEAN(eAlongV[dayN_i])
+        dB_perpAvg_dayN   = MEAN(dB_perp[dayN_i])
+        pFAlongBAvg_dayN  = MEAN(pFAlongB[dayN_i])
+        jeAvg_dayN        = MEAN(je[dayN_i])
+        JEeAvg_dayN       = MEAN(JEe[dayN_i])
+        JiAvg_dayN        = MEAN(Ji[dayN_i])
+     ENDIF
+
+     IF dayS_i[0] NE -1 THEN BEGIN
+        eAlongVAvg_dayS   = MEAN(eAlongV[dayS_i])
+        dB_perpAvg_dayS   = MEAN(dB_perp[dayS_i])
+        pFAlongBAvg_dayS  = MEAN(pFAlongB[dayS_i])
+        jeAvg_dayS        = MEAN(je[dayS_i])
+        JEeAvg_dayS       = MEAN(JEe[dayS_i])
+        JiAvg_dayS        = MEAN(Ji[dayS_i])
+     ENDIF
+
+     IF N_ELEMENTS(day_i) GT 1 THEN BEGIN
+        eAlongVInt_day    = INT_TABULATED(position[day_i],eAlongV[day_i])/day_len
+        dB_perpInt_day    = INT_TABULATED(position[day_i],dB_perp[day_i])/day_len
+        pFAlongBInt_day   = INT_TABULATED(position[day_i],pFAlongB[day_i])/day_len
+        JeInt_day         = INT_TABULATED(position[day_i],Je[day_i])/day_len
+        JEeInt_day        = INT_TABULATED(position[day_i],JEe[day_i])/day_len
+        JiInt_day         = INT_TABULATED(position[day_i],Ji[day_i])/day_len
+
+     ENDIF
+
+     IF N_ELEMENTS(dayN_i) GT 1 THEN BEGIN
+        eAlongVInt_dayN   = INT_TABULATED(position[dayN_i],eAlongV[dayN_i])/dayN_len
+        dB_perpInt_dayN   = INT_TABULATED(position[dayN_i],dB_perp[dayN_i])/dayN_len
+        pFAlongBInt_dayN  = INT_TABULATED(position[dayN_i],pFAlongB[dayN_i])/dayN_len
+
+        JeeInt_dayN       = INT_TABULATED(position[dayN_i],Jee[dayN_i])/dayN_len
+        JeInt_dayN        = INT_TABULATED(position[dayN_i],Je[dayN_i])/dayN_len
+        JiInt_dayN        = INT_TABULATED(position[dayN_i],Ji[dayN_i])/dayN_len
+
+     ENDIF
+
+     IF N_ELEMENTS(dayS_i) GT 1 THEN BEGIN
+        eAlongVInt_dayS   = INT_TABULATED(position[dayS_i],eAlongV[dayS_i])/dayS_len
+        dB_perpInt_dayS   = INT_TABULATED(position[dayS_i],dB_perp[dayS_i])/dayS_len
+        pFAlongBInt_dayS  = INT_TABULATED(position[dayS_i],pFAlongB[dayS_i])/dayS_len
+
+        JeeInt_dayS       = INT_TABULATED(position[dayS_i],Jee[dayS_i])/dayS_len
+        JeInt_dayS        = INT_TABULATED(position[dayS_i],Je[dayS_i])/dayS_len
+        JiInt_dayS        = INT_TABULATED(position[dayS_i],Ji[dayS_i])/dayS_len
+     ENDIF
+
+     day_tRange        = [MIN(time[day_i]),MAX(time[day_i])]
+     day_len           = dayN_len + dayS_len
+
+
+  ENDIF
+
+  IF ngt_i[0] NE -1 THEN BEGIN
+
+     eAlongVAvg_ngt    = MEAN(eAlongV[ngt_i])
+     dB_perpAvg_ngt    = MEAN(dB_perp[ngt_i])
+     pFAlongBAvg_ngt   = MEAN(pFAlongB[ngt_i])
+
+     jeAvg_ngt         = MEAN(je[ngt_i])
+     JEeAvg_ngt        = MEAN(JEe[ngt_i])
+     JiAvg_ngt         = MEAN(Ji[ngt_i])
+
+     IF ngtN_i[0] NE -1 THEN BEGIN
+        ngtN_tRange       = [MIN(time[ngtN_i]),MAX(time[ngtN_i])]
+        ngtN_len          = MAX(position[ngtN_i])-MIN(position[ngtN_i])
+
+        eAlongVAvg_ngtN   = MEAN(eAlongV[ngtN_i])
+        dB_perpAvg_ngtN   = MEAN(dB_perp[ngtN_i])
+        pFAlongBAvg_ngtN  = MEAN(pFAlongB[ngtN_i])
+        jeAvg_ngtN        = MEAN(je[ngtN_i])
+        JEeAvg_ngtN       = MEAN(JEe[ngtN_i])
+        JiAvg_ngtN        = MEAN(Ji[ngtN_i])
+     ENDIF
+
+     IF ngtS_i[0] NE -1 THEN BEGIN
+        eAlongVAvg_ngtS   = MEAN(eAlongV[ngtS_i])
+        dB_perpAvg_ngtS   = MEAN(dB_perp[ngtS_i])
+        pFAlongBAvg_ngtS  = MEAN(pFAlongB[ngtS_i])
+        jeAvg_ngtS        = MEAN(je[ngtS_i])
+        JEeAvg_ngtS       = MEAN(JEe[ngtS_i])
+        JiAvg_ngtS        = MEAN(Ji[ngtS_i])
+     ENDIF
+
+     IF N_ELEMENTS(ngt_i) GT 1 THEN BEGIN
+        eAlongVInt_ngt    = INT_TABULATED(position[ngt_i],eAlongV[ngt_i])/ngt_len
+        dB_perpInt_ngt    = INT_TABULATED(position[ngt_i],dB_perp[ngt_i])/ngt_len
+        pFAlongBInt_ngt   = INT_TABULATED(position[ngt_i],pFAlongB[ngt_i])/ngt_len
+        JeInt_ngt         = INT_TABULATED(position[ngt_i],Je[ngt_i])/ngt_len
+        JEeInt_ngt        = INT_TABULATED(position[ngt_i],JEe[ngt_i])/ngt_len
+        JiInt_ngt         = INT_TABULATED(position[ngt_i],Ji[ngt_i])/ngt_len
+
+     ENDIF
+
+     IF N_ELEMENTS(ngtN_i) GT 1 THEN BEGIN
+        eAlongVInt_ngtN   = INT_TABULATED(position[ngtN_i],eAlongV[ngtN_i])/ngtN_len
+        dB_perpInt_ngtN   = INT_TABULATED(position[ngtN_i],dB_perp[ngtN_i])/ngtN_len
+        pFAlongBInt_ngtN  = INT_TABULATED(position[ngtN_i],pFAlongB[ngtN_i])/ngtN_len
+
+        JeeInt_ngtN       = INT_TABULATED(position[ngtN_i],Jee[ngtN_i])/ngtN_len
+        JeInt_ngtN        = INT_TABULATED(position[ngtN_i],Je[ngtN_i])/ngtN_len
+        JiInt_ngtN        = INT_TABULATED(position[ngtN_i],Ji[ngtN_i])/ngtN_len
+
+     ENDIF
+
+     IF N_ELEMENTS(ngtS_i) GT 1 THEN BEGIN
+        eAlongVInt_ngtS   = INT_TABULATED(position[ngtS_i],eAlongV[ngtS_i])/ngtS_len
+        dB_perpInt_ngtS   = INT_TABULATED(position[ngtS_i],dB_perp[ngtS_i])/ngtS_len
+        pFAlongBInt_ngtS  = INT_TABULATED(position[ngtS_i],pFAlongB[ngtS_i])/ngtS_len
+
+        JeeInt_ngtS       = INT_TABULATED(position[ngtS_i],Jee[ngtS_i])/ngtS_len
+        JeInt_ngtS        = INT_TABULATED(position[ngtS_i],Je[ngtS_i])/ngtS_len
+        JiInt_ngtS        = INT_TABULATED(position[ngtS_i],Ji[ngtS_i])/ngtS_len
+     ENDIF
+
+     ngt_tRange        = [MIN(time[ngt_i]),MAX(time[ngt_i])]
+     ngt_len           = ngtN_len + ngtS_len
+
+
+  ENDIF
+
+  IF north_i[0] NE -1 THEN BEGIN
+
+     north_len      = dayN_len + ngtN_len
+
+     eAlongVAvg_N   = MEAN(eAlongV[north_i])
+     dB_perpAvg_N   = MEAN(dB_perp[north_i])
+     pFAlongBAvg_N  = MEAN(pFAlongB[north_i])
+     jeAvg_N        = MEAN(je[north_i])
+     JEeAvg_N       = MEAN(JEe[north_i])
+     JiAvg_N        = MEAN(Ji[north_i])
+
+     IF N_ELEMENTS(north_i) GT 1 THEN BEGIN
+        eAlongVInt_N   = INT_TABULATED(position[north_i],eAlongV[north_i])/north_len
+        dB_perpInt_N   = INT_TABULATED(position[north_i],dB_perp[north_i])/north_len
+        pFAlongBInt_N  = INT_TABULATED(position[north_i],pFAlongB[north_i])/north_len
+        JeInt_N        = INT_TABULATED(position[north_i],Je[north_i])/north_len
+        JeeInt_N       = INT_TABULATED(position[north_i],Jee[north_i])/north_len
+        JiInt_N        = INT_TABULATED(position[north_i],Ji[north_i])/north_len
+     ENDIF
+  ENDIF
+
+  IF south_i[0] NE -1 THEN BEGIN
+
+     south_len      = dayS_len + ngtS_len
+
+     eAlongVAvg_S   = MEAN(eAlongV[south_i])
+     dB_perpAvg_S   = MEAN(dB_perp[south_i])
+     pFAlongBAvg_S  = MEAN(pFAlongB[south_i])
+     jeAvg_S        = MEAN(je[south_i])
+     JEeAvg_S       = MEAN(JEe[south_i])
+     JiAvg_S        = MEAN(Ji[south_i])
+
+     IF N_ELEMENTS(south_i) GT 1 THEN BEGIN
+        eAlongVInt_S   = INT_TABULATED(position[south_i],eAlongV[south_i])/south_len
+        dB_perpInt_S   = INT_TABULATED(position[south_i],dB_perp[south_i])/south_len
+        pFAlongBInt_S  = INT_TABULATED(position[south_i],pFAlongB[south_i])/south_len
+        JeInt_S        = INT_TABULATED(position[south_i],Je[south_i])/south_len
+        JeeInt_S       = INT_TABULATED(position[south_i],Jee[south_i])/south_len
+        JiInt_S        = INT_TABULATED(position[south_i],Ji[south_i])/south_len
+     ENDIF
+  ENDIF
+
+  IF all_i[0] NE -1 THEN BEGIN
+
+     all_len      = north_len+south_len
+
+     eAlongVAvg   = MEAN(eAlongV[all_i])
+     dB_perpAvg   = MEAN(dB_perp[all_i])
+     pFAlongBAvg  = MEAN(pFAlongB[all_i])
+
+     jeAvg        = MEAN(je[all_i])
+     JEeAvg       = MEAN(JEe[all_i])
+     JiAvg        = MEAN(Ji[all_i])
+
+     IF N_ELEMENTS(all_i) GT 1 THEN BEGIN
+        eAlongVInt   = INT_TABULATED(position[all_i],eAlongV[all_i])/all_len
+        dB_perpInt   = INT_TABULATED(position[all_i],dB_perp[all_i])/all_len
+        pFAlongBInt  = INT_TABULATED(position[all_i],pFAlongB[all_i])/all_len
+
+        JeInt        = INT_TABULATED(position[all_i],Je[all_i])/all_len
+        JeeInt       = INT_TABULATED(position[all_i],Jee[all_i])/all_len
+        JiInt        = INT_TABULATED(position[all_i],Ji[all_i])/all_len
+
+     ENDIF
+
+  ENDIF
 
   struct = {orbit:orbit, $
             time:time, $
-            avg:{all:{eAlongV:eAlongVAvg, $
-                      dB_perp:dB_perpAvg, $
-                      pFAlongB:pFAlongBAvg, $
-                      je:jeAvg, $
-                      Jee:JEeAvg, $
-                      Ji:JiAvg}, $
+            avg:{Both:{both:{eAlongV:eAlongVAvg, $
+                              dB_perp:dB_perpAvg, $
+                              pFAlongB:pFAlongBAvg, $
+                              je:jeAvg, $
+                              Jee:JEeAvg, $
+                              Ji:JiAvg}, $
+                        day:{eAlongV:eAlongVAvg_day, $
+                             dB_perp:dB_perpAvg_day, $
+                             pFAlongB:pFAlongBAvg_day, $
+                             je:jeAvg_day, $
+                             Jee:JEeAvg_day, $
+                             Ji:JiAvg_day}, $
+                        ngt:{eAlongV:eAlongVAvg_ngt, $
+                             dB_perp:dB_perpAvg_ngt, $
+                             pFAlongB:pFAlongBAvg_ngt, $
+                             je:jeAvg_ngt, $
+                             Jee:JEeAvg_ngt, $
+                             Ji:JiAvg_ngt}}, $
                  North:{both:{eAlongV:eAlongVAvg_N, $
                               dB_perp:dB_perpAvg_N, $
                               pFAlongB:pFAlongBAvg_N, $
@@ -1008,12 +1269,24 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
                              je:jeAvg_ngtS, $
                              Jee:JEeAvg_ngtS, $
                              Ji:JiAvg_ngtS}}}, $
-            int:{all:{eAlongV:eAlongVInt, $
-                      dB_perp:dB_perpInt, $
-                      pFAlongB:pFAlongBInt, $
-                      je:jeInt, $
-                      Jee:JEeInt, $
-                      Ji:JiInt}, $
+            int:{Both:{both:{eAlongV:eAlongVInt, $
+                              dB_perp:dB_perpInt, $
+                              pFAlongB:pFAlongBInt, $
+                              je:jeInt, $
+                              Jee:JEeInt, $
+                              Ji:JiInt}, $
+                        day:{eAlongV:eAlongVInt_day, $
+                             dB_perp:dB_perpInt_day, $
+                             pFAlongB:pFAlongBInt_day, $
+                             je:jeInt_day, $
+                             Jee:JEeInt_day, $
+                             Ji:JiInt_day}, $
+                        ngt:{eAlongV:eAlongVInt_ngt, $
+                             dB_perp:dB_perpInt_ngt, $
+                             pFAlongB:pFAlongBInt_ngt, $
+                             je:jeInt_ngt, $
+                             Jee:JEeInt_ngt, $
+                             Ji:JiInt_ngt}}, $
                  North:{both:{eAlongV:eAlongVInt_N, $
                               dB_perp:dB_perpInt_N, $
                               pFAlongB:pFAlongBInt_N, $

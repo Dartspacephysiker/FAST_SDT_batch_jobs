@@ -112,7 +112,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS, $
                ji        : jiArr       [0:nCount-1]}
 
 
-  that = PLOT(this.pfalongb,this.ji, $
+  that = PLOT(finStruct.pfalongb,finStruct.ji, $
               XLOG=1, $
               YLOG=1, $
               LINESTYLE='', $
