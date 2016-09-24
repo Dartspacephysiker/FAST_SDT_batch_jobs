@@ -112,5 +112,15 @@ FUNCTION EXTRACT_STRANGEWAY_STATS, $
                ji        : jiArr       [0:nCount-1]}
 
 
+  that = PLOT(this.pfalongb,this.ji, $
+              XLOG=1, $
+              YLOG=1, $
+              LINESTYLE='', $
+              SYMBOL='o', $
+              /SYM_FILLED, $
+              XRANGE=[1e-1,1e2], $
+              YRANGE=[1e6,1e10])
+
   RETURN,finStruct
+
 END
