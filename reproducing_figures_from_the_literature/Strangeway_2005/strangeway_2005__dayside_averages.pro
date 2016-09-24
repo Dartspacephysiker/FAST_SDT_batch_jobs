@@ -11,7 +11,9 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
    USE_FAC=use_fac, $
    NO_BLANK_PANELS=no_blank_panels, $
    SAVE_PNG=save_png, $
-   SAVE_PS=save_ps
+   SAVE_PS=save_ps, $
+   BATCH_MODE=batch_mode, $
+   NO_HASH_UPDATE=no_hash_update
 
 ; Input needed on:
 ; (a) Northern/southern hemisphere limits
@@ -33,7 +35,11 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
 
   @startup
 
-  ON_ERROR,0
+  IF ~KEYWORD_SET(batch_mode) THEN BEGIN
+     ON_ERROR,0
+  ENDIF
+
+  @strway_stuff                 ;List of orbits used, energy thresholds, etc.
 
   IF N_ELEMENTS(use_fac) EQ 0 AND N_ELEMENTS(use_fac_v) EQ 0 THEN use_fac = 1
 
@@ -45,6 +51,9 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_2005/'
   hashFile     = 'Strangeway_et_al_2005__DC_params.sav'
   outPlotName  = 'Strangeway_et_al_2005__ion_outflow--Fig_3'
+
+  IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
+  IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
 
   nn           = n_elements(data_quants)
 
@@ -73,7 +82,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
 ; got mag data, set time limits, delete unused tplot variables, set tplot_vars
 
      store_data,'BDATA',/delete
-     store_data,'BFIT',/delete 
+     store_data,'BFIT',/delete
      store_data,'Bx_sp',/delete
      store_data,'By_sp',/delete
      store_data,'Bz_sp',/delete
@@ -149,7 +158,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
                             y:data.y[tmpI,l]}
 
            smoothed      = SMOOTH(tmp.y,smooth_int)
-           
+
            data.y[tmpI,l]  = smoothed
 
         ENDFOR
@@ -160,7 +169,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
      ;; OPTIONS,var_name,'labels',['o','e','b']
 
      ;;From UCLA_MAG_DESPIN:
-     ;;"   Field-aligned coordinates defined as: 
+     ;;"   Field-aligned coordinates defined as:
      ;;"   z-along B, y-east (BxR), x-nominally out"
      ;;    (ind 2)    (ind 1)       (ind 0)
 
@@ -198,6 +207,8 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
      OPTIONS,'dB_fac_interp','colors',[normColorI,normColorI]
      OPTIONS,'dB_fac_interp','tplot_routine','mplot'
      STORE_DATA,'dB_fac_interp',DLIMITS=dLimit
+     options,'dB_fac_interp','x_no_interp',1
+     options,'dB_fac_interp','y_no_interp',1
 
   endif
 
@@ -262,7 +273,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
         smoothed         = data.y
         FOR k=0,N_ELEMENTS(data.y)-1 DO BEGIN
 
-           tmpI          = WHERE(ABS(data.x-data.x[k]) LE 2.0)
+           tmpI          = WHERE(ABS(data.x-data.x[k]) LE fields_smoothWindow_halfLength)
            smoothed[k]   = MEAN(data.y[tmpI])
 
         ENDFOR
@@ -278,7 +289,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
 
            smooth_int    = CEIL(sRates[k]/0.25)
            smoothed      = SMOOTH(tmp.y,smooth_int)
-           
+
            data.y[tmpI]  = smoothed
 
            PRINT,'Smooth int: ' + STRCOMPRESS(smooth_int,/REMOVE_ALL)
@@ -316,7 +327,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
         get_new_igrf,/no_store_old
      endif
 
-; check for southern hemisphere and fix 
+; check for southern hemisphere and fix
 ; NOTE IT IS ASSUMED THAT FA_FIELDS_DESPIN DOES NOT CORRECT PHASE
 
      get_data,'B_model',data=bm
@@ -342,6 +353,8 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
      options,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C[DC] (mV/m)'
      OPTIONS,'EFIT_ALONG_VSC','colors',[normColorI,normColorI]
      options,'EFIT_ALONG_VSC','panel_size',2
+     options,'EFIT_ALONG_VSC','x_no_interp',1
+     options,'EFIT_ALONG_VSC','y_no_interp',1
 
      store_data,'E_NEAR_B',/delete
      store_data,'E_ALONG_V',/delete
@@ -382,6 +395,8 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
             panel_size:3}
   OPTIONS,'pFlux','colors',[normColorI,normColorI]
   STORE_DATA,'pFlux',DLIMITS=dLimit
+  options,'pFlux','x_no_interp',1
+  options,'pFlux','y_no_interp',1
 
   IF (n_elements(tplot_vars) EQ 0) THEN tplot_vars=['pFlux'] $
   ELSE tplot_vars=['pFlux',tplot_vars]
@@ -396,7 +411,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
 ; Electron energy flux
 
   t           = 0.0D
-  tmp         = GET_FA_EES_C(t,/EN)
+  tmp         = GET_FA_EES(t,/EN)
   IF tmp.valid EQ 0 THEN BEGIN
      PRINT,'Junk'
      RETURN
@@ -407,23 +422,25 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   temp        = GET_FA_EES(t1,INDEX=0.0D)
   temp        = GET_FA_EES(t2,INDEX=DOUBLE(last_index))
 
-  GET_2DT,'je_2d_fs','fa_ees_c',name='JEe',t1=t1,t2=t2,energy=[50,30000]
+  GET_2DT,'je_2d_fs','fa_ees_c',name='JEe',t1=t1,t2=t2,energy=energy_electrons
   ;; ylim,'JEe',1.e-1,1.e1,1                                               ; set y limits
-  ;; options,'JEe','tplot_routine','pmplot'                                  
-  ;; options,'JEe','labels',['Downgoing!C Electrons','Upgoing!C Electrons '] 
+  ;; options,'JEe','tplot_routine','pmplot'
+  ;; options,'JEe','labels',['Downgoing!C Electrons','Upgoing!C Electrons ']
   ;; options,'JEe','labpos',[4.e0,5.e-1]                                     ; set color label
   ;; options,'JEe','labflag',3                                               ; set color label
   GET_DATA,'JEe',DATA=tmp
   tmp.y = SMOOTH(tmp.y,5)
   doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
   STORE_DATA,'JEe',DATA={x:tS_1s,y:doDat}
-  ylim,'JEe',-1.,6.,0                                                     ; set y limits
-  options,'JEe','ytitle','Electron!CEnergy Flux!CmW/(m!U2!N)'             ; set y title
-  options,'JEe','panel_size',3                                            ; set panel size
+  ylim,'JEe',-1.,6.,0                                         ; set y limits
+  options,'JEe','ytitle','Electron!CEnergy Flux!CmW/(m!U2!N)' ; set y title
+  options,'JEe','panel_size',3                                ; set panel size
+  options,'JEe','x_no_interp',1
+  options,'JEe','y_no_interp',1
 
 ; Electron flux
 
-  GET_2DT,'j_2d_fs','fa_ees_c',NAME='Je',T1=t1,T2=t2,ENERGY=[50,30000]
+  GET_2DT,'j_2d_fs','fa_ees_c',NAME='Je',T1=t1,T2=t2,ENERGY=energy_electrons
   ;; ylim,'Je',1.e7,1.e9,1                                                ; set y limits
   ;; options,'Je','tplot_routine','pmplot'                                ; set 2 color plot
   ;; options,'Je','labels',['Downgoing!C Electrons','Upgoing!C Electrons '] ; set color label
@@ -433,18 +450,21 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   tmp.y = SMOOTH(tmp.y,5)
   doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
   STORE_DATA,'Je',DATA={x:tS_1s,y:doDat}
-  ylim,'Je',-5.e9,1.5e10,0                                                  ; set y limits
-  options,'Je','ytitle','Electron Flux!C!C#/(cm!U2!N-s)'                    ; set y title
-  options,'Je','panel_size',3                                               ; set panel size
+  ylim,'Je',-5.e9,1.5e10,0                               ; set y limits
+  options,'Je','ytitle','Electron Flux!C!C#/(cm!U2!N-s)' ; set y title
+  options,'Je','panel_size',3                            ; set panel size
+  options,'Je','x_no_interp',1
+  options,'Je','y_no_interp',1
 
 ; Step 5 - Ion flux
 
-  GET_2DT,'j_2d_fs','fa_ies_c',name='Ji',t1=t1,t2=t2,energy=[0,120]
-  ;; ylim,'Ji',1.e5,1.e8,1 	; set y limits
-  ;; options,'Ji','tplot_routine','pmplot' 	; set 2 color plot
-  ;; options,'Ji','labels',['Downgoing!C Ions','Upgoing!C Ions '] 	; set color label
-  ;; options,'Ji','labflag',3 	; set color label
-  ;; options,'Ji','labpos',[2.e7,1.e6] 	; set color label
+  IF (WHERE(orbit EQ strWay_orbs))[0] NE -1 THEN energy_ions[1] = upper_ion_e[orbit]
+  GET_2DT,'j_2d_fs','fa_ies_c',name='Ji',t1=t1,t2=t2,energy=energy_ions
+  ;; ylim,'Ji',1.e5,1.e8,1      ; set y limits
+  ;; options,'Ji','tplot_routine','pmplot'      ; set 2 color plot
+  ;; options,'Ji','labels',['Downgoing!C Ions','Upgoing!C Ions ']       ; set color label
+  ;; options,'Ji','labflag',3   ; set color label
+  ;; options,'Ji','labpos',[2.e7,1.e6]  ; set color label
   GET_DATA,'Ji',DATA=tmp
   tmp.y = SMOOTH((-1.)*tmp.y,5)
   doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
@@ -452,6 +472,8 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   ylim,'Ji',-1.e9,6.e9,0                          ; set y limits
   options,'Ji','ytitle','Ion Flux!C#/(cm!U2!N-s)' ; set y title
   options,'Ji','panel_size',3                     ; set panel size
+  options,'Ji','x_no_interp',1
+  options,'Ji','y_no_interp',1
 
 
 ; Step 6 - VLF data
@@ -510,7 +532,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
         data={x:new_tag[tsort],y:new_dat,v:data.v}
         store_data,'DSP_V5-V8',data=data
      endif
-     
+
      if (n_elements(tplot_vars) eq 0) then tplot_vars=['DSP_V5-V8'] else tplot_vars=['DSP_V5-V8',tplot_vars]
 
      if (keyword_set(screen_plot)) then begin
@@ -521,16 +543,16 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
      ;;Now integrate
      data.y    = 10.^data.y
      data.v   *= 1000.
-     
+
      integData = MAKE_ARRAY(N_ELEMENTS(data.x),VALUE=0.)
-     
+
      tmpF_i = LINDGEN(N_ELEMENTS(data.v)-1)+1
      FOR m=0,N_ELEMENTS(data.x)-1 DO BEGIN
 
         ;;"Intergrate," as some have it, and apply test
         integData[m] = INT_TABULATED(data.v[tmpF_i],data.y[m,tmpF_i])
      ENDFOR
-     
+
      ;;Get rid of the square so that units are V/m
      integData = SQRT(integData)
 
@@ -548,7 +570,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
         smoothed         = data.y
         FOR k=0,N_ELEMENTS(data.y)-1 DO BEGIN
 
-           tmpI          = WHERE(ABS(data.x-data.x[k]) LE 0.5)
+           tmpI          = WHERE(ABS(data.x-data.x[k]) LE DSP_smoothWindow_halfLength)
            smoothed[k]   = MEAN(data.y[tmpI])
 
         ENDFOR
@@ -564,7 +586,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
 
            smooth_int    = CEIL(sRates[k]/0.25)
            smoothed      = SMOOTH(tmp.y,smooth_int)
-           
+
            data.y[tmpI]  = smoothed
 
            PRINT,'Smooth int: ' + STRCOMPRESS(smooth_int,/REMOVE_ALL)
@@ -696,7 +718,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
            WINDOW,0,XSIZE=600,YSIZE=800
         ENDELSE
      ENDELSE
-     
+
      CASE 1 OF
         ;; (n_elements(tlimit_north) gt 0): BEGIN
         ;;    tlimit,tlimit_north
@@ -706,13 +728,14 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
         ;; END
         KEYWORD_SET(plot_north): BEGIN
            tLims = tlimit_north
+
         END
         KEYWORD_SET(plot_south): BEGIN
            tLims = tlimit_south
         END
         ELSE: BEGIN
-           tLims = [t1ZoomStr,t2ZoomStr]
-        END        
+           ;; tLims = [t1ZoomStr,t2ZoomStr]
+        END
      ENDCASE
 
      LOADCT2,40
@@ -730,6 +753,15 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Gather data and STORE
   GET_FA_ORBIT,tS_1s,/TIME_ARRAY,/DEFINITIVE,/ALL
+  GET_DATA,'fa_vel',DATA=vel
+  speed = SQRT(vel.y[*,0]^2+vel.y[*,1]^2+vel.y[*,2]^2)*1000.0
+
+  ;;get position of each mag point
+  position         = MAKE_ARRAY(N_ELEMENTS(tS_1s),/DOUBLE,VALUE=0.0D)
+  speed_point_inds = VALUE_CLOSEST2(vel.x,tS_1s)
+  speed_mag_point  = speed[speed_point_inds]
+  position[1:-1]   = TOTAL((tS_1s[1:-1]-tS_1s[0:-2])*speed_mag_point,/CUMULATIVE)
+
   GET_DATA,'MLT',DATA=mlt
   GET_DATA,'ILAT',DATA=ilat
   GET_DATA,'ALT',DATA=alt
@@ -750,46 +782,300 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   PRINT,ARRAY_EQUAL(jee.x,ji.x)
 
   ;;Reduce data
-  time        = tS_1s             ;ephem stuff
+  time        = tS_1s           ;ephem stuff
   mlt         = mlt.y
   ilat        = ilat.y
   alt         = alt.y
 
-  eAlongV     = eAVsc.y[*,1]      ;fields
+  eAlongV     = eAVsc.y[*,1]    ;fields
   dB_perp     = dB_perp.y[*,1]
   pFAlongB    = pFluxB.y[*,1]
-  je          = je.y              ;particles
+  je          = je.y            ;particles
   jee         = jee.y
   ji          = ji.y
 
 
+  ;;Safety
+  eAlongV  [WHERE(~FINITE(eAlongV  ))]  = 0.0
+  dB_perp  [WHERE(~FINITE(dB_perp  ))]  = 0.0
+  pFAlongB [WHERE(~FINITE(pFAlongB ))]  = 0.0
+  je       [WHERE(~FINITE(je       ))]  = 0.0     
+  jee      [WHERE(~FINITE(jee      ))]  = 0.0    
+  ji       [WHERE(~FINITE(ji       ))]  = 0.0     
+
   ;;Indices divvying up hemispheres as well as day/nightside
-  dayEphem_i  = WHERE(mlt.y GE 6.0 AND mlt.y LT 18.0,nDay)
-  ngtEphem_i  = WHERE(mlt.y GE 6.0 AND mlt.y LT 18.0,nNgt)
+  day_i  = WHERE(mlt GE 6.0 AND mlt LT 18.0 AND (ABS(ilat) GE minILAT),nDay)
+  ngt_i  = WHERE(mlt GE 18.0 OR mlt LT 6.0  AND (ABS(ilat) GE minILAT),nNgt)
 
-  north_i     = WHERE(ilat.y GE 10)
-  south_i     = WHERE(ilat.y LE -10)
+  all_i       = WHERE(ABS(ilat) GE minILAT,nAll)
+  north_i     = WHERE(ilat GE minILAT,nNorth)
+  south_i     = WHERE(ilat LE -1.*minILAT,nSouth)
 
-  dayNEphem_i = CGSETINTERSECTION(dayEphem_i,north_i)
-  ngtNEphem_i = CGSETINTERSECTION(ngtEphem_i,north_i)
-  daySEphem_i = CGSETINTERSECTION(dayEphem_i,south_i)
-  ngtSEphem_i = CGSETINTERSECTION(ngtEphem_i,south_i)
+  dayN_i = CGSETINTERSECTION(day_i,north_i)
+  ngtN_i = CGSETINTERSECTION(ngt_i,north_i)
+  dayS_i = CGSETINTERSECTION(day_i,south_i)
+  ngtS_i = CGSETINTERSECTION(ngt_i,south_i)
 
   ;;Time ranges
-  day_tRange  = [MIN(time[dayEphem_i]),MAX(time[dayEphem_i])]
-  ngt_tRange  = [MIN(time[ngtEphem_i]),MAX(time[ngtEphem_i])]
+  day_tRange  = [MIN(time[day_i]),MAX(time[day_i])]
+  ngt_tRange  = [MIN(time[ngt_i]),MAX(time[ngt_i])]
 
-  dayN_tRange = [MIN(time[dayNEphem_i]),MAX(time[dayNEphem_i])]
-  ngtN_tRange = [MIN(time[ngtNEphem_i]),MAX(time[ngtNEphem_i])]
-  dayS_tRange = [MIN(time[daySEphem_i]),MAX(time[daySEphem_i])]
-  ngtS_tRange = [MIN(time[ngtSEphem_i]),MAX(time[ngtSEphem_i])]
+  dayN_tRange = [MIN(time[dayN_i]),MAX(time[dayN_i])]
+  ngtN_tRange = [MIN(time[ngtN_i]),MAX(time[ngtN_i])]
+  dayS_tRange = [MIN(time[dayS_i]),MAX(time[dayS_i])]
+  ngtS_tRange = [MIN(time[ngtS_i]),MAX(time[ngtS_i])]
 
+  dayN_len    = MAX(position[dayN_i])-MIN(position[dayN_i])
+  dayS_len    = MAX(position[dayS_i])-MIN(position[dayS_i])
 
+  ngtN_len    = MAX(position[ngtN_i])-MIN(position[ngtN_i])
+  ngtS_len    = MAX(position[ngtS_i])-MIN(position[ngtS_i])
+
+  day_len     = dayN_len + dayS_len
+  ngt_len     = ngtN_len + ngtS_len
+
+  north_len   = dayN_len + ngtN_len
+  south_len   = dayS_len + ngtS_len
+
+  all_len     = north_len+south_len
 
   GET_DATA,'DSP_integ',DATA=DSP
 
   ;;Averages
-  
+  eAlongVAvg        = MEAN(eAlongV[all_i])
+  eAlongVAvg_N      = MEAN(eAlongV[north_i])
+  eAlongVAvg_S      = MEAN(eAlongV[south_i])
+  eAlongVAvg_day    = MEAN(eAlongV[day_i])
+  eAlongVAvg_ngt    = MEAN(eAlongV[ngt_i])
+  eAlongVAvg_dayN   = MEAN(eAlongV[dayN_i])
+  eAlongVAvg_ngtN   = MEAN(eAlongV[ngtN_i])
+  eAlongVAvg_dayS   = MEAN(eAlongV[dayS_i])
+  eAlongVAvg_ngtS   = MEAN(eAlongV[ngtS_i])
+
+  dB_perpAvg        = MEAN(dB_perp[all_i])
+  dB_perpAvg_N      = MEAN(dB_perp[north_i])
+  dB_perpAvg_S      = MEAN(dB_perp[south_i])
+  dB_perpAvg_day    = MEAN(dB_perp[day_i])
+  dB_perpAvg_ngt    = MEAN(dB_perp[ngt_i])
+  dB_perpAvg_dayN   = MEAN(dB_perp[dayN_i])
+  dB_perpAvg_ngtN   = MEAN(dB_perp[ngtN_i])
+  dB_perpAvg_dayS   = MEAN(dB_perp[dayS_i])
+  dB_perpAvg_ngtS   = MEAN(dB_perp[ngtS_i])
+
+  pFAlongBAvg       = MEAN(pFAlongB[all_i])
+  pFAlongBAvg_N     = MEAN(pFAlongB[north_i])
+  pFAlongBAvg_S     = MEAN(pFAlongB[south_i])
+  pFAlongBAvg_day   = MEAN(pFAlongB[day_i])
+  pFAlongBAvg_ngt   = MEAN(pFAlongB[ngt_i])
+  pFAlongBAvg_dayN  = MEAN(pFAlongB[dayN_i])
+  pFAlongBAvg_ngtN  = MEAN(pFAlongB[ngtN_i])
+  pFAlongBAvg_dayS  = MEAN(pFAlongB[dayS_i])
+  pFAlongBAvg_ngtS  = MEAN(pFAlongB[ngtS_i])
+
+  jeAvg             = MEAN(je[all_i])
+  jeAvg_N           = MEAN(je[north_i])
+  jeAvg_S           = MEAN(je[south_i])
+  jeAvg_day         = MEAN(je[day_i])
+  jeAvg_ngt         = MEAN(je[ngt_i])
+  jeAvg_dayN        = MEAN(je[dayN_i])
+  jeAvg_ngtN        = MEAN(je[ngtN_i])
+  jeAvg_dayS        = MEAN(je[dayS_i])
+  jeAvg_ngtS        = MEAN(je[ngtS_i])
+
+  JEeAvg            = MEAN(JEe[all_i])
+  JEeAvg_N          = MEAN(JEe[north_i])
+  JEeAvg_S          = MEAN(JEe[south_i])
+  JEeAvg_day        = MEAN(JEe[day_i])
+  JEeAvg_ngt        = MEAN(JEe[ngt_i])
+  JEeAvg_dayN       = MEAN(JEe[dayN_i])
+  JEeAvg_ngtN       = MEAN(JEe[ngtN_i])
+  JEeAvg_dayS       = MEAN(JEe[dayS_i])
+  JEeAvg_ngtS       = MEAN(JEe[ngtS_i])
+
+  JiAvg             = MEAN(Ji[all_i])
+  JiAvg_N           = MEAN(Ji[north_i])
+  JiAvg_S           = MEAN(Ji[south_i])
+  JiAvg_day         = MEAN(Ji[day_i])
+  JiAvg_ngt         = MEAN(Ji[ngt_i])
+  JiAvg_dayN        = MEAN(Ji[dayN_i])
+  JiAvg_ngtN        = MEAN(Ji[ngtN_i])
+  JiAvg_dayS        = MEAN(Ji[dayS_i])
+  JiAvg_ngtS        = MEAN(Ji[ngtS_i])
+
+  ;;Integrals
+  eAlongVInt        = INT_TABULATED(position[all_i],eAlongV[all_i])/all_len
+  eAlongVInt_N      = INT_TABULATED(position[north_i],eAlongV[north_i])/north_len
+  eAlongVInt_S      = INT_TABULATED(position[south_i],eAlongV[south_i])/south_len
+  eAlongVInt_day    = INT_TABULATED(position[day_i],eAlongV[day_i])/day_len
+  eAlongVInt_ngt    = INT_TABULATED(position[ngt_i],eAlongV[ngt_i])/ngt_len
+  eAlongVInt_dayN   = INT_TABULATED(position[dayN_i],eAlongV[dayN_i])/dayN_len
+  eAlongVInt_ngtN   = INT_TABULATED(position[ngtN_i],eAlongV[ngtN_i])/ngtN_len
+  eAlongVInt_dayS   = INT_TABULATED(position[dayS_i],eAlongV[dayS_i])/dayS_len
+  eAlongVInt_ngtS   = INT_TABULATED(position[ngtS_i],eAlongV[ngtS_i])/ngtS_len
+
+  dB_perpInt        = INT_TABULATED(position[all_i],dB_perp[all_i])/all_len
+  dB_perpInt_N      = INT_TABULATED(position[north_i],dB_perp[north_i])/north_len
+  dB_perpInt_S      = INT_TABULATED(position[south_i],dB_perp[south_i])/south_len
+  dB_perpInt_day    = INT_TABULATED(position[day_i],dB_perp[day_i])/day_len
+  dB_perpInt_ngt    = INT_TABULATED(position[ngt_i],dB_perp[ngt_i])/ngt_len
+  dB_perpInt_dayN   = INT_TABULATED(position[dayN_i],dB_perp[dayN_i])/dayN_len
+  dB_perpInt_ngtN   = INT_TABULATED(position[ngtN_i],dB_perp[ngtN_i])/ngtN_len
+  dB_perpInt_dayS   = INT_TABULATED(position[dayS_i],dB_perp[dayS_i])/dayS_len
+  dB_perpInt_ngtS   = INT_TABULATED(position[ngtS_i],dB_perp[ngtS_i])/ngtS_len
+
+  pFAlongBInt       = INT_TABULATED(position[all_i],pFAlongB[all_i])/all_len
+  pFAlongBInt_N     = INT_TABULATED(position[north_i],pFAlongB[north_i])/north_len
+  pFAlongBInt_S     = INT_TABULATED(position[south_i],pFAlongB[south_i])/south_len
+  pFAlongBInt_day   = INT_TABULATED(position[day_i],pFAlongB[day_i])/day_len
+  pFAlongBInt_ngt   = INT_TABULATED(position[ngt_i],pFAlongB[ngt_i])/ngt_len
+  pFAlongBInt_dayN  = INT_TABULATED(position[dayN_i],pFAlongB[dayN_i])/dayN_len
+  pFAlongBInt_ngtN  = INT_TABULATED(position[ngtN_i],pFAlongB[ngtN_i])/ngtN_len
+  pFAlongBInt_dayS  = INT_TABULATED(position[dayS_i],pFAlongB[dayS_i])/dayS_len
+  pFAlongBInt_ngtS  = INT_TABULATED(position[ngtS_i],pFAlongB[ngtS_i])/ngtS_len
+
+  JeInt             = INT_TABULATED(position[all_i],Je[all_i])/all_len
+  JeInt_N           = INT_TABULATED(position[north_i],Je[north_i])/north_len
+  JeInt_S           = INT_TABULATED(position[south_i],Je[south_i])/south_len
+  JeInt_day         = INT_TABULATED(position[day_i],Je[day_i])/day_len
+  JeInt_ngt         = INT_TABULATED(position[ngt_i],Je[ngt_i])/ngt_len
+  JeInt_dayN        = INT_TABULATED(position[dayN_i],Je[dayN_i])/dayN_len
+  JeInt_ngtN        = INT_TABULATED(position[ngtN_i],Je[ngtN_i])/ngtN_len
+  JeInt_dayS        = INT_TABULATED(position[dayS_i],Je[dayS_i])/dayS_len
+  JeInt_ngtS        = INT_TABULATED(position[ngtS_i],Je[ngtS_i])/ngtS_len
+
+  JeeInt            = INT_TABULATED(position[all_i],Jee[all_i])/all_len
+  JeeInt_N          = INT_TABULATED(position[north_i],Jee[north_i])/north_len
+  JeeInt_S          = INT_TABULATED(position[south_i],Jee[south_i])/south_len
+  JEeInt_day        = INT_TABULATED(position[day_i],JEe[day_i])/day_len
+  JEeInt_ngt        = INT_TABULATED(position[ngt_i],JEe[ngt_i])/ngt_len
+  JeeInt_dayN       = INT_TABULATED(position[dayN_i],Jee[dayN_i])/dayN_len
+  JeeInt_ngtN       = INT_TABULATED(position[ngtN_i],Jee[ngtN_i])/ngtN_len
+  JeeInt_dayS       = INT_TABULATED(position[dayS_i],Jee[dayS_i])/dayS_len
+  JeeInt_ngtS       = INT_TABULATED(position[ngtS_i],Jee[ngtS_i])/ngtS_len
+
+  JiInt             = INT_TABULATED(position[all_i],Ji[all_i])/all_len
+  JiInt_N           = INT_TABULATED(position[north_i],Ji[north_i])/north_len
+  JiInt_S           = INT_TABULATED(position[south_i],Ji[south_i])/south_len
+  JiInt_day         = INT_TABULATED(position[day_i],Ji[day_i])/day_len
+  JiInt_ngt         = INT_TABULATED(position[ngt_i],Ji[ngt_i])/ngt_len
+  JiInt_dayN        = INT_TABULATED(position[dayN_i],Ji[dayN_i])/dayN_len
+  JiInt_ngtN        = INT_TABULATED(position[ngtN_i],Ji[ngtN_i])/ngtN_len
+  JiInt_dayS        = INT_TABULATED(position[dayS_i],Ji[dayS_i])/dayS_len
+  JiInt_ngtS        = INT_TABULATED(position[ngtS_i],Ji[ngtS_i])/ngtS_len
+
+
+  struct = {orbit:orbit, $
+            time:time, $
+            avg:{all:{eAlongV:eAlongVAvg, $
+                      dB_perp:dB_perpAvg, $
+                      pFAlongB:pFAlongBAvg, $
+                      je:jeAvg, $
+                      Jee:JEeAvg, $
+                      Ji:JiAvg}, $
+                 North:{both:{eAlongV:eAlongVAvg_N, $
+                              dB_perp:dB_perpAvg_N, $
+                              pFAlongB:pFAlongBAvg_N, $
+                              je:jeAvg_N, $
+                              Jee:JEeAvg_N, $
+                              Ji:JiAvg_N}, $
+                        day:{eAlongV:eAlongVAvg_dayN, $
+                             dB_perp:dB_perpAvg_dayN, $
+                             pFAlongB:pFAlongBAvg_dayN, $
+                             je:jeAvg_dayN, $
+                             Jee:JEeAvg_dayN, $
+                             Ji:JiAvg_dayN}, $
+                        ngt:{eAlongV:eAlongVAvg_ngtN, $
+                             dB_perp:dB_perpAvg_ngtN, $
+                             pFAlongB:pFAlongBAvg_ngtN, $
+                             je:jeAvg_ngtN, $
+                             Jee:JEeAvg_ngtN, $
+                             Ji:JiAvg_ngtN}}, $
+                 South:{both:{eAlongV:eAlongVAvg_S, $
+                              dB_perp:dB_perpAvg_S, $
+                              pFAlongB:pFAlongBAvg_S, $
+                              je:jeAvg_S, $
+                              Jee:JEeAvg_S, $
+                              Ji:JiAvg_S}, $
+                        day:{eAlongV:eAlongVAvg_dayS, $
+                             dB_perp:dB_perpAvg_dayS, $
+                             pFAlongB:pFAlongBAvg_dayS, $
+                             je:jeAvg_dayS, $
+                             Jee:JEeAvg_dayS, $
+                             Ji:JiAvg_dayS}, $
+                        ngt:{eAlongV:eAlongVAvg_ngtS, $
+                             dB_perp:dB_perpAvg_ngtS, $
+                             pFAlongB:pFAlongBAvg_ngtS, $
+                             je:jeAvg_ngtS, $
+                             Jee:JEeAvg_ngtS, $
+                             Ji:JiAvg_ngtS}}}, $
+            int:{all:{eAlongV:eAlongVInt, $
+                      dB_perp:dB_perpInt, $
+                      pFAlongB:pFAlongBInt, $
+                      je:jeInt, $
+                      Jee:JEeInt, $
+                      Ji:JiInt}, $
+                 North:{both:{eAlongV:eAlongVInt_N, $
+                              dB_perp:dB_perpInt_N, $
+                              pFAlongB:pFAlongBInt_N, $
+                              je:jeInt_N, $
+                              Jee:JEeInt_N, $
+                              Ji:JiInt_N}, $
+                        day:{eAlongV:eAlongVInt_dayN, $
+                             dB_perp:dB_perpInt_dayN, $
+                             pFAlongB:pFAlongBInt_dayN, $
+                             je:jeInt_dayN, $
+                             Jee:JEeInt_dayN, $
+                             Ji:JiInt_dayN}, $
+                        ngt:{eAlongV:eAlongVInt_ngtN, $
+                             dB_perp:dB_perpInt_ngtN, $
+                             pFAlongB:pFAlongBInt_ngtN, $
+                             je:jeInt_ngtN, $
+                             Jee:JEeInt_ngtN, $
+                             Ji:JiInt_ngtN}}, $
+                 South:{both:{eAlongV:eAlongVInt_S, $
+                              dB_perp:dB_perpInt_S, $
+                              pFAlongB:pFAlongBInt_S, $
+                              je:jeInt_S, $
+                              Jee:JEeInt_S, $
+                              Ji:JiInt_S}, $
+                        day:{eAlongV:eAlongVInt_dayS, $
+                             dB_perp:dB_perpInt_dayS, $
+                             pFAlongB:pFAlongBInt_dayS, $
+                             je:jeInt_dayS, $
+                             Jee:JEeInt_dayS, $
+                             Ji:JiInt_dayS}, $
+                        ngt:{eAlongV:eAlongVInt_ngtS, $
+                             dB_perp:dB_perpInt_ngtS, $
+                             pFAlongB:pFAlongBInt_ngtS, $
+                             je:jeInt_ngtS, $
+                             Jee:JEeInt_ngtS, $
+                             Ji:JiInt_ngtS}}}}                 
+
+
+  IF ~KEYWORD_SET(no_hash_update) THEN BEGIN
+     IF FILE_TEST(outDir+hashFile) THEN BEGIN
+        PRINT,"Restoring hash file ..."
+        RESTORE,outDir+hashFile
+
+        CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
+           -1: BEGIN
+              PRINT,'Adding stuff from orbit ' + orbString + ' ...'
+              swHash  = swHash + HASH(orbit,struct)
+           END
+           ELSE: BEGIN
+              PRINT,'Replacing hash entry for orbit ' + orbString + ' ...'
+              swHash[orbit] = struct
+           END
+        ENDCASE
+
+        PRINT,'Saving Strangeway statistics hash ...'
+        SAVE,swHash,FILENAME=outDir+hashFile
+     ENDIF ELSE BEGIN
+        PRINT,'Creating Strangeway statistics hash for orbit ' + orbString + ' ...'
+        swHash = HASH(orbit,struct)
+        SAVE,swHash,FILENAME=outDir+hashFile
+     ENDELSE
+  ENDIF
 
   RETURN
 

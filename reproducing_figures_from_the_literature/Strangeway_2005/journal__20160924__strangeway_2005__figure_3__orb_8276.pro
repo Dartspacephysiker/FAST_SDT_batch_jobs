@@ -60,6 +60,8 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
 
   @startup
 
+  @strway_stuff
+
   ON_ERROR,0
 
   normColorI     = (KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) ? 0 : 255
@@ -286,7 +288,7 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
         smoothed         = data.y
         FOR k=0,N_ELEMENTS(data.y)-1 DO BEGIN
 
-           tmpI          = WHERE(ABS(data.x-data.x[k]) LE 2.0)
+           tmpI          = WHERE(ABS(data.x-data.x[k]) LE fields_smoothWindow_halfLength)
            smoothed[k]   = MEAN(data.y[tmpI])
 
         ENDFOR
@@ -431,7 +433,7 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
   temp        = GET_FA_EES(t1,INDEX=0.0D)
   temp        = GET_FA_EES(t2,INDEX=DOUBLE(last_index))
 
-  GET_2DT,'je_2d_fs','fa_ees_c',name='JEe',t1=t1,t2=t2,energy=[50,30000]
+  GET_2DT,'je_2d_fs','fa_ees_c',name='JEe',t1=t1,t2=t2,energy=energy_electrons
   ;; ylim,'JEe',1.e-1,1.e1,1                                               ; set y limits
   ;; options,'JEe','tplot_routine','pmplot'                                  
   ;; options,'JEe','labels',['Downgoing!C Electrons','Upgoing!C Electrons '] 
@@ -447,7 +449,7 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
 
 ; Electron flux
 
-  GET_2DT,'j_2d_fs','fa_ees_c',NAME='Je',T1=t1,T2=t2,ENERGY=[50,30000]
+  GET_2DT,'j_2d_fs','fa_ees_c',NAME='Je',T1=t1,T2=t2,ENERGY=energy_electrons
   ;; ylim,'Je',1.e7,1.e9,1                                                ; set y limits
   ;; options,'Je','tplot_routine','pmplot'                                ; set 2 color plot
   ;; options,'Je','labels',['Downgoing!C Electrons','Upgoing!C Electrons '] ; set color label
@@ -463,7 +465,8 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
 
 ; Step 5 - Ion flux
 
-  GET_2DT,'j_2d_fs','fa_ies_c',name='Ji',t1=t1,t2=t2,energy=[0,120]
+  IF (WHERE(orbit EQ strWay_orbs))[0] NE -1 THEN energy_ions[1] = upper_ion_e[orbit]
+  GET_2DT,'j_2d_fs','fa_ies_c',name='Ji',t1=t1,t2=t2,energy=energy_ions
   ;; ylim,'Ji',1.e5,1.e8,1 	; set y limits
   ;; options,'Ji','tplot_routine','pmplot' 	; set 2 color plot
   ;; options,'Ji','labels',['Downgoing!C Ions','Upgoing!C Ions '] 	; set color label
@@ -572,7 +575,7 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
         smoothed         = data.y
         FOR k=0,N_ELEMENTS(data.y)-1 DO BEGIN
 
-           tmpI          = WHERE(ABS(data.x-data.x[k]) LE 0.5)
+           tmpI          = WHERE(ABS(data.x-data.x[k]) LE DSP_smoothWindow_halfLength)
            smoothed[k]   = MEAN(data.y[tmpI])
 
         ENDFOR
