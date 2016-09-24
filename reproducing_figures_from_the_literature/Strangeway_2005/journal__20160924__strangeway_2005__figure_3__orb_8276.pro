@@ -56,9 +56,17 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
 
 ; Step 0 - safety measure - delete all tplot quantities if found
 
-@tplot_com
+  @tplot_com
 
-  outPlotName             = 'Strangeway_et_al_2005__ion_outflow--Fig_1'
+  @startup
+
+  ON_ERROR,0
+
+  normColorI     = (KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) ? 0 : 255
+
+  mu_0           = DOUBLE(4.0D*!PI*1e-7)
+
+  outPlotName             = 'Strangeway_et_al_2005__ion_outflow--Fig_3'
 
   IF N_ELEMENTS(use_fac) EQ 0 AND N_ELEMENTS(use_fac_v) EQ 0 THEN use_fac = 1
 
@@ -134,6 +142,9 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
      options,'dB_fac','panel_size',2
      options,'dB_sm','panel_size',2
 
+     ;;Interp time series
+     tS_1s = DOUBLE(LINDGEN(CEIL(t2-t1))+ROUND(t1))
+
      if (keyword_set(use_fac)) then tplot_vars = 'dB_fac'
 
      if ~KEYWORD_SET(no_blank_panels) AND ~KEYWORD_SET(use_fac) then tplot_vars = 'dB_fac_v'
@@ -142,6 +153,75 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
         loadct2,40
         tplot,tplot_vars,var=['ALT','ILAT','MLT']
      endif
+
+     ;;Smooth to 4-s resolution
+     PRINT,'SMOOTHmag'
+     var_name = tplot_vars
+     GET_DATA,var_name,DATA=data
+     FA_FIELDS_BUFS,{time:data.x},BUF_STARTS=strt_i,BUF_ENDS=stop_i
+     IF (strt_i[0] EQ 0) AND (stop_i[0] EQ 0) THEN STOP
+
+     sRates = 1./(data.x[strt_i+1]-data.x[strt_i])
+     nBufs  = N_ELEMENTS(strt_i)
+     FOR k=0, nBufs-1 DO BEGIN
+
+        tmpI          = [strt_i[k]:stop_i[k]]
+        smooth_int    = CEIL(sRates[k]/0.25)
+
+        FOR l=0,2 DO BEGIN
+           tmp           = {x:data.x[tmpI], $
+                            y:data.y[tmpI,l]}
+
+           smoothed      = SMOOTH(tmp.y,smooth_int)
+           
+           data.y[tmpI,l]  = smoothed
+
+        ENDFOR
+
+        PRINT,'Smooth int: ' + STRCOMPRESS(smooth_int,/REMOVE_ALL)
+     ENDFOR
+
+     ;; OPTIONS,var_name,'labels',['o','e','b']
+
+     ;;From UCLA_MAG_DESPIN:
+     ;;"   Field-aligned coordinates defined as: 
+     ;;"   z-along B, y-east (BxR), x-nominally out"
+     ;;    (ind 2)    (ind 1)       (ind 0)
+
+     magInd = 1
+     data = {x:data.x, $
+             y:REFORM(data.y[*,magInd])}
+
+     ;;Interp to 1-s resolution
+     FA_FIELDS_COMBINE,{TIME:tS_1s,COMP1:tS_1s}, $
+                       {TIME:data.x,COMP1:data.y}, $
+                       RESULT=datInterp, $
+                       /INTERP, $
+                       ;; /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
+                       DELT_T=(1.01)/MIN(sRates), $
+                       /TALK
+
+     ;; data = {x:[TRANSPOSE(tS_1s),TRANSPOSE(tS_1s)], $
+     ;;         y:[TRANSPOSE(TEMPORARY(datInterp)), $
+     ;;            TRANSPOSE(MAKE_ARRAY(N_ELEMENTS(tS_1s),VALUE=0.))]}
+     data = {x:[[tS_1s],[tS_1s]], $
+             y:[[MAKE_ARRAY(N_ELEMENTS(tS_1s),VALUE=0.)], $
+                [TEMPORARY(datInterp)]]}
+
+     ;; data = {x:tS_1s, $
+     ;;         y:datInterp}
+
+     ;; OPTIONS,'dB_fac_interp','labels',(['o','e','b'])[magInd]
+
+     STORE_DATA,'dB_fac_interp',DATA=data
+
+     dLimit = {spec:0, ystyle:1, yrange:[-600., 800.], $
+               ytitle:'dB Perp.!C!C[DC] (nT)', $
+               panel_size:3}
+
+     OPTIONS,'dB_fac_interp','colors',[normColorI,normColorI]
+     OPTIONS,'dB_fac_interp','tplot_routine','mplot'
+     STORE_DATA,'dB_fac_interp',DLIMITS=dLimit
 
   endif
 
@@ -183,15 +263,73 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
 
 ; despin e field data
 
-     fa_fields_despin,v58,v12,/shadow_notch,/sinterp
+     FA_FIELDS_DESPIN,v58,v12,/SHADOW_NOTCH,/SINTERP
 
-     options,'EFIT_ALONG_V','yrange',0
-     options,'EFIT_ALONG_V','ytitle','E along V!C!C(mV/m)'
-     options,'EFIT_ALONG_V','panel_size',2
+     OPTIONS,'EFIT_ALONG_V','yrange',0
+     OPTIONS,'EFIT_ALONG_V','ytitle','E along V!C!C[DC] (mV/m)'
+     OPTIONS,'EFIT_ALONG_V','colors',[normColorI,normColorI]
+     OPTIONS,'EFIT_ALONG_V','panel_size',2
 
 ; reset time limits if needed
 
      get_data,'EFIT_ALONG_V',data=data
+
+     ;;Smooth to 4-s resolution
+     PRINT,'SMOOTHEfield'
+     FA_FIELDS_BUFS,{time:data.x},BUF_STARTS=strt_i,BUF_ENDS=stop_i
+     IF (strt_i[0] EQ 0) AND (stop_i[0] EQ 0) THEN BEGIN
+
+        sRates = 1./(data.x[1:-1]-data.x[0:-2])
+
+        ;;Old-fashioned way
+
+        smoothed         = data.y
+        FOR k=0,N_ELEMENTS(data.y)-1 DO BEGIN
+
+           tmpI          = WHERE(ABS(data.x-data.x[k]) LE 2.0)
+           smoothed[k]   = MEAN(data.y[tmpI])
+
+        ENDFOR
+     ENDIF ELSE BEGIN
+
+        sRates = 1./(data.x[strt_i+1]-data.x[strt_i])
+        nBufs  = N_ELEMENTS(strt_i)
+        FOR k=0, nBufs-1 DO BEGIN
+
+           tmpI          = [strt_i[k]:stop_i[k]]
+           tmp           = {x:data.x[tmpI], $
+                            y:data.y[tmpI]}
+
+           smooth_int    = CEIL(sRates[k]/0.25)
+           smoothed      = SMOOTH(tmp.y,smooth_int)
+           
+           data.y[tmpI]  = smoothed
+
+           PRINT,'Smooth int: ' + STRCOMPRESS(smooth_int,/REMOVE_ALL)
+        ENDFOR
+     ENDELSE
+
+     ;;Interp to 1-s resolution
+     FA_FIELDS_COMBINE,{TIME:tS_1s,COMP1:tS_1s}, $
+                       {TIME:data.x,COMP1:data.y}, $
+                       RESULT=datInterp, $
+                       /INTERP, $
+                       ;; /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
+                       DELT_T=(1.01)/MIN(sRates), $
+                       /TALK
+
+     ;; data = {x:tS_1s, $
+     ;;         y:datInterp}
+
+     ;; data = {x:[TRANSPOSE(tS_1s),TRANSPOSE(tS_1s)], $
+     ;;         y:[TRANSPOSE(TEMPORARY(datInterp)), $
+     ;;            TRANSPOSE(MAKE_ARRAY(N_ELEMENTS(tS_1s),VALUE=0.))]}
+     data = {x:[[tS_1s],[tS_1s]], $
+             y:[[MAKE_ARRAY(N_ELEMENTS(tS_1s),VALUE=0.)], $
+                [TEMPORARY(datInterp)]]}
+
+     STORE_DATA,'EFIT_ALONG_V',DATA=data
+
      t1 = data.x[0]
      t2 = data.x[n_elements(data.x)-1L]
 
@@ -225,7 +363,8 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
      data.y = data.y*tst_/abs(tst_)
      store_data,'EFIT_ALONG_VSC',data=data,dlimit=dlimit
      options,'EFIT_ALONG_VSC','yrange',0
-     options,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C(mV/m)'
+     options,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C[DC] (mV/m)'
+     OPTIONS,'EFIT_ALONG_VSC','colors',[normColorI,normColorI]
      options,'EFIT_ALONG_VSC','panel_size',2
 
      store_data,'E_NEAR_B',/delete
@@ -249,196 +388,97 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
   endif
 
 
-; Step 3 - Iesa data
+; Step 3 - Poynting flux
+  GET_DATA,'dB_fac_interp',data=magData
+  GET_DATA,'EFIT_ALONG_VSC',data=eFData
+  ;; pFluxB = REFORM((magData.y[0,*]*1.e-9)*eFData.y[0,*]/mu_0) ;Poynting flux along B
+  pFluxB = (magData.y[*,1]*1.e-9)*eFData.y[*,1]/mu_0 ;Poynting flux along B
+  pFluxB[WHERE(~FINITE(pFluxB))] = 0.0
 
-  prog = getenv('FASTBIN') + '/showDQIs'
-  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-     if (sdt_idx GE 10) then begin
-        sidstr = string(sdt_idx, format='(I2)')
-     endif else begin
-        sidstr = string(sdt_idx, format='(I1)')
-     endelse
-     spawn, [prog, sidstr], result, /noshell
-  endif else begin
-     spawn, prog, result, /noshell
-  endelse
-  b = where (strpos(result,'Iesa Survey') ge 0,nesa)
-  if (nesa gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nesa = 0
+  ;; STORE_DATA,'pFlux',DATA={x:[TRANSPOSE(tS_1s),TRANSPOSE(tS_1s)], $
+  ;;                          y:[TRANSPOSE(pFluxB), $
+  ;;                             TRANSPOSE(MAKE_ARRAY(N_ELEMENTS(tS_1s),VALUE=0.))]}
+  STORE_DATA,'pFlux',DATA={x:[[tS_1s],[tS_1s]], $
+                           y:[[MAKE_ARRAY(N_ELEMENTS(tS_1s),VALUE=0.)], $
+                              [pFluxB]]}
+  dLimit = {spec:0, ystyle:1, yrange:[-20., 80.], $
+            ytitle:'Poynting Flux!C!C[DC] (mW/m!U2!N)', $
+            panel_size:3}
+  OPTIONS,'pFlux','colors',[normColorI,normColorI]
+  STORE_DATA,'pFlux',DLIMITS=dLimit
 
-  if (nesa gt 0) then begin
+  IF (n_elements(tplot_vars) EQ 0) THEN tplot_vars=['pFlux'] $
+  ELSE tplot_vars=['pFlux',tplot_vars]
 
-; ION PITCH ANGLE
+  IF (KEYWORD_SET(screen_plot)) THEN BEGIN
+     LOADCT2,40
+     TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT']
+  ENDIF
 
-     var_name='Iesa_Angle'
-     get_pa_spec,"fa_ies_c",units='eflux',name=var_name,energy=[4.,30000.]
-     get_data,var_name, data=data
-     data.y = alog10(data.y)
-     store_data,var_name, data=data
-     options,var_name,'spec',1	
-     zlim,var_name,4,9,0
-     ylim,var_name,0,360,0
-     options,var_name,'ytitle','Ions!C!CAngle (Deg.)'
-     options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-     options,var_name,'x_no_interp',1
-     options,var_name,'y_no_interp',1
-     options,var_name,'panel_size',2
+; Step 4 - Electron junk
 
-     get_data,var_name, data=data
-     bb = where (data.v gt 270.,nb)
-     if (nb gt 0) then data.v(bb)=data.v(bb)-360.
-     nn = n_elements(data.x)
-     for n = 0,nn-1L do begin & $
-        bs = sort (data.v(n,*)) & $
-        data.v(n,*)=data.v(n,bs) & $
-        data.y(n,*)=data.y(n,bs) & $
-        endfor
-        store_data,var_name, data=data	
-        options,var_name,'yminor',9
-        options,var_name,'yticks',4
-        options,var_name,'ytickv',[-90,0,90,180,270]
-        ylim,var_name,-90,270,0
+; Electron energy flux
 
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+  t           = 0.0D
+  tmp         = GET_FA_EES_C(t,/EN)
+  IF tmp.valid EQ 0 THEN BEGIN
+     PRINT,'Junk'
+     RETURN
+  ENDIF
+  last_index  = LONG(tmp.index)
+  t1          = 0.0D
+  t2          = 0.0D
+  temp        = GET_FA_EES(t1,INDEX=0.0D)
+  temp        = GET_FA_EES(t2,INDEX=DOUBLE(last_index))
 
-; reset time limits if needed
+  GET_2DT,'je_2d_fs','fa_ees_c',name='JEe',t1=t1,t2=t2,energy=[50,30000]
+  ;; ylim,'JEe',1.e-1,1.e1,1                                               ; set y limits
+  ;; options,'JEe','tplot_routine','pmplot'                                  
+  ;; options,'JEe','labels',['Downgoing!C Electrons','Upgoing!C Electrons '] 
+  ;; options,'JEe','labpos',[4.e0,5.e-1]                                     ; set color label
+  ;; options,'JEe','labflag',3                                               ; set color label
+  GET_DATA,'JEe',DATA=tmp
+  tmp.y = SMOOTH(tmp.y,5)
+  doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
+  STORE_DATA,'JEe',DATA={x:tS_1s,y:doDat}
+  ylim,'JEe',-1.,6.,0                                                     ; set y limits
+  options,'JEe','ytitle','Electron!CEnergy Flux!CmW/(m!U2!N)'             ; set y title
+  options,'JEe','panel_size',3                                            ; set panel size
 
-        t1 = data.x[0]
-        t2 = data.x[n_elements(data.x)-1L]
+; Electron flux
 
-        if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
-           if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
-           if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
-           get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-           get_new_igrf,/no_store_old
-        endif
+  GET_2DT,'j_2d_fs','fa_ees_c',NAME='Je',T1=t1,T2=t2,ENERGY=[50,30000]
+  ;; ylim,'Je',1.e7,1.e9,1                                                ; set y limits
+  ;; options,'Je','tplot_routine','pmplot'                                ; set 2 color plot
+  ;; options,'Je','labels',['Downgoing!C Electrons','Upgoing!C Electrons '] ; set color label
+  ;; options,'Je','labflag',3                                               ; set color label
+  ;; options,'Je','labpos',[4.e8,5.e7]                                      ; set color label
+  GET_DATA,'Je',DATA=tmp
+  tmp.y = SMOOTH(tmp.y,5)
+  doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
+  STORE_DATA,'Je',DATA={x:tS_1s,y:doDat}
+  ylim,'Je',-5.e9,1.5e10,0                                                  ; set y limits
+  options,'Je','ytitle','Electron Flux!C!C#/(cm!U2!N-s)'                    ; set y title
+  options,'Je','panel_size',3                                               ; set panel size
 
-        if (keyword_set(screen_plot)) then begin
-           loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
-        endif
+; Step 5 - Ion flux
 
-; ION ENERGY 
-
-        var_name='Iesa_Energy'
-        get_en_spec,'fa_ies_c',name=var_name, units='eflux'
-        get_data,var_name, data=data
-        data.y = alog10(data.y)
-        store_data,var_name, data=data
-        options,var_name,'spec',1	
-        zlim,var_name,4,9,0
-        ylim,var_name,4,30000,1
-        options,var_name,'ytitle','Ions!C!CEnergy (eV)'
-        options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,var_name,'x_no_interp',1
-        options,var_name,'y_no_interp',1
-        options,var_name,'panel_size',2
-
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
-
-        if (keyword_set(screen_plot)) then begin
-           loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
-        endif
-
-     endif
+  GET_2DT,'j_2d_fs','fa_ies_c',name='Ji',t1=t1,t2=t2,energy=[0,120]
+  ;; ylim,'Ji',1.e5,1.e8,1 	; set y limits
+  ;; options,'Ji','tplot_routine','pmplot' 	; set 2 color plot
+  ;; options,'Ji','labels',['Downgoing!C Ions','Upgoing!C Ions '] 	; set color label
+  ;; options,'Ji','labflag',3 	; set color label
+  ;; options,'Ji','labpos',[2.e7,1.e6] 	; set color label
+  GET_DATA,'Ji',DATA=tmp
+  tmp.y = SMOOTH((-1.)*tmp.y,5)
+  doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
+  STORE_DATA,'Ji',DATA={x:tS_1s,y:doDat}
+  ylim,'Ji',-1.e9,6.e9,0                          ; set y limits
+  options,'Ji','ytitle','Ion Flux!C#/(cm!U2!N-s)' ; set y title
+  options,'Ji','panel_size',3                     ; set panel size
 
 
-; Step 4 - Eesa data
-
-  prog = getenv('FASTBIN') + '/showDQIs'
-  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-     if (sdt_idx GE 10) then begin
-        sidstr = string(sdt_idx, format='(I2)')
-     endif else begin
-        sidstr = string(sdt_idx, format='(I1)')
-     endelse
-     spawn, [prog, sidstr], result, /noshell
-  endif else begin
-     spawn, prog, result, /noshell
-  endelse
-  b = where (strpos(result,'Eesa Survey') ge 0,nesa)
-  if (nesa gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nesa = 0
-
-  if (nesa gt 0) then begin
-
-; ELECTRON PITCH ANGLE
-
-     var_name='Eesa_Angle'
-     get_pa_spec,"fa_ees_c",units='eflux',name=var_name, energy=[50.,30000.]
-     get_data,var_name, data=data 
-     data.y = alog10(data.y)
-     store_data,var_name, data=data
-     options,var_name,'spec',1
-     zlim,var_name,6,10,0
-     ylim,var_name,0,360,0
-     ;; options,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
-     options,var_name,'ytitle','Electrons!C!CAngle (Deg.)'
-     options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-     options,var_name,'x_no_interp',1
-     options,var_name,'y_no_interp',1
-     options,var_name,'panel_size',2
-
-     get_data,var_name, data=data
-     bb = where (data.v gt 270.,nb)
-     if (nb gt 0) then data.v(bb)=data.v(bb)-360.
-     nn = n_elements(data.x)
-     for n = 0,nn-1L do begin & $
-        bs = sort (data.v(n,*)) & $
-        data.v(n,*)=data.v(n,bs) & $
-        data.y(n,*)=data.y(n,bs) & $
-        endfor
-        store_data,var_name, data=data
-        options,var_name,'yminor',9
-        options,var_name,'yticks',4
-        options,var_name,'ytickv',[-90,0,90,180,270]
-        ylim,var_name,-90,270,0
-
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
-
-; reset time limits if needed
-
-        t1 = data.x[0]
-        t2 = data.x[n_elements(data.x)-1L]
-
-        if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
-           if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
-           if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
-           get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-           get_new_igrf,/no_store_old
-        endif
-
-        if (keyword_set(screen_plot)) then begin
-           loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
-        endif
-
-; ELECTRON ENERGY
-
-        var_name='Eesa_Energy'
-        get_en_spec,'fa_ees_c',name=var_name,units='eflux'
-        get_data,var_name, data=data
-        data.y = alog10(data.y)
-        store_data,var_name, data=data
-        options,var_name,'spec',1	
-        zlim,var_name,6,10,0
-        ylim,var_name,5,30000,1
-        options,var_name,'ytitle','Electrons!C!CEnergy (eV)'
-        options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,var_name,'x_no_interp',1
-        options,var_name,'y_no_interp',1
-        options,var_name,'panel_size',2
-
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
-
-        if (keyword_set(screen_plot)) then begin
-           loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
-        endif
-
-     endif
-
-
-; Step 5 - VLF data
+; Step 6 - VLF data
 
 
 ; DSP_V5-V8HG or DSP_V5-V8
@@ -502,69 +542,82 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
         tplot,tplot_vars,var=['ALT','ILAT','MLT']
      endif
 
+     ;;Now integrate
+     data.y    = 10.^data.y
+     data.v   *= 1000.
+     
+     integData = MAKE_ARRAY(N_ELEMENTS(data.x),VALUE=0.)
+     
+     tmpF_i = LINDGEN(N_ELEMENTS(data.v)-1)+1
+     FOR m=0,N_ELEMENTS(data.x)-1 DO BEGIN
+
+        ;;"Intergrate," as some have it, and apply test
+        integData[m] = INT_TABULATED(data.v[tmpF_i],data.y[m,tmpF_i])
+     ENDFOR
+     
+     ;;Get rid of the square so that units are V/m
+     integData = SQRT(integData)
+
+     data      = {x:data.x, $
+                  y:integData}
+
+     PRINT,'SMOOTHDSP'
+     FA_FIELDS_BUFS,{time:data.x},BUF_STARTS=strt_i,BUF_ENDS=stop_i
+     IF (strt_i[0] EQ 0) AND (stop_i[0] EQ 0) THEN BEGIN
+
+        sRates = 1./(data.x[1:-1]-data.x[0:-2])
+
+        ;;Old-fashioned way
+
+        smoothed         = data.y
+        FOR k=0,N_ELEMENTS(data.y)-1 DO BEGIN
+
+           tmpI          = WHERE(ABS(data.x-data.x[k]) LE 0.5)
+           smoothed[k]   = MEAN(data.y[tmpI])
+
+        ENDFOR
+     ENDIF ELSE BEGIN
+
+        sRates = 1./(data.x[strt_i+1]-data.x[strt_i])
+        nBufs  = N_ELEMENTS(strt_i)
+        FOR k=0, nBufs-1 DO BEGIN
+
+           tmpI          = [strt_i[k]:stop_i[k]]
+           tmp           = {x:data.x[tmpI], $
+                            y:data.y[tmpI]}
+
+           smooth_int    = CEIL(sRates[k]/0.25)
+           smoothed      = SMOOTH(tmp.y,smooth_int)
+           
+           data.y[tmpI]  = smoothed
+
+           PRINT,'Smooth int: ' + STRCOMPRESS(smooth_int,/REMOVE_ALL)
+        ENDFOR
+     ENDELSE
+
+     ;;Interp to 1-s resolution
+     FA_FIELDS_COMBINE,{TIME:tS_1s,COMP1:tS_1s}, $
+                       {TIME:data.x,COMP1:data.y}, $
+                       RESULT=datInterp, $
+                       /INTERP, $
+                       ;; /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
+                       DELT_T=(1.01)/MIN(sRates), $
+                       /TALK
+
+
+     ;; STORE_DATA,'DSP_integ',DATA={x:data.x,y:integData}
+     STORE_DATA,'DSP_integ',DATA={x:tS_1s,y:datInterp}
+     dlimit = {ystyle:1, yrange:[0.0,0.05], $
+               ytitle:'ELF Amplitude (V/m)', $
+               panel_size:3}
+     store_data,'DSP_integ', dlimit=dlimit
+     options,'DSP_integ','x_no_interp',1
+     options,'DSP_integ','y_no_interp',1
+
+
   endif else begin
 
   endelse
-
-; Step 5 - AKR data
-
-  prog = getenv('FASTBIN') + '/showDQIs'
-  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-     if (sdt_idx GE 10) then begin
-        sidstr = string(sdt_idx, format='(I2)')
-     endif else begin
-        sidstr = string(sdt_idx, format='(I1)')
-     endelse
-     spawn, [prog, sidstr], result, /noshell
-  endif else begin
-     spawn, prog, result, /noshell
-  endelse
-  b = where (strpos(result,'SfaAve_V5-V8') ge 0,nakr)
-  if (nakr gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nakr = 0
-
-  if (nakr gt 0) then begin
-
-     dat = get_fa_fields('SfaAve_V5-V8', /all)
-     data   = {x:dat.time, y:alog10(dat.comp1), v:dat.yaxis}
-     store_data,'SFA_V5-V8', data=data
-     dlimit = {spec:1, ystyle:1, yrange:[10., 1000.0], zrange:[-14,-10], $
-               ytitle:'AKR E 55m!C!C(kHz)', ylog:1, $
-               ztitle: '(V/m)!U2!N/Hz', panel_size:2}
-     store_data,'SFA_V5-V8', dlimit=dlimit
-     options,'SFA_V5-V8','x_no_interp',1
-     options,'SFA_V5-V8','y_no_interp',1
-
-;  look for big jumps in time - blank these
-
-     get_data,'SFA_V5-V8',data=data
-     dt = data.x[1:*]-data.x[0:*]
-     ntimes=n_elements(data.x)
-     bg = where (dt gt 300, ng)
-     if (ng gt 0) then begin
-        bbb = bg-1
-        if (bbb[0] lt 0) then bbb[0] = 0
-        add_tag=[data.x[bg]+dt[bbb],data.x[bg+1]-dt[bbb]]
-        flag_dat = fltarr(ng*2)+!values.f_nan
-        new_tag = [data.x,add_tag]
-        tsort = sort(new_tag-new_tag[0])
-        nvec=n_elements(data.y)/ntimes
-        new_dat = fltarr(n_elements(new_tag),nvec)
-        for nv = 0,nvec-1 do begin
-           new_dat[*,nv] = [data.y[*,nv],flag_dat]
-           new_dat[*,nv] = new_dat[tsort,nv]
-        endfor
-        data={x:new_tag[tsort],y:new_dat,v:data.v}
-        store_data,'SFA_V5-V8',data=data
-     endif
-
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=['SFA_V5-V8'] else tplot_vars=['SFA_V5-V8',tplot_vars]
-
-     if (keyword_set(screen_plot)) then begin
-        loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
-     endif
-
-  endif
 
 ; STEP 6 - Clean up and return
 
@@ -593,23 +646,6 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
   if ~KEYWORD_SET(no_blank_panels) then begin
 
 
-; SFA
-
-     bdat = where(tplot_vars eq 'SFA_V5-V8',ndat)
-     if (ndat eq 0) then begin
-        t_arr = tlimit_all
-        y_arr = fltarr(2,4)
-        y_arr[*,*] = !values.f_nan
-        v_arr = [-112.700,12.5031,997.434,2015.75]
-        store_data,'SFA_V5-V8', data={x:t_arr, y:y_arr, v:v_arr}
-        dlimit = {spec:1, ystyle:1, yrange:[10., 1000.0], zrange:[-16,-10], $
-                  ytitle:'AKR E 55m!C!C(kHz)', ylog:1, $
-                  ztitle: '(V/m)!U2!N/Hz', panel_size:2}
-        store_data,'SFA_V5-V8', dlimit=dlimit
-        options,'SFA_V5-V8','x_no_interp',1
-        options,'SFA_V5-V8','y_no_interp',1
-     endif
-
 ; DSP
 
      bdat = where(tplot_vars eq 'DSP_V5-V8',ndat)
@@ -625,92 +661,6 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
         store_data,'DSP_V5-V8', dlimit=dlimit
         options,'DSP_V5-V8','x_no_interp',1
         options,'DSP_V5-V8','y_no_interp',1
-     endif
-
-; Eesa_Energy
-
-     bdat = where(tplot_vars eq 'Eesa_Energy',ndat)
-     if (ndat eq 0) then begin
-        t_arr = tlimit_all
-        y_arr = fltarr(2,4)
-        y_arr[*,*] = !values.f_nan
-        v_arr = fltarr(2,4)
-        v_arr[0,*] = [34119.7,26091.5,50.9600,5.88000]
-        store_data,'Eesa_Energy', data={x:t_arr, y:y_arr, v:v_arr}
-        options,'Eesa_Energy','spec',1	
-        zlim,'Eesa_Energy',4,9,0
-        ylim,'Eesa_Energy',5,30000,1
-        options,'Eesa_Energy','ytitle','Electrons!C!CEnergy (eV)'
-        options,'Eesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,'Eesa_Energy','x_no_interp',1
-        options,'Eesa_Energy','y_no_interp',1
-        options,'Eesa_Energy','panel_size',2
-     endif
-
-; Eesa_Angle
-
-     bdat = where(tplot_vars eq 'Eesa_Angle',ndat)
-     if (ndat eq 0) then begin
-        t_arr = tlimit_all
-        y_arr = fltarr(2,4)
-        y_arr[*,*] = !values.f_nan
-        v_arr = fltarr(2,4)
-        v_arr[0,*] = [-87.7792,2.22077,114.721,267.206]
-        store_data,'Eesa_Angle', data={x:t_arr, y:y_arr, v:v_arr}
-        options,'Eesa_Angle','spec',1	
-        zlim,'Eesa_Angle',4,9,0
-        ylim,'Eesa_Angle',-90,270,0
-        options,'Eesa_Angle','ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
-        options,'Eesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,'Eesa_Angle','x_no_interp',1
-        options,'Eesa_Angle','y_no_interp',1
-        options,'Eesa_Angle','panel_size',2
-        options,'Eesa_Angle','yminor',9
-        options,'Eesa_Angle','yticks',4
-        options,'Eesa_Angle','ytickv',[-90,0,90,180,270]
-     endif
-
-; Iesa_Energy
-
-     bdat = where(tplot_vars eq 'Iesa_Energy',ndat)
-     if (ndat eq 0) then begin
-        t_arr = tlimit_all
-        y_arr = fltarr(2,4)
-        y_arr[*,*] = !values.f_nan
-        v_arr = fltarr(2,4)
-        v_arr[0,*] = [26808.3,11827.2,27.7200,4.62000]
-        store_data,'Iesa_Energy', data={x:t_arr, y:y_arr, v:v_arr}
-        options,'Iesa_Energy','spec',1	
-        zlim,'Iesa_Energy',4,9,0
-        ylim,'Iesa_Energy',4,30000,1
-        options,'Iesa_Energy','ytitle','Ions!C!CEnergy (eV)'
-        options,'Iesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,'Iesa_Energy','x_no_interp',1
-        options,'Iesa_Energy','y_no_interp',1
-        options,'Iesa_Energy','panel_size',2
-     endif
-
-; Iesa_Angle
-
-     bdat = where(tplot_vars eq 'Iesa_Angle',ndat)
-     if (ndat eq 0) then begin
-        t_arr = tlimit_all
-        y_arr = fltarr(2,4)
-        y_arr[*,*] = !values.f_nan
-        v_arr = fltarr(2,4)
-        v_arr[0,*] = [-87.7792,2.22077,114.721,267.206]
-        store_data,'Iesa_Angle', data={x:t_arr, y:y_arr, v:v_arr}
-        options,'Iesa_Angle','spec',1	
-        zlim,'Iesa_Angle',4,9,0
-        ylim,'Iesa_Angle',-90,270,0
-        options,'Iesa_Angle','ytitle','Ions!C!CAngle (Deg.)'
-        options,'Iesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,'Iesa_Angle','x_no_interp',1
-        options,'Iesa_Angle','y_no_interp',1
-        options,'Iesa_Angle','panel_size',2
-        options,'Iesa_Angle','yminor',9
-        options,'Iesa_Angle','yticks',4
-        options,'Iesa_Angle','ytickv',[-90,0,90,180,270]
      endif
 
 ; EFIT_ALONG_VSC
@@ -747,7 +697,7 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
 
      ;; tplot_vars=['SFA_V5-V8','DSP_V5-V8','Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','EFIT_ALONG_VSC','dB_fac_v']
 
-     tplot_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','DSP_V5-V8','EFIT_ALONG_VSC','dB_fac']
+     tplot_vars=['EFIT_ALONG_VSC','dB_fac_interp','pFlux','Je','JEe','DSP_integ','Ji']
   endif
 
   IF KEYWORD_SET(screen_plot) OR KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
