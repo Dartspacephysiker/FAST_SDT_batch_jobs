@@ -16,7 +16,6 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
    NO_HASH_UPDATE=no_hash_update
 
   ;;problem orbits:
-  ;;8283
   ;;8273(?)
 
 ; Input needed on:
