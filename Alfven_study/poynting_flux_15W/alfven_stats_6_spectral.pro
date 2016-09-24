@@ -336,7 +336,9 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ENDELSE
         
         ;;E field
-        FA_FIELDS_DESPIN,efieldV58,efieldV1214,T1=tmpT1,T2=tmpT2 ;,/SLOW
+        FA_FIELDS_DESPIN,efieldV58,efieldV1214, $
+                         /SHADOW_NOTCH,/SINTERP, $ ;Why? Because RJS does it in his summary plot
+                         T1=tmpT1,T2=tmpT2 ;,/SLOW ;procedure
         ;; GET_DATA,'E_NEAR_B',DATA=eNearB
 
         IF ~efieldV58.valid OR ~efieldV58.valid THEN BEGIN
