@@ -1,5 +1,6 @@
-;;09/24/16
-PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
+;;2016/09/26
+;;It's better to use the ESA intervals, methinks
+PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
    TPLOT_VARS=tplot_vars, $
    PLOT_NORTH=plot_north, $
    PLOT_SOUTH=plot_south, $
@@ -1233,3 +1234,4 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   RETURN
 
 END
+
