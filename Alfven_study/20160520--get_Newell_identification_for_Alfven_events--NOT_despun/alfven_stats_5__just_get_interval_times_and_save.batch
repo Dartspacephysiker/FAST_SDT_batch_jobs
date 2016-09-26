@@ -3,7 +3,7 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/alfven_stats_5__just_get_interval_times_and_save_wrapper.pro
 
 DataBaseRequest:
-    Orbits 500-16361
+    Orbits 16362-30000
     
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun

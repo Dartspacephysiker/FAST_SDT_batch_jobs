@@ -3,14 +3,14 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
 
   COMPILE_OPT IDL2
 
-  noDupesVersion            = 1
+  noDupesVersion   = 1
 
   ;;For skipping the "get interval times" bit
-  as5_dir                   = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
+  as5_dir          = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
 
-        intervalArrDir      = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/"
+  intervalArrDir   = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/"
 
-  orbSaveInterval           = 1000
+  orbSaveInterval  = 1000
 
   CASE 1 OF
      KEYWORD_SET(noDupesVersion): BEGIN
@@ -39,6 +39,7 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
      END
   ENDCASE
 
+  ;;Restore the file that has the master list of orbs 
   RESTORE,intervalArrDir+intervalArrFile 
 
   nOrbs             = N_ELEMENTS(intervalArr)
