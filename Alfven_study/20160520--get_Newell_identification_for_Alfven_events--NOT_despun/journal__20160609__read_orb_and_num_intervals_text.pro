@@ -11,13 +11,15 @@ PRO JOURNAL__20160609__READ_ORB_AND_NUM_INTERVALS_TEXT
 
   ;;inFile
   file         = 'orb_and_num_intervals.txt'
+  file         = 'orb_and_num_intervals__noDupes.txt'
 
   ;;Outfiles
-  ;; outFile   = 'orb_and_num_intervals--0-16361.sav'
-  outFile      = 'orb_and_num_intervals__0-50000.sav'
+  outFile   = 'orb_and_num_intervals--noDupes--0-16361.sav'
+  ;; outFile      = 'orb_and_num_intervals__0-50000.sav'
 
   startOrb     = 0
-  stopOrb      = 50000
+  ;; stopOrb      = 50000
+  stopOrb      = 16361
 
   tmplt        = ASCII_TEMPLATE(file)
 
