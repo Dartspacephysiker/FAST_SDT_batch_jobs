@@ -451,6 +451,12 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   
   tmp.y = SMOOTH(tmp.y,5)
   doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
+
+  ;; discrim = VALUE_CLOSEST2(tS_1s,tmp.x)
+  discrim = VALUE_CLOSEST2(tmp.x,tS_1s)
+  doDat[WHERE(ABS(tmp.x[discrim]-tS_1S) GT 2.5,nJunk,/NULL)] = 0.
+  PRINT,"Junked " + STRCOMPRESS(nJunk,/REMOVE_ALL) + ' JEe points'
+
   STORE_DATA,'JEe',DATA={x:tS_1s,y:doDat}
   ylim,'JEe',-1.,6.,0                                         ; set y limits
   options,'JEe','ytitle','Electron!CEnergy Flux!CmW/(m!U2!N)' ; set y title
@@ -486,6 +492,11 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   
   tmp.y = SMOOTH(tmp.y,5)
   doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
+
+  discrim = VALUE_CLOSEST2(tS_1s,tmp.x)
+  doDat[WHERE(ABS(tS_1s[discrim]-tmp.x) GT 2.5,nJunk,/NULL)] = 0.
+  PRINT,"Junked " + STRCOMPRESS(nJunk,/REMOVE_ALL) + ' Je points'
+
   STORE_DATA,'Je',DATA={x:tS_1s,y:doDat}
   ylim,'Je',-5.e9,1.5e10,0                               ; set y limits
   options,'Je','ytitle','Electron Flux!C!C#/(cm!U2!N-s)' ; set y title
@@ -522,6 +533,11 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   
   tmp.y = SMOOTH((-1.)*tmp.y,5)
   doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
+
+  discrim = VALUE_CLOSEST2(tS_1s,tmp.x)
+  doDat[WHERE(ABS(tS_1s[discrim]-tmp.x) GT 2.5,nJunk,/NULL)] = 0.
+  PRINT,"Junked " + STRCOMPRESS(nJunk,/REMOVE_ALL) + ' Ji points'
+
   STORE_DATA,'Ji',DATA={x:tS_1s,y:doDat}
   ylim,'Ji',-1.e9,6.e9,0                          ; set y limits
   options,'Ji','ytitle','Ion Flux!C#/(cm!U2!N-s)' ; set y title
