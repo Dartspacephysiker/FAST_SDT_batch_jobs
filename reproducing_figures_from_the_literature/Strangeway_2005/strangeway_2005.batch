@@ -1,0 +1,10 @@
+BatchJob: "strangeway_et_al_2005"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005_wrapper.pro
+
+DataBaseRequest:
+    Orbits 8260-8292
+
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005
+PlotConfigurationFile: rjs_clean

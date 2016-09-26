@@ -116,6 +116,12 @@ PRO JOURNAL__20160923__COMPARE_TAVG_PFLUX_FROM_MAXIMUS_WITH_TAVG_PFLUX_WITH_SPEC
   tx          = tx[time_order]
   ty          = ty[time_order]
   
+  ;;kill dupes
+  dupe_i      = WHERE(ABS(tx[1:-1]-tx[0:-2]) LT 0.0001,nDupes, $
+                      COMPLEMENT=keep,NCOMPLEMENT=nKeep)
+  PRINT,STRCOMPRESS(nDupes,/REMOVE_ALL) + ' Je duplicates here'
+  tx          = tx[keep]
+  ty          = ty[keep]
   
   ;;throw away the first 10  points since they are often corrupted
   IF not KEYWORD_SET(burst) THEN BEGIN
