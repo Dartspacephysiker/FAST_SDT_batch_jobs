@@ -11,7 +11,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
    USE_FAC_V=use_fac_v, $
    USE_FAC=use_fac, $
    NO_BLANK_PANELS=no_blank_panels, $
-   SAVE_1S_DATA=save_1s_data, $
+   ;; SAVE_1S_DATA=save_1s_data, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps, $
    BATCH_MODE=batch_mode, $
@@ -77,7 +77,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
      check =  LOAD_JE_AND_JE_TIMES_FOR_ORB(orbit, $
                                            RETURN_STRUCT=return_struct, $
                                            /USE_DUPELESS_FILES, $
-                                           JE_OUT=je, $
+                                           JE_OUT=je_pristine, $
                                            TIME_RANGES_OUT=time_ranges, $
                                            TIME_RANGE_INDICES_OUT=time_range_indices, $
                                            NINTERVALS_OUT=number_of_intervals, $
@@ -91,7 +91,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
         RETURN
      ENDIF
 
-     IF N_ELEMENTS(je.x) LE 1 THEN BEGIN
+     IF N_ELEMENTS(je_pristine.x) LE 1 THEN BEGIN
         PRINT,'Insufficient data to do anything awesome! Returning ...'
         RETURN
      ENDIF
@@ -155,16 +155,22 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
   structList             = LIST()
   FOR jj=0,number_of_intervals-1 DO BEGIN
 
-     IF KEYWORD_SET(save_1s_data) THEN BEGIN
+     IF jj EQ 2 THEN STOP
+
+     ;; IF KEYWORD_SET(save_1s_data) THEN BEGIN
         ;; saveStr          = 'SAVE'
-        mag              = 0.
-        mag1s            = 0.
+     mag              = 0.
+     mag1s            = 0.
 
-        eField           = 0.
-        eField1s         = 0.
+     eField           = 0.
+     eField1s         = 0.
 
-        pFluxB1s         = 0.
-     ENDIF
+     pFluxB           = 0.
+     pFluxB1s         = 0.
+
+     dsp              = 0.
+     dsp1s            = 0.
+     ;; ENDIF
 
      cant_pFlex     = 0         ;because we CAN pFlex!
 
@@ -178,7 +184,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
      tmp_je_indices = time_range_indices[jj,*]
 
      ;;Clean up based on ILAT
-     GET_FA_ORBIT,je.x,/TIME_ARRAY,/DEFINITIVE,/ALL
+     GET_FA_ORBIT,je_pristine.x,/TIME_ARRAY,/DEFINITIVE,/ALL
      GET_DATA,'ILAT',DATA=ilat
      IF SIZE(ilat,/TYPE) NE 8 THEN BEGIN
         ;; PRINT,'Invalid ephemeris data for orb ' + orbString + '. Returning ...'
@@ -203,9 +209,9 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
      ENDIF
      
      ;;Trim time series, if necessary
-     IF nKeep LT N_ELEMENTS(je.x) THEN BEGIN
-        closest1 = MIN(ABS(t1-je.x[keep]),tmpII_t1)
-        closest2 = MIN(ABS(t2-je.x[keep]),tmpII_t2)
+     IF nKeep LT N_ELEMENTS(je_pristine.x) THEN BEGIN
+        closest1 = MIN(ABS(t1-je_pristine.x[keep]),tmpII_t1)
+        closest2 = MIN(ABS(t2-je_pristine.x[keep]),tmpII_t2)
 
         ;;If more than 30 s from previous mark, we're in doubt
         IF (closest1 GT 30) OR (closest2 GT 30) THEN BEGIN
@@ -214,8 +220,8 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
            CONTINUE
         ENDIF
 
-        t1             = je.x[keep[tmpII_t1]]
-        t2             = je.x[keep[tmpII_t2]]
+        t1             = je_pristine.x[keep[tmpII_t1]]
+        t2             = je_pristine.x[keep[tmpII_t2]]
         tmp_je_indices = [keep[tmpII_t1],keep[tmpII_t2]]
      ENDIF
 
@@ -298,11 +304,13 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
                           DELT_T=(1.01)/MIN(sRates), $
                           /TALK
 
-        IF KEYWORD_SET(save_1s_data) THEN BEGIN
-           ;; saveStr += ',mag1s'
-           mag      = data
-           mag1s    = datInterp
-        ENDIF
+        ;; IF KEYWORD_SET(save_1s_data) THEN BEGIN
+        ;;    ;; saveStr += ',mag1s'
+        ;;    ;; tmpDatStruct = CREATE_STRUCT("mag",mag)
+        ;;    ;; tmp1sStruct  = CREATE_STRUCT("mag",mag1s)
+        mag      = data
+        mag1s    = datInterp
+        ;; ENDIF
 
         data = {x:[[tS_1s],[tS_1s]], $
                 y:[[MAKE_ARRAY(N_ELEMENTS(tS_1s),VALUE=0.)], $
@@ -325,11 +333,14 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
         PRINT,'No mag data for this interval! Futile?'
         cant_pFlex = 1
         nMag       = 0
-        IF KEYWORD_SET(save_1s_data) THEN BEGIN
-           ;; saveStr += ',mag1s'
-           ;; mag1s    = 0L
-        ENDIF
+
      ENDELSE
+     ;; IF KEYWORD_SET(save_1s_data) THEN BEGIN
+     tmpDatStruct = CREATE_STRUCT("mag",mag)
+     tmp1sStruct  = CREATE_STRUCT("mag",mag1s)
+        ;; saveStr += ',mag1s'
+        ;; mag1s    = 0L
+     ;; ENDIF
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;; Step 2 - E field
@@ -470,11 +481,11 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
                              DELT_T=(1.01)/MIN(sRates), $
                              /TALK
 
-           IF KEYWORD_SET(save_1s_data) THEN BEGIN
-              ;; saveStr += ',eField1s'
-              eField   = data
-              eField1s = data.y
-           ENDIF
+           ;; IF KEYWORD_SET(save_1s_data) THEN BEGIN
+           ;;    ;; saveStr += ',eField1s'
+           eField   = data
+           eField1s = data.y
+           ;; ENDIF
 
            data = {x:tS_1s, $
                    y:datInterp}
@@ -514,15 +525,20 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
            PRINT,'No E-field data for this interval! Futile?'
            cant_pFlex = 1
            nEField    = 0
-           IF KEYWORD_SET(save_1s_data) THEN BEGIN
+           ;; IF KEYWORD_SET(save_1s_data) THEN BEGIN
               ;; saveStr += ',eField1s'
               ;; eField1s = 0L
-           ENDIF
+           ;; ENDIF
            
         ENDELSE
 
      ENDIF ;; else if (N_ELEMENTS(tplot_vars) ne 0) then begin
 
+     ;; IF KEYWORD_SET(save_1s_data) THEN BEGIN
+        ;; saveStr += ',eField1s'
+     tmpDatStruct = CREATE_STRUCT(tmpDatStruct,"eField",eField)
+     tmp1sStruct  = CREATE_STRUCT(tmp1sStruct,"eField",eField1s)
+     ;; ENDIF
      ;;    tplot_vars = 'dB_fac'
      ;;    if (keyword_set(use_fac_v)) then tplot_vars = 'dB_fac_v'
      ;;    if ~KEYWORD_SET(no_blank_panels) then tplot_vars = 'dB_fac'
@@ -533,23 +549,37 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
      ;; Step 3 - Poynting flux
      IF ~cant_pFlex THEN BEGIN ;;If you can't not … well, you know what happens in that case.
 
+        ;;Calc pFlux based on original mag time series
+        FA_FIELDS_COMBINE,{TIME:tmpDatStruct.mag.x,COMP1:tmpDatStruct.mag.y}, $
+                             {TIME:tmpDatStruct.eField.x,COMP1:tmpDatStruct.eField.y}, $
+                             RESULT=tmpEFieldMagInterp, $
+                             /INTERP, $
+                             ;; /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
+                             DELT_T=(1.01)/MIN(sRates), $
+                             /TALK
+
+        pFluxB = (tmpDatStruct.mag.y[*,1]*1.e-9) * $
+                  (TEMPORARY(tmpEFieldMagInterp)/mu_0) ;Poynting flux along B
+        pFluxB[WHERE(~FINITE(pFluxB))] = 0.0
+        pFluxB = {x:tmpDatStruct.mag.x,y:pFluxB}
+
         GET_DATA,'dB_fac_interp',data=magData
         GET_DATA,'EFIT_ALONG_VSC',data=eFData
         ;; pFluxB = REFORM((magData.y[0,*]*1.e-9)*eFData.y[0,*]/mu_0) ;Poynting flux along B
-        pFluxB = (magData.y[*,1]*1.e-9)*eFData.y[*,1]/mu_0 ;Poynting flux along B
-        pFluxB[WHERE(~FINITE(pFluxB))] = 0.0
+        pFluxB1s = (magData.y[*,1]*1.e-9)*eFData.y[*,1]/mu_0 ;Poynting flux along B
+        pFluxB1s[WHERE(~FINITE(pFluxB1s))] = 0.0
 
         ;; STORE_DATA,'pFlux',DATA={x:[TRANSPOSE(tS_1s),TRANSPOSE(tS_1s)], $
         ;;                          y:[TRANSPOSE(pFluxB), $
         ;;                             TRANSPOSE(MAKE_ARRAY(N_ELEMENTS(tS_1s),VALUE=0.))]}
         STORE_DATA,'pFlux',DATA={x:[[tS_1s],[tS_1s]], $
                                  y:[[MAKE_ARRAY(N_ELEMENTS(tS_1s),VALUE=0.)], $
-                                    [pFluxB]]}
+                                    [pFluxB1s]]}
 
-        IF KEYWORD_SET(save_1s_data) THEN BEGIN
+        ;; IF KEYWORD_SET(save_1s_data) THEN BEGIN
            ;; saveStr += ',eField1s'
-           PFluxB1s = pFluxB
-        ENDIF
+        ;; PFluxB1s = pFluxB
+        ;; ENDIF
 
         dLimit = {spec:0, ystyle:1, yrange:[-20., 80.], $
                   ytitle:'Poynting Flux!C!C[DC] (mW/m!U2!N)', $
@@ -567,6 +597,10 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
            TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT']
         ENDIF
      ENDIF
+     tmpDatStruct = CREATE_STRUCT(tmpDatStruct,"pFluxB",pFluxB)
+     tmp1sStruct  = CREATE_STRUCT(tmp1sStruct,"pFluxB",pFluxB1s)
+
+
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;; Step 4 - Electron junk, AND
@@ -631,7 +665,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
         ;;kill dupes
         dupe_i      = WHERE(ABS(tmp.x[1:-1]-tmp.x[0:-2]) LT 0.0001,nDupes, $
                             COMPLEMENT=keep,NCOMPLEMENT=nKeep)
-        PRINT,STRCOMPRESS(nDupes,/REMOVE_ALL) + ' Je duplicates here'
+        PRINT,STRCOMPRESS(nDupes,/REMOVE_ALL) + ' ' + tmpName + ' duplicates here'
         tmp.x       = tmp.x[keep]
         tmp.y       = tmp.y[keep]
   
@@ -655,142 +689,44 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
         OPTIONS,tmpName,'x_no_interp',1
         OPTIONS,tmpName,'y_no_interp',1
 
-        IF KEYWORD_SET(save_1s_data) THEN BEGIN
-           IF N_ELEMENTS(fluxes) EQ 0 THEN BEGIN
-              fluxes    = CREATE_STRUCT(tmpName+'_time',tmp.x,tmpName,tmp.y)
-              fluxes_1s = CREATE_STRUCT(tmpName,doDat)
-           ENDIF ELSE BEGIN
-              fluxes    = CREATE_STRUCT(fluxes,tmpName+'_time',tmp.x,tmpName,tmp.y)
-              fluxes_1s = CREATE_STRUCT(fluxes_1s,tmpName,doDat)
-           ENDELSE
-        ENDIF
+        tmpDatStruct = CREATE_STRUCT(tmpDatStruct,tmpName+'_time',tmp.x,tmpName,tmp.y)
+        tmp1sStruct  = CREATE_STRUCT(tmp1sStruct,tmpName,doDat)
 
      ENDFOR
-
-
-     ;;   GET_2DT,'je_2d_fs','fa_ees_c', $
-     ;;           NAME='JEe', $
-     ;;           T1=t1, $
-     ;;           T2=t2, $
-     ;;           ENERGY=energy_electrons
-     ;;   GET_DATA,'JEe',DATA=tmp
-
-     ;;   IF SIZE(tmp,/TYPE) NE 8 THEN BEGIN
-     ;;      PRINT,'JEe appears to be out of commission ...'
-     ;;      RETURN
-     ;;   ENDIF
-
-     ;;   keep  = WHERE(FINITE(tmp.y))
-     ;;   tmp.x = tmp.x[keep]
-     ;;   tmp.y = tmp.y[keep]
-     
-     ;;   keep  = WHERE(ABS(tmp.y) GT 0.0)
-     ;;   tmp.x = tmp.x[keep]
-     ;;   tmp.y = tmp.y[keep]
-     
-     ;;   ;;get timescale monotonic
-     ;;   time_order = SORT(tmp.x)
-     ;;   tmp.x = tmp.x[time_order]
-     ;;   tmp.y = tmp.y[time_order]
-
-     ;;   tmp.y = SMOOTH(tmp.y,5)
-     ;;   doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
-
-     ;;   STORE_DATA,'JEe',DATA={x:tS_1s,y:doDat}
-     ;;   ylim,'JEe',-1.,6.,0                                         ; set y limits
-     ;;   OPTIONS,'JEe','ytitle','Electron!CEnergy Flux!CmW/(m!U2!N)' ; set y title
-     ;;   OPTIONS,'JEe','panel_size',3                                ; set panel size
-     ;;   OPTIONS,'JEe','x_no_interp',1
-     ;;   OPTIONS,'JEe','y_no_interp',1
-
-     ;; ; Electron flux
-
-     ;;   GET_2DT,'j_2d_fs','fa_ees_c',NAME='Je',T1=t1,T2=t2,ENERGY=energy_electrons
-     ;;   ;; ylim,'Je',1.e7,1.e9,1                                                ; set y limits
-     ;;   ;; OPTIONS,'Je','tplot_routine','pmplot'                                ; set 2 color plot
-     ;;   ;; OPTIONS,'Je','labels',['Downgoing!C Electrons','Upgoing!C Electrons '] ; set color label
-     ;;   ;; OPTIONS,'Je','labflag',3                                               ; set color label
-     ;;   ;; OPTIONS,'Je','labpos',[4.e8,5.e7]                                      ; set color label
-     ;;   ;; GET_DATA,'Je',DATA=tmp
-     ;;   tmp   = {x:je.x[time_range_indices[0]:time_range_indices[1]], $
-     ;;            y:je.y[time_range_indices[0]:time_range_indices[1]]}
-     ;;   keep  = WHERE(FINITE(tmp.y))
-     ;;   tmp.x = tmp.x[keep]
-     ;;   tmp.y = tmp.y[keep]
-     
-     ;;   keep  = WHERE(ABS(tmp.y) GT 0.0)
-     ;;   tmp.x = tmp.x[keep]
-     ;;   tmp.y = tmp.y[keep]
-     
-     ;;   ;;get timescale monotonic
-     ;;   time_order = SORT(tmp.x)
-     ;;   tmp.x = tmp.x[time_order]
-     ;;   tmp.y = tmp.y[time_order]
-
-     ;;   tmp.y = SMOOTH(tmp.y,5)
-     ;;   doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
-
-     ;;   STORE_DATA,'Je',DATA={x:tS_1s,y:doDat}
-     ;;   ylim,'Je',-5.e9,1.5e10,0                               ; set y limits
-     ;;   OPTIONS,'Je','ytitle','Electron Flux!C!C#/(cm!U2!N-s)' ; set y title
-     ;;   OPTIONS,'Je','panel_size',3                            ; set panel size
-     ;;   OPTIONS,'Je','x_no_interp',1
-     ;;   OPTIONS,'Je','y_no_interp',1
-
-     ;; Step 5 - Ion flux
-
-     ;; GET_2DT,'j_2d_fs','fa_ies_c',name='Ji',t1=t1,t2=t2,energy=energy_ions
-     ;; ;; ylim,'Ji',1.e5,1.e8,1      ; set y limits
-     ;; ;; OPTIONS,'Ji','tplot_routine','pmplot'      ; set 2 color plot
-     ;; ;; OPTIONS,'Ji','labels',['Downgoing!C Ions','Upgoing!C Ions ']       ; set color label
-     ;; ;; OPTIONS,'Ji','labflag',3   ; set color label
-     ;; ;; OPTIONS,'Ji','labpos',[2.e7,1.e6]  ; set color label
-     ;; GET_DATA,'Ji',DATA=tmp
-     ;; keep  = WHERE(FINITE(tmp.y))
-     ;; tmp.x = tmp.x[keep]
-     ;; tmp.y = tmp.y[keep]
-     
-     ;; keep  = WHERE(ABS(tmp.y) GT 0.0)
-     ;; tmp.x = tmp.x[keep]
-     ;; tmp.y = tmp.y[keep]
-     
-     ;; ;;get timescale monotonic
-     ;; time_order = SORT(tmp.x)
-     ;; tmp.x = tmp.x[time_order]
-     ;; tmp.y = tmp.y[time_order]
-
-     ;; tmp.y = SMOOTH((-1.)*tmp.y,5)
-     ;; doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
-
-     ;; STORE_DATA,'Ji',DATA={x:tS_1s,y:doDat}
-     ;; ylim,'Ji',-1.e9,6.e9,0                          ; set y limits
-     ;; OPTIONS,'Ji','ytitle','Ion Flux!C#/(cm!U2!N-s)' ; set y title
-     ;; OPTIONS,'Ji','panel_size',3                     ; set panel size
-     ;; OPTIONS,'Ji','x_no_interp',1
-     ;; OPTIONS,'Ji','y_no_interp',1
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;; Step 6 - VLF data
 
      ;;DSP_V5-V8HG or DSP_V5-V8
 
-     prog = getenv('FASTBIN') + '/showDQIs'
-     if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-        if (sdt_idx GE 10) then begin
-           sidstr = string(sdt_idx, format='(I2)')
-        endif else begin
-           sidstr = string(sdt_idx, format='(I1)')
-        endelse
-        spawn, [prog, sidstr], result, /noshell
-     endif else begin
-        spawn, prog, result, /noshell
-     endelse
-     b = where (strpos(result,'DspADC_V5-V8HG') ge 0,ndsphg)
-     if (ndsphg gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then ndsphg = 0
-     b = where ((strpos(result,'DspADC_V5-V8') ge 0) and (strpos(result,'DspADC_V5-V8HG') lt 0),ndsp)
-     if (ndsp gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then ndsp = 0
+     prog = GETENV('FASTBIN') + '/showDQIs'
+     IF ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN BEGIN
+        IF (sdt_idx GE 10) THEN BEGIN
+           sidstr = STRING(sdt_idx, FORMAT='(I2)')
+        ENDIF ELSE BEGIN
+           sidstr = STRING(sdt_idx, FORMAT='(I1)')
+        ENDELSE
+        SPAWN, [prog, sidstr], result, /NOSHELL
+     ENDIF ELSE BEGIN
+        SPAWN, prog, result, /NOSHELL
+     ENDELSE
+     b = WHERE(STRPOS(result,'DspADC_V5-V8HG') GE 0,ndsphg)
+     IF (ndsphg GT 0) THEN BEGIN
+        IF STRPOS(result(b(0)+1),'Points (cur/aloc): 0       /') GE 0 THEN ndsphg = 0
+     ENDIF
+     b = WHERE((STRPOS(result,'DspADC_V5-V8') GE 0) AND $
+               (STRPOS(result,'DspADC_V5-V8HG') LT 0),ndsp)
+     IF (ndsp GT 0) THEN BEGIN
+        IF STRPOS(result(b(0)+1),'Points (cur/aloc): 0       /') GE 0 THEN ndsp = 0
+     ENDIF
 
-     if (ndsphg gt 0) then data=get_fa_fields('DspADC_V5-V8HG',/all) else if (ndsp gt 0) then data=get_fa_fields('DspADC_V5-V8',/all)
+     if (ndsphg GT 0) THEN BEGIN
+        data = GET_FA_FIELDS('DspADC_V5-V8HG',/all) 
+     ENDIF else BEGIN
+        IF (ndsp GT 0) THEN BEGIN
+           data = GET_FA_FIELDS('DspADC_V5-V8',/all)
+        ENDIF
+     ENDELSE
      ndsp = (ndsp gt 0) or (ndsphg gt 0)
 
      tmp_i = WHERE((data.time GE (t1-tBuf)) AND (data.time LE (t2+tBuf)),nTmp)
@@ -899,6 +835,8 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
                           DELT_T=(1.01)/MIN(sRates), $
                           /TALK
 
+        dsp    = data
+        dsp1s  = datInterp
 
         ;; STORE_DATA,'DSP_integ',DATA={x:data.x,y:integData}
         STORE_DATA,'DSP_integ',DATA={x:tS_1s,y:datInterp}
@@ -913,6 +851,8 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
      endif else begin
 
      endelse
+     tmpDatStruct = CREATE_STRUCT(tmpDatStruct,'dsp',dsp)
+     tmp1sStruct  = CREATE_STRUCT(tmp1sStruct,'dsp',dsp1s)
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;; STEP 7 - Clean up and return
@@ -1004,11 +944,11 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
         ENDIF
 
         IF KEYWORD_SET(save_png) THEN BEGIN
-           CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=0 ;,XSIZE=4,YSIZE=7
+           CGPS_OPEN, plotDir+tmpPlotName+'.ps',FONT=0 ;,XSIZE=4,YSIZE=7
         ENDIF ELSE BEGIN
            IF KEYWORD_SET(save_ps) THEN BEGIN
               ;; CGPS_OPEN, './plots/McFadden_et_al_1998--Fig_1.ps',FONT=0,XSIZE=4,YSIZE=7
-              POPEN,plotDir+outPlotName,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
+              POPEN,plotDir+tmpPlotName,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
               DEVICE,/PALATINO,FONT_SIZE=8
               ;; DEVICE,SET_FONT='Garamond*15'
               ;; !P.FONT = -1
@@ -1051,7 +991,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
      PRINT,''
      PRINT,'************************************************************'
      PRINT,FORMAT='("Interval",T40,": ",I0)',jj
-     PRINT,FORMAT='("N mag    points this interval",T40,": ",I0)',nMag
+     PRINT,FORMAT='("N Bfield points this interval",T40,": ",I0)',nMag
      PRINT,FORMAT='("N Efield points this interval",T40,": ",I0)',nEField
      ;; PRINT,FORMAT='("N Efield points this interval",T40,": ",I0)',nEField
      FOR ll=0,N_ELEMENTS(types_2dt)-1 DO BEGIN
@@ -1063,16 +1003,16 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
      PRINT,FORMAT='("N 1-s interps   this interval",T40,": ",I0)',N_ELEMENTS(tS_1s)
      PRINT,''
 
-     IF KEYWORD_SET(save_1s_data) THEN BEGIN
-        saveFilePref = 'strangeway_2005--DC_data--'
-        tmpSaveFile = saveFilePref + '_orb_' + orbString + '_' + itvlString
+     ;; IF KEYWORD_SET(save_1s_data) THEN BEGIN
+     ;;    saveFilePref = 'strangeway_2005--DC_data--'
+     ;;    tmpSaveFile = saveFilePref + '_orb_' + orbString + '_' + itvlString
 
-        PRINT,"Saving stuff from this interval to " + tmpSaveFile + ' ...'
-        SAVE,mag,eField,fluxes, $
-             mag1s,eField1s,pFluxB1s,fluxes_1s, $
-             FILENAME=outDir+tmpSaveFile
+     ;;    PRINT,"Saving stuff from this interval to " + tmpSaveFile + ' ...'
+     ;;    SAVE,mag,eField,fluxes, $
+     ;;         mag1s,eField1s,pFluxB1s,fluxes_1s, $
+     ;;         FILENAME=outDir+tmpSaveFile
 
-     ENDIF
+     ;; ENDIF
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;;Gather data and STORE
@@ -1091,16 +1031,16 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
      GET_DATA,'ALT',DATA=alt
      GET_DATA,'EFIT_ALONG_VSC',DATA=eAVsc
      GET_DATA,'dB_fac_interp',DATA=dB_perp
-     GET_DATA,'pFlux',DATA=pFluxB
+     GET_DATA,'pFlux',DATA=pFluxB1s
      GET_DATA,'Je',DATA=Je
      GET_DATA,'JEe',DATA=Jee
      GET_DATA,'Ji',DATA=Ji
 
      ;;Check time series, if you like
      PRINT,ARRAY_EQUAL(eavsc.x[*,1],db_perp.x[*,1])
-     PRINT,ARRAY_EQUAL(eavsc.x[*,1],pfluxb.x[*,1])
-     PRINT,ARRAY_EQUAL(db_perp.x[*,1],pfluxb.x[*,1])
-     PRINT,ARRAY_EQUAL(je.x,pfluxb.x[*,1])
+     PRINT,ARRAY_EQUAL(eavsc.x[*,1],pFluxB1s.x[*,1])
+     PRINT,ARRAY_EQUAL(db_perp.x[*,1],pFluxB1s.x[*,1])
+     PRINT,ARRAY_EQUAL(je.x,pFluxB1s.x[*,1])
      PRINT,ARRAY_EQUAL(je.x,jee.x)
      PRINT,ARRAY_EQUAL(je.x,ji.x)
      PRINT,ARRAY_EQUAL(jee.x,ji.x)
@@ -1113,7 +1053,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
 
      eAlongV     = eAVsc.y[*,1] ;fields
      dB_perp     = dB_perp.y[*,1]
-     pFAlongB    = pFluxB.y[*,1]
+     pFAlongB    = pFluxB1s.y[*,1]
      je          = je.y         ;particles
      jee         = jee.y
      ji          = ji.y
@@ -1135,10 +1075,10 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
      north_i  = WHERE(ilat GE minILAT,nNorth)
      south_i  = WHERE(ilat LE -1.*minILAT,nSouth)
 
-     dayN_i   = CGSETINTERSECTION(day_i,north_i)
-     ngtN_i   = CGSETINTERSECTION(ngt_i,north_i)
-     dayS_i   = CGSETINTERSECTION(day_i,south_i)
-     ngtS_i   = CGSETINTERSECTION(ngt_i,south_i)
+     dayN_i   = CGSETINTERSECTION(day_i,north_i,COUNT=nDayN)
+     ngtN_i   = CGSETINTERSECTION(ngt_i,north_i,COUNT=nNgtN)
+     dayS_i   = CGSETINTERSECTION(day_i,south_i,COUNT=nDayS)
+     ngtS_i   = CGSETINTERSECTION(ngt_i,south_i,COUNT=nNgtS)
 
      GET_DATA,'DSP_integ',DATA=DSP
 
@@ -1349,109 +1289,127 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
 
   tmpStruct = {orbit:orbit, $
                time:time, $
-               avg:{Both:{both:{eAlongV:eAlongVAvg, $
+               avg:{Both:{both:{N:nAll, $
+                                eAlongV:eAlongVAvg, $
                                 dB_perp:dB_perpAvg, $
                                 pFAlongB:pFAlongBAvg, $
                                 je:jeAvg, $
                                 Jee:JEeAvg, $
                                 Ji:JiAvg}, $
-                          day:{eAlongV:eAlongVAvg_day, $
+                          day:{N:nDay, $
+                               eAlongV:eAlongVAvg_day, $
                                dB_perp:dB_perpAvg_day, $
                                pFAlongB:pFAlongBAvg_day, $
                                je:jeAvg_day, $
                                Jee:JEeAvg_day, $
                                Ji:JiAvg_day}, $
-                          ngt:{eAlongV:eAlongVAvg_ngt, $
+                          ngt:{N:nNgt, $
+                               eAlongV:eAlongVAvg_ngt, $
                                dB_perp:dB_perpAvg_ngt, $
                                pFAlongB:pFAlongBAvg_ngt, $
                                je:jeAvg_ngt, $
                                Jee:JEeAvg_ngt, $
                                Ji:JiAvg_ngt}}, $
-                    North:{both:{eAlongV:eAlongVAvg_N, $
+                    North:{both:{N:nNorth, $
+                                 eAlongV:eAlongVAvg_N, $
                                  dB_perp:dB_perpAvg_N, $
                                  pFAlongB:pFAlongBAvg_N, $
                                  je:jeAvg_N, $
                                  Jee:JEeAvg_N, $
                                  Ji:JiAvg_N}, $
-                           day:{eAlongV:eAlongVAvg_dayN, $
+                           day:{N:nDayN, $
+                                eAlongV:eAlongVAvg_dayN, $
                                 dB_perp:dB_perpAvg_dayN, $
                                 pFAlongB:pFAlongBAvg_dayN, $
                                 je:jeAvg_dayN, $
                                 Jee:JEeAvg_dayN, $
                                 Ji:JiAvg_dayN}, $
-                           ngt:{eAlongV:eAlongVAvg_ngtN, $
+                           ngt:{N:nNgtN, $
+                                eAlongV:eAlongVAvg_ngtN, $
                                 dB_perp:dB_perpAvg_ngtN, $
                                 pFAlongB:pFAlongBAvg_ngtN, $
                                 je:jeAvg_ngtN, $
                                 Jee:JEeAvg_ngtN, $
                                 Ji:JiAvg_ngtN}}, $
-                    South:{both:{eAlongV:eAlongVAvg_S, $
+                    South:{both:{N:nSouth, $
+                                 eAlongV:eAlongVAvg_S, $
                                  dB_perp:dB_perpAvg_S, $
                                  pFAlongB:pFAlongBAvg_S, $
                                  je:jeAvg_S, $
                                  Jee:JEeAvg_S, $
                                  Ji:JiAvg_S}, $
-                           day:{eAlongV:eAlongVAvg_dayS, $
+                           day:{N:nDayS, $
+                                eAlongV:eAlongVAvg_dayS, $
                                 dB_perp:dB_perpAvg_dayS, $
                                 pFAlongB:pFAlongBAvg_dayS, $
                                 je:jeAvg_dayS, $
                                 Jee:JEeAvg_dayS, $
                                 Ji:JiAvg_dayS}, $
-                           ngt:{eAlongV:eAlongVAvg_ngtS, $
+                           ngt:{N:nNgtS, $
+                                eAlongV:eAlongVAvg_ngtS, $
                                 dB_perp:dB_perpAvg_ngtS, $
                                 pFAlongB:pFAlongBAvg_ngtS, $
                                 je:jeAvg_ngtS, $
                                 Jee:JEeAvg_ngtS, $
                                 Ji:JiAvg_ngtS}}}, $
-               int:{Both:{both:{eAlongV:eAlongVInt, $
+               int:{Both:{both:{len:all_len, $
+                                eAlongV:eAlongVInt, $
                                 dB_perp:dB_perpInt, $
                                 pFAlongB:pFAlongBInt, $
                                 je:jeInt, $
                                 Jee:JEeInt, $
                                 Ji:JiInt}, $
-                          day:{eAlongV:eAlongVInt_day, $
+                          day:{len:day_len, $
+                               eAlongV:eAlongVInt_day, $
                                dB_perp:dB_perpInt_day, $
                                pFAlongB:pFAlongBInt_day, $
                                je:jeInt_day, $
                                Jee:JEeInt_day, $
                                Ji:JiInt_day}, $
-                          ngt:{eAlongV:eAlongVInt_ngt, $
+                          ngt:{len:ngt_len, $
+                               eAlongV:eAlongVInt_ngt, $
                                dB_perp:dB_perpInt_ngt, $
                                pFAlongB:pFAlongBInt_ngt, $
                                je:jeInt_ngt, $
                                Jee:JEeInt_ngt, $
                                Ji:JiInt_ngt}}, $
-                    North:{both:{eAlongV:eAlongVInt_N, $
+                    North:{both:{len:north_len, $
+                                 eAlongV:eAlongVInt_N, $
                                  dB_perp:dB_perpInt_N, $
                                  pFAlongB:pFAlongBInt_N, $
                                  je:jeInt_N, $
                                  Jee:JEeInt_N, $
                                  Ji:JiInt_N}, $
-                           day:{eAlongV:eAlongVInt_dayN, $
+                           day:{len:dayN_len, $
+                                eAlongV:eAlongVInt_dayN, $
                                 dB_perp:dB_perpInt_dayN, $
                                 pFAlongB:pFAlongBInt_dayN, $
                                 je:jeInt_dayN, $
                                 Jee:JEeInt_dayN, $
                                 Ji:JiInt_dayN}, $
-                           ngt:{eAlongV:eAlongVInt_ngtN, $
+                           ngt:{len:ngtN_len, $
+                                eAlongV:eAlongVInt_ngtN, $
                                 dB_perp:dB_perpInt_ngtN, $
                                 pFAlongB:pFAlongBInt_ngtN, $
                                 je:jeInt_ngtN, $
                                 Jee:JEeInt_ngtN, $
                                 Ji:JiInt_ngtN}}, $
-                    South:{both:{eAlongV:eAlongVInt_S, $
+                    South:{both:{len:south_len, $
+                                 eAlongV:eAlongVInt_S, $
                                  dB_perp:dB_perpInt_S, $
                                  pFAlongB:pFAlongBInt_S, $
                                  je:jeInt_S, $
                                  Jee:JEeInt_S, $
                                  Ji:JiInt_S}, $
-                           day:{eAlongV:eAlongVInt_dayS, $
+                           day:{len:dayS_len, $
+                                eAlongV:eAlongVInt_dayS, $
                                 dB_perp:dB_perpInt_dayS, $
                                 pFAlongB:pFAlongBInt_dayS, $
                                 je:jeInt_dayS, $
                                 Jee:JEeInt_dayS, $
                                 Ji:JiInt_dayS}, $
-                           ngt:{eAlongV:eAlongVInt_ngtS, $
+                           ngt:{len:ngtS_len, $
+                                eAlongV:eAlongVInt_ngtS, $
                                 dB_perp:dB_perpInt_ngtS, $
                                 pFAlongB:pFAlongBInt_ngtS, $
                                 je:jeInt_ngtS, $
@@ -1477,7 +1435,18 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
                       dayN_len:dayN_len, $
                       ngtN_len:ngtN_len, $
                       dayS_len:dayS_len, $
-                      ngtS_len:ngtS_len}}                 
+                      ngtS_len:ngtS_len}, $
+               data:CREATE_STRUCT(tmpDatStruct,"one_s",tmp1sStruct)}
+
+  ;;Clear 'em out
+  mag       = !NULL 
+  mag1s     = !NULL
+  eField    = !NULL
+  eField1s  = !NULL
+  fluxes    = !NULL
+  fluxes_1s = !NULL
+  pFluxB1s  = !NULL
+
 
   PRINT,"Adding struct for interval " + itvlString + " in orbit " + orbString + ' ...'
   structList.Add,tmpStruct
@@ -1491,7 +1460,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
         CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
            -1: BEGIN
               PRINT,'Adding stuff from orbit ' + orbString + ' ...'
-              swHash  = swHash + HASH(orbit,structList)
+              swHash  = swHash + ORDEREDHASH(orbit,structList)
            END
            ELSE: BEGIN
               PRINT,'Replacing hash entry for orbit ' + orbString + ' ...'
@@ -1503,7 +1472,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
         SAVE,swHash,FILENAME=outDir+hashFile
      ENDIF ELSE BEGIN
         PRINT,'Creating Strangeway statistics hash for orbit ' + orbString + ' ...'
-        swHash = HASH(orbit,structList)
+        swHash = ORDEREDHASH(orbit,structList)
         SAVE,swHash,FILENAME=outDir+hashFile
      ENDELSE
   ENDIF
