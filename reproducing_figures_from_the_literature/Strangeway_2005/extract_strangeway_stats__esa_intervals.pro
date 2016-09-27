@@ -79,6 +79,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
   jeArr        = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)      
   jeeArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)     
   jiArr        = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)      
+  dspArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
 
   nCount       = 0
   orbCnt       = 0
@@ -90,9 +91,9 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
 
         tmpThing  = ((value[k].(stat)).(hemi)).(side)
 
-        nHere     = N_ELEMENTS(tmpThing.eAlongV)
+        ;; nHere     = N_ELEMENTS(tmpThing.eAlongV)
 
-        IF nHere EQ 0 THEN CONTINUE
+        IF tmpThing.N EQ 0 THEN CONTINUE
 
         curInds   = [nCount:nCount+nHere-1]
 
@@ -105,6 +106,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
         jeArr       [curInds] = tmpThing.je        
         jeeArr      [curInds] = tmpThing.jee       
         jiArr       [curInds] = tmpThing.ji        
+        dspArr                = tmpTHing.dsp
 
         ;; PRINT,"NCOUNT: " + STRCOMPRESS(nCount,/REMOVE_ALL)
         nCount    += nHere
@@ -121,7 +123,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
                pFAlongB  : pFAlongBArr [0:nCount-1] , $ 
                je        : jeArr       [0:nCount-1] , $       
                jee       : jeeArr      [0:nCount-1] , $      
-               ji        : jiArr       [0:nCount-1]}
+               ji        : jiArr       [0:nCount-1] , $
+               dsp       : dspArr      [0:nCount-1] }
 
 
   IF ~KEYWORD_SET(no_plots) THEN BEGIN
@@ -136,7 +139,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
                  "Poynting Flux [DC] (mW/m^2)", $
                  "Average Electron Flux (#/cm$^2$/s)", $
                  "Average Electron Energy Flux (mW/m$^2$)", $
-                 "Ion Flux (#/cm!U2!N/s)"]
+                 "Ion Flux (#/cm!U2!N/s)", $
+                 "Average ELF amplitude (V/m)"]
 
      xRange   = [[0.,0.], $
                  [0.,0.], $
@@ -145,7 +149,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
                  [1e-1,1e2], $
                  [1e7,1e10], $
                  [1e-2,1e0], $
-                 [1e6,1e10]]
+                 [1e6,1e10], $
+                 [1e-3,1e-1]]
 
      yTitle   = "Ion Flux (#/cm!U2!N/s)"
      yData    = (-1.)*finStruct.ji

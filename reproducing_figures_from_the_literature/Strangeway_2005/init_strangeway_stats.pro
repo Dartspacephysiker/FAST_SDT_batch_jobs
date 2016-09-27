@@ -1,6 +1,7 @@
   ;;Initialize variables (wow)
   ;; day_tRange        = 0.
   ;; ngt_tRange        = 0.
+
   dayN_tRange       = 0.
   ngtN_tRange       = 0.
   dayS_tRange       = 0.
@@ -16,6 +17,7 @@
   south_len         = 0.
   all_len           = 0.
 
+  ;;Averages
   eAlongVAvg        = 0.
   eAlongVAvg_N      = 0.
   eAlongVAvg_S      = 0.
@@ -76,6 +78,17 @@
   JiAvg_dayS        = 0.
   JiAvg_ngtS        = 0.
 
+  dspAvg            = 0.
+  dspAvg_N          = 0.
+  dspAvg_S          = 0.
+  dspAvg_day        = 0.
+  dspAvg_ngt        = 0.
+  dspAvg_dayN       = 0.
+  dspAvg_ngtN       = 0.
+  dspAvg_dayS       = 0.
+  dspAvg_ngtS       = 0.
+
+  ;;Integrals
   eAlongVInt        = 0.
   eAlongVInt_N      = 0.
   eAlongVInt_S      = 0.
@@ -135,3 +148,13 @@
   JiInt_ngtN        = 0.
   JiInt_dayS        = 0.
   JiInt_ngtS        = 0.
+
+  dspInt            = 0.
+  dspInt_N          = 0.
+  dspInt_S          = 0.
+  dspInt_day        = 0.
+  dspInt_ngt        = 0.
+  dspInt_dayN       = 0.
+  dspInt_ngtN       = 0.
+  dspInt_dayS       = 0.
+  dspInt_ngtS       = 0.
