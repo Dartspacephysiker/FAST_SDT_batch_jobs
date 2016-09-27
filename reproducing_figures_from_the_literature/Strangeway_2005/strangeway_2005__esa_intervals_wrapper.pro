@@ -14,7 +14,7 @@
 ;*****************************
 ;Put code here:
 
-STRANGEWAY_2005__USE_ESA_INTERVALS,/BATCH_MODE,/PLOT_NORTH,/SAVE_PS,/SAVE_1S_DATA
+STRANGEWAY_2005__USE_ESA_INTERVALS,/BATCH_MODE,/PLOT_NORTH,/SAVE_PS
 
 ;*****************************
 ;End routine:

@@ -1106,7 +1106,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
 
      IF dayN_i[0] NE -1 THEN BEGIN
 
-        dayN_tRanGE       = [MIN(time[dayN_i]),MAX(time[dayN_i])]
+        dayN_tRange       = [MIN(time[dayN_i]),MAX(time[dayN_i])]
         dayN_len          = MAX(position[dayN_i])-MIN(position[dayN_i])
 
         eAlongVAvg_dayN   = MEAN(eAlongV[dayN_i])
@@ -1133,6 +1133,8 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
 
         dspAvg_dayS        = MEAN(dsp[dayS_i])
      ENDIF
+
+     day_len           = dayN_len + dayS_len
 
      IF N_ELEMENTS(day_i) GT 1 THEN BEGIN
 
@@ -1175,10 +1177,6 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
         dspInt_dayS        = INT_TABULATED(position[dayS_i],dsp[dayS_i])/dayS_len
 
      ENDIF
-
-     ;; day_tRange        = [MIN(time[day_i]),MAX(time[day_i])]
-     day_len           = dayN_len + dayS_len
-
 
   ENDIF
 
@@ -1223,6 +1221,8 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
 
      ENDIF
 
+     ngt_len           = ngtN_len + ngtS_len
+
      IF N_ELEMENTS(ngt_i) GT 1 THEN BEGIN
 
         eAlongVInt_ngt    = INT_TABULATED(position[ngt_i],eAlongV[ngt_i])/ngt_len
@@ -1262,10 +1262,6 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
 
         dspInt_ngtS        = INT_TABULATED(position[ngtS_i],dsp[ngtS_i])/ngtS_len
      ENDIF
-
-     ;; ngt_tRange        = [MIN(time[ngt_i]),MAX(time[ngt_i])]
-     ngt_len           = ngtN_len + ngtS_len
-
 
   ENDIF
 

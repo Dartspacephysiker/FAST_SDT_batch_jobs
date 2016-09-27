@@ -6,6 +6,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
    SOUTH=south, $
    DAY=day, $
    NIGHT=night, $
+   FOLD_INTERVALS=fold_intervals, $
    NO_PLOTS=no_plots
 
   COMPILE_OPT IDL2
@@ -49,7 +50,6 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
      END
   ENDCASE
 
-
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_2005/'
   hashFile     = 'Strangeway_et_al_2005__DC_params--ESA_intervals.sav'
 
@@ -70,6 +70,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
   ENDELSE
 
   maxNElems    = 1e6
+  maxNItvls    = 30S
 
   orbArr       = MAKE_ARRAY(N_ELEMENTS(swHash) ,/LONG ,VALUE=0.) 
   itvlArr      = MAKE_ARRAY(maxNElems          ,/INTEG,VALUE=0.) 
@@ -80,6 +81,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
   jeeArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)     
   jiArr        = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)      
   dspArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
+  lenArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
+  nPtArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
 
   nCount       = 0
   orbCnt       = 0
@@ -87,34 +90,168 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
 
      nItvls    = N_ELEMENTS(value)
 
-     FOR k=0,nItvls-1 DO BEGIN
+     ;; tmpOrb_i  = MAKE_ARRAY(2,maxNItvls,/LONG)
 
-        tmpThing  = ((value[k].(stat)).(hemi)).(side)
+     IF nItvls EQ 0 THEN CONTINUE
 
-        ;; nHere     = N_ELEMENTS(tmpThing.eAlongV)
+     CASE KEYWORD_SET(fold_intervals) OF
+        1: BEGIN
 
-        IF tmpThing.N EQ 0 THEN CONTINUE
+           CASE stat OF
+              2: BEGIN
 
-        curInds   = [nCount:nCount+nHere-1]
+                 ;;Get the number of points here
+                 nItvl = MAKE_ARRAY(nItvls,/LONG)
+                 FOR k=0,nItvls-1 DO nItvl[k] = ((value[k].(stat)).(hemi)).(side).N
+
+                 nThisOrb = TOTAL(nItvl)
+
+                 ;;Make temporary arrays
+                 tmp_eAlongV   = MAKE_ARRAY(nThisOrb,/FLOAT) 
+                 tmp_dB_perp   = MAKE_ARRAY(nThisOrb,/FLOAT) 
+                 tmp_pFAlongB  = MAKE_ARRAY(nThisOrb,/FLOAT)
+                 tmp_je        = MAKE_ARRAY(nThisOrb,/FLOAT)      
+                 tmp_jee       = MAKE_ARRAY(nThisOrb,/FLOAT)     
+                 tmp_ji        = MAKE_ARRAY(nThisOrb,/FLOAT)      
+                 tmp_dsp       = MAKE_ARRAY(nThisOrb,/FLOAT)     
+
+                 tmptmp        = 0
+                 FOR k=0,nItvls-1 DO BEGIN
+                    tmpThing   = ((value[k].(stat)).(hemi)).(side)
+
+                    nHere      = N_ELEMENTS(tmpThing.eAlongV)
+
+                    IF nHere GT 0 THEN BEGIN
+
+                       curInds    = [tmptmp:tmptmp+nItvl[k]-1]
+
+                       tmp_eAlongV  [curInds] = tmpThing.eAlongV 
+                       tmp_dB_perp  [curInds] = tmpThing.dB_perp 
+                       tmp_pFAlongB [curInds] = tmpThing.pFAlongB
+                       tmp_je       [curInds] = tmpThing.je      
+                       tmp_jee      [curInds] = tmpThing.jee     
+                       tmp_ji       [curInds] = tmpThing.ji      
+                       tmp_dsp      [curInds] = tmpThing.dsp     
+                       
+                       tmptmp += nItvl[k]
+                    ENDIF
+
+                 ENDFOR
+                 
+                 tmp_eAlongV  = TOTAL(tmp_eAlongV )/nThisOrb
+                 tmp_dB_perp  = TOTAL(tmp_dB_perp )/nThisOrb
+                 tmp_pFAlongB = TOTAL(tmp_pFAlongB)/nThisOrb
+                 tmp_je       = TOTAL(tmp_je      )/nThisOrb
+                 tmp_jee      = TOTAL(tmp_jee     )/nThisOrb
+                 tmp_ji       = TOTAL(tmp_ji      )/nThisOrb
+                 tmp_dsp      = TOTAL(tmp_dsp     )/nThisOrb
+
+              END
+              3: BEGIN
+
+                 tmp_eAlongV   = 0. 
+                 tmp_dB_perp   = 0. 
+                 tmp_pFAlongB  = 0.
+                 tmp_je        = 0.      
+                 tmp_jee       = 0.     
+                 tmp_ji        = 0.      
+                 tmp_dsp       = 0.     
+
+                 lenItvl       = MAKE_ARRAY(nItvls,/LONG)
+                 FOR k=0,nItvls-1 DO BEGIN
+                    lenItvl[k] = ((value[k].(stat)).(hemi)).(side).len
+                 ENDFOR
+
+                 lenThisOrb    = TOTAL(lenItvl)
+
+                 FOR k=0,nItvls-1 DO BEGIN
+                    tmpThing   = ((value[k].(stat)).(hemi)).(side)
+
+                    nHere      = N_ELEMENTS(tmpThing.eAlongV)
+
+                    IF nHere GT 0 THEN BEGIN
+
+                       ;;"UN-integrate" these fellers
+                       tmp_eAlongV   += ( tmpThing.eAlongV  * lenItvl[k] )
+                       tmp_dB_perp   += ( tmpThing.dB_perp  * lenItvl[k] )
+                       tmp_pFAlongB  += ( tmpThing.pFAlongB * lenItvl[k] )
+                       tmp_je        += ( tmpThing.je       * lenItvl[k] )
+                       tmp_jee       += ( tmpThing.jee      * lenItvl[k] )
+                       tmp_ji        += ( tmpThing.ji       * lenItvl[k] )
+                       tmp_dsp       += ( tmpThing.dsp      * lenItvl[k] )
+
+                    ENDIF
+
+                 ENDFOR
+
+                 tmp_eAlongV   /= lenThisOrb
+                 tmp_dB_perp   /= lenThisOrb
+                 tmp_pFAlongB  /= lenThisOrb
+                 tmp_je        /= lenThisOrb
+                 tmp_jee       /= lenThisOrb
+                 tmp_ji        /= lenThisOrb
+                 tmp_dsp       /= lenThisOrb
+
+              END
+           ENDCASE
+
+           orbArr      [orbCnt ] = key
+           itvlArr     [orbCnt ] = TOTAL(INDGEN(nItvls)+1)
+           eAlongVArr  [orbCnt ] = tmp_eAlongV   
+           dB_perpArr  [orbCnt ] = tmp_dB_perp   
+           pFAlongBArr [orbCnt ] = tmp_pFAlongB  
+           jeArr       [orbCnt ] = tmp_je        
+           jeeArr      [orbCnt ] = tmp_jee       
+           jiArr       [orbCnt ] = tmp_ji        
+           dspArr      [orbCnt ] = tmp_dsp
+
+           nCount++
+
+        END
+        ELSE: BEGIN
+
+           FOR k=0,nItvls-1 DO BEGIN
+
+              tmpThing  = ((value[k].(stat)).(hemi)).(side)
+
+              nHere     = N_ELEMENTS(tmpThing.eAlongV)
+
+              IF nHere EQ 0 THEN CONTINUE
+
+              curInds   = [nCount:nCount+nHere-1]
 
 
-        orbArr      [orbCnt ] = key
-        itvlArr     [curInds] = k + 1
-        eAlongVArr  [curInds] = tmpThing.eAlongV   
-        dB_perpArr  [curInds] = tmpThing.dB_perp   
-        pFAlongBArr [curInds] = tmpThing.pFAlongB  
-        jeArr       [curInds] = tmpThing.je        
-        jeeArr      [curInds] = tmpThing.jee       
-        jiArr       [curInds] = tmpThing.ji        
-        dspArr                = tmpTHing.dsp
+              orbArr      [orbCnt ] = key
+              itvlArr     [curInds] = k + 1
+              eAlongVArr  [curInds] = tmpThing.eAlongV   
+              dB_perpArr  [curInds] = tmpThing.dB_perp   
+              pFAlongBArr [curInds] = tmpThing.pFAlongB  
+              jeArr       [curInds] = tmpThing.je        
+              jeeArr      [curInds] = tmpThing.jee       
+              jiArr       [curInds] = tmpThing.ji        
+              dspArr      [curInds] = tmpThing.dsp
+              CASE stat OF
+                 2: BEGIN       ;averages
+                    nPtarr[curInds] = tmpThing.N
+                 END
+                 3: BEGIN
+                    lenArr[curInds] = tmpThing.len
+                 END
+                 ELSE: STOP
+              ENDCASE
 
-        ;; PRINT,"NCOUNT: " + STRCOMPRESS(nCount,/REMOVE_ALL)
-        nCount    += nHere
+              nCount    += nHere
 
-     ENDFOR
+              ;; tmpOrb_i[*,k] = [curInds[0],curInds[-1]]
 
-        orbCnt++
-     ENDFOREACH
+           ENDFOR
+
+        END
+     ENDCASE
+
+
+     orbCnt++
+  ENDFOREACH
 
   finStruct = {orbit     : orbArr                   , $
                interval  : itvlArr     [0:nCount-1] , $  
@@ -128,107 +265,13 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
 
 
   IF ~KEYWORD_SET(no_plots) THEN BEGIN
-     xQuants  = [4,5,6]
-     nPlots   = N_ELEMENTS(xQuants)*2 ;one extra for linear regression
-     plotArr  = MAKE_ARRAY(nPlots,/OBJ)
 
-     xTitle   = ["", $
-                 "", $
-                 "", $
-                 "", $
-                 "Poynting Flux [DC] (mW/m^2)", $
-                 "Average Electron Flux (#/cm$^2$/s)", $
-                 "Average Electron Energy Flux (mW/m$^2$)", $
-                 "Ion Flux (#/cm!U2!N/s)", $
-                 "Average ELF amplitude (V/m)"]
+     xQuants  = [4,5,6,8]
 
-     xRange   = [[0.,0.], $
-                 [0.,0.], $
-                 [0.,0.], $
-                 [0.,0.], $
-                 [1e-1,1e2], $
-                 [1e7,1e10], $
-                 [1e-2,1e0], $
-                 [1e6,1e10], $
-                 [1e-3,1e-1]]
-
-     yTitle   = "Ion Flux (#/cm!U2!N/s)"
-     yData    = (-1.)*finStruct.ji
-     yRange   = [1e6,1e10]
-
-     FOR k=0,nPlots-1,2 DO BEGIN
-        datI   = xQuants[k/2]
-
-        xDat   = finStruct.(datI)
-        sDat   = SORT(xDat)
-        xDat   = xDat[sDat]
-        yDat   = yData[sDat]
-
-        inds   = WHERE((xDat GT 0) AND (yDat GT 0),nInds)
-
-        IF nInds LE 1 THEN BEGIN
-           PRINT,'No good data for these plots! Outta sight!'
-           CONTINUE
-        ENDIF
-
-        params = LINFIT(ALOG10(xDat[inds]),ALOG10(yDat[inds]),YFIT=yFitter)
-        corr   = CORRELATE(ALOG10(xDat[inds]),ALOG10(yDat[inds]))
-
-        ;; yFit = 10.^(params[1] * ALOG10(xDat[inds]) + params[0])
-
-        xFit   = 10.^((INDGEN(10))/10.*(ALOG10(xRange[1,datI])-ALOG10(xRange[0,datI]))+$
-                 ALOG10(xRange[0,datI]))
-        yFit   = 10.^(params[1] * ALOG10(xFit) + params[0])
-
-        yFitter = 10.^(params[1] * ALOG10(xDat[inds]) + params[0])
-        tTest   = TM_TEST(yDat[inds],yFitter,/PAIRED)
-
-        plotArr[k] = PLOT(xDat, $
-                          yDat, $
-                          XTITLE=xTitle[datI], $
-                          YTITLE=yTitle, $
-                          XLOG=1, $
-                          YLOG=1, $
-                          LINESTYLE='', $
-                          SYMBOL='o', $
-                          /SYM_FILLED, $
-                          XRANGE=xRange[*,datI], $
-                          YRANGE=yRange)
-
-        plotArr[k+1] = PLOT(xFit,yFit, $
-                            /OVERPLOT)
-
-        slopeString  = STRING(FORMAT='(A-10,T15,F7.3)',"slope  =",params[1])
-        corrString   = STRING(FORMAT='(A-10,T15,F7.3)',"r      =",corr)
-        tString      = STRING(FORMAT='(A-10,T15,F7.3)',"t-test =",tTest[0])
-
-        slopeText    = TEXT(0.2,0.80, $
-                            slopeString, $
-                            /NORMAL, $
-                            FONT_NAME='Courier', $
-                            TARGET=plotArr[k])
-        corrText     = TEXT(0.2,0.75, $
-                            corrString, $
-                            /NORMAL, $
-                            FONT_NAME='Courier', $
-                            TARGET=plotArr[k])
-        tText        = TEXT(0.2,0.70, $
-                            tString, $
-                            /NORMAL, $
-                            FONT_NAME='Courier', $
-                            TARGET=plotArr[k])
-
-     ENDFOR
-     ;; that = PLOT(finStruct.pfalongb,(-1.)*finStruct.ji, $
-     ;;             XTITLE=xTitle[2], $
-     ;;             YTITLE=yTitle, $
-     ;;             XLOG=1, $
-     ;;             YLOG=1, $
-     ;;             LINESTYLE='', $
-     ;;             SYMBOL='o', $
-     ;;             /SYM_FILLED, $
-     ;;             XRANGE=[1e-1,1e2], $
-     ;;             YRANGE=[1e6,1e10])
+     PLOT_STRANGEWAY_STATS, $
+        finStruct, $
+        X_QUANTITIES=xQuants, $
+        OUT_PLOTARR=plotArr
 
   ENDIF
 
