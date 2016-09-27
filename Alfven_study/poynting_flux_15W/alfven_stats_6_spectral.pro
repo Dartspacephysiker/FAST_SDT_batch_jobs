@@ -214,7 +214,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
   Jee_tot_alf          = MAKE_ARRAY(number_of_intervals,/DOUBLE)
   
   ;;get despun mag data IF keyword set
-  IF KEYWORD_SET(ucla_mag_despin) THEN ucla_mag_despin
+  IF KEYWORD_SET(ucla_mag_despin) THEN ucla_mag_despin,ORBIT=orbit
   
   ;;begin looping each interval
   FOR jjj=0,number_of_intervals-1 DO BEGIN
@@ -225,9 +225,11 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
      
 
      ;;get orbit number for filenames		
-     GET_DATA,'ORBIT',DATA=tmp
-     orbit      = tmp.y[0]
-     orbit_num  = STRCOMPRESS(STRING(tmp.y[0]),/REMOVE_ALL)
+     IF ~KEYWORD_SET(ucla_mag_despin) THEN BEGIN
+        GET_DATA,'ORBIT',DATA=tmp
+        orbit      = tmp.y[0]
+        orbit_num  = STRCOMPRESS(STRING(tmp.y[0]),/REMOVE_ALL)
+     ENDIF
 
                                 ;filename for output file
      IF KEYWORD_SET(burst) THEN BEGIN

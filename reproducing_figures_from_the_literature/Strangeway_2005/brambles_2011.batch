@@ -1,0 +1,10 @@
+BatchJob: "brambles_et_al_2011"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/brambles_2011__esa_intervals_wrapper.pro
+
+DataBaseRequest:
+    Orbits 8260-8292
+
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005
+PlotConfigurationFile: rjs_clean
