@@ -43,7 +43,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
 
   @strway_stuff                 ;List of orbits used, energy thresholds, etc.
 
-  IF N_ELEMENTS(use_fac) EQ 0 AND N_ELEMENTS(use_fac_v) EQ 0 THEN use_fac = 1
+  ;; IF N_ELEMENTS(use_fac) EQ 0 AND N_ELEMENTS(use_fac_v) EQ 0 THEN use_fac = 1
 
   normColorI   = (KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) ? 0 : 255
 
@@ -536,18 +536,16 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
            
         ENDELSE
 
-     ENDIF ;; else if (N_ELEMENTS(tplot_vars) ne 0) THEN BEGIN
+        tmpDatStruct = CREATE_STRUCT(tmpDatStruct,"eField",eField)
+        tmp1sStruct  = CREATE_STRUCT(tmp1sStruct,"eField",eField1s)
 
-     ;; IF KEYWORD_SET(save_1s_data) THEN BEGIN
-        ;; saveStr += ',eField1s'
-     tmpDatStruct = CREATE_STRUCT(tmpDatStruct,"eField",eField)
-     tmp1sStruct  = CREATE_STRUCT(tmp1sStruct,"eField",eField1s)
-     ;; ENDIF
-     ;;    tplot_vars = 'dB_fac'
-     ;;    if (keyword_set(use_fac_v)) THEN tplot_vars = 'dB_fac_v'
-     ;;    if ~KEYWORD_SET(no_blank_panels) THEN tplot_vars = 'dB_fac'
-
-     ;; endif
+     ENDIF ELSE BEGIN
+        IF (N_ELEMENTS(tplot_vars) NE 0) THEN BEGIN
+           tplot_vars = 'dB_fac'
+           IF (KEYWORD_SET(use_fac_v)) THEN tplot_vars = 'dB_fac_v'
+           IF ~KEYWORD_SET(no_blank_panels) THEN tplot_vars = 'dB_fac'
+        ENDIF
+     ENDELSE
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;; Step 3 - Poynting flux

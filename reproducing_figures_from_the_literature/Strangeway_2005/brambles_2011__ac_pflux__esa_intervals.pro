@@ -22,8 +22,14 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
 ; (c) DSP calibration
 
 
-  do_fields_interp  = 0
-  do_fields_spline  = 1
+  full_pFlux        = 1
+
+  IF KEYWORD_SET(full_pFlux) THEN BEGIN
+     include_E_near_B = 1
+  ENDIF
+
+  do_fields_interp  = 1
+  do_fields_spline  = 0
 
   ;;According to supplementary material in Brambles et al. [2011]
   minFreq    = 0.125 ;Hz
@@ -56,9 +62,10 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
   FFTSlide       = 1.0
 
   ;;Filter stuff
-  lowPole        = 8 ;Slay that low-freq garbage
+  lowPole        = 4 ;Slay that low-freq garbage
   highPole       = 4
   FFTdb          = 50 ;For digital filter coeffs. IDL doc says "50 is a good choice."
+  FFTdb          = !NULL ;For digital filter coeffs. IDL doc says "50 is a good choice."
 
 ; Under development - R. J. Strangeway 4/4/08
 
@@ -87,7 +94,8 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
 
   ;;Outputs
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Brambles_2011/'
-  hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav'
+  ;; hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav'
+  hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--full_pFlux--interp'
   outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals'
 
   IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
@@ -383,8 +391,8 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
      FA_FIELDS_COMBINE,{TIME:magz.x,COMP1:magz.y}, $
                        {TIME:eAlongV.x,COMP1:eAlongV.y}, $
                        RESULT=eAlongVInterp, $
-                       ;; INTERP=do_fields_interp, $
-                       SPLINE=do_fields_spline, $
+                       INTERP=do_fields_interp, $
+                       ;; SPLINE=do_fields_spline, $
                        /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
                        ;; DELT_T=minPeriod, $
                        /TALK
@@ -393,8 +401,8 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
         FA_FIELDS_COMBINE,{TIME:magz.x,COMP1:magz.y}, $
                           {TIME:eNearB.x,COMP1:eNearB.y}, $
                           RESULT=eNearBInterp, $
-                          ;; INTERP=do_fields_interp, $
-                          SPLINE=do_fields_spline, $
+                          INTERP=do_fields_interp, $
+                          ;; SPLINE=do_fields_spline, $
                           /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
                           ;; DELT_T=minPeriod, $
                           /TALK
@@ -544,9 +552,9 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
                   MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0) : !NULL
      FOR k=0,FFTCount-1 DO BEGIN
 
-        ;; IF KEYWORD_SET(only_128Ss_data) THEN BEGIN
-        ;;    IF (sRates[k] GE 1./minPeriod) OR (sRates[k] LE 1./maxPeriod) THEN CONTINUE
-        ;; ENDIF
+        IF KEYWORD_SET(only_128Ss_data) THEN BEGIN
+           IF (sRates[k] GE 1./minPeriod) OR (sRates[k] LE 1./maxPeriod) THEN CONTINUE
+        ENDIF
 
         tmpI    = [fftBin_i[0,k]:fftBin_i[1,k]]
 
@@ -632,7 +640,9 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
                         PROJECT_NAME : 'FAST'                , $
                         UNITS_NAME   : 'mV/m'                , $
                         CALIBRATED   : 1}
-           FA_FIELDS_FILTER,tmpG,freqBounds[*,k], $
+           FA_FIELDS_FILTER,tmpG, $
+                            ;; freqBounds[*,k], $
+                            freqBounds, $
                             DB=FFTdb, $
                             POLES=[lowPole,highPole]
            filteNB[tmpI]  = tmpG.comp1
@@ -761,6 +771,7 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
 
      ;;Get Poynting flux ests
      IF KEYWORD_SET(full_pFlux) OR KEYWORD_SET(save_lil_package) THEN BEGIN
+
         pFluxB = filtMag*filteAV/mu_0                           ;Poynting flux along B
         pFluxP = (filteNB*filtMag3-1.*filtMag2*filteAV)/mu_0    ;Poynting flux perp to B and to (Bxv)xB
 ;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
@@ -788,8 +799,8 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
                        ;; {TIME:data.x,COMP1:data.y}, $
                        magzFilt, $
                        RESULT=datInterp, $
-                       ;; INTERP=do_fields_interp, $
-                       SPLINE=do_fields_spline, $
+                       INTERP=do_fields_interp, $
+                       ;; SPLINE=do_fields_spline, $
                        ;; /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
                        DELT_T=(1.01)/MIN(sRates), $
                        /TALK
