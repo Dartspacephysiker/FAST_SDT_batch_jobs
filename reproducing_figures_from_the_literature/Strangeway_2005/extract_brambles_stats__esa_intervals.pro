@@ -7,6 +7,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
    DAY=day, $
    NIGHT=night, $
    FOLD_INTERVALS=fold_intervals, $
+   SAVE_PLOTS=save_plots, $
+   SQUARE_WINDOW=square_window, $, $
    NO_PLOTS=no_plots
 
   COMPILE_OPT IDL2
@@ -312,8 +314,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
   ENDIF
 
   finStruct = CREATE_STRUCT(finStruct, $
-                            'pFTot',finStruct.pFAlongB+finStruct.pFAlongP, $
-                            'pFTotAbs',finStruct.pFAlongBAbs+finStruct.pFAlongPAbs, $
+                            'pFTot',SQRT(finStruct.pFAlongB^2+finStruct.pFAlongP^2), $
+                            'pFTotAbs',SQRT(finStruct.pFAlongBAbs^2+finStruct.pFAlongPAbs^2), $
                             'ji',tmp.ji)
 
 
