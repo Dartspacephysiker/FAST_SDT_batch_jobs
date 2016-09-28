@@ -22,13 +22,29 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
 ; (b) ESA data limits
 ; (c) DSP calibration
 
+  ;;Outputs
+  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Brambles_2011/'
+  ;; hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav'
+  ;; outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals'
+
+  ;; hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--full_pFlux--interp'
+
+  ;; hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--full_pFlux--interp--128Ss'
+  ;; outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals--128Ss'
+
+  hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--absVals'
+  outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals--absvals'
+
+  IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
+  IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
+
   full_pFlux        = 1
 
   IF KEYWORD_SET(full_pFlux) THEN BEGIN
      include_E_near_B = 1
   ENDIF
 
-  IF N_ELEMENTS(only_128Ss_data) EQ 0 THEN only_128Ss_data = 1
+  IF N_ELEMENTS(only_128Ss_data) EQ 0 THEN only_128Ss_data = 0
 
   do_fields_interp  = 1
   do_fields_spline  = 0
@@ -40,8 +56,8 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
   freqBounds = [minFreq,maxFreq]
 
   ;;Filter stuff
-  lowPole        = 4 ;Slay that low-freq garbage
-  highPole       = 4
+  lowPole        = 8 ;Slay that low-freq garbage
+  highPole       = 8
   FFTdb          = 50 ;For digital filter coeffs. IDL doc says "50 is a good choice."
   FFTdb          = !NULL ;For digital filter coeffs. IDL doc says "50 is a good choice."
 
@@ -51,8 +67,8 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
   f_spA          = 0.1
   f_spB          = 1./f_spA
   freqRes        = 0.125D         ;Frequencies rounded to this number
-  ;; freqRes     = 0.1D         ;Frequencies rounded to this number
-  FGMagRolloff   = 20.0          ;in Hz
+  ;; freqRes     = 0.1D           ;Frequencies rounded to this number
+  FGMagRolloff   = 20.0           ;in Hz
 
 
   ;;For FFTs of Mag and E data
@@ -93,18 +109,6 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
   mu_0         = DOUBLE(4.0D*!PI*1e-7)
 
   tBuf         = 10. ;Allowable difference between t{1,2} and nearest fields data
-
-  ;;Outputs
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Brambles_2011/'
-  ;; hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav'
-  ;; outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals'
-
-  ;; hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--full_pFlux--interp'
-  hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--full_pFlux--interp--128Ss'
-  outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals--128Ss'
-
-  IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
-  IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
 
   nn           = N_ELEMENTS(data_quants)
 
@@ -480,74 +484,7 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
      timeFFT              = timeFFT[0:FFTCount-1]
      fftBin_i             = fftBin_i[*,LINDGEN(FFTCount)]
 
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     ;;Get density estimates for all good times
-     ;;We use the density model already in place from ALFVEN_STATS_5 for calculating omega_p
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-     ;;First, orb quantities
-     ;; GET_DATA,'ORBIT',DATA=orb
-     ;; GET_DATA,'MLT',DATA=mlt
-     ;; GET_DATA,'ALT',DATA=alt
-     ;; GET_DATA,'ILAT',DATA=ilat
-     ;; GET_DATA,'fa_vel',DATA=vel
-     
-     ;; ephemI_magSpec = VALUE_LOCATE(mlt.x,timeFFT)
-     
-     ;; magOrb   = orb.y[ephemI_magSpec]
-     ;; magAlt   = alt.y[ephemI_magSpec]	
-     ;; magMLT   = mlt.y[ephemI_magSpec]	
-     ;; magILAT  = ilat.y[ephemI_magSpec]
-     ;; magSpd   = SQRT(vel.y[ephemI_magSpec,0]^2 + $
-     ;;                 vel.y[ephemI_magSpec,1]^2 + $
-     ;;                 vel.y[ephemI_magSpec,2]^2)*1000.0           ;Speed in m/s
-     ;; magDens  = DENS_MLT(magAlt,magMLT,OUT_VA_KM_PER_SEC=va_mlt) ;in cm^-3
-     ;; magDens *= 1.0e6                                            ;Dens est in m^-3
-     ;; va_mlt  *= 1000.                                            ;Get est of v_A in meters
-
-     ;;What are the bounds on frequency?
-     ;;As noted at beginning, we estimate f_spA ≤ k_perp * λe < f_spB
-
-     ;; const    = 2.9949602e-8 ;in meter^0.5
-     ;; freqLim  = const * SQRT(magDens) * magSpd
-
      sRates     = 1.D/REFORM((magz.x[fftBin_i[0,*]+1]-magz.x[fftBin_i[0,*]]))
-
-     ;;Now get oxygen gyro freq
-     ;;...Need DC mag field for this
-     ;; magDC_i = VALUE_LOCATE(magDC.time,timeFFT)
-
-     ;;Oxygen cyclotron frequency is one of three possible upper bounds
-     ;;NOTE: Use DC mag data! Despun data gives perturb. in B, which shortchanges cyc. freq.!
-     ;; oxy_cycDC = 1.6e-19*SQRT(magDC.comp1[magDC_i]^2+$
-     ;;                          magDC.comp2[magDC_i]^2+$
-     ;;                          magDC.comp3[magDC_i]^2)* $
-     ;;           1.0e-9/2.6567e-26/(2.*!DPI) ; in Hz
-
-     ;; fGRollers  = FGMagRolloff * sRates / (128.) ;;The rolloff for sampling at whatever frequency
-     ;;************Frequency conditions************
-     ;;->LOW frequency bound is given by condition f_spA ≤ k_perp * λe
-     ;;->HIGH frequency bound is least of either 
-     ;;   a. oxygen cyc. freq., 
-     ;;   b. freq. arising from k_perp * λe ≤ f_spB, or 
-     ;;   c. rolloff of the fluxgate magnetometer's recursive filter
-
-     ;; freqBounds = [CEIL(TRANSPOSE(freqLim*f_spA)/freqRes), $
-     ;;               FLOOR(TRANSPOSE((oxy_cycDC < (fGRollers < ( freqLim*f_spB ) ) ) ) $
-     ;;                     /freqRes)]*freqRes
-
-     ;; IF KEYWORD_SET(override_freq_bounds) THEN BEGIN
-     ;;    freqBounds[0,*] = override_freq[0]
-     ;;    freqBounds[1,*] = override_freq[1]
-     ;; ENDIF
-     ;; IF KEYWORD_SET(min_freq) THEN BEGIN
-     ;;    freqBounds[0,*] = freqBounds[0,*] > min_freq        
-     ;;    PRINT,'Minimum frequency set to ' + STRCOMPRESS(min_freq,/REMOVE_ALL) + ' Hz'
-     ;; ENDIF
-     ;; IF KEYWORD_SET(max_freq) THEN BEGIN
-     ;;    freqBounds[1,*] = freqBounds[1,*] < max_freq
-     ;;    PRINT,'Maximum frequency set to ' + STRCOMPRESS(max_freq,/REMOVE_ALL) + ' Hz'
-     ;; ENDIF
 
      filtMag    = MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0)
      filtMag2   = MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0)
@@ -779,23 +716,20 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
 
         pFluxB = filtMag*filteAV/mu_0                           ;Poynting flux along B
         pFluxP = (filteNB*filtMag3-1.*filtMag2*filteAV)/mu_0    ;Poynting flux perp to B and to (Bxv)xB
-;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+        ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
         pFluxV = (-1.)*filteNB*filtMag/mu_0
 
      ENDIF ELSE BEGIN
         pFluxB =       filtMag *filteAV/mu_0    ;Poynting flux along B
         pFluxP = (-1.)*filtMag2*filteAV/mu_0    ;Poynting flux perp to B and to (Bxv)xB
-;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+        ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
 
      ENDELSE
      pFluxB *= 1e-9 ;Junk that nano prefix in nT
      pFluxP *= 1e-9
 
-
-
-
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     ;;Now let's interp everyone to 1-s resolution
+        ;;Now let's interp everyone to 1-s resolution
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
      ;;Mag first
@@ -1041,12 +975,24 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;;Gather data and STORE
+     SDT_names = {MLT           : 'MLT'          , $          
+                  ILAT          : 'ILAT'         , $         
+                  ALT           : 'ALT'          , $          
+                  E_ALONG_V_AC  : 'E_ALONG_V_AC' , $ 
+                  dB_ac_interp  : 'dB_ac_interp' , $ 
+                  pFlux_ac      : 'pFlux_ac'     , $     
+                  ;; Je         : 'Je'           , $        
+                  pFluxP_ac     : 'pFluxP_ac'} ; , $    
+                  ;; Ji : 'Ji', $        
+                  ;; DSP_integ : 'DSP_integ'}
 
      tmpStruct = ASSEMBLE_BRAMBLES_2011_STRUCT(tS_1s, $
                                                orbit, $
                                                tmpDatStruct, $
                                                tmp1sStruct, $
-                                               minILAT)
+                                               minILAT, $
+                                               SDT_NAMES=SDT_names, $
+                                               SANS_INTEGRATION=sans_integration)
 
      PRINT,"Adding struct for interval " + itvlString + " in orbit " + orbString + ' ...'
      structList.Add,tmpStruct

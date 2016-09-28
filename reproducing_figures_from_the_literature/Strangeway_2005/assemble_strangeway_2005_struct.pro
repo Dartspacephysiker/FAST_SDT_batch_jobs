@@ -3,7 +3,9 @@ FUNCTION ASSEMBLE_STRANGEWAY_2005_STRUCT,tS_1s, $
                                          orbit, $
                                          tmpDatStruct, $
                                          tmp1sStruct, $
-                                         minILAT
+                                         minILAT, $
+                                         SDT_NAMES=sdt_names, $
+                                         SANS_INTEGRATION=sans_integration
 
   GET_FA_ORBIT,tS_1s,/TIME_ARRAY,/DEFINITIVE,/ALL
   GET_DATA,'fa_vel',DATA=vel
@@ -15,16 +17,16 @@ FUNCTION ASSEMBLE_STRANGEWAY_2005_STRUCT,tS_1s, $
   speed_mag_point  = speed[speed_point_inds]
   position[1:-1]   = TOTAL((tS_1s[1:-1]-tS_1s[0:-2])*speed_mag_point,/CUMULATIVE)
 
-  GET_DATA,'MLT',DATA=mlt
-  GET_DATA,'ILAT',DATA=ilat
-  GET_DATA,'ALT',DATA=alt
-  GET_DATA,'EFIT_ALONG_VSC',DATA=eAVsc
-  GET_DATA,'dB_fac_interp',DATA=dB_perp
-  GET_DATA,'pFlux',DATA=pFluxB1s
-  GET_DATA,'Je',DATA=Je
-  GET_DATA,'JEe',DATA=Jee
-  GET_DATA,'Ji',DATA=Ji
-  GET_DATA,'DSP_integ',DATA=dsp
+  GET_DATA,SDT_names.MLT            ,DATA=mlt
+  GET_DATA,SDT_names.ILAT           ,DATA=ilat
+  GET_DATA,SDT_names.ALT            ,DATA=alt
+  GET_DATA,SDT_names.EFit_along_vsc ,DATA=eAVsc
+  GET_DATA,SDT_names.dB_fac_interp  ,DATA=dB_perp
+  GET_DATA,SDT_names.pFlux          ,DATA=pFluxB1s
+  GET_DATA,SDT_names.Je             ,DATA=Je
+  GET_DATA,SDT_names.JEe            ,DATA=Jee
+  GET_DATA,SDT_names.Ji             ,DATA=Ji
+  GET_DATA,SDT_names.DSP_integ      ,DATA=dsp
 
   ;;Check time series, if you like
   PRINT,ARRAY_EQUAL(eavsc.x[*,1],db_perp.x[*,1])
@@ -489,6 +491,7 @@ FUNCTION ASSEMBLE_STRANGEWAY_2005_STRUCT,tS_1s, $
                ephem:{mlt:mlt, $
                       ilat:ilat, $
                       alt:alt, $
+                      position:position, $
                       speed:speed, $
                       day_i:day_i, $
                       ngt_i:ngt_i, $

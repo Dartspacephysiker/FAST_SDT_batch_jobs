@@ -14,8 +14,9 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Brambles_2011/'
   hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav'
 
-  bonusSuff    = '--full_pFlux--interp'
-
+  ;; bonusSuff    = '--full_pFlux--interp'
+  bonusSuff    = '--full_pFlux--interp--128Ss'
+  
   hashFile    += bonusSuff
 
   IF FILE_TEST(outDir+hashFile) THEN BEGIN
@@ -44,6 +45,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
   dB_perpArr   = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.) 
   pFAlongBArr  = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
   pFAlongPArr  = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
+  pFAlongBAbsArr  = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
+  pFAlongPAbsArr  = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
   ;; jeArr        = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)      
   ;; jeeArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)     
   ;; jiArr        = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)      
@@ -76,6 +79,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
                  tmp_dB_perp   = MAKE_ARRAY(nThisOrb,/FLOAT) 
                  tmp_pFAlongB  = MAKE_ARRAY(nThisOrb,/FLOAT)
                  tmp_pFAlongP  = MAKE_ARRAY(nThisOrb,/FLOAT)
+                 tmp_pFAlongBAbs  = MAKE_ARRAY(nThisOrb,/FLOAT)
+                 tmp_pFAlongPAbs  = MAKE_ARRAY(nThisOrb,/FLOAT)
                  ;; tmp_je        = MAKE_ARRAY(nThisOrb,/FLOAT)      
                  ;; tmp_jee       = MAKE_ARRAY(nThisOrb,/FLOAT)     
                  ;; tmp_ji        = MAKE_ARRAY(nThisOrb,/FLOAT)      
@@ -95,6 +100,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
                        tmp_dB_perp  [curInds] = tmpThing.dB_perp 
                        tmp_pFAlongB [curInds] = tmpThing.pFAlongB
                        tmp_pFAlongP [curInds] = tmpThing.pFAlongP
+                       tmp_pFAlongBAbs [curInds] = tmpThing.pFAlongBAbs
+                       tmp_pFAlongPAbs [curInds] = tmpThing.pFAlongPAbs
                        ;; tmp_je       [curInds] = tmpThing.je      
                        ;; tmp_jee      [curInds] = tmpThing.jee     
                        ;; tmp_ji       [curInds] = tmpThing.ji      
@@ -109,6 +116,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
                  tmp_dB_perp  = TOTAL(tmp_dB_perp )/nThisOrb
                  tmp_pFAlongB = TOTAL(tmp_pFAlongB)/nThisOrb
                  tmp_pFAlongP = TOTAL(tmp_pFAlongP)/nThisOrb
+                 tmp_pFAlongBAbs = TOTAL(tmp_pFAlongBAbs)/nThisOrb
+                 tmp_pFAlongPAbs = TOTAL(tmp_pFAlongPAbs)/nThisOrb
                  ;; tmp_je       = TOTAL(tmp_je      )/nThisOrb
                  ;; tmp_jee      = TOTAL(tmp_jee     )/nThisOrb
                  ;; tmp_ji       = TOTAL(tmp_ji      )/nThisOrb
@@ -121,6 +130,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
                  tmp_dB_perp   = 0. 
                  tmp_pFAlongB  = 0.
                  tmp_pFAlongP  = 0.
+                 tmp_pFAlongBAbs  = 0.
+                 tmp_pFAlongPAbs  = 0.
                  ;; tmp_je        = 0.      
                  ;; tmp_jee       = 0.     
                  ;; tmp_ji        = 0.      
@@ -145,6 +156,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
                        tmp_dB_perp   += ( tmpThing.dB_perp  * lenItvl[k] )
                        tmp_pFAlongB  += ( tmpThing.pFAlongB * lenItvl[k] )
                        tmp_pFAlongP  += ( tmpThing.pFAlongP * lenItvl[k] )
+                       tmp_pFAlongBAbs  += ( tmpThing.pFAlongBAbs * lenItvl[k] )
+                       tmp_pFAlongPAbs  += ( tmpThing.pFAlongPAbs * lenItvl[k] )
                        ;; tmp_je        += ( tmpThing.je       * lenItvl[k] )
                        ;; tmp_jee       += ( tmpThing.jee      * lenItvl[k] )
                        ;; tmp_ji        += ( tmpThing.ji       * lenItvl[k] )
@@ -158,6 +171,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
                  tmp_dB_perp   /= lenThisOrb
                  tmp_pFAlongB  /= lenThisOrb
                  tmp_pFAlongP  /= lenThisOrb
+                 tmp_pFAlongBAbs  /= lenThisOrb
+                 tmp_pFAlongPAbs  /= lenThisOrb
                  ;; tmp_je        /= lenThisOrb
                  ;; tmp_jee       /= lenThisOrb
                  ;; tmp_ji        /= lenThisOrb
@@ -172,6 +187,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
            dB_perpArr  [orbCnt ] = tmp_dB_perp   
            pFAlongBArr [orbCnt ] = tmp_pFAlongB  
            pFAlongPArr [orbCnt ] = tmp_pFAlongP
+           pFAlongBAbsArr [orbCnt ] = tmp_pFAlongBAbs  
+           pFAlongPAbsArr [orbCnt ] = tmp_pFAlongPAbs
            ;; jeArr       [orbCnt ] = tmp_je        
            ;; jeeArr      [orbCnt ] = tmp_jee       
            ;; jiArr       [orbCnt ] = tmp_ji        
@@ -199,6 +216,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
               dB_perpArr  [curInds] = tmpThing.dB_perp   
               pFAlongBArr [curInds] = tmpThing.pFAlongB  
               pFAlongPArr [curInds] = tmpThing.pFAlongP
+              pFAlongBAbsArr [curInds] = tmpThing.pFAlongBAbs  
+              pFAlongPAbsArr [curInds] = tmpThing.pFAlongPAbs
               ;; jeArr       [curInds] = tmpThing.je        
               ;; jeeArr      [curInds] = tmpThing.jee       
               ;; jiArr       [curInds] = tmpThing.ji        
@@ -230,7 +249,9 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
                eAlongV   : eAlongVArr  [0:nCount-1] , $  
                dB_perp   : dB_perpArr  [0:nCount-1] , $  
                pFAlongB  : pFAlongBArr [0:nCount-1] , $ 
-               pFAlongP  : pFAlongPArr [0:nCount-1] };; , $ 
+               pFAlongP  : pFAlongPArr [0:nCount-1] , $ 
+               pFAlongBAbs  : pFAlongBAbsArr [0:nCount-1] , $ 
+               pFAlongPAbs  : pFAlongPAbsArr [0:nCount-1] };; , $ 
                ;; je        : jeArr       [0:nCount-1] , $       
                ;; jee       : jeeArr      [0:nCount-1] , $      
                ;; ji        : jiArr       [0:nCount-1] , $
@@ -267,7 +288,9 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
                eAlongV   : finStruct.eAlongV  [br_i], $   
                dB_perp   : finStruct.dB_perp  [br_i], $   
                pFAlongB  : finStruct.pFAlongB [br_i], $  
-               pFAlongP  : finStruct.pFAlongP [br_i]} 
+               pFAlongP  : finStruct.pFAlongP [br_i], $
+               pFAlongBAbs  : finStruct.pFAlongBAbs [br_i], $
+               pFAlongPAbs  : finStruct.pFAlongPAbs [br_i]} 
 
   sw_ii = SORT(tmp.orbit[sw_i])
   sw_i  = sw_i[sw_ii]
@@ -287,10 +310,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
 
   IF ~KEYWORD_SET(no_plots) AND ~KEYWORD_SET(cant_plot) THEN BEGIN
 
-     xQuants  = [4,5]
-
      IF N_ELEMENTS(xQuants) EQ 0 THEN BEGIN
-        xQuants = [4,5]
+        xQuants = [4,5,6,7]
      ENDIF
 
      plotInfo  = {xQuants       : xQuants, $
@@ -300,6 +321,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
                                    "E along V$_{sc}$ [AC] (mV/m)", $
                                    "Poynting Flux [AC] (mW/m$^2$)", $
                                    "Poynting Flux$_{perp}$ [AC] (mW/m$^2$)", $
+                                   "ABSPoynting Flux [AC] (mW/m$^2$)", $
+                                   "ABSPoynting Flux$_{perp}$ [AC] (mW/m$^2$)", $
                                    ;; "Average Electron Flux (#/cm$^2$/s)", $
                                    ;; "Average Electron Energy Flux (mW/m$^2$)", $
                                    "Ion Flux (#/cm!U2!N/s)"], $ ;; , $
@@ -308,6 +331,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
                                    [0.,0.], $
                                    [0.,0.], $
                                    [0.,0.], $
+                                   [1e-4,1e0], $
+                                   [1e-4,1e0], $
                                    [1e-4,1e0], $
                                    [1e-4,1e0], $
                                    ;; [1e7,1e10], $
@@ -322,6 +347,9 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
                                    "$dB_AC__vs__ionNumFlux", $
                                    "E_along_V_AC__vs__ionNumFlux", $
                                    "AC_Poynting_flux__vs__ionNumFlux", $
+                                   "AC_Poynting_flux_perp__vs__ionNumFlux", $
+                                   "ABS_AC_Poynting_flux__vs__ionNumFlux", $
+                                   "ABS_AC_Poynting_flux_perp__vs__ionNumFlux", $
                                    ;; "eNumFlux__vs__ionNumFlux", $
                                    ;; "eFlux__vs__ionNumFlux", $
                                    "Ion Flux (#/cm!U2!N/s)"], $

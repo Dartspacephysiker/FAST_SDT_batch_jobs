@@ -329,9 +329,9 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
               ENDFOR
               PRINT,'Junking ' + STRCOMPRESS(N_ELEMENTS(rmInds),/REMOVE_ALL) + ' bad mag inds ...'
               REMOVE,rmInds,keepInds
-              magx = {x:db_fac.x[keepInds],y:db_fac.y[keepInds]} 
-              magy = {x:db_fac.x[keepInds],y:db_fac.y[keepInds]} 
-              magz = {x:db_fac.x[keepInds],y:db_fac.y[keepInds]}
+              magx = {x:db_fac.x[keepInds],y:db_fac.y[keepInds,0]} 
+              magy = {x:db_fac.x[keepInds],y:db_fac.y[keepInds,2]} 
+              magz = {x:db_fac.x[keepInds],y:db_fac.y[keepInds,1]}
            ENDIF
 
 
@@ -588,7 +588,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
               k += helper
            ENDIF
 
-           tmpB    = {  TIME         : magz.x[tmpI]          , $
+           dBp    = {  TIME         : magz.x[tmpI]          , $
                         ;; COMP1        : magx.y[tmpI]          , $
                         ;; COMP2        : magy.y[tmpI]          , $
                         ;; COMP3        : magz.y[tmpI]          , $
@@ -601,7 +601,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                         PROJECT_NAME : 'FAST'                , $
                         UNITS_NAME   : 'nT'                  , $
                         CALIBRATED   : 1}
-           tmpBAlt  = {  TIME         : magy.x[tmpI]          , $
+           dBB  = {  TIME         : magy.x[tmpI]          , $
                         COMP1        : magy.y[tmpI]          , $
                         NCOMP        : 1                     , $
                         DATA_NAME    : 'along-B MagData' , $
@@ -609,7 +609,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                         PROJECT_NAME : 'FAST'                , $
                         UNITS_NAME   : 'nT'                  , $
                         CALIBRATED   : 1}
-           tmpBAlt2  = {  TIME         : magx.x[tmpI]          , $
+           dBv  = {  TIME         : magx.x[tmpI]          , $
                         COMP1        : magx.y[tmpI]          , $
                         NCOMP        : 1                     , $
                         DATA_NAME    : 'along-v MagData' , $
@@ -632,13 +632,13 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
            ;; FA_FIELDS_FILTER,tmp,freqPlotRange
            ;; FA_FIELDS_FILTER,tmp,freqBounds[*,k]
-           FA_FIELDS_FILTER,tmpB,freqBounds[*,k], $
+           FA_FIELDS_FILTER,dBp,freqBounds[*,k], $
                             DB=FFTdb, $
                             POLES=[lowPole,highPole]
-           FA_FIELDS_FILTER,tmpBAlt,freqBounds[*,k], $
+           FA_FIELDS_FILTER,dBB,freqBounds[*,k], $
                             DB=FFTdb, $
                             POLES=[lowPole,highPole]
-           FA_FIELDS_FILTER,tmpBAlt2,freqBounds[*,k], $
+           FA_FIELDS_FILTER,dBv,freqBounds[*,k], $
                             DB=FFTdb, $
                             POLES=[lowPole,highPole]
            FA_FIELDS_FILTER,tmpE,freqBounds[*,k], $
@@ -648,9 +648,9 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            ;; filtMag[*,tmpI] = [[tmp.comp1],[tmp.comp2],[tmp.comp3]]
            ;; filteAV[tmpI]   = tmp.comp4
            ;; filtMag[*,tmpI] = [[tmp.comp1],[tmp.comp2],[tmp.comp3]]
-           filtMag[tmpI]  = tmpB.comp1
-           filtMag2[tmpI] = tmpBAlt.comp1
-           filtMag3[tmpI] = tmpBAlt2.comp1
+           filtMag[tmpI]  = dBp.comp1
+           filtMag2[tmpI] = dBB.comp1
+           filtMag3[tmpI] = dBv.comp1
            filteAV[tmpI]  = tmpE.comp1
 
            IF KEYWORD_SET(include_E_near_B) THEN BEGIN
@@ -797,12 +797,12 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ENDIF
 
         ;;Clean 'em up
-        GET_DATA,'EAVSpecFilt',DATA=tmpE
-        GET_DATA,'MagSpecFilt',DATA=tmpB        
-        tmpE.y[WHERE(~FINITE(tmpE.y) OR tmpE.y LT ESpecThresh)] = 0.0
-        tmpB.y[WHERE(~FINITE(tmpB.y) OR tmpB.y LT BSpecThresh)] = 0.0
-        tmpE.v *= 1000. ;To Hz
-        tmpB.v *= 1000. ;To Hz
+        GET_DATA,'EAVSpecFilt',DATA=eAVSpecFilt
+        GET_DATA,'MagSpecFilt',DATA=dBpSpecFilt        
+        eAVSpecFilt.y[WHERE(~FINITE(eAVSpecFilt.y) OR eAVSpecFilt.y LT ESpecThresh)] = 0.0
+        dBpSpecFilt.y[WHERE(~FINITE(dBpSpecFilt.y) OR dBpSpecFilt.y LT BSpecThresh)] = 0.0
+        eAVSpecFilt.v *= 1000. ;To Hz
+        dBpSpecFilt.v *= 1000. ;To Hz
 
         IF ~KEYWORD_SET(no_plots) THEN BEGIN
            ;;Make some adjustments to the data
@@ -933,7 +933,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            ;;***Thresholds on power spectra***
            ;;All of the following plots are for trying to figure out appropriate threshold values for E and B
 
-           ;; GET_DATA,'EAVSpecFiltInterp',DATA=tmpE
+           ;; GET_DATA,'EAVSpecFiltInterp',DATA=eAVSpecFiltInterp
            ;; junk = MIN(ABS(dat.x-STR_TO_TIME()),ind)
 
            ;; CASE orbit OF
@@ -950,30 +950,30 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            ;; ENDCASE
            ;; ;; plotTime = '1998-03-10/18:50:49'
            ;; ;; plotTime = '1998-03-10/19:20:48.412'
-           ;; junk = MIN(ABS(tmpE.x-STR_TO_TIME(plotTime)),ind)
-           ;; doze = PLOT(tmpE.v, $
-           ;;             ;; ALOG10(tmpE.y[ind,*]), $
-           ;;             tmpE.y[ind,*], $
+           ;; junk = MIN(ABS(eAVSpecFiltInterp.x-STR_TO_TIME(plotTime)),ind)
+           ;; doze = PLOT(eAVSpecFiltInterp.v, $
+           ;;             ;; ALOG10(eAVSpecFiltInterp.y[ind,*]), $
+           ;;             eAVSpecFiltInterp.y[ind,*], $
            ;;             YLOG=1, $
            ;;             XRANGE=freqPlotRange, $
            ;;             YRANGE=eAVSpecLims, $
            ;;             ;; YRANGE=ALOG10([magSpecLims[0],magSpecLims[1]]), $
            ;;             XTITLE='Frequency (Hz)', $
            ;;             YTITLE=eAVSpecFilt.units_name, $
-           ;;             TITLE=TIME_TO_STR(tmpE.x[ind],/MS))
+           ;;             TITLE=TIME_TO_STR(eAVSpecFiltInterp.x[ind],/MS))
 
 
-           ;; junk = MIN(ABS(tmpB.x-STR_TO_TIME(plotTime)),ind)
-           ;; doze = PLOT(tmpB.v, $
-           ;;             ;; ALOG10(tmpB.y[ind,*]), $
-           ;;             tmpB.y[ind,*], $
+           ;; junk = MIN(ABS(dBpSpecFilt.x-STR_TO_TIME(plotTime)),ind)
+           ;; doze = PLOT(dBpSpecFilt.v, $
+           ;;             ;; ALOG10(dBpSpecFilt.y[ind,*]), $
+           ;;             dBpSpecFilt.y[ind,*], $
            ;;             YLOG=1, $
            ;;             XRANGE=freqPlotRange, $
            ;;             ;; YRANGE=ALOG10([magSpecLims[0],magSpecLims[1]]), $
            ;;             YRANGE=[magSpecLims[0],magSpecLims[1]], $
            ;;             XTITLE='Frequency (Hz)', $
            ;;             YTITLE=magSpecFilt.units_name, $
-           ;;             TITLE=TIME_TO_STR(tmpB.x[ind],/MS))
+           ;;             TITLE=TIME_TO_STR(dBpSpecFilt.x[ind],/MS))
 
         ENDIF
 
@@ -1023,13 +1023,15 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         
         FOR m=0,FFTCount-1 DO BEGIN
            ;;Frequency limits
-           tmpF_i    = WHERE(tmpE.v GE freqBounds[0,m] AND tmpE.v LE freqBounds[1,m])
+           tmpF_i    = WHERE( ( eAVSpecFiltInterp.v GE freqBounds[0,m] ) AND $
+                              ( eAVSpecFiltInterp.v LE freqBounds[1,m] ) )
 
            ;;"Intergrate," as some have it, and apply test
-           ;; ESpecSum[m] = TOTAL(tmpE.y[m,tmpF_i])
-           ;; BSpecSum[m] = TOTAL(tmpB.y[m,tmpF_i])
-           ESpecSum[m] = INT_TABULATED(tmpE.v[tmpF_i],tmpE.y[m,tmpF_i])
-           BSpecSum[m] = INT_TABULATED(tmpB.v[tmpF_i],tmpB.y[m,tmpF_i])
+           ;; ESpecSum[m] = TOTAL(eAVSpecFiltInterp.y[m,tmpF_i])
+           ;; BSpecSum[m] = TOTAL(dBpSpecFilt.y[m,tmpF_i])
+           ESpecSum[m] = INT_TABULATED(eAVSpecFiltInterp.v[tmpF_i], $
+                                       eAVSpecFiltInterp.y[m,tmpF_i])
+           BSpecSum[m] = INT_TABULATED(dBpSpecFilt.v[tmpF_i],dBpSpecFilt.y[m,tmpF_i])
 
         ENDFOR
 
@@ -1071,8 +1073,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ;; nFFTStreaks = N_ELEMENTS(FFTStreakLens)
         ;; magz_Alf_i  = MAKE_ARRAY(2,nFFTStreaks,/LONG)
         ;; FOR m=0,nFFTStreaks-1 DO BEGIN
-        ;;    junk     = MIN(ABS(tmpB.x[winFFT_i[strtWin_ii[m]]]-magzTmp.time),magz_start_i)
-        ;;    junk     = MIN(ABS(tmpB.x[winFFT_i[stopWin_ii[m]]]-magzTmp.time),magz_stop_i)
+        ;;    junk     = MIN(ABS(dBpSpecFilt.x[winFFT_i[strtWin_ii[m]]]-magzTmp.time),magz_start_i)
+        ;;    junk     = MIN(ABS(dBpSpecFilt.x[winFFT_i[stopWin_ii[m]]]-magzTmp.time),magz_stop_i)
         ;;    magz_Alf_i[*,m] = [magz_start_i,magz_stop_i]
         ;; ENDFOR
 

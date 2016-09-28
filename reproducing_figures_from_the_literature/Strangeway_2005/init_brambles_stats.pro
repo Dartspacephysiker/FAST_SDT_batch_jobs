@@ -58,6 +58,26 @@
   pFAlongPAvg_dayS  = 0.
   pFAlongPAvg_ngtS  = 0.
 
+  pFAlongBAbsAvg       = 0.
+  pFAlongBAbsAvg_N     = 0.
+  pFAlongBAbsAvg_S     = 0.
+  pFAlongBAbsAvg_day   = 0.
+  pFAlongBAbsAvg_ngt   = 0.
+  pFAlongBAbsAvg_dayN  = 0.
+  pFAlongBAbsAvg_ngtN  = 0.
+  pFAlongBAbsAvg_dayS  = 0.
+  pFAlongBAbsAvg_ngtS  = 0.
+
+  pFAlongPAbsAvg       = 0.
+  pFAlongPAbsAvg_N     = 0.
+  pFAlongPAbsAvg_S     = 0.
+  pFAlongPAbsAvg_day   = 0.
+  pFAlongPAbsAvg_ngt   = 0.
+  pFAlongPAbsAvg_dayN  = 0.
+  pFAlongPAbsAvg_ngtN  = 0.
+  pFAlongPAbsAvg_dayS  = 0.
+  pFAlongPAbsAvg_ngtS  = 0.
+
   ;; jeAvg             = 0.
   ;; jeAvg_N           = 0.
   ;; jeAvg_S           = 0.
@@ -138,6 +158,26 @@
   pFAlongPInt_ngtN  = 0.
   pFAlongPInt_dayS  = 0.
   pFAlongPInt_ngtS  = 0.
+
+  pFAlongBAbsInt       = 0.
+  pFAlongBAbsInt_N     = 0.
+  pFAlongBAbsInt_S     = 0.
+  pFAlongBAbsInt_day   = 0.
+  pFAlongBAbsInt_ngt   = 0.
+  pFAlongBAbsInt_dayN  = 0.
+  pFAlongBAbsInt_ngtN  = 0.
+  pFAlongBAbsInt_dayS  = 0.
+  pFAlongBAbsInt_ngtS  = 0.
+
+  pFAlongPAbsInt       = 0.
+  pFAlongPAbsInt_N     = 0.
+  pFAlongPAbsInt_S     = 0.
+  pFAlongPAbsInt_day   = 0.
+  pFAlongPAbsInt_ngt   = 0.
+  pFAlongPAbsInt_dayN  = 0.
+  pFAlongPAbsInt_ngtN  = 0.
+  pFAlongPAbsInt_dayS  = 0.
+  pFAlongPAbsInt_ngtS  = 0.
 
   ;; jeInt             = 0.
   ;; jeInt_N           = 0.

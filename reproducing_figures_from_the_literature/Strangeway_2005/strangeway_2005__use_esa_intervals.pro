@@ -1019,11 +1019,24 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;;Gather data and STORE
+
+     SDT_names = {MLT             : 'MLT'            , $            
+                  ILAT            : 'ILAT'           , $           
+                  ALT             : 'ALT'            , $            
+                  EFIT_ALONG_VSC  : 'EFIT_ALONG_VSC' , $ 
+                  dB_fac_interp   : 'dB_fac_interp'  , $  
+                  pFlux           : 'pFlux'          , $          
+                  Je              : 'Je'             , $             
+                  JEe             : 'JEe'            , $            
+                  Ji              : 'Ji'             , $             
+                  DSP_integ       : 'DSP_integ'      }
+
      tmpStruct = ASSEMBLE_STRANGEWAY_2005_STRUCT(tS_1s, $
                                                  orbit, $
                                                  tmpDatStruct, $
                                                  tmp1sStruct, $
-                                                 minILAT)
+                                                 minILAT, $
+                                                 SDT_NAMES=sdt_names)
 
      ;;Clear 'em out
      mag       = !NULL 
