@@ -45,7 +45,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
   maxNElems    = 1e6
   maxNItvls    = 30S
 
-  orbArr       = MAKE_ARRAY(N_ELEMENTS(swHash) ,/LONG ,VALUE=0.) 
+  orbArr       = MAKE_ARRAY(maxNElems          ,/LONG ,VALUE=0.) 
   itvlArr      = MAKE_ARRAY(maxNElems          ,/INTEG,VALUE=0.) 
   eAlongVArr   = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.) 
   dB_perpArr   = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.) 
@@ -194,7 +194,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
               curInds   = [nCount:nCount+nHere-1]
 
 
-              orbArr      [orbCnt ] = key
+              orbArr      [curInds ] = key
               itvlArr     [curInds] = k + 1
               eAlongVArr  [curInds] = tmpThing.eAlongV   
               dB_perpArr  [curInds] = tmpThing.dB_perp   
@@ -226,7 +226,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
      orbCnt++
   ENDFOREACH
 
-  finStruct = {orbit     : orbArr                   , $
+  finStruct = {orbit     : orbArr      [0:nCount-1] , $  
                interval  : itvlArr     [0:nCount-1] , $  
                eAlongV   : eAlongVArr  [0:nCount-1] , $  
                dB_perp   : dB_perpArr  [0:nCount-1] , $  

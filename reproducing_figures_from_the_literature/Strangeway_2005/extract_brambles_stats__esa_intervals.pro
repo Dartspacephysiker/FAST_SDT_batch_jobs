@@ -15,8 +15,9 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
   hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav'
 
   ;; bonusSuff    = '--full_pFlux--interp'
-  bonusSuff    = '--full_pFlux--interp--128Ss'
-  
+  ;; bonusSuff    = '--full_pFlux--interp--128Ss'
+  bonusSuff    = '--absVals'
+
   hashFile    += bonusSuff
 
   IF FILE_TEST(outDir+hashFile) THEN BEGIN
@@ -39,7 +40,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
          DAY=day, $
          NIGHT=night)
 
-  orbArr       = MAKE_ARRAY(N_ELEMENTS(brHash) ,/LONG ,VALUE=0.) 
+  ;; orbArr       = MAKE_ARRAY(N_ELEMENTS(brHash) ,/LONG ,VALUE=0.) 
+  orbArr       = MAKE_ARRAY(maxNElems          ,/LONG ,VALUE=0.) 
   itvlArr      = MAKE_ARRAY(maxNElems          ,/INTEG,VALUE=0.) 
   eAlongVArr   = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.) 
   dB_perpArr   = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.) 
@@ -210,7 +212,7 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
               curInds   = [nCount:nCount+nHere-1]
 
 
-              orbArr      [orbCnt ] = key
+              orbArr      [curInds] = key
               itvlArr     [curInds] = k + 1
               eAlongVArr  [curInds] = tmpThing.eAlongV   
               dB_perpArr  [curInds] = tmpThing.dB_perp   
@@ -244,7 +246,7 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
      orbCnt++
   ENDFOREACH
 
-  finStruct = {orbit     : orbArr                   , $
+  finStruct = {orbit     : orbArr      [0:nCount-1] , $  
                interval  : itvlArr     [0:nCount-1] , $  
                eAlongV   : eAlongVArr  [0:nCount-1] , $  
                dB_perp   : dB_perpArr  [0:nCount-1] , $  
@@ -268,50 +270,57 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
         FOLD_INTERVALS=fold_intervals, $
         /NO_PLOTS)
 
-  keepEm = CGSETINTERSECTION(finStruct.orbit,tmp.orbit, $
-                             INDICES_A=br_i,INDICES_B=sw_i, $
-                             COUNT=nKeepEm)
+  IF KEYWORD_SET(fold_intervals) THEN BEGIN
 
-  IF nKeepEm EQ 0 THEN BEGIN
+     keepEm = CGSETINTERSECTION(finStruct.orbit,tmp.orbit, $
+                                INDICES_A=br_i,INDICES_B=sw_i, $
+                                COUNT=nKeepEm)
 
-     PRINT,"Can't produce plots of Ji vs. anything; there's no overlap between Strangeway and Brambles statistics ..."
-     cant_plot = 1
+     IF nKeepEm EQ 0 THEN BEGIN
 
-     RETURN,finStruct
+        PRINT,"Can't produce plots of Ji vs. anything; there's no overlap between Strangeway and Brambles statistics ..."
+        cant_plot = 1
+
+        RETURN,finStruct
+     ENDIF
+
+     br_ii = SORT(finStruct.orbit[br_i])
+     br_i  = br_i[br_ii]
+     
+     finStruct = {orbit     : finStruct.orbit    [br_i], $
+                  interval  : finStruct.interval [br_i], $   
+                  eAlongV   : finStruct.eAlongV  [br_i], $   
+                  dB_perp   : finStruct.dB_perp  [br_i], $   
+                  pFAlongB  : finStruct.pFAlongB [br_i], $  
+                  pFAlongP  : finStruct.pFAlongP [br_i], $
+                  pFAlongBAbs  : finStruct.pFAlongBAbs [br_i], $
+                  pFAlongPAbs  : finStruct.pFAlongPAbs [br_i]} 
+
+     sw_ii = SORT(tmp.orbit[sw_i])
+     sw_i  = sw_i[sw_ii]
+     
+     tmp   = {orbit     : tmp.orbit    [sw_i], $
+              interval  : tmp.interval [sw_i], $   
+              eAlongV   : tmp.eAlongV  [sw_i], $   
+              dB_perp   : tmp.dB_perp  [sw_i], $   
+              pFAlongB  : tmp.pFAlongB [sw_i], $
+              je        : tmp.je       [sw_i], $
+              jee       : tmp.jee      [sw_i], $
+              ji        : tmp.ji       [sw_i], $
+              dsp       : tmp.dsp      [sw_i]}
+
   ENDIF
 
-  br_ii = SORT(finStruct.orbit[br_i])
-  br_i  = br_i[br_ii]
-  
-  finStruct = {orbit     : finStruct.orbit    [br_i], $
-               interval  : finStruct.interval [br_i], $   
-               eAlongV   : finStruct.eAlongV  [br_i], $   
-               dB_perp   : finStruct.dB_perp  [br_i], $   
-               pFAlongB  : finStruct.pFAlongB [br_i], $  
-               pFAlongP  : finStruct.pFAlongP [br_i], $
-               pFAlongBAbs  : finStruct.pFAlongBAbs [br_i], $
-               pFAlongPAbs  : finStruct.pFAlongPAbs [br_i]} 
-
-  sw_ii = SORT(tmp.orbit[sw_i])
-  sw_i  = sw_i[sw_ii]
-  
-  tmp   = {orbit     : tmp.orbit    [sw_i], $
-           interval  : tmp.interval [sw_i], $   
-           eAlongV   : tmp.eAlongV  [sw_i], $   
-           dB_perp   : tmp.dB_perp  [sw_i], $   
-           pFAlongB  : tmp.pFAlongB [sw_i], $
-           je        : tmp.je       [sw_i], $
-           jee       : tmp.jee      [sw_i], $
-           ji        : tmp.ji       [sw_i], $
-           dsp       : tmp.dsp      [sw_i]}
-
-  finStruct = CREATE_STRUCT(finStruct,'ji',tmp.ji)
+  finStruct = CREATE_STRUCT(finStruct, $
+                            'pFTot',finStruct.pFAlongB+finStruct.pFAlongP, $
+                            'pFTotAbs',finStruct.pFAlongBAbs+finStruct.pFAlongPAbs, $
+                            'ji',tmp.ji)
 
 
   IF ~KEYWORD_SET(no_plots) AND ~KEYWORD_SET(cant_plot) THEN BEGIN
 
      IF N_ELEMENTS(xQuants) EQ 0 THEN BEGIN
-        xQuants = [4,5,6,7]
+        xQuants = [4,5,6,7,8,9]
      ENDIF
 
      plotInfo  = {xQuants       : xQuants, $
@@ -323,6 +332,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
                                    "Poynting Flux$_{perp}$ [AC] (mW/m$^2$)", $
                                    "ABSPoynting Flux [AC] (mW/m$^2$)", $
                                    "ABSPoynting Flux$_{perp}$ [AC] (mW/m$^2$)", $
+                                   "TOTPoynting Flux [AC] (mW/m$^2$)", $
+                                   "ABSTOTPoynting Flux [AC] (mW/m$^2$)", $
                                    ;; "Average Electron Flux (#/cm$^2$/s)", $
                                    ;; "Average Electron Energy Flux (mW/m$^2$)", $
                                    "Ion Flux (#/cm!U2!N/s)"], $ ;; , $
@@ -331,6 +342,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
                                    [0.,0.], $
                                    [0.,0.], $
                                    [0.,0.], $
+                                   [1e-4,1e0], $
+                                   [1e-4,1e0], $
                                    [1e-4,1e0], $
                                    [1e-4,1e0], $
                                    [1e-4,1e0], $
@@ -350,6 +363,8 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
                                    "AC_Poynting_flux_perp__vs__ionNumFlux", $
                                    "ABS_AC_Poynting_flux__vs__ionNumFlux", $
                                    "ABS_AC_Poynting_flux_perp__vs__ionNumFlux", $
+                                   "TOT_AC_Poynting_flux__vs__ionNumFlux", $
+                                   "ABSTOT_AC_Poynting_flux__vs__ionNumFlux", $
                                    ;; "eNumFlux__vs__ionNumFlux", $
                                    ;; "eFlux__vs__ionNumFlux", $
                                    "Ion Flux (#/cm!U2!N/s)"], $
