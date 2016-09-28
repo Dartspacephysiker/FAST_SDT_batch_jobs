@@ -11,58 +11,16 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
 
   COMPILE_OPT IDL2
 
-  defStat = 2 ;average
-
-  CASE 1 OF
-     KEYWORD_SET(averages): BEGIN
-        stat   = 2
-     END
-     KEYWORD_SET(integrals): BEGIN
-        stat   = 3
-     END
-     ELSE: BEGIN
-        stat   = defStat
-     END
-  ENDCASE
-
-  CASE 1 OF
-     KEYWORD_SET(day): BEGIN
-        side   = 1
-     END
-     KEYWORD_SET(night): BEGIN
-        side   = 2
-     END
-     ELSE: BEGIN
-        side   = 0
-     END
-  ENDCASE
-
-  CASE 1 OF
-     KEYWORD_SET(north): BEGIN
-        hemi   = 1
-     END
-     KEYWORD_SET(south): BEGIN
-        hemi   = 2
-     END
-     ELSE: BEGIN
-        hemi   = 0 ;both
-        PRINT,"Both hemispheres ..."
-     END
-  ENDCASE
-
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Brambles_2011/'
   hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav'
+
+  bonusSuff    = '--full_pFlux--interp'
+
+  hashFile    += bonusSuff
 
   IF FILE_TEST(outDir+hashFile) THEN BEGIN
      PRINT,"Restoring hash file ..."
      RESTORE,outDir+hashFile
-
-     ;; CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
-     ;;    -1: BEGIN
-     ;;    END
-     ;;    ELSE: BEGIN
-     ;;    END
-     ;; ENDCASE
 
   ENDIF ELSE BEGIN
      PRINT,'Nothing here! Returning ...'
@@ -71,6 +29,14 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
 
   maxNElems    = 1e6
   maxNItvls    = 30S
+
+  defs = SETUP_STRANGEWAY_STATS__DEFAULTS($
+         AVERAGES=averages, $
+         INTEGRALS=integrals, $
+         NORTH=north, $
+         SOUTH=south, $
+         DAY=day, $
+         NIGHT=night)
 
   orbArr       = MAKE_ARRAY(N_ELEMENTS(brHash) ,/LONG ,VALUE=0.) 
   itvlArr      = MAKE_ARRAY(maxNElems          ,/INTEG,VALUE=0.) 
@@ -91,19 +57,17 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
 
      nItvls    = N_ELEMENTS(value)
 
-     ;; tmpOrb_i  = MAKE_ARRAY(2,maxNItvls,/LONG)
-
      IF nItvls EQ 0 THEN CONTINUE
 
      CASE KEYWORD_SET(fold_intervals) OF
         1: BEGIN
 
-           CASE stat OF
+           CASE defs.stat OF
               2: BEGIN
 
                  ;;Get the number of points here
                  nItvl = MAKE_ARRAY(nItvls,/LONG)
-                 FOR k=0,nItvls-1 DO nItvl[k] = ((value[k].(stat)).(hemi)).(side).N
+                 FOR k=0,nItvls-1 DO nItvl[k] = ((value[k].(defs.stat)).(defs.hemi)).(defs.side).N
 
                  nThisOrb = TOTAL(nItvl)
 
@@ -119,7 +83,7 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
 
                  tmptmp        = 0
                  FOR k=0,nItvls-1 DO BEGIN
-                    tmpThing   = ((value[k].(stat)).(hemi)).(side)
+                    tmpThing   = ((value[k].(defs.stat)).(defs.hemi)).(defs.side)
 
                     nHere      = N_ELEMENTS(tmpThing.eAlongV)
 
@@ -164,13 +128,13 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
 
                  lenItvl       = MAKE_ARRAY(nItvls,/LONG)
                  FOR k=0,nItvls-1 DO BEGIN
-                    lenItvl[k] = ((value[k].(stat)).(hemi)).(side).len
+                    lenItvl[k] = ((value[k].(defs.stat)).(defs.hemi)).(defs.side).len
                  ENDFOR
 
                  lenThisOrb    = TOTAL(lenItvl)
 
                  FOR k=0,nItvls-1 DO BEGIN
-                    tmpThing   = ((value[k].(stat)).(hemi)).(side)
+                    tmpThing   = ((value[k].(defs.stat)).(defs.hemi)).(defs.side)
 
                     nHere      = N_ELEMENTS(tmpThing.eAlongV)
 
@@ -220,7 +184,7 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
 
            FOR k=0,nItvls-1 DO BEGIN
 
-              tmpThing  = ((value[k].(stat)).(hemi)).(side)
+              tmpThing  = ((value[k].(defs.stat)).(defs.hemi)).(defs.side)
 
               nHere     = N_ELEMENTS(tmpThing.eAlongV)
 
@@ -240,7 +204,7 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
               ;; jiArr       [curInds] = tmpThing.ji        
               ;; dspArr      [curInds] = tmpThing.dsp
 
-              CASE stat OF
+              CASE defs.stat OF
                  2: BEGIN       ;averages
                     nPtarr[curInds] = tmpThing.N
                  END
@@ -251,8 +215,6 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
               ENDCASE
 
               nCount    += nHere
-
-              ;; tmpOrb_i[*,k] = [curInds[0],curInds[-1]]
 
            ENDFOR
 
@@ -327,10 +289,61 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
 
      xQuants  = [4,5]
 
-     PLOT_BRAMBLES_STATS, $
+     IF N_ELEMENTS(xQuants) EQ 0 THEN BEGIN
+        xQuants = [4,5]
+     ENDIF
+
+     plotInfo  = {xQuants       : xQuants, $
+                  xTitle        : ["", $
+                                   "", $
+                                   "$\Delta$B [AC] (nT)", $
+                                   "E along V$_{sc}$ [AC] (mV/m)", $
+                                   "Poynting Flux [AC] (mW/m$^2$)", $
+                                   "Poynting Flux$_{perp}$ [AC] (mW/m$^2$)", $
+                                   ;; "Average Electron Flux (#/cm$^2$/s)", $
+                                   ;; "Average Electron Energy Flux (mW/m$^2$)", $
+                                   "Ion Flux (#/cm!U2!N/s)"], $ ;; , $
+                  ;; "Average ELF amplitude (V/m)"]
+                  xRange        : [[0.,0.], $
+                                   [0.,0.], $
+                                   [0.,0.], $
+                                   [0.,0.], $
+                                   [1e-4,1e0], $
+                                   [1e-4,1e0], $
+                                   ;; [1e7,1e10], $
+                                   ;; [1e-2,1e0], $
+                                   [1e6,1e10]], $ ;; , $
+                  ;; [1e-3,1e-1]]
+                  yTitle        : "Ion Flux (#/cm!U2!N/s)", $
+                  yData         : finStruct.ji, $
+                  yRange        : [1e6,1e10], $
+                  plotNames     : ["", $
+                                   "", $
+                                   "$dB_AC__vs__ionNumFlux", $
+                                   "E_along_V_AC__vs__ionNumFlux", $
+                                   "AC_Poynting_flux__vs__ionNumFlux", $
+                                   ;; "eNumFlux__vs__ionNumFlux", $
+                                   ;; "eFlux__vs__ionNumFlux", $
+                                   "Ion Flux (#/cm!U2!N/s)"], $
+                                   ;; "ELF_amplitude__vs__ionNumFlux"], $
+                  canonPref     : 'Brambles_et_al_2011--', $
+                  plotDirSuff   : '/Brambles_2011', $
+                  plots_prefix  : (KEYWORD_SET(bonusSuff) ? bonusSuff : '') + $
+                                  defs.statStr+'--'+defs.sideStr+'--'+defs.hemStr+'--', $
+                  verboten      : [0,1,2,3], $
+                  navn_verboten : ["Orbit    (ind 0)", $
+                                   "Interval (ind 1)", $
+                                   "EalongV  (ind 2)", $                               
+                                   "dB       (ind 3)"]}
+
+
+     PLOT_STRANGEWAY_STATS, $
         finStruct, $
-        X_QUANTITIES=xQuants, $
-        OUT_PLOTARR=plotArr
+        PLOTINFO=plotInfo, $
+        OUT_PLOTARR=plotArr, $
+        SQUARE_WINDOW=square_window, $
+        SAVE_PLOTS=save_plots, $
+        PLOTDIR=plotDir
 
   ENDIF
 

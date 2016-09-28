@@ -1,136 +1,141 @@
 ;;09/27/16
 PRO PLOT_STRANGEWAY_STATS, $
    stats, $
-   X_QUANTITIES=xQuants, $
-   OUT_PLOTARR=plotArr
+   PLOTINFO=plotInfo, $
+   OUT_PLOTARR=plotArr, $
+   SQUARE_WINDOW=square_window, $
+   SAVE_PLOTS=save_plots, $
+   PLOTDIR=plotDir
       
-
    COMPILE_OPT IDL2
 
-  reqOrb   = (WHERE(xQuants EQ 0))[0] NE -1
-  reqItvl  = (WHERE(xQuants EQ 1))[0] NE -1
-  reqEav   = (WHERE(xQuants EQ 2))[0] NE -1
-  reqdB    = (WHERE(xQuants EQ 3))[0] NE -1
+   sqWinDims = [800,800]
+   winDims   = [800,600]
 
-  IF reqOrb  OR $
-     reqItvl OR $
-     reqEav  OR $
-     reqdB      $
-     THEN BEGIN
-     PRINT,"Can't handle the following plots:"
-     PRINT,"Orbit    (ind 0)"
-     PRINT,"Interval (ind 1)"
-     PRINT,"EalongV  (ind 2)"
-     PRINT,"dB       (ind 3)"
-     PRINT,''
-     PRINT,'Returning ...'
-     RETURN
-  ENDIF
+   ;;plot output stuff
+   IF KEYWORD_SET(save_plots) THEN BEGIN
 
-  nPlots   = N_ELEMENTS(xQuants)*2 ;one extra for linear regression
-  plotArr  = MAKE_ARRAY(nPlots,/OBJ)
+      IF N_ELEMENTS(plotDir) EQ 0 THEN BEGIN
+         SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF=plotInfo.plotDirSuff
+      ENDIF
 
-  xTitle   = ["", $
-              "", $
-              "$\Delta$B [DC] (nT)", $
-              "E along V$_{sc}$ [DC] (mV/m)", $
-              "Poynting Flux [DC] (mW/m^2)", $
-              "Average Electron Flux (#/cm$^2$/s)", $
-              "Average Electron Energy Flux (mW/m$^2$)", $
-              "Ion Flux (#/cm!U2!N/s)", $
-              "Average ELF amplitude (V/m)"]
+   ENDIF
 
-  xRange   = [[0.,0.], $
-              [0.,0.], $
-              [0.,0.], $
-              [0.,0.], $
-              [1e-1,1e2], $
-              [1e7,1e10], $
-              [1e-2,1e0], $
-              [1e6,1e10], $
-              [1e-3,1e-1]]
+   xQuants     = plotInfo.xQuants
 
-  yTitle   = "Ion Flux (#/cm!U2!N/s)"
-  yData    = (-1.)*stats.ji
-  yRange   = [1e6,1e10]
+   nBad        = 0
+   verbotenArr = !NULL
+   FOR jDawg=0,N_ELEMENTS(plotInfo.verboten)-1 DO BEGIN
+      
+      bad = (WHERE(plotInfo.xQuants EQ plotInfo.verboten[jDawg]))[0] NE -1
 
-  FOR k=0,nPlots-1,2 DO BEGIN
-     datI   = xQuants[k/2]
+      IF bad THEN BEGIN
+         nBad++
+         verbotenArr = [verbotenArr,plotInfo.navn_verboten[jDawg]]
+      ENDIF
+   ENDFOR
 
-     xDat   = stats.(datI)
-     sDat   = SORT(xDat)
-     xDat   = xDat[sDat]
-     yDat   = yData[sDat]
+   IF nBad GT 0 THEN BEGIN
+      PRINT,"Can't handle the following plots:"
+      FOR jDawg=0,nBad-1 DO PRINT,verbotenArr[jDawg]
+      PRINT,''
+      PRINT,'Returning ...'
+      RETURN
+   ENDIF
 
-     inds   = WHERE((xDat GT 0) AND (yDat GT 0),nInds)
+   nPlots   = N_ELEMENTS(plotInfo.xQuants)*2 ;one extra for linear regression
+   plotArr  = MAKE_ARRAY(nPlots,/OBJ)
 
-     IF nInds LE 1 THEN BEGIN
-        PRINT,'No good data for these plots! Outta sight!'
-        CONTINUE
-     ENDIF
+   xTitle   = plotInfo.xTitle
 
-     params = LINFIT(ALOG10(xDat[inds]),ALOG10(yDat[inds]),YFIT=yFitter)
-     corr   = LINCORR(ALOG10(xDat[inds]),ALOG10(yDat[inds]),T_STAT=t_stat)
+   xRange   = plotInfo.xRange
 
-     ;; yFit = 10.^(params[1] * ALOG10(xDat[inds]) + params[0])
+   yTitle   = plotInfo.yTitle
+   yData    = plotInfo.yData
+   yRange   = plotInfo.yRange
 
-     xFit   = 10.^((INDGEN(10))/10.*(ALOG10(xRange[1,datI])-ALOG10(xRange[0,datI]))+$
-                   ALOG10(xRange[0,datI]))
-     yFit   = 10.^(params[1] * ALOG10(xFit) + params[0])
 
-     yFitter = 10.^(params[1] * ALOG10(xDat[inds]) + params[0])
+   plotSN = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--' + plotInfo.canonPref + $
+            plotInfo.plots_prefix + plotInfo.plotNames
+                
+   ;; IF KEYWORD_SET(square_window) THEN BEGIN
+   windowArr = MAKE_ARRAY(N_ELEMENTS(xQuants),/OBJ)
+   ;; ENDIF
 
-     ;; tTest   = TM_TEST(yDat[inds],yFitter,/UNEQUAL)
-     ;; tTest   = TM_TEST(ALOG10(yDat[inds]),ALOG10(yFitter),/UNEQUAL)
+   FOR k=0,nPlots-1,2 DO BEGIN
+      datI   = xQuants[k/2]
 
-     ;; tTest[0] = t_stat
+      xDat   = stats.(datI)
+      sDat   = SORT(xDat)
+      xDat   = xDat[sDat]
+      yDat   = yData[sDat]
 
-     plotArr[k] = PLOT(xDat, $
-                       yDat, $
-                       XTITLE=xTitle[datI], $
-                       YTITLE=yTitle, $
-                       XLOG=1, $
-                       YLOG=1, $
-                       LINESTYLE='', $
-                       SYMBOL='o', $
-                       /SYM_FILLED, $
-                       XRANGE=xRange[*,datI], $
-                       YRANGE=yRange)
+      inds   = WHERE((xDat GT 0) AND (yDat GT 0),nInds)
 
-     plotArr[k+1] = PLOT(xFit,yFit, $
-                         /OVERPLOT)
+      IF nInds LE 1 THEN BEGIN
+         PRINT,'No good data for these plots! Outta sight!'
+         CONTINUE
+      ENDIF
 
-     slopeString  = STRING(FORMAT='(A-10,T15,F7.3)',"slope  =",params[1])
-     corrString   = STRING(FORMAT='(A-10,T15,F7.3)',"r      =",corr[0])
-     tString      = STRING(FORMAT='(A-10,T15,F7.3)',"t-test =",t_stat)
+      windowArr[k/2] = WINDOW(DIMENSIONS=KEYWORD_SET(square_window) ? sqWinDims : winDims)
 
-     slopeText    = TEXT(0.2,0.80, $
-                         slopeString, $
-                         /NORMAL, $
-                         FONT_NAME='Courier', $
-                         TARGET=plotArr[k])
-     corrText     = TEXT(0.2,0.75, $
-                         corrString, $
-                         /NORMAL, $
-                         FONT_NAME='Courier', $
-                         TARGET=plotArr[k])
-     tText        = TEXT(0.2,0.70, $
-                         tString, $
-                         /NORMAL, $
-                         FONT_NAME='Courier', $
-                         TARGET=plotArr[k])
+      params = LINFIT(ALOG10(xDat[inds]),ALOG10(yDat[inds]),YFIT=yFitter)
+      corr   = LINCORR(ALOG10(xDat[inds]),ALOG10(yDat[inds]),T_STAT=t_stat)
 
-  ENDFOR
+      xFit   = 10.^((INDGEN(10))/10.*(ALOG10(xRange[1,datI])-ALOG10(xRange[0,datI]))+$
+                    ALOG10(xRange[0,datI]))
+      yFit   = 10.^(params[1] * ALOG10(xFit) + params[0])
 
-  ;; that = PLOT(stats.pfalongb,(-1.)*stats.ji, $
-  ;;             XTITLE=xTitle[2], $
-  ;;             YTITLE=yTitle, $
-  ;;             XLOG=1, $
-  ;;             YLOG=1, $
-  ;;             LINESTYLE='', $
-  ;;             SYMBOL='o', $
-  ;;             /SYM_FILLED, $
-  ;;             XRANGE=[1e-1,1e2], $
-  ;;             YRANGE=[1e6,1e10])
+      yFitter = 10.^(params[1] * ALOG10(xDat[inds]) + params[0])
+
+      plotArr[k] = PLOT(xDat, $
+                        yDat, $
+                        XTITLE=xTitle[datI], $
+                        YTITLE=yTitle, $
+                        XLOG=1, $
+                        YLOG=1, $
+                        LINESTYLE='', $
+                        SYMBOL='o', $
+                        /SYM_FILLED, $
+                        XRANGE=xRange[*,datI], $
+                        YRANGE=yRange, $
+                        FONT_SIZE=18, $
+                        CURRENT=windowArr[k/2])
+
+      plotArr[k+1] = PLOT(xFit,yFit, $
+                          /OVERPLOT, $
+                          CURRENT=windowArr[k/2])
+
+      slopeString  = STRING(FORMAT='(A-10,T15,F7.3)',"slope  =",params[1])
+      corrString   = STRING(FORMAT='(A-10,T15,F7.3)',"r      =",corr[0])
+      tString      = STRING(FORMAT='(A-10,T15,F7.3)',"t-test =",t_stat)
+
+      slopeText    = TEXT(0.2,0.80, $
+                          slopeString, $
+                          /NORMAL, $
+                          FONT_NAME='Courier', $
+                          FONT_SIZE=18, $
+                          TARGET=plotArr[k])
+      corrText     = TEXT(0.2,0.75, $
+                          corrString, $
+                          /NORMAL, $
+                          FONT_NAME='Courier', $
+                          FONT_SIZE=18, $
+                          TARGET=plotArr[k])
+      tText        = TEXT(0.2,0.70, $
+                          tString, $
+                          /NORMAL, $
+                          FONT_NAME='Courier', $
+                          FONT_SIZE=18, $
+                          TARGET=plotArr[k])
+
+      IF KEYWORD_SET(save_plots) THEN BEGIN
+         PRINT,"Saving " + plotSN[datI] + '.png' + ' ...'
+         windowArr[k/2].Save,plotDir+plotSN[datI]+'.png'
+
+         windowArr[k/2].Close
+      ENDIF
+
+   ENDFOR
 
 END

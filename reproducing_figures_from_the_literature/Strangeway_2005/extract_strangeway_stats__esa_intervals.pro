@@ -7,48 +7,21 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
    DAY=day, $
    NIGHT=night, $
    FOLD_INTERVALS=fold_intervals, $
+   SAVE_PLOTS=save_plots, $
+   PLOTDIR=plotDir, $
+   PLOTS_PREFIX=plots_prefix, $
+   SQUARE_WINDOW=square_window, $
    NO_PLOTS=no_plots
 
   COMPILE_OPT IDL2
 
-  defStat = 2 ;average
-
-  CASE 1 OF
-     KEYWORD_SET(averages): BEGIN
-        stat   = 2
-     END
-     KEYWORD_SET(integrals): BEGIN
-        stat   = 3
-     END
-     ELSE: BEGIN
-        stat   = defStat
-     END
-  ENDCASE
-
-  CASE 1 OF
-     KEYWORD_SET(day): BEGIN
-        side   = 1
-     END
-     KEYWORD_SET(night): BEGIN
-        side   = 2
-     END
-     ELSE: BEGIN
-        side   = 0
-     END
-  ENDCASE
-
-  CASE 1 OF
-     KEYWORD_SET(north): BEGIN
-        hemi   = 1
-     END
-     KEYWORD_SET(south): BEGIN
-        hemi   = 2
-     END
-     ELSE: BEGIN
-        hemi   = 0 ;both
-        PRINT,"Both hemispheres ..."
-     END
-  ENDCASE
+  defs = SETUP_STRANGEWAY_STATS__DEFAULTS($
+         AVERAGES=averages, $
+         INTEGRALS=integrals, $
+         NORTH=north, $
+         SOUTH=south, $
+         DAY=day, $
+         NIGHT=night)
 
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_2005/'
   hashFile     = 'Strangeway_et_al_2005__DC_params--ESA_intervals.sav'
@@ -97,12 +70,12 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
      CASE KEYWORD_SET(fold_intervals) OF
         1: BEGIN
 
-           CASE stat OF
+           CASE defs.stat OF
               2: BEGIN
 
                  ;;Get the number of points here
                  nItvl = MAKE_ARRAY(nItvls,/LONG)
-                 FOR k=0,nItvls-1 DO nItvl[k] = ((value[k].(stat)).(hemi)).(side).N
+                 FOR k=0,nItvls-1 DO nItvl[k] = ((value[k].(defs.stat)).(defs.hemi)).(defs.side).N
 
                  nThisOrb = TOTAL(nItvl)
 
@@ -117,7 +90,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
 
                  tmptmp        = 0
                  FOR k=0,nItvls-1 DO BEGIN
-                    tmpThing   = ((value[k].(stat)).(hemi)).(side)
+                    tmpThing   = ((value[k].(defs.stat)).(defs.hemi)).(defs.side)
 
                     nHere      = N_ELEMENTS(tmpThing.eAlongV)
 
@@ -159,13 +132,13 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
 
                  lenItvl       = MAKE_ARRAY(nItvls,/LONG)
                  FOR k=0,nItvls-1 DO BEGIN
-                    lenItvl[k] = ((value[k].(stat)).(hemi)).(side).len
+                    lenItvl[k] = ((value[k].(defs.stat)).(defs.hemi)).(defs.side).len
                  ENDFOR
 
                  lenThisOrb    = TOTAL(lenItvl)
 
                  FOR k=0,nItvls-1 DO BEGIN
-                    tmpThing   = ((value[k].(stat)).(hemi)).(side)
+                    tmpThing   = ((value[k].(defs.stat)).(defs.hemi)).(defs.side)
 
                     nHere      = N_ELEMENTS(tmpThing.eAlongV)
 
@@ -212,7 +185,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
 
            FOR k=0,nItvls-1 DO BEGIN
 
-              tmpThing  = ((value[k].(stat)).(hemi)).(side)
+              tmpThing  = ((value[k].(defs.stat)).(defs.hemi)).(defs.side)
 
               nHere     = N_ELEMENTS(tmpThing.eAlongV)
 
@@ -230,7 +203,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
               jeeArr      [curInds] = tmpThing.jee       
               jiArr       [curInds] = tmpThing.ji        
               dspArr      [curInds] = tmpThing.dsp
-              CASE stat OF
+              CASE defs.stat OF
                  2: BEGIN       ;averages
                     nPtarr[curInds] = tmpThing.N
                  END
@@ -272,17 +245,63 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
                  pFAlongB  : finStruct.pFAlongB [sw_i], $
                  je        : finStruct.je       [sw_i], $
                  jee       : finStruct.jee      [sw_i], $
-                 ji        : finStruct.ji       [sw_i], $
+                 ji        : (-1.)*finStruct.ji [sw_i], $
                  dsp       : finStruct.dsp      [sw_i]}
 
   IF ~KEYWORD_SET(no_plots) THEN BEGIN
 
-     xQuants  = [4,5,6,8]
+     IF N_ELEMENTS(xQuants) EQ 0 THEN BEGIN
+        xQuants = [4,5,6,8]
+     ENDIF
+
+     plotInfo  = {xQuants       : xQuants, $
+                  xTitle        : ["", $
+                                   "", $
+                                   "$\Delta$B [DC] (nT)", $
+                                   "E along V$_{sc}$ [DC] (mV/m)", $
+                                   "Poynting Flux [DC] (mW/m^2)", $
+                                   "Average Electron Flux (#/cm$^2$/s)", $
+                                   "Average Electron Energy Flux (mW/m$^2$)", $
+                                   "Ion Flux (#/cm!U2!N/s)", $
+                                   "Average ELF amplitude (V/m)"], $
+                  xRange        : [[0.,0.], $
+                                   [0.,0.], $
+                                   [0.,0.], $
+                                   [0.,0.], $
+                                   [1e-1,1e2], $
+                                   [1e7,1e10], $
+                                   [1e-2,1e0], $
+                                   [1e6,1e10], $
+                                   [1e-3,1e-1]], $
+                  yTitle        : "Ion Flux (#/cm!U2!N/s)", $
+                  yData         : finStruct.ji, $
+                  yRange        : [1e6,1e10], $
+                  plotNames     : ["", $
+                                   "", $
+                                   "$dB__vs__ionNumFlux", $
+                                   "E_along_V__vs__ionNumFlux", $
+                                   "DC_Poynting_flux__vs__ionNumFlux", $
+                                   "eNumFlux__vs__ionNumFlux", $
+                                   "eFlux__vs__ionNumFlux", $
+                                   "Ion Flux (#/cm!U2!N/s)", $
+                                   "ELF_amplitude__vs__ionNumFlux"], $
+                  canonPref     : 'Strangeway_et_al_2005--', $
+                  plotDirSuff   : '/Strangeway_2005', $
+                  plots_prefix  : defs.statStr+'--'+defs.sideStr+'--'+defs.hemStr+'--', $
+                  verboten      : [0,1,2,3], $
+                  navn_verboten : ["Orbit    (ind 0)", $
+                                   "Interval (ind 1)", $
+                                   "EalongV  (ind 2)", $                               
+                                   "dB       (ind 3)"]}
+
 
      PLOT_STRANGEWAY_STATS, $
         finStruct, $
-        X_QUANTITIES=xQuants, $
-        OUT_PLOTARR=plotArr
+        PLOTINFO=plotInfo, $
+        OUT_PLOTARR=plotArr, $
+        SQUARE_WINDOW=square_window, $
+        SAVE_PLOTS=save_plots, $
+        PLOTDIR=plotDir
 
   ENDIF
 

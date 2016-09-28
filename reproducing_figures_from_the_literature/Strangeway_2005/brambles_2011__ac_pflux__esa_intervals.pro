@@ -8,6 +8,7 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
    TLIMIT_SOUTH=tlimit_south, $
    TLIMIT_ALL=tlimit_all, $
    SCREEN_PLOT=screen_plot, $
+   ONLY_FASTSRVY_DATA=only_128Ss_data, $
    USE_FAC_V=use_fac_v, $
    USE_FAC=use_fac, $
    NO_BLANK_PANELS=no_blank_panels, $
@@ -21,12 +22,13 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
 ; (b) ESA data limits
 ; (c) DSP calibration
 
-
   full_pFlux        = 1
 
   IF KEYWORD_SET(full_pFlux) THEN BEGIN
      include_E_near_B = 1
   ENDIF
+
+  IF N_ELEMENTS(only_128Ss_data) EQ 0 THEN only_128Ss_data = 1
 
   do_fields_interp  = 1
   do_fields_spline  = 0
@@ -36,6 +38,12 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
   maxFreq    = 0.5   ;Hz
 
   freqBounds = [minFreq,maxFreq]
+
+  ;;Filter stuff
+  lowPole        = 4 ;Slay that low-freq garbage
+  highPole       = 4
+  FFTdb          = 50 ;For digital filter coeffs. IDL doc says "50 is a good choice."
+  FFTdb          = !NULL ;For digital filter coeffs. IDL doc says "50 is a good choice."
 
 
   ;;The way this works is that we estimate f_spA ≤ k_perp * λe < f_spB
@@ -60,12 +68,6 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
   ;; override_freq  = [0.125,0.5] ;Brambles et al. [2011] supplementary matieral
 
   FFTSlide       = 1.0
-
-  ;;Filter stuff
-  lowPole        = 4 ;Slay that low-freq garbage
-  highPole       = 4
-  FFTdb          = 50 ;For digital filter coeffs. IDL doc says "50 is a good choice."
-  FFTdb          = !NULL ;For digital filter coeffs. IDL doc says "50 is a good choice."
 
 ; Under development - R. J. Strangeway 4/4/08
 
@@ -95,8 +97,11 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
   ;;Outputs
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Brambles_2011/'
   ;; hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav'
-  hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--full_pFlux--interp'
-  outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals'
+  ;; outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals'
+
+  ;; hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--full_pFlux--interp'
+  hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--full_pFlux--interp--128Ss'
+  outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals--128Ss'
 
   IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
   IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'

@@ -35,8 +35,8 @@ PRO PLOT_BRAMBLES_STATS, $
               "", $
               "$\Delta$B [AC] (nT)", $
               "E along V$_{sc}$ [AC] (mV/m)", $
-              "Poynting Flux [AC] (mW/m^2)", $
-              "Poynting Flux$_{perp}$ [AC] (mW/m^2)", $
+              "Poynting Flux [AC] (mW/m$^2$)", $
+              "Poynting Flux$_{perp}$ [AC] (mW/m$^2$)", $
               ;; "Average Electron Flux (#/cm$^2$/s)", $
               ;; "Average Electron Energy Flux (mW/m$^2$)", $
               "Ion Flux (#/cm!U2!N/s)"];; , $
