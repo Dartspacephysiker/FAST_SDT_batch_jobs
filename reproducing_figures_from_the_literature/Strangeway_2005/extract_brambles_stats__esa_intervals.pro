@@ -18,9 +18,10 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
 
   ;; bonusSuff    = '--full_pFlux--interp'
   ;; bonusSuff    = '--full_pFlux--interp--128Ss'
-  ;; bonusSuff    = '--absVals'
-  bonusSuff    = '--absVals--eFieldFit'
-
+  bonusSuff    = '--absVals'
+  ;; bonusSuff    = '--absVals--eFieldFit'
+  ;; bonusSuff    = '--absVals--also_E_near_B--full_pFlux--eFieldFit'
+  
   hashFile    += bonusSuff
 
   IF FILE_TEST(outDir+hashFile) THEN BEGIN
@@ -346,14 +347,14 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
      plotInfo  = {xQuants       : xQuants, $
                   xTitle        : ["", $
                                    "", $
-                                   "$\Delta$B [AC] (nT)", $
-                                   "E along V$_{sc}$ [AC] (mV/m)", $
-                                   "Poynting Flux [AC] (mW/m$^2$)", $
-                                   "Poynting Flux$_{perp}$ [AC] (mW/m$^2$)", $
-                                   "ABSPoynting Flux [AC] (mW/m$^2$)", $
-                                   "ABSPoynting Flux$_{perp}$ [AC] (mW/m$^2$)", $
-                                   "TOTPoynting Flux [AC] (mW/m$^2$)", $
-                                   "ABSTOTPoynting Flux [AC] (mW/m$^2$)", $
+                                   "$\Delta$B [0.125 - 0.5 Hz] (nT)", $
+                                   "E along V$_{sc}$ [0.125 - 0.5 Hz] (mV/m)", $
+                                   "BROPoynting Flux [0.125 - 0.5 Hz] (mW/m$^2$)", $
+                                   "BROPoynting Flux$_{perp}$ [0.125 - 0.5 Hz] (mW/m$^2$)", $
+                                   "BROABSPoynting Flux [0.125 - 0.5 Hz] (mW/m$^2$)", $
+                                   "BROABSPoynting Flux$_{perp}$ [0.125 - 0.5 Hz] (mW/m$^2$)", $
+                                   "BROTOTPoynting Flux [0.125 - 0.5 Hz] (mW/m$^2$)", $
+                                   "Poynting Flux [0.125 - 0.5 Hz] (mW/m$^2$)", $
                                    ;; "Average Electron Flux (#/cm$^2$/s)", $
                                    ;; "Average Electron Energy Flux (mW/m$^2$)", $
                                    "Ion Flux (#/cm!U2!N/s)"], $ ;; , $

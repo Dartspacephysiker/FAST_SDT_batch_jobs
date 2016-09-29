@@ -26,7 +26,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_2005/'
   hashFile     = 'Strangeway_et_al_2005__DC_params--ESA_intervals.sav'
 
-  bonusSuff    = '--500eV_ions'
+  bonusSuff    = ''
+  ;; bonusSuff    = '--500eV_ions'
 
   hashFile    += bonusSuff
 

@@ -62,7 +62,10 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
   IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
   IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
 
-  bonusSuff    = '--500eV_ions'
+  bonusSuff    = ''
+
+  IF ( ABS(energy_ions[0] - 4.)   LT 0.01 ) THEN bonusSuff += '--4eV_lower'
+  IF ( ABS(energy_ions[1] - 500.) LT 0.01 ) THEN bonusSuff += '--500eV_upper'
 
   hashFile    += bonusSuff
   outPlotName += bonusSuff

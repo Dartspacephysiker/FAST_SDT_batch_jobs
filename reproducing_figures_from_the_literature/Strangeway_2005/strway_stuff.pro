@@ -3,7 +3,7 @@
 
   minILAT           = 50 
 
-  energy_ions       = [0,120.]
+  energy_ions       = [4,120.]
   energy_electrons  = [50,30000.]
 
   strWay_orbs       = INDGEN(33)+8260
@@ -15,5 +15,5 @@
   fields_smoothWindow_halfLength = 2.0
 
 
-  energy_ions       = [0,500.]
-  upper_ion_e       = HASH(strWay_orbs,MAKE_ARRAY(33,VALUE=500.,/FLOAT))
+  ;; energy_ions       = [0,500.]
+  ;; upper_ion_e       = HASH(strWay_orbs,MAKE_ARRAY(33,VALUE=500.,/FLOAT))
