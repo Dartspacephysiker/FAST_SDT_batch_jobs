@@ -782,7 +782,7 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Poynting fluxes!
 
-  IF KEYWORD_SET(full_pFlux) OR KEYWORD_SET(save_lil_package) THEN BEGIN
+  IF KEYWORD_SET(full_pFlux) THEN BEGIN
 
 
      pFBHigh = dBpHigh.comp1*eAVHigh.comp1/mu_0                        ;Poynting flux along B

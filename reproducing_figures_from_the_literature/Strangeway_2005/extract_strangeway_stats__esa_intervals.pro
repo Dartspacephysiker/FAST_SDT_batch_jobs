@@ -26,6 +26,10 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_2005/'
   hashFile     = 'Strangeway_et_al_2005__DC_params--ESA_intervals.sav'
 
+  bonusSuff    = '--500eV_ions'
+
+  hashFile    += bonusSuff
+
   IF FILE_TEST(outDir+hashFile) THEN BEGIN
      PRINT,"Restoring hash file ..."
      RESTORE,outDir+hashFile
@@ -287,7 +291,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
                                    "ELF_amplitude__vs__ionNumFlux"], $
                   canonPref     : 'Strangeway_et_al_2005--', $
                   plotDirSuff   : '/Strangeway_2005', $
-                  plots_prefix  : defs.statStr+'--'+defs.sideStr+'--'+defs.hemStr+'--', $
+                  plots_prefix  : (KEYWORD_SET(bonusSuff) ? bonusSuff : '') + $ 
+                                  defs.statStr+'--'+defs.sideStr+'--'+defs.hemStr+'--', $
                   verboten      : [0,1,2,3], $
                   navn_verboten : ["Orbit    (ind 0)", $
                                    "Interval (ind 1)", $

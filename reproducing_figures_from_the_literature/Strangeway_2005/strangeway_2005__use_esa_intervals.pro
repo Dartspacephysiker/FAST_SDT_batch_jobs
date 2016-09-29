@@ -10,6 +10,9 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
    SCREEN_PLOT=screen_plot, $
    USE_FAC_V=use_fac_v, $
    USE_FAC=use_fac, $
+   USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
+   ;; INCLUDE_E_NEAR_B=include_E_near_B, $
+   ;; FULL_PFLUX_CALC=full_pFlux, $
    NO_BLANK_PANELS=no_blank_panels, $
    ;; SAVE_1S_DATA=save_1s_data, $
    SAVE_PNG=save_png, $
@@ -58,6 +61,25 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
 
   IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
   IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
+
+  bonusSuff    = '--500eV_ions'
+
+  hashFile    += bonusSuff
+  outPlotName += bonusSuff
+
+
+  ;;Update hashfile name and outPlotName
+  plotPref = SETUP_STRANGEWAY_BRAMBLES_PLOTPREF($
+             USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
+             ONLY_FASTSRVY_DATA=only_128Ss_data, $
+             INCLUDE_E_NEAR_B=include_E_near_B, $
+             FULL_PFLUX_CALC=full_pFlux, $
+             FIELDS_INTERP=do_fields_interp, $
+             FIELDS_SPLINE=do_fields_spline)
+             
+  hashFile    += plotPref
+  outPlotName += plotPref
+
 
   nn           = N_ELEMENTS(data_quants)
 
@@ -1053,7 +1075,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
 
   IF ~KEYWORD_SET(no_hash_update) THEN BEGIN
      IF FILE_TEST(outDir+hashFile) THEN BEGIN
-        PRINT,"Restoring hash file ..."
+        PRINT,"Restoring hash file " + hashFile + " ..."
         RESTORE,outDir+hashFile
 
         CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF

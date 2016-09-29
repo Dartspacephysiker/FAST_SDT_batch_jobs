@@ -14,7 +14,13 @@
 ;*****************************
 ;Put code here:
 
-BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS,/BATCH_MODE,/PLOT_NORTH,/SAVE_PS
+BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
+   /USE_EFIELD_FIT_VARIABLES, $
+   /FIELDS_SPLINE, $
+   /PLOT_NORTH, $
+   /SAVE_PS, $
+   /BATCH_MODE
+
 
 ;*****************************
 ;End routine:

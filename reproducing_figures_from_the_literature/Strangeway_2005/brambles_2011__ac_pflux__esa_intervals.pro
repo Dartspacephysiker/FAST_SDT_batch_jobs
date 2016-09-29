@@ -8,7 +8,12 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
    TLIMIT_SOUTH=tlimit_south, $
    TLIMIT_ALL=tlimit_all, $
    SCREEN_PLOT=screen_plot, $
+   FIELDS_INTERP=do_fields_interp, $
+   FIELDS_SPLINE=do_fields_spline, $
    ONLY_FASTSRVY_DATA=only_128Ss_data, $
+   USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
+   INCLUDE_E_NEAR_B=include_E_near_B, $
+   FULL_PFLUX_CALC=full_pFlux, $
    USE_FAC_V=use_fac_v, $
    USE_FAC=use_fac, $
    NO_BLANK_PANELS=no_blank_panels, $
@@ -32,22 +37,61 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
   ;; hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--full_pFlux--interp--128Ss'
   ;; outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals--128Ss'
 
+  ;; hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--absVals'
+  ;; outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals--absvals'
+
   hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--absVals'
   outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals--absvals'
 
-  IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
-  IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
+  IF KEYWORD_SET(plot_north)     THEN outPlotName += '--' + 'NORTH'
+  IF KEYWORD_SET(plot_south)     THEN outPlotName += '--' + 'SOUTH'
 
-  full_pFlux        = 1
 
-  IF KEYWORD_SET(full_pFlux) THEN BEGIN
-     include_E_near_B = 1
-  ENDIF
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;Defaults
+
+  IF N_ELEMENTS(full_pFlux) EQ 0 THEN full_pFlux = 0
 
   IF N_ELEMENTS(only_128Ss_data) EQ 0 THEN only_128Ss_data = 0
 
-  do_fields_interp  = 1
-  do_fields_spline  = 0
+  IF KEYWORD_SET(full_pFlux)     THEN BEGIN
+     include_E_near_B = 1
+  ENDIF
+
+  CASE 1 OF
+     KEYWORD_SET(use_eField_fit_variables): BEGIN
+        eAV_variable = 'EFIT_ALONG_V'
+        eNB_variable = 'EFIT_NEAR_B'
+
+     END
+     ELSE: BEGIN
+        eAV_variable = 'E_ALONG_V'
+        eNB_variable = 'E_NEAR_B'
+     END
+  ENDCASE
+
+  IF N_ELEMENTS(do_fields_interp) EQ 0 AND ~KEYWORD_SET(do_fields_spline) THEN BEGIN
+     do_fields_interp  = 1
+  ENDIF
+  IF N_ELEMENTS(do_fields_spline) EQ 0 THEN BEGIN
+     do_fields_spline  = 0
+  ENDIF
+
+  ;;Update hashfile name and outPlotName
+  plotPref = SETUP_STRANGEWAY_BRAMBLES_PLOTPREF($
+             USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
+             ONLY_FASTSRVY_DATA=only_128Ss_data, $
+             INCLUDE_E_NEAR_B=include_E_near_B, $
+             FULL_PFLUX_CALC=full_pFlux, $
+             FIELDS_INTERP=do_fields_interp, $
+             FIELDS_SPLINE=do_fields_spline)
+             
+  hashFile    += plotPref
+  outPlotName += plotPref
+
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;More defaults
 
   ;;According to supplementary material in Brambles et al. [2011]
   minFreq    = 0.125 ;Hz
@@ -60,15 +104,6 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
   highPole       = 8
   FFTdb          = 50 ;For digital filter coeffs. IDL doc says "50 is a good choice."
   FFTdb          = !NULL ;For digital filter coeffs. IDL doc says "50 is a good choice."
-
-
-  ;;The way this works is that we estimate f_spA ≤ k_perp * λe < f_spB
-  ;;Frequency details under "***Frequency conditions***"
-  f_spA          = 0.1
-  f_spB          = 1./f_spA
-  freqRes        = 0.125D         ;Frequencies rounded to this number
-  ;; freqRes     = 0.1D           ;Frequencies rounded to this number
-  FGMagRolloff   = 20.0           ;in Hz
 
 
   ;;For FFTs of Mag and E data
@@ -257,25 +292,6 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
 
      ;;Interp time series
      tS_1s = DOUBLE(LINDGEN(CEIL(t2-t1))+ROUND(t1))
-
-
-     ;; magDC = GET_FA_FIELDS('MagDC',t,/START,/CALIBRATE,/REPAIR)
-     ;; dat = get_fa_fields('MagDC',t,/START)
-     ;; IF magDC.valid EQ 0 THEN BEGIN
-     ;;    PRINT,' ERROR: No FAST mag data-get_fa_fields returned invalid data'
-     ;;    RETURN
-     ;; ENDIF 
-     
-     ;; sc_pot  = GET_FA_POTENTIAL(t1,t2, $
-     ;;                            ;; /SPIN, $
-     ;;                            /REPAIR)
-
-     ;; sc_pot  = {x:sc_pot.time, $
-     ;;            y:(-1.)*sc_pot.comp1, $ ;;Reverse sign of pot here for use with GET_2DT_TS_POT
-     ;;            valid:sc_pot.valid} 
-
-     ;; IF data_valid NE 0.0 THEN BEGIN
-     ;; IF magDC.valid THEN BEGIN
      
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;;Get Mag and E field data
@@ -285,11 +301,6 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
      ;;		a. Use Strangeway despinning, find coords that complement E_along_V
      ;;		b. Need to use Bob model to subtract the background field
 
-     ;; IF NOT KEYWORD_SET(ucla_mag_despin) THEN BEGIN
-     ;;    GET_DATA,'MagDCcomp1',DATA=magx
-     ;;    GET_DATA,'MagDCcomp2',DATA=magy
-     ;;    GET_DATA,'MagDCcomp3',DATA=magz
-     ;; ENDIF ELSE BEGIN
      GET_DATA,'dB_fac_v',DATA=db_fac
      IF SIZE(db_fac,/TYPE) NE 8 THEN BEGIN
         PRINT,"Couldn't get despun mag data! Outta sight ..."
@@ -334,8 +345,6 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
      ENDIF
 
 
-     ;; ENDELSE
-     
      ;;E field
      FA_FIELDS_DESPIN,efieldV58,efieldV1214, $
                       /SHADOW_NOTCH,/SINTERP, $ ;Why? Because RJS does it in his summary plot
@@ -348,14 +357,24 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
         RETURN
      ENDIF
 
-     GET_DATA,'E_ALONG_V',DATA=eAlongV
+     GET_DATA,eAV_variable,DATA=eAlongV
      IF SIZE(eAlongV,/TYPE) NE 8 THEN BEGIN
-        PRINT,"Couldn't get E_ALONG_V!" 
+        PRINT,"Couldn't get " + eAV_variable + '!'
         STOP
      ENDIF
 
+     IF KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
+        maxeFitPeriod = MAX(eAlongV.x[1:-1]-eAlongV.x[0:-2]) < 2.8
+     ENDIF
+
+
      IF KEYWORD_SET(include_E_near_B) THEN BEGIN
-        GET_DATA,'E_NEAR_B',DATA=eNearB
+        GET_DATA,eNB_variable,DATA=eNearB
+
+        IF SIZE(eNearB,/TYPE) NE 8 THEN BEGIN
+           PRINT,"Couldn't get " + eNB_variable + '!'
+           STOP
+        ENDIF
      ENDIF
 
      ;;Now check sorted/dupes
@@ -379,41 +398,27 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
         ENDIF
      ENDIF
 
-     ;;Get eAlongV at same res (I think this always means reducing the res. of eField
-     ;; magzTmp      = {TIME         : magz.x                , $
-     ;;                 COMP1        : magz.y                , $
-     ;;                 NCOMP        : 1                     , $
-     ;;                 DATA_NAME    : 'Cross-track MagData' , $
-     ;;                 VALID        : 1                     , $
-     ;;                 PROJECT_NAME : 'FAST'                , $
-     ;;                 UNITS_NAME   : 'nT'                  , $
-     ;;                 CALIBRATED   : 1}
-     ;; eAlongVTmp   = {TIME         :  eAlongV.x            , $
-     ;;                 COMP1        :  eAlongV.y            , $
-     ;;                 NCOMP        : 1                     , $
-     ;;                 VALID        : 1                     , $
-     ;;                 DATA_NAME    :'E Along V'            , $
-     ;;                 PROJECT_NAME : 'FAST'                , $
-     ;;                 UNITS_NAME   : 'mV/m'                , $
-     ;;                 CALIBRATED   : 1}
+     ;;Get eAlongV at same res (I think this always means reducing the res. of eField, unless using EFIT variables
 
      FA_FIELDS_COMBINE,{TIME:magz.x,COMP1:magz.y}, $
                        {TIME:eAlongV.x,COMP1:eAlongV.y}, $
                        RESULT=eAlongVInterp, $
-                       INTERP=do_fields_interp, $
-                       ;; SPLINE=do_fields_spline, $
-                       /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
-                       ;; DELT_T=minPeriod, $
+                       INTERP=KEYWORD_SET(do_fields_interp) ? 1 : !NULL, $
+                       SPLINE=KEYWORD_SET(do_fields_spline) ? 1 : !NULL, $
+                       SVY=KEYWORD_SET(use_eField_fit_variables) ? !NULL : 1, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
+                       DELT_T=KEYWORD_SET(use_eField_fit_variables) ? $
+                              maxeFitPeriod : !NULL, $
                        /TALK
 
      IF KEYWORD_SET(include_E_near_B) THEN BEGIN
         FA_FIELDS_COMBINE,{TIME:magz.x,COMP1:magz.y}, $
                           {TIME:eNearB.x,COMP1:eNearB.y}, $
                           RESULT=eNearBInterp, $
-                          INTERP=do_fields_interp, $
-                          ;; SPLINE=do_fields_spline, $
-                          /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
-                          ;; DELT_T=minPeriod, $
+                          INTERP=KEYWORD_SET(do_fields_interp) ? 1 : !NULL, $
+                          SPLINE=KEYWORD_SET(do_fields_spline) ? 1 : !NULL, $
+                          SVY=KEYWORD_SET(use_eField_fit_variables) ? !NULL : 1, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
+                          DELT_T=KEYWORD_SET(use_eField_fit_variables) ? $
+                                 maxeFitPeriod : !NULL, $
                           /TALK
      ENDIF
      ;; ;;Make sure we have same num points 
@@ -513,51 +518,51 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
            k += helper
         ENDIF
 
-        tmpB    = {  TIME         : magz.x[tmpI]          , $
-                     COMP1        : magz.y[tmpI]          , $
-                     NCOMP        : 1                     , $
-                     DATA_NAME    : 'Cross-track MagData' , $
-                     VALID        : 1                     , $
-                     PROJECT_NAME : 'FAST'                , $
-                     UNITS_NAME   : 'nT'                  , $
-                     CALIBRATED   : 1}
-        tmpBAlt  = { TIME         : magy.x[tmpI]          , $
-                     COMP1        : magy.y[tmpI]          , $
-                     NCOMP        : 1                     , $
-                     DATA_NAME    : 'along-B MagData' , $
-                     VALID        : 1                     , $
-                     PROJECT_NAME : 'FAST'                , $
-                     UNITS_NAME   : 'nT'                  , $
-                     CALIBRATED   : 1}
-        tmpBAlt2  = {TIME         : magx.x[tmpI]          , $
-                     COMP1        : magx.y[tmpI]          , $
-                     NCOMP        : 1                     , $
-                     DATA_NAME    : 'along-v MagData' , $
-                     VALID        : 1                     , $
-                     PROJECT_NAME : 'FAST'                , $
-                     UNITS_NAME   : 'nT'                  , $
-                     CALIBRATED   : 1}
+        dBp  = {TIME         : magz.x[tmpI]          , $
+                COMP1        : magz.y[tmpI]          , $
+                NCOMP        : 1                     , $
+                DATA_NAME    : 'Cross-track MagData' , $
+                VALID        : 1                     , $
+                PROJECT_NAME : 'FAST'                , $
+                UNITS_NAME   : 'nT'                  , $
+                CALIBRATED   : 1}
+        dBB  = {TIME         : magy.x[tmpI]          , $
+                COMP1        : magy.y[tmpI]          , $
+                NCOMP        : 1                     , $
+                DATA_NAME    : 'along-B MagData' , $
+                VALID        : 1                     , $
+                PROJECT_NAME : 'FAST'                , $
+                UNITS_NAME   : 'nT'                  , $
+                CALIBRATED   : 1}
+        dBv  = {TIME         : magx.x[tmpI]          , $
+                COMP1        : magx.y[tmpI]          , $
+                NCOMP        : 1                     , $
+                DATA_NAME    : 'along-v MagData' , $
+                VALID        : 1                     , $
+                PROJECT_NAME : 'FAST'                , $
+                UNITS_NAME   : 'nT'                  , $
+                CALIBRATED   : 1}
 
-        tmpE    = {  TIME         : magz.x[tmpI]          , $
-                     COMP1        : eAlongVInterp[tmpI]   , $
-                     NCOMP        : 1                     , $
-                     DATA_NAME    : 'eAlongVStuff'        , $
-                     VALID        : 1                     , $
-                     PROJECT_NAME : 'FAST'                , $
-                     UNITS_NAME   : 'mV/m'                , $
-                     CALIBRATED   : 1}
+        tmpE = {TIME         : magz.x[tmpI]          , $
+                COMP1        : eAlongVInterp[tmpI]   , $
+                NCOMP        : 1                     , $
+                DATA_NAME    : 'eAlongVStuff'        , $
+                VALID        : 1                     , $
+                PROJECT_NAME : 'FAST'                , $
+                UNITS_NAME   : 'mV/m'                , $
+                CALIBRATED   : 1}
 
-        FA_FIELDS_FILTER,tmpB, $
+        FA_FIELDS_FILTER,dBp, $
                          ;; freqBounds[*,k], $
                          freqBounds, $
                          DB=FFTdb, $
                          POLES=[lowPole,highPole]
-        FA_FIELDS_FILTER,tmpBAlt, $
+        FA_FIELDS_FILTER,dBB, $
                          ;; freqBounds[*,k], $
                          freqBounds, $
                          DB=FFTdb, $
                          POLES=[lowPole,highPole]
-        FA_FIELDS_FILTER,tmpBAlt2, $
+        FA_FIELDS_FILTER,dBv, $
                          ;; freqBounds[*,k], $
                          freqBounds, $
                          DB=FFTdb, $
@@ -568,9 +573,9 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
                          DB=FFTdb, $
                          POLES=[lowPole,highPole]
 
-        filtMag[tmpI]  = tmpB.comp1
-        filtMag2[tmpI] = tmpBAlt.comp1
-        filtMag3[tmpI] = tmpBAlt2.comp1
+        filtMag[tmpI]  = dBp.comp1
+        filtMag2[tmpI] = dBB.comp1
+        filtMag3[tmpI] = dBv.comp1
         filteAV[tmpI]  = tmpE.comp1
 
         IF KEYWORD_SET(include_E_near_B) THEN BEGIN
@@ -712,7 +717,7 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
      ;;		b. Requirement that E and B be above noise level (“but maybe it’s all noise!”)
 
      ;;Get Poynting flux ests
-     IF KEYWORD_SET(full_pFlux) OR KEYWORD_SET(save_lil_package) THEN BEGIN
+     IF KEYWORD_SET(full_pFlux) THEN BEGIN
 
         pFluxB = filtMag*filteAV/mu_0                           ;Poynting flux along B
         pFluxP = (filteNB*filtMag3-1.*filtMag2*filteAV)/mu_0    ;Poynting flux perp to B and to (Bxv)xB
@@ -728,9 +733,9 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
      pFluxB *= 1e-9 ;Junk that nano prefix in nT
      pFluxP *= 1e-9
 
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        ;;Now let's interp everyone to 1-s resolution
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     ;;Now let's interp everyone to 1-s resolution
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
      ;;Mag first
      sRates = 1./(magzFilt.time[1:-1]-magzFilt.time[0:-2])
@@ -738,8 +743,8 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
                        ;; {TIME:data.x,COMP1:data.y}, $
                        magzFilt, $
                        RESULT=datInterp, $
-                       INTERP=do_fields_interp, $
-                       ;; SPLINE=do_fields_spline, $
+                       INTERP=KEYWORD_SET(do_fields_interp) ? 1 : !NULL, $
+                       SPLINE=KEYWORD_SET(do_fields_spline) ? 1 : !NULL, $
                        ;; /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
                        DELT_T=(1.01)/MIN(sRates), $
                        /TALK
@@ -779,7 +784,8 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
      FA_FIELDS_COMBINE,{TIME:tS_1s,COMP1:tS_1s}, $
                        eAlongVFilt, $
                        RESULT=datInterp, $
-                       /INTERP, $
+                       INTERP=KEYWORD_SET(do_fields_interp) ? 1 : !NULL, $
+                       SPLINE=KEYWORD_SET(do_fields_spline) ? 1 : !NULL, $
                        ;; /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
                        DELT_T=(1.01)/MIN(sRates), $
                        /TALK
@@ -824,7 +830,8 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
      FA_FIELDS_COMBINE,{TIME:tS_1s,COMP1:tS_1s}, $
                        {TIME:magzFilt.time,comp1:pFluxB}, $
                        RESULT=datInterp, $
-                       /INTERP, $
+                       INTERP=KEYWORD_SET(do_fields_interp) ? 1 : !NULL, $
+                       SPLINE=KEYWORD_SET(do_fields_spline) ? 1 : !NULL, $
                        ;; /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
                        DELT_T=(1.01)/MIN(sRates), $
                        /TALK
@@ -862,8 +869,9 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
      FA_FIELDS_COMBINE,{TIME:tS_1s,COMP1:tS_1s}, $
                        {TIME:magzFilt.time,comp1:pFluxP}, $
                        RESULT=datInterp, $
-                       /INTERP, $
-                       ;; /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
+                       INTERP=KEYWORD_SET(do_fields_interp) ? 1 : !NULL, $
+                       SPLINE=KEYWORD_SET(do_fields_spline) ? 1 : !NULL, $
+                       ;; SVY=KEYWORD_SET(use_eField_fit_variables) ? !NULL : 1, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
                        DELT_T=(1.01)/MIN(sRates), $
                        /TALK
 
@@ -1003,7 +1011,7 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
 
   IF ~KEYWORD_SET(no_hash_update) THEN BEGIN
      IF FILE_TEST(outDir+hashFile) THEN BEGIN
-        PRINT,"Restoring hash file ..."
+        PRINT,"Restoring hash file " + hashFile + " ..."
         RESTORE,outDir+hashFile
 
         CASE (WHERE((brHash.Keys()).ToArray() EQ orbit))[0] OF
