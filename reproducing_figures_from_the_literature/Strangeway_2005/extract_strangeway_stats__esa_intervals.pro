@@ -81,47 +81,58 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
                  nItvl = MAKE_ARRAY(nItvls,/LONG)
                  FOR k=0,nItvls-1 DO nItvl[k] = ((value[k].(defs.stat)).(defs.hemi)).(defs.side).N
 
-                 nThisOrb = TOTAL(nItvl)
+                 nThisOrb = FIX(TOTAL(nItvl))
 
-                 ;;Make temporary arrays
-                 tmp_eAlongV   = MAKE_ARRAY(nThisOrb,/FLOAT) 
-                 tmp_dB_perp   = MAKE_ARRAY(nThisOrb,/FLOAT) 
-                 tmp_pFAlongB  = MAKE_ARRAY(nThisOrb,/FLOAT)
-                 tmp_je        = MAKE_ARRAY(nThisOrb,/FLOAT)      
-                 tmp_jee       = MAKE_ARRAY(nThisOrb,/FLOAT)     
-                 tmp_ji        = MAKE_ARRAY(nThisOrb,/FLOAT)      
-                 tmp_dsp       = MAKE_ARRAY(nThisOrb,/FLOAT)     
+                 IF nThisOrb NE 0 THEN BEGIN
 
-                 tmptmp        = 0
-                 FOR k=0,nItvls-1 DO BEGIN
-                    tmpThing   = ((value[k].(defs.stat)).(defs.hemi)).(defs.side)
+                    ;;Make temporary arrays
+                    tmp_eAlongV   = MAKE_ARRAY(nThisOrb,/FLOAT) 
+                    tmp_dB_perp   = MAKE_ARRAY(nThisOrb,/FLOAT) 
+                    tmp_pFAlongB  = MAKE_ARRAY(nThisOrb,/FLOAT)
+                    tmp_je        = MAKE_ARRAY(nThisOrb,/FLOAT)      
+                    tmp_jee       = MAKE_ARRAY(nThisOrb,/FLOAT)     
+                    tmp_ji        = MAKE_ARRAY(nThisOrb,/FLOAT)      
+                    tmp_dsp       = MAKE_ARRAY(nThisOrb,/FLOAT)     
 
-                    nHere      = N_ELEMENTS(tmpThing.eAlongV)
+                    tmptmp        = 0
+                    FOR k=0,nItvls-1 DO BEGIN
+                       tmpThing   = ((value[k].(defs.stat)).(defs.hemi)).(defs.side)
 
-                    IF nHere GT 0 THEN BEGIN
+                       nHere      = N_ELEMENTS(tmpThing.eAlongV)
 
-                       curInds    = [tmptmp:tmptmp+nItvl[k]-1]
+                       IF nHere GT 0 THEN BEGIN
 
-                       tmp_eAlongV  [curInds] = tmpThing.eAlongV 
-                       tmp_dB_perp  [curInds] = tmpThing.dB_perp 
-                       tmp_pFAlongB [curInds] = tmpThing.pFAlongB
-                       tmp_je       [curInds] = tmpThing.je      
-                       tmp_jee      [curInds] = tmpThing.jee     
-                       tmp_ji       [curInds] = tmpThing.ji      
-                       tmp_dsp      [curInds] = tmpThing.dsp     
-                       
-                       tmptmp += nItvl[k]
-                    ENDIF
+                          curInds    = [tmptmp:tmptmp+nItvl[k]-1]
 
-                 ENDFOR
+                          tmp_eAlongV  [curInds] = tmpThing.eAlongV 
+                          tmp_dB_perp  [curInds] = tmpThing.dB_perp 
+                          tmp_pFAlongB [curInds] = tmpThing.pFAlongB
+                          tmp_je       [curInds] = tmpThing.je      
+                          tmp_jee      [curInds] = tmpThing.jee     
+                          tmp_ji       [curInds] = tmpThing.ji      
+                          tmp_dsp      [curInds] = tmpThing.dsp     
+                          
+                          tmptmp += nItvl[k]
+                       ENDIF
+
+                    ENDFOR
                  
-                 tmp_eAlongV  = TOTAL(tmp_eAlongV )/nThisOrb
-                 tmp_dB_perp  = TOTAL(tmp_dB_perp )/nThisOrb
-                 tmp_pFAlongB = TOTAL(tmp_pFAlongB)/nThisOrb
-                 tmp_je       = TOTAL(tmp_je      )/nThisOrb
-                 tmp_jee      = TOTAL(tmp_jee     )/nThisOrb
-                 tmp_ji       = TOTAL(tmp_ji      )/nThisOrb
-                 tmp_dsp      = TOTAL(tmp_dsp     )/nThisOrb
+                    tmp_eAlongV  = TOTAL(tmp_eAlongV )/nThisOrb
+                    tmp_dB_perp  = TOTAL(tmp_dB_perp )/nThisOrb
+                    tmp_pFAlongB = TOTAL(tmp_pFAlongB)/nThisOrb
+                    tmp_je       = TOTAL(tmp_je      )/nThisOrb
+                    tmp_jee      = TOTAL(tmp_jee     )/nThisOrb
+                    tmp_ji       = TOTAL(tmp_ji      )/nThisOrb
+                    tmp_dsp      = TOTAL(tmp_dsp     )/nThisOrb
+                 ENDIF ELSE BEGIN
+                    tmp_eAlongV  = 0.0
+                    tmp_dB_perp  = 0.0
+                    tmp_pFAlongB = 0.0
+                    tmp_je       = 0.0
+                    tmp_jee      = 0.0
+                    tmp_ji       = 0.0
+                    tmp_dsp      = 0.0
+                 ENDELSE
 
               END
               3: BEGIN

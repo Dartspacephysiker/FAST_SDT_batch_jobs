@@ -44,7 +44,7 @@ FUNCTION SETUP_STRANGEWAY_BRAMBLES_PLOTPREF, $
      plotPref      += '--fields_interp'
   ENDIF
 
-  IF N_ELEMENTS(do_fields_spline) EQ 0 THEN BEGIN
+  IF KEYWORD_SET(do_fields_spline) THEN BEGIN
      plotPref      += '--fields_spline'
   ENDIF
 
