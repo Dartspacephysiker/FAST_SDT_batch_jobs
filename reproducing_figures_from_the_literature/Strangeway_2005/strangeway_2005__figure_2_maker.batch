@@ -1,6 +1,6 @@
-BatchJob: "strangeway_et_al_2005__esa_intervals"
+BatchJob: "strangeway_et_al_2005__figure_2_maker"
 NoPlots:
-IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005__esa_intervals_wrapper.pro
+IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005__figure_2_maker_wrapper.pro
 
 DataBaseRequest:
     Orbits 8260-8292

@@ -27,7 +27,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
   hashFile     = 'Strangeway_et_al_2005__DC_params--ESA_intervals.sav'
 
   bonusSuff    = ''
-  ;; bonusSuff    = '--500eV_ions'
+  ;; bonusSuff    = '--500eV_upper'
+  bonusSuff    = '--4eV_lower'
 
   hashFile    += bonusSuff
 

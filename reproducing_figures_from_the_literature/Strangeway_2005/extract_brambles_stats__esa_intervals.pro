@@ -18,10 +18,12 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
 
   ;; bonusSuff    = '--full_pFlux--interp'
   ;; bonusSuff    = '--full_pFlux--interp--128Ss'
-  bonusSuff    = '--absVals'
+  ;; bonusSuff    = '--absVals'
   ;; bonusSuff    = '--absVals--eFieldFit'
   ;; bonusSuff    = '--absVals--also_E_near_B--full_pFlux--eFieldFit'
   
+  bonusSuff    = '--absVals'
+
   hashFile    += bonusSuff
 
   IF FILE_TEST(outDir+hashFile) THEN BEGIN

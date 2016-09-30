@@ -83,11 +83,6 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
   hashFile    += plotPref
   outPlotName += plotPref
 
-
-  nn           = N_ELEMENTS(data_quants)
-
-  if (nn GT 1) THEN for n = nn-1L,1L,-1L do STORE_DATA,data_quants(n).name,/delete
-
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Step 1 - DC Mag data
 
