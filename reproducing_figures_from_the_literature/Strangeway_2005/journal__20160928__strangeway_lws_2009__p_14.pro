@@ -909,8 +909,6 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
   ;; OPTIONS,'pFluxLow','ytickv',[1e-4,1e-3,1e-2,1e-1,1e0,1e1,1e2]
   ;; OPTIONS,'pFluxLow','ytickname',['10!U-4!N','10!U-3!N','10!U-2!N', $
   ;;                                 '10!U-1!N','10!U0!N','10!U1!N','10!U2!N']
-  ;; OPTIONS,'pFluxLow','x_no_interp',1
-  ;; OPTIONS,'pFluxLow','y_no_interp',1
 
   dLimit = {spec:0, $
             ystyle:1, $
@@ -980,8 +978,6 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
   OPTIONS,'JEe','ytickv',[-5,-4,-3,-2,-1,0,1]                           ; set y-axis labels
   OPTIONS,'JEe','ytickname',['10!U-5!N','10!U-4!N','10!U-3!N', $
                              '10!U-2!N','10!U-1!N','10!U0!N','10!U1!N'] ; set y-axis labels
-  OPTIONS,'JEe','x_no_interp',1
-  OPTIONS,'JEe','y_no_interp',1
 
 ; Step 5 - Ion flux
 
@@ -1012,9 +1008,7 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
   OPTIONS,'Ji','ytickv',[4,5,6,7,8,9,10]          ; set y-axis labels
   OPTIONS,'Ji','ytickname',['10!U4!N','10!U5!N','10!U6!N', $
                             '10!U7!N','10!U8!N','10!U9!N','10!U10!N'] ; set y-axis labels
-  options,'Ji','x_no_interp',1
-  options,'Ji','y_no_interp',1
-
+  OPTIONS,'Ji','ynozero',1
 
 ; STEP 6 - Clean up and return
 

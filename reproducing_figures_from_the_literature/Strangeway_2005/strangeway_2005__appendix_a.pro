@@ -91,13 +91,6 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
   mu_0         = DOUBLE(4.0D*!PI*1e-7)
 
-  outPlotName  = 'Strangeway_2005_Appendix_A'
-  plotDirSuff  = '/Strangeway_et_al_2005--Appendix_A'
-
-  IF KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
-     outPlotName += '--eFieldFits'
-  ENDIF
-
 ; Step 1 - DC Mag data
 
   tBuf         = 10.            ;Allowable difference between t{1,2} and nearest fields data
@@ -105,7 +98,14 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
   ;;Outputs
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_2005/'
   hashFile     = 'Strangeway_et_al_2005__real_thing--outflow_intervals.sav'
-  outPlotName  = 'Strangeway_et_al_2005__ion_outflow--ESA_intervals--Fig_3'
+
+  outPlotName  = 'Strangeway_2005_Appendix_A'
+  plotDirSuff  = '/Strangeway_et_al_2005--Appendix_A'
+
+  IF KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
+     hashFile    +='--eFieldFits'
+     outPlotName += '--eFieldFits'
+  ENDIF
 
   IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
   IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
@@ -617,6 +617,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      magz = {x:magData.x[ind1:ind2], $
              y:magData.y[ind1:ind2,1]}
 
+     ;;E-field trim
      mintime = MIN(ABS(je_tmp_tBounds[0]-eAlongV.x),ind1)
      mintime = MIN(ABS(je_tmp_tBounds[1]-eAlongV.x),ind2)
 
@@ -628,6 +629,21 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      eAlongV ={x:eAlongV.x[ind1:ind2], $
                y:eAlongV.y[ind1:ind2]}
 
+
+     ;;DSP trim
+     ;;And DSP
+     mintime = MIN(ABS(je_tmp_tBounds[0]-dsp.x),ind1)
+     mintime = MIN(ABS(je_tmp_tBounds[1]-dsp.x),ind2)
+
+
+     IF ind1 EQ ind2 THEN BEGIN
+        PRINT,'No usable DSP data here. Skipping interval ...'
+        CONTINUE
+     ENDIF
+
+     tmpDSP ={x:DSP.x[ind1:ind2], $
+              DC:DSP.DC[ind1:ind2], $
+              AC:DSP.AC[ind1:ind2]}
 
      ;; magx = {x:magData.x, $
      ;;         y:REFORM(magData.y[*,0])}
@@ -700,7 +716,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
                   1.*dBB.DC*eAV.DC)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
 
         ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
-        pFVHigh = (-1.)*eNB.AC*dBp.AC/mu_0
+        pFVLow = (-1.)*eNB.DC*dBp.DC/mu_0
 
         pFVHigh *= 1e-9
         pFVLow  *= 1e-9
@@ -857,6 +873,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      OPTIONS,'Je_tmp','ytickv',[6,7,8,9,10,11,12]                         ; set y-axis labels
      OPTIONS,'Je_tmp','ytickname',['10!U6!N','10!U7!N','10!U8!N','10!U9!N','10!U10!N', $
                                    '10!U11!N','10!U12!N'] ; set y-axis labels
+     OPTIONS,'Je_tmp','ynozero',1
 
 ; Electron energy flux
 
@@ -949,6 +966,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      OPTIONS,'Ji_tmp','ytickv',[4,5,6,7,8,9,10]                         ; set y-axis labels
      OPTIONS,'Ji_tmp','ytickname',['10!U4!N','10!U5!N','10!U6!N', $
                                    '10!U7!N','10!U8!N','10!U9!N','10!U10!N'] ; set y-axis labels
+     OPTIONS,'Ji_tmp','ynozero',1
 
      ;;Get outflow intervals
      GET_DOUBLE_STREAKS__NTH_DECIMAL_PLACE, $
@@ -1027,19 +1045,37 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
      ENDIF
 
-     tmpStruct = {dBp:dBp, $
-                  dBv:dBv, $
-                  dBB:dBB, $
-                  dsp:dsp, $
-                  eAlongV:eAV, $
-                  pFBLow:pFBLow, $
-                  pFBHigh:pFBHigh, $
-                  pFPLow:pFPLow, $
-                  pFPHigh:pFPHigh, $
-                  je:tmpJe, $
-                  ji:tmpJi, $
-                  outflow_i:[[start_i],[stop_i]]}
+     IF ~KEYWORD_SET(full_pFlux) THEN BEGIN
+        pFVLow  = MAKE_ARRAY(N_ELEMENTS(pFBLow),/FLOAT)
+        pFVHigh = MAKE_ARRAY(N_ELEMENTS(pFBHigh),/FLOAT)
+     ENDIF;;  ELSE BEGIN
+     ;;    pFLuxStruct = CREATE_STRUCT(pFluxStruct, $
+     ;;                                'v',{x:eAV.x,DC:pFVLow,AC:pFVHigh}, $
+     ;;                                'full_pFlux',KEYWORD_SET(full_pFlux))
+     ;; ENDELSE
 
+     IF ~KEYWORD_SET(include_E_near_B) THEN BEGIN
+        eNB = eAV
+        eNB.DC[*] = 0.
+        eNB.AC[*] = 0.
+     ENDIF
+
+     tmpStruct = {dB:{p:dBp, $
+                      v:dBv, $
+                      B:dBB}, $
+                  e:{AlongV:eAV, $
+                     dsp:tmpDSP, $
+                     NearB:eNB, $
+                     include_E_near_B:KEYWORD_SET(include_E_near_B)}, $
+                  pFlux:{b:{x:eAV.x,DC:pFBLow,AC:pFBHigh}, $
+                         p:{x:eAV.x,DC:pFPLow,AC:pFPHigh}, $
+                         v:{x:eAV.x,DC:pFVLow,AC:pFVHigh}, $
+                         full_pflux:KEYWORD_SET(full_pflux)}, $
+                  ptcl:{jEe:tmpJEe, $
+                        je:tmpJe, $
+                        ji:tmpJi}, $
+                  outflow_i:[[start_i],[stop_i]]}
+     
      PRINT,"Adding struct for interval " + itvlString + " in orbit " + orbString + ' ...'
      structList.Add,tmpStruct
 
