@@ -56,6 +56,10 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
 ; Step 0 - safety measure - delete all tplot quantities if found
 
+  outflowMinLog10 = 6
+  nMinOutflow     = 60
+  allowableGap    = 3 ;seconds
+
   CASE 1 OF
      KEYWORD_SET(use_eField_fit_variables): BEGIN
         eAV_variable = 'EFIT_ALONG_V'
@@ -88,6 +92,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
   mu_0         = DOUBLE(4.0D*!PI*1e-7)
 
   outPlotName  = 'Strangeway_2005_Appendix_A'
+  plotDirSuff  = '/Strangeway_et_al_2005--Appendix_A'
 
   IF KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
      outPlotName += '--eFieldFits'
@@ -99,7 +104,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
   ;;Outputs
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_2005/'
-  hashFile     = 'Strangeway_et_al_2005__DC_params--ESA_intervals.sav'
+  hashFile     = 'Strangeway_et_al_2005__real_thing--outflow_intervals.sav'
   outPlotName  = 'Strangeway_et_al_2005__ion_outflow--ESA_intervals--Fig_3'
 
   IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
@@ -526,22 +531,6 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
   structList             = LIST()
   FOR jj=0,number_of_intervals-1 DO BEGIN
 
-     ;; IF KEYWORD_SET(save_1s_data) THEN BEGIN
-     ;; saveStr          = 'SAVE'
-     mag              = 0.
-     mag1s            = 0.
-
-     eField           = 0.
-     eField1s         = 0.
-
-     pFluxB           = 0.
-     pFluxB1s         = 0.
-
-     dsp              = 0.
-     dsp1s            = 0.
-     ;; ENDIF
-
-     cant_pFlex     = 0         ;because we CAN pFlex!
 
      itvlString     = STRCOMPRESS(jj,/REMOVE_ALL)
 
@@ -836,6 +825,39 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
 ; Step 4 - Electron junk
 
+     GET_DATA,'Je',DATA=tmp
+
+     ;; tFlux    = tmp.x
+     ;; doDat    = tmp.y
+     ;; IF KEYWORD_SET(smooth_fluxes) THEN BEGIN
+     tmpJe = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
+              tmp, $
+              INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+              /NO_SEPARATE_DC_AC, $
+              /USE_DOUBLE_STREAKER, $
+              ONESEC_TS=tS_1s)
+        ;; tmp.y = SMOOTH(tmp.y,5)
+        ;; doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
+        ;; tFlux = tS_1s
+     ;; ENDIF
+     
+     ;;Make all downgoing, pre-log
+     good_i   = WHERE(FINITE(tmpJe.y) AND tmpJe.y GT 0.00,nGood, $
+                      COMPLEMENT=bad_i,NCOMPLEMENT=nBad)
+     ;; tmpJe    = {x:tmpJe.x[good_i],y:ALOG10(tmpJe.y[good_i])}
+     ;; tFlux    = tFlux[good_i]
+     ;; doDat    = ALOG10(doDat[good_i])
+
+     ;; STORE_DATA,'Je_tmp',DATA={x:tFlux,y:doDat}
+     STORE_DATA,'Je_tmp',DATA={x:tmpJe.x[good_i],y:ALOG10(tmpJe.y[good_i])}
+     YLIM,'Je_tmp',6,12,0                                                  ; set y limits
+     OPTIONS,'Je_tmp','ytitle','Downgoing Elec.!CFlux!C#/cm!U2!N-s)' ; set y title
+     OPTIONS,'Je_tmp','panel_size',3                                       ; set panel size
+     OPTIONS,'Je_tmp','yticks',7                                           ; set y-axis labels
+     OPTIONS,'Je_tmp','ytickv',[6,7,8,9,10,11,12]                         ; set y-axis labels
+     OPTIONS,'Je_tmp','ytickname',['10!U6!N','10!U7!N','10!U8!N','10!U9!N','10!U10!N', $
+                                   '10!U11!N','10!U12!N'] ; set y-axis labels
+
 ; Electron energy flux
 
      ;; t           = 0.0D
@@ -857,26 +879,26 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      ;; tFlux    = tmp.x
      ;; doDat    = tmp.y
      ;; IF KEYWORD_SET(smooth_fluxes) THEN BEGIN
-     tmpJe = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
-             tmp, $
-             INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
-             /NO_SEPARATE_DC_AC, $
-             /USE_DOUBLE_STREAKER, $
-             ONESEC_TS=tS_1s)
+     tmpJEe = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
+              tmp, $
+              INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+              /NO_SEPARATE_DC_AC, $
+              /USE_DOUBLE_STREAKER, $
+              ONESEC_TS=tS_1s)
         ;; tmp.y = SMOOTH(tmp.y,5)
         ;; doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
         ;; tFlux = tS_1s
      ;; ENDIF
      
      ;;Make all downgoing, pre-log
-     good_i   = WHERE(FINITE(tmpJe.y) AND tmpJe.y GT 0.00,nGood, $
+     good_i   = WHERE(FINITE(tmpJEe.y) AND tmpJEe.y GT 0.00,nGood, $
                       COMPLEMENT=bad_i,NCOMPLEMENT=nBad)
-     tmpJe    = {x:tmpJe.x[good_i],y:ALOG10(tmpJe.y[good_i])}
+     ;; tmpJEe    = {x:tmpJEe.x[good_i],y:ALOG10(tmpJEe.y[good_i])}
      ;; tFlux    = tFlux[good_i]
      ;; doDat    = ALOG10(doDat[good_i])
 
      ;; STORE_DATA,'JEe_tmp',DATA={x:tFlux,y:doDat}
-     STORE_DATA,'JEe_tmp',DATA=tmpJe
+     STORE_DATA,'JEe_tmp',DATA={x:tmpJEe.x[good_i],y:ALOG10(tmpJEe.y[good_i])}
      YLIM,'JEe_tmp',-5,1,0                                                  ; set y limits
      OPTIONS,'JEe_tmp','ytitle','Downgoing Elec.!CEnergy Flux!CmW/(m!U2!N)' ; set y title
      OPTIONS,'JEe_tmp','panel_size',3                                       ; set panel size
@@ -914,12 +936,12 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      ;;                  COMPLEMENT=bad_i,NCOMPLEMENT=nBad)
      good_i   = WHERE(FINITE(tmpJi.y) AND tmpJi.y GT 0.00,nGood, $
                       COMPLEMENT=bad_i,NCOMPLEMENT=nBad)
-     tmpJi    = {x:tmpJi.x[good_i],y:ALOG10(tmpJi.y[good_i])}
+     ;; tmpJi    = {x:tmpJi.x[good_i],y:ALOG10(tmpJi.y[good_i])}
      ;; tFlux    = tFlux[good_i]
      ;; doDat    = ALOG10(doDat[good_i])
 
      ;; STORE_DATA,'Ji_tmp',DATA={x:tFlux,y:doDat}
-     STORE_DATA,'Ji_tmp',DATA=tmpJi
+     STORE_DATA,'Ji_tmp',DATA={x:tmpJi.x[good_i],y:ALOG10(tmpJi.y[good_i])}
      YLIM,'Ji_tmp',4,10,0                                               ; set y limits
      OPTIONS,'Ji_tmp','ytitle','Upward Ion!CNumber Flux!C(#/cm!U2!N-s)' ; set y title
      OPTIONS,'Ji_tmp','panel_size',3                                    ; set panel size
@@ -927,10 +949,15 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      OPTIONS,'Ji_tmp','ytickv',[4,5,6,7,8,9,10]                         ; set y-axis labels
      OPTIONS,'Ji_tmp','ytickname',['10!U4!N','10!U5!N','10!U6!N', $
                                    '10!U7!N','10!U8!N','10!U9!N','10!U10!N'] ; set y-axis labels
-     OPTIONS,'Ji_tmp','x_no_interp',1
-     OPTIONS,'Ji_tmp','y_no_interp',1
 
-
+     ;;Get outflow intervals
+     GET_DOUBLE_STREAKS__NTH_DECIMAL_PLACE, $
+        tmpji.x[WHERE(tmpji.y GE outflowMinLog10 AND FINITE(tmpji.y))],0, $
+        N=nMinOutflow, $
+        GAP_TIME=allowableGap, $
+        START_I=start_i, $
+        STOP_I=stop_i, $
+        STREAKLENS=lens
 ; STEP 6 - Clean up and return
 
 ; determine tlimit_north and tlimit_south also change plot title
@@ -953,13 +980,13 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      orbit_lab = STRCOMPRESS(STRING(orbit,FORMAT="(i5.4)"),/REMOVE_ALL)
      tplot_OPTIONS,'title','FAST Orbit ' + orbit_lab + ' ' + hemisph
 
-     tplot_vars=['dB_fac_v','pFluxHigh','pFluxLow','JEe_tmp','Ji_tmp']
+     tplot_vars=['dB_fac_v','pFluxHigh','pFluxLow','JEe_tmp','Je_tmp','Ji_tmp']
 
      IF KEYWORD_SET(screen_plot) OR KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
 
 
         IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
-           SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/Strangeway_et_al_2005--Appendix_A'
+           SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF=plotDirSuff
         ENDIF
 
         IF KEYWORD_SET(save_png) THEN BEGIN
@@ -1000,7 +1027,48 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
      ENDIF
 
+     tmpStruct = {dBp:dBp, $
+                  dBv:dBv, $
+                  dBB:dBB, $
+                  dsp:dsp, $
+                  eAlongV:eAV, $
+                  pFBLow:pFBLow, $
+                  pFBHigh:pFBHigh, $
+                  pFPLow:pFPLow, $
+                  pFPHigh:pFPHigh, $
+                  je:tmpJe, $
+                  ji:tmpJi, $
+                  outflow_i:[[start_i],[stop_i]]}
+
+     PRINT,"Adding struct for interval " + itvlString + " in orbit " + orbString + ' ...'
+     structList.Add,tmpStruct
+
   ENDFOR
+
+  IF ~KEYWORD_SET(no_hash_update) THEN BEGIN
+     IF FILE_TEST(outDir+hashFile) THEN BEGIN
+        PRINT,"Restoring hash file " + hashFile + " ..."
+        RESTORE,outDir+hashFile
+
+        CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
+           -1: BEGIN
+              PRINT,'Adding stuff from orbit ' + orbString + ' ...'
+              swHash  = swHash + ORDEREDHASH(orbit,structList)
+           END
+           ELSE: BEGIN
+              PRINT,'Replacing hash entry for orbit ' + orbString + ' ...'
+              swHash[orbit] = structList
+           END
+        ENDCASE
+
+        PRINT,'Saving Brambles statistics hash ...'
+        SAVE,swHash,FILENAME=outDir+hashFile
+     ENDIF ELSE BEGIN
+        PRINT,'Creating Brambles statistics hash for orbit ' + orbString + ' ...'
+        swHash = ORDEREDHASH(orbit,structList)
+        SAVE,swHash,FILENAME=outDir+hashFile
+     ENDELSE
+  ENDIF
 
   RETURN
 
