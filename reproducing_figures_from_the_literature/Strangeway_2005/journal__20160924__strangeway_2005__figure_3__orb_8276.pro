@@ -460,7 +460,7 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
   doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
   STORE_DATA,'Je',DATA={x:tS_1s,y:doDat}
   ylim,'Je',-5.e9,1.5e10,0                                                  ; set y limits
-  options,'Je','ytitle','Electron Flux!C!C#/(cm!U2!N-s)'                    ; set y title
+  options,'Je','ytitle','Electron Flux!C#/(cm!U2!N-s)'                    ; set y title
   options,'Je','panel_size',3                                               ; set panel size
 
 ; Step 5 - Ion flux

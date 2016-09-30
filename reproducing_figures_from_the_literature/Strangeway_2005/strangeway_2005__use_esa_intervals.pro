@@ -343,7 +343,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
         STORE_DATA,'dB_fac_interp',DATA=data
 
         dLimit = {spec:0, ystyle:1, yrange:[-600., 800.], $
-                  ytitle:'dB Perp.!C!C[DC] (nT)', $
+                  ytitle:'dB Perp.!C[DC] (nT)', $
                   panel_size:3}
 
         OPTIONS,'dB_fac_interp','colors',[normColorI,normColorI]
@@ -411,7 +411,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
                          /SINTERP
 
         OPTIONS,'EFIT_ALONG_V','yrange',0
-        OPTIONS,'EFIT_ALONG_V','ytitle','E along V!C!C[DC] (mV/m)'
+        OPTIONS,'EFIT_ALONG_V','ytitle','E along V!C[DC] (mV/m)'
         OPTIONS,'EFIT_ALONG_V','colors',[normColorI,normColorI]
         OPTIONS,'EFIT_ALONG_V','panel_size',2
 
@@ -527,7 +527,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
 
            STORE_DATA,'EFIT_ALONG_VSC',DATA=data,dlimit=dlimit
            OPTIONS,'EFIT_ALONG_VSC','yrange',0
-           OPTIONS,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C[DC] (mV/m)'
+           OPTIONS,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C[DC] (mV/m)'
            OPTIONS,'EFIT_ALONG_VSC','colors',[normColorI,normColorI]
            OPTIONS,'EFIT_ALONG_VSC','panel_size',2
            OPTIONS,'EFIT_ALONG_VSC','x_no_interp',1
@@ -604,7 +604,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
         ;; ENDIF
 
         dLimit = {spec:0, ystyle:1, yrange:[-20., 80.], $
-                  ytitle:'Poynting Flux!C!C[DC] (mW/m!U2!N)', $
+                  ytitle:'Poynting Flux!C[DC] (mW/m!U2!N)', $
                   panel_size:3}
         OPTIONS,'pFlux','colors',[normColorI,normColorI]
         STORE_DATA,'pFlux',DLIMITS=dLimit
@@ -643,8 +643,9 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
 
      enrgy_2dt = [[energy_electrons],[energy_electrons],[energy_ions]]
      titls_2dt = ['Electron!CEnergy Flux!CmW/(m!U2!N)', $
-                  'Electron Flux!C!C#/(cm!U2!N-s)', $
+                  'Electron Flux!C#/(cm!U2!N-s)', $
                   'Ion Flux!C#/(cm!U2!N-s)']
+     ngsgn_2dt = [0,0,1]
      lims_2dt  = [[-1.,6.,0],[-5.e9,1.5e10,0],[-1.e9,6.e9,0]]
      nFlux_2dt = MAKE_ARRAY(N_ELEMENTS(types_2dt),/LONG)
 
@@ -702,6 +703,8 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
            PRINT,"Insufficient " + tmpName + " data to do smoothing, so I'll fill a struct with garbaGE for you."
            tmpDat     = {x:[0,0],y:[0,0]}
         ENDELSE
+
+        IF KEYWORD_SET(ngsgn_2dt[ll]) THEN tmpDat *= (-1.)
 
         STORE_DATA,tmpName,DATA=tmpDat
 
