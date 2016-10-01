@@ -273,6 +273,16 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
 
            IF nOutflow LT ptsMinOutflow THEN CONTINUE
 
+           LOCALE_ADJUSTMENTS,(*PUniv_TS), $
+                              oflow_i,nOutflow, $
+                              NORTH=north, $
+                              SOUTH=south, $
+                              DAY=day, $
+                              NIGHT=night, $
+                              MINILAT=minILAT
+
+           IF nOutflow LT ptsMinOutflow THEN CONTINUE
+
            ;;Get outflow intervals
            GET_DOUBLE_STREAKS__NTH_DECIMAL_PLACE, $
               (*HPTSArr[HJiInd])[oflow_i],0, $
@@ -855,6 +865,85 @@ PRO DECLARE_ARRAYS,nOrbs,nBTags,nETags,nPTags,nHTags, $
   PACNegAvg    = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
 
   HAvg         = MAKE_ARRAY(nOrbs,nHTags,/FLOAT,VALUE=0.) 
+
+END
+
+PRO LOCALE_ADJUSTMENTS,times, $
+                       oflow_i,nOutflow, $
+                       NORTH=north, $
+                       SOUTH=south, $
+                       DAY=day, $
+                       NIGHT=night, $
+                       MINILAT=minILAT
+
+
+  IF ~(KEYWORD_SET(north) OR KEYWORD_SET(south) OR KEYWORD_SET(day) OR KEYWORD_SET(night)) THEN RETURN
+
+  GET_FA_ORBIT,times,/TIME_ARRAY,/DEFINITIVE
+
+  IF KEYWORD_SET(north) OR KEYWORD_SET(south) THEN BEGIN
+     haveHemi = 1
+     GET_DATA,'ILAT',DATA=ilat
+     ilat = ilat.y
+     
+  ENDIF
+
+  IF KEYWORD_SET(day) OR KEYWORD_SET(night) THEN BEGIN
+     haveSide = 1
+     GET_DATA,'MLT',DATA=mlt
+     mlt = mlt.y
+  ENDIF
+
+  IF KEYWORD_SET(north) THEN BEGIN
+
+     hemi_i  = WHERE(ilat GE minILAT,nHemi)
+     
+  ENDIF ELSE BEGIN
+
+     IF KEYWORD_SET(south) THEN BEGIN
+
+        hemi_i  = WHERE(ilat LE -1.*minILAT,nHemi)
+
+     ENDIF ELSE BEGIN
+
+        hemi_i  = WHERE(ABS(ilat) GE minILAT,nHemi)
+
+     ENDELSE
+
+  ENDELSE
+
+  IF KEYWORD_SET(day) THEN BEGIN
+
+     side_i    = WHERE(mlt GE 6.0 AND mlt LT 18.0 AND (ABS(ilat) GE minILAT),nSide)
+     
+  ENDIF ELSE BEGIN
+
+     IF KEYWORD_SET(night) THEN BEGIN
+
+        side_i    = WHERE(mlt GE 18.0 OR mlt LT 6.0 AND (ABS(ilat) GE minILAT),nSide)
+
+     ENDIF
+
+  ENDELSE
+
+  IF (nSide GT 0) AND (nHemi GT 0) THEN BEGIN
+     comb_i = CGSETINTERSECTION(hemi_i,side_i,COUNT=nComb)
+  ENDIF ELSE BEGIN
+     oflow_i = -1
+     RETURN
+  ENDELSE
+
+  IF nComb EQ 0 THEN BEGIN
+     oflow_i = -1
+     RETURN
+  ENDIF
+
+  oflow_i = CGSETINTERSECTION(comb_i,oflow_i,COUNT=nOutflow)
+
+  IF nOutflow EQ 0 THEN BEGIN
+     oflow_i = -1
+     RETURN
+  ENDIF
 
 END
 
