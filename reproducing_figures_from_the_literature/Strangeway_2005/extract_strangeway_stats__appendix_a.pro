@@ -17,6 +17,11 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
 
   @strway_stuff
 
+  ;;Some outflow defaults
+  outflowMinLog10 = 6
+  nMinOutflow     = 60
+  allowableGap    = 3 ;seconds
+
   ;;Outputs
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_2005/'
   hashFile     = 'Strangeway_et_al_2005__real_thing--outflow_intervals.sav'
@@ -56,7 +61,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
      RESTORE,outDir+hashFile
 
   ENDIF ELSE BEGIN
-     PRINT,'Nothing here! Returning ...'
+     PRINT,'No swHash here! Returning ...'
      RETURN,-1
   ENDELSE
 
@@ -68,16 +73,19 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
 
   Btags        = TAG_NAMES(tmpStruct.dB)
   Etags        = TAG_NAMES(tmpStruct.E)
-  Ptags        = TAG_NAMES(tmpStruct.pFlux)
   Htags        = TAG_NAMES(tmpStruct.ptcl)
-
+  ;; Ptags        = TAG_NAMES(tmpStruct.pFlux)
+  Ptags        = ['b','p']
+  IF KEYWORD_SET(full_pFlux) THEN Ptags = [Ptags,'v']
+  
   nBTags       = N_ELEMENTS(Btags)
   nETags       = N_ELEMENTS(Etags)
-  nPTags       = N_ELEMENTS(Ptags)
   nHTags       = N_ELEMENTS(Htags)
+  nPTags       = N_ELEMENTS(Ptags)
 
   orbArr       = MAKE_ARRAY(maxNElems          ,/LONG ,VALUE=0) 
   itvlArr      = MAKE_ARRAY(maxNElems          ,/INTEG,VALUE=0) 
+  noENBArr     = MAKE_ARRAY(2,maxNElems        ,/INTEG,VALUE=0) 
 
   BArr         = MAKE_ARRAY(maxNElems,nBTags   ,/FLOAT,VALUE=0.) 
   EArr         = MAKE_ARRAY(maxNElems,nETags   ,/FLOAT,VALUE=0.) 
@@ -88,34 +96,131 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
   orbCnt       = 0
   FOREACH value, swHash, key DO BEGIN
 
+     ;;Anything here?
+     IF N_ELEMENTS(value[0]) EQ 0 THEN CONTINUE
+
+     ;;How many?
      nItvls    = N_ELEMENTS(value)
 
      IF nItvls EQ 0 THEN CONTINUE
 
-     IF N_ELEMENTS(value[0]) EQ 0 THEN CONTINUE
-
      FOR k=0,nItvls-1 DO nItvl[k] = N_ELEMENTS(value[k].ptcl.ji.x)
 
-     nThisOrb     = FIX(TOTAL(nItvl))
+     nThisOrb  = FIX(TOTAL(nItvl))
 
      ;;Just initialize
-     tmpBArr      = 0.
-     tmpEArr      = 0.
-     tmpPArr      = 0.
-     tmpHArr      = 0.
+     tmpBArr   = 0.
+     tmpEArr   = 0.
+     tmpHArr   = 0.
+     tmpPArr   = 0.
 
      IF nThisOrb NE 0 THEN BEGIN
 
-        nThisOrb  = FIX(TOTAL(nItvl))
+        ;;Now loop over intervals within this orbit
+        tmptmp        = 0
+        FOR k=0,nItvls-1 DO BEGIN
 
-        tmpBArr   = MAKE_ARRAY(nThisOrb,nBTags   ,/FLOAT,VALUE=0.) 
-        tmpEArr   = MAKE_ARRAY(nThisOrb,nETags   ,/FLOAT,VALUE=0.) 
-        tmpPArr   = MAKE_ARRAY(nThisOrb,nPTags   ,/FLOAT,VALUE=0.) 
-        tmpHArr   = MAKE_ARRAY(nThisOrb,nHTags   ,/FLOAT,VALUE=0.) 
+           have_univ_TS  = TAG_EXIST(value.[k].(0).(0),'COMMONEST_TS')
 
-        FOR k=0,nBTags DO BEGIN
+           ;;Pick up fields
+           dBp           = value[k].dB.p
+           dBv           = value[k].dB.v
+           dBB           = value[k].dB.B
+
+           eAV           = value[k].E.AlongV
+           eNB           = value[k].E.NearB
+
+           IF ~KEYWORD_SET(full_pFlux) THEN BEGIN
+
+              eNB.DC[*]  = 0.
+              eNB.AC[*]  = 0.
+
+           ENDIF ELSE BEGIN
+              ;;Keep some stats if we're going to attempt the full pFlux sitiation
+              IF ~value[k].E.include_E_Near_B THEN noENBArr[*,orbCnt+k] = [key,k]
+           ENDELSE
+
+           ;;Calc Poynting flux
+
+           ;; IF KEYWORD_SET(full_pFlux) THEN BEGIN
+
+           ;;Poynting flux along B
+           pFBHigh  = dBp.AC*eAV.AC/mu_0 
+           pFBLow   = dBp.DC*eAV.DC/mu_0 
+
+           ;;Poynting flux perp to B and to (Bxv)xB
+           pFPHigh  = (eNB.AC*dBv.AC - $
+                       1.*dBB.AC*eAV.AC)/mu_0 
+           pFPLow   = (eNB.DC*dBv.DC - $
+                       1.*dBB.DC*eAV.DC)/mu_0 
+
+           ;;Negative sign comes out of S EQ 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+           pFVHigh  = (-1.)*eNB.AC*dBp.AC/mu_0
+           pFVLow   = (-1.)*eNB.DC*dBp.DC/mu_0
+
+           ;; ENDIF ELSE BEGIN
+
+           ;;    pFBHigh  =       dBp.AC *eAV.AC/mu_0 ;Poynting flux along B
+           ;;    pFPHigh  = (-1.)*dBB.AC*eAV.AC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
+           ;;    ;;Negative sign comes out of S EQ 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+
+           ;;    pFBLow   =       dBp.DC *eAV.DC/mu_0 ;Poynting flux along B
+           ;;    pFPLow   = (-1.)*dBB.DC*eAV.DC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
+           ;;    ;;Negative sign comes out of S EQ 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+
+           ;; ENDELSE
+
+           ;;Junk that nano prefix in nT
+           pFBHigh *= 1e-9
+           pFPHigh *= 1e-9
+
+           pFBLow  *= 1e-9
+           pFPLow  *= 1e-9
+
+           pFVHigh *= 1e-9
+           pFVLow  *= 1e-9
+
+           ;;Get outflow intervals
+           GET_DOUBLE_STREAKS__NTH_DECIMAL_PLACE, $
+              value[k].ptcl.ji.x[WHERE(ALOG10(value[k].ptcl.ji.y) GE outflowMinLog10 AND FINITE(value[k].ptcl.ji.y))],0, $
+              N=nMinOutflow, $
+              GAP_TIME=allowableGap, $
+              START_I=start_i, $
+              STOP_I=stop_i, $
+              STREAKLENS=lens
+
+           tmpBArr   = MAKE_ARRAY(nThisOrb,nBTags   ,/FLOAT,VALUE=0.) 
+           tmpEArr   = MAKE_ARRAY(nThisOrb,nETags   ,/FLOAT,VALUE=0.) 
+           tmpPArr   = MAKE_ARRAY(nThisOrb,nPTags   ,/FLOAT,VALUE=0.) 
+           tmpHArr   = MAKE_ARRAY(nThisOrb,nHTags   ,/FLOAT,VALUE=0.) 
+
+           ;;Loop over B-field array stuff
+           FOR l=0,nBTags DO BEGIN
+
+              here_i  = (.eAlongV)
+
+           ENDFOR
+
+           nHere      = N_ELEMENTS(value[k].E.AlongV)
+
+           IF nHere GT 0 THEN BEGIN
+
+              curInds    = [tmptmp:tmptmp+nItvl[k]-1]
+
+              tmp_eAlongV  [curInds] = tmpThing.eAlongV 
+              tmp_dB_perp  [curInds] = tmpThing.dB_perp 
+              tmp_pFAlongB [curInds] = tmpThing.pFAlongB
+              tmp_je       [curInds] = tmpThing.je      
+              tmp_jee      [curInds] = tmpThing.jee     
+              tmp_ji       [curInds] = tmpThing.ji      
+              tmp_dsp      [curInds] = tmpThing.dsp     
+              
+              tmptmp += nItvl[k]
+           ENDIF
 
         ENDFOR
+
+
 
      ENDIF
 

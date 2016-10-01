@@ -968,14 +968,6 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
                                    '10!U7!N','10!U8!N','10!U9!N','10!U10!N'] ; set y-axis labels
      OPTIONS,'Ji_tmp','ynozero',1
 
-     ;;Get outflow intervals
-     GET_DOUBLE_STREAKS__NTH_DECIMAL_PLACE, $
-        tmpji.x[WHERE(tmpji.y GE outflowMinLog10 AND FINITE(tmpji.y))],0, $
-        N=nMinOutflow, $
-        GAP_TIME=allowableGap, $
-        START_I=start_i, $
-        STOP_I=stop_i, $
-        STREAKLENS=lens
 ; STEP 6 - Clean up and return
 
 ; determine tlimit_north and tlimit_south also change plot title
@@ -1045,10 +1037,10 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
      ENDIF
 
-     IF ~KEYWORD_SET(full_pFlux) THEN BEGIN
-        pFVLow  = MAKE_ARRAY(N_ELEMENTS(pFBLow),/FLOAT)
-        pFVHigh = MAKE_ARRAY(N_ELEMENTS(pFBHigh),/FLOAT)
-     ENDIF;;  ELSE BEGIN
+     ;; IF ~KEYWORD_SET(full_pFlux) THEN BEGIN
+     ;;    pFVLow  = MAKE_ARRAY(N_ELEMENTS(pFBLow),/FLOAT)
+     ;;    pFVHigh = MAKE_ARRAY(N_ELEMENTS(pFBHigh),/FLOAT)
+     ;; ENDIF ELSE BEGIN
      ;;    pFLuxStruct = CREATE_STRUCT(pFluxStruct, $
      ;;                                'v',{x:eAV.x,DC:pFVLow,AC:pFVHigh}, $
      ;;                                'full_pFlux',KEYWORD_SET(full_pFlux))
@@ -1060,21 +1052,128 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
         eNB.AC[*] = 0.
      ENDIF
 
+     ;;If the B structs have a common time series, only dBp keeps the x member of its struct
+     B_has_common_TS = ARRAY_EQUAL(dBp.x,dBv.x) AND ARRAY_EQUAL(dBp.x,dBB.x) AND ARRAY_EQUAL(dBv.x,dBB.x)
+
+     IF B_has_common_TS THEN BEGIN
+
+        dBp  = {x:dBp.x, $
+                DC:dBp.DC, $
+                AC:dBp.AC, $
+                common_ts:1B}
+
+        dBv  = {DC:dBv.DC, $
+                AC:dBv.AC}
+
+        dBB  = {DC:dBB.DC, $
+                AC:dBB.AC}
+
+     ENDIF
+
+     ;;If the B structs have a common time series, only dBp keeps the x member of its struct
+     E_has_common_TS = ARRAY_EQUAL(eAV.x,eNB.x) AND ARRAY_EQUAL(eAV.x,tmpDSP.x) AND ARRAY_EQUAL(eNB.x,tmpDSP.x)
+
+     IF E_has_common_TS THEN BEGIN
+
+        eAV     = {x:eAV.x, $
+                   DC:eAV.DC, $
+                   AC:eAV.AC, $
+                   common_ts:1B}
+
+        eNB     = {DC:eNB.DC, $
+                   AC:eNB.AC}
+
+        tmpDSP  = {DC:tmpDSP.DC, $
+                   AC:tmpDSP.AC}
+
+     ENDIF ELSE BEGIN
+
+        ;;See if DSP is messing things up
+        IF ( N_ELEMENTS(tmpDSP.x) EQ ( N_ELEMENTS(eAV.x) + 1 ) ) AND $
+           ARRAY_EQUAL(eAV.x,eNB.x) THEN BEGIN
+           
+           IF ARRAY_EQUAL(eAV.x,tmpDSP.x[0:-2]) THEN BEGIN
+              E_has_common_TS     = 1
+              tmpDSP              = {DC:tmpDSP.DC[0:-2], $
+                                     AC:tmpDSP.AC[0:-2]}
+           ENDIF ELSE BEGIN
+
+              IF ARRAY_EQUAL(eAV.x,tmpDSP.x[1:-1]) THEN BEGIN
+                 E_has_common_TS  = 1
+                 tmpDSP           = {DC:tmpDSP.DC[1:-1], $
+                                     AC:tmpDSP.AC[1:-1]}
+              ENDIF
+
+           ENDELSE
+
+        ENDIF
+        
+        IF E_has_common_TS THEN BEGIN
+           eAV  = {x:eAV.x, $
+                   DC:eAV.DC, $
+                   AC:eAV.AC, $
+                   common_ts:1B}
+
+           eNB  = {DC:eNB.DC, $
+                   AC:eNB.AC}
+
+        ENDIF
+
+     ENDELSE
+
+     ptcl_has_common_TS = ARRAY_EQUAL(tmpJEe.x,tmpJe.x) AND ARRAY_EQUAL(tmpJEe.x,tmpJi.x) AND ARRAY_EQUAL(tmpJe.x,tmpJi.x)
+
+     IF ptcl_has_common_TS THEN BEGIN
+
+        tmpJEe  = {x:tmpJEe.x, $
+                   y:tmpJEe.y, $
+                   ;; DC:tmpJEe.DC, $
+                   ;; AC:tmpJEe.AC, $
+                   common_ts:1B}
+
+        tmpJe   = {y:tmpJe.y} ;; DC:tmpJe.DC, $
+        ;; AC:tmpJe.AC}
+
+        tmpJi   = {y:tmpJi.y} ;;DC:tmpDSP.DC, $
+        ;; AC:tmpDSP.AC}
+
+     ENDIF
+
+     ;;...And if they ALL have the same time series, we're only keeping one
+     IF B_has_common_TS AND E_has_common_TS AND ptcl_has_common_TS THEN BEGIN
+
+        dBp     = {x:dBp.x, $
+                   DC:dBp.DC, $
+                   AC:dBp.AC, $
+                   common_ts:1B, $
+                   commonest_ts:1B}
+
+        eAV     = {DC:eAV.DC, $
+                   AC:eAV.AC, $
+                   common_ts:1B}
+
+        tmpJEe  = {y:tmpJEe.y, $
+                   ;; DC:tmpJEe.DC, $
+                   ;; AC:tmpJEe.AC, $
+                   common_ts:1B}
+     ENDIF
+
      tmpStruct = {dB:{p:dBp, $
                       v:dBv, $
                       B:dBB}, $
                   e:{AlongV:eAV, $
-                     dsp:tmpDSP, $
                      NearB:eNB, $
-                     include_E_near_B:KEYWORD_SET(include_E_near_B)}, $
-                  pFlux:{b:{x:eAV.x,DC:pFBLow,AC:pFBHigh}, $
-                         p:{x:eAV.x,DC:pFPLow,AC:pFPHigh}, $
-                         v:{x:eAV.x,DC:pFVLow,AC:pFVHigh}, $
-                         full_pflux:KEYWORD_SET(full_pflux)}, $
+                     dsp:tmpDSP, $
+                     include_E_near_B:BYTE(KEYWORD_SET(include_E_near_B)), $
+                     eField_fit_variables:BYTE(KEYWORD_SET(use_eField_fit_variables))}, $
+                  ;; pFlux:{b:{x:eAV.x,DC:pFBLow,AC:pFBHigh}, $
+                  ;;        p:{x:eAV.x,DC:pFPLow,AC:pFPHigh}, $
+                  ;;        v:{x:eAV.x,DC:pFVLow,AC:pFVHigh}, $
+                  ;;        full_pflux:KEYWORD_SET(full_pflux)}, $
                   ptcl:{jEe:tmpJEe, $
                         je:tmpJe, $
-                        ji:tmpJi}, $
-                  outflow_i:[[start_i],[stop_i]]}
+                        ji:tmpJi}};, $
+                  ;; outflow_i:[[start_i],[stop_i]]}
      
      PRINT,"Adding struct for interval " + itvlString + " in orbit " + orbString + ' ...'
      structList.Add,tmpStruct
@@ -1097,10 +1196,10 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
            END
         ENDCASE
 
-        PRINT,'Saving Brambles statistics hash ...'
+        PRINT,'Saving Strangeway statistics hash ...'
         SAVE,swHash,FILENAME=outDir+hashFile
      ENDIF ELSE BEGIN
-        PRINT,'Creating Brambles statistics hash for orbit ' + orbString + ' ...'
+        PRINT,'Creating Strangeway statistics hash for orbit ' + orbString + ' ...'
         swHash = ORDEREDHASH(orbit,structList)
         SAVE,swHash,FILENAME=outDir+hashFile
      ENDELSE
