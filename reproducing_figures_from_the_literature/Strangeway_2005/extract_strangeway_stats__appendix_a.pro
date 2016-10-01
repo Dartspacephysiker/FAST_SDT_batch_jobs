@@ -17,8 +17,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
   COMPILE_OPT IDL2
 
   ;;Some outflow defaults
-  outflowMinLog10 = 6
-  ptsMinOutflow   = 30
+  outflowMinLog10 = 5
+  ptsMinOutflow   = 2
   allowableGap    = 2 ;seconds
   min_streakLen_t = 30 ;;At least 30, right?
   @strway_stuff
@@ -65,8 +65,6 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
      PRINT,'No swHash here! Returning ...'
      RETURN,-1
   ENDELSE
-
-  maxNItvls    = 30S
 
   tmpKey       = (swHash.Keys())[0]
   tmpStruct    = swHash[tmpKey,0]
@@ -255,7 +253,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
 
            ;;Negative sign comes out of S EQ 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
            pFV    = PTR_NEW({DC:(-1.)*(*eNB)[EclosB_i].DC*(*dBp)[BclosE_i].DC/mu_0, $
-                     AC:(-1.)*(*eNB)[EclosB_i].AC*(*dBp)[BclosE_i].AC/mu_0})
+                             AC:(-1.)*(*eNB)[EclosB_i].AC*(*dBp)[BclosE_i].AC/mu_0})
                      
            ;;Junk that nano prefix in nT
            (*pFB).DC *= 1e-9
@@ -303,6 +301,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
            nStreaks  = N_ELEMENTS(start_i)
            nOfloPts  = FIX(TOTAL(lens) + nStreaks)
 
+           PRINT,"n Outflow: " + STRCOMPRESS(nOfloPts,/REMOVE_ALL)
+
            ofloItvlBDCArr = MAKE_ARRAY(nOfloPts,nBTags,/FLOAT,VALUE=0.) 
            ofloItvlEDCArr = MAKE_ARRAY(nOfloPts,nETags,/FLOAT,VALUE=0.) 
            ofloItvlPDCArr = MAKE_ARRAY(nOfloPts,nPTags,/FLOAT,VALUE=0.) 
@@ -319,7 +319,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
               arrInds  = [ofloItvlPtCnt:ofloItvlPtCnt+lens[l]]
               strkInds  = [start_i[l]:stop_i[l]]
 
-              PRINT,FORMAT='(A0,I0,":",I0,A0)',"arrInds : [",arrInds[0],arrInds[-1],"]"
+              ;; PRINT,FORMAT='(A0,I0,":",I0,A0)',"arrInds : [",arrInds[0],arrInds[-1],"]"
               ;; PRINT,FORMAT='(A0,I0,":",I0,A0)',"strkInds : [",strkInds[0],strkInds[-1],"]"
 
               ;;Fields DC
@@ -633,6 +633,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
   avgTypeString = ''
 
   posVal = 1
+  ;; absVal = 1
   IF KEYWORD_SET(posVal) THEN BEGIN
      avgInd = 1
      avgTypeString = 'POS'
@@ -654,8 +655,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
                  ;; dB_perp   : avgStruct.dB_perp  [sw_i], $   
                  pFAlongBDC: avgStruct.pFlux.B.DC.(avgInd) [sw_i], $
                  pFAlongPDC: avgStruct.pFlux.P.DC.(avgInd) [sw_i], $
-                 pFAlongBAC: avgStruct.pFlux.B.DC.(avgInd) [sw_i], $
-                 pFAlongPAC: avgStruct.pFlux.P.DC.(avgInd) [sw_i], $
+                 pFAlongBAC: avgStruct.pFlux.B.AC.(avgInd) [sw_i], $
+                 pFAlongPAC: avgStruct.pFlux.P.AC.(avgInd) [sw_i], $
                  DSPDC     : avgStruct.E.DSP.DC.(avgInd)   [sw_i], $
                  DSPAC     : avgStruct.E.DSP.AC.(avgInd)   [sw_i], $
                  je        : avgStruct.ptcl.je.y.avg   [sw_i], $
