@@ -127,7 +127,7 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
 
 ; Step 0 - safety measure - delete all tplot quantities if found
 
-  @tplot_com
+  @tplot_com   ;Provides data_quants variable
 
   @startup
 
@@ -140,10 +140,6 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
   IF N_ELEMENTS(use_fac) EQ 0 AND N_ELEMENTS(use_fac_v) EQ 0 THEN use_fac = 1
 
   normColorI   = (KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) ? 0 : 255
-
-  mu_0         = DOUBLE(4.0D*!PI*1e-7)
-
-  tBuf         = 10. ;Allowable difference between t{1,2} and nearest fields data
 
   nn           = N_ELEMENTS(data_quants)
 

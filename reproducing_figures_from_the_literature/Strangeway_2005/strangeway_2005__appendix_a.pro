@@ -56,9 +56,9 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
 ; Step 0 - safety measure - delete all tplot quantities if found
 
-  outflowMinLog10 = 6
-  nMinOutflow     = 60
-  allowableGap    = 3 ;seconds
+  ;; outflowMinLog10 = 6
+  ;; ptsMinOutflow   = 60
+  ;; allowableGap    = 3 ;seconds
 
   CASE 1 OF
      KEYWORD_SET(use_eField_fit_variables): BEGIN
@@ -71,8 +71,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      END
   ENDCASE
 
-
-  @tplot_com
+  @tplot_com ;provides data_quants variable
 
   @startup
 
@@ -89,11 +88,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
   normColorI   = (KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) ? 0 : 255
 
-  mu_0         = DOUBLE(4.0D*!PI*1e-7)
-
 ; Step 1 - DC Mag data
-
-  tBuf         = 10.            ;Allowable difference between t{1,2} and nearest fields data
 
   ;;Outputs
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_2005/'
@@ -1070,7 +1065,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
      ENDIF
 
-     ;;If the B structs have a common time series, only dBp keeps the x member of its struct
+     ;;If the E structs have a common time series, only dBp keeps the x member of its struct
      E_has_common_TS = ARRAY_EQUAL(eAV.x,eNB.x) AND ARRAY_EQUAL(eAV.x,tmpDSP.x) AND ARRAY_EQUAL(eNB.x,tmpDSP.x)
 
      IF E_has_common_TS THEN BEGIN

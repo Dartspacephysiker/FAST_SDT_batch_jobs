@@ -14,6 +14,10 @@
   DSP_smoothWindow_halfLength    = 2.0
   fields_smoothWindow_halfLength = 2.0
 
+  mu_0         = DOUBLE(4.0D*!PI*1e-7)
+
+  ;;Allowable difference between t{1,2} and nearest fields data
+  tBuf         = 10.
 
   ;; energy_ions       = [0,500.]
   ;; upper_ion_e       = HASH(strWay_orbs,MAKE_ARRAY(33,VALUE=500.,/FLOAT))
