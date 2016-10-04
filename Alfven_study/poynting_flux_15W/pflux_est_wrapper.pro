@@ -22,7 +22,7 @@
 ;*****************************
 ;Put code here:
 
-ALFVEN_STATS_6_SPECTRAL,/BIGWINDOW
+ALFVEN_STATS_6_SPECTRAL,/SAVE_PS,/SAVE_LIL_DATA_PACKAGE,/SHOW_ALF_EVENTS_FROM_MAXIMUS,/COMPARE_AVERAGE_POYNTING_FLUXES
 
 ;*****************************
 ;End routine:

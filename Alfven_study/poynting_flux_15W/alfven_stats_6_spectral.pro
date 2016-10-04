@@ -29,14 +29,15 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
    THRESHOLD_POWER_SPECTRA_PLOTS=threshold_power_spectra_plots, $
    MAGJPLOT=magJplot, $
    MAKE_DIAGNOSTIC_FILE=make_diagFile, $
-   SAVE_LIL_DATA_PACKAGE=save_lil_package
+   SAVE_LIL_DATA_PACKAGE=save_lil_package, $
+   SAVE_PS=save_ps
 
   ;; COMPILE_OPT idl2
   ;; COMPILE_OPT strictArr
 
   outDir = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/poynting_flux_15W/'
 
-  IF KEYWORD_SET(png_sumplot) THEN BEGIN
+  IF KEYWORD_SET(png_sumplot) OR KEYWORD_SET(save_ps) THEN BEGIN
      SET_PLOT_DIR,outPlotDir,/FOR_SDT,ADD_SUFF='/as6_spectral/'
   ENDIF
 
@@ -260,6 +261,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
      ENDELSE
      curFile = outDir+bonusDir+'Dartmouth_as6_spectral_'+orbItvlSuff+'--'+bonusSuff
+
+     tmpPlotName = curFile + '.ps'
 
      ;;make sure we're not overwriting
      IF FILE_TEST(curfile) THEN BEGIN
@@ -814,7 +817,10 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
               ENBSPFILT=eNBSpecFilt, $
               INCLUDE_E_NEAR_B=include_E_near_B, $
               YLIM_TO_MAG_ROLLOFF=yLim_to_mag_rolloff, $
-              BIGWINDOW=bigWindow
+              BIGWINDOW=bigWindow, $
+              SAVE_PS=save_ps, $
+              PLOTDIR=outPlotDir, $
+              PLOTNAME=tmpPlotName
 
            IF KEYWORD_SET(threshold_power_spectra_plots) THEN BEGIN
               THRESHOLD_POWER_SPECTRA_PLOTS, $
@@ -1020,7 +1026,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
         ENDIF
 
-        IF KEYWORD_SET(compare_pFluxes__specMethod_maximus) THEN BEGIN
+        IF KEYWORD_SET(compare_pFluxes__specMethod_maximus) OR KEYWORD_SET(save_lil_package) THEN BEGIN
 
            tAvgFFTPFluxB = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
            tAvgFFTPFluxP = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
@@ -1129,7 +1135,18 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            savePackageName = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + "--orb_" + orbit_num + $
                              '--pFlux_package.sav'
            PRINT,"Saving data package to " + savePackageName + ' ...'
-           SAVE,maxPFlux,good_i,pFluxB,pFluxP,magMLT,magILAT,magTJul,magTUTC, $
+           SAVE,maxPFlux, $
+                good_i, $
+                pFluxB, $
+                pFluxP, $
+                filteAV,filteNB,filtdBB,filtdBp,fftBin_i,winAlf_i,winAlfFFT_i, $
+                eAVSpecFilt,dBpSpecFilt, $
+                tAvgFFTPFluxB, $
+                tAvgFFTPFluxP, $
+                tAvgMaxPFlux, $
+                E_over_B, $
+                winFFT_i, $
+                magMLT,magILAT,magTJul,magTUTC, $
                 FILENAME=outDir+savePackageName
 
            response = ''
@@ -1244,112 +1261,123 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
            ;;Now loss-coners
            GET_2DT_TS_POT,'je_2d_b','fa_ees',T1=tmpT1,T2=tmpT2, $
-                          NAME='JEe_lc',ANGLE=e_angle,ENERGY=energy_electrons,SC_POT=sc_pot
+                          NAME='JEe_lc',ANGLE=e_angle, $
+                          ENERGY=energy_electrons,SC_POT=sc_pot, $
+                          /CALIB
            GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=tmpT1,T2=tmpT2, $
-                          NAME='Je_lc',ENERGY=energy_electrons,ANGLE=e_angle,SC_POT=sc_pot
+                          NAME='Je_lc',ENERGY=energy_electrons, $
+                          ANGLE=e_angle,SC_POT=sc_pot, $
+                          /CALIB
            
+           ;;Now all ions
            GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=tmpT1,T2=tmpT2, $
-                          NAME='JEi_tot',ENERGY=energy_ions,ANGLE=i_angle,SC_POT=sc_pot
+                          NAME='JEi_tot',ENERGY=energy_ions, $
+                          ANGLE=i_angle,SC_POT=sc_pot
            GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=tmpT1,T2=tmpT2, $
-                          NAME='Ji_tot',ENERGY=energy_ions,ANGLE=i_angle,SC_POT=sc_pot
+                          NAME='Ji_tot',ENERGY=energy_ions, $
+                          ANGLE=i_angle,SC_POT=sc_pot, $
+                          /CALIB
 
            ;;Now players' club
            GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=tmpT1,T2=tmpT2, $
-                          NAME='JEi_up',ENERGY=energy_ions,ANGLE=i_angle_up,SC_POT=sc_pot
+                          NAME='JEi_up',ENERGY=energy_ions, $
+                          ANGLE=i_angle_up,SC_POT=sc_pot, $
+                          /CALIB
            GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=tmpT1,T2=tmpT2, $
-                          NAME='Ji_up',ENERGY=energy_ions,ANGLE=i_angle_up,SC_POT=sc_pot
-           
+                          NAME='Ji_up',ENERGY=energy_ions, $
+                          ANGLE=i_angle_up,SC_POT=sc_pot, $
+                          /CALIB
         ;; ENDELSE
         
-        GET_DATA,'Je_tot',DATA=tmp
-        GET_DATA,'Ji_tot',DATA=tmpi
-        ;;remove crap
-        keep1        = WHERE(FINITE(tmp.y) NE 0 and FINITE(tmpi.y) NE 0)
-        tmp.x        = tmp.x[keep1]
-        tmp.y        = tmp.y[keep1]
-        keep2        = WHERE(ABS(tmp.y) GT 0.0 and ABS(tmpi.y) GT 0.0)
-        jeTotTmp_time  = tmp.x[keep2]
-        jeTotTmp     = tmp.y[keep2]
-        STORE_DATA,'Je_tot',DATA={x:jeTotTmp_time,y:jeTotTmp}
-        
-        GET_DATA,'JEe_tot',DATA=tmp
-        ;;remove crap
-        ;;keep            = WHERE(FINITE(tmp.y) NE 0)
-        tmp.x             = tmp.x[keep1]
-        tmp.y             = tmp.y[keep1]
-        ;;keep            = WHERE(ABS(tmp.y) GT 0.0)
-        jeeTotTmp_time    = tmp.x[keep2]
-        jeeTotTmp         = tmp.y[keep2]
-        STORE_DATA,'JEe_tot',DATA={x:jeeTotTmp_time,y:jeeTotTmp}
-        
-        GET_DATA,'Je_lc',DATA=tmp
-        ;;remove_crap
-        ;;keep            = WHERE(FINITE(tmp.y) NE 0)
-        tmp.x             = tmp.x[keep1]
-        tmp.y             = tmp.y[keep1]
-        ;;keep            = WHERE(ABS(tmp.y) GT 0.0)
-        jeLCTmp_time      = tmp.x[keep2]
-        jeLCTmp           = tmp.y[keep2]
-        STORE_DATA,'Je_lc',DATA={x:jeLCTmp_time,y:jeLCTmp}
-        
-        GET_DATA,'JEe_lc',DATA=tmp
-        ;;remove crap
-        ;;keep            = WHERE(FINITE(tmp.y) NE 0)
-        tmp.x             = tmp.x[keep1]
-        tmp.y             = tmp.y[keep1]
-        ;;keep            = WHERE(ABS(tmp.y) GT 0.0)
-        jeeLC_time        = tmp.x[keep2]
-        jeeLC             = tmp.y[keep2]
-        STORE_DATA,'JEe_lc',DATA={x:jeeLC_time,y:jeeLC}
-        
-        GET_DATA,'Ji_tot',DATA=tmp
-        ;;remove crap	
-        ;;keep1           = WHERE(FINITE(tmp.y) NE 0)
-        tmp.x             = tmp.x[keep1]
-        tmp.y             = tmp.y[keep1]
-        ;;keep2           = WHERE(ABS(tmp.y) GT 0.0)
-        jiTotTmp_time       = tmp.x[keep2]
-        jiTotTmp       = 2.0*tmp.y[keep2] ;;the 2.0 here is because of the 1/2 angular range I use to exclude ram ions
-        STORE_DATA,'Ji_tot',DATA={x:jiTotTmp_time,y:jiTotTmp}
-        
-        GET_DATA,'JEi_tot',DATA=tmp
-        ;;remove crap
-        ;;keep            = WHERE(FINITE(tmp.y) NE 0)
-        tmp.x             = tmp.x[keep1]
-        tmp.y             = tmp.y[keep1]
-        ;;keep            = WHERE(ABS(tmp.y) GT 0.0)
-        jEiTotTmp_time      = tmp.x[keep2]
-        jEiTotTmp      = tmp.y[keep2]
-        STORE_DATA,'JEi_tot',DATA={x:jEiTotTmp_time,y:jEiTotTmp}
-        
-        GET_DATA,'JEi_up',DATA=tmp
-        ;;remove crap
-        ;;keep            = WHERE(FINITE(tmp.y) NE 0)
-        tmp.x             = tmp.x[keep1]
-        tmp.y             = tmp.y[keep1]
-        ;;keep            = WHERE(ABS(tmp.y) GT 0.0)
-        jEiUpTmp_time   = tmp.x[keep2]
-        jEiUpTmp   = tmp.y[keep2]
-        STORE_DATA,'JEi_up',DATA={x:jEiUpTmp_time,y:jEiUpTmp}
-        
-        GET_DATA,'Ji_up',DATA=tmp
-        ;;remove crap
-        ;;keep          = WHERE(FINITE(tmp.y) NE 0)
-        tmp.x           = tmp.x[keep1]
-        tmp.y           = tmp.y[keep1]
-        ;;keep          = WHERE(ABS(tmp.y) GT 0.0)
-        jiUpTmp_time  = tmp.x[keep2]
-        jiUpTmp  = 2.0*tmp.y[keep2] ;the 2.0 here is because of the 1/2 angular range I use to exclude ram ions
-        STORE_DATA,'Ji_up',DATA={x:jiUpTmp_time,y:jiUpTmp}
+           GET_DATA,'Je_tot',DATA=tmp
+           GET_DATA,'Ji_tot',DATA=tmpi
+           ;;remove crap
+           keep1           = WHERE(FINITE(tmp.y) NE 0 and FINITE(tmpi.y) NE 0)
+           tmp.x           = tmp.x[keep1]
+           tmp.y           = tmp.y[keep1]
+           keep2           = WHERE(ABS(tmp.y) GT 0.0 and ABS(tmpi.y) GT 0.0)
+           jeTotTmp_time   = tmp.x[keep2]
+           jeTotTmp        = tmp.y[keep2]
+           STORE_DATA,'Je_tot',DATA={x:jeTotTmp_time,y:jeTotTmp}
+           
+           GET_DATA,'JEe_tot',DATA=tmp
+           ;;remove crap
+           ;;keep          = WHERE(FINITE(tmp.y) NE 0)
+           tmp.x           = tmp.x[keep1]
+           tmp.y           = tmp.y[keep1]
+           ;;keep          = WHERE(ABS(tmp.y) GT 0.0)
+           jeeTotTmp_time  = tmp.x[keep2]
+           jeeTotTmp       = tmp.y[keep2]
+           STORE_DATA,'JEe_tot',DATA={x:jeeTotTmp_time,y:jeeTotTmp}
+           
+           GET_DATA,'Je_lc',DATA=tmp
+           ;;remove_crap
+           ;;keep          = WHERE(FINITE(tmp.y) NE 0)
+           tmp.x           = tmp.x[keep1]
+           tmp.y           = tmp.y[keep1]
+           ;;keep          = WHERE(ABS(tmp.y) GT 0.0)
+           jeLCTmp_time    = tmp.x[keep2]
+           jeLCTmp         = tmp.y[keep2]
+           STORE_DATA,'Je_lc',DATA={x:jeLCTmp_time,y:jeLCTmp}
+           
+           GET_DATA,'JEe_lc',DATA=tmp
+           ;;remove crap
+           ;;keep          = WHERE(FINITE(tmp.y) NE 0)
+           tmp.x           = tmp.x[keep1]
+           tmp.y           = tmp.y[keep1]
+           ;;keep          = WHERE(ABS(tmp.y) GT 0.0)
+           jeeLC_time      = tmp.x[keep2]
+           jeeLC           = tmp.y[keep2]
+           STORE_DATA,'JEe_lc',DATA={x:jeeLC_time,y:jeeLC}
+           
+           GET_DATA,'Ji_tot',DATA=tmp
+           ;;remove crap	
+           ;;keep1         = WHERE(FINITE(tmp.y) NE 0)
+           tmp.x           = tmp.x[keep1]
+           tmp.y           = tmp.y[keep1]
+           ;;keep2         = WHERE(ABS(tmp.y) GT 0.0)
+           jiTotTmp_time   = tmp.x[keep2]
+           jiTotTmp        = 2.0*tmp.y[keep2] ;;the 2.0 here is because of the 1/2 angular range I use to exclude ram ions
+           STORE_DATA,'Ji_tot',DATA={x:jiTotTmp_time,y:jiTotTmp}
+           
+           GET_DATA,'JEi_tot',DATA=tmp
+           ;;remove crap
+           ;;keep          = WHERE(FINITE(tmp.y) NE 0)
+           tmp.x           = tmp.x[keep1]
+           tmp.y           = tmp.y[keep1]
+           ;;keep          = WHERE(ABS(tmp.y) GT 0.0)
+           jEiTotTmp_time  = tmp.x[keep2]
+           jEiTotTmp       = tmp.y[keep2]
+           STORE_DATA,'JEi_tot',DATA={x:jEiTotTmp_time,y:jEiTotTmp}
+           
+           GET_DATA,'JEi_up',DATA=tmp
+           ;;remove crap
+           ;;keep          = WHERE(FINITE(tmp.y) NE 0)
+           tmp.x           = tmp.x[keep1]
+           tmp.y           = tmp.y[keep1]
+           ;;keep          = WHERE(ABS(tmp.y) GT 0.0)
+           jEiUpTmp_time   = tmp.x[keep2]
+           jEiUpTmp        = tmp.y[keep2]
+           STORE_DATA,'JEi_up',DATA={x:jEiUpTmp_time,y:jEiUpTmp}
+           
+           GET_DATA,'Ji_up',DATA=tmp
+           ;;remove crap
+           ;;keep          = WHERE(FINITE(tmp.y) NE 0)
+           tmp.x           = tmp.x[keep1]
+           tmp.y           = tmp.y[keep1]
+           ;;keep          = WHERE(ABS(tmp.y) GT 0.0)
+           jiUpTmp_time    = tmp.x[keep2]
+           jiUpTmp         = 2.0*tmp.y[keep2] ;the 2.0 here is because of the 1/2 angular range I use to exclude ram ions
+           STORE_DATA,'Ji_up',DATA={x:jiUpTmp_time,y:jiUpTmp}
         
         
         ;;get ion end electron characteristic energies
-        chare = (jeeLC/jeLCTmp)*6.242*1.0e11
-        chare_tot = (jeeTotTmp/jeTotTmp)*6.242*1.0e11
-        charei = (JEi_up_tmp_data/jiUpTmp)*6.242*1.0e11
+        chare      = (jeeLC/jeLCTmp)*6.242*1.0e11
+        chare_tot  = (jeeTotTmp/jeTotTmp)*6.242*1.0e11
+        charei     = (jEiUpTmp/jiUpTmp)*6.242*1.0e11
         STORE_DATA,'CharE',DATA={x:jeeLC_time,y:chare}
         STORE_DATA,'CharE_tot',DATA={x:jeeTotTmp_time,y:chare_tot}
-        STORE_DATA,'CharEi',DATA={x:jei_up_tmp_time,y:charei}
+        STORE_DATA,'CharEi',DATA={x:jEiUpTmp_time,y:charei}
         
         ;;Scale electron energy flux to 100km, pos flux earthward
         GET_DATA,'ILAT',DATA=tmp
@@ -1377,19 +1405,16 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            CGPS_CLOSE,/PNG,/DELETE_PS,WIDTH=1000
         ENDIF ELSE BEGIN 
            IF NOT KEYWORD_SET(dontShowPlots) THEN BEGIN
-              WINDOW,0,XSIZE=600,YSIZE=800
+              sumWInd = 0
+              WINDOW,sumWInd,XSIZE=600,YSIZE=800
               LOADCT,39
               !P.CHARSIZE = 1.3
               TPLOT,['Je_tot','CharE','JEei','Ji_tot','JEi_tot','MagZ'] , $
                     VAR_LABEL=['ALT','MLT','ILAT'], $
-                    TRANGE=[tmpT1,tmpT2]
+                    TRANGE=[tmpT1,tmpT2],WINDOW=sumWInd
            ENDIF
         ENDELSE
 
-        ;;get intervals for looping
-        start_points = REFORM(winAlfFFT_i[0,*])
-        stop_points  = REFORM(winAlfFFT_i[1,*])
-        
         ;;define the FFT intervals
         ;;in this array 	0-interval start index
         ;;		1-interval stop index
@@ -1435,11 +1460,15 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ;;		41-integrated downgoing electron flux from total distribution over that interval at ionosphere
 
         
-        FFTintervals = MAKE_ARRAY(N_ELEMENTS(start_points),42,/DOUBLE)
-        FFTintervals[*,0] = start_points
-        FFTintervals[*,1] = stop_points
-        FFTintervals[*,2] = sign_jtemp(start_points)
-        FFTintervals[*,3] = 1
+        ;;get intervals for looping
+        start_points = REFORM(winAlfFFT_i[0,*])
+        stop_points  = REFORM(winAlfFFT_i[1,*])
+        
+        FFTintervals       = MAKE_ARRAY(N_ELEMENTS(start_points),42,/DOUBLE)
+        FFTintervals[*,0]  = start_points
+        FFTintervals[*,1]  = stop_points
+        FFTintervals[*,2]  = sign_jtemp(start_points)
+        FFTintervals[*,3]  = 1
         
         intervalparts_electrons_old = -1
         intervalparts_ions_old      = -1
@@ -1573,7 +1602,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            FFTintervals[j,39]  = C_E_tot
 
            ;;get max upgoing ion energy flux over this interval
-           maxJEi             = MAX(ABS(jei_up_tmp_data[itvl_ions]),ind)
+           maxJEi             = MAX(ABS(jEiUpTmp[itvl_ions]),ind)
            FFTintervals[j,9]  = maxJEi
            
            ;;get max ion flux over this interval
@@ -1583,7 +1612,9 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            FFTintervals[j,10]  = maxJi
            
            ;;get max upgoing ion flux over this interval
+           sign_ion            = -1.*jiUpTmp[itvl_ions]/ABS(jiUpTmp[itvl_ions])
            maxJi_up            = MAX(ABS(jiUpTmp[itvl_ions]),ind)
+           maxJi_up            = maxJi_up*sign_ion[ind]
            FFTintervals[j,11]  = maxJi_up
            
            ;;get max characteristic ion energy over this interval
@@ -1616,8 +1647,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            ;; de = MAX(efield_smooth)-MIN(efield_smooth)
            ;; median_de = MEDIAN(fields.comp2[itvlFields])
 
-           de         = MAX(filt_eAV[itvlFields])-MIN(filt_eAV[itvlFields])
-           median_de  = MEDIAN(filt_eAV[itvlFields])
+           de         = MAX(filteAV[itvlFields])-MIN(filteAV[itvlFields])
+           median_de  = MEDIAN(filteAV[itvlFields])
 
            IF KEYWORD_SET(make_diagFile) THEN PRINTF,diagLun,'de (mV/m) : ',de
            IF KEYWORD_SET(make_diagFile) THEN PRINTF,diagLun,'de (mV/m) : ',de
@@ -1647,17 +1678,18 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            FFTintervals[j,23] = ilat.y[ind]
            
            ;;fields_mode
-           mintime               = MIN(ABS(fields_mode.time-magFriend.x[itvlFields[indjmax]]),ind)
-           FFTintervals[j,27]    = fields_mode.comp1(13,ind)
+           mintime             = MIN(ABS(fields_mode.time-magFriend.x[itvlFields[indjmax]]),ind)
+           FFTintervals[j,27]  = fields_mode.comp1(13,ind)
            
            ;;sc potential
-           mintime               = MIN(ABS(sc_pot.x-magFriend.x[itvlFields[indjmax]]),ind)
-           FFTintervals[j,34]    = -1*sc_pot.y[ind]
+           mintime             = MIN(ABS(sc_pot.x-magFriend.x[itvlFields[indjmax]]),ind)
+           FFTintervals[j,34]  = -1*sc_pot.y[ind]
            
            ;;e over b test
-           ;; va                 = 1000.0*alfven_speed_mlt(FFTintervals[j,21],FFTintervals[j,22])
-           e_over_b              = (1.0e-3*FFTintervals[j,18])/(FFTintervals[j,17]*1.0e-9)
-           IF e_over_b/va LT 1.0/eb_to_alfven_speed THEN BEGIN
+           va                  = 1000.0*ALFVEN_SPEED_MLT(FFTintervals[j,21],FFTintervals[j,22])
+
+           e_over_b__dEdB      = (1.0e-3*FFTintervals[j,18])/(FFTintervals[j,17]*1.0e-9)
+           IF (e_over_b__dEdB/va LT 1.0/eb_to_alfven_speed) THEN BEGIN
               FFTintervals[j,3]  = 0.0
            ENDIF
            
@@ -1839,7 +1871,10 @@ PRO PREP_AND_PLOT_AS6_TPLOTS, $
    ENBSPFILT=eNBSpecFilt, $
    INCLUDE_E_NEAR_B=include_E_near_B, $
    YLIM_TO_MAG_ROLLOFF=yLim_to_mag_rolloff, $
-   BIGWINDOW=bigWindow
+   BIGWINDOW=bigWindow, $
+   SAVE_PS=save_ps, $
+   PLOTDIR=plotDir, $
+   PLOTNAME=tmpPlotName
 
   ;;Prep TPLOT nonsense
   red                     = 250
@@ -1937,8 +1972,13 @@ PRO PREP_AND_PLOT_AS6_TPLOTS, $
   IF KEYWORD_SET(include_E_near_B) THEN tPlotArr = [tPlotArr[0:1],'eNBPanel', $
                                                     tPlotArr[2:5],'ENBSpecFilt']
 
-  myWindow = 8
-  WINDOW,myWindow,XSIZE=xWinSize,YSIZE=yWinSize
+  IF KEYWORD_SET(save_ps) THEN BEGIN
+     POPEN,plotDir+tmpPlotName,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
+  ENDIF ELSE BEGIN
+     myWindow = 8
+     WINDOW,myWindow,XSIZE=xWinSize,YSIZE=yWinSize
+  ENDELSE
+
   TPLOT,tPlotArr, $
         TRANGE=(KEYWORD_SET(t1) AND KEYWORD_SET(t2)) ? [t1,t2] : !NULL, $
         WINDOW=myWindow
@@ -1946,6 +1986,10 @@ PRO PREP_AND_PLOT_AS6_TPLOTS, $
   TPLOT_PANEL,VARIABLE='dBpPanel',OPLOTVAR='dBpFilt'
   TPLOT_PANEL,VARIABLE='eAVPanel',OPLOTVAR='eAVFilt'
   TPLOT_PANEL,VARIABLE='eNBPanel',OPLOTVAR='eNBFilt'
+
+  IF KEYWORD_SET(save_ps) THEN BEGIN
+           PCLOSE
+  ENDIF
 
 END
 
