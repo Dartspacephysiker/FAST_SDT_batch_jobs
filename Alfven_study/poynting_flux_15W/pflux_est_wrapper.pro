@@ -17,10 +17,12 @@
 !PATH='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/poynting_flux_15W/:'+!PATH
       
 
+.compile alfven_stats_6_spectral
+
 ;*****************************
 ;Put code here:
 
-pflux_estimation,/keep_alfven_only
+ALFVEN_STATS_6_SPECTRAL,/BIGWINDOW
 
 ;*****************************
 ;End routine:
