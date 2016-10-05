@@ -17,7 +17,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
    UCLA_MAG_DESPIN=ucla_mag_despin, $
    KEEP_ALFVEN_ONLY=keep_alfven_only, $
    NO_PLOTS=no_plots, $
-   PNG_SUMPLOT=png_sumplot, $
+   PS_SUMPLOT=ps_sumplot, $
    PNG_OUREVENTS=png_ourevents, $
    BIGWINDOW=bigWindow, $
    DONTSHOWPLOTS=dontShowPlots, $
@@ -30,14 +30,16 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
    MAGJPLOT=magJplot, $
    MAKE_DIAGNOSTIC_FILE=make_diagFile, $
    SAVE_LIL_DATA_PACKAGE=save_lil_package, $
-   SAVE_PS=save_ps
+   SAVE_PS=save_ps, $
+   SAVE_PARTICLE_DATA=save_particle_data, $
+   BATCH_MODE=batch_mode
 
   ;; COMPILE_OPT idl2
   ;; COMPILE_OPT strictArr
 
-  outDir = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/poynting_flux_15W/'
+  outDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/poynting_flux_15W/'
 
-  IF KEYWORD_SET(png_sumplot) OR KEYWORD_SET(save_ps) THEN BEGIN
+  IF KEYWORD_SET(ps_sumplot) OR KEYWORD_SET(save_ps) THEN BEGIN
      SET_PLOT_DIR,outPlotDir,/FOR_SDT,ADD_SUFF='/as6_spectral/'
   ENDIF
 
@@ -109,7 +111,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
   dat = GET_FA_EES(t,/ST)
   IF dat.valid eq 0 THEN BEGIN
      PRINT,' ERROR: No FAST electron survey data -- get_fa_ees(t,/ST) returned invalid data'
-;     RETURN
+     RETURN
   ENDIF
 
   ;; Electron current - line plot
@@ -122,6 +124,11 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
   ;;remove spurious crap
   GET_DATA,'Je',DATA=tmpj
   
+  IF SIZE(tmpj,/TYPE) NE 8 THEN BEGIN
+     PRINT,' ERROR: Bogus current data!'
+     RETURN
+  ENDIF
+
   keep        = WHERE(FINITE(tmpj.y) NE 0)
   tmpj.x      = tmpj.x[keep]
   tmpj.y      = tmpj.y[keep]
@@ -156,7 +163,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
   GET_DATA,'ILAT',DATA=ilat
   IF KEYWORD_SET(below_auroral_oval) THEN BEGIN
      keep             = WHERE(ABS(ilat.y) GE 50.0 )
-     belowAurOvalStr  = '--below_aur_oval'
+     belowAurOvalStr  = 'below_aur_oval'
   ENDIF ELSE BEGIN
      keep             = WHERE(ABS(ilat.y) GT AURORAL_ZONE(mlt.y,7,/LAT)/(!DPI)*180.)
      belowAurOvalStr  = ''
@@ -260,9 +267,10 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ENDELSE
 
      ENDELSE
-     curFile = outDir+bonusDir+'Dartmouth_as6_spectral_'+orbItvlSuff+'--'+bonusSuff
-
-     tmpPlotName = curFile + '.ps'
+     curFile     = outDir+bonusDir+'Dartmouth_as6_spectral_'+orbItvlSuff+'--'+bonusSuff
+     ptclFile    = outDir+'particle_data/'+'Dartmouth_as6_particle_data--'+ $
+                   orbItvlSuff + '--' + bonusSuff
+     tmpPlotName = 'Dartmouth_as6_spectral_'+orbItvlSuff+'--'+bonusSuff
 
      ;;make sure we're not overwriting
      IF FILE_TEST(curfile) THEN BEGIN
@@ -361,6 +369,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
         ENDELSE
         
+        STORE_DATA,'MagZ',DATA=magz
+
         ;;E field
         FA_FIELDS_DESPIN,efieldV58,efieldV1214, $
                          /SHADOW_NOTCH,/SINTERP, $ ;Why? Because RJS does it in his summary plot
@@ -867,7 +877,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
            ENDIF ELSE BEGIN
               PRINT,"No good Alf events here!"
-              badMaximus = 1
+              great_i    = [-1]
+              maxPFlux   = -1
            ENDELSE
         ENDIF
 
@@ -941,7 +952,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            BFieldCol       = 'Black'
            EFieldCol       = 'Red'
            pFluxCol        = 'Blue'
-           window          = WINDOW(DIMENSIONS=[800,600])
+           ;; window          = WINDOW(DIMENSIONS=[800,600])
            margin          = [0.12, 0.12, 0.12, 0.12]
 
 
@@ -1021,86 +1032,32 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                           CDBTIME=cdbTime, $
                           MAXIMUS_INDS=great_i, $
                           SHOW_MAXIMUS_EVENTS=(KEYWORD_SET(show_maximus_events) AND $
-                                               ~KEYWORD_SET(badMaximus))
+                                               (great_i[0] NE -1))
            ENDIF
 
         ENDIF
 
-        IF KEYWORD_SET(compare_pFluxes__specMethod_maximus) OR KEYWORD_SET(save_lil_package) THEN BEGIN
+        IF KEYWORD_SET(compare_pFluxes__specMethod_maximus) OR $
+           KEYWORD_SET(save_lil_package) THEN BEGIN
+           COMPARE_PFLUXES_W_MAXIMUS,nWinFFT, $
+                                     winFFT_i, $
+                                     winAlfFFT_i, $
+                                     winAlf_i, $
+                                     sRates, $
+                                     pFluxB, $
+                                     pFluxP, $
+                                     great_i, $
+                                     cdbTime, $
+                                     magz, $
+                                     maxPFlux, $
+                                     OUT_PFSTATS=pfStats, $
+                                     OUT_TAVGFFTPFLUXB=tAvgFFTPFluxB, $
+                                     OUT_TAVGFFTPFLUXP=tAvgFFTPFluxP, $
+                                     OUT_TAVGMAXPFLUX =tAvgMaxPFlux
 
-           tAvgFFTPFluxB = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
-           tAvgFFTPFluxP = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
-           tAvgMaxPFlux  = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
-           
-           totTime       = 0.
-           totMax_ii     = !NULL
-           totWeightPFB  = 0
-           totWeightPFP  = 0
-           FOR k=0,nWinFFT-1 DO BEGIN
-              strtMag_i     = winAlfFFT_i[0,k]
-              stopMag_i     = winAlfFFT_i[1,k]
-              tmpLength     = FLOAT(stopMag_i-strtMag_i+1)
-
-              tmpTime       = tmpLength / sRates[winFFT_i[k]]
-
-              weightPFB     = TOTAL(pFluxB[strtMag_i:stopMag_i])
-              weightPFP     = TOTAL(pFluxP[strtMag_i:stopMag_i])
-
-              tAvgFFTPfluxB[k] = weightPFB / tmpLength
-              tAvgFFTPfluxP[k] = weightPFP / tmpLength
-
-              totWeightPFB += weightPFB
-              totWeightPFP += weightPFP
-              totTime      += tmpTime
-
-
-              ;;Get Maximus Pfluxes falling in this neighborhood
-              tmpMax_ii     = WHERE((cdbTime[great_i] GE magz.x[winAlfFFT_i[0,k]]) AND $
-                                   (cdbTime[great_i] LE magz.x[winAlfFFT_i[1,k]]),nTmpMax)
-              totMax_ii     = [totMax_ii,tmpMax_ii]
-
-              IF nTmpMax GT 0 THEN BEGIN
-                 tAvgMaxPFlux[k] = TOTAL(maxPFlux[tmpMax_ii]*width_t[tmpMax_ii]) / tmpTime
-              ENDIF
-
-           ENDFOR
-
-           PRINT,'Time-averaged Poynting flux over this little period '
-           PRINT,FORMAT='(A0,T25,A0,T50,A0)',"Maximus", $
-                 "Spec Method (along B)", $
-                 "Spec Method (perp)"
-           FOR k=0,nWinFFT-1 DO BEGIN
-              PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
-                    tAvgMaxPFlux[k], $
-                    tAvgFFTPFluxB[k], $
-                    tAvgFFTPFluxP[k]
-           ENDFOR
-
-           PRINT,''
-           PRINT,'Totals'
-           PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
-                 TOTAL(maxPFlux[totMax_ii]*width_t[totMax_ii])/totTime, $
-                 totWeightPFB/totTime, $
-                 totWeightPFP/totTime
-           PRINT,''
-           PRINT,'Straight Averages'
-           PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
-                 MEAN(maxPFlux[totMax_ii]), $
-                 MEAN(pFluxB[winAlf_i]), $
-                 MEAN(pFluxP[winAlf_i])
-           PRINT,''
-           PRINT,'Log Averages'
-           PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
-                 MEAN(ALOG10(maxPFlux[totMax_ii])), $
-                 MEAN(ALOG10(ABS(pFluxB[winAlf_i]))), $
-                 MEAN(ALOG10(ABS(pFluxP[winAlf_i])))
-           PRINT,''
-           PRINT,'Medians'
-           PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
-                 MEDIAN(maxPFlux[totMax_ii]), $
-                 MEDIAN(pFluxB[winAlf_i]), $
-                 MEDIAN(pFluxP[winAlf_i])
-        ENDIF
+        ENDIF ELSE BEGIN
+           pfStats = -1
+        ENDELSE
 
         ;;We used to get the proton cyc frequency for smoothing the e field data later
         ;;Now we don't, because the bandpass thing does all the smoothing one could hope for.
@@ -1139,7 +1096,10 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                 good_i, $
                 pFluxB, $
                 pFluxP, $
-                filteAV,filteNB,filtdBB,filtdBp,fftBin_i,winAlf_i,winAlfFFT_i, $
+                pfStats, $
+                filteAV,filteNB,filtdBB,filtdBp, $
+                freqBounds, $
+                fftBin_i,winAlf_i,winAlfFFT_i, $
                 eAVSpecFilt,dBpSpecFilt, $
                 tAvgFFTPFluxB, $
                 tAvgFFTPFluxP, $
@@ -1147,27 +1107,28 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                 E_over_B, $
                 winFFT_i, $
                 magMLT,magILAT,magTJul,magTUTC, $
-                FILENAME=outDir+savePackageName
+                FILENAME=outDir+'pFlux_package/'+savePackageName
 
-           response = ''
-           cont     = 0
-           WHILE ~cont DO BEGIN
-              READ,response,PROMPT='Quit now? (y/n)'
-              CASE STRUPCASE(response) OF
-                 'Y': BEGIN
-                    cont = 1
-                    RETURN
-                 END
-                 'N': BEGIN
-                    cont = 1
-                 END
-                 ELSE: BEGIN
-                    PRINT,"Invalid! Try again"
-                    cont = 0
-                 END
-              ENDCASE
-           ENDWHILE
-
+           IF ~KEYWORD_SET(batch_mode) THEN BEGIN
+              response = ''
+              cont     = 0
+              WHILE ~cont DO BEGIN
+                 READ,response,PROMPT='Quit now? (y/n)'
+                 CASE STRUPCASE(response) OF
+                    'Y': BEGIN
+                       cont = 1
+                       RETURN
+                    END
+                    'N': BEGIN
+                       cont = 1
+                    END
+                    ELSE: BEGIN
+                       PRINT,"Invalid! Try again"
+                       cont = 0
+                    END
+                 ENDCASE
+              ENDWHILE
+           ENDIF
         ENDIF
 
         ;;get_orbit data
@@ -1371,6 +1332,37 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            STORE_DATA,'Ji_up',DATA={x:jiUpTmp_time,y:jiUpTmp}
         
         
+           IF KEYWORD_SET(save_particle_data) THEN BEGIN
+              SAVE_PARTICLE_DATA,ptclFile, $
+                                 {x:jiTotTmp_time,y:jiTotTmp}, $
+                                 {x:jEiTotTmp_time,y:jEiTotTmp}, $
+                                 {x:jeeLC_time,y:jeeLC}, $
+                                 {x:jeLCTmp_time,y:jeLCTmp}, $
+                                 {x:jeeTotTmp_time,y:jeeTotTmp}, $
+                                 {x:jeTotTmp_time,y:jeTotTmp}, $
+                                 {x:jiUpTmp_time,y:jiUpTmp}, $
+                                 {x:jEiUpTmp_time,y:jEiUpTmp}
+              
+              ;; Ji_tot  = {x:jiTotTmp_time,y:jiTotTmp}
+              ;; JEi_tot = {x:jEiTotTmp_time,y:jEiTotTmp}
+              ;; JEe_lc  = {x:jeeLC_time,y:jeeLC}
+              ;; Je_lc   = {x:jeLCTmp_time,y:jeLCTmp}
+              ;; JEe_tot = {x:jeeTotTmp_time,y:jeeTotTmp}
+              ;; Je_tot  = {x:jeTotTmp_time,y:jeTotTmp}
+              ;; Ji_up   = {x:jiUpTmp_time,y:jiUpTmp}
+              ;; JEi_up  = {x:jEiUpTmp_time,y:jEiUpTmp}
+
+              ;; Ji_tot  = !NULL
+              ;; JEi_tot = !NULL
+              ;; JEe_lc  = !NULL
+              ;; Je_lc   = !NULL
+              ;; JEe_tot = !NULL
+              ;; Je_tot  = !NULL
+              ;; Ji_up   = !NULL
+              ;; JEi_up  = !NULL
+           ENDIF
+
+
         ;;get ion end electron characteristic energies
         chare      = (jeeLC/jeLCTmp)*6.242*1.0e11
         chare_tot  = (jeeTotTmp/jeTotTmp)*6.242*1.0e11
@@ -1394,15 +1386,17 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         STORE_DATA,'JEei_tot',DATA={x:jeeTotTmp_time,y:jee_tot_ionos_tmp_data}
         
         ;;IF we want to save a summary plot
-        IF KEYWORD_SET(png_sumplot) THEN BEGIN
-           CGPS_OPEN, outPlotDir+'as6_spec--orbit' + STRCOMPRESS(orbit_num+'_'+STRING(jjj), $
-                                                                 /REMOVE_ALL) + '.ps',FONT=1
+        IF KEYWORD_SET(ps_sumplot) THEN BEGIN
+           CGPS_OPEN,outPlotDir+'Dartmouth_as6_spectral--summary--orbit' + $
+                     STRCOMPRESS(orbit_num,/REMOVE_ALL)+ $
+                     '_'+STRCOMPRESS(jjj,/REMOVE_ALL) + '.ps', $
+                     FONT=1
            LOADCT,39
            !P.CHARSIZE = 1.3
            TPLOT,['Je_tot','CharE','JEei','Ji_tot','JEi_tot','MagZ','jtemp'] , $
                  VAR_LABEL=['ALT','MLT','ILAT'], $
                  TRANGE=[tmpT1,tmpT2]
-           CGPS_CLOSE,/PNG,/DELETE_PS,WIDTH=1000
+           CGPS_CLOSE,WIDTH=1000
         ENDIF ELSE BEGIN 
            IF NOT KEYWORD_SET(dontShowPlots) THEN BEGIN
               sumWInd = 0
@@ -1903,8 +1897,6 @@ PRO PREP_AND_PLOT_AS6_TPLOTS, $
   IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'dBpSpecFilt',0,yLimUpper,0
   OPTIONS,'dBpSpecFilt','panel_size',2.0
 
-  STORE_DATA,'MagZ',DATA=magz
-
   ZLIM,'EAVSpec',eAVSpecLims[0],eAVSpecLims[1],1 ; set z limits
   IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'EAVSpec',0,yLimUpper,0
   OPTIONS,'EAVSpec','ytitle','Frequency!C(Hz)'
@@ -2153,7 +2145,7 @@ PRO PFLUX_PLOTS,pFluxP,pFluxB, $
   ;; yRange      = [MIN(pFluxP),MAX(pFluxP)]
   pFluxyRange = [(MIN(pFluxP) < MIN(pFluxB)),(MAX(pFluxP) > MAX(pFluxB))]
 
-  IF KEYWORD_SET(show_maximus_events) AND ~KEYWORD_SET(badMaximus) THEN BEGIN
+  IF KEYWORD_SET(show_maximus_events) AND (great_i[0] NE -1) THEN BEGIN
      ;; maxPFluxRange = [MIN(maxPFlux),MAX(maxPFlux)]
 
      pFluxyRange[0] = pFluxyRange[0] < MIN(maxPFlux)
@@ -2203,7 +2195,7 @@ PRO PFLUX_PLOTS,pFluxP,pFluxB, $
                      /OVERPLOT, $
                      CURRENT=window2)
 
-  IF KEYWORD_SET(show_maximus_events) AND ~KEYWORD_SET(badMaximus) THEN BEGIN
+  IF KEYWORD_SET(show_maximus_events) AND (great_i[0] NE -1) THEN BEGIN
 
      maxPFluxPlot  = PLOT(UTC_TO_JULDAY(cdbTime[great_i]), $
                           maxPFlux, $
@@ -2339,5 +2331,224 @@ PRO MAGJPLOT,magz,jtemp,sign_jtemp,winAlf_i
                          MARGIN=margin, $
                          ;; /OVERPLOT, $
                          CURRENT=window3)
+
+END
+
+PRO COMPARE_PFLUXES_W_MAXIMUS,nWinFFT, $
+                              winFFT_i, $
+                              winAlfFFT_i, $
+                              winAlf_i, $
+                              sRates, $
+                              pFluxB, $
+                              pFluxP, $
+                              great_i, $
+                              cdbTime, $
+                              magz, $
+                              maxPFlux, $
+                              OUT_PFSTATS=pfStats, $
+                              OUT_TAVGFFTPFLUXB=tAvgFFTPFluxB, $
+                              OUT_TAVGFFTPFLUXP=tAvgFFTPFluxP, $
+                              OUT_TAVGMAXPFLUX =tAvgMaxPFlux
+
+  COMPILE_OPT idl2
+
+  tAvgFFTPFluxB = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
+  tAvgFFTPFluxP = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
+  tAvgMaxPFlux  = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
+  
+  totTime       = 0.
+  totMax_ii     = !NULL
+  totWeightPFB  = 0
+  totWeightPFP  = 0
+  FOR k=0,nWinFFT-1 DO BEGIN
+     strtMag_i     = winAlfFFT_i[0,k]
+     stopMag_i     = winAlfFFT_i[1,k]
+     tmpLength     = FLOAT(stopMag_i-strtMag_i+1)
+
+     tmpTime       = tmpLength / sRates[winFFT_i[k]]
+
+     weightPFB     = TOTAL(pFluxB[strtMag_i:stopMag_i])
+     weightPFP     = TOTAL(pFluxP[strtMag_i:stopMag_i])
+
+     tAvgFFTPfluxB[k] = weightPFB / tmpLength
+     tAvgFFTPfluxP[k] = weightPFP / tmpLength
+
+     totWeightPFB += weightPFB
+     totWeightPFP += weightPFP
+     totTime      += tmpTime
+
+  ENDFOR
+
+  IF great_i[0] NE -1 THEN BEGIN
+     FOR k=0,nWinFFT-1 DO BEGIN
+
+        ;;Get Maximus Pfluxes falling in this neighborhood
+        tmpMax_ii     = WHERE((cdbTime[great_i] GE magz.x[winAlfFFT_i[0,k]]) AND $
+                              (cdbTime[great_i] LE magz.x[winAlfFFT_i[1,k]]),nTmpMax)
+        totMax_ii     = [totMax_ii,tmpMax_ii]
+
+        IF nTmpMax GT 0 THEN BEGIN
+           tAvgMaxPFlux[k] = TOTAL(maxPFlux[tmpMax_ii]*width_t[tmpMax_ii]) / tmpTime
+        ENDIF
+
+     ENDFOR
+
+     totMaxPFlux  = TOTAL(maxPFlux[totMax_ii]*width_t[totMax_ii])/totTime
+     meanMaxPFlux = MEAN(maxPFlux[totMax_ii])
+     lgMnMaxPFlux = MEAN(ALOG10(maxPFlux[totMax_ii]))
+     mednMaxPFlux = MEDIAN(maxPFlux[totMax_ii])
+  ENDIF ELSE BEGIN
+     totMaxPFlux  = -999
+     meanMaxPFlux = -999
+     lgMnMaxPFlux = -999
+     mednMaxPFlux = -999
+  ENDELSE
+
+  totPFB = totWeightPFB/totTime
+  totPFP = totWeightPFP/totTime
+
+  meanPFB = MEAN(pFluxB[winAlf_i])   
+  meanPFP = MEAN(pFluxP[winAlf_i])   
+
+  lgMnPFB = MEAN(ALOG10(ABS(pFluxB[winAlf_i])))
+  lgMnPFP = MEAN(ALOG10(ABS(pFluxP[winAlf_i]))) 
+
+  mednPFB = MEDIAN(pFluxB[winAlf_i])   
+  mednPFP = MEDIAN(pFluxP[winAlf_i])   
+
+  posWinAlfB_i = CGSETINTERSECTION(winAlf_i,WHERE(pFluxB GT 0))
+  negWinAlfB_i = CGSETINTERSECTION(winAlf_i,WHERE(pFluxB LT 0))
+
+  posWinAlfP_i = CGSETINTERSECTION(winAlf_i,WHERE(pFluxP GT 0))
+  negWinAlfP_i = CGSETINTERSECTION(winAlf_i,WHERE(pFluxP LT 0))
+
+  IF posWinAlfB_i[0] NE -1 THEN BEGIN
+     posMeanPFB = MEAN(pFluxB[posWinAlfB_i])   
+     posLgMnPFB = MEAN(ALOG10(pFluxB[posWinAlfB_i]))
+     posMednPFB = MEDIAN(pFluxB[posWinAlfB_i])   
+  ENDIF ELSE BEGIN
+     posMeanPFB = -999
+     posLgMnPFB = -999
+     posMednPFB = -999
+  ENDELSE
+
+  IF posWinAlfP_i[0] NE -1 THEN BEGIN
+     posMeanPFP = MEAN(pFluxP[posWinAlfP_i])   
+     posLgMnPFP = MEAN(ALOG10(pFluxP[posWinAlfP_i]))
+     posMednPFP = MEDIAN(pFluxP[posWinAlfP_i])   
+  ENDIF ELSE BEGIN
+     posMeanPFP = -999
+     posLgMnPFP = -999
+     posMednPFP = -999
+  ENDELSE
+
+  IF negWinAlfB_i[0] NE -1 THEN BEGIN
+     negMeanPFB = MEAN(pFluxB[negWinAlfB_i])   
+     negLgMnPFB = MEAN(ALOG10(ABS(pFluxB[negWinAlfB_i])))
+     negMednPFB = MEDIAN(pFluxB[negWinAlfB_i])   
+  ENDIF ELSE BEGIN
+     negMeanPFB = -999
+     negLgMnPFB = -999
+     negMednPFB = -999
+  ENDELSE
+
+  IF negWinAlfP_i[0] NE -1 THEN BEGIN
+     negMeanPFP = MEAN(pFluxP[negWinAlfP_i])   
+     negLgMnPFP = MEAN(ALOG10(ABS(pFluxP[negWinAlfP_i])))
+     negMednPFP = MEDIAN(pFluxP[negWinAlfP_i])   
+  ENDIF ELSE BEGIN
+     negMeanPFP = -999
+     negLgMnPFP = -999
+     negMednPFP = -999
+  ENDELSE
+
+  pfStats = {total:{maximus:totMaxPFlux, $
+                    PFB:totPFB, $
+                    PFP:totPFP, $
+                    time:totTime}, $
+             mean:{maximus:meanMaxPFlux, $
+                   PFB:meanPFB, $
+                   PFP:meanPFP}, $
+             posMean:{PFB:posMeanPFB, $
+                      PFP:posMeanPFP}, $
+             negMean:{PFB:negMeanPFB, $
+                      PFP:negMeanPFP}, $
+             logMean:{maximus:lgMnMaxPFlux, $
+                      PFB:lgMnPFB, $
+                      PFP:lgMnPFP}, $
+             posLgMn:{PFB:posLgMnPFB, $
+                      PFP:posLgMnPFP}, $
+             negLgMn:{PFB:negLgMnPFB, $
+                      PFP:negLgMnPFP}, $
+             median:{maximus:mednMaxPFlux, $
+                     PFB:mednPFB, $
+                     PFP:mednPFP}, $
+             posMedn:{PFB:posMednPFB, $
+                      PFP:posMednPFP}, $
+             negMedn:{PFB:negMednPFB, $
+                      PFP:negMednPFP}}
+
+  PRINT,'Time-averaged Poynting flux over this little period '
+  PRINT,FORMAT='(A0,T25,A0,T50,A0)',"Maximus", $
+        "Spec Method (along B)", $
+        "Spec Method (perp)"
+  FOR k=0,nWinFFT-1 DO BEGIN
+     PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+           tAvgMaxPFlux[k], $
+           tAvgFFTPFluxB[k], $
+           tAvgFFTPFluxP[k]
+  ENDFOR
+
+  PRINT,''
+  PRINT,'Totals'
+  PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+        totMaxPFlux, $
+        totPFB, $
+        totPFP
+  PRINT,''
+  PRINT,'Straight Averages'
+  PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+        meanMaxPFlux, $
+        meanPFB     , $
+        meanPFP
+  PRINT,''
+  PRINT,'Log Averages'
+  PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+        lgMnMaxPFlux, $
+        lgMnPFB, $
+        lgMnPFP
+  PRINT,''
+  PRINT,'Medians'
+  PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+        mednMaxPFlux, $
+        mednPFB, $
+        mednPFP
+
+END
+
+PRO SAVE_PARTICLE_DATA,ptclFile, $
+                       Ji_tot, $
+                       JEi_tot, $
+                       JEe_lc, $
+                       Je_lc, $
+                       JEe_tot, $
+                       Je_tot, $
+                       Ji_up, $
+                       JEi_up 
+
+  COMPILE_OPT idl2
+
+  PRINT,"Saving particle data ..."
+  SAVE, $
+     Ji_tot  , $
+     JEi_tot , $
+     JEe_lc  , $
+     Je_lc   , $
+     JEe_tot , $
+     Je_tot  , $
+     Ji_up   , $
+     JEi_up  , $
+     FILENAME=ptclFile
+
 
 END

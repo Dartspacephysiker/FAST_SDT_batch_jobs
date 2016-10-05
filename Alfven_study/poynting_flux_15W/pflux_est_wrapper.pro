@@ -22,7 +22,12 @@
 ;*****************************
 ;Put code here:
 
-ALFVEN_STATS_6_SPECTRAL,/SAVE_PS,/SAVE_LIL_DATA_PACKAGE,/SHOW_ALF_EVENTS_FROM_MAXIMUS,/COMPARE_AVERAGE_POYNTING_FLUXES
+ALFVEN_STATS_6_SPECTRAL,/SAVE_PS, $
+                        /PS_SUMPLOT, $
+                        /SAVE_LIL_DATA_PACKAGE, $
+                        /SHOW_ALF_EVENTS_FROM_MAXIMUS, $
+                        /COMPARE_AVERAGE_POYNTING_FLUXES, $
+                        /BATCH_MODE
 
 ;*****************************
 ;End routine:
