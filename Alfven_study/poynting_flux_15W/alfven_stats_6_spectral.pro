@@ -275,8 +275,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
      ;;make sure we're not overwriting
      IF FILE_TEST(curfile) THEN BEGIN
         IF NOT KEYWORD_SET(cont_if_file_exists) THEN BEGIN
-           right_now  = STRMID(TIMESTAMP(),0,13)
-           curfile    = curfile + "--" + right_now
+           ;; right_now  = STRMID(TIMESTAMP(),0,13)
+           ;; curfile    = curfile + "--" + right_now
         ENDIF ELSE BEGIN
            IF KEYWORD_SET(cont_if_file_exists) THEN BEGIN
               PRINT,"Not overwriting file " + curfile + "! Returning..."
@@ -879,6 +879,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
               PRINT,"No good Alf events here!"
               great_i    = [-1]
               maxPFlux   = -1
+              width_t    = -1
            ENDELSE
         ENDIF
 
@@ -1055,6 +1056,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                                      cdbTime, $
                                      magz, $
                                      maxPFlux, $
+                                     width_t, $
                                      OUT_PFSTATS=pfStats, $
                                      OUT_TAVGFFTPFLUXB=tAvgFFTPFluxB, $
                                      OUT_TAVGFFTPFLUXP=tAvgFFTPFluxP, $
@@ -2354,6 +2356,7 @@ PRO COMPARE_PFLUXES_W_MAXIMUS,nWinFFT, $
                               cdbTime, $
                               magz, $
                               maxPFlux, $
+                              width_t, $
                               OUT_PFSTATS=pfStats, $
                               OUT_TAVGFFTPFLUXB=tAvgFFTPFluxB, $
                               OUT_TAVGFFTPFLUXP=tAvgFFTPFluxP, $
