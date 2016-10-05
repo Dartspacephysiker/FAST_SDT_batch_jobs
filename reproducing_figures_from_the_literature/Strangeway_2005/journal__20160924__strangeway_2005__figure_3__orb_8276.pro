@@ -64,6 +64,9 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
 
   ON_ERROR,0
 
+  ;;Set YNOZERO
+  !Y.STYLE = (!Y.STYLE) OR 16
+
   normColorI     = (KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) ? 0 : 255
 
   mu_0           = DOUBLE(4.0D*!PI*1e-7)
