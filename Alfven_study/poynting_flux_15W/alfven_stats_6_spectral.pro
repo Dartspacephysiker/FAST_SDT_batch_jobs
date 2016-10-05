@@ -275,7 +275,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
      ;;make sure we're not overwriting
      IF FILE_TEST(curfile) THEN BEGIN
         IF NOT KEYWORD_SET(cont_if_file_exists) THEN BEGIN
-           right_now  = strmid(timestamp(),0,13)
+           right_now  = STRMID(TIMESTAMP(),0,13)
            curfile    = curfile + "--" + right_now
         ENDIF ELSE BEGIN
            IF KEYWORD_SET(cont_if_file_exists) THEN BEGIN
@@ -1039,6 +1039,11 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
         IF KEYWORD_SET(compare_pFluxes__specMethod_maximus) OR $
            KEYWORD_SET(save_lil_package) THEN BEGIN
+
+           compareFile = outDir+'txtOutput/'+'Dartmouth_as6_pFlux_comparison--'+ $
+                         orbItvlSuff + '--' + bonusSuff
+           PRINT,"Opening file for pFlux comparison: " + compareFile + ' ...'
+           OPENW,compLun,compareFile,/GET_LUN
            COMPARE_PFLUXES_W_MAXIMUS,nWinFFT, $
                                      winFFT_i, $
                                      winAlfFFT_i, $
@@ -1053,7 +1058,11 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                                      OUT_PFSTATS=pfStats, $
                                      OUT_TAVGFFTPFLUXB=tAvgFFTPFluxB, $
                                      OUT_TAVGFFTPFLUXP=tAvgFFTPFluxP, $
-                                     OUT_TAVGMAXPFLUX =tAvgMaxPFlux
+                                     OUT_TAVGMAXPFLUX =tAvgMaxPFlux, $
+                                     LUN=compLun
+
+           CLOSE,compLun
+           FREE_LUN,compLun
 
         ENDIF ELSE BEGIN
            pfStats = -1
@@ -2348,9 +2357,12 @@ PRO COMPARE_PFLUXES_W_MAXIMUS,nWinFFT, $
                               OUT_PFSTATS=pfStats, $
                               OUT_TAVGFFTPFLUXB=tAvgFFTPFluxB, $
                               OUT_TAVGFFTPFLUXP=tAvgFFTPFluxP, $
-                              OUT_TAVGMAXPFLUX =tAvgMaxPFlux
+                              OUT_TAVGMAXPFLUX =tAvgMaxPFlux, $
+                              LUN=lun
 
   COMPILE_OPT idl2
+
+  IF N_ELEMENTS(lun) EQ 0 THEN lun = -1
 
   tAvgFFTPFluxB = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
   tAvgFFTPFluxP = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
@@ -2488,38 +2500,39 @@ PRO COMPARE_PFLUXES_W_MAXIMUS,nWinFFT, $
              negMedn:{PFB:negMednPFB, $
                       PFP:negMednPFP}}
 
-  PRINT,'Time-averaged Poynting flux over this little period '
-  PRINT,FORMAT='(A0,T25,A0,T50,A0)',"Maximus", $
+
+  PRINTF,lun,'Time-averaged Poynting flux over this little period '
+  PRINTF,lun,FORMAT='(A0,T25,A0,T50,A0)',"Maximus", $
         "Spec Method (along B)", $
         "Spec Method (perp)"
   FOR k=0,nWinFFT-1 DO BEGIN
-     PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+     PRINTF,lun,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
            tAvgMaxPFlux[k], $
            tAvgFFTPFluxB[k], $
            tAvgFFTPFluxP[k]
   ENDFOR
 
-  PRINT,''
-  PRINT,'Totals'
-  PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+  PRINTF,lun,''
+  PRINTF,lun,'Totals'
+  PRINTF,lun,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
         totMaxPFlux, $
         totPFB, $
         totPFP
-  PRINT,''
-  PRINT,'Straight Averages'
-  PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+  PRINTF,lun,''
+  PRINTF,lun,'Straight Averages'
+  PRINTF,lun,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
         meanMaxPFlux, $
         meanPFB     , $
         meanPFP
-  PRINT,''
-  PRINT,'Log Averages'
-  PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+  PRINTF,lun,''
+  PRINTF,lun,'Log Averages'
+  PRINTF,lun,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
         lgMnMaxPFlux, $
         lgMnPFB, $
         lgMnPFP
-  PRINT,''
-  PRINT,'Medians'
-  PRINT,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+  PRINTF,lun,''
+  PRINTF,lun,'Medians'
+  PRINTF,lun,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
         mednMaxPFlux, $
         mednPFB, $
         mednPFP
