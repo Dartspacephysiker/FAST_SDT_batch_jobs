@@ -156,8 +156,8 @@ PRO JOURNAL__20160905__ORBIT_1789__OUTRIGHT_2DFIT__ION_BEAM
         DO_ALL_TIMES=do_all_times, $
         ENERGY_ELECTRONS=energy_electrons, $
         LOAD_DAT_FROM_FILE=diff_eFlux_file, $
-        SAVE_DIFF_EFLUX_TO_FILE=save_diff_eFlux_to_file, $
         LOAD_DIR=outDir, $
+        SAVE_DIFF_EFLUX_TO_FILE=save_diff_eFlux_to_file, $
         EEB_OR_EES=eeb_or_ees, $
         SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
         MIN_PEAK_ENERGY=min_peak_energy, $

@@ -52,7 +52,7 @@ PRO JOURNAL__20160902__ORBIT_1849__OUTRIGHT_2DFIT__USE_OFFLINE_DATA
 
   energy_electrons             = [3e1,3.3e4]
   ;; electron_lca                 = 40
-  electron_lca                 = 150
+  electron_lca                 = [150,-150]
   min_peak_energy              = 800
 
   t1Str                        = '97-02-08/10:11:22'
