@@ -12,7 +12,8 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
    USE_FAC=use_fac, $
    NO_BLANK_PANELS=no_blank_panels, $
    SAVE_PNG=save_png, $
-   SAVE_PS=save_ps
+   SAVE_PS=save_ps, $
+   SAVE_B_AND_J_DATA=save_B_and_J_data
 
 ; create a summary plot of:
 ; SFA (AKR)
@@ -607,18 +608,116 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
                     name='Je_tot',energy=[0,energy_electrons[1]],sc_pot=sc_pot
      
      GET_DATA,'Je_tot',DATA=tmp
-     tmp.y          *= -1. ;;Since we're in Southern Hemi
-     keep1           = WHERE(FINITE(tmp.y))
-     tmp.x           = tmp.x[keep1]
-     tmp.y           = tmp.y[keep1]
-     keep2           = WHERE(tmp.y GT 0.0)
-     jeTotTmp_time   = tmp.x[keep2]
-     jeTotTmp        = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
-     jeTotTmp       *= sphCrossSec
+     keep1          = WHERE(FINITE(tmp.y))
+     tmp.x          = tmp.x[keep1]
+     tmp.y          = tmp.y[keep1]
+
+     ;;For output
+     jeTotTmp_time  = tmp.x
+     jeTotTmp       = tmp.y*1.6e-9 ;;in microA/m2
+
+     ;;For nice plots
+     tmp.y         *= -1. ;;Since we're in Southern Hemi
+     keep2          = WHERE(tmp.y GT 0.0)
+     IeTotTmp_time  = tmp.x[keep2]
+     IeTotTmp       = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
+     IeTotTmp      *= sphCrossSec
+
+     Je_z           = {x:jeTotTmp_time,y:jeTotTmp}
+     IeTot_z        = {x:IeTotTmp_time,y:IeTotTmp}
+     STORE_DATA,'ESACur',DATA=IeTot_z
      OPTIONS,'ESACur','colors',250
 
-     STORE_DATA,'ESACur',DATA={x:jeTotTmp_time,y:jeTotTmp}
+  IF KEYWORD_SET(save_B_and_J_data) THEN BEGIN
+     UCLA_MAG_DESPIN,TW_MAT=tw_mat,ORBIT=orbit,SPIN_AXIS=spin_axis,DELTA_PHI=delta_phi
 
+     PRINT,"Getting Ji current density fo' yeh'"
+     GET_2DT_TS_POT,'j_2d_b','fa_ieb',t1=t1Zoom,t2=t2Zoom, $
+                    name='Ji_tot',energy=[0,energy_ions[1]], $
+                    angle=[180,360]
+                    sc_pot=sc_pot
+     GET_2DT_TS_POT,'j_2d_b','fa_eeb',t1=t1Zoom,t2=t2Zoom, $
+                    name='Ji_tot_S',energy=[0,energy_ions[1]], $
+                    angle=[180,360]
+                    sc_pot=sc_pot
+     GET_2DT_TS_POT,'j_2d_b','fa_ees',t1=t1Zoom,t2=t2Zoom, $
+                    name='Je_tot_S',energy=[0,energy_electrons[1]], $
+                    sc_pot=sc_pot
+     
+     ;;First, burst ion data
+     GET_DATA,'Ji_tot',DATA=tmp
+     keep1          = WHERE(FINITE(tmp.y))
+     tmp.x          = tmp.x[keep1]
+     tmp.y          = tmp.y[keep1]
+
+     ;;For output
+     jiTotTmp_time  = tmp.x
+     jiTotTmp       = tmp.y*1.6e-9*2. ;;in microA/m2, times 2 since half angle range
+
+     ;;For nice plots
+     tmp.y         *= -1. ;;Since we're in Southern Hemi
+     keep2          = WHERE(tmp.y GT 0.0)
+     IiTotTmp_time  = tmp.x[keep2]
+     IiTotTmp       = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
+     IiTotTmp      *= sphCrossSec
+
+     Ji_z           = {x:jiTotTmp_time,y:jiTotTmp}
+     IiTot_z        = {x:IiTotTmp_time,y:IiTotTmp}
+
+     ;;Now survey ESA ion data for patching the burst holes
+     GET_DATA,'Ji_tot_S',DATA=tmp
+     keep1          = WHERE(FINITE(tmp.y))
+     tmp.x          = tmp.x[keep1]
+     tmp.y          = tmp.y[keep1]
+
+     ;;For output
+     jiTotTmp_time  = tmp.x
+     jiTotTmp       = tmp.y*1.6e-9*2. ;;in microA/m2, times 2 since half angle range
+
+     ;;For nice plots
+     tmp.y         *= -1. ;;Since we're in Southern Hemi
+     keep2          = WHERE(tmp.y GT 0.0)
+     IiTotTmp_time  = tmp.x[keep2]
+     IiTotTmp       = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
+     IiTotTmp      *= sphCrossSec
+
+     Ji_z_S         = {x:jiTotTmp_time,y:jiTotTmp}
+     IiTot_z_S      = {x:IiTotTmp_time,y:IiTotTmp}
+
+     ;;Now electron ESA survey
+     GET_DATA,'Je_tot_S',DATA=tmp
+     keep1          = WHERE(FINITE(tmp.y))
+     tmp.x          = tmp.x[keep1]
+     tmp.y          = tmp.y[keep1]
+
+     ;;For output
+     jeTotTmp_time  = tmp.x
+     jeTotTmp       = tmp.y*1.6e-9 ;;in microA/m2
+
+     ;;For nice plots
+     tmp.y         *= -1. ;;Since we're in Southern Hemi
+     keep2          = WHERE(tmp.y GT 0.0)
+     IeTotTmp_time  = tmp.x[keep2]
+     IeTotTmp       = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
+     IeTotTmp      *= sphCrossSec
+
+     Je_z_S         = {x:jeTotTmp_time,y:jeTotTmp}
+     IeTot_z        = {x:IeTotTmp_time,y:IeTotTmp}
+
+
+     saveDir  = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/'
+     saveFile = 'Chaston_et_al_2006--B_and_J.sav'
+     B_J_file = 'Chaston_et_al_2006--B_and_J.dat'
+
+     GET_DATA,'dB_fac_v',DATA=dB_fac_v
+     GET_DATA,'dB_fac',DATA=dB_fac
+
+     PRINT,'Saving ' + saveFile + ' ...'
+     SAVE,Je_z,Ji_z, $
+          Je_z_S,Ji_z_S, $
+          dB_fac_v,dB_fac,FILENAME=saveDir+saveFile
+
+  ENDIF
 
 
 ; STEP 6 - Clean up and return
