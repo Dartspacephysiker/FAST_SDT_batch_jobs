@@ -1,9 +1,10 @@
 ;2016/09//08
 ;And now it's time to apply the latest wisdoms to orb 1849
-PRO JOURNAL__20160908__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT
+PRO JOURNAL__20160908__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT, $
    SAVE_DATA=save_data, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps, $
+   LOG_KAPPAPLOT=log_kappaPlot, $
    FIT2D__USE_DATA_DENS=use_data_dens, $
    FIT2D__CALC_FITDENS_OVER_ARANGE=calc_fitDens__aRange, $
    FIT2D__BOTH_USE_KAPPA_BULKENERGY=both_use_kappa_bulkEnergy, $
@@ -40,16 +41,18 @@ PRO JOURNAL__20160908__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT
   ;; GET_DATA,'B_model',   DATA=B_model_originalsk
   ;; GET_DATA,'JeF',       DATA=JeF_originalsk
 
-  R_B                = 40.0      ;For calculating Maxwellian and Kappa current
+  R_B                = 6.0      ;For calculating Maxwellian and Kappa current
 
   fitDir             = '~/software/sdt/batch_jobs/saves_output_etc/'
 
   ;; fitFile            = '20160808--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d.sav'
 
   fitFile            = '20160809--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d--saveme.sav'
+  fitFile            = '20161008--McFadden_et_al_1998--Kappa_fits_and_Gauss_fits--eeb--fit2d--all_times--150to150--mpfitfun1d--notindividualfit.sav' + $
+                       '--fit_above_950_eV--No_bFunc--exc_LCA.sav'
 
-  kappaTxtFile                 = '20160809--McFadden_et_al_1998--Kappa_fits.txt'
-  gaussTxtFile                 = '20160809--McFadden_et_al_1998--Gauss_fits.txt'
+  ;; kappaTxtFile                 = '20160809--McFadden_et_al_1998--Kappa_fits.txt'
+  ;; gaussTxtFile                 = '20160809--McFadden_et_al_1998--Gauss_fits.txt'
 
   offlineFile                    = 'orb_1849--' + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--burst_offline.sav'
 
@@ -176,7 +179,7 @@ PRO JOURNAL__20160908__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT
      endelse
   ENDIF ELSE BEGIN
      ;; eAngle                      = [360.-30.,30.]
-     eAngle                      = [360.-40.,40.]
+     eAngle                      = [360.-22.,22.]
      iAngle                      = [135.,225.]
   ENDELSE
 
@@ -345,47 +348,49 @@ PRO JOURNAL__20160908__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT
      STOP
   ENDIF
 
-  kappa2D            = PARSE_KAPPA_FIT2D_INFO_LIST(fit2DKappa_inf_list, $
-                                                   HIGHDENSITY_THRESHOLD=highDens_thresh, $
-                                                   KAPPA_LOWTHRESHOLD=lKappa_thresh, $
-                                                   KAPPA_HIGHTHRESHOLD=hKappa_thresh, $
-                                                   /DESTROY_INFO_LIST, $
-                                                   OUT_GOOD_I=includeK_i, $
-                                                   OUT_GOOD_T=includeK_t, $
-                                                   OUT_BAD_I=excludeK_i, $
-                                                   OUT_BAD_T=excludeK_t)
+  kappa2D            = PARSE_KAPPA_FIT2D_INFO_LIST_V2(fit2DKappa_inf_list, $
+                                                      HIGHDENSITY_THRESHOLD=highDens_thresh, $
+                                                      KAPPA_LOWTHRESHOLD=lKappa_thresh, $
+                                                      KAPPA_HIGHTHRESHOLD=hKappa_thresh, $
+                                                      /DESTROY_INFO_LIST, $
+                                                      OUT_GOOD_I=includeK_i, $
+                                                      OUT_GOOD_T=includeK_t, $
+                                                      OUT_BAD_I=excludeK_i, $
+                                                      OUT_BAD_T=excludeK_t)
 
-  gauss2D            = PARSE_KAPPA_FIT2D_INFO_LIST(fit2DGauss_inf_list, $
-                                                   HIGHDENSITY_THRESHOLD=highDens_thresh, $
-                                                   KAPPA_LOWTHRESHOLD=lKappa_thresh, $
-                                                   KAPPA_HIGHTHRESHOLD=100.1, $
-                                                   /DESTROY_INFO_LIST, $
-                                                   OUT_GOOD_I=includeG_i, $
-                                                   OUT_GOOD_T=includeG_t, $
-                                                   OUT_BAD_I=excludeG_i, $
-                                                   OUT_BAD_T=excludeG_t)
+  gauss2D            = PARSE_KAPPA_FIT2D_INFO_LIST_V2(fit2DGauss_inf_list, $
+                                                      HIGHDENSITY_THRESHOLD=highDens_thresh, $
+                                                      KAPPA_LOWTHRESHOLD=lKappa_thresh, $
+                                                      KAPPA_HIGHTHRESHOLD=100.1, $
+                                                      /DESTROY_INFO_LIST, $
+                                                      OUT_GOOD_I=includeG_i, $
+                                                      OUT_GOOD_T=includeG_t, $
+                                                      OUT_BAD_I=excludeG_i, $
+                                                      OUT_BAD_T=excludeG_t)
 
-  PARSE_KAPPA_FIT_STRUCTS,kappa2D.params1D, $
+  PARSE_KAPPA_FIT_STRUCTS,kappaFits, $
                           A=a, $
+                          STRUCT_A=Astruct, $
                           TIME=kappaTime, $
-                          STRUCT_A=AStruct, $
-                          NAMES_A=ANames, $
+                          NAMES_A=A_names, $
                           CHI2=chi2, $
                           PVAL=pVal, $
                           FITSTATUS=fitStatus, $
-                            USE_MPFIT1D=use_mpFit1D
+                          USE_MPFIT1D=use_mpFit1D
 
-  PARSE_KAPPA_FIT_STRUCTS,gauss2D.params1D, $
+  PARSE_KAPPA_FIT_STRUCTS,gaussFits, $
                           A=AGauss, $
                           STRUCT_A=AStructGauss, $
-                          TIME=gaussTime, $
-                          NAMES_A=AGaussNames, $
+                          TIME=GaussTime, $
+                          NAMES_A=AGauss_names, $
                           CHI2=chi2Gauss, $
                           PVAL=pValGauss, $
                           FITSTATUS=gaussfitStatus, $
                           USE_MPFIT1D=use_mpFit1D
 
-  nFits                        = N_ELEMENTS(Astruct.kappa)
+  IF ~ARRAY_EQUAL(kappaTime,GaussTime) THEN STOP
+
+  nFits                        = N_ELEMENTS(kappa2D.fitDens)
   badFits_i                    = WHERE(fitStatus NE 0,nBadFits)
   badGaussFits_i               = WHERE(gaussFitStatus NE 0,nBadGaussFits)
   PRINT,""
@@ -396,8 +401,16 @@ PRO JOURNAL__20160908__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT
   PRINT,"NbadGaussFits : ",nBadGaussFits
   PRINT,"NBothBad      : ",N_ELEMENTS(CGSETINTERSECTION(badFits_i,badGaussFits_i))
 
-  STORE_DATA,'kappa_fit',DATA={x:kappaTime,y:Astruct.kappa}
-  YLIM,'kappa_fit',1.0,100,1
+  ;; STORE_DATA,'kappa_fit',DATA={x:kappaTime,y:Astruct.kappa}
+  STORE_DATA,'kappa_fit',DATA={x:kappaTime,y:REFORM(kappa2D.fitParams[2,*])}
+  CASE 1 OF
+     KEYWORD_SET(log_kappaPlot): BEGIN
+        YLIM,'kappa_fit',1.0,100,1
+     END
+     ELSE: BEGIN
+        YLIM,'kappa_fit',1.0,11,0
+     END
+  ENDCASE
   OPTIONS,'kappa_fit','ytitle',"Kappa!CFit Val"
   OPTIONS,'kappa_fit','psym',2  ;Asterisk
 
@@ -514,25 +527,25 @@ PRO JOURNAL__20160908__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT
   OPTIONS,'onecheese','colors',green
   OPTIONS,'onecheese','tplot_routine','mplot'
   OPTIONS,'onecheese','ytitle','Current!C('+CGGREEK('mu')+'A/m!U2!Ns)'
-  YLIM,   'onecheese',-3,0
+  YLIM,   'onecheese',MIN(obs_current) < MIN(gauss_current) < MIN(kappa_current),0
 
   OPTIONS,'onecheese','labels',obsName
   OPTIONS,'onecheese','labflag',3
-  OPTIONS,'onecheese','labpos',-0.5
-  OPTIONS,'onecheese','yticks',5                                    ; set y-axis labels
-  OPTIONS,'onecheese','ytickname',['-4.0','-3.0','-2.0','-1.0','0'] ; set y-axis labels
-  OPTIONS,'onecheese','ytickv',[-4.0,-3.0,-2.0,-1.0,0.0]            ; set y-axis labels
+  OPTIONS,'onecheese','labpos',-0.25
+  OPTIONS,'onecheese','yticks',2                                    ; set y-axis labels
+  OPTIONS,'onecheese','ytickname',['-2.0','-1.0','0'] ; set y-axis labels
+  OPTIONS,'onecheese','ytickv',[-2.0,-1.0,0.0]            ; set y-axis labels
 
   OPTIONS,'fourcheese','colors',red
   OPTIONS,'fourcheese','labels','Fluxgate mag'
   OPTIONS,'fourcheese','labflag',3
-  OPTIONS,'fourcheese','labpos',-1.5
+  OPTIONS,'fourcheese','labpos',-0.75
 
   OPTIONS,'toppings','labels' ,['Maxwellian Model','Kappa model']
   OPTIONS,'toppings','psym'   ,1
   OPTIONS,'toppings','colors' ,[20,blue]
   OPTIONS,'toppings','labflag',3
-  OPTIONS,'toppings','labpos',[-3.5,-2.5]
+  OPTIONS,'toppings','labpos',[-1.75,-1.25]
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;dB panel
@@ -686,7 +699,7 @@ PRO JOURNAL__20160908__REPRODUCE_MCFADDEN_ET_AL_1998__FIG_1__OUTRIGHT_2D_FIT
 
      LOADCT,39
 
-     TPLOT,['E_ALONG_V','charepanel','onecheese','kappa_fit'], $
+     TPLOT,['el_0','el_pa','ion_180','ion_pa','E_ALONG_V','charepanel','onecheese','kappa_fit'], $
            VAR_LABEL=['ALT','MLT','ILAT'], $
            TRANGE=[t1,t2]
 
