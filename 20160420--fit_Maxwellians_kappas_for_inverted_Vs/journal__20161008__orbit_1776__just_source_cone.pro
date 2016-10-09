@@ -14,9 +14,9 @@ PRO JOURNAL__20161008__ORBIT_1776__JUST_SOURCE_CONE
   add_kappa_panel            = 1
   add_chare_panel            = 1
 
-  save_diff_eFlux_file = 1
-  load_diff_eFlux_file = 0
-  restore_fitFile      = 0
+  save_diff_eFlux_file = 0
+  load_diff_eFlux_file = 1
+  restore_fitFile      = 1
 
   ;;survey window
   eeb_or_ees           = 'ees'
@@ -25,15 +25,20 @@ PRO JOURNAL__20161008__ORBIT_1776__JUST_SOURCE_CONE
   ;; t1Str                = '97-02-01/16:09:00'
   ;; t2Str                = '97-02-01/16:13:00'
 
+  ;;Pre-awesome segment
+  t1Str                = '97-02-01/16:08:00'
+  t2Str                = '97-02-01/16:13:00'
+  bonusPref            = '--16_08_00--pre-awesomeness'
+
   ;;Pretty awesome stretch right here
   ;; t1Str                = '97-02-01/16:13:00'
   ;; t2Str                = '97-02-01/16:14:18'
   ;; bonusPref            = 'awesome_stretch'
 
   ;;Next bit
-  t1Str                = '97-02-01/16:14:18'
-  t2Str                = '97-02-01/16:18:00'
-  bonusPref            = '16_14_18_on'
+  ;; t1Str                = '97-02-01/16:14:18'
+  ;; t2Str                = '97-02-01/16:18:00'
+  ;; bonusPref            = '--16_14_18_on'
 
   ;;burst window 1
   ;; eeb_or_ees           = 'eeb'
