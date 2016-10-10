@@ -696,6 +696,9 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
 
 ;;Include kappa panel?
   IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
+
+     IF N_ELEMENTS(kappaFits) NE N_ELEMENTS(gaussFits) THEN STOP
+
      kappa2D            = PARSE_KAPPA_FIT2D_INFO_LIST_V2(fit2DKappa_inf_list, $
                                                          CHI2_THRESHOLD=chi2_thresh, $
                                                          CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $

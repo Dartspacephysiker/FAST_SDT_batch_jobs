@@ -1,6 +1,6 @@
 *
-Header :this is the 'Orb_3370__Janhunen_2001__5__01_33_20__thelonious' configuration file
-Header :created on Mon Oct 10 11:13:39 2016
+Header :this is the 'Orb_3370__Janhunen_2001__4__01_33_20__thelonious' configuration file
+Header :created on Mon Oct 10 11:38:27 2016
 *
 *
 Description : 
@@ -9,16 +9,16 @@ Description :
 
 Configuration
 {
-Config Name:			'Orb_3370__Janhunen_2001__5__01_33_20__thelonious'
+Config Name:			'Orb_3370__Janhunen_2001__4__01_33_20__thelonious'
 Config MenuPosition:		6, -14
 Config MenuSize:		155, 150
 Config DefaultSourceId:	'?'
-Config CurrentPlotWindow:	'Orb_1776__freestyle__19970201__16_03_00__thelonious:0 - DA'
+Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - DA'
 
 	PlotWinStandard
 	{
-	PlotWin Name:		'Orb_1776__freestyle__19970201__16_03_00__thelonious:0 - DA'
-	PlotWin Position:	504, 73
+	PlotWin Name:		'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - DA'
+	PlotWin Position:	494, 169
 	PlotWin Size:		680, 768
 	PlotWin PlotsPage:	12
 	PlotWin TopPlotOfPage:	'Eesa Survey:  Energy'
@@ -47,16 +47,15 @@ Config CurrentPlotWindow:	'Orb_1776__freestyle__19970201__16_03_00__thelonious:0
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	5850, 40000, 1e+06, 1, 1, 1
-		Plot2 MinLimits:	5600, 4, 2, 0, 0, 0
-		Plot2 AutoScale:	FALSE, FALSE, TRUE
+		Plot2 MaxLimits:	5850, 40000, 1e+06, 1, 1, 1e+09
+		Plot2 MinLimits:	5600, 4, 2, 0, 0, 100000
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
