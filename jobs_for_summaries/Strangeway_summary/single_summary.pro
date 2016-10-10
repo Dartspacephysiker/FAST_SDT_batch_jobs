@@ -4,6 +4,7 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
                    screen_plot=screen_plot,use_fac_v=use_fac_v,use_fac_not_v=use_fac,no_blank_panels=no_blank_panels, $
                    ADD_KAPPA_PANEL=add_kappa_panel, $
                    ADD_CHARE_PANEL=add_chare_panel, $
+                   LOG_KAPPAPLOT=log_kappaPlot, $
                    SAVE_PS=save_ps, $
                    SAVE_PNG=save_png, $
                    FIT2DKAPPA_INF_LIST=fit2DKappa_inf_list, $

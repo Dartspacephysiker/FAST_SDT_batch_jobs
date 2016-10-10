@@ -6,15 +6,17 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;;get orbTimes here
   @journal__20161010__janhunen_2001_orbits__info.pro
 
-  show_post_plots      = 0
-  save_kappa_plot      = 0
+  show_post_plots      = 1
+  save_kappa_plot      = 1
 
   fit2D__save_all_candidate_plots = 0
   fit2D__show_each_candidate = 0
+
   show_Strangeway_summary    = 1
   save_Strangeway_ps         = 1
   add_kappa_panel            = 1
   add_chare_panel            = 1
+  log_kappaPlot              = 1
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
@@ -30,10 +32,11 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;; 6: No inverted V, No exact times given!                                
   ;; 7: No inverted V,No exact times given!                                 
   ;; 8: No inverted V,No exact times given!                                 
-  evtNum               = 4
+  evtNum               = 3
 
   ;;survey window
-  eeb_or_ees           = 'ees'
+  eeb_or_ees           = 'eeb'
+  burstItvl            = 0
 
   ;;String setup
   orbit                = orbs      [evtNum]
@@ -41,6 +44,11 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   t2Str                = orbTimes[1,evtNum]
   bonusPref            = bonusPrefs[evtNum]
 
+  IF STRUPCASE(eeb_or_ees) EQ 'EEB' THEN BEGIN
+     t1Str             = (orbBurstTimes[evtNum])[0,burstItvl]
+     t2Str             = (orbBurstTimes[evtNum])[1,burstItvl]
+     bonusPref        += '--burstItvl_' + STRCOMPRESS(burstItvl,/REMOVE_ALL)
+  ENDIF
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
@@ -50,7 +58,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   electron_angleRange  = [-30,30]
   energy_electrons     = [3e1,3.3e4]
   electron_lca         = [150,-150]
-  min_peak_energy      = 1000
+  min_peak_energy      = 400
 
   KAPPA_FITTER_BLACKBOX,orbit, $
                         ELECTRON_SOURCECONEANGLE=electron_angleRange, $
@@ -88,6 +96,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
                     /SCREEN_PLOT, $
                     ADD_KAPPA_PANEL=add_kappa_panel, $
                     ADD_CHARE_PANEL=add_chare_panel, $
+                    LOG_KAPPAPLOT=log_kappaPlot, $
                     USE_FAC_V=use_fac_v, $
                     USE_FAC_NOT_V=use_fac, $
                     NO_BLANK_PANELS=no_blank_panels, $
