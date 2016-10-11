@@ -5,8 +5,6 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
                    ADD_KAPPA_PANEL=add_kappa_panel, $
                    ADD_CHARE_PANEL=add_chare_panel, $
                    LOG_KAPPAPLOT=log_kappaPlot, $
-                   SAVE_PS=save_ps, $
-                   SAVE_PNG=save_png, $
                    FIT2DKAPPA_INF_LIST=fit2DKappa_inf_list, $
                    FIT2DGAUSS_INF_LIST=fit2DGauss_inf_list, $
                    KAPPAFITS=kappaFits, $
@@ -14,8 +12,12 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
                    CHI2_THRESHOLD=chi2_thresh, $
                    CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
                    HIGHDENSITY_THRESHOLD=highDens_thresh, $
-                   LOWDENSITY_THRESHOLD=lowDens_thresh
-  
+                   LOWDENSITY_THRESHOLD=lowDens_thresh, $
+                   SAVE_PS=save_ps, $
+                   SAVE_PNG=save_png, $
+                   SAVEKAPPA_BONUSPREF=bonusPref, $
+                   PLOTDIR=plotDir
+
 
 ; create a summary plot of:
 ; SFA (AKR)
@@ -86,6 +88,44 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
 
      orbString           = STRING(FORMAT='(I0)',orbit)
 
+;;Handle PNGness or PSness before kicking things off
+
+     IF keyword_set(save_ps) THEN BEGIN
+
+        outPlotName  = 'Strangeway_summary'
+        outPlotName += '--' + orbString + (KEYWORD_SET(bonusPref) ? bonusPref : '' )
+
+
+        t1S = STRMID(TIME_TO_STR(time1,/MSEC),11,11)
+        t2S = STRMID(TIME_TO_STR(time2,/MSEC),11,11)
+
+        t1S = t1S.REPLACE(':', '_')
+        t1S = t1S.REPLACE('.', '__')
+        
+        t2S = t2S.REPLACE(':', '_')
+        t2S = t2S.REPLACE('.', '__')
+        
+        outPlotName += '--' + t1S + '_-_' + t2S
+
+
+        IF N_ELEMENTS(plotDir) EQ 0 THEN BEGIN
+           SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/Strangeway_et_al_2005'
+        ENDIF
+
+        IF KEYWORD_SET(save_png) THEN BEGIN
+           CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=0 ;,XSIZE=4,YSIZE=7
+        ENDIF ELSE BEGIN
+           IF KEYWORD_SET(save_ps) THEN BEGIN
+              POPEN,plotDir+outPlotName,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
+              DEVICE,/PALATINO,FONT_SIZE=8
+
+           ENDIF ELSE BEGIN
+              WINDOW,0,XSIZE=600,YSIZE=800
+           ENDELSE
+        ENDELSE
+
+     ENDIF
+
 ; got mag data, set time limits, delete unused tplot variables, set tplot_vars
 
      store_data,'BDATA',/delete
@@ -138,12 +178,14 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
 
      if (not keyword_set(no_blank_panels)) then tplot_vars = 'dB_fac_v'
 
-     if (keyword_set(screen_plot)) then begin
+     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         wInd = 0
         WINDOW,wInd,XSIZE=700,YSIZE=900
-        loadct2,40
+        ;; tplot_options,'region',[0.,0.5,1.0,1.0]
+        loadct2,39
         tplot,tplot_vars,var=['ALT','ILAT','MLT'], $
-              WINDOW=wInd,TRANGE=[t1,t2]
+              WINDOW=wInd, $
+              TRANGE=[t1,t2]
      endif
 
   endif
@@ -238,7 +280,7 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
 
      if (n_elements(tplot_vars) eq 0) then tplot_vars=['EFIT_ALONG_VSC'] else tplot_vars=['EFIT_ALONG_VSC',tplot_vars]
 
-     if (keyword_set(screen_plot)) then begin
+     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         loadct2,40
         tplot,tplot_vars,var=['ALT','ILAT','MLT']
      endif
@@ -316,7 +358,7 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
            get_new_igrf,/no_store_old
         endif
 
-        if (keyword_set(screen_plot)) then begin
+        if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
            loadct2,40
            tplot,tplot_vars,var=['ALT','ILAT','MLT']
         endif
@@ -340,7 +382,7 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
 
         if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
 
-        if (keyword_set(screen_plot)) then begin
+        if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
            loadct2,40
            tplot,tplot_vars,var=['ALT','ILAT','MLT']
         endif
@@ -412,7 +454,7 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
            get_new_igrf,/no_store_old
         endif
 
-        if (keyword_set(screen_plot)) then begin
+        if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
            loadct2,40
            tplot,tplot_vars,var=['ALT','ILAT','MLT']
         endif
@@ -436,7 +478,7 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
 
         if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
 
-        if (keyword_set(screen_plot)) then begin
+        if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then BEGIN 
            loadct2,40
            tplot,tplot_vars,var=['ALT','ILAT','MLT']
         endif
@@ -505,7 +547,7 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
      
      if (n_elements(tplot_vars) eq 0) then tplot_vars=['DSP_V5-V8'] else tplot_vars=['DSP_V5-V8',tplot_vars]
 
-     if (keyword_set(screen_plot)) then begin
+     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         loadct2,40
         tplot,tplot_vars,var=['ALT','ILAT','MLT']
      endif
@@ -569,7 +611,7 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
 
      if (n_elements(tplot_vars) eq 0) then tplot_vars=['SFA_V5-V8'] else tplot_vars=['SFA_V5-V8',tplot_vars]
 
-     if (keyword_set(screen_plot)) then begin
+     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         loadct2,40
         tplot,tplot_vars,var=['ALT','ILAT','MLT']
      endif
@@ -607,11 +649,14 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
      iAngle       = [135.,225.]
      eAngleChare  = eAngle
      iAngleChari  = iAngle
-
-     GET_2DT,'j_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Je',T1=t1,T2=t2,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
-     GET_2DT,'je_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Jee',T1=t1,T2=t2,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
-     GET_2DT,'j_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Ji',T1=t1,T2=t2,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
-     GET_2DT,'je_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Jei',T1=t1,T2=t2,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
+     t1eeb = 0.D 
+     t2eeb = 0.D
+     bro   = GET_FA_EEB(t1eeb,/ST)
+     bro   = GET_FA_EEB(t2eeb,/EN)
+     GET_2DT,'j_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Je',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
+     GET_2DT,'je_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Jee',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
+     GET_2DT,'j_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Ji',T1=t1eeb,T2=t2eeb,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
+     GET_2DT,'je_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Jei',T1=t1eeb,T2=t2eeb,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
      ;;Remove_crap
      GET_DATA,'Je',DATA=tmp
      ;; GET_DATA,'Je',DATA=Je_originalsk
@@ -665,30 +710,48 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
   ENDIF
 
   IF KEYWORD_SET(add_chare_panel) THEN BEGIN
-     chare                          = Jee.y/Je.y*6.242*1.0e11
-     chari                          = Jei.y/Ji.y*6.242*1.0e11
-     FA_FIELDS_COMBINE,{time:Jee.x,comp1:Jee.y,ncomp:1},{time:Jei.x,comp1:chari,ncomp:1},RESULT=chari_interp,/INTERP,DELT_T=50.,/TALK
-     ;; chari_interp                = {x:Jee.x,y:chari_interp}
-     chartot                        = chare+chari_interp
+     chare            = Jee.y/Je.y*6.242*1.0e11
+     chari            = Jei.y/Ji.y*6.242*1.0e11
+     charEBounds      = [MIN(chare[WHERE(chare GT 0)]) + MIN(chari[WHERE(chari GT 0)]), $
+                         MAX(chare[WHERE(chare GT 0)]) + MAX(chari[WHERE(chari GT 0)])]
+     ;; showLog_charE    = (ALOG10(MAX(chare[WHERE(chare GT 0)]))-ALOG10(MIN(chare[WHERE(chare GT 0)]))) GT 2
+     showLog_charE    = (ALOG10(charEBounds[1])-ALOG10(charEBounds[0])) GT 2
+     IF showLog_charE THEN BEGIN
+        charEBounds[0] -= (charEBounds[0]*0.1)
+        charEBounds[1] += (charEBounds[1]*0.1)
+     ENDIF ELSE BEGIN
+        charEBounds[0] /= 1.1
+        charEBounds[1] *= 1.1
+     ENDELSE
+     FA_FIELDS_COMBINE,{time:Jee.x,comp1:Jee.y,ncomp:1}, $
+                       {time:Jei.x,comp1:chari,ncomp:1}, $
+                       RESULT=chari_interp, $
+                       /INTERP, $
+                       DELT_T=50., $
+                       /TALK
+     ;; chari_interp  = {x:Jee.x,y:chari_interp}
+     chartot          = chare+chari_interp
      STORE_DATA,'charepanel',DATA={x:[[Jee.x],[Jee.x],[Jee.x]],y:[[chari_interp],[chare],[chartot]]}
 
-     red                            = 250
-     green                          = 130
-     blue                           = 80
-     black                          = 10
+     red              = 250
+     green            = 130
+     blue             = 90
+     maxwell          = 50
+     black            = 10
 
+     YLIM,'charepanel',charEBounds[0],charEBounds[1],showLog_charE
      OPTIONS,'charepanel','tplot_routine','mplot'
      OPTIONS,'charepanel','ytitle','E/q Volts'
      OPTIONS,'charepanel','labels',['Ion','Electron','Total']
      OPTIONS,'charepanel','colors',[red,green,20]
-     OPTIONS,'charepanel','labflag',1
-     OPTIONS,'charepanel','yticks',5                                   ; set y-axis labels
-     OPTIONS,'charepanel','ytickname',['0','5e3','1.0e4','1.5e4','2.e4'] ; set y-axis labels
-     OPTIONS,'charepanel','ytickv',[0.,5.e3,1.0e4,1.5e4,2.0e4]           ; set y-axis labels
+     OPTIONS,'charepanel','labflag',-1
+     ;; OPTIONS,'charepanel','yticks',5                                   ; set y-axis labels
+     ;; OPTIONS,'charepanel','ytickname',['0','5e3','1.0e4','1.5e4','2.e4'] ; set y-axis labels
+     ;; OPTIONS,'charepanel','ytickv',[0.,5.e3,1.0e4,1.5e4,2.0e4]           ; set y-axis labels
 
      if (n_elements(tplot_vars) eq 0) then tplot_vars=['charepanel'] else tplot_vars=['charepanel',tplot_vars]
 
-     if (keyword_set(screen_plot)) then begin
+     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         loadct2,40
         tplot,tplot_vars,var=['ALT','ILAT','MLT']
      endif
@@ -749,17 +812,18 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
                              /USE_MPFIT1D
 
      IF ~ARRAY_EQUAL(kappaTime,GaussTime) THEN STOP
-
-     nFits                        = N_ELEMENTS(kappa2D.fitDens)
-     badFits_i                    = WHERE(fitStatus NE 0,nBadFits)
-     badGaussFits_i               = WHERE(gaussFitStatus NE 0,nBadGaussFits)
+     nFits           = N_ELEMENTS(kappa2D.fitDens)
+     badFits_i       = WHERE(fitStatus NE 0,nBadFits)
+     badGaussFits_i  = WHERE(gaussFitStatus NE 0,nBadGaussFits)
+     bothBad_i       = ( (badFits_i[0] EQ -1) AND (badGaussFits_i[0] EQ -1 ) ) ? !NULL : $
+                       CGSETINTERSECTION(badFits_i,badGaussFits_i)
      PRINT,""
      PRINT,"****************************************"
      PRINT,'NTotalFits    : ',nFits
      PRINT,''
      PRINT,"NbadFits      : ",nBadFits
      PRINT,"NbadGaussFits : ",nBadGaussFits
-     PRINT,"NBothBad      : ",N_ELEMENTS(CGSETINTERSECTION(badFits_i,badGaussFits_i))
+     PRINT,"NBothBad      : ",N_ELEMENTS(bothBad_i)
 
      ;; STORE_DATA,'kappa_fit',DATA={x:kappaTime,y:Astruct.kappa}
      STORE_DATA,'kappa_fit',DATA={x:kappaTime,y:REFORM(kappa2D.fitParams[2,*])}
@@ -882,38 +946,79 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
      STORE_DATA,'fourcheese',DATA={x:jMag.x, $
 
                                    y:jMag.y}
-     STORE_DATA,'toppings',DATA={x:[[kappaStr.time],[kappaStr.time]], $
+     ;; STORE_DATA,'toppings',DATA={x:[[kappaStr.time],[kappaStr.time]], $
+     ;;                             y:[[gauss_current],[kappa_current]]}
+     STORE_DATA,'toppings',DATA={x:kappaStr.time, $
+                                 y:kappa_current}
+     STORE_DATA,'feta',DATA={x:kappaStr.time, $
+                             y:gauss_current}
 
-                                 y:[[gauss_current],[kappa_current]]}
-
+     
+     oneCheeseBounds   = [MIN(obs_current) < MIN(gauss_current) < MIN(kappa_current), $
+                        MAX(obs_current) > MAX(gauss_current) > MAX(kappa_current)]
+     IF oneCheeseBounds[0] LT 0 THEN BEGIN
+        showLog_oneCheese   = 0 
+        oneCheeseBounds[0] /= 1.1
+        oneCheeseBounds[1] *= 1.1
+     ENDIF ELSE BEGIN
+        showLog_oneCheese   = (ALOG10(oneCheeseBounds[1])-ALOG10(oneCheeseBounds[0])) GT 2
+        oneCheeseBounds[0] -= (oneCheeseBounds[0]*0.1)
+        oneCheeseBounds[1] += (oneCheeseBounds[1]*0.1)
+     ENDELSE
      OPTIONS,'onecheese','colors',green
      OPTIONS,'onecheese','tplot_routine','mplot'
      OPTIONS,'onecheese','ytitle','Current!C('+CGGREEK('mu')+'A/m!U2!Ns)'
-     YLIM,   'onecheese',MIN(obs_current) < MIN(gauss_current) < MIN(kappa_current),0
+     YLIM,   'onecheese',oneCheeseBounds[0],oneCheeseBounds[1],showLog_oneCheese
+     oneCheesePos = (INDGEN(4)+1)/5.
 
      OPTIONS,'onecheese','labels',obsName
+     ;; OPTIONS,'onecheese','labflag',-1
      OPTIONS,'onecheese','labflag',3
-     OPTIONS,'onecheese','labpos',-0.25
-     OPTIONS,'onecheese','yticks',2                    ; set y-axis labels
-     OPTIONS,'onecheese','ytickname',['-2.0','-1.0','0'] ; set y-axis labels
-     OPTIONS,'onecheese','ytickv',[-2.0,-1.0,0.0]        ; set y-axis labels
+     OPTIONS,'onecheese','labpos',oneCheesePos[0]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
+     ;; OPTIONS,'onecheese','labpos',-0.25
+     ;; OPTIONS,'onecheese','yticks',2                    ; set y-axis labels
+     ;; OPTIONS,'onecheese','ytickname',['-2.0','-1.0','0'] ; set y-axis labels
+     ;; OPTIONS,'onecheese','ytickv',[-2.0,-1.0,0.0]        ; set y-axis labels
 
      OPTIONS,'fourcheese','colors',red
      OPTIONS,'fourcheese','labels','Fluxgate mag'
+     ;; OPTIONS,'fourcheese','labflag',-1
      OPTIONS,'fourcheese','labflag',3
-     OPTIONS,'fourcheese','labpos',-0.75
+     OPTIONS,'fourcheese','labpos',oneCheesePos[1]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
+     ;; OPTIONS,'fourcheese','labpos',-0.75
 
-     OPTIONS,'toppings','labels' ,['Maxwellian Model','Kappa model']
+     ;; OPTIONS,'toppings','labels' ,['Maxwellian Model','Kappa model']
+     ;; OPTIONS,'toppings','psym'   ,1
+     ;; OPTIONS,'toppings','colors' ,[20,blue]
+     ;; ;; OPTIONS,'toppings','labflag',-1
+     ;; OPTIONS,'toppings','labflag',3
+     ;; OPTIONS,'toppings','labpos',[oneCheesePos[2],oneCheesePos[3]]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
+     ;; OPTIONS,'toppings','labpos',[-1.75,-1.25]
+
+     OPTIONS,'toppings','labels' ,'Kappa model'
      OPTIONS,'toppings','psym'   ,1
-     OPTIONS,'toppings','colors' ,[20,blue]
+     OPTIONS,'toppings','colors' ,blue
+     ;; OPTIONS,'toppings','labflag',-1
      OPTIONS,'toppings','labflag',3
-     OPTIONS,'toppings','labpos',[-1.75,-1.25]
+     OPTIONS,'toppings','labpos',oneCheesePos[3]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
+     ;; OPTIONS,'toppings','labpos',[-1.75,-1.25]
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=['kappa_fit'] else tplot_vars=['kappa_fit',tplot_vars]
+     OPTIONS,'feta','labels' ,'Maxwellian Model'
+     OPTIONS,'feta','psym'   ,1
+     OPTIONS,'feta','colors' ,maxwell
+     ;; OPTIONS,'feta','labflag',-1
+     OPTIONS,'feta','labflag',3
+     OPTIONS,'feta','labpos',oneCheesePos[2]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
+     ;; OPTIONS,'feta','labpos',[-1.75,-1.25]
 
-     if (keyword_set(screen_plot)) then begin
+     if (n_elements(tplot_vars) eq 0) then tplot_vars=['onecheese','kappa_fit'] else tplot_vars=['onecheese','kappa_fit',tplot_vars]
+
+     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         loadct2,40
         tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'   ;,PSYM=1
      endif
 
   ENDIF
@@ -1080,58 +1185,22 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
 
      IF KEYWORD_SET(add_kappa_panel) THEN tplot_vars = ['onecheese','kappa_fit',tplot_vars]
 
+  endif
+
+  if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     loadct2,40
+     tplot,tplot_vars,var=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
+
      IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'   ;,PSYM=1
      ENDIF
-
-  endif
-
-  if (keyword_set(screen_plot)) then begin
-     loadct2,40
-     tplot,tplot_vars,var=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
   endif
 
   IF keyword_set(save_ps) THEN BEGIN
 
-     outPlotName  = 'Strangeway_summary'
-     outPlotName += '--' + orbString
-
-     t1Str = STRMID(TIME_TO_STR(t1,/MS),11,11)
-     t2Str = STRMID(TIME_TO_STR(t2,/MS),11,11)
-
-     t1Str = t1Str.REPLACE(':', '_')
-     t1Str = t1Str.REPLACE('.', '__')
-     
-     t2Str = t2Str.REPLACE(':', '_')
-     t2Str = t2Str.REPLACE('.', '__')
-     
-     outPlotName += '--' + t1Str + '_-_' + t2Str
-
-
-     SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/Strangeway_et_al_2005'
-
-     IF KEYWORD_SET(save_png) THEN BEGIN
-        CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=0 ;,XSIZE=4,YSIZE=7
-     ENDIF ELSE BEGIN
-        IF KEYWORD_SET(save_ps) THEN BEGIN
-           ;; CGPS_OPEN, './plots/McFadden_et_al_1998--Fig_1.ps',FONT=0,XSIZE=4,YSIZE=7
-           POPEN,plotDir+outPlotName,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
-           DEVICE,/PALATINO,FONT_SIZE=8
-           ;; DEVICE,SET_FONT='Garamond*15'
-           ;; !P.FONT = -1
-        ENDIF ELSE BEGIN
-           WINDOW,0,XSIZE=600,YSIZE=800
-        ENDELSE
-     ENDELSE
-
      CASE 1 OF
-        ;; (n_elements(tlimit_north) gt 0): BEGIN
-        ;;    tlimit,tlimit_north
-        ;; END
-        ;; (n_elements(tlimit_south) gt 0): BEGIN
-        ;;    tlimit,tlimit_south
-        ;; END
         KEYWORD_SET(plot_north): BEGIN
            tLims = tlimit_north
 
@@ -1150,18 +1219,20 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
      IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'   ;,PSYM=1
      ENDIF
 
-     IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
-        PCLOSE
-     ENDIF ELSE BEGIN
-
-     ENDELSE
-
-
+     CASE 1 OF
+        KEYWORD_SET(save_png): BEGIN
+           CGPS_CLOSE
+        END
+        KEYWORD_SET(save_ps): BEGIN
+           PCLOSE
+        END
+        ELSE:
+     ENDCASE
   ENDIF
 
-
-  return
-end
+  RETURN
+END
 

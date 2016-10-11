@@ -9,8 +9,8 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   show_post_plots      = 1
   save_kappa_plot      = 1
 
-  fit2D__save_all_candidate_plots = 0
-  fit2D__show_each_candidate = 0
+  fit2D__save_all_candidate_plots = 1
+  fit2D__show_each_candidate = 1
 
   show_Strangeway_summary    = 1
   save_Strangeway_ps         = 1
@@ -19,7 +19,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   log_kappaPlot              = 1
 
   save_diff_eFlux_file = 1
-  load_diff_eFlux_file = 1
+  load_diff_eFlux_file = 0
   restore_fitFile      = 0
 
   ;;Which Janhunen event?
@@ -36,7 +36,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
 
   ;;survey window
   eeb_or_ees           = 'eeb'
-  burstItvl            = 0
+  burstItvl            = 1
 
   ;;String setup
   orbit                = orbs      [evtNum]
@@ -52,8 +52,8 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
-  chi2_over_dof_thresh = 500
-  lowDens_thresh       = 0.00005
+  chi2_over_dof_thresh = 80
+  lowDens_thresh       = 0.01
 
   electron_angleRange  = [-30,30]
   energy_electrons     = [3e1,3.3e4]
@@ -78,6 +78,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
                         FIT2D__SAVE_ALL_CANDIDATE_PLOTS=fit2D__save_all_candidate_plots, $
                         SAVE_KAPPA_PLOTS=save_kappa_plot, $
                         SAVEKAPPA_BONUSPREF=bonusPref, $
+                        PLOTDIR=plotDir, $
                         OUT_FIT2DK=fit2DK, $
                         OUT_FIT2DGAUSS=fit2DG, $
                         OUT_KAPPA_FIT_STRUCTS=kappaFits, $
@@ -100,8 +101,6 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
                     USE_FAC_V=use_fac_v, $
                     USE_FAC_NOT_V=use_fac, $
                     NO_BLANK_PANELS=no_blank_panels, $
-                    SAVE_PS=save_Strangeway_ps, $
-                    SAVE_PNG=save_png, $
                     FIT2DKAPPA_INF_LIST=fit2DKappa_inf_list, $
                     FIT2DGAUSS_INF_LIST=fit2DGauss_inf_list, $
                     KAPPAFITS=kappaFits, $
@@ -109,7 +108,11 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
                     CHI2_THRESHOLD=chi2_thresh, $
                     CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
                     HIGHDENSITY_THRESHOLD=highDens_thresh, $
-                    LOWDENSITY_THRESHOLD=lowDens_thresh
+                    LOWDENSITY_THRESHOLD=lowDens_thresh, $
+                    SAVE_PS=save_Strangeway_ps, $
+                    SAVE_PNG=save_png, $
+                    SAVEKAPPA_BONUSPREF=bonusPref, $
+                    PLOTDIR=plotDir
 
   ENDIF
 
