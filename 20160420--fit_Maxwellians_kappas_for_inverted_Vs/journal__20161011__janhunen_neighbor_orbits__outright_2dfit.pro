@@ -1,10 +1,10 @@
 ;;10/10/16
-PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
+PRO JOURNAL__20161011__JANHUNEN_NEIGHBOR_ORBITS__OUTRIGHT_2DFIT
 
   COMPILE_OPT IDL2
 
   ;;get orbTimes here
-  @journal__20161010__janhunen_2001_orbits__info.pro
+  @journal__20161011__janhunen_neighbor_orbits__info.pro
 
   show_post_plots      = 1
   save_kappa_plot      = 1
@@ -24,16 +24,8 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   restore_fitFile      = 0
 
   ;;Which Janhunen event?
-  ;; 0: Inverted V, but not Maxwellian                                      
-  ;; 1: Inverted V, but not Maxwellian                                      
-  ;; 2: Inverted V, but not Maxwellian; no exact times given!               
-  ;; 3: "Quasi-Maxwellian"                                                  
-  ;; 4: "Quasi-Maxwellian"                                                  
-  ;; 5: "Diffuse auroral event containing no inverted-V-type precipitation" 
-  ;; 6: No inverted V, No exact times given!                                
-  ;; 7: No inverted V,No exact times given!                                 
-  ;; 8: No inverted V,No exact times given!                                 
-  evtNum               = 3
+  ;; 1: Quasi-Maxwellian to me …
+  evtNum               = 0
 
   ;;survey window
   eeb_or_ees           = 'eeb'

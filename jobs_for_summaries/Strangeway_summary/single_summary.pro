@@ -1,7 +1,14 @@
-pro single_summary,time1,time2,tplot_vars=tplot_vars, $
+pro single_summary,time1,time2, $
+                   TPLOT_VARS=tplot_vars, $
                    EEB_OR_EES=eeb_OR_ees, $
-                   tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all, $
-                   screen_plot=screen_plot,use_fac_v=use_fac_v,use_fac_not_v=use_fac,no_blank_panels=no_blank_panels, $
+                   ENERGY_ELECTRONS=energy_electrons, $
+                   TLIMIT_NORTH=tlimit_north, $
+                   TLIMIT_SOUTH=tlimit_south, $
+                   TLIMIT_ALL=tlimit_all, $
+                   SCREEN_PLOT=screen_plot, $
+                   USE_FAC_V=use_fac_v, $
+                   USE_FAC_NOT_V=use_fac, $
+                   NO_BLANK_PANELS=no_blank_panels, $
                    ADD_KAPPA_PANEL=add_kappa_panel, $
                    ADD_CHARE_PANEL=add_chare_panel, $
                    LOG_KAPPAPLOT=log_kappaPlot, $
@@ -13,6 +20,8 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
                    CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
                    HIGHDENSITY_THRESHOLD=highDens_thresh, $
                    LOWDENSITY_THRESHOLD=lowDens_thresh, $
+                   DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
+                   N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
                    SAVE_PS=save_ps, $
                    SAVE_PNG=save_png, $
                    SAVEKAPPA_BONUSPREF=bonusPref, $
@@ -62,6 +71,8 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
 ; Step 0 - safety measure - delete all tplot quantities if found
 
 @tplot_com
+
+  IF NOT KEYWORD_SET(energy_ions) THEN energy_ions=[4,500.]
 
   IF STRUPCASE(eeb_or_ees) EQ 'EEB' THEN ieb_or_ies = 'ieb' ELSE ieb_or_ies = 'ies'
 
@@ -770,6 +781,8 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
                                                          LOWDENSITY_THRESHOLD=lowDens_thresh, $
                                                          KAPPA_LOWTHRESHOLD=lKappa_thresh, $
                                                          KAPPA_HIGHTHRESHOLD=hKappa_thresh, $
+                                                         DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
+                                                         N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
                                                          /DESTROY_INFO_LIST, $
                                                          OUT_GOOD_I=includeK_i, $
                                                          OUT_GOOD_T=includeK_t, $
@@ -783,6 +796,8 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
                                                          LOWDENSITY_THRESHOLD=lowDens_thresh, $
                                                          KAPPA_LOWTHRESHOLD=lKappa_thresh, $
                                                          KAPPA_HIGHTHRESHOLD=100.1, $
+                                                         DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
+                                                         N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
                                                          /DESTROY_INFO_LIST, $
                                                          OUT_GOOD_I=includeG_i, $
                                                          OUT_GOOD_T=includeG_t, $
@@ -882,7 +897,7 @@ pro single_summary,time1,time2,tplot_vars=tplot_vars, $
      FA_FIELDS_COMBINE,{time:Je.x,comp1:Je_current,ncomp:1},{time:jMag.x,comp1:jMag.y,ncomp:1}, $
                        RESULT=jMag_interp,/INTERP,DELT_T=50.,/TALK
      
-     Jtot_interp                    = {x:Je.x,y:Je_current+Ji_interp}
+     ;; Jtot_interp = {x:Je.x,y:Je_current+Ji_interp}
 
      STORE_DATA,'Je',DATA=Je
 

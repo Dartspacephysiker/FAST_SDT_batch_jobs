@@ -1,0 +1,4 @@
+#Ignore the sym-linked pro from the Strangeway summary dir
+single_summary.pro
+#Also strangeway summary link
+UIcfg.rjs_summary
