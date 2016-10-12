@@ -10,18 +10,19 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   save_kappa_plot      = 1
   close_kp_after_save  = 1
 
-  fit2D__save_all_candidate_plots = 1
-  fit2D__show_each_candidate = 1
+  fit2D__save_all_candidate_plots = 0
+  fit2D__show_each_candidate = 0
 
   show_Strangeway_summary    = 1
   save_Strangeway_ps         = 1
   add_kappa_panel            = 1
   add_chare_panel            = 1
+  add_Newell_panel           = 1
   log_kappaPlot              = 1
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 0
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   ;;Which classic event?
   ;; '0 :  Ergun_et_al_1998'
@@ -100,6 +101,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                     /SCREEN_PLOT, $
                     ADD_KAPPA_PANEL=add_kappa_panel, $
                     ADD_CHARE_PANEL=add_chare_panel, $
+                    ADD_NEWELL_PANEL=add_Newell_panel, $
                     LOG_KAPPAPLOT=log_kappaPlot, $
                     USE_FAC_V=use_fac_v, $
                     USE_FAC_NOT_V=use_fac, $

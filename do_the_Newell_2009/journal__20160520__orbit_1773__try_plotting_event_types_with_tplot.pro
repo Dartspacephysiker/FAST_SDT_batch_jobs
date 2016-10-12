@@ -132,7 +132,17 @@ PRO JOURNAL__20160520__ORBIT_1773__TRY_PLOTTING_EVENT_TYPES_WITH_TPLOT,EVENTS=ev
   GET_DATA,'MLT',DATA=mlt
   mlt       = mlt.y
 
-  IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,eSpec,Jee,Je,mlt,events,SC_POT=out_sc_pot
+  GET_DATA,'ILAT',DATA=ilat
+  ilat      = ilat.y
+
+  GET_DATA,'ALT',DATA=alt
+  alt      = alt.y
+
+  GET_DATA,'ORBIT',DATA=orbit
+  orbit    = orbit.y
+
+
+  IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,eSpec,Jee,Je,mlt,ilat,alt,orbit,events,SC_POT=out_sc_pot
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Now put the plots together!
   

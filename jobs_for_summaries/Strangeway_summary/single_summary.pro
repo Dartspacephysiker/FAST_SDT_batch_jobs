@@ -11,6 +11,7 @@ pro single_summary,time1,time2, $
                    NO_BLANK_PANELS=no_blank_panels, $
                    ADD_KAPPA_PANEL=add_kappa_panel, $
                    ADD_CHARE_PANEL=add_chare_panel, $
+                   ADD_NEWELL_PANEL=add_Newell_panel, $
                    LOG_KAPPAPLOT=log_kappaPlot, $
                    FIT2DKAPPA_INF_LIST=fit2DKappa_inf_list, $
                    FIT2DGAUSS_INF_LIST=fit2DGauss_inf_list, $
@@ -377,7 +378,7 @@ pro single_summary,time1,time2, $
 ; ION ENERGY 
 
         var_name='Iesa_Energy'
-        get_en_spec,'fa_' + ieb_or_ies + '_c',name=var_name, units='eflux'
+        get_en_spec,'fa_' + ieb_or_ies + '_c',name=var_name, units='eflux',/CALIB,RETRACE=1
         get_data,var_name, data=data
         data.y = alog10(data.y)
         store_data,var_name, data=data
@@ -473,7 +474,7 @@ pro single_summary,time1,time2, $
 ; ELECTRON ENERGY
 
         var_name='Eesa_Energy'
-        get_en_spec,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux'
+        get_en_spec,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux',/CALIB,RETRACE=1
         get_data,var_name, data=data
         data.y = alog10(data.y)
         store_data,var_name, data=data
@@ -655,8 +656,8 @@ pro single_summary,time1,time2, $
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Chare panel
-  IF KEYWORD_SET(add_chare_panel) OR KEYWORD_SET(add_kappa_panel) THEN BEGIN
-     eAngle       = [360.-22.,22.]
+  IF KEYWORD_SET(add_chare_panel) OR KEYWORD_SET(add_kappa_panel) OR KEYWORD_SET(add_Newell_panel) THEN BEGIN
+     eAngle       = [360.-30.,30.]
      iAngle       = [135.,225.]
      eAngleChare  = eAngle
      iAngleChari  = iAngle
@@ -1038,6 +1039,45 @@ pro single_summary,time1,time2, $
 
   ENDIF
 
+  IF KEYWORD_SET(add_Newell_panel) THEN BEGIN
+
+     var_name='Eesa_LC_Energy'
+     ;;This already gets called above, but we need to call it again to handle angle restrictions
+     GET_EN_SPEC,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux',/CALIB,RETRACE=1,ANGLE=eAngle
+     GET_DATA,var_name,DATA=data
+
+     GET_FA_ORBIT,data.x,/TIME_ARRAY
+     GET_DATA,'MLT',DATA=mlt
+     mlt       = mlt.y
+
+     GET_DATA,'ILAT',DATA=ilat
+     ilat      = ilat.y
+
+     GET_DATA,'ALT',DATA=alt
+     alt      = alt.y
+
+     GET_DATA,'ORBIT',DATA=orbit
+     orbit          = orbit.y
+     sc_pot         = GET_FA_POTENTIAL(t1,t2, $
+                                ;; /SPIN, $
+                                /REPAIR)
+     sc_pot_interp  = DATA_CUT({x:sc_pot.time,y:sc_pot.comp1},data.x) 
+     this           = VALUE_CLOSEST2(data.x,jee.x) 
+     data           = {x:data.x[this],y:data.y[this,*],v:data.v[this,*]}
+     IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,data,Jee,Je,mlt,ilat,alt,orbit,events,SC_POT=sc_pot_interp
+
+     var_name = 'newellPanel'
+     PREPARE_IDENTIFIED_DIFF_EFLUXES_FOR_TPLOT,events,TPLOT_NAME=var_name,/NO_STRICT_TYPES
+
+     if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+
+     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+        loadct2,40
+        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+     endif
+
+  ENDIF
+
 ; force tplot_vars to be all the panels unless no_blank_panels is set
 
   if (not keyword_set(no_blank_panels)) then begin
@@ -1196,9 +1236,11 @@ pro single_summary,time1,time2, $
 
      tplot_vars=['SFA_V5-V8','DSP_V5-V8','Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','EFIT_ALONG_VSC','dB_fac_v']
 
-     IF KEYWORD_SET(add_chare_panel) THEN tplot_vars = ['charepanel',tplot_vars]
+     IF KEYWORD_SET(add_chare_panel)  THEN tplot_vars = ['charepanel',tplot_vars]
 
-     IF KEYWORD_SET(add_kappa_panel) THEN tplot_vars = ['onecheese','kappa_fit',tplot_vars]
+     IF KEYWORD_SET(add_kappa_panel)  THEN tplot_vars = ['onecheese','kappa_fit',tplot_vars]
+
+     IF KEYWORD_SET(add_Newell_panel) THEN tplot_vars = ['newellPanel',tplot_vars]
 
   endif
 
