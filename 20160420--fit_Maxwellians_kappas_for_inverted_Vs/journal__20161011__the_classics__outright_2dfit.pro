@@ -21,7 +21,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 0
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   ;;Which classic event?
   ;; '0 :  Ergun_et_al_1998'
@@ -49,8 +49,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
   chi2_over_dof_thresh = 100
-  lowDens_thresh       = 0.01
-  diffEflux_thresh     = 5e7
+  lowDens_thresh       = 0.1
+  diffEflux_thresh     = 1e8
   nPkAbove_dEF_thresh  = 5
 
   electron_angleRange  = [-30,30]

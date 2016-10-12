@@ -72,7 +72,7 @@ pro single_summary,time1,time2, $
 
 @tplot_com
 
-  IF NOT KEYWORD_SET(energy_ions) THEN energy_ions=[4,500.]
+  IF NOT KEYWORD_SET(energy_ions) THEN energy_ions=[4,1.e4]
 
   IF STRUPCASE(eeb_or_ees) EQ 'EEB' THEN ieb_or_ies = 'ieb' ELSE ieb_or_ies = 'ies'
 
