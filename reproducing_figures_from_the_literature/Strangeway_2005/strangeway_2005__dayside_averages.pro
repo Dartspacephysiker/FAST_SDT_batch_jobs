@@ -51,7 +51,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   mu_0         = DOUBLE(4.0D*!PI*1e-7)
 
   ;;Outputs
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_2005/'
+  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/'
   hashFile     = 'Strangeway_et_al_2005__DC_params.sav'
   outPlotName  = 'Strangeway_et_al_2005__ion_outflow--Fig_3'
 

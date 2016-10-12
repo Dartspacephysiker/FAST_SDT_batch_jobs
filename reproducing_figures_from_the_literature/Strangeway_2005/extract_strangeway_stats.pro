@@ -49,7 +49,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS, $
 
 
 
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_2005/'
+  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/'
   hashFile     = 'Strangeway_et_al_2005__DC_params.sav'
 
   IF FILE_TEST(outDir+hashFile) THEN BEGIN

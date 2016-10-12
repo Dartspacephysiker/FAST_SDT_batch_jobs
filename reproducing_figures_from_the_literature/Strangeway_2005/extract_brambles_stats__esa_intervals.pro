@@ -13,7 +13,7 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
 
   COMPILE_OPT IDL2
 
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Brambles_2011/'
+  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Brambles_et_al_2011/'
   hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav'
 
   ;; bonusSuff    = '--full_pFlux--interp'

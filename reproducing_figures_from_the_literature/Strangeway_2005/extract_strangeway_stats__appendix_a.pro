@@ -24,7 +24,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
   @strway_stuff
 
   ;;Outputs
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_2005/'
+  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/Appendix_A/'
   hashFile     = 'Strangeway_et_al_2005__real_thing--outflow_intervals.sav'
 
   IF KEYWORD_SET(use_eField_fit_variables) THEN BEGIN

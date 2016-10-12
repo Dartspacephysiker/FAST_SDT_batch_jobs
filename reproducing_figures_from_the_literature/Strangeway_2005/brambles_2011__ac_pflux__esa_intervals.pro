@@ -28,7 +28,7 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
 ; (c) DSP calibration
 
   ;;Outputs
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Brambles_2011/'
+  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Brambles_et_al_2011/'
   ;; hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav'
   ;; outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals'
 

@@ -23,7 +23,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
          DAY=day, $
          NIGHT=night)
 
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_2005/'
+  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/'
   hashFile     = 'Strangeway_et_al_2005__DC_params--ESA_intervals.sav'
 
   bonusSuff    = ''
