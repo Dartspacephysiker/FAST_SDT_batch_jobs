@@ -1,4 +1,4 @@
-pro batch_summary,tplot_vars=tplot_vars, $
+pro batch_rjs_summary,tplot_vars=tplot_vars, $
 tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all, $
 screen_plot=screen_plot,use_fac_v=use_fac_v,use_fac=use_fac,no_blank_panels=no_blank_panels
 

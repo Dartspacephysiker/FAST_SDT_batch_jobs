@@ -1,4 +1,4 @@
-pro single_summary,time1,time2, $
+pro single_kappa_summary,time1,time2, $
                    TPLOT_VARS=tplot_vars, $
                    EEB_OR_EES=eeb_OR_ees, $
                    ENERGY_ELECTRONS=energy_electrons, $

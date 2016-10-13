@@ -1,4 +1,4 @@
-pro batch_summary,tplot_vars=tplot_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
+pro batch_rjs_summary_start,tplot_vars=tplot_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
 
 ; create a summary plot of:
 ; SFA (AKR)
