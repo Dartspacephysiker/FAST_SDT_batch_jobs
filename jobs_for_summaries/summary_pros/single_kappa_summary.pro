@@ -1,4 +1,4 @@
-pro single_kappa_summary,time1,time2, $
+PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                    TPLOT_VARS=tplot_vars, $
                    EEB_OR_EES=eeb_OR_ees, $
                    ENERGY_ELECTRONS=energy_electrons, $
@@ -27,6 +27,19 @@ pro single_kappa_summary,time1,time2, $
                    SAVE_PNG=save_png, $
                    SAVEKAPPA_BONUSPREF=bonusPref, $
                    PLOTDIR=plotDir
+
+  ;;Some defaults
+  red              = 250
+  green            = 130
+  blue             = 90
+  maxwell          = 50
+  black            = 10
+
+  kappaColor = blue
+  kappaSym   = 2                ;Asterisk
+
+  GaussColor = red
+  GaussSym   = 1                ;Cross
 
 
 ; create a summary plot of:
@@ -83,7 +96,7 @@ pro single_kappa_summary,time1,time2, $
 
      IF keyword_set(save_ps) THEN BEGIN
 
-        outPlotName  = 'Strangeway_summary'
+        outPlotName  = 'Kappa_summary'
         outPlotName += '--' + orbString + (KEYWORD_SET(bonusPref) ? bonusPref : '' )
 
 
@@ -100,7 +113,7 @@ pro single_kappa_summary,time1,time2, $
 
 
         IF N_ELEMENTS(plotDir) EQ 0 THEN BEGIN
-           SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/Strangeway_et_al_2005'
+           SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/Kappa_summaries'
         ENDIF
 
         IF KEYWORD_SET(save_png) THEN BEGIN
@@ -160,30 +173,30 @@ pro single_kappa_summary,time1,time2, $
      IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0] ELSE t1 = time1
      IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L] ELSE t2 = time2
      tlimit_all = [t1,t2]
-     tplot_vars = 'dB_fac_v'
+     ;; tplot_vars = 'dB_fac_v'
      options,'dB_fac_v','panel_size',2
      options,'dB_fac','panel_size',2
      options,'dB_sm','panel_size',2
 
-     if (keyword_set(use_fac)) then tplot_vars = 'dB_fac'
+     ;; if (keyword_set(use_fac)) then tplot_vars = 'dB_fac'
 
-     if (not keyword_set(no_blank_panels)) then tplot_vars = 'dB_fac_v'
+     ;; if (not keyword_set(no_blank_panels)) then tplot_vars = 'dB_fac_v'
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-        wInd = 0
-        WINDOW,wInd,XSIZE=700,YSIZE=900
-        ;; tplot_options,'region',[0.,0.5,1.0,1.0]
-        loadct2,39
-        tplot,tplot_vars,var=['ALT','ILAT','MLT'], $
-              WINDOW=wInd, $
-              TRANGE=[t1,t2]
-     endif
+     ;; if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     ;;    wInd = 0
+     ;;    WINDOW,wInd,XSIZE=700,YSIZE=900
+     ;;    ;; tplot_options,'region',[0.,0.5,1.0,1.0]
+     ;;    loadct2,39
+     ;;    tplot,tplot_vars,var=['ALT','ILAT','MLT'], $
+     ;;          WINDOW=wInd, $
+     ;;          TRANGE=[t1,t2]
+     ;; endif
 
   endif
 
 
 ; Step 3 - Iesa data
-
+  sdt_idx = get_sdt_run_idx()
   prog = getenv('FASTBIN') + '/showDQIs'
   if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
      if (sdt_idx GE 10) then begin
@@ -232,49 +245,60 @@ pro single_kappa_summary,time1,time2, $
         options,var_name,'ytickv',[-90,0,90,180,270]
         ylim,var_name,-90,270,0
 
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+        IF KEYWORD_SET(include_ion_plots) THEN BEGIN
+           if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[tplot_vars,var_name]
 
 ; reset time limits if needed
 
-        IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
-        IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
+           IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
+           IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
 
-        if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
-           if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
-           if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
-           get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-           get_new_igrf,/no_store_old
-        endif
+           if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
+              if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
+              if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
+              get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
+              get_new_igrf,/no_store_old
+           endif
 
-        if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-           loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
-        endif
+           if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+              wInd = 0
+              WINDOW,wInd,XSIZE=700,YSIZE=900
+              ;; tplot_options,'region',[0.,0.5,1.0,1.0]
+              loadct2,39
+              tplot,tplot_vars,var=['ALT','ILAT','MLT'], $
+                    WINDOW=wInd, $
+                    TRANGE=[t1,t2]
+           endif
+           ;; if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+           ;;    loadct2,40
+           ;;    tplot,tplot_vars,var=['ALT','ILAT','MLT']
+           ;; endif
 
 ; ION ENERGY 
 
-        var_name='Iesa_Energy'
-        get_en_spec,'fa_' + ieb_or_ies + '_c',name=var_name, units='eflux',/CALIB,RETRACE=1
-        get_data,var_name, data=data
-        data.y = alog10(data.y)
-        store_data,var_name, data=data
-        options,var_name,'spec',1	
-        ;; zlim,var_name,4,9,0
-        zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-        ylim,var_name,4,30000,1
-        options,var_name,'ytitle','Ions!C!CEnergy (eV)'
-        options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,var_name,'x_no_interp',1
-        options,var_name,'y_no_interp',1
-        options,var_name,'panel_size',2
+           var_name='Iesa_Energy'
+           get_en_spec,'fa_' + ieb_or_ies + '_c',name=var_name, units='eflux',/CALIB,RETRACE=1
+           get_data,var_name, data=data
+           data.y = alog10(data.y)
+           store_data,var_name, data=data
+           options,var_name,'spec',1	
+           ;; zlim,var_name,4,9,0
+           zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+           ylim,var_name,4,30000,1
+           options,var_name,'ytitle','Ions!C!CEnergy (eV)'
+           options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+           options,var_name,'x_no_interp',1
+           options,var_name,'y_no_interp',1
+           options,var_name,'panel_size',2
 
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+           if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[tplot_vars,var_name]
 
-        if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-           loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
-        endif
+           if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+              loadct2,40
+              tplot,tplot_vars,var=['ALT','ILAT','MLT']
+           endif
 
+        ENDIF
      endif
 
 
@@ -298,54 +322,56 @@ pro single_kappa_summary,time1,time2, $
 
 ; ELECTRON PITCH ANGLE
 
-     var_name='Eesa_Angle'
-     get_pa_spec,'fa_' + eeb_or_ees + '_c',units='eflux',name=var_name, energy=[10.,30000.]
-     get_data,var_name, data=data 
-     data.y = alog10(data.y)
-     store_data,var_name, data=data
-     options,var_name,'spec',1
-     ;; zlim,var_name,4,9,0
-     zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-     ylim,var_name,0,360,0
-     options,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
-     options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-     options,var_name,'x_no_interp',1
-     options,var_name,'y_no_interp',1
-     options,var_name,'panel_size',2
-
-     get_data,var_name, data=data
-     bb = where (data.v gt 270.,nb)
-     if (nb gt 0) then data.v(bb)=data.v(bb)-360.
-     nn = n_elements(data.x)
-     for n = 0,nn-1L do begin & $
-        bs = sort (data.v(n,*)) & $
-        data.v(n,*)=data.v(n,bs) & $
-        data.y(n,*)=data.y(n,bs) & $
-        endfor
+     IF KEYWORD_SET(include_electron_pa_spec) THEN BEGIN
+        var_name='Eesa_Angle'
+        get_pa_spec,'fa_' + eeb_or_ees + '_c',units='eflux',name=var_name, energy=[10.,30000.]
+        get_data,var_name, data=data 
+        data.y = alog10(data.y)
         store_data,var_name, data=data
-        options,var_name,'yminor',9
-        options,var_name,'yticks',4
-        options,var_name,'ytickv',[-90,0,90,180,270]
-        ylim,var_name,-90,270,0
+        options,var_name,'spec',1
+        ;; zlim,var_name,4,9,0
+        zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+        ylim,var_name,0,360,0
+        options,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
+        options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        options,var_name,'x_no_interp',1
+        options,var_name,'y_no_interp',1
+        options,var_name,'panel_size',2
 
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+        get_data,var_name, data=data
+        bb = where (data.v gt 270.,nb)
+        if (nb gt 0) then data.v(bb)=data.v(bb)-360.
+        nn = n_elements(data.x)
+        for n = 0,nn-1L do begin & $
+           bs = sort (data.v(n,*)) & $
+           data.v(n,*)=data.v(n,bs) & $
+           data.y(n,*)=data.y(n,bs) & $
+           endfor
+           store_data,var_name, data=data
+           options,var_name,'yminor',9
+           options,var_name,'yticks',4
+           options,var_name,'ytickv',[-90,0,90,180,270]
+           ylim,var_name,-90,270,0
+
+           if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[tplot_vars,var_name]
 
 ; reset time limits if needed
 
-        IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
-        IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
+           IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
+           IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
 
-        if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
-           if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
-           if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
-           get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-           get_new_igrf,/no_store_old
-        endif
+           if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
+              if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
+              if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
+              get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
+              get_new_igrf,/no_store_old
+           endif
 
-        if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-           loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
-        endif
+           if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+              loadct2,40
+              tplot,tplot_vars,var=['ALT','ILAT','MLT']
+           endif
+        ENDIF
 
 ; ELECTRON ENERGY
 
@@ -364,7 +390,7 @@ pro single_kappa_summary,time1,time2, $
         options,var_name,'y_no_interp',1
         options,var_name,'panel_size',2
 
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[tplot_vars,var_name]
 
         if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then BEGIN 
            loadct2,40
@@ -399,74 +425,83 @@ pro single_kappa_summary,time1,time2, $
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Chare panel
-  IF KEYWORD_SET(add_chare_panel) OR KEYWORD_SET(add_kappa_panel) OR KEYWORD_SET(add_Newell_panel) THEN BEGIN
-     eAngle       = [360.-30.,30.]
-     iAngle       = [135.,225.]
-     eAngleChare  = eAngle
-     iAngleChari  = iAngle
-     t1eeb = 0.D 
-     t2eeb = 0.D
-     bro   = GET_FA_EEB(t1eeb,/ST)
-     bro   = GET_FA_EEB(t2eeb,/EN)
-     GET_2DT,'j_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Je',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
-     GET_2DT,'je_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Jee',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
-     GET_2DT,'j_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Ji',T1=t1eeb,T2=t2eeb,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
-     GET_2DT,'je_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Jei',T1=t1eeb,T2=t2eeb,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
-     ;;Remove_crap
-     GET_DATA,'Je',DATA=tmp
-     ;; GET_DATA,'Je',DATA=Je_originalsk
-     ;; saveStr+='Je_originalsk,'
-     keep1                          = WHERE(FINITE(tmp.y) NE 0)
-     keep2                          = WHERE(ABS(tmp.y) GT 0.0)
-     GET_DATA,'Jee',DATA=tmp
-     ;; GET_DATA,'Jee',DATA=Jee_originalsk
-     ;; saveStr+='Jee_originalsk,'
-     keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
-     keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
-     GET_DATA,'Ji',DATA=tmp
-     ;; GET_DATA,'Ji',DATA=Ji_originalsk
-     ;; saveStr+='Ji_originalsk,'
-     keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
-     keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
-     GET_DATA,'Jei',DATA=tmp
-     ;; GET_DATA,'Jei',DATA=Jei_originalsk
-     ;; saveStr+='Jei_originalsk,'
-     keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
-     keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
-     GET_DATA,'Je',DATA=tmp
-     tmp.x                          = tmp.x[keep1]
-     tmp.y                          = tmp.y[keep1]
-     je_tmp_time                    = tmp.x[keep2]
-     je_tmp_data                    = tmp.y[keep2]
-     STORE_DATA,'Je',DATA={x:je_tmp_time,y:je_tmp_data}
-     GET_DATA,'Jee',DATA=tmp
-     tmp.x                          = tmp.x[keep1]
-     tmp.y                          = tmp.y[keep1]
-     jee_tmp_time                   = tmp.x[keep2]
-     jee_tmp_data                   = tmp.y[keep2]
-     STORE_DATA,'Jee',DATA={x:jee_tmp_time,y:jee_tmp_data}
-     GET_DATA,'Ji',DATA=tmp
-     tmp.x                          = tmp.x[keep1]
-     tmp.y                          = tmp.y[keep1]
-     ji_tmp_time                    = tmp.x[keep2]
-     ji_tmp_data                    = tmp.y[keep2]
-     STORE_DATA,'Ji',DATA={x:ji_tmp_time,y:ji_tmp_data}
-     GET_DATA,'Jei',DATA=tmp
-     tmp.x                          = tmp.x[keep1]
-     tmp.y                          = tmp.y[keep1]
-     jei_tmp_time                   = tmp.x[keep2]
-     jei_tmp_data                   = tmp.y[keep2]
-     STORE_DATA,'Jei',DATA={x:jei_tmp_time,y:jei_tmp_data}
+  ;; IF KEYWORD_SET(add_chare_panel) OR KEYWORD_SET(add_kappa_panel) OR KEYWORD_SET(add_Newell_panel) THEN BEGIN
+  eAngle       = [360.-30.,30.]
+  iAngle       = [135.,225.]
+  eAngleChare  = eAngle
+  iAngleChari  = iAngle
+  t1eeb = 0.D 
+  t2eeb = 0.D
+  bro   = GET_FA_EEB(t1eeb,/ST)
+  bro   = GET_FA_EEB(t2eeb,/EN)
+  GET_2DT,'j_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Je',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
+  GET_2DT,'je_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Jee',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
+  GET_2DT,'j_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Ji',T1=t1eeb,T2=t2eeb,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
+  GET_2DT,'je_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Jei',T1=t1eeb,T2=t2eeb,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
+  ;;Remove_crap
+  GET_DATA,'Je',DATA=tmp
+  ;; GET_DATA,'Je',DATA=Je_originalsk
+  ;; saveStr+='Je_originalsk,'
+  keep1                          = WHERE(FINITE(tmp.y) NE 0)
+  keep2                          = WHERE(ABS(tmp.y) GT 0.0)
+  GET_DATA,'Jee',DATA=tmp
+  ;; GET_DATA,'Jee',DATA=Jee_originalsk
+  ;; saveStr+='Jee_originalsk,'
+  keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
+  keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
+  GET_DATA,'Ji',DATA=tmp
+  ;; GET_DATA,'Ji',DATA=Ji_originalsk
+  ;; saveStr+='Ji_originalsk,'
+  keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
+  keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
+  GET_DATA,'Jei',DATA=tmp
+  ;; GET_DATA,'Jei',DATA=Jei_originalsk
+  ;; saveStr+='Jei_originalsk,'
+  keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
+  keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
+  GET_DATA,'Je',DATA=tmp
+  tmp.x                          = tmp.x[keep1]
+  tmp.y                          = tmp.y[keep1]
+  je_tmp_time                    = tmp.x[keep2]
+  je_tmp_data                    = tmp.y[keep2]
+  STORE_DATA,'Je',DATA={x:je_tmp_time,y:je_tmp_data}
+  GET_DATA,'Jee',DATA=tmp
+  tmp.x                          = tmp.x[keep1]
+  tmp.y                          = tmp.y[keep1]
+  jee_tmp_time                   = tmp.x[keep2]
+  jee_tmp_data                   = tmp.y[keep2]
+  STORE_DATA,'Jee',DATA={x:jee_tmp_time,y:jee_tmp_data}
+  GET_DATA,'Ji',DATA=tmp
+  tmp.x                          = tmp.x[keep1]
+  tmp.y                          = tmp.y[keep1]
+  ji_tmp_time                    = tmp.x[keep2]
+  ji_tmp_data                    = tmp.y[keep2]
+  STORE_DATA,'Ji',DATA={x:ji_tmp_time,y:ji_tmp_data}
+  GET_DATA,'Jei',DATA=tmp
+  tmp.x                          = tmp.x[keep1]
+  tmp.y                          = tmp.y[keep1]
+  jei_tmp_time                   = tmp.x[keep2]
+  jei_tmp_data                   = tmp.y[keep2]
+  STORE_DATA,'Jei',DATA={x:jei_tmp_time,y:jei_tmp_data}
 
-     GET_DATA,'Je',DATA=Je
-     GET_DATA,'Jee',DATA=Jee
-     GET_DATA,'Ji',DATA=Ji
-     GET_DATA,'Jei',DATA=Jei
-  ENDIF
+  GET_DATA,'Je',DATA=Je
+  GET_DATA,'Jee',DATA=Jee
+  GET_DATA,'Ji',DATA=Ji
+  GET_DATA,'Jei',DATA=Jei
+  ;; ENDIF
+
+  chare            = Jee.y/Je.y*6.242*1.0e11
+  chari            = Jei.y/Ji.y*6.242*1.0e11
+  FA_FIELDS_COMBINE,{time:Jee.x,comp1:Jee.y,ncomp:1}, $
+                    {time:Jei.x,comp1:chari,ncomp:1}, $
+                    RESULT=chari_interp, $
+                    /INTERP, $
+                    DELT_T=50., $
+                    /TALK
+  ;; chari_interp  = {x:Jee.x,y:chari_interp}
+  chartot          = chare+chari_interp
 
   IF KEYWORD_SET(add_chare_panel) THEN BEGIN
-     chare            = Jee.y/Je.y*6.242*1.0e11
-     chari            = Jei.y/Ji.y*6.242*1.0e11
      charEBounds      = [MIN(chare[WHERE(chare GT 0)]) + MIN(chari[WHERE(chari GT 0)]), $
                          MAX(chare[WHERE(chare GT 0)]) + MAX(chari[WHERE(chari GT 0)])]
      ;; showLog_charE    = (ALOG10(MAX(chare[WHERE(chare GT 0)]))-ALOG10(MIN(chare[WHERE(chare GT 0)]))) GT 2
@@ -478,21 +513,9 @@ pro single_kappa_summary,time1,time2, $
         charEBounds[0] /= 1.1
         charEBounds[1] *= 1.1
      ENDELSE
-     FA_FIELDS_COMBINE,{time:Jee.x,comp1:Jee.y,ncomp:1}, $
-                       {time:Jei.x,comp1:chari,ncomp:1}, $
-                       RESULT=chari_interp, $
-                       /INTERP, $
-                       DELT_T=50., $
-                       /TALK
-     ;; chari_interp  = {x:Jee.x,y:chari_interp}
-     chartot          = chare+chari_interp
-     STORE_DATA,'charepanel',DATA={x:[[Jee.x],[Jee.x],[Jee.x]],y:[[chari_interp],[chare],[chartot]]}
 
-     red              = 250
-     green            = 130
-     blue             = 90
-     maxwell          = 50
-     black            = 10
+
+     STORE_DATA,'charepanel',DATA={x:[[Jee.x],[Jee.x],[Jee.x]],y:[[chari_interp],[chare],[chartot]]}
 
      YLIM,'charepanel',charEBounds[0],charEBounds[1],showLog_charE
      OPTIONS,'charepanel','tplot_routine','mplot'
@@ -504,7 +527,7 @@ pro single_kappa_summary,time1,time2, $
      ;; OPTIONS,'charepanel','ytickname',['0','5e3','1.0e4','1.5e4','2.e4'] ; set y-axis labels
      ;; OPTIONS,'charepanel','ytickv',[0.,5.e3,1.0e4,1.5e4,2.0e4]           ; set y-axis labels
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=['charepanel'] else tplot_vars=['charepanel',tplot_vars]
+     if (n_elements(tplot_vars) eq 0) then tplot_vars=['charepanel'] else tplot_vars=[tplot_vars,'charepanel']
 
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         loadct2,40
@@ -592,8 +615,12 @@ pro single_kappa_summary,time1,time2, $
 
   ;; STORE_DATA,'kappa_fit',DATA={x:kappaTime,y:Astruct.kappa}
   STORE_DATA,'kappa_fit',DATA={x:kappaTime,y:REFORM(kappa2D.fitParams[2,*])}
+  kappaBounds      = [MIN(k2DParms.kappa), $
+                     MAX(k2DParms.kappa)]
+  showLog_kappa    = (ALOG10(kappaBounds[1])-ALOG10(kappaBounds[0])) GT 1
+
   CASE 1 OF
-     KEYWORD_SET(log_kappaPlot): BEGIN
+     KEYWORD_SET(showLog_kappa): BEGIN
         YLIM,'kappa_fit',1.0,100,1
      END
      ELSE: BEGIN
@@ -601,27 +628,86 @@ pro single_kappa_summary,time1,time2, $
      END
   ENDCASE
   OPTIONS,'kappa_fit','ytitle',"Kappa"
-  OPTIONS,'kappa_fit','psym',2  ;Asterisk
+  OPTIONS,'kappa_fit','psym',kappaSym  
 
-  logTemp = 1
-  logDens = 1
-  logBlkE = 1
+  ;;And a line to show where the awesome kappa vals are
+  STORE_DATA,'kappa_critisk',DATA={x:kappaTime,y:MAKE_ARRAY(N_ELEMENTS(kappaTime),VALUE=2.5)}
+  OPTIONS,'kappa_critisk','colors',red
+
+  if (n_elements(tplot_vars) eq 0) then tplot_vars=['kappa_fit'] else tplot_vars=[tplot_vars,'kappa_fit']
+
+  if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     loadct2,40
+     tplot,tplot_vars,var=['ALT','ILAT','MLT']
+     TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM='*'
+  endif
+
+  showLog_Temp = 1
+  showLog_Dens = 1
+  showLog_BlkE = 1
+  showLog_chi2 = 1
+  ;;Now normalized Chi^2
+  STORE_DATA,'chi22DK',DATA={x:kappaTime,y:kappa2D.chi2/(kappa2D.dof+kappa2D.nFree)}
+  OPTIONS,'chi22DK','psym',kappaSym
+  OPTIONS,'chi22DK','colors',kappaColor
+
+  STORE_DATA,'chi22DG',DATA={x:GaussTime,y:gauss2D.chi2/(gauss2D.dof+gauss2D.nFree)}
+  OPTIONS,'chi22DG','psym',GaussSym
+  OPTIONS,'chi22DG','colors',GaussColor
+
+  OPTIONS,'chi22DK','ytitle',CGGREEK('chi',PS=KEYWORD_SET(save_ps))+'!X!U2!N!Dred!N'
+  chi2Bounds      = [MIN([kappa2D.chi2/(kappa2D.dof+kappa2D.nFree),gauss2D.chi2/(gauss2D.dof+gauss2D.nFree)]), $
+                     MAX([kappa2D.chi2/(kappa2D.dof+kappa2D.nFree),gauss2D.chi2/(gauss2D.dof+gauss2D.nFree)])]
+  ;; showLog_chi2    = (ALOG10(chi2Bounds[1])-ALOG10(chi2Bounds[0])) GT 2
+  IF showLog_chi2 THEN BEGIN
+     chi2Bounds[0] -= (chi2Bounds[0]*0.1)
+     chi2Bounds[1] += (chi2Bounds[1]*0.1)
+  ENDIF ELSE BEGIN
+     chi2Bounds[0] /= 1.1
+     chi2Bounds[1] *= 1.1
+  ENDELSE
+  YLIM,'chi22DK',chi2Bounds[0],chi2Bounds[1],showLog_chi2
+
+  if (n_elements(tplot_vars) eq 0) then tplot_vars=['chi22DK'] else tplot_vars=[tplot_vars,'chi22DK']
+
+  if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     loadct2,40
+     tplot,tplot_vars,var=['ALT','ILAT','MLT']
+     TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM='*'
+     TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG'  ;,PSYM='*'
+     TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG'  ;,PSYM='*'
+     TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG'  ;,PSYM='*'
+     TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG'  ;,PSYM='*'
+  endif
+
   ;;Now temperature
   STORE_DATA,'Temp2DK',DATA={x:kappaTime,y:k2DParms.temperature}
   OPTIONS,'Temp2DK','psym',kappaSym
   OPTIONS,'Temp2DK','colors',kappaColor
-  OPTIONS,'Temp2DK','ytitle','Temperature!C(eV)'
-  YLIM,'Temp2DK',MIN(k2DParms.temperature),MAX(k2DParms.temperature),logTemp
 
   STORE_DATA,'Temp2DG',DATA={x:GaussTime,y:g2DParms.temperature}
   OPTIONS,'Temp2DG','psym',GaussSym
   OPTIONS,'Temp2DG','colors',GaussColor
 
-  if (n_elements(tplot_vars) eq 0) then tplot_vars=['Temp2DK'] else tplot_vars=['Temp2DK',tplot_vars]
+  OPTIONS,'Temp2DK','ytitle','Temperature!C(eV)'
+  TempBounds      = [MIN([k2DParms.temperature,g2DParms.temperature]), $
+                     MAX([k2DParms.temperature,g2DParms.temperature])]
+  showLog_Temp    = (ALOG10(TempBounds[1])-ALOG10(TempBounds[0])) GT 2
+     IF showLog_Temp THEN BEGIN
+        TempBounds[0] -= (TempBounds[0]*0.1)
+        TempBounds[1] += (TempBounds[1]*0.1)
+     ENDIF ELSE BEGIN
+        TempBounds[0] /= 1.1
+        TempBounds[1] *= 1.1
+     ENDELSE
+  YLIM,'Temp2DK',TempBounds[0],TempBounds[1],showLog_Temp
+
+  if (n_elements(tplot_vars) eq 0) then tplot_vars=['Temp2DK'] else tplot_vars=[tplot_vars,'Temp2DK']
 
   if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
      loadct2,40
      tplot,tplot_vars,var=['ALT','ILAT','MLT']
+     TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM='*'
      TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG'  ;,PSYM='*'
   endif
 
@@ -629,38 +715,65 @@ pro single_kappa_summary,time1,time2, $
   STORE_DATA,'Dens2DK',DATA={x:kappaTime,y:k2DParms.N}
   OPTIONS,'Dens2DK','psym',kappaSym
   OPTIONS,'Dens2DK','colors',kappaColor
-  OPTIONS,'Dens2DK','ytitle','Density!C(cm!U-3!N)'
-  YLIM,'Dens2DK',MIN(k2DParms.N),MAX(k2DParms.N),1
 
   STORE_DATA,'Dens2DG',DATA={x:GaussTime,y:g2DParms.N}
   OPTIONS,'Dens2DG','psym',GaussSym
   OPTIONS,'Dens2DG','colors',GaussColor
 
-  if (n_elements(tplot_vars) eq 0) then tplot_vars=['Dens2DK'] else tplot_vars=['Dens2DK',tplot_vars]
+  OPTIONS,'Dens2DK','ytitle','Density!C(cm!U-3!N)'
+  DensBounds      = [MIN([k2DParms.N,g2DParms.N]), $
+                     MAX([k2DParms.N,g2DParms.N])]
+  ;; showLog_Dens    = (ALOG10(DensBounds[1])-ALOG10(DensBounds[0])) GT 2
+  IF showLog_Dens THEN BEGIN
+     DensBounds[0] -= (DensBounds[0]*0.1)
+     DensBounds[1] += (DensBounds[1]*0.1)
+  ENDIF ELSE BEGIN
+     DensBounds[0] /= 1.1
+     DensBounds[1] *= 1.1
+  ENDELSE
+  YLIM,'Dens2DK',DensBounds[0],DensBounds[1],showLog_Dens
+
+  if (n_elements(tplot_vars) eq 0) then tplot_vars=['Dens2DK'] else tplot_vars=[tplot_vars,'Dens2DK']
 
   if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
      loadct2,40
      tplot,tplot_vars,var=['ALT','ILAT','MLT']
+     TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM='*'
+     TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG'  ;,PSYM='*'
      TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG'  ;,PSYM='*'
   endif
 
   ;;Now Bulk energy
-  STORE_DATA,'BlkE_2DK',DATA={x:kappaTime,y:k2DParms.bulk_energy}
-  OPTIONS,'BlkE_2DK','psym',kappaSym
-  OPTIONS,'BlkE_2DK','colors',kappaColor
-  OPTIONS,'BlkE_2DK','ytitle','Bulk energy!C(eV)'
-  YLIM,'BlkE_2DK',MIN(k2DParms.bulk_energy),MAX(k2DParms.bulk_energy),logBlkE
+  STORE_DATA,'BlkE2DK',DATA={x:kappaTime,y:k2DParms.bulk_energy}
+  OPTIONS,'BlkE2DK','psym',kappaSym
+  OPTIONS,'BlkE2DK','colors',kappaColor
 
-  STORE_DATA,'BlkE_2DG',DATA={x:GaussTime,y:g2DParms.bulk_energy}
-  OPTIONS,'BlkE_2DG','psym',GaussSym
-  OPTIONS,'BlkE_2DG','colors',GaussColor
+  STORE_DATA,'BlkE2DG',DATA={x:GaussTime,y:g2DParms.bulk_energy}
+  OPTIONS,'BlkE2DG','psym',GaussSym
+  OPTIONS,'BlkE2DG','colors',GaussColor
 
-  if (n_elements(tplot_vars) eq 0) then tplot_vars=['BlkE_2DK'] else tplot_vars=['BlkE_2DK',tplot_vars]
+  OPTIONS,'BlkE2DK','ytitle','Bulk energy!C(eV)'
+  BlkEBounds      = [MIN([k2DParms.bulk_energy,g2DParms.bulk_energy]), $
+                     MAX([k2DParms.bulk_energy,g2DParms.bulk_energy])]
+  ;; showLog_BlkE    = (ALOG10(BlkEBounds[1])-ALOG10(BlkEBounds[0])) GT 2
+  IF showLog_BlkE THEN BEGIN
+     BlkEBounds[0] -= (BlkEBounds[0]*0.1)
+     BlkEBounds[1] += (BlkEBounds[1]*0.1)
+  ENDIF ELSE BEGIN
+     BlkEBounds[0] /= 1.1
+     BlkEBounds[1] *= 1.1
+  ENDELSE
+  YLIM,'BlkE2DK',BlkEBounds[0],BlkEBounds[1],showLog_BlkE
+
+  if (n_elements(tplot_vars) eq 0) then tplot_vars=['BlkE2DK'] else tplot_vars=[tplot_vars,'BlkE2DK']
 
   if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
      loadct2,40
      tplot,tplot_vars,var=['ALT','ILAT','MLT']
-     TPLOT_PANEL,VARIABLE='BlkE_2DK',OPLOTVAR='BlkE_2DG'  ;,PSYM='*'
+     TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM='*'
+     TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG'  ;,PSYM='*'
+     TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG'  ;,PSYM='*'
+     TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG'  ;,PSYM='*'
   endif
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -778,6 +891,8 @@ pro single_kappa_summary,time1,time2, $
                           y:gauss_current}
 
   
+  ;; oneCheeseBounds   = [MIN(obs_current) < MIN(gauss_current) < MIN(kappa_current) < MIN(jMag.y), $
+  ;;                      MAX(obs_current) > MAX(gauss_current) > MAX(kappa_current) < MAX(jMag.y)]
   oneCheeseBounds   = [MIN(obs_current) < MIN(gauss_current) < MIN(kappa_current), $
                        MAX(obs_current) > MAX(gauss_current) > MAX(kappa_current)]
   IF oneCheeseBounds[0] LT 0 THEN BEGIN
@@ -799,24 +914,24 @@ pro single_kappa_summary,time1,time2, $
   OPTIONS,'onecheese','labflag',3
   OPTIONS,'onecheese','labpos',oneCheesePos[0]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
 
-  OPTIONS,'fourcheese','colors',red
+  OPTIONS,'fourcheese','colors',maxwell
   OPTIONS,'fourcheese','labels','Fluxgate mag'
   OPTIONS,'fourcheese','labflag',3
   OPTIONS,'fourcheese','labpos',oneCheesePos[1]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
 
   OPTIONS,'toppings','labels' ,'Kappa model'
   OPTIONS,'toppings','psym'   ,1
-  OPTIONS,'toppings','colors' ,blue
+  OPTIONS,'toppings','colors' ,kappaColor
   OPTIONS,'toppings','labflag',3
   OPTIONS,'toppings','labpos',oneCheesePos[3]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
 
   OPTIONS,'feta','labels' ,'Maxwellian Model'
   OPTIONS,'feta','psym'   ,1
-  OPTIONS,'feta','colors' ,maxwell
+  OPTIONS,'feta','colors' ,GaussColor
   OPTIONS,'feta','labflag',3
   OPTIONS,'feta','labpos',oneCheesePos[2]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
 
-  if (n_elements(tplot_vars) eq 0) then tplot_vars=['onecheese','kappa_fit'] else tplot_vars=['onecheese','kappa_fit',tplot_vars]
+  if (n_elements(tplot_vars) eq 0) then tplot_vars=['onecheese'] else tplot_vars=[tplot_vars,'onecheese']
 
   if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
      loadct2,40
@@ -824,6 +939,11 @@ pro single_kappa_summary,time1,time2, $
      TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese'  ;,PSYM='*'
      TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'    ;,PSYM=1
      TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'        ;,PSYM=1
+     TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM='*'
+     TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG'  ;,PSYM='*'
+     TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG'  ;,PSYM='*'
+     TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG'  ;,PSYM='*'
+     TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG'  ;,PSYM='*'
   endif
 
   ;; ENDIF
@@ -860,7 +980,7 @@ pro single_kappa_summary,time1,time2, $
                                             /NO_STRICT_TYPES, $
                                             CONVERT_TO_NEWELL_INTERP=convert_to_Newell_interp
 
-  if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+  if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[tplot_vars,var_name]
 
   if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
      loadct2,40
@@ -1040,11 +1160,16 @@ pro single_kappa_summary,time1,time2, $
      loadct2,40
      tplot,tplot_vars,var=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
 
-     IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
+     ;; IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'   ;,PSYM=1
-     ENDIF
+        TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM='*'
+        TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG'  ;,PSYM='*'
+        TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG'  ;,PSYM='*'
+        TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG' ;,PSYM='*'
+        TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG' ;,PSYM='*'
+     ;; ENDIF
   endif
 
   IF keyword_set(save_ps) THEN BEGIN
@@ -1065,11 +1190,17 @@ pro single_kappa_summary,time1,time2, $
      LOADCT2,40
      TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
 
-     IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
+     ;; IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'   ;,PSYM=1
-     ENDIF
+        TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM='*'
+        TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG'  ;,PSYM='*'
+        TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG'  ;,PSYM='*'
+        TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG' ;,PSYM='*'
+        TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG' ;,PSYM='*'
+
+     ;; ENDIF
 
      CASE 1 OF
         KEYWORD_SET(save_png): BEGIN
@@ -1092,104 +1223,104 @@ END
 ; to get the SDT index for this run.  Otherwise "showDQIs" won't
 ; return.  If this is old, single-user SDT, "sdt_idx" is returned
 ; as 255 and we handle the call in the old way.
-IF KEYWORD_SET(add_eField) THEN BEGIN
-  sdt_idx = get_sdt_run_idx()
+;; IF KEYWORD_SET(add_eField) THEN BEGIN
+;;   sdt_idx = get_sdt_run_idx()
 
-  prog = getenv('FASTBIN') + '/showDQIs'
-  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-     if (sdt_idx GE 10) then begin
-        sidstr = string(sdt_idx, format='(I2)')
-     endif else begin
-        sidstr = string(sdt_idx, format='(I1)')
-     endelse
-     spawn, [prog, sidstr], result, /noshell
-  endif else begin
-     spawn, prog, result, /noshell
-  endelse
+;;   prog = getenv('FASTBIN') + '/showDQIs'
+;;   if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
+;;      if (sdt_idx GE 10) then begin
+;;         sidstr = string(sdt_idx, format='(I2)')
+;;      endif else begin
+;;         sidstr = string(sdt_idx, format='(I1)')
+;;      endelse
+;;      spawn, [prog, sidstr], result, /noshell
+;;   endif else begin
+;;      spawn, prog, result, /noshell
+;;   endelse
 
 
-  b = where (strpos(result,'V1-V4_S') ge 0,nb4)
-  if (nb4 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb4 = 0
-  b = where (strpos(result,'V1-V2_S') ge 0,nb2)
-  if (nb2 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb2 = 0
-  if (nb4 gt 0) then v12=get_fa_fields('V1-V4_S',/all) $
-  else if (nb2 gt 0) then v12=get_fa_fields('V1-V2_S',/all)
+;;   b = where (strpos(result,'V1-V4_S') ge 0,nb4)
+;;   if (nb4 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb4 = 0
+;;   b = where (strpos(result,'V1-V2_S') ge 0,nb2)
+;;   if (nb2 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb2 = 0
+;;   if (nb4 gt 0) then v12=get_fa_fields('V1-V4_S',/all) $
+;;   else if (nb2 gt 0) then v12=get_fa_fields('V1-V2_S',/all)
 
-  b = where (strpos(result,'V5-V8_S') ge 0,nb5)
-  if (nb5 gt 0) then v58=get_fa_fields('V5-V8_S',/all)
+;;   b = where (strpos(result,'V5-V8_S') ge 0,nb5)
+;;   if (nb5 gt 0) then v58=get_fa_fields('V5-V8_S',/all)
 
-  got_efield = (nb4 gt 0 or nb2 gt 0) and nb5 gt 0
+;;   got_efield = (nb4 gt 0 or nb2 gt 0) and nb5 gt 0
 
-  if (got_efield) then begin
+;;   if (got_efield) then begin
 
-; despin e field data
+;; ; despin e field data
 
-     fa_fields_despin,v58,v12,/shadow_notch,/sinterp
+;;      fa_fields_despin,v58,v12,/shadow_notch,/sinterp
 
-     options,'EFIT_ALONG_V','yrange',0
-     options,'EFIT_ALONG_V','ytitle','E along V!C!C(mV/m)'
-     options,'EFIT_ALONG_V','panel_size',2
+;;      options,'EFIT_ALONG_V','yrange',0
+;;      options,'EFIT_ALONG_V','ytitle','E along V!C!C(mV/m)'
+;;      options,'EFIT_ALONG_V','panel_size',2
 
-; reset time limits if needed
+;; ; reset time limits if needed
 
-     get_data,'EFIT_ALONG_V',data=data
-     IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
-     IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
+;;      get_data,'EFIT_ALONG_V',data=data
+;;      IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
+;;      IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
 
-     if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
-        if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
-        if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
-        get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-        get_new_igrf,/no_store_old
-     endif
+;;      if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
+;;         if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
+;;         if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
+;;         get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
+;;         get_new_igrf,/no_store_old
+;;      endif
 
-; check for southern hemisphere and fix 
-; NOTE IT IS ASSUMED THAT FA_FIELDS_DESPIN DOES NOT CORRECT PHASE
+;; ; check for southern hemisphere and fix 
+;; ; NOTE IT IS ASSUMED THAT FA_FIELDS_DESPIN DOES NOT CORRECT PHASE
 
-     get_data,'B_model',data=bm
-     get_data,'fa_vel',data=vel
-     get_data,'fa_pos',data=pos
-     n=n_elements(reform(pos.y[*,0]))
-     rxv = dblarr(n,3)
-     rxv[*,0] = pos.y[*,1]*vel.y[*,2] - pos.y[*,2]*vel.y[*,1]
-     rxv[*,1] = pos.y[*,2]*vel.y[*,0] - pos.y[*,0]*vel.y[*,2]
-     rxv[*,2] = pos.y[*,0]*vel.y[*,1] - pos.y[*,1]*vel.y[*,0]
-     vxb = dblarr(n,3)
-     vxb[*,0] = vel.y[*,1]*bm.y[*,2] - vel.y[*,2]*bm.y[*,1]
-     vxb[*,1] = vel.y[*,2]*bm.y[*,0] - vel.y[*,0]*bm.y[*,2]
-     vxb[*,2] = vel.y[*,0]*bm.y[*,1] - vel.y[*,1]*bm.y[*,0]
-     tst = rxv[*,0]*vxb[*,0] + rxv[*,1]*vxb[*,1] + rxv[*,2]*vxb[*,2]
+;;      get_data,'B_model',data=bm
+;;      get_data,'fa_vel',data=vel
+;;      get_data,'fa_pos',data=pos
+;;      n=n_elements(reform(pos.y[*,0]))
+;;      rxv = dblarr(n,3)
+;;      rxv[*,0] = pos.y[*,1]*vel.y[*,2] - pos.y[*,2]*vel.y[*,1]
+;;      rxv[*,1] = pos.y[*,2]*vel.y[*,0] - pos.y[*,0]*vel.y[*,2]
+;;      rxv[*,2] = pos.y[*,0]*vel.y[*,1] - pos.y[*,1]*vel.y[*,0]
+;;      vxb = dblarr(n,3)
+;;      vxb[*,0] = vel.y[*,1]*bm.y[*,2] - vel.y[*,2]*bm.y[*,1]
+;;      vxb[*,1] = vel.y[*,2]*bm.y[*,0] - vel.y[*,0]*bm.y[*,2]
+;;      vxb[*,2] = vel.y[*,0]*bm.y[*,1] - vel.y[*,1]*bm.y[*,0]
+;;      tst = rxv[*,0]*vxb[*,0] + rxv[*,1]*vxb[*,1] + rxv[*,2]*vxb[*,2]
 
-     get_data,'EFIT_ALONG_V',data=data,dlimit=dlimit
-     y2=spl_init(pos.x-tlimit_all[0],tst,/double)
-     tst_ = spl_interp(pos.x-tlimit_all[0],tst,y2,data.x-tlimit_all[0],/double)
-     data.y = data.y*tst_/abs(tst_)
-     store_data,'EFIT_ALONG_VSC',data=data,dlimit=dlimit
-     options,'EFIT_ALONG_VSC','yrange',0
-     options,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C(mV/m)'
-     options,'EFIT_ALONG_VSC','panel_size',2
+;;      get_data,'EFIT_ALONG_V',data=data,dlimit=dlimit
+;;      y2=spl_init(pos.x-tlimit_all[0],tst,/double)
+;;      tst_ = spl_interp(pos.x-tlimit_all[0],tst,y2,data.x-tlimit_all[0],/double)
+;;      data.y = data.y*tst_/abs(tst_)
+;;      store_data,'EFIT_ALONG_VSC',data=data,dlimit=dlimit
+;;      options,'EFIT_ALONG_VSC','yrange',0
+;;      options,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C(mV/m)'
+;;      options,'EFIT_ALONG_VSC','panel_size',2
 
-     store_data,'E_NEAR_B',/delete
-     store_data,'E_ALONG_V',/delete
-     store_data,'EFIT_NEAR_B',/delete
-     store_data,'EFIT_ALONG_V',/delete
+;;      store_data,'E_NEAR_B',/delete
+;;      store_data,'E_ALONG_V',/delete
+;;      store_data,'EFIT_NEAR_B',/delete
+;;      store_data,'EFIT_ALONG_V',/delete
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=['EFIT_ALONG_VSC'] else tplot_vars=['EFIT_ALONG_VSC',tplot_vars]
+;;      if (n_elements(tplot_vars) eq 0) then tplot_vars=['EFIT_ALONG_VSC'] else tplot_vars=[tplot_vars,'EFIT_ALONG_VSC']
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-        loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
-     endif
+;;      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+;;         loadct2,40
+;;         tplot,tplot_vars,var=['ALT','ILAT','MLT']
+;;      endif
 
-  endif else if (n_elements(tplot_vars) ne 0) then begin
+;;   endif else if (n_elements(tplot_vars) ne 0) then begin
 
-     tplot_vars = 'dB_fac'
-     if (keyword_set(use_fac_v)) then tplot_vars = 'dB_fac_v'
-     if (not keyword_set(no_blank_panels)) then tplot_vars = 'dB_fac_v'
+;;      tplot_vars = 'dB_fac'
+;;      if (keyword_set(use_fac_v)) then tplot_vars = 'dB_fac_v'
+;;      if (not keyword_set(no_blank_panels)) then tplot_vars = 'dB_fac_v'
 
-  endif
+;;   endif
 
-ENDIF
+;; ENDIF
 
 ; Step 5 - VLF data
 
@@ -1251,7 +1382,7 @@ ENDIF
 ;;         store_data,'DSP_V5-V8',data=data
 ;;      endif
      
-;;      if (n_elements(tplot_vars) eq 0) then tplot_vars=['DSP_V5-V8'] else tplot_vars=['DSP_V5-V8',tplot_vars]
+;;      if (n_elements(tplot_vars) eq 0) then tplot_vars=['DSP_V5-V8'] else tplot_vars=[tplot_vars,'DSP_V5-V8']
 
 ;;      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
 ;;         loadct2,40
@@ -1318,7 +1449,7 @@ ENDIF
 ;;         store_data,'SFA_V5-V8',data=data
 ;;      endif
 
-;;      if (n_elements(tplot_vars) eq 0) then tplot_vars=['SFA_V5-V8'] else tplot_vars=['SFA_V5-V8',tplot_vars]
+;;      if (n_elements(tplot_vars) eq 0) then tplot_vars=['SFA_V5-V8'] else tplot_vars=[tplot_vars,'SFA_V5-V8']
 
 ;;      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
 ;;         loadct2,40

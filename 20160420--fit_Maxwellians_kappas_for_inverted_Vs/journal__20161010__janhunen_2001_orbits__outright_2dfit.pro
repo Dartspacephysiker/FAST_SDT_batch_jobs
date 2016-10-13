@@ -6,19 +6,22 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;;get orbTimes here
   @journal__20161010__info__janhunen_2001_orbits.pro
 
-  show_post_plots      = 1
-  save_kappa_plot      = 1
-  close_kp_after_save  = 1
+  show_post_plots      = 0
+  save_kappa_plot      = 0
+  close_kp_after_save  = 0
 
-  fit2D__save_all_candidate_plots = 1
-  fit2D__show_each_candidate = 1
+  fit2D__save_all_candidate_plots = 0
+  fit2D__show_each_candidate      = 0
 
   show_Strangeway_summary  = 1
   sway__save_ps            = 1
-  sway__add_kappa_panel    = 1
+  sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
-  sway__add_Newell_panel   = 1
-  sway__log_kappaPlot      = 1
+  sway__add_Newell_panel   = 0
+  sway__log_kappaPlot      = 0
+
+  show_kappa_summary       = 1
+  kSum__save_ps            = 1
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 0
@@ -34,11 +37,11 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;; 6: No inverted V, No exact times given!
   ;; 7: No inverted V,No exact times given!
   ;; 8: No inverted V,No exact times given!
-  evtNum               = 3
+  evtNum               = 4
 
   ;;survey window
-  eeb_or_ees           = 'eeb'
-  burstItvl            = 0
+  eeb_or_ees           = 'ees'
+  burstItvl            = 2
 
   ;;String setup
   orbit                = orbs      [evtNum]
@@ -55,14 +58,14 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
   chi2_over_dof_thresh = 100
-  lowDens_thresh       = 0.01
+  lowDens_thresh       = 0.005
   diffEflux_thresh     = 5e7
   nPkAbove_dEF_thresh  = 5
 
   electron_angleRange  = [-30,30]
-  energy_electrons     = [3e1,3.3e4]
+  energy_electrons     = [3e1,3.0e4]
   electron_lca         = [150,-150]
-  min_peak_energy      = 400
+  min_peak_energy      = 200
 
   KAPPA_FITTER_BLACKBOX,orbit, $
                         ELECTRON_SOURCECONEANGLE=electron_angleRange, $
@@ -93,6 +96,9 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
                         SWAY__ADD_CHARE_PANEL=sway__add_chare_panel, $
                         SWAY__ADD_NEWELL_PANEL=sway__add_Newell_panel, $
                         SWAY__LOG_KAPPAPLOT=sway__log_kappaPlot, $
+                        SHOW_KAPPA_SUMMARY=show_kappa_summary, $
+                        KSUM__SAVE_PS=kSum__save_ps, $
+                        KSUM__SAVE_PNG=kSum__save_png, $
                         OUT_FIT2DK=fit2DK, $
                         OUT_FIT2DGAUSS=fit2DG, $
                         OUT_KAPPA_FIT_STRUCTS=kappaFits, $

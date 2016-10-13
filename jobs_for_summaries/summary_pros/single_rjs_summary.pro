@@ -1234,9 +1234,9 @@ pro single_rjs_summary,time1,time2, $
         options,'dB_fac_v','labels',['v ((BxV)xB)','p (BxV)','b']
      endif
 
-     tplot_vars=['SFA_V5-V8','DSP_V5-V8','Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','EFIT_ALONG_VSC','dB_fac_v']
+     tplot_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','SFA_V5-V8','DSP_V5-V8','EFIT_ALONG_VSC','dB_fac_v']
 
-     IF KEYWORD_SET(add_chare_panel)  THEN tplot_vars = ['charepanel',tplot_vars]
+     IF KEYWORD_SET(add_chare_panel)  THEN tplot_vars = [tplot_vars[0:3],'charepanel',tplot_vars[4:7]]
 
      IF KEYWORD_SET(add_kappa_panel)  THEN tplot_vars = ['onecheese','kappa_fit',tplot_vars]
 
