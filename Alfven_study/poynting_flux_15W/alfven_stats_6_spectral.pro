@@ -37,6 +37,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
   ;; COMPILE_OPT idl2
   ;; COMPILE_OPT strictArr
 
+  ;; fa_init
+
   outDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/poynting_flux_15W/'
 
   IF KEYWORD_SET(ps_sumplot) OR KEYWORD_SET(save_ps) THEN BEGIN
@@ -50,9 +52,12 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
   IF N_ELEMENTS(only_128Ss_data    ) EQ 0 THEN only_128Ss_data     = 1
   IF N_ELEMENTS(yLim_to_mag_rolloff) EQ 0 THEN yLim_to_mag_rolloff = 1
 
+  bonusSuff      = ''
   IF KEYWORD_SET(only_128Ss_data) THEN BEGIN
      PRINT,"Excluding periods for which sample rate of FG mag is ≤ 128 S/s …"
-  ENDIF
+  ENDIF ELSE BEGIN
+     bonusSuff += 'inc_32Hz--'
+  ENDELSE
 
   ;;The way this works is that we estimate f_spA ≤ k_perp * λe < f_spB
   ;;Frequency details under "***Frequency conditions***"
@@ -251,20 +256,21 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                                                TIME_TO_STR(tmpT1),TIME_TO_STR(tmpT2)
      
      ;;filename for output file
+     bonusSuff += belowAurOvalStr 
      IF KEYWORD_SET(burst) THEN BEGIN
 
         bonusDir    = 'batch_output__burst/'
-        bonusSuff   = belowAurOvalStr + '--burst'
+        bonusSuff  += '--burst'
 
      ENDIF ELSE BEGIN
 
         bonusDir  = 'batch_output/'
 
         IF KEYWORD_SET(ucla_mag_despin) THEN BEGIN
-           bonusSuff = belowAurOvalStr + '--ucla_mag_despin'
-        ENDIF ELSE BEGIN
-           bonusSuff = belowAurOvalStr
-        ENDELSE
+           bonusSuff += '--ucla_mag_despin'
+        ENDIF ;; ELSE BEGIN
+
+        ;; ENDELSE
 
      ENDELSE
      curFile     = outDir+bonusDir+'Dartmouth_as6_spectral_'+orbItvlSuff+'--'+bonusSuff
@@ -291,6 +297,14 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
      STORE_DATA,'Je_tmp',DATA={x:je_tmp_time,y:je_tmp_data}
      
      magDC = GET_FA_FIELDS('MagDC',t,/START,/CALIBRATE,/REPAIR)
+     IF (WHERE(FINITE(magDC.comp1)))[0] EQ -1 THEN BEGIN
+        PRINT,"Uh oh, can't get calibrated MagDC data. Trying uncalibrated ..."
+        magDC = GET_FA_FIELDS('MagDC',t,/START,CALIBRATE=0,/REPAIR)
+        IF (WHERE(FINITE(magDC.comp1)))[0] EQ -1 THEN BEGIN
+           PRINT,"Was unable to get any valid DC data. Quitting ..."
+           RETURN
+        ENDIF
+     ENDIF
      ;; dat = get_fa_fields('MagDC',t,/START)
      ;; IF magDC.valid EQ 0 THEN BEGIN
      ;;    PRINT,' ERROR: No FAST mag data-get_fa_fields returned invalid data'
@@ -339,6 +353,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            magy = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,2]} 
            magz = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,1]}
 
+           ;;See whether any of the data we just picked up (ind1:ind2) coincides with bad mag flags (fun to say fast)
            GET_DATA,'MAG_FLAGS',DATA=magFlag
            nFlag = N_ELEMENTS(magFlag.x)
            badB = WHERE(magFlag.y GE 16,nBadB)
@@ -604,10 +619,17 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         filteNB  = KEYWORD_SET(include_E_near_B) ? $
                    MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0) : !NULL
 
+        wavPolStrArr = !NULL
         FOR k=0,FFTCount-1 DO BEGIN
 
            IF KEYWORD_SET(only_128Ss_data) THEN BEGIN
-              IF (sRates[k] GE 1./minPeriod) OR (sRates[k] LE 1./maxPeriod) THEN CONTINUE
+              IF (sRates[k] GE 1./minPeriod) OR (sRates[k] LE 1./maxPeriod) THEN BEGIN
+                 CONTINUE 
+              ENDIF  ;;  ELSE BEGIN
+              ;;    ;;Could do wave polarization here ...
+              ;;    wavpol,magx.x,magx.y,magy.y,magz.y,timeline,freqline,powspec,degpol,waveangle,elliptict,helict,pspec3
+              ;; ENDELSE
+
            ENDIF
 
            tmpI    = [fftBin_i[0,k]:fftBin_i[1,k]]
@@ -673,9 +695,14 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                             DB=FFTdb, $
                             POLES=[lowPole,highPole]
 
+           dBp.comp1[WHERE(~FINITE(dBp.comp1))]             = 0.
+           dBB.comp1[WHERE(~FINITE(dBB.comp1))]             = 0.
+           dBv.comp1[WHERE(~FINITE(dBv.comp1))]             = 0.
+           eAVInterp.comp1[WHERE(~FINITE(eAVInterp.comp1))] = 0.
+
            filtdBp[tmpI]  = dBp.comp1
-           filtdBB[tmpI] = dBB.comp1
-           filtdBv[tmpI] = dBv.comp1
+           filtdBB[tmpI]  = dBB.comp1
+           filtdBv[tmpI]  = dBv.comp1
            filteAV[tmpI]  = eAVInterp.comp1
 
            IF KEYWORD_SET(include_E_near_B) THEN BEGIN
@@ -690,10 +717,24 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
               FA_FIELDS_FILTER,tmpG,freqBounds[*,k], $
                                DB=FFTdb, $
                                POLES=[lowPole,highPole]
+
+              tmpG.comp1[WHERE(~FINITE(tmpG.comp1))] = 0.
               filteNB[tmpI]  = tmpG.comp1
            ENDIF
 
+           tmpMag = {x:[[magx.x[tmpI]],[magy.x[tmpI]],[magz.x[tmpI]]],y:[[magx.y[tmpI]],[magy.y[tmpI]],[magz.y[tmpI]]]}
+           ;; STORE_DATA,'wavPol',DATA=tmpMag
+           ;;Could do wave polarization here ...
+           wavPolStrArr = [wavPolStrArr,STRCOMPRESS(,/REMOVE_ALL)]
+           TWAVPOL,'wavPol'+wavPolStrArr[-1],NOPFFT=FFTLen
+           ;; WAVPOL,magx.x[tmpI],magx.y[tmpI],magy.y[tmpI],magz.y[tmpI], $
+           ;;        timeline,freqline,powspec,degpol,waveangle,elliptict,helict,pspec3
+
         ENDFOR
+
+        ;; FOR k=0, N_ELEMENTS(wavPolStrArr)-1 DO BEGIN
+        ;;    GET_DATA,
+        ;; ENDFOR
 
         magzTmp      = {TIME         : magz.x              , $
                         COMP1        : magz.y              , $
@@ -846,6 +887,9 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            LOAD_MAXIMUS_AND_CDBTIME,maximus,cdbTime, $
                                     /DO_DESPUNDB, $
                                     GOOD_I=good_i, $
+                                    MIN_MAGCURRENT=5, $
+                                    MAX_NEGMAGCURRENT=-5, $
+                                    INCLUDE_32HZ=~KEYWORD_SET(only_128Ss_data), $
                                     HEMI__GOOD_I='BOTH', $
                                     /NO_MEMORY_LOAD
 
@@ -1709,7 +1753,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
      
      ;;remove crap data
      keep = WHERE(FFTintervals[*,3] NE 0.0)
-     PRINT,'keep',keep
+     PRINT,'keep',winFFT_i[keep]
      IF KEYWORD_SET(keep_alfven_only) THEN BEGIN
         IF keep[0] EQ -1 THEN BEGIN
            PRINT,"No meaningful data here! Not producing file..."
@@ -1821,7 +1865,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                FFTintervals[jj,32],FFTintervals[jj,33],FFTintervals[jj,34],FFTintervals[jj,35],$
                FFTintervals[jj,36],FFTintervals[jj,37],FFTintervals[jj,38], $
                TIME_TO_STR(magFriend.x(FFTintervals[jj,0]),/MS), $
-               TIME_TO_STR(magFriend.x(FFTintervals[jj,1]),/MS)
+               TIME_TO_STR(magFriend.x(FFTintervals[jj,1]),/MS), $
+               freqBounds[0,winFFT_i[keep[jj]]],freqBounds[1,winFFT_i[keep[jj]]]
 
         
      ENDFOR
@@ -1898,12 +1943,14 @@ PRO PREP_AND_PLOT_AS6_TPLOTS, $
 
   OPTIONS,'dBpSpec','ytitle','Frequency!C(Hz)'
   OPTIONS,'dBpSpec','zTitle',dBpSpec.units_name
+  OPTIONS,'dBpSpec','zTickFormat','(G5.1)'
   ZLIM,'dBpSpec',dBpSpecLims[0],dBpSpecLims[1],1
   OPTIONS,'dBpSpec','panel_size',2.0
   IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'dBpSpec',0,yLimUpper,0
 
   OPTIONS,'dBpSpecFilt','ytitle','Frequency!C(Hz)'
   OPTIONS,'dBpSpecFilt','zTitle','E-W B-field!C!C'+dBpSpecFilt.units_name
+  OPTIONS,'dBpSpecFilt','zTickFormat','(G5.1)'
   ZLIM,'dBpSpecFilt',dBpSpecLims[0],dBpSpecLims[1],1
   IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'dBpSpecFilt',0,yLimUpper,0
   OPTIONS,'dBpSpecFilt','panel_size',2.0
@@ -1911,12 +1958,14 @@ PRO PREP_AND_PLOT_AS6_TPLOTS, $
   ZLIM,'EAVSpec',eAVSpecLims[0],eAVSpecLims[1],1 ; set z limits
   IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'EAVSpec',0,yLimUpper,0
   OPTIONS,'EAVSpec','ytitle','Frequency!C(Hz)'
+  OPTIONS,'EAVSpec','zTickFormat','(G5.1)'
   OPTIONS,'EAVSpec','ztitle','Log ' + eAVSpec.units_name ; z title
   OPTIONS,'EAVSpec','panel_size',2.0
 
   ZLIM,'EAVSpecFilt',eAVSpecLims[0],eAVSpecLims[1],1 ; set z limits
   IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'EAVSpecFilt',0,yLimUpper,0
   OPTIONS,'EAVSpecFilt','ztitle','E along V!C!C' + eAVSpecFilt.units_name
+  OPTIONS,'EAVSpecFilt','zTickFormat','(G5.1)'
   OPTIONS,'EAVSpecFilt','ytitle','Frequency!C(Hz)'
   ;; OPTIONS,'EAVSpecFilt','ztitle',eAVSpecFilt.units_name ; z title
   OPTIONS,'EAVSpecFilt','panel_size',2.0
@@ -1925,6 +1974,7 @@ PRO PREP_AND_PLOT_AS6_TPLOTS, $
      ZLIM,'ENBSpecFilt',eAVSpecLims[0],eAVSpecLims[1],1 ; set z limits
      IF KEYWORD_SET(yLim_to_mag_rolloff) THEN YLIM,'ENBSpecFilt',0,yLimUpper,0
      OPTIONS,'ENBSpecFilt','ztitle','E Near B!C!C'+eNBSpecFilt.units_name
+     OPTIONS,'ENBSpecFilt','zTickFormat','(G5.1)'
      OPTIONS,'ENBSpecFilt','ytitle','Frequency!C(Hz)'
      OPTIONS,'ENBSpecFilt','panel_size',2.0
   ENDIF
@@ -2149,9 +2199,15 @@ PRO PFLUX_PLOTS,pFluxP,pFluxB, $
   COMPILE_OPT idl2
 
   window2     = WINDOW(DIMENSIONS=[800,600])
+  margin      = [0.12, 0.12, 0.12, 0.12]
   symTransp   = 70
 
   x_values    = UTC_TO_JULDAY(magz.x)
+
+  dummy           = LABEL_DATE(DATE_FORMAT=['%I:%S%2'])
+  xRange          = [MIN(x_values),MAX(x_values)]
+  xTickFormat     = 'LABEL_DATE'
+  xTickUnits      = 'Time'
 
   ;; yRange      = [MIN(pFluxP),MAX(pFluxP)]
   pFluxyRange = [(MIN(pFluxP) < MIN(pFluxB)),(MAX(pFluxP) > MAX(pFluxB))]
@@ -2217,6 +2273,7 @@ PRO PFLUX_PLOTS,pFluxP,pFluxB, $
                           AXIS_STYLE=0, $
                           SYM_TRANSPARENCY=symTransp, $
                           YRANGE=maxPFluxRange, $
+                          YTITLE='Poynting Flux (mW/m$^2$)', $
                           XRANGE=xRange, $
                           XTICKFORMAT=xTickFormat, $
                           XTICKUNITS=xTickUnits, $
@@ -2367,30 +2424,37 @@ PRO COMPARE_PFLUXES_W_MAXIMUS,nWinFFT, $
 
   IF N_ELEMENTS(lun) EQ 0 THEN lun = -1
 
-  tAvgFFTPFluxB = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
-  tAvgFFTPFluxP = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
-  tAvgMaxPFlux  = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
+  pFluxBNP              = SQRT(pFluxB^2+pFluxP^2)
+
+  tAvgFFTPFluxB         = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
+  tAvgFFTPFluxP         = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
+  tAvgFFTPFluxBNP       = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
+  tAvgMaxPFlux          = MAKE_ARRAY(nWinFFT,/FLOAT,VALUE=-999.)
   
-  totTime       = 0.
-  totMax_ii     = !NULL
-  totWeightPFB  = 0
-  totWeightPFP  = 0
+  totTime               = 0.
+  totMax_ii             = !NULL
+  totWeightPFB          = 0
+  totWeightPFP          = 0
+  totWeightPFBNP        = 0
   FOR k=0,nWinFFT-1 DO BEGIN
-     strtMag_i     = winAlfFFT_i[0,k]
-     stopMag_i     = winAlfFFT_i[1,k]
-     tmpLength     = FLOAT(stopMag_i-strtMag_i+1)
+     strtMag_i          = winAlfFFT_i[0,k]
+     stopMag_i          = winAlfFFT_i[1,k]
+     tmpLength          = FLOAT(stopMag_i-strtMag_i+1)
 
-     tmpTime       = tmpLength / sRates[winFFT_i[k]]
+     tmpTime            = tmpLength / sRates[winFFT_i[k]]
 
-     weightPFB     = TOTAL(pFluxB[strtMag_i:stopMag_i])
-     weightPFP     = TOTAL(pFluxP[strtMag_i:stopMag_i])
+     weightPFB          = TOTAL(pFluxB[strtMag_i:stopMag_i])
+     weightPFP          = TOTAL(pFluxP[strtMag_i:stopMag_i])
+     weightPFBNP        = TOTAL(pFluxBNP[strtMag_i:stopMag_i])
 
-     tAvgFFTPfluxB[k] = weightPFB / tmpLength
-     tAvgFFTPfluxP[k] = weightPFP / tmpLength
+     tAvgFFTPfluxB[k]   = weightPFB / tmpLength
+     tAvgFFTPfluxP[k]   = weightPFP / tmpLength
+     tAvgFFTPfluxBNP[k] = weightPFBNP / tmpLength
 
-     totWeightPFB += weightPFB
-     totWeightPFP += weightPFP
-     totTime      += tmpTime
+     totWeightPFB      += weightPFB
+     totWeightPFP      += weightPFP
+     totWeightPFBNP    += weightPFBNP
+     totTime           += tmpTime
 
   ENDFOR
 
@@ -2419,126 +2483,175 @@ PRO COMPARE_PFLUXES_W_MAXIMUS,nWinFFT, $
      mednMaxPFlux = -999
   ENDELSE
 
-  totPFB = totWeightPFB/totTime
-  totPFP = totWeightPFP/totTime
+  totPFB          = totWeightPFB/totTime
+  totPFP          = totWeightPFP/totTime
+  totPFBNP        = totWeightPFBNP/totTime
 
-  meanPFB = MEAN(pFluxB[winAlf_i])   
-  meanPFP = MEAN(pFluxP[winAlf_i])   
+  meanPFB         = MEAN(pFluxB[winAlf_i])   
+  meanPFP         = MEAN(pFluxP[winAlf_i])   
+  meanPFBNP       = MEAN(pFluxBNP[winAlf_i])   
 
-  lgMnPFB = MEAN(ALOG10(ABS(pFluxB[winAlf_i])))
-  lgMnPFP = MEAN(ALOG10(ABS(pFluxP[winAlf_i]))) 
+  lgMnPFB         = MEAN(ALOG10(ABS(pFluxB[winAlf_i])))
+  lgMnPFP         = MEAN(ALOG10(ABS(pFluxP[winAlf_i]))) 
+  lgMnPFBNP       = MEAN(ALOG10(ABS(pFluxBNP[winAlf_i]))) 
 
-  mednPFB = MEDIAN(pFluxB[winAlf_i])   
-  mednPFP = MEDIAN(pFluxP[winAlf_i])   
+  mednPFB         = MEDIAN(pFluxB[winAlf_i])   
+  mednPFP         = MEDIAN(pFluxP[winAlf_i])   
+  mednPFBNP       = MEDIAN(pFluxBNP[winAlf_i])   
 
-  posWinAlfB_i = CGSETINTERSECTION(winAlf_i,WHERE(pFluxB GT 0))
-  negWinAlfB_i = CGSETINTERSECTION(winAlf_i,WHERE(pFluxB LT 0))
+  posWinAlfB_i    = CGSETINTERSECTION(winAlf_i,WHERE(pFluxB GT 0))
+  negWinAlfB_i    = CGSETINTERSECTION(winAlf_i,WHERE(pFluxB LT 0))
 
-  posWinAlfP_i = CGSETINTERSECTION(winAlf_i,WHERE(pFluxP GT 0))
-  negWinAlfP_i = CGSETINTERSECTION(winAlf_i,WHERE(pFluxP LT 0))
+  posWinAlfP_i    = CGSETINTERSECTION(winAlf_i,WHERE(pFluxP GT 0))
+  negWinAlfP_i    = CGSETINTERSECTION(winAlf_i,WHERE(pFluxP LT 0))
+
+  posWinAlfBNP_i  = CGSETINTERSECTION(winAlf_i,WHERE(pFluxBNP GT 0))
+  negWinAlfBNP_i  = CGSETINTERSECTION(winAlf_i,WHERE(pFluxBNP LT 0))
 
   IF posWinAlfB_i[0] NE -1 THEN BEGIN
-     posMeanPFB = MEAN(pFluxB[posWinAlfB_i])   
-     posLgMnPFB = MEAN(ALOG10(pFluxB[posWinAlfB_i]))
-     posMednPFB = MEDIAN(pFluxB[posWinAlfB_i])   
+     posMeanPFB   = MEAN(pFluxB[posWinAlfB_i])   
+     posLgMnPFB   = MEAN(ALOG10(pFluxB[posWinAlfB_i]))
+     posMednPFB   = MEDIAN(pFluxB[posWinAlfB_i])   
   ENDIF ELSE BEGIN
-     posMeanPFB = -999
-     posLgMnPFB = -999
-     posMednPFB = -999
+     posMeanPFB   = -999
+     posLgMnPFB   = -999
+     posMednPFB   = -999
   ENDELSE
 
   IF posWinAlfP_i[0] NE -1 THEN BEGIN
-     posMeanPFP = MEAN(pFluxP[posWinAlfP_i])   
-     posLgMnPFP = MEAN(ALOG10(pFluxP[posWinAlfP_i]))
-     posMednPFP = MEDIAN(pFluxP[posWinAlfP_i])   
+     posMeanPFP   = MEAN(pFluxP[posWinAlfP_i])   
+     posLgMnPFP   = MEAN(ALOG10(pFluxP[posWinAlfP_i]))
+     posMednPFP   = MEDIAN(pFluxP[posWinAlfP_i])   
   ENDIF ELSE BEGIN
-     posMeanPFP = -999
-     posLgMnPFP = -999
-     posMednPFP = -999
+     posMeanPFP   = -999
+     posLgMnPFP   = -999
+     posMednPFP   = -999
+  ENDELSE
+
+  IF posWinAlfBNP_i[0] NE -1 THEN BEGIN
+     posMeanPFBNP = MEAN(pFluxBNP[posWinAlfBNP_i])   
+     posLgMnPFBNP = MEAN(ALOG10(pFluxBNP[posWinAlfBNP_i]))
+     posMednPFBNP = MEDIAN(pFluxBNP[posWinAlfBNP_i])   
+  ENDIF ELSE BEGIN
+     posMeanPFBNP = -999
+     posLgMnPFBNP = -999
+     posMednPFBNP = -999
   ENDELSE
 
   IF negWinAlfB_i[0] NE -1 THEN BEGIN
-     negMeanPFB = MEAN(pFluxB[negWinAlfB_i])   
-     negLgMnPFB = MEAN(ALOG10(ABS(pFluxB[negWinAlfB_i])))
-     negMednPFB = MEDIAN(pFluxB[negWinAlfB_i])   
+     negMeanPFB   = MEAN(pFluxB[negWinAlfB_i])   
+     negLgMnPFB   = MEAN(ALOG10(ABS(pFluxB[negWinAlfB_i])))
+     negMednPFB   = MEDIAN(pFluxB[negWinAlfB_i])   
   ENDIF ELSE BEGIN
-     negMeanPFB = -999
-     negLgMnPFB = -999
-     negMednPFB = -999
+     negMeanPFB   = -999
+     negLgMnPFB   = -999
+     negMednPFB   = -999
   ENDELSE
 
   IF negWinAlfP_i[0] NE -1 THEN BEGIN
-     negMeanPFP = MEAN(pFluxP[negWinAlfP_i])   
-     negLgMnPFP = MEAN(ALOG10(ABS(pFluxP[negWinAlfP_i])))
-     negMednPFP = MEDIAN(pFluxP[negWinAlfP_i])   
+     negMeanPFP   = MEAN(pFluxP[negWinAlfP_i])   
+     negLgMnPFP   = MEAN(ALOG10(ABS(pFluxP[negWinAlfP_i])))
+     negMednPFP   = MEDIAN(pFluxP[negWinAlfP_i])   
   ENDIF ELSE BEGIN
-     negMeanPFP = -999
-     negLgMnPFP = -999
-     negMednPFP = -999
+     negMeanPFP   = -999
+     negLgMnPFP   = -999
+     negMednPFP   = -999
+  ENDELSE
+
+  IF negWinAlfBNP_i[0] NE -1 THEN BEGIN
+     negMeanPFBNP = MEAN(pFluxBNP[negWinAlfBNP_i])   
+     negLgMnPFBNP = MEAN(ALOG10(ABS(pFluxBNP[negWinAlfBNP_i])))
+     negMednPFBNP = MEDIAN(pFluxBNP[negWinAlfBNP_i])   
+  ENDIF ELSE BEGIN
+     negMeanPFBNP = -999
+     negLgMnPFBNP = -999
+     negMednPFBNP = -999
   ENDELSE
 
   pfStats = {total:{maximus:totMaxPFlux, $
                     PFB:totPFB, $
                     PFP:totPFP, $
+                    PFBNP:totPFBNP, $
                     time:totTime}, $
              mean:{maximus:meanMaxPFlux, $
                    PFB:meanPFB, $
-                   PFP:meanPFP}, $
+                   PFP:meanPFP, $
+                   PFBNP:meanPFBNP}, $
              posMean:{PFB:posMeanPFB, $
                       PFP:posMeanPFP}, $
              negMean:{PFB:negMeanPFB, $
-                      PFP:negMeanPFP}, $
+                      PFP:negMeanPFP, $
+                      PFBNP:negMeanPFBNP}, $
              logMean:{maximus:lgMnMaxPFlux, $
                       PFB:lgMnPFB, $
-                      PFP:lgMnPFP}, $
+                      PFP:lgMnPFP, $
+                      PFBNP:lgMnPFBNP}, $
              posLgMn:{PFB:posLgMnPFB, $
-                      PFP:posLgMnPFP}, $
+                      PFP:posLgMnPFP, $
+                      PFBNP:posLgMnPFBnP}, $
              negLgMn:{PFB:negLgMnPFB, $
-                      PFP:negLgMnPFP}, $
+                      PFP:negLgMnPFP, $
+                      PFBNP:negLgMnPFBNP}, $
              median:{maximus:mednMaxPFlux, $
                      PFB:mednPFB, $
-                     PFP:mednPFP}, $
+                     PFP:mednPFP, $
+                     PFBNP:mednPFBNP}, $
              posMedn:{PFB:posMednPFB, $
-                      PFP:posMednPFP}, $
+                      PFP:posMednPFP, $
+                      PFBNP:posMednPFBNP}, $
              negMedn:{PFB:negMednPFB, $
-                      PFP:negMednPFP}}
+                      PFP:negMednPFP, $
+                      PFBNP:negMednPFBNP}}
 
 
   PRINTF,lun,'Time-averaged Poynting flux over this little period '
-  PRINTF,lun,FORMAT='(A0,T25,A0,T50,A0)',"Maximus", $
-        "Spec Method (along B)", $
-        "Spec Method (perp)"
+  PRINTF,lun,FORMAT='(A0,T15,A0,T35,A0,T55,A0)', $
+         "Maximus", $
+         "Spectral", $
+         " ", $
+         " "
+  PRINTF,lun,FORMAT='(A0,T15,A0,T35,A0,T55,A0)', $
+         "", $
+         "Par. to B", $
+         "Perp. to B", $
+         "Magnitude"
+         
   FOR k=0,nWinFFT-1 DO BEGIN
-     PRINTF,lun,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+     PRINTF,lun,FORMAT='(G10.4,T15,G10.4,T35,G10.4,T55,G10.4)', $
            tAvgMaxPFlux[k], $
            tAvgFFTPFluxB[k], $
-           tAvgFFTPFluxP[k]
+            tAvgFFTPFluxP[k],$
+            tAvgFFTPfluxBNP[k]
   ENDFOR
 
   PRINTF,lun,''
   PRINTF,lun,'Totals'
-  PRINTF,lun,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+  PRINTF,lun,FORMAT='(G10.4,T15,G10.4,T35,G10.4,T55,G10.4)', $
         totMaxPFlux, $
         totPFB, $
-        totPFP
+        totPFP, $
+         totPFBNP
   PRINTF,lun,''
   PRINTF,lun,'Straight Averages'
-  PRINTF,lun,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+  PRINTF,lun,FORMAT='(G10.4,T15,G10.4,T35,G10.4,T55,G10.4)', $
         meanMaxPFlux, $
         meanPFB     , $
-        meanPFP
+        meanPFP, $
+         meanPFBNP
   PRINTF,lun,''
   PRINTF,lun,'Log Averages'
-  PRINTF,lun,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+  PRINTF,lun,FORMAT='(G10.4,T15,G10.4,T35,G10.4,T55,G10.4)', $
         lgMnMaxPFlux, $
         lgMnPFB, $
-        lgMnPFP
+        lgMnPFP, $
+        lgMnPFBNP
   PRINTF,lun,''
   PRINTF,lun,'Medians'
-  PRINTF,lun,FORMAT='(G10.4,T25,G10.4,T50,G10.4)', $
+  PRINTF,lun,FORMAT='(G10.4,T15,G10.4,T35,G10.4,T55,G10.4)', $
         mednMaxPFlux, $
         mednPFB, $
-        mednPFP
+        mednPFP, $
+        mednPFBNP
 
 END
 

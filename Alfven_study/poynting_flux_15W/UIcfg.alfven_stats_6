@@ -1,6 +1,6 @@
 *
 Header :this is the 'alfven_stats_6' configuration file
-Header :created on Tue Oct  4 07:56:08 2016
+Header :created on Tue Oct 18 13:32:38 2016
 *
 *
 Description : 
@@ -13,24 +13,22 @@ Config Name:			'alfven_stats_6'
 Config MenuPosition:		6, -14
 Config MenuSize:		300, 300
 Config DefaultSourceId:	'?'
-Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
+Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 
 	PlotWinStandard
 	{
-	PlotWin Name:		'chaston_survey_5_stripped:0 - DA'
-	PlotWin Position:	238, -4
+	PlotWin Name:		'alfven_stats_6:0 - DA'
+	PlotWin Position:	235, -22
 	PlotWin Size:		900, 600
 	PlotWin PlotsPage:	6
-	PlotWin TopPlotOfPage:	'V4_S'
-	PlotWin DefaultDataBaseResponse:	2450883 65936.1 2450883 73913.9 'FNMLine 8'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit6127_r'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit6129_r'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit6131_r'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-76_orbit6130_r'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit6132_r'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit6133_r'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit6134_r'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit6131_t'
+	PlotWin TopPlotOfPage:	'Eesa Survey:  Angle'
+	PlotWin DefaultDataBaseResponse:	2451075 37737.9 2451075 45700.4 'FNMLine 6'
+   '/FASTdata_1/FAST_JB_7/FAST1673_ORBIT8199/lzp/fast_lzp_DSS-76_orbit8207_r'
+   '/FASTdata_1/FAST_JB_7/FAST1673_ORBIT8199/lzp/fast_lzp_DSS-76_orbit8207_r'
+   '/FASTdata_2/FAST_JB_8/FAST1757_ORBIT8203/lzp/fast_lzp_DSS-29_orbit8205_t'
+   '/FASTdata_2/FAST_JB_8/FAST1757_ORBIT8203/lzp/fast_lzp_DSS-29_orbit8205_t'
+   '/FASTdata_2/FAST_JB_8/FAST1758_ORBIT8205/lzp/fast_lzp_DSS-29_orbit8206_t'
+   '/FASTdata_2/FAST_JB_8/FAST1758_ORBIT8205/lzp/fast_lzp_DSS-29_orbit8206_t'
 
 		PlotType
 		{
@@ -45,15 +43,15 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 360, 800, 1, 1, 1
-		Plot2 MinLimits:	65936.1, 0, 0, 0, 0, 0
+		Plot2 ScaleTypes:	TIME LINEAR LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
+		Plot2 MaxLimits:	45700.4, 360, 800, 1, 1, 1e+09
+		Plot2 MinLimits:	37737.9, 0, 0, 0, 0, 100000
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -84,15 +82,15 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LOG LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 40000, 800, 1, 1, 1
-		Plot2 MinLimits:	65936.1, 1, 0, 0, 0, 0
+		Plot2 ScaleTypes:	TIME LOG LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
+		Plot2 MaxLimits:	45700.4, 40000, 800, 1, 1, 1e+09
+		Plot2 MinLimits:	37737.9, 1, 0, 0, 0, 100000
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -123,15 +121,15 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
-		Plot2 ScaleTypes:	TIME LINEAR LINEAR
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32, 255, 1, 1, 1
-		Plot2 MinLimits:	65936.1, 0, 0, 0, 0, 0
+		Plot2 ScaleTypes:	TIME LINEAR LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
+		Plot2 MaxLimits:	45700.4, 32, 255, 1, 1, 1e+09
+		Plot2 MinLimits:	37737.9, 0, 0, 0, 0, 10000
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -169,8 +167,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	65936.1, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	45700.4, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	37737.9, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -208,8 +206,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32, 255, 1, 1, 1
-		Plot2 MinLimits:	65936.1, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	45700.4, 32, 255, 1, 1, 1
+		Plot2 MinLimits:	37737.9, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -247,8 +245,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	65936.1, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	45700.4, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	37737.9, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -284,8 +282,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32768, 0, 0
-		Plot2 MinLimits:	65936.1, -32768, 0, 0
+		Plot2 MaxLimits:	45700.4, 32768, 0, 0
+		Plot2 MinLimits:	37737.9, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -320,8 +318,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32768, 0, 0
-		Plot2 MinLimits:	65936.1, -32768, 0, 0
+		Plot2 MaxLimits:	45700.4, 32768, 0, 0
+		Plot2 MinLimits:	37737.9, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -356,8 +354,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32768, 1, 1
-		Plot2 MinLimits:	65936.1, -32768, 0, 0
+		Plot2 MaxLimits:	45700.4, 32768, 1, 0
+		Plot2 MinLimits:	37737.9, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -392,8 +390,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32768, 0, 0
-		Plot2 MinLimits:	65936.1, -32768, 0, 0
+		Plot2 MaxLimits:	45700.4, 32768, 0, 0
+		Plot2 MinLimits:	37737.9, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -428,8 +426,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32768, 0, 0
-		Plot2 MinLimits:	65936.1, -32768, 0, 0
+		Plot2 MaxLimits:	45700.4, 32768, 0, 0
+		Plot2 MinLimits:	37737.9, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -464,8 +462,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32768, 0, 0
-		Plot2 MinLimits:	65936.1, -32768, 0, 0
+		Plot2 MaxLimits:	45700.4, 32768, 0, 0
+		Plot2 MinLimits:	37737.9, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -500,8 +498,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32768, 0, 0
-		Plot2 MinLimits:	65936.1, -32768, 0, 0
+		Plot2 MaxLimits:	45700.4, 32768, 0, 0
+		Plot2 MinLimits:	37737.9, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -536,8 +534,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32768, 0, 0
-		Plot2 MinLimits:	65936.1, -32768, 0, 0
+		Plot2 MaxLimits:	45700.4, 32768, 0, 0
+		Plot2 MinLimits:	37737.9, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -572,8 +570,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32768, 0, 0
-		Plot2 MinLimits:	65936.1, -32768, 0, 0
+		Plot2 MaxLimits:	45700.4, 32768, 0, 0
+		Plot2 MinLimits:	37737.9, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -608,8 +606,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32768, 0, 0
-		Plot2 MinLimits:	65936.1, -32768, 0, 0
+		Plot2 MaxLimits:	45700.4, 32768, 0, 0
+		Plot2 MinLimits:	37737.9, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -644,8 +642,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32768, 0, 0
-		Plot2 MinLimits:	65936.1, -32768, 0, 0
+		Plot2 MaxLimits:	45700.4, 32768, 0, 0
+		Plot2 MinLimits:	37737.9, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -680,8 +678,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32768, 0, 0
-		Plot2 MinLimits:	65936.1, -32768, 0, 0
+		Plot2 MaxLimits:	45700.4, 32768, 0, 0
+		Plot2 MinLimits:	37737.9, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -716,8 +714,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32768, 0, 0
-		Plot2 MinLimits:	65936.1, -32768, 0, 0
+		Plot2 MaxLimits:	45700.4, 32768, 0, 0
+		Plot2 MinLimits:	37737.9, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -752,8 +750,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 32768, 0, 0
-		Plot2 MinLimits:	65936.1, -32768, 0, 0
+		Plot2 MaxLimits:	45700.4, 32768, 0, 0
+		Plot2 MinLimits:	37737.9, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -788,8 +786,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 8000, 0, 0
-		Plot2 MinLimits:	65936.1, 0, 0, 0
+		Plot2 MaxLimits:	45700.4, 8000, 0, 0
+		Plot2 MinLimits:	37737.9, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -824,8 +822,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 90, 0, 0
-		Plot2 MinLimits:	65936.1, -90, 0, 0
+		Plot2 MaxLimits:	45700.4, 90, 0, 0
+		Plot2 MinLimits:	37737.9, -90, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -860,8 +858,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 30, 0, 0
-		Plot2 MinLimits:	65936.1, 0, 0, 0
+		Plot2 MaxLimits:	45700.4, 30, 0, 0
+		Plot2 MinLimits:	37737.9, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -896,8 +894,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 20, 0, 0
-		Plot2 MinLimits:	65936.1, 0, 0, 0
+		Plot2 MaxLimits:	45700.4, 20, 0, 0
+		Plot2 MinLimits:	37737.9, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -932,8 +930,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 256, 0, 0
-		Plot2 MinLimits:	65936.1, 0, 0, 0
+		Plot2 MaxLimits:	45700.4, 256, 0, 0
+		Plot2 MinLimits:	37737.9, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -968,8 +966,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 4096, 0, 0
-		Plot2 MinLimits:	65936.1, 0, 0, 0
+		Plot2 MaxLimits:	45700.4, 4096, 0, 0
+		Plot2 MinLimits:	37737.9, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1004,8 +1002,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 64, 0, 0
-		Plot2 MinLimits:	65936.1, 0, 0, 0
+		Plot2 MaxLimits:	45700.4, 64, 0, 0
+		Plot2 MinLimits:	37737.9, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1040,8 +1038,8 @@ Config CurrentPlotWindow:	'chaston_survey_5_stripped:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	73913.9, 300, 0, 0
-		Plot2 MinLimits:	65936.1, 0, 0, 0
+		Plot2 MaxLimits:	45700.4, 300, 0, 0
+		Plot2 MinLimits:	37737.9, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
