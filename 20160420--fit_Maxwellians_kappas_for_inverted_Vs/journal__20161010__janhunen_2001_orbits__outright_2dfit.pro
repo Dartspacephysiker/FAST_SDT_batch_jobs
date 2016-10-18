@@ -10,8 +10,8 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   save_kappa_plot      = 0
   close_kp_after_save  = 0
 
-  fit2D__save_all_candidate_plots = 1
-  fit2D__show_each_candidate      = 1
+  fit2D__save_all_candidate_plots = 0
+  fit2D__show_each_candidate      = 0
 
   show_Strangeway_summary  = 1
   sway__save_ps            = 1
@@ -38,7 +38,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;; 7: No inverted V,No exact times given!
   ;; 8: No inverted V,No exact times given!
   ;; 9: Dombeck et al. [2013]
-  evtNum               = 9
+  evtNum               = 10
 
   ;;survey window
   eeb_or_ees           = 'ees'
@@ -68,6 +68,14 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   electron_lca         = [150,-150]
   min_peak_energy      = 300
 
+  ;;Southern Hemi
+  electron_angleRange  = [150,-150]
+  energy_electrons     = [3e1,3.0e4]
+  electron_lca         = [-30,30]
+  min_peak_energy      = 300
+  fit2D__density_angleRange     = [150,-150]
+
+
   KAPPA_FITTER_BLACKBOX,orbit, $
                         ELECTRON_SOURCECONEANGLE=electron_angleRange, $
                         ELECTRON_LOSSCONEANGLE=electron_lca, $
@@ -86,6 +94,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
                         SHOW_POST_PLOTS=show_post_plots, $
                         FIT2D__SHOW_EACH_CANDIDATE=fit2D__show_each_candidate, $
                         FIT2D__SAVE_ALL_CANDIDATE_PLOTS=fit2D__save_all_candidate_plots, $
+                        FIT2D__DENSITY_ANGLERANGE=fit2D__density_angleRange, $
                         SAVE_KAPPA_PLOTS=save_kappa_plot, $
                         SAVEKAPPA_BONUSPREF=bonusPref, $
                         CLOSE_KAPPAPLOTS_AFTER_SAVE=close_kp_after_save, $
