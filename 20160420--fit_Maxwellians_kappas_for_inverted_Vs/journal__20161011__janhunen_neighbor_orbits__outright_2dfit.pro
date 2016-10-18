@@ -49,7 +49,7 @@ PRO JOURNAL__20161011__JANHUNEN_NEIGHBOR_ORBITS__OUTRIGHT_2DFIT
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
-  chi2_over_dof_thresh = 100
+  chi2_over_dof_thresh = 25
   lowDens_thresh       = 0.005
   diffEflux_thresh     = 1e7
   nPkAbove_dEF_thresh  = 5
@@ -57,7 +57,7 @@ PRO JOURNAL__20161011__JANHUNEN_NEIGHBOR_ORBITS__OUTRIGHT_2DFIT
   electron_angleRange  = [-30,30]
   energy_electrons     = [3e1,3.0e4]
   electron_lca         = [150,-150]
-  min_peak_energy      = 150
+  min_peak_energy      = 900
 
   KAPPA_FITTER_BLACKBOX,orbit, $
                         ELECTRON_SOURCECONEANGLE=electron_angleRange, $

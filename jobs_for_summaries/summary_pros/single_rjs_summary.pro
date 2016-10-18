@@ -1,5 +1,5 @@
 pro single_rjs_summary,time1,time2, $
-                   TPLOT_VARS=tplot_vars, $
+                   TPLT_VARS=tPlt_vars, $
                    EEB_OR_EES=eeb_OR_ees, $
                    ENERGY_ELECTRONS=energy_electrons, $
                    TLIMIT_NORTH=tlimit_north, $
@@ -40,20 +40,20 @@ pro single_rjs_summary,time1,time2, $
 ; dB_fac_v (dB_fac and dB_SM also stored)
 
 ; Returns:
-; tplot_vars  - array of tplot variables
+; tPlt_vars  - array of tplot variables
 ; tlimit_north - tlimits for northern hemisphere
 ; tlimit_south - tlimits for southern hemisphere
 ; tlimit_all -  tlimits for all the data
 
 ; procedure for making summary plots
-; batch_summary,tplot_vars=tplot_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
+; batch_summary,tPlt_vars=tPlt_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
 ; loadct2,40  ; load color table
-; if (n_elements(tplot_vars) gt 0) then tplot,tplot_vars,var=['ALT','ILAT','MLT']
+; if (n_elements(tPlt_vars) gt 0) then tplot,tPlt_vars,var=['ALT','ILAT','MLT']
 ; if (n_elements(tlimit_north) gt 0) then tlimit,tlimit_north  ; northern hemisphere
 ; if (n_elements(tlimit_south) gt 0) then tlimit,tlimit_south  ; southern hemisphere
 
 ; if running interactively
-; batch_summary,tplot_vars=tplot_vars,/screen_plot,/no_blank_panels
+; batch_summary,tPlt_vars=tPlt_vars,/screen_plot,/no_blank_panels
 
 ; Input needed on:
 ; (a) Northern/southern hemisphere limits
@@ -94,7 +94,7 @@ pro single_rjs_summary,time1,time2, $
         print,""
         print,"BATCH_SUMMARY DISABLED FOR ORBITS > 9936, SORRY"
         print,""
-        return
+        ;; return
 
      endif
 
@@ -138,7 +138,7 @@ pro single_rjs_summary,time1,time2, $
 
      ENDIF
 
-; got mag data, set time limits, delete unused tplot variables, set tplot_vars
+; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
 
      store_data,'BDATA',/delete
      store_data,'BFIT',/delete 
@@ -181,21 +181,21 @@ pro single_rjs_summary,time1,time2, $
      IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0] ELSE t1 = time1
      IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L] ELSE t2 = time2
      tlimit_all = [t1,t2]
-     tplot_vars = 'dB_fac_v'
+     tPlt_vars = 'dB_fac_v'
      options,'dB_fac_v','panel_size',2
      options,'dB_fac','panel_size',2
      options,'dB_sm','panel_size',2
 
-     if (keyword_set(use_fac)) then tplot_vars = 'dB_fac'
+     if (keyword_set(use_fac)) then tPlt_vars = 'dB_fac'
 
-     if (not keyword_set(no_blank_panels)) then tplot_vars = 'dB_fac_v'
+     if (not keyword_set(no_blank_panels)) then tPlt_vars = 'dB_fac_v'
 
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         wInd = 0
         WINDOW,wInd,XSIZE=700,YSIZE=900
         ;; tplot_options,'region',[0.,0.5,1.0,1.0]
         loadct2,39
-        tplot,tplot_vars,var=['ALT','ILAT','MLT'], $
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT'], $
               WINDOW=wInd, $
               TRANGE=[t1,t2]
      endif
@@ -290,18 +290,19 @@ pro single_rjs_summary,time1,time2, $
      store_data,'EFIT_NEAR_B',/delete
      store_data,'EFIT_ALONG_V',/delete
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=['EFIT_ALONG_VSC'] else tplot_vars=['EFIT_ALONG_VSC',tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['EFIT_ALONG_VSC'] else tPlt_vars=['EFIT_ALONG_VSC',tPlt_vars]
 
+     YLIM,'EFIT_ALONG_VSC',-100,100,0
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
-  endif else if (n_elements(tplot_vars) ne 0) then begin
+  endif else if (n_elements(tPlt_vars) ne 0) then begin
 
-     tplot_vars = 'dB_fac'
-     if (keyword_set(use_fac_v)) then tplot_vars = 'dB_fac_v'
-     if (not keyword_set(no_blank_panels)) then tplot_vars = 'dB_fac_v'
+     tPlt_vars = 'dB_fac'
+     if (keyword_set(use_fac_v)) then tPlt_vars = 'dB_fac_v'
+     if (not keyword_set(no_blank_panels)) then tPlt_vars = 'dB_fac_v'
 
   endif
 
@@ -356,7 +357,7 @@ pro single_rjs_summary,time1,time2, $
         options,var_name,'ytickv',[-90,0,90,180,270]
         ylim,var_name,-90,270,0
 
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
 ; reset time limits if needed
 
@@ -372,7 +373,7 @@ pro single_rjs_summary,time1,time2, $
 
         if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
            loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
+           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         endif
 
 ; ION ENERGY 
@@ -392,11 +393,11 @@ pro single_rjs_summary,time1,time2, $
         options,var_name,'y_no_interp',1
         options,var_name,'panel_size',2
 
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
         if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
            loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
+           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         endif
 
      endif
@@ -452,7 +453,7 @@ pro single_rjs_summary,time1,time2, $
         options,var_name,'ytickv',[-90,0,90,180,270]
         ylim,var_name,-90,270,0
 
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
 ; reset time limits if needed
 
@@ -468,7 +469,7 @@ pro single_rjs_summary,time1,time2, $
 
         if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
            loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
+           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         endif
 
 ; ELECTRON ENERGY
@@ -488,11 +489,11 @@ pro single_rjs_summary,time1,time2, $
         options,var_name,'y_no_interp',1
         options,var_name,'panel_size',2
 
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
         if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then BEGIN 
            loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
+           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         endif
 
      endif
@@ -557,11 +558,11 @@ pro single_rjs_summary,time1,time2, $
         store_data,'DSP_V5-V8',data=data
      endif
      
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=['DSP_V5-V8'] else tplot_vars=['DSP_V5-V8',tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['DSP_V5-V8'] else tPlt_vars=['DSP_V5-V8',tPlt_vars]
 
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
   endif else begin
@@ -621,11 +622,11 @@ pro single_rjs_summary,time1,time2, $
         store_data,'SFA_V5-V8',data=data
      endif
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=['SFA_V5-V8'] else tplot_vars=['SFA_V5-V8',tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['SFA_V5-V8'] else tPlt_vars=['SFA_V5-V8',tPlt_vars]
 
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
   endif
@@ -761,11 +762,11 @@ pro single_rjs_summary,time1,time2, $
      ;; OPTIONS,'charepanel','ytickname',['0','5e3','1.0e4','1.5e4','2.e4'] ; set y-axis labels
      ;; OPTIONS,'charepanel','ytickv',[0.,5.e3,1.0e4,1.5e4,2.0e4]           ; set y-axis labels
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=['charepanel'] else tplot_vars=['charepanel',tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['charepanel'] else tPlt_vars=['charepanel',tPlt_vars]
 
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
   ENDIF
@@ -1027,11 +1028,11 @@ pro single_rjs_summary,time1,time2, $
      OPTIONS,'feta','labpos',oneCheesePos[2]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
      ;; OPTIONS,'feta','labpos',[-1.75,-1.25]
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=['onecheese','kappa_fit'] else tplot_vars=['onecheese','kappa_fit',tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['onecheese','kappa_fit'] else tPlt_vars=['onecheese','kappa_fit',tPlt_vars]
 
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'   ;,PSYM=1
@@ -1069,23 +1070,23 @@ pro single_rjs_summary,time1,time2, $
      var_name = 'newellPanel'
      PREPARE_IDENTIFIED_DIFF_EFLUXES_FOR_TPLOT,events,TPLOT_NAME=var_name,/NO_STRICT_TYPES
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
   ENDIF
 
-; force tplot_vars to be all the panels unless no_blank_panels is set
+; force tPlt_vars to be all the panels unless no_blank_panels is set
 
   if (not keyword_set(no_blank_panels)) then begin
 
 
 ; SFA
 
-     bdat = where(tplot_vars eq 'SFA_V5-V8',ndat)
+     bdat = where(tPlt_vars eq 'SFA_V5-V8',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -1102,7 +1103,7 @@ pro single_rjs_summary,time1,time2, $
 
 ; DSP
 
-     bdat = where(tplot_vars eq 'DSP_V5-V8',ndat)
+     bdat = where(tPlt_vars eq 'DSP_V5-V8',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -1119,7 +1120,7 @@ pro single_rjs_summary,time1,time2, $
 
 ; Eesa_Energy
 
-     bdat = where(tplot_vars eq 'Eesa_Energy',ndat)
+     bdat = where(tPlt_vars eq 'Eesa_Energy',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -1139,7 +1140,7 @@ pro single_rjs_summary,time1,time2, $
 
 ; Eesa_Angle
 
-     bdat = where(tplot_vars eq 'Eesa_Angle',ndat)
+     bdat = where(tPlt_vars eq 'Eesa_Angle',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -1162,7 +1163,7 @@ pro single_rjs_summary,time1,time2, $
 
 ; Iesa_Energy
 
-     bdat = where(tplot_vars eq 'Iesa_Energy',ndat)
+     bdat = where(tPlt_vars eq 'Iesa_Energy',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -1182,7 +1183,7 @@ pro single_rjs_summary,time1,time2, $
 
 ; Iesa_Angle
 
-     bdat = where(tplot_vars eq 'Iesa_Angle',ndat)
+     bdat = where(tPlt_vars eq 'Iesa_Angle',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -1205,7 +1206,7 @@ pro single_rjs_summary,time1,time2, $
 
 ; EFIT_ALONG_VSC
 
-     bdat = where(tplot_vars eq 'EFIT_ALONG_VSC',ndat)
+     bdat = where(tPlt_vars eq 'EFIT_ALONG_VSC',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = [!values.f_nan,!values.f_nan]
@@ -1221,7 +1222,7 @@ pro single_rjs_summary,time1,time2, $
 
 ; dB_fac_v
 
-     bdat = where(tplot_vars eq 'dB_fac_v',ndat)
+     bdat = where(tPlt_vars eq 'dB_fac_v',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = dblarr(2,3)
@@ -1234,19 +1235,25 @@ pro single_rjs_summary,time1,time2, $
         options,'dB_fac_v','labels',['v ((BxV)xB)','p (BxV)','b']
      endif
 
-     tplot_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','SFA_V5-V8','DSP_V5-V8','EFIT_ALONG_VSC','dB_fac_v']
+     tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','SFA_V5-V8','DSP_V5-V8','EFIT_ALONG_VSC','dB_fac_v']
 
-     IF KEYWORD_SET(add_chare_panel)  THEN tplot_vars = [tplot_vars[0:3],'charepanel',tplot_vars[4:7]]
+     IF KEYWORD_SET(add_chare_panel)  THEN tPlt_vars = [tPlt_vars[0:3],'charepanel',tPlt_vars[4:7]]
 
-     IF KEYWORD_SET(add_kappa_panel)  THEN tplot_vars = ['onecheese','kappa_fit',tplot_vars]
+     IF KEYWORD_SET(add_kappa_panel)  THEN tPlt_vars = ['onecheese','kappa_fit',tPlt_vars]
 
-     IF KEYWORD_SET(add_Newell_panel) THEN tplot_vars = ['newellPanel',tplot_vars]
+     IF KEYWORD_SET(add_Newell_panel) THEN tPlt_vars = ['newellPanel',tPlt_vars]
 
   endif
 
+  ;;Help db_fac_v
+  GET_DATA,'dB_fac_v',DATA=dat
+  dat.y[*,0] = dat.y[*,0] - (dat.y[0,0]-dat.y[0,2])
+  dat.y[*,1] = dat.y[*,1] - (dat.y[0,1]-dat.y[0,2])
+  STORE_DATA,'dB_fac_v',DATA=dat
+
   if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
      loadct2,40
-     tplot,tplot_vars,var=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
+     tplot,tPlt_vars,var=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
 
      IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
@@ -1271,7 +1278,7 @@ pro single_rjs_summary,time1,time2, $
      ENDCASE
 
      LOADCT2,40
-     TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
+     TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
 
      IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'

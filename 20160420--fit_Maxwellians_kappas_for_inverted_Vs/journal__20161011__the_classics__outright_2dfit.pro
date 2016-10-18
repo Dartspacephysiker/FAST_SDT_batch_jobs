@@ -32,11 +32,11 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; '1 :  McFadden_et_al_1998'
   ;; '2 :  Elphic_et_al_1998'
   ;; '3 :  Carlson_et_al_2001'
-  evtNum               = 1
+  evtNum               = 3
 
   ;;survey window
   eeb_or_ees           = 'eeb'
-  burstItvl            = 0
+  burstItvl            = 2
 
   ;;String setup
   orbit                = orbs      [evtNum]
@@ -52,15 +52,15 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
-  chi2_over_dof_thresh = 100
-  lowDens_thresh       = 0.05
+  chi2_over_dof_thresh = 25
+  lowDens_thresh       = 0.01
   diffEflux_thresh     = 5e7
   nPkAbove_dEF_thresh  = 5
 
   electron_angleRange  = [-30,30]
   energy_electrons     = [3e1,3.0e4]
   electron_lca         = [150,-150]
-  min_peak_energy      = 400
+  min_peak_energy      = 500
 
   KAPPA_FITTER_BLACKBOX,orbit, $
                         ELECTRON_SOURCECONEANGLE=electron_angleRange, $
