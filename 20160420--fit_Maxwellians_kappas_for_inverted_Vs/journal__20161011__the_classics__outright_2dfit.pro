@@ -10,8 +10,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   save_kappa_plot      = 0
   close_kp_after_save  = 0
 
-  fit2D__save_all_candidate_plots = 0
-  fit2D__show_each_candidate = 0
+  fit2D__save_all_candidate_plots = 1
+  fit2D__show_each_candidate = 1
 
   show_Strangeway_summary  = 1
   sway__save_ps            = 1
@@ -25,17 +25,17 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 0
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   ;;Which classic event?
   ;; '0 :  Ergun_et_al_1998'
   ;; '1 :  McFadden_et_al_1998'
   ;; '2 :  Elphic_et_al_1998'
   ;; '3 :  Carlson_et_al_2001'
-  evtNum               = 3
+  evtNum               = 2
 
   ;;survey window
-  eeb_or_ees           = 'eeb'
+  eeb_or_ees           = 'ees'
   burstItvl            = 2
 
   ;;String setup
@@ -57,7 +57,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   diffEflux_thresh     = 5e7
   nPkAbove_dEF_thresh  = 5
 
-  electron_angleRange  = [-30,30]
+  electron_angleRange  = [-24,24]
   energy_electrons     = [3e1,3.0e4]
   electron_lca         = [150,-150]
   min_peak_energy      = 500

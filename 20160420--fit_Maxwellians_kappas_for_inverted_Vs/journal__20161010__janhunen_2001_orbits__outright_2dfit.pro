@@ -37,13 +37,19 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;; 6: No inverted V, No exact times given!
   ;; 7: No inverted V,No exact times given!
   ;; 8: No inverted V,No exact times given!
-  ;; 9: Dombeck et al. [2013] orbit 11076
-  ;;10: Dombeck et al. [2013] orbit 11109
-  ;;11: Bonus, orbit 1771 (poking on either side of Elphic et al. [1998] orbit 
-  evtNum               = 11
+  ;; 9: Dombeck et al. [2013] orbit 11002
+  ;;10: Dombeck et al. [2013] orbit 11076
+  ;;11: Dombeck et al. [2013] orbit 11097
+  ;;12: Dombeck et al. [2013] orbit 11109
+  ;;13: Dombeck et al. [2013] orbit 11024
+  ;;14: Dombeck et al. [2013] orbit 11056
+  ;;15: Dombeck et al. [2013] orbit 11067
+  ;;16: Bonus, orbit 1771 (poking on either side of Elphic et al. [1998] orbit 
+  ;;17: Bonus, orbit 1770 (poking on either side of Elphic et al. [1998] orbit 
+  evtNum               = 17
 
   ;;survey window
-  eeb_or_ees           = 'eeb'
+  eeb_or_ees           = 'ees'
   burstItvl            = 0
 
   ;;String setup
@@ -62,7 +68,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
   chi2_over_dof_thresh = 25
-  lowDens_thresh       = 0.001
+  lowDens_thresh       = 0.01
   diffEflux_thresh     = 1e7
   nPkAbove_dEF_thresh  = 5
 
