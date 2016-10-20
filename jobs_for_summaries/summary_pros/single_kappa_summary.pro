@@ -27,7 +27,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          SAVE_PS=save_ps, $
                          SAVE_PNG=save_png, $
                          SAVEKAPPA_BONUSPREF=bonusPref, $
-                         PLOTDIR=plotDir
+                         PLOTDIR=plotDir, $
+                         SAVE_FOR_OFFLINE=save_for_offline, $
+                         LOAD_FROM_OFFLINE=load_from_offline
 
   ;;Some defaults
   red              = 250
@@ -42,6 +44,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   GaussColor = red
   GaussSym   = 1                ;Cross
 
+  saveDir    = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
 
 ; create a summary plot of:
 ; Eesa Energy
@@ -66,7 +69,11 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
 @tplot_com
 
-  IF NOT KEYWORD_SET(energy_ions) THEN energy_ions=[4,1.e4]
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     saveStr = 'SAVE,'
+  ENDIF
+
+  if NOT KEYWORD_SET(energy_ions) THEN energy_ions=[4,1.e4]
 
   IF STRUPCASE(eeb_or_ees) EQ 'EEB' THEN ieb_or_ies = 'ieb' ELSE ieb_or_ies = 'ies'
 
@@ -76,7 +83,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
 ; Step 1 - DC Mag data
 
-  ucla_mag_despin,tw_mat=tw_mat,orbit=orbit,spin_axis=spin_axis,delta_phi=delta_phi
+  IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+     ucla_mag_despin,tw_mat=tw_mat,orbit=orbit,spin_axis=spin_axis,delta_phi=delta_phi
+  ENDIF
 
   if (n_elements(orbit) gt 0) then begin
 
@@ -112,6 +121,32 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         
         outPlotName += '--' + t1S + '_-_' + t2S
 
+
+        IF KEYWORD_SET(load_from_offline) THEN BEGIN
+           load_from_offFile = saveDir + outPlotName + '.sav'
+           PRINT,'Restoring ' + load_from_offFile + ' ...'
+           RESTORE,load_from_offFile
+
+           STORE_DATA,"dB_fac_V",DATA=dB_fac_V_off
+           STORE_DATA,"Iesa_Angle",DATA=Iesa_Angle_off
+           STORE_DATA,"Iesa_Energy",DATA=Iesa_Energy_off
+           STORE_DATA,"Eesa_Angle",DATA=Eesa_Angle_off
+           STORE_DATA,"Eesa_Energy",DATA=Eesa_Energy_off
+           STORE_DATA,"LAT",DATA=LAT_off
+           STORE_DATA,"ORBIT",DATA=ORBIT_off
+           STORE_DATA,"Je",DATA=Je_off
+           STORE_DATA,"Jee",DATA=Jee_off
+           STORE_DATA,"Ji",DATA=Ji_off
+           STORE_DATA,"Jei",DATA=Jei_off
+           STORE_DATA,"jMag",DATA=jMag_off
+           STORE_DATA,"fa_vel",DATA=fa_vel_off
+           STORE_DATA,"Eesa_LC_Energy",DATA=Eesa_LC_Energy_off
+           STORE_DATA,"MLT",DATA=MLT_off
+           STORE_DATA,"ILAT",DATA=ILAT_off
+           STORE_DATA,"ALT",DATA=ALT_off
+           STORE_DATA,"ORBIT",DATA=ORBIT2_off
+           STORE_DATA,"sc_pot",DATA=sc_pot_off
+        ENDIF
 
         IF N_ELEMENTS(plotDir) EQ 0 THEN BEGIN
            SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/Kappa_summaries'
@@ -171,6 +206,10 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      store_data,'gei_to_fac_v',/delete
 
      get_data,'dB_fac_v',data=data
+     IF KEYWORD_SET(save_for_offline) THEN BEGIN
+        dB_fac_V_off = data
+        saveStr += 'dB_fac_V_off,'
+     ENDIF
      IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0] ELSE t1 = time1
      IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L] ELSE t2 = time2
      tlimit_all = [t1,t2]
@@ -217,8 +256,14 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 ; ION PITCH ANGLE
 
      var_name='Iesa_Angle'
-     get_pa_spec,'fa_' + ieb_or_ies + '_c',units='eflux',name=var_name,energy=[4.,30000.]
-     get_data,var_name, data=data
+     IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+        get_pa_spec,'fa_' + ieb_or_ies + '_c',units='eflux',name=var_name,energy=[4.,30000.]
+     ENDIF
+     get_data,var_name,data=data
+     IF KEYWORD_SET(save_for_offline) THEN BEGIN
+        Iesa_Angle_off = data
+        saveStr += var_name + '_off,'
+     ENDIF
      data.y = alog10(data.y)
      store_data,var_name, data=data
      options,var_name,'spec',1	
@@ -278,8 +323,14 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 ; ION ENERGY 
 
            var_name='Iesa_Energy'
-           get_en_spec,'fa_' + ieb_or_ies + '_c',name=var_name, units='eflux',/CALIB,RETRACE=1
+           IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+              get_en_spec,'fa_' + ieb_or_ies + '_c',name=var_name, units='eflux',/CALIB,RETRACE=1
+           ENDIF
            get_data,var_name, data=data
+           IF KEYWORD_SET(save_for_offline) THEN BEGIN
+              Iesa_Energy_off = data
+              saveStr += var_name + '_off,'
+           ENDIF
            data.y = alog10(data.y)
            store_data,var_name, data=data
            options,var_name,'spec',1	
@@ -325,8 +376,14 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
      IF KEYWORD_SET(include_electron_pa_spec) THEN BEGIN
         var_name='Eesa_Angle'
-        get_pa_spec,'fa_' + eeb_or_ees + '_c',units='eflux',name=var_name, energy=[10.,30000.]
+        IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+           get_pa_spec,'fa_' + eeb_or_ees + '_c',units='eflux',name=var_name, energy=[10.,30000.]
+        ENDIF
         get_data,var_name, data=data 
+        IF KEYWORD_SET(save_for_offline) THEN BEGIN
+           Eesa_Angle_off = data
+           saveStr       += var_name + '_off,'
+        ENDIF
         data.y = alog10(data.y)
         store_data,var_name, data=data
         options,var_name,'spec',1
@@ -377,8 +434,14 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 ; ELECTRON ENERGY
 
         var_name='Eesa_Energy'
-        get_en_spec,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux',/CALIB,RETRACE=1
+        IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+           get_en_spec,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux',/CALIB,RETRACE=1
+        ENDIF
         get_data,var_name, data=data
+        IF KEYWORD_SET(save_for_offline) THEN BEGIN
+           Eesa_Energy_off = data
+           saveStr        += var_name + '_off,'
+        ENDIF
         data.y = alog10(data.y)
         store_data,var_name, data=data
         options,var_name,'spec',1	
@@ -405,6 +468,10 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 ; determine tlimit_north and tlimit_south also change plot title
 
   get_data,'LAT',data=data
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     LAT_off  = data
+     saveStr  += 'LAT_off,'
+  ENDIF
 
   if (n_elements(data.y) le 0) then return
 
@@ -417,6 +484,10 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   hemisph = getenv('FAST_ORBIT_HEMISPHERE')
 
   get_data,'ORBIT',data=data
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     ORBIT_off  = data
+     saveStr  += 'ORBIT_off,'
+  ENDIF
   nn = n_elements(data.y)/2
   orbit = data.y(nn)
   orbit_lab = strcompress(string(orbit,format="(i5.4)"),/remove_all)
@@ -435,27 +506,46 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   t2eeb = 0.D
   bro   = GET_FA_EEB(t1eeb,/ST)
   bro   = GET_FA_EEB(t2eeb,/EN)
-  GET_2DT,'j_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Je',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
-  GET_2DT,'je_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Jee',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
-  GET_2DT,'j_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Ji',T1=t1eeb,T2=t2eeb,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
-  GET_2DT,'je_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Jei',T1=t1eeb,T2=t2eeb,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
+  IF ~KEYWORD_SET(load_from_offline) THEN BEGIN     
+     GET_2DT,'j_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Je',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
+     GET_2DT,'je_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Jee',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
+     GET_2DT,'j_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Ji',T1=t1eeb,T2=t2eeb,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
+     GET_2DT,'je_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Jei',T1=t1eeb,T2=t2eeb,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
+  ENDIF
   ;;Remove_crap
   GET_DATA,'Je',DATA=tmp
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     Je_off  = tmp
+     saveStr += 'Je_off,'
+  ENDIF
+
   ;; GET_DATA,'Je',DATA=Je_originalsk
   ;; saveStr+='Je_originalsk,'
   keep1                          = WHERE(FINITE(tmp.y) NE 0)
   keep2                          = WHERE(ABS(tmp.y) GT 0.0)
   GET_DATA,'Jee',DATA=tmp
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     Jee_off  = tmp
+     saveStr += 'Jee_off,'
+  ENDIF
   ;; GET_DATA,'Jee',DATA=Jee_originalsk
   ;; saveStr+='Jee_originalsk,'
   keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
   keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
   GET_DATA,'Ji',DATA=tmp
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     Ji_off  = tmp
+     saveStr += 'Ji_off,'
+  ENDIF
   ;; GET_DATA,'Ji',DATA=Ji_originalsk
   ;; saveStr+='Ji_originalsk,'
   keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
   keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
   GET_DATA,'Jei',DATA=tmp
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     Jei_off  = tmp
+     saveStr += 'Jei_off,'
+  ENDIF
   ;; GET_DATA,'Jei',DATA=Jei_originalsk
   ;; saveStr+='Jei_originalsk,'
   keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
@@ -799,14 +889,22 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   ;;Get mag current
   get_data,'dB_fac_v',data=db_fac
 
-  jMag                         = GET_CURRENT_FROM_FLUXMAG(t1,t2, $
-                                                          db_fac,vel, $
-                                                          /USE_DESPUN, $
-                                                          SDTNAME__JMAG=jMagName, $
-                                                          ;; INFERRED_E_NUMFLUX=inferred_e_numFlux, $
-                                                          ;; SDTNAME__INFERRED_E_NUMFLUX=e_numFluxName, $
-                                                          QUIET=quiet)
-
+  IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+     jMag  = GET_CURRENT_FROM_FLUXMAG(t1,t2, $
+                                      db_fac,vel, $
+                                      /USE_DESPUN, $
+                                      SDTNAME__JMAG=jMagName, $
+                                      ;; INFERRED_E_NUMFLUX=inferred_e_numFlux, $
+                                      ;; SDTNAME__INFERRED_E_NUMFLUX=e_numFluxName, $
+                                      QUIET=quiet)
+  ENDIF
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     jMag_off = jMag
+     saveStr += 'jMag_off,'
+     GET_DATA,'fa_vel',DATA=fa_vel_off
+     saveStr += 'fa_vel_off,'
+  ENDIF
+  
   ;;Get electron ESA current, ion ESA current
   Je_current                   = (-1.)*Je.y*1.6e-9    ;;in microA/m2
   Ji_current                   =       Ji.y*1.6e-9    ;;in microA/m2
@@ -969,24 +1067,52 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   var_name='Eesa_LC_Energy'
   ;;This already gets called above, but we need to call it again to handle angle restrictions
-  GET_EN_SPEC,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux',/CALIB,RETRACE=1,ANGLE=eAngle
+  IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+     GET_EN_SPEC,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux',/CALIB,RETRACE=1,ANGLE=eAngle
+  ENDIF
   GET_DATA,var_name,DATA=data
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     Eesa_LC_Energy_off  = data
+     saveStr += var_name+'_off,'
+  ENDIF
 
-  GET_FA_ORBIT,data.x,/TIME_ARRAY
+  IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+     GET_FA_ORBIT,data.x,/TIME_ARRAY
+  ENDIF
   GET_DATA,'MLT',DATA=mlt
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     MLT_off  = mlt
+     saveStr += 'MLT_off,'
+  ENDIF
   mlt       = mlt.y
 
   GET_DATA,'ILAT',DATA=ilat
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     ILAT_off  = ilat
+     saveStr += 'ILAT_off,'
+  ENDIF
   ilat      = ilat.y
 
   GET_DATA,'ALT',DATA=alt
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     ALT_off  = alt
+     saveStr += 'ALT_off,'
+  ENDIF
   alt      = alt.y
 
   GET_DATA,'ORBIT',DATA=orbit
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     ORBIT2_off  = orbit
+     saveStr += 'orbit2_off,'
+  ENDIF
   orbit          = orbit.y
   sc_pot         = GET_FA_POTENTIAL(t1,t2, $
                                     ;; /SPIN, $
                                     /REPAIR)
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     sc_pot_off  = sc_pot
+     saveStr += 'sc_pot_off,'
+  ENDIF
   sc_pot_interp  = DATA_CUT({x:sc_pot.time,y:sc_pot.comp1},data.x) 
   this           = VALUE_CLOSEST2(data.x,jee.x) 
   data           = {x:data.x[this],y:data.y[this,*],v:data.v[this,*]}
@@ -1228,6 +1354,14 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         END
         ELSE:
      ENDCASE
+  ENDIF
+
+  IF KEYWORD_SET(save_for_offline) THEN BEGIN
+     IF N_ELEMENTS(saveFile) EQ 0 THEN saveFile = outPlotName
+     saveStr += saveDir + 'FILENAME="' + outPlotName + '.sav"'
+     PRINT,"Execute it: " + saveStr
+     this = EXECUTE(saveStr)
+     PRINT,"Done!"
   ENDIF
 
   RETURN

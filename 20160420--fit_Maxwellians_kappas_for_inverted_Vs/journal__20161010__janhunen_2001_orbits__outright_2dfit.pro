@@ -37,11 +37,13 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;; 6: No inverted V, No exact times given!
   ;; 7: No inverted V,No exact times given!
   ;; 8: No inverted V,No exact times given!
-  ;; 9: Dombeck et al. [2013]
-  evtNum               = 10
+  ;; 9: Dombeck et al. [2013] orbit 11076
+  ;;10: Dombeck et al. [2013] orbit 11109
+  ;;11: Bonus, orbit 1771 (poking on either side of Elphic et al. [1998] orbit 
+  evtNum               = 11
 
   ;;survey window
-  eeb_or_ees           = 'ees'
+  eeb_or_ees           = 'eeb'
   burstItvl            = 0
 
   ;;String setup
@@ -49,6 +51,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   t1Str                = orbTimes[0,evtNum]
   t2Str                = orbTimes[1,evtNum]
   bonusPref            = bonusPrefs[evtNum]
+  south                = southArr[evtNum]
 
   IF STRUPCASE(eeb_or_ees) EQ 'EEB' THEN BEGIN
      t1Str             = (orbBurstTimes[evtNum])[0,burstItvl]
@@ -69,12 +72,13 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   min_peak_energy      = 300
 
   ;;Southern Hemi
-  electron_angleRange  = [150,-150]
-  energy_electrons     = [3e1,3.0e4]
-  electron_lca         = [-30,30]
-  min_peak_energy      = 300
-  fit2D__density_angleRange     = [150,-150]
-
+  IF KEYWORD_SET(south) THEN BEGIN
+     electron_angleRange  = [150,-150]
+     energy_electrons     = [3e1,3.0e4]
+     electron_lca         = [-30,30]
+     min_peak_energy      = 300
+     fit2D__density_angleRange     = [150,-150]
+  ENDIF
 
   KAPPA_FITTER_BLACKBOX,orbit, $
                         ELECTRON_SOURCECONEANGLE=electron_angleRange, $
@@ -82,6 +86,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
                         MIN_PEAK_ENERGY=min_peak_energy, $
                         EEB_OR_EES=eeb_or_ees, $
                         SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
+                        SOUTH=south, $
                         CHI2_THRESHOLD=chi2_thresh, $
                         CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
                         HIGHDENSITY_THRESHOLD=highDens_thresh, $
