@@ -15,11 +15,11 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
                            1e6,1e6,1e6,1e6,1e6]
 
   ;;More extreme
-  kappa                 = [1.6,1.9,3,5,10, $
-                           1.6,1.9,3,5,10, $
-                           1.6,1.9,3,5,10, $
-                           1.6,1.9,3,5,10, $
-                           1.6,1.9,3,5,10]
+  kappa                 = [1.5001,2.0,2.5,5,10, $
+                           1.5001,2.0,2.5,5,10, $
+                           1.5001,2.0,2.5,5,10, $
+                           1.5001,2.0,2.5,5,10, $
+                           1.5001,2.0,2.5,5,10]
   ;;Less extreme; why even show k = 10?
   ;; kappa                 = [1.8,3,5,10,0, $
   ;;                          1.8,3,5,10,0, $
@@ -27,17 +27,17 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
   ;;                          1.8,3,5,10,0, $
   ;;                          1.8,3,5,10,0]
 
-  lineStyle             = ['-','__',"--","-.",":", $
-                           '-','__',"--","-.",":", $
-                           '-','__',"--","-.",":", $
-                           '-','__',"--","-.",":", $
-                           '-','__',"--","-.",":"]
+  lineStyle             = [':','__',"--","--","-", $
+                           ':','__',"--","--","-", $
+                           ':','__',"--","--","-", $
+                           ':','__',"--","--","-", $
+                           ':','__',"--","--","-"]
 
-  color                 = ['orange','red','green','blue','black', $
-                           'orange','red','green','blue','black', $
-                           'orange','red','green','blue','black', $
-                           'orange','red','green','blue','black', $
-                           'orange','red','green','blue','black']
+  color                 = ['black','red','green','blue','violet', $
+                           'black','red','green','blue','violet', $
+                           'black','red','green','blue','violet', $
+                           'black','red','green','blue','violet', $
+                           'black','red','green','blue','violet']
 
   ;; R_B                   = [  3,  3,  3,  3, $
   ;;                           10, 10, 10, 10, $
@@ -63,15 +63,17 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
   ;;                          'red','green','blue','black', $
   ;;                          'red','green','blue','black']
 
-  in_potBar             = 10.D^(DOUBLE(INDGEN(25)/4.-2))
+  in_potBar             = 10.D^(DOUBLE(INDGEN(33)/4.-3))
+
+  pot                   = TEMPORARY(in_potBar) * T_m
 
   nPlots                = N_ELEMENTS(R_B)
   plotArr               = MAKE_ARRAY(nPlots,/OBJ)
 
-  lineThick             = 1.0
+  lineThick             = 1.5
 
-  xRange                = [1e-2,1e4]
-  yRange                = [1e-4,1e2]
+  xRange                = [1e-3,1e5]
+  yRange                = [1e-6,1e3]
   xTitle                = 'e$\Delta\Phi$/K!Dth!N'
   yTitle                = 'Energy Flux Density (W m!U-2!N)'
   fontSize              = 18
@@ -90,6 +92,7 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
      ;; plotName           = STRING(FORMAT='("Kappa = ",I0,", R_B = ",I0)',kTemp,RTemp)
      plotName           = STRING(FORMAT='("Kappa = ",F0.1)',kTemp)
 
+     IF kTemp EQ 1.51 THEN STOP 
      kappa_eF            = KAPPA_1__DORS_KLETZING_EQ_15__EFLUX(kTemp,T_m,dens_m,pot,RTemp, $
                                                                IN_POTBAR=in_potBar, $
                                                                OUT_POTBAR=potBar)
@@ -97,7 +100,9 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
      IF KEYWORD_SET(make_abs) THEN BEGIN
         kappa_eF         = ABS(kappa_eF)
      ENDIF
-     plotArr[iPlot]     = PLOT(in_potBar,kappa_eF, $
+
+     ;; plotArr[iPlot]     = PLOT(in_potBar,kappa_eF, $
+     plotArr[iPlot]     = PLOT(potBar,kappa_eF, $
                                NAME=plotName, $
                                XRANGE=xRange, $
                                YRANGE=yRange, $
@@ -105,6 +110,8 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
                                YLOG=1, $
                                XTITLE=xTitle, $
                                YTITLE=yTitle, $
+                               XSTYLE=1, $
+                               YSTYLE=1, $
                                LINESTYLE=lineStyle[iPlot], $
                                COLOR=color[iPlot], $
                                FONT_SIZE=fontSize, $
@@ -121,19 +128,22 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
         IF KEYWORD_SET(make_abs) THEN BEGIN
            maxwell_eF    = ABS(maxwell_eF)
         ENDIF
-        plotArr[iPlot]  = PLOT(in_potBar,maxwell_eF, $
+        ;; plotArr[iPlot]  = PLOT(in_potBar,maxwell_eF, $
+        plotArr[iPlot]  = PLOT(potBar,maxwell_eF, $
                                NAME='Maxwellian', $
                                XRANGE=xRange, $
                                YRANGE=yRange, $
                                XLOG=1, $
                                YLOG=1, $
                                LINESTYLE=lineStyle[iPlot], $
+                               XSTYLE=1, $
+                               YSTYLE=1, $
                                COLOR=color[iPlot], $
                                THICK=lineThick, $
                                /OVERPLOT, $
                                CURRENT=window)
 
-        textObjArr[iText] = TEXT(1000,1.1*maxwell_eF[-2], $
+        textObjArr[iText] = TEXT(100,1.1*maxwell_eF[-2], $
                                  textArr[iText], $
                                  /DATA)
 
@@ -143,7 +153,7 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
 
   ENDFOR
 
-  legPos            = [0.8,0.8]
+  legPos            = [0.5,0.8]
   legFontSize       = 18
   legFont           = 'Courier'
   legend            = LEGEND(TARGET=plotArr[0:N_ELEMENTS(UNIQ(kappa,SORT(kappa)))-1], $
