@@ -25,7 +25,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 0
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   ;;Which Janhunen event?
   ;; 0: Inverted V, but not Maxwellian
@@ -46,10 +46,10 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;;15: Dombeck et al. [2013] orbit 11067
   ;;16: Bonus, orbit 1771 (poking on either side of Elphic et al. [1998] orbit 
   ;;17: Bonus, orbit 1770 (poking on either side of Elphic et al. [1998] orbit 
-  evtNum               = 17
+  evtNum               = 18
 
   ;;survey window
-  eeb_or_ees           = 'ees'
+  eeb_or_ees           = 'eeb'
   burstItvl            = 0
 
   ;;String setup

@@ -1,19 +1,21 @@
 ;;2016/10/05
 ;;This is entirely ripped off from Strangeway's batch_summary.pro, gifted to me by that beautiful human, Jack Vernetti
 PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
-   TPLOT_VARS=tplot_vars, $
+   TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $
    PLOT_SOUTH=plot_south, $
    TLIMIT_NORTH=tlimit_north, $
    TLIMIT_SOUTH=tlimit_south, $
    TLIMIT_ALL=tlimit_all, $
    SCREEN_PLOT=screen_plot, $
-   USE_FAC_V=use_fac_v, $
-   USE_FAC=use_fac, $
+   USE_db_FAC=use_db_fac, $
+   ;; USE_db_FAC_v=use_db_fac_v, $
    NO_BLANK_PANELS=no_blank_panels, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps, $
-   SAVE_B_AND_J_DATA=save_B_and_J_data
+   SAVE_B_AND_J_DATA=save_B_and_J_data, $
+   ANCILLARY_PLOTS=ancillary_plots, $
+   ADD_TIMEBAR=add_timebar
 
 ; create a summary plot of:
 ; SFA (AKR)
@@ -26,20 +28,20 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
 ; dB_fac_v (dB_fac and dB_SM also stored)
 
 ; Returns:
-; tplot_vars  - array of tplot variables
+; tPlt_vars  - array of tplot variables
 ; tlimit_north - tlimits for northern hemisphere
 ; tlimit_south - tlimits for southern hemisphere
 ; tlimit_all -  tlimits for all the data
 
 ; procedure for making summary plots
-; batch_summary,tplot_vars=tplot_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
+; batch_summary,tPlt_vars=tPlt_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
 ; loadct2,40  ; load color table
-; if (n_elements(tplot_vars) gt 0) then tplot,tplot_vars,var=['ALT','ILAT','MLT']
+; if (n_elements(tPlt_vars) gt 0) then tplot,tPlt_vars,var=['ALT','ILAT','MLT']
 ; if (n_elements(tlimit_north) gt 0) then tlimit,tlimit_north  ; northern hemisphere
 ; if (n_elements(tlimit_south) gt 0) then tlimit,tlimit_south  ; southern hemisphere
 
 ; if running interactively
-; batch_summary,tplot_vars=tplot_vars,/screen_plot,/no_blank_panels
+; batch_summary,tPlt_vars=tPlt_vars,/screen_plot,/no_blank_panels
 
 ; Input needed on:
 ; (a) Northern/southern hemisphere limits
@@ -58,7 +60,7 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
   ;;Set YNOZERO
   !Y.STYLE = (!Y.STYLE) OR 16
 
-  IF N_ELEMENTS(use_fac) EQ 0 AND N_ELEMENTS(use_fac_v) EQ 0 THEN use_fac  = 1
+  IF N_ELEMENTS(use_db_fac) EQ 0 AND N_ELEMENTS(use_db_fac_v) EQ 0 THEN use_db_fac  = 1
 
   ;; eeb_or_ees        = 'ees'
   ;; ieb_or_ies        = 'ies'
@@ -67,12 +69,18 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
   ieb_or_ies        = 'ieb'
 
   outPlotName       = 'Chaston_et_al_2006__ionos_erosion--Fig_1'
+  IF KEYWORD_SET(ancillary_plots) THEN BEGIN
+     outPlotName   += '--with_ancillaries'
+  ENDIF
 
   t1ZoomStr         = '1998-05-04/06:44:15'
   t2ZoomStr         = '1998-05-04/06:45:01'
 
   t1Zoom            = STR_TO_TIME(t1ZoomStr)
   t2Zoom            = STR_TO_TIME(t2ZoomStr)
+
+  timesBarStr       = ['1998-05-04/06:44:49','1998-05-04/06:44:56']
+  timesBar          = STR_TO_TIME(timesBarStr)
 
   energy_electrons  = [20.,30000.]
   energy_ions       = [0.,30000.]
@@ -141,9 +149,11 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
   t2 = magz.x[n_elements(magz.x)-1L]
   tlimit_all = [t1,t2]
 
-  tplot_vars = magVar
+  tPlt_vars = magVar
 
-  TPLOT,tplot_vars,TRANGE=tlimit_all
+  IF KEYWORD_SET(screen_plot) THEN BEGIN
+     TPLOT,tPlt_vars,TRANGE=tlimit_all
+  ENDIF
 
 
 ; Step 1 - DC Mag data
@@ -317,21 +327,21 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
      options,langVar,'ytitle','Probe Current!C(nA)'
      options,langVar,'panel_size',3
      
-     tplot_vars = [langVar,tplot_vars]
+     tPlt_vars = [langVar,tPlt_vars]
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=[EFieldVar] else tplot_vars=[EFieldVar,tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[EFieldVar] else tPlt_vars=[EFieldVar,tPlt_vars]
 
      if (keyword_set(screen_plot)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
-  endif else if (n_elements(tplot_vars) ne 0) then begin
+  endif else if (n_elements(tPlt_vars) ne 0) then begin
 
-     tplot_vars = 'dB_fac'
+     tPlt_vars = 'dB_fac_v'
 
-     if (keyword_set(use_fac_v)) then tplot_vars = 'dB_fac_v'
-     if ~KEYWORD_SET(no_blank_panels) then tplot_vars = 'dB_fac'
+     if (keyword_set(use_db_fac)) then tPlt_vars = 'dB_fac'
+     if ~KEYWORD_SET(no_blank_panels) then tPlt_vars = 'dB_fac_v'
 
   endif
 
@@ -377,7 +387,7 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
   ;; tmp.y[WHERE(~FINITE(tmp.y) OR (tmp.y LT ESpecThresh) )] = 0.0
   ;; STORE_DATA,ESpecVar,DATA=tmp
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=[ESpecVar] else tplot_vars=[ESpecVar,tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[ESpecVar] else tPlt_vars=[ESpecVar,tPlt_vars]
 
 ; Step 3 - Iesa data
 
@@ -413,11 +423,11 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
      options,var_name,'y_no_interp',1
      options,var_name,'panel_size',2
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
      if (keyword_set(screen_plot)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
   endif
@@ -461,7 +471,7 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
   options,var_name,'ystyle',16
   ;; ylim,var_name,-90,270,0
 
-  if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+  if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
 ; reset time limits if needed
 
@@ -477,23 +487,32 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
 
   if (keyword_set(screen_plot)) then begin
      loadct2,40
-     tplot,tplot_vars,var=['ALT','ILAT','MLT']
+     tplot,tPlt_vars,var=['ALT','ILAT','MLT']
   endif
 
-  GET_2DT,'j_2d_fs','fa_'+ieb_or_ies+'_c',name='Ji',t1=t1,t2=t2, $
-          energy=energy_ions,angle=ion_angle,/calib
-  ;; ylim,'Ji',1.e5,1.e8,1 	; set y limits
-  ;; options,'Ji','tplot_routine','pmplot' 	; set 2 color plot
-  ;; options,'Ji','labels',['Downgoing!C Ions','Upgoing!C Ions '] 	; set color label
-  ;; options,'Ji','labflag',3 	; set color label
-  ;; options,'Ji','labpos',[2.e7,1.e6] 	; set color label
-  GET_DATA,'Ji',DATA=tmp
+  ;;Get potential
+  sc_pot  = GET_FA_POTENTIAL(t1Zoom,t2Zoom, $
+                             ;; /SPIN, $
+                             /REPAIR)
+
+  sc_pot  = {x:sc_pot.time, $
+             y:(-1.)*sc_pot.comp1, $ ;;Reverse sign of pot for use with GET_2DT_TS_POT
+             valid:sc_pot.valid} 
+
+  GET_2DT_TS_POT,'j_2d_fs','fa_'+ieb_or_ies,name='Ji_up',t1=t1,t2=t2, $
+          energy=energy_ions,angle=ion_angle,sc_pot=sc_pot
+  ;; ylim,'Ji_up',1.e5,1.e8,1 	; set y limits
+  ;; options,'Ji_up','tplot_routine','pmplot' 	; set 2 color plot
+  ;; options,'Ji_up','labels',['Downgoing!C Ions','Upgoing!C Ions '] 	; set color label
+  ;; options,'Ji_up','labflag',3 	; set color label
+  ;; options,'Ji_up','labpos',[2.e7,1.e6] 	; set color label
+  GET_DATA,'Ji_up',DATA=tmp
   ;; tmp.y = SMOOTH((-1.)*tmp.y,5)
   ;; doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
-  ;; STORE_DATA,'Ji',DATA={x:tS_1s,y:doDat}
-  ylim,'Ji',1.e7,1.e10,1                             ; set y limits
-  options,'Ji','ytitle','Ion Flux!C#/(cm!U2!N-s)'    ; set y title
-  options,'Ji','panel_size',2                        ; set panel size
+  ;; STORE_DATA,'Ji_up',DATA={x:tS_1s,y:doDat}
+  ylim,'Ji_up',1.e7,1.e10,1                             ; set y limits
+  options,'Ji_up','ytitle','Ion Flux!C#/(cm!U2!N-s)'    ; set y title
+  options,'Ji_up','panel_size',2                        ; set panel size
 
 ; Step 4 - Eesa data
 
@@ -530,11 +549,11 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
      options,var_name,'y_no_interp',1
      options,var_name,'panel_size',2
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
      if (keyword_set(screen_plot)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
   endif
@@ -572,7 +591,7 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
      options,var_name,'ytickv',[-90,0,90,180,270]
      ylim,var_name,-90,270,0
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
 ; reset time limits if needed
 
@@ -588,22 +607,13 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
 
      if (keyword_set(screen_plot)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
      sphRadius = 4e-2 ;in meters, from Ergun et al. [2001]
      sphCrossSec = !PI*sphRadius^2
      
-     ;;Get potential
-     sc_pot  = GET_FA_POTENTIAL(t1Zoom,t2Zoom, $
-                                 ;; /SPIN, $
-                                 /REPAIR)
-
-     sc_pot  = {x:sc_pot.time, $
-                y:(-1.)*sc_pot.comp1, $ ;;Reverse sign of pot for use with GET_2DT_TS_POT
-                valid:sc_pot.valid} 
-
-     ;;Get ESA current
+     ;;Get EESA current
      GET_2DT_TS_POT,'j_2d_b','fa_eeb',t1=t1Zoom,t2=t2Zoom, $
                     name='Je_tot',energy=[0,energy_electrons[1]],sc_pot=sc_pot
      
@@ -613,8 +623,11 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
      tmp.y          = tmp.y[keep1]
 
      ;;For output
+     ;;NOTE: we here decide to make currents field-aligned.
+     ;;That is, positive currents are along B; in SH, that means spaceward
      jeTotTmp_time  = tmp.x
-     jeTotTmp       = tmp.y*1.6e-9 ;;in microA/m2
+     jeTotTmp       = tmp.y*1.6e-9*(-1.) ;;in microA/m2, and flip sign 
+     
 
      ;;For nice plots
      tmp.y         *= -1. ;;Since we're in Southern Hemi
@@ -628,17 +641,19 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
      STORE_DATA,'ESACur',DATA=IeTot_z
      OPTIONS,'ESACur','colors',250
 
-  IF KEYWORD_SET(save_B_and_J_data) THEN BEGIN
+     STORE_DATA,'Je_tot',DATA=Je_z
+
+  IF KEYWORD_SET(save_B_and_J_data) OR KEYWORD_SET(ancillary_plots) THEN BEGIN
      UCLA_MAG_DESPIN,TW_MAT=tw_mat,ORBIT=orbit,SPIN_AXIS=spin_axis,DELTA_PHI=delta_phi
 
      PRINT,"Getting Ji current density fo' yeh'"
      GET_2DT_TS_POT,'j_2d_b','fa_ieb',t1=t1Zoom,t2=t2Zoom, $
                     name='Ji_tot',energy=[0,energy_ions[1]], $
-                    angle=[180,360]
+                    angle=[180,360], $
                     sc_pot=sc_pot
-     GET_2DT_TS_POT,'j_2d_b','fa_eeb',t1=t1Zoom,t2=t2Zoom, $
+     GET_2DT_TS_POT,'j_2d_b','fa_ies',t1=t1Zoom,t2=t2Zoom, $
                     name='Ji_tot_S',energy=[0,energy_ions[1]], $
-                    angle=[180,360]
+                    angle=[180,360], $
                     sc_pot=sc_pot
      GET_2DT_TS_POT,'j_2d_b','fa_ees',t1=t1Zoom,t2=t2Zoom, $
                     name='Je_tot_S',energy=[0,energy_electrons[1]], $
@@ -663,6 +678,8 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
 
      Ji_z           = {x:jiTotTmp_time,y:jiTotTmp}
      IiTot_z        = {x:IiTotTmp_time,y:IiTotTmp}
+
+     STORE_DATA,'Ji_tot',DATA=Ji_z
 
      ;;Now survey ESA ion data for patching the burst holes
      GET_DATA,'Ji_tot_S',DATA=tmp
@@ -705,9 +722,13 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
      IeTot_z        = {x:IeTotTmp_time,y:IeTotTmp}
 
 
+  ENDIF
+
+  IF KEYWORD_SET(save_B_AND_J_data) THEN BEGIN
      saveDir  = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/'
      saveFile = 'Chaston_et_al_2006--B_and_J.sav'
-     B_J_file = 'Chaston_et_al_2006--B_and_J.dat'
+     saveFile = 'Chaston_et_al_2006--B_and_J--20161022--fixed_currents.sav'
+     ;; B_J_file = 'Chaston_et_al_2006--B_and_J.dat'
 
      GET_DATA,'dB_fac_v',DATA=dB_fac_v
      GET_DATA,'dB_fac',DATA=dB_fac
@@ -742,14 +763,14 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
   orbit_lab = strcompress(string(orbit,format="(i5.4)"),/remove_all)
   tplot_options,'title','FAST Orbit ' + orbit_lab + ' ' + hemisph
 
-; force tplot_vars to be all the panels unless no_blank_panels is set
+; force tPlt_vars to be all the panels unless no_blank_panels is set
 
   if ~KEYWORD_SET(no_blank_panels) then begin
 
 
 ; Eesa_Energy
 
-     bdat = where(tplot_vars eq 'Eesa_Energy',ndat)
+     bdat = where(tPlt_vars eq 'Eesa_Energy',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -769,7 +790,7 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
 
 ; Eesa_Angle
 
-     bdat = where(tplot_vars eq 'Eesa_Angle',ndat)
+     bdat = where(tPlt_vars eq 'Eesa_Angle',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -792,7 +813,7 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
 
 ; Iesa_Energy
 
-     bdat = where(tplot_vars eq 'Iesa_Energy',ndat)
+     bdat = where(tPlt_vars eq 'Iesa_Energy',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -812,7 +833,7 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
 
 ; Iesa_Angle
 
-     bdat = where(tplot_vars eq 'Iesa_Angle',ndat)
+     bdat = where(tPlt_vars eq 'Iesa_Angle',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -833,7 +854,7 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
         options,'Iesa_Angle','ytickv',[-90,0,90,180,270]
      endif
 
-     tplot_vars=['Iesa_Energy','Iesa_Angle','Ji','Eesa_Energy','Eesa_Angle', $
+     tPlt_vars=['Iesa_Energy','Iesa_Angle','Ji_up','Eesa_Energy','Eesa_Angle', $
                  EFieldVar,ESpecVar,magVar,langVar]
   endif
 
@@ -877,8 +898,35 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
      ENDCASE
 
      LOADCT2,40
-     TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
+     TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
      TPLOT_PANEL,VARIABLE=langVar,OPLOTVAR='ESACur'
+
+     IF KEYWORD_SET(add_timebar) THEN BEGIN
+        TIMEBAR,timesBar,COLOR=!D.N_COLORS-4
+     ENDIF
+
+     IF KEYWORD_SET(ancillary_plots) THEN BEGIN
+        options,'Ji_tot','ytitle','Ion Current!C(!4l!XA m!U2!N)' ; set y title
+        options,'Ji_tot','panel_size',2                     ; set panel size
+
+        options,'Je_tot','ytitle','e!U-!N Current!C(!4l!XA m!U2!N)' ; set y title
+        options,'Je_tot','panel_size',2                     ; set panel size
+
+        ancillary_vars = ['Je_tot','Ji_tot']
+
+        IF ~(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) THEN BEGIN
+           WINDOW,1,XSIZE=600,YSIZE=800
+        ENDIF
+
+        TPLOT,ancillary_vars,VAR=['ALT','ILAT','MLT'], $
+              TRANGE=tLims, $
+              WINDOW=(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) ? !NULL : -1
+
+        IF KEYWORD_SET(add_timebar) THEN BEGIN
+           TIMEBAR,timesBar,COLOR=!D.N_COLORS-4
+        ENDIF
+
+     ENDIF
 
      IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
         PCLOSE
