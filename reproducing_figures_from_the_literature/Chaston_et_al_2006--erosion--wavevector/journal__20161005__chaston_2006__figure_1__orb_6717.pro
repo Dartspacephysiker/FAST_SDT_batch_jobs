@@ -79,7 +79,7 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
   t1Zoom            = STR_TO_TIME(t1ZoomStr)
   t2Zoom            = STR_TO_TIME(t2ZoomStr)
 
-  timesBarStr       = ['1998-05-04/06:44:49','1998-05-04/06:44:56']
+  timesBarStr       = ['1998-05-04/06:44:46','1998-05-04/06:44:56']
   timesBar          = STR_TO_TIME(timesBarStr)
 
   energy_electrons  = [20.,30000.]
