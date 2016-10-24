@@ -1,6 +1,6 @@
 ;;2016/10/05
 ;;This is entirely ripped off from Strangeway's batch_summary.pro, gifted to me by that beautiful human, Jack Vernetti
-PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
+PRO JOURNAL__20161024__ORBIT_9585__TEST_1, $
    TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $
    PLOT_SOUTH=plot_south, $
@@ -68,18 +68,18 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
   eeb_or_ees        = 'eeb'
   ieb_or_ies        = 'ieb'
 
-  outPlotName       = 'Chaston_et_al_2006__ionos_erosion--Fig_1'
+  outPlotName       = 'Test_orb_1__ionos_erosion--Fig_1'
   IF KEYWORD_SET(ancillary_plots) THEN BEGIN
      outPlotName   += '--with_ancillaries'
   ENDIF
 
-  t1ZoomStr         = '1998-05-04/06:44:15'
-  t2ZoomStr         = '1998-05-04/06:45:01'
+  t1ZoomStr         = '1999-01-23/14:50:35'
+  t2ZoomStr         = '1999-01-23/14:51:25'
 
   t1Zoom            = STR_TO_TIME(t1ZoomStr)
   t2Zoom            = STR_TO_TIME(t2ZoomStr)
 
-  timesBarStr       = ['1998-05-04/06:44:46','1998-05-04/06:44:56']
+  timesBarStr       = ['1999-01-23/14:50:56','1999-01-23/14:51:06']
   timesBar          = STR_TO_TIME(timesBarStr)
 
   energy_electrons  = [0.,30000.]
@@ -346,48 +346,48 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
   endif
 
 
-  GET_DATA,EFieldSpecVar,DATA=eAlongV16K
-  GET_DATA,'E_NEAR_B_16k',DATA=eNearB16K
+  ;; GET_DATA,EFieldSpecVar,DATA=eAlongV16K
+  ;; GET_DATA,'E_NEAR_B_16k',DATA=eNearB16K
 
-  yVar = eAlongV16K.y
-  yVar = SQRT(eAlongV16K.y^2 + eNearB16K.y^2)
+  ;; yVar = eAlongV16K.y
+  ;; yVar = SQRT(eAlongV16K.y^2 + eNearB16K.y^2)
 
 
-  eAlongV16KTmp   = {TIME         :  eAlongV16K.x , $
-                     COMP1        :  yVar         , $
-                     NCOMP        : 1             , $
-                     VALID        : 1             , $
-                     DATA_NAME    :'E Along V'    , $
-                     PROJECT_NAME : 'FAST'        , $
-                     UNITS_NAME   : 'mV/m'        , $
-                     CALIBRATED   : 1}
+  ;; eAlongV16KTmp   = {TIME         :  eAlongV16K.x , $
+  ;;                    COMP1        :  yVar         , $
+  ;;                    NCOMP        : 1             , $
+  ;;                    VALID        : 1             , $
+  ;;                    DATA_NAME    :'E Along V'    , $
+  ;;                    PROJECT_NAME : 'FAST'        , $
+  ;;                    UNITS_NAME   : 'mV/m'        , $
+  ;;                    CALIBRATED   : 1}
 
-  n_ave = 2
-  nPts  = 1024
-  slide = 1.0
-  ESpecVar = 'EAVSpec'
-  ESpecThresh = 1e-6          ;in (mV/m)^2/Hz
+  ;; n_ave = 2
+  ;; nPts  = 1024
+  ;; slide = 1.0
+  ;; ESpecVar = 'EAVSpec'
+  ;; ESpecThresh = 1e-6          ;in (mV/m)^2/Hz
 
-  spec = FA_FIELDS_SPEC(eAlongV16KTmp, $
-                        /STORE, $
-                        T_NAME=ESpecVar, $
-                        STRUCTURE=eAVSpec, $
-                        NPTS=nPts, $
-                        N_AVE=n_ave, $
-                        SLIDE=slide)
+  ;; spec = FA_FIELDS_SPEC(eAlongV16KTmp, $
+  ;;                       /STORE, $
+  ;;                       T_NAME=ESpecVar, $
+  ;;                       STRUCTURE=eAVSpec, $
+  ;;                       NPTS=nPts, $
+  ;;                       N_AVE=n_ave, $
+  ;;                       SLIDE=slide)
 
-  eAVSpecLims      = [1.e-5,1.e4]
-  ZLIM,ESpecVar,eAVSpecLims[0],eAVSpecLims[1],1 ; set z limits
-  YLIM,ESpecVar,1.e-2,1.e1,1
-  OPTIONS,ESpecVar,'ytitle','Frequency!C(kHz)'
-  OPTIONS,ESpecVar,'ztitle','Log ' + eAVSpec.units_name ; z title
-  OPTIONS,ESpecVar,'panel_size',2.0
+  ;; eAVSpecLims      = [1.e-5,1.e4]
+  ;; ZLIM,ESpecVar,eAVSpecLims[0],eAVSpecLims[1],1 ; set z limits
+  ;; YLIM,ESpecVar,1.e-2,1.e1,1
+  ;; OPTIONS,ESpecVar,'ytitle','Frequency!C(kHz)'
+  ;; OPTIONS,ESpecVar,'ztitle','Log ' + eAVSpec.units_name ; z title
+  ;; OPTIONS,ESpecVar,'panel_size',2.0
 
   ;; GET_DATA,ESpecVar,DATA=tmp        
   ;; tmp.y[WHERE(~FINITE(tmp.y) OR (tmp.y LT ESpecThresh) )] = 0.0
   ;; STORE_DATA,ESpecVar,DATA=tmp
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[ESpecVar] else tPlt_vars=[ESpecVar,tPlt_vars]
+     ;; if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[ESpecVar] else tPlt_vars=[ESpecVar,tPlt_vars]
 
 ; Step 3 - Iesa data
 
@@ -629,7 +629,7 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
      ;;NOTE: we here decide to make currents field-aligned.
      ;;That is, positive currents are along B; in SH, that means spaceward
      jeTotTmp_time  = tmp.x
-     jeTotTmp       = tmp.y*1.6e-9*(-1.) ;;in microA/m2, and flip sign 
+     jeTotTmp       = tmp.y*1.6e-9*(-1.) ;;in microA/cm2, and flip sign 
      
 
      ;;For nice plots
@@ -731,8 +731,7 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
 
   IF KEYWORD_SET(save_B_AND_J_data) THEN BEGIN
      saveDir  = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/'
-     saveFile = 'Chaston_et_al_2006--B_and_J.sav'
-     saveFile = 'Chaston_et_al_2006--B_and_J--20161022--fixed_currents--with_sc_pot.sav'
+     saveFile = 'Orbit_9585--B_and_J--20161024--fixed_currents--with_sc_pot.sav'
      ;; B_J_file = 'Chaston_et_al_2006--B_and_J.dat'
 
      GET_DATA,'dB_fac_v',DATA=dB_fac_v
@@ -859,8 +858,10 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
         options,'Iesa_Angle','ytickv',[-90,0,90,180,270]
      endif
 
+     ;; tPlt_vars=['Iesa_Energy','Iesa_Angle','Ji_up','Eesa_Energy','Eesa_Angle', $
+     ;;             EFieldVar,ESpecVar,magVar,langVar]
      tPlt_vars=['Iesa_Energy','Iesa_Angle','Ji_up','Eesa_Energy','Eesa_Angle', $
-                 EFieldVar,ESpecVar,magVar,langVar]
+                 EFieldVar,magVar,langVar]
   endif
 
   IF KEYWORD_SET(screen_plot) OR KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN

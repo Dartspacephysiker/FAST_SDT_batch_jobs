@@ -22,7 +22,7 @@
 ;routines themselves, rather than through a separate call to the spectral density estimation routines (see Spectral
 ;Estimates below).
 
-PRO JOURNAL__20161021__MAKE_CHASTON_2006__FIG_1,SAVE_PNG=save_png,SAVE_PS=save_ps, $
+PRO JOURNAL__20161024__MAKE_ELPHIC_FIG_1__ORB_9585,SAVE_PNG=save_png,SAVE_PS=save_ps, $
    USE_SC_POT_FOR_PARTICLES=use_sc_pot_for_particles, $
    SHOW_CURRENTS_NOT_FLUXES=show_currents_not_fluxes
 
@@ -30,7 +30,7 @@ PRO JOURNAL__20161021__MAKE_CHASTON_2006__FIG_1,SAVE_PNG=save_png,SAVE_PS=save_p
      energy_electrons     = [50.,32000.]
      energy_ions          = [4.,24000.]
   ENDIF ELSE BEGIN
-     energy_electrons     = [0.,32000.]
+     energy_electrons     = [0.,30000.]
      energy_ions          = [0.,24000.]
   ENDELSE
   ucla_mag_despin         = 1
@@ -38,12 +38,14 @@ PRO JOURNAL__20161021__MAKE_CHASTON_2006__FIG_1,SAVE_PNG=save_png,SAVE_PS=save_p
   ;; t1Str                   = '97-2-1/09:25:30'
   ;; t2Str                   = '97-2-1/09:28:00'
 
-  t1Str                   = '98-05-04/06:44:13'
-  t2Str                   = '98-05-04/06:44:56.5'
+  t1Str                   = '99-01-23/14:50:45'
+  t2Str                   = '99-01-23/14:51:15'
   t1                      = STR_TO_TIME(t1Str)
   t2                      = STR_TO_TIME(t2Str)
 
-  outPlotName             = 'Chaston_et_al_1998--Fig_à_la_Elphic_et_al_1998'
+  timeBarTime             = ['99-01-23/14:50:56','99-01-23/14:51:06']
+
+  outPlotName             = 'Orbit_9585--Fig_à_la_Elphic_et_al_1998'
 
   muLetter = '!4' + String('154'O) + '!X'
   muLetter = '!4l!X'
@@ -76,7 +78,6 @@ PRO JOURNAL__20161021__MAKE_CHASTON_2006__FIG_1,SAVE_PNG=save_png,SAVE_PS=save_p
   GET_DATA,'ALT',DATA=alt
   loss_cone_alt           = alt.y[0]*1000.0
   lcw                     = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
-  lcw                     = 30
   GET_DATA,'ILAT',DATA=ilat
   north_south             = ABS(ilat.y[0])/ilat.y[0]
   
@@ -120,8 +121,8 @@ PRO JOURNAL__20161021__MAKE_CHASTON_2006__FIG_1,SAVE_PNG=save_png,SAVE_PS=save_p
   ;;NOTE:
   ;;z (or 2)-along B, y (or 1)-east (BxR), x (or 0)-nominally out
 
-  ;; deltaBY                 = DERIV(position,SMOOTH(magy.y,3))
-  deltaBY                 = DERIV(position,magy.y)
+  deltaBY                 = DERIV(position,SMOOTH(magy.y,7))
+  ;; deltaBY                 = DERIV(position,magy.y)
   ;; deltaBY                 = DERIV(position,SMOOTH(magy.y,5))
   ;; jtemp                = ABS(1.0e-3*(deltaBx)/1.26e-6)
   ;; jtemp                = 1.0e-3*(deltaBx)/1.26e-6
@@ -173,7 +174,7 @@ PRO JOURNAL__20161021__MAKE_CHASTON_2006__FIG_1,SAVE_PNG=save_png,SAVE_PS=save_p
   magy                    = {x:magy.time,y:magy.comp1}
   eAlongV                 = {x:eAlongV.time,y:eAlongV.comp1}
   ;; potential            = {x:magy.x,y:potential}
-  STORE_DATA,'POTENTIAL',DATA={x:magy.x,y:potential/1000.+000}
+  STORE_DATA,'POTENTIAL',DATA={x:magy.x,y:(potential/1000.+000)*(-1.)}
   OPTIONS,'POTENTIAL','ytitle','Potential!C(V)' ; y title
   OPTIONS,'POTENTIAL','yticks',5                           ; set y-axis labels
   OPTIONS,'POTENTIAL','ytickname',['-2e4','-1.5e4','-1e4','-5e3','0'] ; set y-axis labels
@@ -224,16 +225,17 @@ PRO JOURNAL__20161021__MAKE_CHASTON_2006__FIG_1,SAVE_PNG=save_png,SAVE_PS=save_p
   tmp.x                   = tmp.x[keep1]
   tmp.y                   = tmp.y[keep1]
   keep2                   = WHERE(ABS(tmp.y) GT 0.0)
-  je_tmp_time          = tmp.x[keep2]
-  je_tmp_data          = tmp.y[keep2]
+  je_tmp_time             = tmp.x[keep2]
+  je_tmp_data             = tmp.y[keep2]
   IF KEYWORD_SET(show_currents_not_fluxes) THEN BEGIN
-     je_tmp_data = SMOOTH(je_tmp_data,7)*1.6e-9*(-1.)
+     ;; je_tmp_data = SMOOTH(je_tmp_data,5)*1.6e-9*(-1.)
+     je_tmp_data = je_tmp_data*1.6e-9*(-1.)
      YLIM,'Je',-2.e1,8.e1
      OPTIONS,'Je','ytickname',['0','4e1','8e1'] ; set y-axis labels
      OPTIONS,'Je','ytickv',[0,4e1,8e1]          ; set y-axis labels
      OPTIONS,'Je','ytitle','Electron!CCurrent!C(' + muLetter + 'A/m!U2!N)'
   ENDIF ELSE BEGIN
-     je_tmp_data = SMOOTH(je_tmp_data,7)
+     je_tmp_data = SMOOTH(je_tmp_data,5)
      YLIM,'Je',-4.e10,1.e10
      OPTIONS,'Je','ytickname',['-4e10','-2e10','0'] ; set y-axis labels
      OPTIONS,'Je','ytickv',[-4e10,-2e10,0]          ; set y-axis labels
@@ -253,13 +255,14 @@ PRO JOURNAL__20161021__MAKE_CHASTON_2006__FIG_1,SAVE_PNG=save_png,SAVE_PS=save_p
   ji_tmp_time          = tmp.x[keep2]
   ji_tmp_data          = tmp.y[keep2]
   IF KEYWORD_SET(show_currents_not_fluxes) THEN BEGIN
-     ji_tmp_data       = SMOOTH(ji_tmp_data,7)*1.6e-9*2.+je_tmp_data
+     ;; ji_tmp_data       = SMOOTH(ji_tmp_data,5)*1.6e-9*2.
+     ji_tmp_data       = ji_tmp_data*1.6e-9*2.
      YLIM,'Ji',-2.e1,8.e1
      OPTIONS,'Ji','ytickname',['0','2.5e1','5e1'] ; set y-axis labels
      OPTIONS,'Ji','ytickv',[0,2.5e1,5e1]          ; set y-axis labels
      OPTIONS,'Ji','ytitle','Ion!CCurrent!C(' + muLetter + 'A/m!U2!N)'
   ENDIF ELSE BEGIN
-     ji_tmp_data       = SMOOTH(ji_tmp_data,7)
+     ji_tmp_data       = SMOOTH(ji_tmp_data,5)
      YLIM,'Ji',-1.e10,4.e10
      OPTIONS,'Ji','ytickname',['0','2e10','4e10'] ; set y-axis labels
      OPTIONS,'Ji','ytickv',[0,2e10,4e10]          ; set y-axis labels
@@ -347,10 +350,10 @@ PRO JOURNAL__20161021__MAKE_CHASTON_2006__FIG_1,SAVE_PNG=save_png,SAVE_PS=save_p
   ;; magy                 = {x:magy.time,y:magy.comp1}
   STORE_DATA,'dB_East',DATA={x:magy.x,y:magy.y-magy.y[0]+150}
   OPTIONS,'dB_East','ytitle',CGGREEK('Delta') + 'B!DEast!N (nT)' ; y title
-  YLIM,'dB_East',-500,500
-  OPTIONS,'dB_East','yticks',4                                   ; set y-axis labels
-  OPTIONS,'dB_East','ytickname',['-500','0','500']          ; set y-axis labels
-  OPTIONS,'dB_East','ytickv',[-500,0,500]                    ; set y-axis labels
+  YLIM,'dB_East',150,450
+  OPTIONS,'dB_East','yticks',2                                   ; set y-axis labels
+  OPTIONS,'dB_East','ytickname',['200','400']          ; set y-axis labels
+  OPTIONS,'dB_East','ytickv',[200,400]                    ; set y-axis labels
   
 
   ;;Scale electron energy flux to 100km, pos flux earthward
@@ -452,22 +455,26 @@ PRO JOURNAL__20161021__MAKE_CHASTON_2006__FIG_1,SAVE_PNG=save_png,SAVE_PS=save_p
         CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=1 ;,XSIZE=4,YSIZE=7
      ENDIF ELSE BEGIN
         IF KEYWORD_SET(save_ps) THEN BEGIN
-           CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=1 ;,XSIZE=4,YSIZE=7
-           ;; POPEN,'./plots/Elphic_et_al_1998--Fig_1',FONT=1,XSIZE=4,YSIZE=7
+           ;; CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=1 ;,XSIZE=4,YSIZE=7
+           POPEN,plotDir+outPlotName,XSIZE=4,YSIZE=7
         ENDIF ELSE BEGIN
            WINDOW,0,XSIZE=900,YSIZE=900
         ENDELSE
      ENDELSE
      
      LOADCT,39
-     !p.charsize=1.3
+     ;; !p.charsize=1.3
      ;; TPLOT,['dB_East','jtemp','Je','Ji','JEei','Ped','POTENTIAL','el_0','el_pa','ion_pa'], $
      TPLOT,['dB_East','jtemp','Je','Ji','JEei','POTENTIAL','el_0','el_pa','ion_pa'], $
            VAR_LABEL=['ALT','MLT','ILAT'],TRANGE=[t1,t2]
      ;; TPLOT_PANEL,VARIABLE='jtemp',OPLOTVAR='jtemp_fill'
 
+     TIMEBAR,timeBarTime[0],color=200
+     TIMEBAR,timeBarTime[1],color=200
+
      IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
-        CGPS_CLOSE, PNG=KEYWORD_SET(save_png),DELETE_PS=KEYWORD_SET(save_png);, WIDTH=1000
+        ;; CGPS_CLOSE, PNG=KEYWORD_SET(save_png),DELETE_PS=KEYWORD_SET(save_png);, WIDTH=1000
+        PCLOSE
      ENDIF ELSE BEGIN
         ;; IF KEYWORD_SET(save_ps) THEN BEGIN
         ;;    PCLOSE

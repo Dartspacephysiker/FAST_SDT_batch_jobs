@@ -1,6 +1,7 @@
 ;;2016/10/05
 ;;This is entirely ripped off from Strangeway's batch_summary.pro, gifted to me by that beautiful human, Jack Vernetti
-PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
+;;Doesn't have necessary E-field variables ...
+PRO JOURNAL__20161024__CHASTON_2006_FIGURE_1__BUT_ORB_10837, $
    TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $
    PLOT_SOUTH=plot_south, $
@@ -68,21 +69,21 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
   eeb_or_ees        = 'eeb'
   ieb_or_ies        = 'ieb'
 
-  outPlotName       = 'Chaston_et_al_2006__ionos_erosion--Fig_1'
+  outPlotName       = 'Orbit_10837__Bellan_method--Fig_1'
   IF KEYWORD_SET(ancillary_plots) THEN BEGIN
      outPlotName   += '--with_ancillaries'
   ENDIF
 
-  t1ZoomStr         = '1998-05-04/06:44:15'
-  t2ZoomStr         = '1998-05-04/06:45:01'
+  t1ZoomStr         = '1999-05-18/17:45:55'
+  t2ZoomStr         = '1999-05-18/17:46:50'
 
   t1Zoom            = STR_TO_TIME(t1ZoomStr)
   t2Zoom            = STR_TO_TIME(t2ZoomStr)
 
-  timesBarStr       = ['1998-05-04/06:44:46','1998-05-04/06:44:56']
+  timesBarStr       = ['1999-05-28/17:45:55','1999-05-28/17:46:50']
   timesBar          = STR_TO_TIME(timesBarStr)
 
-  energy_electrons  = [0.,30000.]
+  energy_electrons  = [50.,30000.]
   energy_ions       = [0.,30000.]
   ion_angle         = [270,360]
 
@@ -500,8 +501,10 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
              valid:sc_pot.valid} 
 
   GET_2DT_TS_POT,'j_2d_fs','fa_'+ieb_or_ies,name='Ji_up',t1=t1,t2=t2, $
-                 energy=energy_ions,angle=ion_angle, $
-                 sc_pot=sc_pot
+                 angle=ion_angle, $
+                 ;; energy=energy_ions
+                 energy=energy_ions, $
+                 SC_POT=sc_pot
   ;; ylim,'Ji_up',1.e5,1.e8,1 	; set y limits
   ;; options,'Ji_up','tplot_routine','pmplot' 	; set 2 color plot
   ;; options,'Ji_up','labels',['Downgoing!C Ions','Upgoing!C Ions '] 	; set color label
@@ -563,7 +566,8 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
 ; ELECTRON PITCH ANGLE
 
   var_name='Eesa_Angle'
-  get_pa_spec,"fa_"+eeb_or_ees+"_c",units='eflux',name=var_name, energy=energy_electrons
+  get_pa_spec,"fa_"+eeb_or_ees+"_c",units='eflux',name=var_name, $
+              energy=energy_electrons
   ;; get_data,var_name, data=data 
   ;; data.y = alog10(data.y)
   ;; store_data,var_name, data=data
@@ -617,6 +621,7 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
      ;;Get EESA current
      GET_2DT_TS_POT,'j_2d_b','fa_eeb',t1=t1Zoom,t2=t2Zoom, $
                     name='Je_tot', $
+                    ;; energy=energy_electrons
                     energy=energy_electrons, $
                     SC_POT=sc_pot
      
@@ -651,18 +656,18 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
 
      PRINT,"Getting Ji current density fo' yeh'"
      GET_2DT_TS_POT,'j_2d_b','fa_ieb',t1=t1Zoom,t2=t2Zoom, $
-                    name='Ji_tot', $
-                    energy=[0,energy_ions[1]], $
-                    SC_POT=sc_pot
+                    name='Ji_tot',energy=[0,energy_ions[1]], $
+                    sc_pot=sc_pot
      GET_2DT_TS_POT,'j_2d_b','fa_ies',t1=t1Zoom,t2=t2Zoom, $
-                    name='Ji_tot_S', $
-                    energy=[0,energy_ions[1]], $
+                    name='Ji_tot_S',energy=[0,energy_ions[1]], $
                     angle=[180,360], $
-                    SC_POT=sc_pot
+                    sc_pot=sc_pot
      GET_2DT_TS_POT,'j_2d_b','fa_ees',t1=t1Zoom,t2=t2Zoom, $
                     name='Je_tot_S', $
+                    ;; energy=energy_electrons
                     energy=energy_electrons, $
                     SC_POT=sc_pot
+
      
      ;;First, burst ion data
      GET_DATA,'Ji_tot',DATA=tmp
@@ -678,7 +683,7 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
      tmp.y         *= -1. ;;Since we're in Southern Hemi
      keep2          = WHERE(tmp.y GT 0.0)
      IiTotTmp_time  = tmp.x[keep2]
-     IiTotTmp       = tmp.y[keep2]*1.6e-6*2. ;;in nanoA/m2
+     IiTotTmp       = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
      IiTotTmp      *= sphCrossSec
 
      Ji_z           = {x:jiTotTmp_time,y:jiTotTmp}
@@ -732,7 +737,7 @@ PRO JOURNAL__20161005__CHASTON_2006__FIGURE_1__ORB_6717, $
   IF KEYWORD_SET(save_B_AND_J_data) THEN BEGIN
      saveDir  = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/'
      saveFile = 'Chaston_et_al_2006--B_and_J.sav'
-     saveFile = 'Chaston_et_al_2006--B_and_J--20161022--fixed_currents--with_sc_pot.sav'
+     saveFile = 'Chaston_et_al_2006--B_and_J--20161022--fixed_currents.sav'
      ;; B_J_file = 'Chaston_et_al_2006--B_and_J.dat'
 
      GET_DATA,'dB_fac_v',DATA=dB_fac_v
