@@ -38,12 +38,16 @@ PRO JOURNAL__20161024__MAKE_ELPHIC_FIG_1__ORB_9585,SAVE_PNG=save_png,SAVE_PS=sav
   ;; t1Str                   = '97-2-1/09:25:30'
   ;; t2Str                   = '97-2-1/09:28:00'
 
+  ;;Jim likes these
   t1Str                   = '99-01-23/14:50:45'
   t2Str                   = '99-01-23/14:51:15'
   t1                      = STR_TO_TIME(t1Str)
   t2                      = STR_TO_TIME(t2Str)
 
+  ;;Jim likes this
   timeBarTime             = ['99-01-23/14:50:56','99-01-23/14:51:06']
+
+  timesBarStr       = ['1999-01-23/14:50:52','1999-01-23/14:51:03']
 
   outPlotName             = 'Orbit_9585--Fig_à_la_Elphic_et_al_1998'
 

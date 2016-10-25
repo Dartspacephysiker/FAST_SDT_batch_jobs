@@ -1,6 +1,6 @@
 ;;2016/10/05
 ;;This is entirely ripped off from Strangeway's batch_summary.pro, gifted to me by that beautiful human, Jack Vernetti
-PRO JOURNAL__20161024__ORBIT_9585__TEST_1, $
+PRO JOURNAL__20161025__ORBIT_5149__TEST_6, $
    TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $
    PLOT_SOUTH=plot_south, $
@@ -68,27 +68,27 @@ PRO JOURNAL__20161024__ORBIT_9585__TEST_1, $
   eeb_or_ees        = 'eeb'
   ieb_or_ies        = 'ieb'
 
-  outPlotName       = 'Test_orb_1__ionos_erosion--Fig_1'
+  outPlotName       = 'Orbit_5149__Test_6__ionos_erosion--Fig_1'
+  saveFile          = 'Orbit_5149--B_and_J--20161025--fixed_currents--with_sc_pot.sav'
+
   IF KEYWORD_SET(ancillary_plots) THEN BEGIN
      outPlotName   += '--with_ancillaries'
   ENDIF
 
-  ;; t1ZoomStr         = '1999-01-23/14:50:35'
-  ;; t2ZoomStr         = '1999-01-23/14:51:25'
-
-  t1ZoomStr         = '1999-01-23/14:49:49'
-  t2ZoomStr         = '1999-01-23/14:51:59'
+  t1ZoomStr         = '1997-12-10/12:36:21'
+  t2ZoomStr         = '1997-12-10/12:36:59'
 
   t1Zoom            = STR_TO_TIME(t1ZoomStr)
   t2Zoom            = STR_TO_TIME(t2ZoomStr)
 
-  ;; timesBarStr       = ['1999-01-23/14:50:56','1999-01-23/14:51:06']
-  timesBarStr       = ['1999-01-23/14:50:52','1999-01-23/14:51:03']
+  timesBarStr       = ['1997-12-10/12:36:00','1997-12-10/12:36:59']
   timesBar          = STR_TO_TIME(timesBarStr)
 
   energy_electrons  = [0.,30000.]
   energy_ions       = [0.,30000.]
-  ion_angle         = [270,360]
+  ;; ion_angle         = [270,360]
+  ion_angle_up         = [90.,180.]
+  ion_angle    = [0.,180.]
 
   EFieldVar         = 'EFIT_ALONG_VSC'
   EFieldVar         = 'E_ALONG_V'
@@ -415,7 +415,7 @@ PRO JOURNAL__20161024__ORBIT_9585__TEST_1, $
 
      var_name='Iesa_Energy'
      get_en_spec,T1=t1Zoom,T2=t2Zoom, $
-                 'fa_'+ieb_or_ies+'_c',name=var_name,units='eflux',angle=ion_angle
+                 'fa_'+ieb_or_ies+'_c',name=var_name,units='eflux',angle=ion_angle_up
      ;; data.y = alog10(data.y)
      ;; store_data,var_name, data=data
      options,var_name,'spec',1	
@@ -450,8 +450,8 @@ PRO JOURNAL__20161024__ORBIT_9585__TEST_1, $
   ;; data.y = alog10(data.y)
   store_data,var_name, data=data
   options,var_name,'spec',1	
-  zlim,var_name,4e6,3e7,0
-  ylim,var_name,180,360,0
+  zlim,var_name,1e6,1e9,0
+  ylim,var_name,0,180,0
   options,var_name,'ytitle','Ions!C!CAngle (Deg.)'
   options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
   options,var_name,'x_no_interp',1
@@ -504,7 +504,7 @@ PRO JOURNAL__20161024__ORBIT_9585__TEST_1, $
              valid:sc_pot.valid} 
 
   GET_2DT_TS_POT,'j_2d_fs','fa_'+ieb_or_ies,name='Ji_up',t1=t1,t2=t2, $
-                 energy=energy_ions,angle=ion_angle, $
+                 energy=energy_ions,angle=ion_angle_up, $
                  sc_pot=sc_pot
   ;; ylim,'Ji_up',1.e5,1.e8,1 	; set y limits
   ;; options,'Ji_up','tplot_routine','pmplot' 	; set 2 color plot
@@ -567,7 +567,7 @@ PRO JOURNAL__20161024__ORBIT_9585__TEST_1, $
 ; ELECTRON PITCH ANGLE
 
   var_name='Eesa_Angle'
-  get_pa_spec,"fa_"+eeb_or_ees+"_c",units='eflux',name=var_name, energy=energy_electrons
+  get_pa_spec,"fa_"+eeb_or_ees+"_c",units='eflux',name=var_name,energy=energy_electrons
   ;; get_data,var_name, data=data 
   ;; data.y = alog10(data.y)
   ;; store_data,var_name, data=data
@@ -657,11 +657,12 @@ PRO JOURNAL__20161024__ORBIT_9585__TEST_1, $
      GET_2DT_TS_POT,'j_2d_b','fa_ieb',t1=t1Zoom,t2=t2Zoom, $
                     name='Ji_tot', $
                     energy=[0,energy_ions[1]], $
+                    angle=ion_angle, $
                     SC_POT=sc_pot
      GET_2DT_TS_POT,'j_2d_b','fa_ies',t1=t1Zoom,t2=t2Zoom, $
                     name='Ji_tot_S', $
                     energy=[0,energy_ions[1]], $
-                    angle=[180,360], $
+                    angle=ion_angle, $
                     SC_POT=sc_pot
      GET_2DT_TS_POT,'j_2d_b','fa_ees',t1=t1Zoom,t2=t2Zoom, $
                     name='Je_tot_S', $
@@ -735,7 +736,6 @@ PRO JOURNAL__20161024__ORBIT_9585__TEST_1, $
 
   IF KEYWORD_SET(save_B_AND_J_data) THEN BEGIN
      saveDir  = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/'
-     saveFile = 'Orbit_9585--B_and_J--20161024--fixed_currents--with_sc_pot.sav'
      ;; B_J_file = 'Chaston_et_al_2006--B_and_J.dat'
 
      GET_DATA,'dB_fac_v',DATA=dB_fac_v
@@ -951,3 +951,4 @@ PRO JOURNAL__20161024__ORBIT_9585__TEST_1, $
 
 
 END
+
