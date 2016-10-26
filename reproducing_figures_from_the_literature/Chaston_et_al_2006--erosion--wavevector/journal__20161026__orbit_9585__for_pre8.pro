@@ -69,6 +69,8 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
   ieb_or_ies        = 'ieb'
 
   outPlotName       = 'Orb_9858--PRE_VIII--Fig_1'
+  saveFile          = 'Orbit_9585--B_and_J--20161024--fixed_currents--with_sc_pot--bro.sav'
+
 
   IF N_ELEMENTS(ancillary_plots) EQ 0 THEN ancillary_plots = 1
   IF KEYWORD_SET(ancillary_plots) THEN BEGIN
@@ -85,7 +87,13 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
   t2Zoom            = STR_TO_TIME(t2ZoomStr)
 
   ;; timesBarStr       = ['1999-01-23/14:50:56','1999-01-23/14:51:06']
-  timesBarStr       = ['1999-01-23/14:50:52','1999-01-23/14:51:03']
+  ;; timesBarStr       = ['1999-01-23/14:50:52','1999-01-23/14:51:03']
+
+  ;;Alternative
+  timesBarStr       = ['1999-01-23/14:50:40','1999-01-23/14:50:51.5']
+  outPlotName      += '--alt_timebar'
+  saveFile         += '--alt_timebar'
+
   timesBar          = STR_TO_TIME(timesBarStr)
 
   energy_electrons  = [0.,30000.]
@@ -470,7 +478,7 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
   ENDFOR
 
   ;;Calculate the current from mag
-  deltaBY                 = DERIV(position,SMOOTH(magy.y,7))
+  deltaBY                 = DERIV(position,SMOOTH(magy.y,20))
   ;; deltaBY                 = DERIV(position,magy.y)
   ;; deltaBY                 = DERIV(position,SMOOTH(magy.y,5))
   ;; jtemp                = ABS(1.0e-3*(deltaBx)/1.26e-6)
@@ -619,6 +627,9 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
   sc_pot  = {x:sc_pot.time, $
              y:(-1.)*sc_pot.comp1, $ ;;Reverse sign of pot for use with GET_2DT_TS_POT
              valid:sc_pot.valid} 
+
+  STORE_DATA,'SC_POT',DATA={x:sc_pot.x,y:(-1.)*sc_pot.y}
+  
 
   GET_2DT_TS_POT,'j_2d_fs','fa_'+ieb_or_ies,name='Ji_up',t1=t1,t2=t2, $
                  energy=energy_ions,angle=ion_angle, $
@@ -852,7 +863,6 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
 
   IF KEYWORD_SET(save_B_AND_J_data) THEN BEGIN
      saveDir  = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/'
-     saveFile = 'Orbit_9585--B_and_J--20161024--fixed_currents--with_sc_pot--bro.sav'
      ;; B_J_file = 'Chaston_et_al_2006--B_and_J.dat'
 
      GET_DATA,'dB_fac_v',DATA=dB_fac_v
@@ -1036,14 +1046,14 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
 
      options,'Je_plot','labels',['i!U+!N ESA','e!U-!N ESA']
      options,'Je_plot','labflag',-1
-     options,'Je_plot','colors',[140,250]
+     options,'Je_plot','colors',[140,250,0]
 
      ;; GET_DATA,'Ji_tot',DATA=tmpi
      GET_DATA,'Je_tot',DATA=tmpe
      
      jiDat = DATA_CUT('Ji_tot',tmpe.x)
 
-     STORE_DATA,'Je_plot',DATA={x:[[tmpe.x],[tmpe.x]],y:[[jiDat],[tmpe.y]]}
+     STORE_DATA,'Je_plot',DATA={x:[[tmpe.x],[tmpe.x],[tmpe.x]],y:[[jiDat],[tmpe.y],[MAKE_ARRAY(N_ELEMENTS(tmpe.y),VALUE=0.)]]}
 
         ;; ancillary_vars = ['Je_tot','Ji_tot']
      ;; ancillary_vars = []
@@ -1066,6 +1076,8 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
      LOADCT2,40
      TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
      ;; TPLOT_PANEL,VARIABLE=langVar,OPLOTVAR='ESACur'
+     TPLOT_PANEL,sc_pot.x,(-1.)*sc_pot.y,VARIABLE='Iesa_Energy' ;,OPLOTVAR='SC_POT'
+     TPLOT_PANEL,magy.x,MAKE_ARRAY(N_ELEMENTS(magy.x),VALUE=0),VARIABLE='jtemp' ;,OPLOTVAR='SC_POT'
 
      IF KEYWORD_SET(add_timebar) THEN BEGIN
         TIMEBAR,timesBar,COLOR=!D.N_COLORS-4
