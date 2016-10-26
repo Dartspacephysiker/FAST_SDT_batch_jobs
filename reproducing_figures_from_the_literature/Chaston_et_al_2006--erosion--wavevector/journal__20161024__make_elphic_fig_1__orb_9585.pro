@@ -225,12 +225,14 @@ PRO JOURNAL__20161024__MAKE_ELPHIC_FIG_1__ORB_9585,SAVE_PNG=save_png,SAVE_PS=sav
 
   ;;Remove_crap
   GET_DATA,'Je',DATA=tmp
-  keep1                   = WHERE(FINITE(tmp.y) NE 0)
+  keep1                   = WHERE(FINITE(tmp.y))
   tmp.x                   = tmp.x[keep1]
   tmp.y                   = tmp.y[keep1]
-  keep2                   = WHERE(ABS(tmp.y) GT 0.0)
-  je_tmp_time             = tmp.x[keep2]
-  je_tmp_data             = tmp.y[keep2]
+  ;; keep2                   = WHERE(ABS(tmp.y) GT 0.0)
+  ;; je_tmp_time             = tmp.x[keep2]
+  ;; je_tmp_data             = tmp.y[keep2]
+  je_tmp_time             = tmp.x
+  je_tmp_data             = tmp.y
   IF KEYWORD_SET(show_currents_not_fluxes) THEN BEGIN
      ;; je_tmp_data = SMOOTH(je_tmp_data,5)*1.6e-9*(-1.)
      je_tmp_data = je_tmp_data*1.6e-9*(-1.)
@@ -255,9 +257,11 @@ PRO JOURNAL__20161024__MAKE_ELPHIC_FIG_1__ORB_9585,SAVE_PNG=save_png,SAVE_PS=sav
   keep1                   = WHERE(FINITE(tmp.y) NE 0)
   tmp.x                   = tmp.x[keep1]
   tmp.y                   = tmp.y[keep1]
-  keep2                   = WHERE(ABS(tmp.y) GT 0.0)
-  ji_tmp_time          = tmp.x[keep2]
-  ji_tmp_data          = tmp.y[keep2]
+  ;; keep2                   = WHERE(ABS(tmp.y) GT 0.0)
+  ;; ji_tmp_time          = tmp.x[keep2]
+  ;; ji_tmp_data          = tmp.y[keep2]
+  ji_tmp_time             = tmp.x
+  ji_tmp_data             = tmp.y
   IF KEYWORD_SET(show_currents_not_fluxes) THEN BEGIN
      ;; ji_tmp_data       = SMOOTH(ji_tmp_data,5)*1.6e-9*2.
      ji_tmp_data       = ji_tmp_data*1.6e-9*2.
