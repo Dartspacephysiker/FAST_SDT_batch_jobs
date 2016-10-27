@@ -90,7 +90,7 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
   ;; timesBarStr       = ['1999-01-23/14:50:52','1999-01-23/14:51:03']
 
   ;;Alternative
-  timesBarStr       = ['1999-01-23/14:50:40','1999-01-23/14:50:51.5']
+  timesBarStr       = ['1999-01-23/14:50:56','1999-01-23/14:51:06']
   outPlotName      += '--alt_timebar'
   saveFile         += '--alt_timebar'
 
@@ -478,7 +478,7 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
   ENDFOR
 
   ;;Calculate the current from mag
-  deltaBY                 = DERIV(position,SMOOTH(magy.y,20))
+  deltaBY                 = DERIV(position,SMOOTH(magy.y,5))
   ;; deltaBY                 = DERIV(position,magy.y)
   ;; deltaBY                 = DERIV(position,SMOOTH(magy.y,5))
   ;; jtemp                = ABS(1.0e-3*(deltaBx)/1.26e-6)

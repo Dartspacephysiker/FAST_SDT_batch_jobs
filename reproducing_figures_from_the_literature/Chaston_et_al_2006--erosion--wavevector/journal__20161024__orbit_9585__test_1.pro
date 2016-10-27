@@ -209,16 +209,16 @@ PRO JOURNAL__20161024__ORBIT_9585__TEST_1, $
 
 ; reset time limits if needed
 
-     ;; get_data,'EFIT_ALONG_V',data=data
-     ;; t1 = data.x[0]
-     ;; t2 = data.x[n_elements(data.x)-1L]
+     get_data,'EFIT_ALONG_V',data=data
+     t1 = data.x[0]
+     t2 = data.x[n_elements(data.x)-1L]
 
-     ;; if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
-     ;;    if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
-     ;;    if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
-     ;;    get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-     ;;    get_new_igrf,/no_store_old
-     ;; endif
+     if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
+        if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
+        if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
+        get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
+        get_new_igrf,/no_store_old
+     endif
 
 ; check for southern hemisphere and fix 
 ; NOTE IT IS ASSUMED THAT FA_FIELDS_DESPIN DOES NOT CORRECT PHASE
@@ -540,8 +540,10 @@ PRO JOURNAL__20161024__ORBIT_9585__TEST_1, $
 ; ELECTRON ENERGY
 
      var_name='Eesa_Energy'
-     get_en_spec,T1=t1Zoom,T2=t2Zoom, $
-                 'fa_'+eeb_or_ees+'_c',name=var_name,units='eflux'
+     get_en_spec, $
+        'fa_'+eeb_or_ees+'_c', $
+        T1=t1Zoom,T2=t2Zoom, $
+        name=var_name,units='eflux'
      get_data,var_name, data=data
      data.y = alog10(data.y)
      store_data,var_name, data=data

@@ -68,15 +68,15 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
   eeb_or_ees        = 'eeb'
   ieb_or_ies        = 'ieb'
 
-  outPlotName       = 'Orbit_10837__Test_3__ionos_erosion--Fig_1'
-  saveFile          = 'Orbit_10837--B_and_J--20161025--fixed_currents--with_sc_pot.sav'
+  outPlotName       = 'Orbit_10837__Test_3--Fig_1--PRE_VIII'
+  saveFile          = 'Orbit_10837--B_and_J--20161026--fixed_currents--with_sc_pot.sav'
 
-  IF KEYWORD_SET(ancillary_plots) THEN BEGIN
+  ;; IF KEYWORD_SET(ancillary_plots) THEN BEGIN
      outPlotName   += '--with_ancillaries'
-  ENDIF
+  ;; ENDIF
 
   t1ZoomStr         = '1999-05-18/17:46:10'
-  t2ZoomStr         = '1999-05-18/17:47:00'
+  t2ZoomStr         = '1999-05-18/17:46:49'
 
   t1Zoom            = STR_TO_TIME(t1ZoomStr)
   t2Zoom            = STR_TO_TIME(t2ZoomStr)
@@ -85,7 +85,7 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
   timesBar          = STR_TO_TIME(timesBarStr)
 
   energy_electrons  = [0.,30000.]
-  energy_ions       = [0.,30000.]
+  energy_ions       = [0.,24000.]
   ;; ion_angle         = [270,360]
   ion_angle_up         = [90.,180.]
   ion_angle    = [0.,180.]
@@ -98,9 +98,9 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
 
 @tplot_com
 
-  nn = n_elements(data_quants)
+  ;; nn = n_elements(data_quants)
 
-  if (nn gt 1) then for n = nn-1L,1L,-1L do store_data,data_quants(n).name,/delete
+  ;; if (nn gt 1) then for n = nn-1L,1L,-1L do store_data,data_quants(n).name,/delete
 
   field  = GET_FA_FIELDS('MagDC',t1Zoom-10,t2Zoom+10,/store)
   magAC = GET_FA_FIELDS('Mag3ac_S',t1Zoom-10,t2Zoom+10,/store)
@@ -114,50 +114,50 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
   GET_DATA,'MagDCcomp3',data=magz
   GET_DATA,'Mag3ac_S',data=magz_AC
 
-  ;;Get model field for subtraction
+  ;; ;;Get model field for subtraction
   GET_FA_ORBIT,magz_AC.x,/DEFINITIVE,/ALL,/TIME_ARRAY
   GET_DATA,'B_model',data=bMod
 
-  ;;Which? Those.
-  ;; this  = plot(bmod.x-bmod.x[0],bmod.y[*,0]-bmod.y[0,0]) 
-  ;; that  = plot(bmod.x-bmod.x[0],bmod.y[*,1]-bMod.y[0,1],/OVERPLOT,COLOR='RED') 
-  ;; those = plot(bmod.x-bmod.x[0],bmod.y[*,2]-bMod.y[0,2],/OVERPLOT,COLOR='GREEN')
-  min  = MIN(bmod.x-t1Zoom,ind)
-  bOff = bmod.y[*,2]-bMod.y[ind,2]
+  ;; ;;Which? Those.
+  ;; ;; this  = plot(bmod.x-bmod.x[0],bmod.y[*,0]-bmod.y[0,0]) 
+  ;; ;; that  = plot(bmod.x-bmod.x[0],bmod.y[*,1]-bMod.y[0,1],/OVERPLOT,COLOR='RED') 
+  ;; ;; those = plot(bmod.x-bmod.x[0],bmod.y[*,2]-bMod.y[0,2],/OVERPLOT,COLOR='GREEN')
+  ;; min  = MIN(bmod.x-t1Zoom,ind)
+  ;; bOff = bmod.y[*,2]-bMod.y[ind,2]
 
-  FA_FIELDS_COMBINE,{time:magz_AC.x,comp1:magz_AC.y,ncomp:1}, $
-                    {time:magz.x,comp1:magz.y}, $
-                    RESULT=magzInterp, $
-                    /SPLINE
+  ;; FA_FIELDS_COMBINE,{time:magz_AC.x,comp1:magz_AC.y,ncomp:1}, $
+  ;;                   {time:magz.x,comp1:magz.y}, $
+  ;;                   RESULT=magzInterp, $
+  ;;                   /SPLINE
 
-  magz = {x:magz_AC.x, $
-          y:magzInterp}
+  ;; magz = {x:magz_AC.x, $
+  ;;         y:magzInterp}
 
-  bro = WHERE(FINITE(magz.y))
-  firstB = magz.y[bro[0]]
+  ;; bro = WHERE(FINITE(magz.y))
+  ;; firstB = magz.y[bro[0]]
 
-  ;; bogus = (magz_AC.x-magz_AC.x[0])/(magz_AC.x[-1]-magz_AC.x[0])*(-900)
+  ;; ;; bogus = (magz_AC.x-magz_AC.x[0])/(magz_AC.x[-1]-magz_AC.x[0])*(-900)
 
-  magVarData = {x:[[magz_AC.x],[magz_AC.x]], $
-                y:[[magz.y-firstB+bOff],[magz.y+magz_AC.y-firstB+bOff]]}
-                ;; y:[[magz.y-firstB+bogus],[magz.y+magz_AC.y-firstB+bogus]]}
+  ;; magVarData = {x:[[magz_AC.x],[magz_AC.x]], $
+  ;;               y:[[magz.y-firstB+bOff],[magz.y+magz_AC.y-firstB+bOff]]}
+  ;;               ;; y:[[magz.y-firstB+bogus],[magz.y+magz_AC.y-firstB+bogus]]}
 
-  store_data,magVar,data=magVarData
-  options,magVar,'yrange',[-1200,500]
-  options,magVar,'ytitle','B!Dy!N!C!C(nT))'
-  options,magVar,'panel_size',2
-  options,magVar,'colors',[6,4]
-  options,magVar,'labels',['FG','FG+SC']
+  ;; store_data,magVar,data=magVarData
+  ;; options,magVar,'yrange',[-1200,500]
+  ;; options,magVar,'ytitle','B!Dy!N!C!C(nT))'
+  ;; options,magVar,'panel_size',2
+  ;; options,magVar,'colors',[6,4]
+  ;; options,magVar,'labels',['FG','FG+SC']
 
   t1 = magz.x[0]
   t2 = magz.x[n_elements(magz.x)-1L]
   tlimit_all = [t1,t2]
 
-  tPlt_vars = magVar
+  ;; tPlt_vars = magVar
 
-  IF KEYWORD_SET(screen_plot) THEN BEGIN
-     TPLOT,tPlt_vars,TRANGE=tlimit_all
-  ENDIF
+  ;; IF KEYWORD_SET(screen_plot) THEN BEGIN
+  ;;    TPLOT,tPlt_vars,TRANGE=tlimit_all
+  ;; ENDIF
 
 
 ; Step 1 - DC Mag data
@@ -244,9 +244,11 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
      store_data,'EFIT_ALONG_VSC',data=data,dlimit=dlimit
 
      ;;Stuff for EField plot
-     options,EFieldVar,'yrange',[-400,600]
+     options,EFieldVar,'yrange',[-500,500]
      options,EFieldVar,'ytitle','E along V!Dsc!N!C!C(mV/m)'
      options,EFieldVar,'panel_size',2
+     options,EFieldVar,'yticks',3
+     options,EFieldVar,'ytickv',[-500,-250,0,250,500]
 
      ;; store_data,'E_NEAR_B',/delete
      ;; store_data,'E_ALONG_V',/delete
@@ -295,43 +297,43 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
      ;; FA_FIELDS_COMBINE,magz,efield,result=fields,/interp,delt_t=50.,/talk
      ;; fields={time:magz.time,comp1:magz.comp1,comp2:fields,ncomp:2}
 
-     Langmuir_2=get_fa_fields('NE2_S',t1Zoom,t2Zoom)
-     Langmuir_6=get_fa_fields('NE6_S',t1Zoom,t2Zoom)
-     Langmuir_9=get_fa_fields('NE9_S',t1Zoom,t2Zoom)
-     Langmuir_data=[0]
-     Langmuir_time=[0]
-     Langmuir_prob=[0]
-     if Langmuir_2.valid NE 0 then begin
-        langmuir_data=[Langmuir_data,Langmuir_2.comp1]
-        langmuir_time=[Langmuir_time,Langmuir_2.time]
-        langmuir_prob=[Langmuir_prob,replicate(2,n_elements(Langmuir_2.time))]
-     endif
-     if Langmuir_6.valid NE 0 then begin
-        langmuir_data=[Langmuir_data,Langmuir_6.comp1]
-        langmuir_time=[Langmuir_time,Langmuir_6.time]
-        langmuir_prob=[Langmuir_prob,replicate(6,n_elements(Langmuir_6.time))]
-     endif
-     if Langmuir_9.valid NE 0 then begin
-        langmuir_data=[Langmuir_data,Langmuir_9.comp1]
-        langmuir_time=[Langmuir_time,Langmuir_9.time]
-        langmuir_prob=[Langmuir_prob,replicate(9,n_elements(Langmuir_9.time))]
-     endif
-     if n_elements(langmuir_data) GT 1 then begin
-        langmuir_time=langmuir_time(1:n_elements(Langmuir_time)-1)
-        langmuir_data=langmuir_data(1:n_elements(Langmuir_time)-1)
-        langmuir_prob=langmuir_prob(1:n_elements(Langmuir_time)-1)
-        time_order_langmuir=sort(langmuir_time)
-        langmuir={x:langmuir_time(time_order_langmuir),y:langmuir_data(time_order_langmuir)}
-        dens_probe={x:langmuir_time(time_order_langmuir),y:langmuir_prob(time_order_langmuir)}
-     endif else data_valid=0.0
+     ;; Langmuir_2=get_fa_fields('NE2_S',t1Zoom,t2Zoom)
+     ;; Langmuir_6=get_fa_fields('NE6_S',t1Zoom,t2Zoom)
+     ;; Langmuir_9=get_fa_fields('NE9_S',t1Zoom,t2Zoom)
+     ;; Langmuir_data=[0]
+     ;; Langmuir_time=[0]
+     ;; Langmuir_prob=[0]
+     ;; if Langmuir_2.valid NE 0 then begin
+     ;;    langmuir_data=[Langmuir_data,Langmuir_2.comp1]
+     ;;    langmuir_time=[Langmuir_time,Langmuir_2.time]
+     ;;    langmuir_prob=[Langmuir_prob,replicate(2,n_elements(Langmuir_2.time))]
+     ;; endif
+     ;; if Langmuir_6.valid NE 0 then begin
+     ;;    langmuir_data=[Langmuir_data,Langmuir_6.comp1]
+     ;;    langmuir_time=[Langmuir_time,Langmuir_6.time]
+     ;;    langmuir_prob=[Langmuir_prob,replicate(6,n_elements(Langmuir_6.time))]
+     ;; endif
+     ;; if Langmuir_9.valid NE 0 then begin
+     ;;    langmuir_data=[Langmuir_data,Langmuir_9.comp1]
+     ;;    langmuir_time=[Langmuir_time,Langmuir_9.time]
+     ;;    langmuir_prob=[Langmuir_prob,replicate(9,n_elements(Langmuir_9.time))]
+     ;; endif
+     ;; if n_elements(langmuir_data) GT 1 then begin
+     ;;    langmuir_time=langmuir_time(1:n_elements(Langmuir_time)-1)
+     ;;    langmuir_data=langmuir_data(1:n_elements(Langmuir_time)-1)
+     ;;    langmuir_prob=langmuir_prob(1:n_elements(Langmuir_time)-1)
+     ;;    time_order_langmuir=sort(langmuir_time)
+     ;;    langmuir={x:langmuir_time(time_order_langmuir),y:langmuir_data(time_order_langmuir)}
+     ;;    dens_probe={x:langmuir_time(time_order_langmuir),y:langmuir_prob(time_order_langmuir)}
+     ;; endif else data_valid=0.0
 
-     langVar = 'LANGMUIR'
-     STORE_DATA,langVar,DATA=langmuir
-     ylim,langVar,2e1,2e4,1
-     options,langVar,'ytitle','Probe Current!C(nA)'
-     options,langVar,'panel_size',3
+     ;; langVar = 'LANGMUIR'
+     ;; STORE_DATA,langVar,DATA=langmuir
+     ;; ylim,langVar,2e1,2e4,1
+     ;; options,langVar,'ytitle','Probe Current!C(nA)'
+     ;; options,langVar,'panel_size',3
      
-     tPlt_vars = [langVar,tPlt_vars]
+     ;; tPlt_vars = [langVar,tPlt_vars]
 
      if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[EFieldVar] else tPlt_vars=[EFieldVar,tPlt_vars]
 
@@ -393,6 +395,117 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
 
      ;; if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[ESpecVar] else tPlt_vars=[ESpecVar,tPlt_vars]
 
+  UCLA_MAG_DESPIN
+  ;; saveDir  = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/saves_output_etc/'
+  ;; saveFile = 'Orbit_10837--B_and_J--20161025--fixed_currents--with_sc_pot.sav'
+  ;; RESTORE,saveDir+saveFile
+  ;; STORE_DATA,'dB_fac_v',DATA=dB_fac_v
+  ;; db_fac = !NULL
+  ;; je_z = !NULL
+  ;; ji_z = !NULL
+  ;; t1 = db_fac_v.x[0]
+  ;; t2 = db_fac_v.x[-1]
+
+  ;;NOTE:
+  ;;z (or 2)-along B, y (or 1)-east (BxR), x (or 0)-nominally out
+
+  GET_DATA,'dB_fac_v',DATA=db_fac
+  mintime              = MIN(ABS(t1-db_fac.x),ind1)
+  mintime              = MIN(ABS(t2-db_fac.x),ind2)
+  
+  magx                 = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,0]}
+  magy                 = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,1]}
+  magz                 = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,2]}
+
+  ;;Get orbit stuff
+  GET_FA_ORBIT,magy.x,/TIME_ARRAY ;,/all
+
+  ;;Define loss cone angle
+  GET_DATA,'ALT',DATA=alt
+  loss_cone_alt           = alt.y[0]*1000.0
+  lcw                     = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
+  GET_DATA,'ILAT',DATA=ilat
+  north_south             = ABS(ilat.y[0])/ilat.y[0]
+  
+  if north_south EQ -1 then begin
+     e_angle              = [180.-lcw,180+lcw] ; for Southern Hemis.
+
+     ;;Eliminate ram from data
+     i_angle              = [180.0,360.0]
+     i_angle_up=[270.0,360.0]
+     
+  endif else begin
+     e_angle              = [360.-lcw,lcw] ;	for Northern Hemis.
+
+     ;;Eliminate ram from data
+     i_angle              = [0.0,180.0]
+     i_angle_up           = [90.0,180.0]
+     
+  endelse
+
+  ;;Mag stuff
+
+  ;;NOTE:
+  ;;z (or 2)-along B, y (or 1)-east (BxR), x (or 0)-nominally out
+
+  ;;Get speed and position for calculation of mag stuff
+  GET_DATA,'fa_vel',DATA=vel
+  speed                   = SQRT(vel.y[*,0]^2+vel.y[*,1]^2+vel.y[*,2]^2)*1000.0
+
+  old_pos                 = 0.
+  position                = MAKE_ARRAY(N_ELEMENTS(magy.x),/DOUBLE)
+  speed_mag_point         = MAKE_ARRAY(N_ELEMENTS(magy.x),/DOUBLE)
+  FOR j=0L,N_ELEMENTS(magy.x)-2 DO BEGIN
+     speed_point_ind      = MIN(ABS(vel.x-magy.x[j]),ind)
+
+     speed_mag_point[j]   = speed[ind]
+     samplingperiod       = magy.x[j+1] - magy.x[j]
+
+     position[j]          = old_pos + speed_mag_point[j]*samplingperiod
+     old_pos              = position[j]
+  ENDFOR
+
+  ;;Calculate the current from mag
+  deltaBY                 = DERIV(position,SMOOTH(magy.y,19))
+  ;; deltaBY                 = DERIV(position,magy.y)
+  ;; deltaBY                 = DERIV(position,SMOOTH(magy.y,5))
+  ;; jtemp                = ABS(1.0e-3*(deltaBx)/1.26e-6)
+  ;; jtemp                = 1.0e-3*(deltaBx)/1.26e-6
+  ;;in number flux units
+  jtemp                   = 1.0e-3*(deltaBY)/1.26e-6
+  muLetter = '!4l!X'
+  ;; IF KEYWORD_SET(show_currents_not_fluxes) THEN BEGIN
+  YLIM,'jtemp',-50,100
+  ;; OPTIONS,'jtemp','yticks',4                              ; set y-axis labels
+  ;; OPTIONS,'jtemp','ytickname',['-2e1','0','2e1','4e1']    ; set y-axis labels
+  ;; OPTIONS,'jtemp','ytickv',[-2e1,0,2e1,4e1]               ; set y-axis labels
+  OPTIONS,'jtemp','ytitle','Mag current!C(' + muLetter + 'A/m!U2!N)'
+  OPTIONS,'jtemp','panel_size',2
+  ;; ENDIF ELSE BEGIN
+  ;;    jtemp               *= (DOUBLE(1. / 1.6e-9))
+  ;;    YLIM,'jtemp',-1.e10,2.e10
+  ;;    OPTIONS,'jtemp','yticks',4                           ; set y-axis labels
+  ;;    OPTIONS,'jtemp','ytickname',['-1e10','0','1e10','2e10'] ; set y-axis labels
+  ;;    OPTIONS,'jtemp','ytickv',[-1e10,0,1e10,2e10]            ; set y-axis labels
+  ;;    OPTIONS,'jtemp','ytitle','Electron!CFlux!C(cm!U2!Ns!U-1!N)'
+  ;; ENDELSE
+  sign_jtemp              = ABS(deltaBY)/deltaBY
+  STORE_DATA,'jtemp',DATA={x:magy.x,y:jtemp}
+  ;; OPTIONS,'jtemp','psym','10'
+  ;; OPTIONS,'jtemp','fill',1
+  ;; OPTIONS,'jtemp','tplot_routine','polyfill_tplot'
+  ;; ;; OPTIONS,'jtemp','color','808080'x
+  ;; OPTIONS,'jtemp','fill_color',250
+
+  STORE_DATA,'dB_East',DATA={x:magy.x,y:magy.y-magy.y[0]+350}
+  OPTIONS,'dB_East','ytitle',CGGREEK('Delta') + 'B!DEast!N (nT)' ; y title
+  YLIM,'dB_East',0,450
+  OPTIONS,'dB_East','yticks',2                                   ; set y-axis labels
+  OPTIONS,'dB_East','ytickname',['200','400']          ; set y-axis labels
+  OPTIONS,'dB_East','ytickv',[200,400]                    ; set y-axis labels
+  OPTIONS,'dB_East','panel_size',2
+
+
 ; Step 3 - Iesa data
 
   prog = getenv('FASTBIN') + '/showDQIs'
@@ -415,14 +528,14 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
 
      var_name='Iesa_Energy'
      get_en_spec,T1=t1Zoom,T2=t2Zoom, $
-                 'fa_'+ieb_or_ies+'_c',name=var_name,units='eflux',angle=ion_angle_up
+                 'fa_'+ieb_or_ies+'_c',name=var_name,units='eflux',angle=ion_angle
      ;; data.y = alog10(data.y)
      ;; store_data,var_name, data=data
      options,var_name,'spec',1	
-     zlim,var_name,1e6,5e7,0
+     zlim,var_name,1e5,1e8,0
      ylim,var_name,4,30000,1
      options,var_name,'ytitle','Ions!C!CEnergy (eV)'
-     options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+     options,var_name,'ztitle','eV!C/cm!U2!N-s-sr-eV'
      options,var_name,'x_no_interp',1
      options,var_name,'y_no_interp',1
      options,var_name,'panel_size',2
@@ -442,7 +555,7 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
   var_name='Iesa_Angle'
   get_pa_spec,"fa_"+ieb_or_ies+"_c",units='eflux',name=var_name,energy=energy_ions
   get_data,var_name, data=data
-  this = where(data.v[0,*] GT 170)
+  this = where(data.v[0,*] LT 190)
   data = {x:data.x, $
           y:data.y[*,this], $
           v:data.v[*,this]}
@@ -450,10 +563,10 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
   ;; data.y = alog10(data.y)
   store_data,var_name, data=data
   options,var_name,'spec',1	
-  zlim,var_name,1e6,1e9,0
+  zlim,var_name,1e5,5e7,0
   ylim,var_name,0,180,0
   options,var_name,'ytitle','Ions!C!CAngle (Deg.)'
-  options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+  options,var_name,'ztitle','eV!C/cm!U2!N-s-sr-eV'
   options,var_name,'x_no_interp',1
   options,var_name,'y_no_interp',1
   options,var_name,'panel_size',2
@@ -470,7 +583,7 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
   ;; store_data,var_name, data=data	
   ;; options,var_name,'yminor',9
   options,var_name,'yticks',1
-  options,var_name,'ytickv',[180,270,360]
+  options,var_name,'ytickv',[0,90,180]
   options,var_name,'ynozero',1
   options,var_name,'ystyle',16
   ;; ylim,var_name,-90,270,0
@@ -500,11 +613,14 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
                              /REPAIR)
 
   sc_pot  = {x:sc_pot.time, $
-             y:(-1.)*sc_pot.comp1, $ ;;Reverse sign of pot for use with GET_2DT_TS_POT
+             y:SMOOTH((-1.)*sc_pot.comp1,21), $ ;;Reverse sign of pot for use with GET_2DT_TS_POT
              valid:sc_pot.valid} 
 
+  STORE_DATA,'SC_POT',DATA={x:sc_pot.x,y:(-1.)*sc_pot.y}
+  
+
   GET_2DT_TS_POT,'j_2d_fs','fa_'+ieb_or_ies,name='Ji_up',t1=t1,t2=t2, $
-                 energy=energy_ions,angle=ion_angle_up, $
+                 energy=energy_ions,angle=ion_angle, $
                  sc_pot=sc_pot
   ;; ylim,'Ji_up',1.e5,1.e8,1 	; set y limits
   ;; options,'Ji_up','tplot_routine','pmplot' 	; set 2 color plot
@@ -541,15 +657,15 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
 
      var_name='Eesa_Energy'
      get_en_spec,T1=t1Zoom,T2=t2Zoom, $
-                 'fa_'+eeb_or_ees+'_c',name=var_name,units='eflux'
+                 'fa_'+eeb_or_ees+'_c',name=var_name,units='eflux',RETRACE=1
      get_data,var_name, data=data
      data.y = alog10(data.y)
      store_data,var_name, data=data
      options,var_name,'spec',1	
-     zlim,var_name,9,10,0
+     zlim,var_name,6,10,0
      ylim,var_name,5,30000,1
      options,var_name,'ytitle','Electrons!C!CEnergy (eV)'
-     options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+     options,var_name,'ztitle','Log eV!C/cm!U2!N-s-sr-eV'
      options,var_name,'x_no_interp',1
      options,var_name,'y_no_interp',1
      options,var_name,'panel_size',2
@@ -572,11 +688,11 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
   ;; data.y = alog10(data.y)
   ;; store_data,var_name, data=data
   options,var_name,'spec',1
-  zlim,var_name,5e8,5e9,0
+  zlim,var_name,1e6,5e9,0
   ylim,var_name,0,360,0
   ;; options,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
   options,var_name,'ytitle','Electrons!C!CAngle (Deg.)'
-  options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+  options,var_name,'ztitle','eV!C/cm!U2!N-s-sr-eV'
   options,var_name,'x_no_interp',1
   options,var_name,'y_no_interp',1
   options,var_name,'panel_size',2
@@ -651,7 +767,7 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
      STORE_DATA,'Je_tot',DATA=Je_z
 
   IF KEYWORD_SET(save_B_and_J_data) OR KEYWORD_SET(ancillary_plots) THEN BEGIN
-     UCLA_MAG_DESPIN,TW_MAT=tw_mat,ORBIT=orbit,SPIN_AXIS=spin_axis,DELTA_PHI=delta_phi
+     ;; UCLA_MAG_DESPIN,TW_MAT=tw_mat,ORBIT=orbit,SPIN_AXIS=spin_axis,DELTA_PHI=delta_phi
 
      PRINT,"Getting Ji current density fo' yeh'"
      GET_2DT_TS_POT,'j_2d_b','fa_ieb',t1=t1Zoom,t2=t2Zoom, $
@@ -735,7 +851,7 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
   ENDIF
 
   IF KEYWORD_SET(save_B_AND_J_data) THEN BEGIN
-     saveDir  = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/'
+     saveDir  = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/saves_output_etc/'
      ;; B_J_file = 'Chaston_et_al_2006--B_and_J.dat'
 
      GET_DATA,'dB_fac_v',DATA=dB_fac_v
@@ -864,8 +980,10 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
 
      ;; tPlt_vars=['Iesa_Energy','Iesa_Angle','Ji_up','Eesa_Energy','Eesa_Angle', $
      ;;             EFieldVar,ESpecVar,magVar,langVar]
-     tPlt_vars=['Iesa_Energy','Iesa_Angle','Ji_up','Eesa_Energy','Eesa_Angle', $
-                 EFieldVar,magVar,langVar]
+     ;; tPlt_vars=['Iesa_Energy','Iesa_Angle','Ji_up','Eesa_Energy','Eesa_Angle', $
+     ;;             EFieldVar,magVar,langVar]
+     tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','Je_plot', $
+                 'jtemp','dB_East',EFieldVar]
   endif
 
   IF KEYWORD_SET(screen_plot) OR KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
@@ -907,36 +1025,53 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
         END        
      ENDCASE
 
+     ;; IF KEYWORD_SET(ancillary_plots) THEN BEGIN
+     options,'Ji_tot','ytitle','Ion Current!C(!4l!XA m!U2!N)' ; set y title
+     options,'Ji_tot','panel_size',2                          ; set panel size
+
+     options,'Je_plot','ytitle','Current density!C(!4l!XA/m!U2!N)' ; set y title
+     options,'Je_plot','panel_size',2                             ; set panel size
+     ylim,'Je_plot',-50,100,0
+
+     options,'Je_plot','labels',['i!U+!N ESA','e!U-!N ESA']
+     options,'Je_plot','labflag',-1
+     options,'Je_plot','colors',[140,250,0]
+
+     ;; GET_DATA,'Ji_tot',DATA=tmpi
+     GET_DATA,'Je_tot',DATA=tmpe
+     
+     jiDat = DATA_CUT('Ji_tot',tmpe.x)
+
+     STORE_DATA,'Je_plot',DATA={x:[[tmpe.x],[tmpe.x],[tmpe.x]],y:[[jiDat],[tmpe.y],[MAKE_ARRAY(N_ELEMENTS(tmpe.y),VALUE=0.)]]}
+
+        ;; ancillary_vars = ['Je_tot','Ji_tot']
+     ;; ancillary_vars = []
+
+        ;; IF ~(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) THEN BEGIN
+        ;;    WINDOW,1,XSIZE=600,YSIZE=800
+        ;; ENDIF
+
+        ;; tPlt_vars = [tPlt_vars,ancillary_vars]
+        ;; TPLOT,ancillary_vars,VAR=['ALT','ILAT','MLT'], $
+        ;;       TRANGE=tLims, $
+        ;;       WINDOW=(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) ? !NULL : -1
+
+        ;; IF KEYWORD_SET(add_timebar) THEN BEGIN
+        ;;    TIMEBAR,timesBar,COLOR=!D.N_COLORS-4
+        ;; ENDIF
+
+     ;; ENDIF
+
      LOADCT2,40
      TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
-     TPLOT_PANEL,VARIABLE=langVar,OPLOTVAR='ESACur'
+     ;; TPLOT_PANEL,VARIABLE=langVar,OPLOTVAR='ESACur'
+     TPLOT_PANEL,sc_pot.x,(-1.)*sc_pot.y,VARIABLE='Iesa_Energy' ;,OPLOTVAR='SC_POT'
+     TPLOT_PANEL,magy.x,MAKE_ARRAY(N_ELEMENTS(magy.x),VALUE=0),VARIABLE='jtemp' ;,OPLOTVAR='SC_POT'
 
      IF KEYWORD_SET(add_timebar) THEN BEGIN
         TIMEBAR,timesBar,COLOR=!D.N_COLORS-4
      ENDIF
 
-     IF KEYWORD_SET(ancillary_plots) THEN BEGIN
-        options,'Ji_tot','ytitle','Ion Current!C(!4l!XA m!U2!N)' ; set y title
-        options,'Ji_tot','panel_size',2                     ; set panel size
-
-        options,'Je_tot','ytitle','e!U-!N Current!C(!4l!XA m!U2!N)' ; set y title
-        options,'Je_tot','panel_size',2                     ; set panel size
-
-        ancillary_vars = ['Je_tot','Ji_tot']
-
-        IF ~(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) THEN BEGIN
-           WINDOW,1,XSIZE=600,YSIZE=800
-        ENDIF
-
-        TPLOT,ancillary_vars,VAR=['ALT','ILAT','MLT'], $
-              TRANGE=tLims, $
-              WINDOW=(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) ? !NULL : -1
-
-        IF KEYWORD_SET(add_timebar) THEN BEGIN
-           TIMEBAR,timesBar,COLOR=!D.N_COLORS-4
-        ENDIF
-
-     ENDIF
 
      IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
         PCLOSE
@@ -951,3 +1086,4 @@ PRO JOURNAL__20161025__ORBIT_10837__TEST_3, $
 
 
 END
+
