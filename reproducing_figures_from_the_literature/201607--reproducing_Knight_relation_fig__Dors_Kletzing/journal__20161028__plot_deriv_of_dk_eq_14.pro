@@ -1,10 +1,10 @@
-;;07/05/16
-PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
+;;2016/10/28
+PRO JOURNAL__20161028__PLOT_DERIV_OF_DK_EQ_14,SAVE_PNG=save_png
 
-  COMPILE_OPT IDL2
+  COMPILE_OPT idl2
 
-  plotSN = 'Dors_Kletzing_1999__Figure_3.png'
-     
+  plotSN = 'Dors_Kletzing_1999__Figure_3_deriv.png'
+
   make_abs              = 1
 
   T_m                   = 500.D ;eV
@@ -77,7 +77,7 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
   xRange                = [1e-3,1e5]
   yRange                = [1e-6,1e3]
   xTitle                = 'e$\Delta\Phi$/K!Dth!N'
-  yTitle                = 'Energy Flux Density (W m!U-2!N)'
+  yTitle                = 'd(EFlux Density)/dPot (m!U-2!Ns!U-1!N)'
   fontSize              = 18
   window                = WINDOW(DIMENSIONS=[1200,800])
 
@@ -94,17 +94,19 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
      ;; plotName           = STRING(FORMAT='("Kappa = ",I0,", R_B = ",I0)',kTemp,RTemp)
      plotName           = STRING(FORMAT='("Kappa = ",F0.1)',kTemp)
 
-     IF kTemp EQ 1.51 THEN STOP 
-     kappa_eF            = KAPPA_1__DORS_KLETZING_EQ_15__EFLUX(kTemp,T_m,dens_m,pot,RTemp, $
-                                                               IN_POTBAR=in_potBar, $
-                                                               OUT_POTBAR=potBar)
+     ;; IF kTemp EQ 1.51 THEN STOP 
+     STOP
+     kappa_dEF          = KAPPA_1__DORS_KLETZING_EQ_15__D_EFLUX_D_POT( $
+                          kTemp,T_m,dens_m,pot,RTemp, $
+                          IN_POTBAR=in_potBar, $
+                          OUT_POTBAR=potBar)
 
      IF KEYWORD_SET(make_abs) THEN BEGIN
-        kappa_eF         = ABS(kappa_eF)
+        kappa_dEF       = ABS(kappa_dEF)
      ENDIF
 
-     ;; plotArr[iPlot]     = PLOT(in_potBar,kappa_eF, $
-     plotArr[iPlot]     = PLOT(potBar,kappa_eF, $
+     ;; plotArr[iPlot]     = PLOT(in_potBar,kappa_dEF, $
+     plotArr[iPlot]     = PLOT(potBar,kappa_dEF, $
                                NAME=plotName, $
                                XRANGE=xRange, $
                                YRANGE=yRange, $
@@ -122,16 +124,17 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
                                CURRENT=window)
 
      IF kTemp EQ 5 THEN BEGIN
-        maxwell_eF       = KAPPA_1__DORS_KLETZING_EQ_14__EFLUX__MAXWELL(T_m,dens_m,pot,RTemp, $
-                                                                        IN_POTBAR=in_potBar, $
-                                                                        OUT_POTBAR=potBar)
+        maxwell_dEF = KAPPA_1__DORS_KLETZING_EQ_14__D_EFLUX_D_POT__MAXWELL( $
+                      T_m,dens_m,pot,RTemp, $
+                      IN_POTBAR=in_potBar, $
+                      OUT_POTBAR=potBar)
 
         iPlot++
         IF KEYWORD_SET(make_abs) THEN BEGIN
-           maxwell_eF    = ABS(maxwell_eF)
+           maxwell_dEF    = ABS(maxwell_dEF)
         ENDIF
-        ;; plotArr[iPlot]  = PLOT(in_potBar,maxwell_eF, $
-        plotArr[iPlot]  = PLOT(potBar,maxwell_eF, $
+        ;; plotArr[iPlot]  = PLOT(in_potBar,maxwell_dEF, $
+        plotArr[iPlot]  = PLOT(potBar,maxwell_dEF, $
                                NAME='Maxwellian', $
                                XRANGE=xRange, $
                                YRANGE=yRange, $
@@ -145,7 +148,7 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
                                /OVERPLOT, $
                                CURRENT=window)
 
-        textObjArr[iText] = TEXT(100,1.1*maxwell_eF[-2], $
+        textObjArr[iText] = TEXT(100,1.1*maxwell_dEF[-2], $
                                  textArr[iText], $
                                  /DATA)
 
@@ -182,4 +185,3 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
   ;; ENDFOR
 
 END
-
