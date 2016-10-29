@@ -1,11 +1,12 @@
 ;;07/05/16
-PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
+PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png, $
+   SET_FOR_ORIGINAL_FIG=set_for_original_fig
 
   COMPILE_OPT IDL2
 
-  plotSN = 'Dors_Kletzing_1999__Figure_3.png'
+  plotSN                = 'Dors_Kletzing_1999__Figure_3.png'
      
-  make_abs              = 1
+  make_abs              = 0
 
   T_m                   = 500.D ;eV
   dens_m                = 1.D   ; cm^-3
@@ -16,18 +17,23 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
                            100,100,100,100,100, $
                            1e6,1e6,1e6,1e6,1e6]
 
+  k1                    = 1.6
+  k2                    = 2.0
+  k3                    = 2.5
+  ;; k2                    = 30
+  ;; k3                    = 40
+  ;; k2                    = 10
+  ;; k3                    = 20
+  k4                    = 5
+  k5                    = 10
+
   ;;More extreme
-  kappa                 = [1.5001,2.0,2.5,5,10, $
-                           1.5001,2.0,2.5,5,10, $
-                           1.5001,2.0,2.5,5,10, $
-                           1.5001,2.0,2.5,5,10, $
-                           1.5001,2.0,2.5,5,10]
-  ;;Less extreme; why even show k = 10?
-  ;; kappa                 = [1.8,3,5,10,0, $
-  ;;                          1.8,3,5,10,0, $
-  ;;                          1.8,3,5,10,0, $
-  ;;                          1.8,3,5,10,0, $
-  ;;                          1.8,3,5,10,0]
+  kappa                 = [k1,k2,k3,k4,k5, $
+                           k1,k2,k3,k4,k5, $
+                           k1,k2,k3,k4,k5, $
+                           k1,k2,k3,k4,k5, $
+                           k1,k2,k3,k4,k5]
+  changeKappa           = 5 ;Switch to Maxwellian here
 
   lineStyle             = [':','__',"--","--","-", $
                            ':','__',"--","--","-", $
@@ -67,10 +73,7 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
 
   in_potBar             = 10.D^(DOUBLE(INDGEN(33)/4.-3))
 
-  pot                   = TEMPORARY(in_potBar) * T_m
-
-  nPlots                = N_ELEMENTS(R_B)
-  plotArr               = MAKE_ARRAY(nPlots,/OBJ)
+  n_RB_texts            = 5
 
   lineThick             = 1.5
 
@@ -81,16 +84,55 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
   fontSize              = 18
   window                = WINDOW(DIMENSIONS=[1200,800])
 
-  n_RB_texts            = 5
+  IF KEYWORD_SET(set_for_original_fig) THEN BEGIN
+     in_potBar          = 10.D^(DOUBLE(INDGEN(25)/4.-2))
+
+       R_B              = [  3,  3,  3,  3, $
+                            10, 10, 10, 10, $
+                            30, 30, 30, 30, $
+                           100,100,100,100, $
+                           1e6,1e6,1e6,1e6]
+     
+       lineStyle        = [':','__',"-.","-", $
+                           ':','__',"-.","-", $
+                           ':','__',"-.","-", $
+                           ':','__',"-.","-", $
+                           ':','__',"-.","-"]
+       
+       color            = ['black','red','green','blue', $
+                           'black','red','green','blue', $
+                           'black','red','green','blue', $
+                           'black','red','green','blue', $
+                           'black','red','green','blue']
+     kappa              = [3.0,5,10,100.0, $
+                           3.0,5,10,100.0, $
+                           3.0,5,10,100.0, $
+                           3.0,5,10,100.0, $
+                           3.0,5,10,100.0]
+
+     changeKappa        = 10
+
+     xRange             = [1e-2,1e3]
+     yRange             = [1e-4,1e2]
+
+  ENDIF
+
   textArr               = 'R!DB!N = ' + STRING(FORMAT='(I0)',R_B[UNIQ(R_B)])
   textObjArr            = MAKE_ARRAY(n_RB_texts,/OBJ)
+  xText                 = 140
+  textMin               = MIN(ABS(in_potBar-xText),textInd)
+
+  pot                   = TEMPORARY(in_potBar) * T_m
+
+  nPlots                = N_ELEMENTS(R_B)
+  plotArr               = MAKE_ARRAY(nPlots,/OBJ)
 
   iText                 = 0
   FOR iPlot=0,nPlots-1 DO BEGIN
      kTemp              = kappa[iPlot]
      RTemp              = R_B[iPlot]
-     PRINT,"kappa: ",kTemp
-     PRINT,"R_B  : ",RTemp
+     ;; PRINT,"kappa: ",kTemp
+     ;; PRINT,"R_B  : ",RTemp
      ;; plotName           = STRING(FORMAT='("Kappa = ",I0,", R_B = ",I0)',kTemp,RTemp)
      plotName           = STRING(FORMAT='("Kappa = ",F0.1)',kTemp)
 
@@ -121,7 +163,7 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
                                OVERPLOT=iPlot GT 0, $
                                CURRENT=window)
 
-     IF kTemp EQ 5 THEN BEGIN
+     IF kTemp EQ changeKappa THEN BEGIN
         maxwell_eF       = KAPPA_1__DORS_KLETZING_EQ_14__EFLUX__MAXWELL(T_m,dens_m,pot,RTemp, $
                                                                         IN_POTBAR=in_potBar, $
                                                                         OUT_POTBAR=potBar)
@@ -145,10 +187,10 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png
                                /OVERPLOT, $
                                CURRENT=window)
 
-        textObjArr[iText] = TEXT(100,1.1*maxwell_eF[-2], $
+        textObjArr[iText] = TEXT(xText,1.1*maxwell_eF[textInd], $
                                  textArr[iText], $
                                  /DATA)
-
+        PRINT,'Where: ',xText,1.1*maxwell_eF[textInd]
         iText++
      ENDIF
 

@@ -1,5 +1,6 @@
 ;;2016/10/28
-PRO JOURNAL__20161028__PLOT_DERIV_OF_DK_EQ_14,SAVE_PNG=save_png
+PRO JOURNAL__20161028__PLOT_DERIV_OF_DK_EQ_14,SAVE_PNG=save_png, $
+   SET_FOR_ORIGINAL_FIG=set_for_original_fig
 
   COMPILE_OPT idl2
 
@@ -16,18 +17,21 @@ PRO JOURNAL__20161028__PLOT_DERIV_OF_DK_EQ_14,SAVE_PNG=save_png
                            100,100,100,100,100, $
                            1e6,1e6,1e6,1e6,1e6]
 
+  k1                    = 1000
+  k2                    = 2.0
+  k3                    = 2.5
+  ;; k2                    = 1000
+  ;; k3                    = 10000
+  k4                    = 5
+  k5                    = 10
+
   ;;More extreme
-  kappa                 = [1.5001,2.0,2.5,5,10, $
-                           1.5001,2.0,2.5,5,10, $
-                           1.5001,2.0,2.5,5,10, $
-                           1.5001,2.0,2.5,5,10, $
-                           1.5001,2.0,2.5,5,10]
-  ;;Less extreme; why even show k = 10?
-  ;; kappa                 = [1.8,3,5,10,0, $
-  ;;                          1.8,3,5,10,0, $
-  ;;                          1.8,3,5,10,0, $
-  ;;                          1.8,3,5,10,0, $
-  ;;                          1.8,3,5,10,0]
+  kappa                 = [k1,k2,k3,k4,k5, $
+                           k1,k2,k3,k4,k5, $
+                           k1,k2,k3,k4,k5, $
+                           k1,k2,k3,k4,k5, $
+                           k1,k2,k3,k4,k5]
+  changeKappa           = 5 ;Switch to Maxwellian here
 
   lineStyle             = [':','__',"--","--","-", $
                            ':','__',"--","--","-", $
@@ -67,23 +71,59 @@ PRO JOURNAL__20161028__PLOT_DERIV_OF_DK_EQ_14,SAVE_PNG=save_png
 
   in_potBar             = 10.D^(DOUBLE(INDGEN(33)/4.-3))
 
-  pot                   = TEMPORARY(in_potBar) * T_m
-
-  nPlots                = N_ELEMENTS(R_B)
-  plotArr               = MAKE_ARRAY(nPlots,/OBJ)
+  n_RB_texts            = 5
 
   lineThick             = 1.5
 
   xRange                = [1e-3,1e5]
-  yRange                = [1e-6,1e3]
+  yRange                = [1e-9,1e0]
   xTitle                = 'e$\Delta\Phi$/K!Dth!N'
   yTitle                = 'd(EFlux Density)/dPot (m!U-2!Ns!U-1!N)'
   fontSize              = 18
   window                = WINDOW(DIMENSIONS=[1200,800])
 
-  n_RB_texts            = 5
+  IF KEYWORD_SET(set_for_original_fig) THEN BEGIN
+     in_potBar          = 10.D^(DOUBLE(INDGEN(25)/4.-2))
+
+       R_B              = [  3,  3,  3,  3, $
+                            10, 10, 10, 10, $
+                            30, 30, 30, 30, $
+                           100,100,100,100, $
+                           1e6,1e6,1e6,1e6]
+     
+       lineStyle        = [':','__',"-.","-", $
+                           ':','__',"-.","-", $
+                           ':','__',"-.","-", $
+                           ':','__',"-.","-", $
+                           ':','__',"-.","-"]
+       
+       color            = ['black','red','green','blue', $
+                           'black','red','green','blue', $
+                           'black','red','green','blue', $
+                           'black','red','green','blue', $
+                           'black','red','green','blue']
+     kappa              = [3.0,5,10,100.0, $
+                           3.0,5,10,100.0, $
+                           3.0,5,10,100.0, $
+                           3.0,5,10,100.0, $
+                           3.0,5,10,100.0]
+
+     changeKappa        = 10
+
+     xRange             = [1e-3,1e5]
+
+
+  ENDIF
+
+  pot                   = TEMPORARY(in_potBar) * T_m
+
+  nPlots                = N_ELEMENTS(R_B)
+  plotArr               = MAKE_ARRAY(nPlots,/OBJ)
+
   textArr               = 'R!DB!N = ' + STRING(FORMAT='(I0)',R_B[UNIQ(R_B)])
   textObjArr            = MAKE_ARRAY(n_RB_texts,/OBJ)
+  xText                 = 120
+  textMin               = MIN(ABS(pot-xText),textInd)
 
   iText                 = 0
   FOR iPlot=0,nPlots-1 DO BEGIN
@@ -95,7 +135,6 @@ PRO JOURNAL__20161028__PLOT_DERIV_OF_DK_EQ_14,SAVE_PNG=save_png
      plotName           = STRING(FORMAT='("Kappa = ",F0.1)',kTemp)
 
      ;; IF kTemp EQ 1.51 THEN STOP 
-     STOP
      kappa_dEF          = KAPPA_1__DORS_KLETZING_EQ_15__D_EFLUX_D_POT( $
                           kTemp,T_m,dens_m,pot,RTemp, $
                           IN_POTBAR=in_potBar, $
@@ -123,7 +162,7 @@ PRO JOURNAL__20161028__PLOT_DERIV_OF_DK_EQ_14,SAVE_PNG=save_png
                                OVERPLOT=iPlot GT 0, $
                                CURRENT=window)
 
-     IF kTemp EQ 5 THEN BEGIN
+     IF kTemp EQ changeKappa THEN BEGIN
         maxwell_dEF = KAPPA_1__DORS_KLETZING_EQ_14__D_EFLUX_D_POT__MAXWELL( $
                       T_m,dens_m,pot,RTemp, $
                       IN_POTBAR=in_potBar, $
