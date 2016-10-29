@@ -4,7 +4,15 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png,
 
   COMPILE_OPT IDL2
 
-  plotSN                = 'Dors_Kletzing_1999__Figure_2.png'
+  CASE 1 OF
+     KEYWORD_SET(set_for_original_fig): BEGIN
+        plotSN          = 'Dors_Kletzing_1999__Figure_2--original.png'
+     END
+     ELSE: BEGIN
+        plotSN          = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + $
+                          '--Dors_Kletzing_1999__Figure_2.png'
+     END
+  ENDCASE
 
   make_abs              = 0
 
@@ -81,7 +89,7 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png,
   xTitle                = 'e$\Delta\Phi$/K!Dth!N'
   yTitle                = 'Current Density (A m!U-2!N)'
   fontSize              = 18
-  window                = WINDOW(DIMENSIONS=[1200,800])
+  window                = WINDOW(DIMENSIONS=[960,800])
 
   IF KEYWORD_SET(set_for_original_fig) THEN BEGIN
      in_potBar          = 10.D^(DOUBLE(INDGEN(25)/4.-2))
@@ -113,6 +121,9 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png,
 
      ;; xRange             = [1e-2,1e3]
      ;; yRange             = [1e-4,1e2]
+
+     yTickValues        = 10.^(INDGEN(4)-6)
+     yTickName          = STRING(FORMAT='("1e",I0)',INDGEN(4)-6)
 
   ENDIF
 
@@ -148,6 +159,8 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png,
                                YLOG=1, $
                                XTITLE=xTitle, $
                                YTITLE=yTitle, $
+                               YTICKVALUES=yTickValues, $
+                               YTICKNAME=yTickName, $
                                LINESTYLE=lineStyle[iPlot], $
                                COLOR=color[iPlot], $
                                FONT_SIZE=fontSize, $

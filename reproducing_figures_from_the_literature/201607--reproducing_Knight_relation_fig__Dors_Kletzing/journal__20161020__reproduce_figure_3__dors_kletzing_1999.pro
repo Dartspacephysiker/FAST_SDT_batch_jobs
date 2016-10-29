@@ -4,7 +4,15 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png,
 
   COMPILE_OPT IDL2
 
-  plotSN                = 'Dors_Kletzing_1999__Figure_3.png'
+  CASE 1 OF
+     KEYWORD_SET(set_for_original_fig): BEGIN
+        plotSN          = 'Dors_Kletzing_1999__Figure_3--original.png'
+     END
+     ELSE: BEGIN
+        plotSN          = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + $
+                          '--Dors_Kletzing_1999__Figure_3.png'
+     END
+  ENDCASE
      
   make_abs              = 0
 
@@ -82,7 +90,7 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png,
   xTitle                = 'e$\Delta\Phi$/K!Dth!N'
   yTitle                = 'Energy Flux Density (W m!U-2!N)'
   fontSize              = 18
-  window                = WINDOW(DIMENSIONS=[1200,800])
+  window                = WINDOW(DIMENSIONS=[960,800])
 
   IF KEYWORD_SET(set_for_original_fig) THEN BEGIN
      in_potBar          = 10.D^(DOUBLE(INDGEN(25)/4.-2))
@@ -115,6 +123,9 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png,
      xRange             = [1e-2,1e3]
      yRange             = [1e-4,1e2]
 
+     yTickValues        = 10.^(INDGEN(7)-4)
+     yTickName          = STRING(FORMAT='("1e",I0)',INDGEN(7)-4)
+
   ENDIF
 
   textArr               = 'R!DB!N = ' + STRING(FORMAT='(I0)',R_B[UNIQ(R_B)])
@@ -136,17 +147,19 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png,
      ;; plotName           = STRING(FORMAT='("Kappa = ",I0,", R_B = ",I0)',kTemp,RTemp)
      plotName           = STRING(FORMAT='("Kappa = ",F0.1)',kTemp)
 
-     IF kTemp EQ 1.51 THEN STOP 
+     ;; IF kTemp EQ 10 THEN STOP 
      kappa_eF            = KAPPA_1__DORS_KLETZING_EQ_15__EFLUX(kTemp,T_m,dens_m,pot,RTemp, $
                                                                IN_POTBAR=in_potBar, $
-                                                               OUT_POTBAR=potBar)
+                                                               OUT_POTBAR=potBar, $
+                                                               OUT_P_OVER_K_TH=pot_over_K_th)
 
      IF KEYWORD_SET(make_abs) THEN BEGIN
         kappa_eF         = ABS(kappa_eF)
      ENDIF
 
      ;; plotArr[iPlot]     = PLOT(in_potBar,kappa_eF, $
-     plotArr[iPlot]     = PLOT(potBar,kappa_eF, $
+     ;; plotArr[iPlot]     = PLOT(potBar,kappa_eF, $
+     plotArr[iPlot]     = PLOT(pot_over_K_th,kappa_eF, $
                                NAME=plotName, $
                                XRANGE=xRange, $
                                YRANGE=yRange, $
@@ -156,6 +169,8 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png,
                                YTITLE=yTitle, $
                                XSTYLE=1, $
                                YSTYLE=1, $
+                               YTICKVALUES=yTickValues, $
+                               YTICKNAME=yTickName, $
                                LINESTYLE=lineStyle[iPlot], $
                                COLOR=color[iPlot], $
                                FONT_SIZE=fontSize, $
