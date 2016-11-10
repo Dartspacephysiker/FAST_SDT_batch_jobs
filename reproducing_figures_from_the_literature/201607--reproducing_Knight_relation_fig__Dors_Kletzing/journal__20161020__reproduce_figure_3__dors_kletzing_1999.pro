@@ -26,7 +26,7 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png,
                            1e6,1e6,1e6,1e6,1e6]
 
   k1                    = 1.6
-  k2                    = 2.0
+  k2                    = 1.9
   k3                    = 2.5
   ;; k2                    = 30
   ;; k3                    = 40
@@ -205,7 +205,6 @@ PRO JOURNAL__20161020__REPRODUCE_FIGURE_3__DORS_KLETZING_1999,SAVE_PNG=save_png,
         textObjArr[iText] = TEXT(xText,1.1*maxwell_eF[textInd], $
                                  textArr[iText], $
                                  /DATA)
-        PRINT,'Where: ',xText,1.1*maxwell_eF[textInd]
         iText++
      ENDIF
 

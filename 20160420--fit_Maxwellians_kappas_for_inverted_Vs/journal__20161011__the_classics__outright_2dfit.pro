@@ -10,10 +10,10 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   save_kappa_plot      = 0
   close_kp_after_save  = 0
 
-  fit2D__save_all_candidate_plots = 1
-  fit2D__show_each_candidate = 1
+  fit2D__save_all_candidate_plots = 0
+  fit2D__show_each_candidate = 0
 
-  show_Strangeway_summary  = 1
+  show_Strangeway_summary  = 0
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
@@ -22,9 +22,11 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   show_kappa_summary  = 1
   kSum__save_ps       = 1
+  kSum__convert_to_Newell_interp = 0
+  kSum__add_chi2_line = 1
 
-  save_diff_eFlux_file = 1
-  load_diff_eFlux_file = 0
+  save_diff_eFlux_file = 0
+  load_diff_eFlux_file = 1
   restore_fitFile      = 1
 
   ;;Which classic event?
@@ -35,8 +37,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   evtNum               = 2
 
   ;;survey window
-  eeb_or_ees           = 'ees'
-  burstItvl            = 2
+  eeb_or_ees           = 'eeb'
+  burstItvl            = 0
 
   ;;String setup
   orbit                = orbs      [evtNum]
@@ -65,6 +67,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   KAPPA_FITTER_BLACKBOX,orbit, $
                         ELECTRON_SOURCECONEANGLE=electron_angleRange, $
                         ELECTRON_LOSSCONEANGLE=electron_lca, $
+                        ENERGY_ELECTRONS=energy_electrons, $
                         MIN_PEAK_ENERGY=min_peak_energy, $
                         EEB_OR_EES=eeb_or_ees, $
                         SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
@@ -94,6 +97,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         SHOW_KAPPA_SUMMARY=show_kappa_summary, $
                         KSUM__SAVE_PS=kSum__save_ps, $
                         KSUM__SAVE_PNG=kSum__save_png, $
+                        KSUM__CONV_DESPECS_TO_NEWELL_INTERP=kSum__convert_to_Newell_interp, $
+                        KSUM__ADD_CHI2_LINE=kSum__add_chi2_line, $
                         OUT_FIT2DK=fit2DK, $
                         OUT_FIT2DGAUSS=fit2DG, $
                         OUT_KAPPA_FIT_STRUCTS=kappaFits, $

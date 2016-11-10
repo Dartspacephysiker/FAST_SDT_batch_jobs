@@ -1,12 +1,16 @@
 ;;07/05/16
 PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png, $
-   SET_FOR_ORIGINAL_FIG=set_for_original_fig
+   SET_FOR_ORIGINAL_FIG=set_for_original_fig, $
+   SET_FOR_KAPPA_PAPER=set_for_kappa_paper
 
   COMPILE_OPT IDL2
 
   CASE 1 OF
      KEYWORD_SET(set_for_original_fig): BEGIN
         plotSN          = 'Dors_Kletzing_1999__Figure_2--original.png'
+     END
+     KEYWORD_SET(set_for_kappa_paper): BEGIN
+        plotSN          = 'Dors_Kletzing_1999-esque.png'
      END
      ELSE: BEGIN
         plotSN          = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + $
@@ -127,12 +131,64 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png,
 
   ENDIF
 
+  Tk_m                  = T_m
+  Tm_m                  = T_m
+
+  densk_m               = dens_m
+  densm_m               = dens_m
+
+  IF KEYWORD_SET(set_for_kappa_paper) THEN BEGIN
+     Tk_m    = 2830.D         ;eV
+     densk_m = 0.03D          ; cm^-3
+
+     Tm_m    = 40.D           ;eV
+     densm_m = 0.026D         ; cm^-3
+
+     yRange  = [3e-9,1e-5]
+
+  R_B                   = [  3,  3,  3,  3, $
+                            10, 10, 10, 10, $
+                            30, 30, 30, 30, $
+                           100,100,100,100, $
+                           1e6,1e6,1e6,1e6]
+
+  ;;More extreme
+  k1                    = 1.78
+  k3                    = 2.5
+  k4                    = 5
+  k5                    = 10
+
+  ;;More extreme
+  kappa                 = [k1,k3,k4,k5, $
+                           k1,k3,k4,k5, $
+                           k1,k3,k4,k5, $
+                           k1,k3,k4,k5, $
+                           k1,k3,k4,k5]
+
+  changeKappa           = 1.78     ;Switch to Maxwellian here
+
+  skipKappa             = [k3,k4]
+
+  lineStyle             = ['-','__',"--","-.", $
+                           '-','__',"--","-.", $
+                           '-','__',"--","-.", $
+                           '-','__',"--","-.", $
+                           '-','__',"--","-."]
+
+  color                 = ['orange','green','blue','black', $
+                           'orange','green','blue','black', $
+                           'orange','green','blue','black', $
+                           'orange','green','blue','black', $
+                           'orange','green','blue','black']
+
+  ENDIF
+
   textArr               = 'R!DB!N = ' + STRING(FORMAT='(I0)',R_B[UNIQ(R_B)])
-  textObjArr            = MAKE_ARRAY(n_RB_texts,/OBJ)
+  textObjArr            = MAKE_ARRAY(n_RB_texts-N_ELEMENTS(skipKappa),/OBJ)
   xText                 = 140
   textMin               = MIN(ABS(in_potBar-xText),textInd)
 
-  nPlots                = N_ELEMENTS(R_B)
+  nPlots                = N_ELEMENTS(R_B)-N_ELEMENTS(skipKappa)
   plotArr               = MAKE_ARRAY(nPlots,/OBJ)
 
   iText                 = 0
@@ -144,9 +200,16 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png,
      ;; plotName           = STRING(FORMAT='("Kappa = ",I0,", R_B = ",I0)',kTemp,RTemp)
      plotName           = STRING(FORMAT='("Kappa = ",F0.1)',kTemp)
 
-     kappa_j            = KNIGHT_RELATION__DORS_KLETZING_11(kTemp,T_m,dens_m,pot,RTemp, $
+     kappa_j            = KNIGHT_RELATION__DORS_KLETZING_11(kTemp,Tk_m,densk_m,pot,RTemp, $
                                                             IN_POTBAR=in_potBar, $
                                                             OUT_POTBAR=potBar)
+
+     IF N_ELEMENTS(skipKappa) GT 0 THEN BEGIN
+        IF (WHERE(kTemp EQ skipKappa))[0] NE -1 THEN BEGIN
+           iPlot++
+           CONTINUE
+        ENDIF
+     ENDIF
 
      IF KEYWORD_SET(make_abs) THEN BEGIN
         kappa_j         = ABS(kappa_j)
@@ -169,7 +232,7 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png,
                                CURRENT=window)
 
      IF kTemp EQ changeKappa THEN BEGIN
-        maxwell_j       = KNIGHT_RELATION__DORS_KLETZING_4(T_m,dens_m,pot,RTemp, $
+        maxwell_j       = KNIGHT_RELATION__DORS_KLETZING_4(Tm_m,densm_m,pot,RTemp, $
                                                            IN_POTBAR=in_potBar, $
                                                            OUT_POTBAR=potBar)
 

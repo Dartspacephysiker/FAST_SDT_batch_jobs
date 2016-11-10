@@ -13,6 +13,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          PLOT_1_OVER_KAPPA=plot_1_over_kappa, $
                          ADD_CHARE_PANEL=add_chare_panel, $
                          ADD_NEWELL_PANEL=add_Newell_panel, $
+                         ADD_CHI2_LINE=add_chi2_line, $
                          LOG_KAPPAPLOT=log_kappaPlot, $
                          FIT2DKAPPA_INF_LIST=fit2DKappa_inf_list, $
                          FIT2DGAUSS_INF_LIST=fit2DGauss_inf_list, $
@@ -24,6 +25,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          LOWDENSITY_THRESHOLD=lowDens_thresh, $
                          DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
                          N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
+                         CONVERT_DESPECS_TO_NEWELL_INTERP=convert_to_Newell_interp, $
                          SAVE_PS=save_ps, $
                          SAVE_PNG=save_png, $
                          SAVEKAPPA_BONUSPREF=bonusPref, $
@@ -121,6 +123,11 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         
         outPlotName += '--' + t1S + '_-_' + t2S
 
+        IF N_ELEMENTS(convert_to_Newell_interp) GT 0 THEN BEGIN
+           IF convert_to_Newell_interp EQ 0 THEN BEGIN
+              outPlotName += '--not_Newell_interpreted'
+           ENDIF
+        ENDIF
 
         IF KEYWORD_SET(load_from_offline) THEN BEGIN
            load_from_offFile = saveDir + outPlotName + '.sav'
@@ -775,6 +782,14 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   ENDELSE
   YLIM,'chi22DK',chi2Bounds[0],chi2Bounds[1],showLog_chi2
 
+  ;;And a line to show where the awesome chi2 vals are, if desired
+  IF KEYWORD_SET(add_chi2_line) THEN BEGIN
+     STORE_DATA,'chi2_critisk',DATA={x:kappaTime,y:MAKE_ARRAY(N_ELEMENTS(kappaTime),VALUE=5.0)}
+     ;; OPTIONS,'chi2_critisk','colors',red
+  ENDIF
+
+
+
   if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['chi22DK'] else tPlt_vars=[tPlt_vars,'chi22DK']
 
   if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
@@ -785,6 +800,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
      TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
      TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG',PSYM=GaussSym
+     IF KEYWORD_SET(add_chi2_line) THEN BEGIN
+        TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi2_critisk'
+     ENDIF
   endif
 
   ;;Now temperature
@@ -1059,6 +1077,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
      TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
      TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG',PSYM=GaussSym
+     IF KEYWORD_SET(add_chi2_line) THEN BEGIN
+        TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi2_critisk'
+     ENDIF
   endif
 
   ;; ENDIF
@@ -1116,7 +1137,8 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   sc_pot_interp  = DATA_CUT({x:sc_pot.time,y:sc_pot.comp1},data.x) 
   this           = VALUE_CLOSEST2(data.x,jee.x) 
   data           = {x:data.x[this],y:data.y[this,*],v:data.v[this,*]}
-  IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,data,Jee,Je,mlt,ilat,alt,orbit,events,SC_POT=sc_pot_interp,/QUIET
+  IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,data,Jee,Je,mlt,ilat,alt,orbit,events, $
+                                          SC_POT=sc_pot_interp,/QUIET
 
   var_name = 'newellPanel'
   PREPARE_IDENTIFIED_DIFF_EFLUXES_FOR_TPLOT,events,TPLOT_NAME=var_name, $
@@ -1312,6 +1334,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
         TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
         TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG',PSYM=GaussSym
+        IF KEYWORD_SET(add_chi2_line) THEN BEGIN
+           TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi2_critisk'
+        ENDIF
      ;; ENDIF
   endif
 
@@ -1342,6 +1367,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
         TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
         TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG',PSYM=GaussSym
+        IF KEYWORD_SET(add_chi2_line) THEN BEGIN
+           TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi2_critisk'
+        ENDIF
 
      ;; ENDIF
 
