@@ -31,7 +31,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          SAVEKAPPA_BONUSPREF=bonusPref, $
                          PLOTDIR=plotDir, $
                          SAVE_FOR_OFFLINE=save_for_offline, $
-                         LOAD_FROM_OFFLINE=load_from_offline
+                         LOAD_FROM_OFFLINE=load_from_offline, $
+                         KAPPA_STATS__SAVE_STUFF=kStats__save_stuff, $
+                         KAPPA_STATS__INCLUDE_THESE_STARTSTOPS=kStats__include_these_startstops
 
   ;;Some defaults
   red              = 250
@@ -275,7 +277,10 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      store_data,var_name, data=data
      options,var_name,'spec',1	
      ;; zlim,var_name,4,9,0
-     zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+        zlim,var_name, $
+             (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
+     ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
      ylim,var_name,0,360,0
      options,var_name,'ytitle','Ions!C!CAngle (Deg.)'
      options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -342,7 +347,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
            store_data,var_name, data=data
            options,var_name,'spec',1	
            ;; zlim,var_name,4,9,0
-           zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+        zlim,var_name, $
+             (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
            ylim,var_name,4,30000,1
            options,var_name,'ytitle','Ions!C!CEnergy (eV)'
            options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -395,7 +402,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         store_data,var_name, data=data
         options,var_name,'spec',1
         ;; zlim,var_name,4,9,0
-        zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+        zlim,var_name, $
+             (MIN(data.y[WHERE(FINITE(data.y))]) > 6 ), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < 10),0
         ylim,var_name,0,360,0
         options,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
         options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -453,7 +462,10 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         store_data,var_name, data=data
         options,var_name,'spec',1	
         ;; zlim,var_name,4,9,0
-        zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+        zlim,var_name, $
+             (MIN(data.y[WHERE(FINITE(data.y))]) > 6 ), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < 10),0
+        ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
         ylim,var_name,5,30000,1
         options,var_name,'ytitle','Electrons!C!CEnergy (eV)'
         options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -967,6 +979,26 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
            Je:Je_kappa_interp, $
            Ji:Ji_kappa_interp}
 
+  IF KEYWORD_SET(kStats__save_stuff) THEN BEGIN
+     CASE 1 OF
+        KEYWORD_SET(kStats__include_these_startstops): BEGIN
+           PRINT,'Save it, save stuff: ' + saveDir + outplotname + $
+                 '--for_kStats_analysis--has_startstops.sav'
+           startStop_t = kStats__include_these_startstops
+           SAVE,setup,kappa2d,gauss2d,orbString, $
+                startStop_t, $
+                FILENAME=saveDir + outplotname + '--for_kStats_analysis--has_startstops.sav'
+           
+        END
+        ELSE: BEGIN
+           PRINT,'Save it, save stuff: ' + saveDir + outplotname + $
+                 '--for_kStats_analysis.sav'
+           SAVE,setup,kappa2d,gauss2d,orbString, $
+                FILENAME=saveDir + outplotname + '--for_kStats_analysis.sav'
+        END
+     ENDCASE
+  ENDIF
+
   SETUP_POTENTIAL_AND_CURRENT,setup, $ 
                               obs_current,obsName,obsSuff, $
                               kappaPot,gaussPot, $
@@ -1001,11 +1033,13 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                                                ANGLE=eAngleCharE
      END
      ELSE: BEGIN
-        GET_KAPPA_AND_MAXWELLIAN_CURRENT,AStruct,AStructGauss, $
+        GET_KAPPA_AND_MAXWELLIAN_CURRENT,kappa2D,gauss2D, $
                                          kappaPot,gaussPot,R_B, $
                                          kappa_current,gauss_current,obs_current, $
                                          DENSITY_KAPPA2D=kappaDens, $
-                                         DENSITY_GAUSS2D=gaussDens ;, $
+                                         DENSITY_GAUSS2D=gaussDens, $
+                                         MAKE_CURRENTS_POSITIVE=make_currents_positive, $
+                                         QUIET=quiet
      END
   ENDCASE
 
@@ -1154,189 +1188,30 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   ;; ENDIF
 
-; force tPlt_vars to be all the panels unless no_blank_panels is set
+  ;; tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle']
 
-;;   if (not keyword_set(no_blank_panels)) then begin
+  IF KEYWORD_SET(add_chare_panel)  THEN tPlt_vars = ['charepanel',tPlt_vars]
 
+  IF KEYWORD_SET(add_kappa_panel)  THEN tPlt_vars = ['onecheese','kappa_fit',tPlt_vars]
 
-;; ; SFA
-
-;;      bdat = where(tPlt_vars eq 'SFA_V5-V8',ndat)
-;;      if (ndat eq 0) then begin
-;;         t_arr = tlimit_all
-;;         y_arr = fltarr(2,4)
-;;         y_arr[*,*] = !values.f_nan
-;;         v_arr = [-112.700,12.5031,997.434,2015.75]
-;;         store_data,'SFA_V5-V8', data={x:t_arr, y:y_arr, v:v_arr}
-;;         dlimit = {spec:1, ystyle:1, yrange:[10., 1000.0], zrange:[-16,-10], $
-;;                   ytitle:'AKR E 55m!C!C(kHz)', ylog:1, $
-;;                   ztitle: '(V/m)!U2!N/Hz', panel_size:2}
-;;         store_data,'SFA_V5-V8', dlimit=dlimit
-;;         options,'SFA_V5-V8','x_no_interp',1
-;;         options,'SFA_V5-V8','y_no_interp',1
-;;      endif
-
-;; ; DSP
-
-;;      bdat = where(tPlt_vars eq 'DSP_V5-V8',ndat)
-;;      if (ndat eq 0) then begin
-;;         t_arr = tlimit_all
-;;         y_arr = fltarr(2,4)
-;;         y_arr[*,*] = !values.f_nan
-;;         v_arr = [0.0,0.128,9.984,16.352]
-;;         store_data,'DSP_V5-V8', data={x:t_arr, y:y_arr, v:v_arr}
-;;         dlimit = {spec:1, ystyle:1, yrange:[0.1, 16.0], zrange:[-16,-6], $
-;;                   ytitle:'VLF E 55m!C!C(kHz)', ylog:1, $
-;;                   ztitle: '(V/m)!U2!N/Hz', panel_size:2}
-;;         store_data,'DSP_V5-V8', dlimit=dlimit
-;;         options,'DSP_V5-V8','x_no_interp',1
-;;         options,'DSP_V5-V8','y_no_interp',1
-;;      endif
-
-;; ; Eesa_Energy
-
-;;      bdat = where(tPlt_vars eq 'Eesa_Energy',ndat)
-;;      if (ndat eq 0) then begin
-;;         t_arr = tlimit_all
-;;         y_arr = fltarr(2,4)
-;;         y_arr[*,*] = !values.f_nan
-;;         v_arr = fltarr(2,4)
-;;         v_arr[0,*] = [34119.7,26091.5,50.9600,5.88000]
-;;         store_data,'Eesa_Energy', data={x:t_arr, y:y_arr, v:v_arr}
-;;         options,'Eesa_Energy','spec',1	
-;;         zlim,'Eesa_Energy',4,9,0
-;;         ylim,'Eesa_Energy',5,30000,1
-;;         options,'Eesa_Energy','ytitle','Electrons!C!CEnergy (eV)'
-;;         options,'Eesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-;;         options,'Eesa_Energy','x_no_interp',1
-;;         options,'Eesa_Energy','y_no_interp',1
-;;         options,'Eesa_Energy','panel_size',2
-;;      endif
-
-;; ; Eesa_Angle
-
-;;      bdat = where(tPlt_vars eq 'Eesa_Angle',ndat)
-;;      if (ndat eq 0) then begin
-;;         t_arr = tlimit_all
-;;         y_arr = fltarr(2,4)
-;;         y_arr[*,*] = !values.f_nan
-;;         v_arr = fltarr(2,4)
-;;         v_arr[0,*] = [-87.7792,2.22077,114.721,267.206]
-;;         store_data,'Eesa_Angle', data={x:t_arr, y:y_arr, v:v_arr}
-;;         options,'Eesa_Angle','spec',1	
-;;         zlim,'Eesa_Angle',4,9,0
-;;         ylim,'Eesa_Angle',-90,270,0
-;;         options,'Eesa_Angle','ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
-;;         options,'Eesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-;;         options,'Eesa_Angle','x_no_interp',1
-;;         options,'Eesa_Angle','y_no_interp',1
-;;         options,'Eesa_Angle','panel_size',2
-;;         options,'Eesa_Angle','yminor',9
-;;         options,'Eesa_Angle','yticks',4
-;;         options,'Eesa_Angle','ytickv',[-90,0,90,180,270]
-;;      endif
-
-;; ; Iesa_Energy
-
-;;      bdat = where(tPlt_vars eq 'Iesa_Energy',ndat)
-;;      if (ndat eq 0) then begin
-;;         t_arr = tlimit_all
-;;         y_arr = fltarr(2,4)
-;;         y_arr[*,*] = !values.f_nan
-;;         v_arr = fltarr(2,4)
-;;         v_arr[0,*] = [26808.3,11827.2,27.7200,4.62000]
-;;         store_data,'Iesa_Energy', data={x:t_arr, y:y_arr, v:v_arr}
-;;         options,'Iesa_Energy','spec',1	
-;;         zlim,'Iesa_Energy',4,9,0
-;;         ylim,'Iesa_Energy',4,30000,1
-;;         options,'Iesa_Energy','ytitle','Ions!C!CEnergy (eV)'
-;;         options,'Iesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-;;         options,'Iesa_Energy','x_no_interp',1
-;;         options,'Iesa_Energy','y_no_interp',1
-;;         options,'Iesa_Energy','panel_size',2
-;;      endif
-
-;; ; Iesa_Angle
-
-;;      bdat = where(tPlt_vars eq 'Iesa_Angle',ndat)
-;;      if (ndat eq 0) then begin
-;;         t_arr = tlimit_all
-;;         y_arr = fltarr(2,4)
-;;         y_arr[*,*] = !values.f_nan
-;;         v_arr = fltarr(2,4)
-;;         v_arr[0,*] = [-87.7792,2.22077,114.721,267.206]
-;;         store_data,'Iesa_Angle', data={x:t_arr, y:y_arr, v:v_arr}
-;;         options,'Iesa_Angle','spec',1	
-;;         zlim,'Iesa_Angle',4,9,0
-;;         ylim,'Iesa_Angle',-90,270,0
-;;         options,'Iesa_Angle','ytitle','Ions!C!CAngle (Deg.)'
-;;         options,'Iesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-;;         options,'Iesa_Angle','x_no_interp',1
-;;         options,'Iesa_Angle','y_no_interp',1
-;;         options,'Iesa_Angle','panel_size',2
-;;         options,'Iesa_Angle','yminor',9
-;;         options,'Iesa_Angle','yticks',4
-;;         options,'Iesa_Angle','ytickv',[-90,0,90,180,270]
-;;      endif
-
-;; ; EFIT_ALONG_VSC
-
-;;      bdat = where(tPlt_vars eq 'EFIT_ALONG_VSC',ndat)
-;;      if (ndat eq 0) then begin
-;;         t_arr = tlimit_all
-;;         y_arr = [!values.f_nan,!values.f_nan]
-;;         store_data,'EFIT_ALONG_VSC', data={x:t_arr, y:y_arr}
-;;         dlimit = {spec:0, ystyle:1, yrange:[-1000., 1000.], $
-;;                   ytitle:'EFIT ALONG V!C!C55m (mV/m)', $
-;;                   panel_size:3}
-;;         store_data,'EFIT_ALONG_V',dlimit=dlimit
-;;         options,'EFIT_ALONG_VSC','yrange',[-100.,100.]
-;;         options,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C(mV/m)'
-;;         options,'EFIT_ALONG_VSC','panel_size',2
-;;      endif
-
-;; ; dB_fac_v
-
-;;      bdat = where(tPlt_vars eq 'dB_fac_v',ndat)
-;;      if (ndat eq 0) then begin
-;;         t_arr = tlimit_all
-;;         y_arr = dblarr(2,3)
-;;         y_arr[*,*] = !values.d_nan
-;;         store_data,'dB_fac_v', data={x:t_arr, y:y_arr}
-;;         options,'dB_fac_v','yrange',[-100,100]
-;;         options,'dB_fac_v','ytitle','dB_fac_v!C!C(nT))'
-;;         options,'dB_fac_v','panel_size',2
-;;         options,'dB_fac_v','colors',[6,4,2]
-;;         options,'dB_fac_v','labels',['v ((BxV)xB)','p (BxV)','b']
-;;      endif
-
-
-;;   endif
-
-     ;; tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle']
-
-     IF KEYWORD_SET(add_chare_panel)  THEN tPlt_vars = ['charepanel',tPlt_vars]
-
-     IF KEYWORD_SET(add_kappa_panel)  THEN tPlt_vars = ['onecheese','kappa_fit',tPlt_vars]
-
-     IF KEYWORD_SET(add_Newell_panel) THEN tPlt_vars = ['newellPanel',tPlt_vars]
+  IF KEYWORD_SET(add_Newell_panel) THEN tPlt_vars = ['newellPanel',tPlt_vars]
 
   if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
      loadct2,40
      tplot,tPlt_vars,var=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
 
      ;; IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
-        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM=BRO
-        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings',PSYM=kappaSym
-        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta',PSYM=GaussSym
-        TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM=BRO
-        TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
-        TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
-        TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
-        TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG',PSYM=GaussSym
-        IF KEYWORD_SET(add_chi2_line) THEN BEGIN
-           TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi2_critisk'
-        ENDIF
+     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM=BRO
+     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings',PSYM=kappaSym
+     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta',PSYM=GaussSym
+     TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM=BRO
+     TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
+     TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
+     TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
+     TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG',PSYM=GaussSym
+     IF KEYWORD_SET(add_chi2_line) THEN BEGIN
+        TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi2_critisk'
+     ENDIF
      ;; ENDIF
   endif
 
@@ -1359,17 +1234,17 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
 
      ;; IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
-        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;PSYM=BRO
-        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings',PSYM=kappaSym
-        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta',PSYM=GaussSym
-        TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM=BRO
-        TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
-        TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
-        TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
-        TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG',PSYM=GaussSym
-        IF KEYWORD_SET(add_chi2_line) THEN BEGIN
-           TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi2_critisk'
-        ENDIF
+     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;PSYM=BRO
+     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings',PSYM=kappaSym
+     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta',PSYM=GaussSym
+     TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM=BRO
+     TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
+     TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
+     TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
+     TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG',PSYM=GaussSym
+     IF KEYWORD_SET(add_chi2_line) THEN BEGIN
+        TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi2_critisk'
+     ENDIF
 
      ;; ENDIF
 
@@ -1394,247 +1269,3 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   RETURN
 END
-
-; step 2 - E field
-
-
-; JBV, 2011/05/22.   If we are running Multi-User SDT, we need
-; to get the SDT index for this run.  Otherwise "showDQIs" won't
-; return.  If this is old, single-user SDT, "sdt_idx" is returned
-; as 255 and we handle the call in the old way.
-;; IF KEYWORD_SET(add_eField) THEN BEGIN
-;;   sdt_idx = get_sdt_run_idx()
-
-;;   prog = getenv('FASTBIN') + '/showDQIs'
-;;   if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-;;      if (sdt_idx GE 10) then begin
-;;         sidstr = string(sdt_idx, format='(I2)')
-;;      endif else begin
-;;         sidstr = string(sdt_idx, format='(I1)')
-;;      endelse
-;;      spawn, [prog, sidstr], result, /noshell
-;;   endif else begin
-;;      spawn, prog, result, /noshell
-;;   endelse
-
-
-;;   b = where (strpos(result,'V1-V4_S') ge 0,nb4)
-;;   if (nb4 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb4 = 0
-;;   b = where (strpos(result,'V1-V2_S') ge 0,nb2)
-;;   if (nb2 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb2 = 0
-;;   if (nb4 gt 0) then v12=get_fa_fields('V1-V4_S',/all) $
-;;   else if (nb2 gt 0) then v12=get_fa_fields('V1-V2_S',/all)
-
-;;   b = where (strpos(result,'V5-V8_S') ge 0,nb5)
-;;   if (nb5 gt 0) then v58=get_fa_fields('V5-V8_S',/all)
-
-;;   got_efield = (nb4 gt 0 or nb2 gt 0) and nb5 gt 0
-
-;;   if (got_efield) then begin
-
-;; ; despin e field data
-
-;;      fa_fields_despin,v58,v12,/shadow_notch,/sinterp
-
-;;      options,'EFIT_ALONG_V','yrange',0
-;;      options,'EFIT_ALONG_V','ytitle','E along V!C!C(mV/m)'
-;;      options,'EFIT_ALONG_V','panel_size',2
-
-;; ; reset time limits if needed
-
-;;      get_data,'EFIT_ALONG_V',data=data
-;;      IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
-;;      IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
-
-;;      if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
-;;         if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
-;;         if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
-;;         get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-;;         get_new_igrf,/no_store_old
-;;      endif
-
-;; ; check for southern hemisphere and fix 
-;; ; NOTE IT IS ASSUMED THAT FA_FIELDS_DESPIN DOES NOT CORRECT PHASE
-
-;;      get_data,'B_model',data=bm
-;;      get_data,'fa_vel',data=vel
-;;      get_data,'fa_pos',data=pos
-;;      n=n_elements(reform(pos.y[*,0]))
-;;      rxv = dblarr(n,3)
-;;      rxv[*,0] = pos.y[*,1]*vel.y[*,2] - pos.y[*,2]*vel.y[*,1]
-;;      rxv[*,1] = pos.y[*,2]*vel.y[*,0] - pos.y[*,0]*vel.y[*,2]
-;;      rxv[*,2] = pos.y[*,0]*vel.y[*,1] - pos.y[*,1]*vel.y[*,0]
-;;      vxb = dblarr(n,3)
-;;      vxb[*,0] = vel.y[*,1]*bm.y[*,2] - vel.y[*,2]*bm.y[*,1]
-;;      vxb[*,1] = vel.y[*,2]*bm.y[*,0] - vel.y[*,0]*bm.y[*,2]
-;;      vxb[*,2] = vel.y[*,0]*bm.y[*,1] - vel.y[*,1]*bm.y[*,0]
-;;      tst = rxv[*,0]*vxb[*,0] + rxv[*,1]*vxb[*,1] + rxv[*,2]*vxb[*,2]
-
-;;      get_data,'EFIT_ALONG_V',data=data,dlimit=dlimit
-;;      y2=spl_init(pos.x-tlimit_all[0],tst,/double)
-;;      tst_ = spl_interp(pos.x-tlimit_all[0],tst,y2,data.x-tlimit_all[0],/double)
-;;      data.y = data.y*tst_/abs(tst_)
-;;      store_data,'EFIT_ALONG_VSC',data=data,dlimit=dlimit
-;;      options,'EFIT_ALONG_VSC','yrange',0
-;;      options,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C(mV/m)'
-;;      options,'EFIT_ALONG_VSC','panel_size',2
-
-;;      store_data,'E_NEAR_B',/delete
-;;      store_data,'E_ALONG_V',/delete
-;;      store_data,'EFIT_NEAR_B',/delete
-;;      store_data,'EFIT_ALONG_V',/delete
-
-;;      if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['EFIT_ALONG_VSC'] else tPlt_vars=[tPlt_vars,'EFIT_ALONG_VSC']
-
-;;      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-;;         loadct2,40
-;;         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-;;      endif
-
-;;   endif else if (n_elements(tPlt_vars) ne 0) then begin
-
-;;      tPlt_vars = 'dB_fac'
-;;      if (keyword_set(use_fac_v)) then tPlt_vars = 'dB_fac_v'
-;;      if (not keyword_set(no_blank_panels)) then tPlt_vars = 'dB_fac_v'
-
-;;   endif
-
-;; ENDIF
-
-; Step 5 - VLF data
-
-
-; DSP_V5-V8HG or DSP_V5-V8
-
-;; IF KEYWORD_SET(add_DSP) THEN BEGIN
-;;   prog = getenv('FASTBIN') + '/showDQIs'
-;;   if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-;;      if (sdt_idx GE 10) then begin
-;;         sidstr = string(sdt_idx, format='(I2)')
-;;      endif else begin
-;;         sidstr = string(sdt_idx, format='(I1)')
-;;      endelse
-;;      spawn, [prog, sidstr], result, /noshell
-;;   endif else begin
-;;      spawn, prog, result, /noshell
-;;   endelse
-;;   b = where (strpos(result,'DspADC_V5-V8HG') ge 0,ndsphg)
-;;   if (ndsphg gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then ndsphg = 0
-;;   b = where ((strpos(result,'DspADC_V5-V8') ge 0) and (strpos(result,'DspADC_V5-V8HG') lt 0),ndsp)
-;;   if (ndsp gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then ndsp = 0
-
-;;   if (ndsphg gt 0) then dat=get_fa_fields('DspADC_V5-V8HG',/all) else if (ndsp gt 0) then dat=get_fa_fields('DspADC_V5-V8',/all)
-;;   ndsp = (ndsp gt 0) or (ndsphg gt 0)
-
-;;   if (ndsp) then begin
-;;      data   = {x:dat.time, y:alog10(dat.comp1), v:dat.yaxis}
-;;      store_data,'DSP_V5-V8', data=data
-;;      ;; dlimit = {spec:1, ystyle:1, yrange:[0.1, 16.0], zrange:[-16,-6], $
-;;      dlimit = {spec:1, ystyle:1, yrange:[0.1, 16.0], $
-;;                zrange:[MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))])], $
-;;                ytitle:'VLF E 55m!C!C(kHz)', ylog:1, $
-;;                ztitle: '(V/m)!U2!N/Hz', panel_size:2}
-;;      store_data,'DSP_V5-V8', dlimit=dlimit
-;;      options,'DSP_V5-V8','x_no_interp',1
-;;      options,'DSP_V5-V8','y_no_interp',1
-
-;; ;  look for big jumps in time - blank these
-
-;;      get_data,'DSP_V5-V8',data=data
-;;      dt = data.x[1:*]-data.x[0:*]
-;;      ntimes=n_elements(data.x)
-;;      bg = where (dt gt 300, ng)
-;;      if (ng gt 0) then begin
-;;         bbb = bg-1
-;;         if (bbb[0] lt 0) then bbb[0] = 0
-;;         add_tag=[data.x[bg]+dt[bbb],data.x[bg+1]-dt[bbb]]
-;;         flag_dat = fltarr(ng*2)+!values.f_nan
-;;         new_tag = [data.x,add_tag]
-;;         tsort = sort(new_tag-new_tag[0])
-;;         nvec=n_elements(data.y)/ntimes
-;;         new_dat = fltarr(n_elements(new_tag),nvec)
-;;         for nv = 0,nvec-1 do begin
-;;            new_dat[*,nv] = [data.y[*,nv],flag_dat]
-;;            new_dat[*,nv] = new_dat[tsort,nv]
-;;         endfor
-;;         data={x:new_tag[tsort],y:new_dat,v:data.v}
-;;         store_data,'DSP_V5-V8',data=data
-;;      endif
-     
-;;      if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['DSP_V5-V8'] else tPlt_vars=[tPlt_vars,'DSP_V5-V8']
-
-;;      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-;;         loadct2,40
-;;         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-;;      endif
-
-;;   endif else begin
-
-;;   endelse
-
-;; ENDIF
-
-;; ; Step 5 - AKR data
-;; IF KEYWORD_SET(add_SFA) THEN BEGIN
-
-;;   prog = getenv('FASTBIN') + '/showDQIs'
-;;   if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-;;      if (sdt_idx GE 10) then begin
-;;         sidstr = string(sdt_idx, format='(I2)')
-;;      endif else begin
-;;         sidstr = string(sdt_idx, format='(I1)')
-;;      endelse
-;;      spawn, [prog, sidstr], result, /noshell
-;;   endif else begin
-;;      spawn, prog, result, /noshell
-;;   endelse
-;;   b = where (strpos(result,'SfaAve_V5-V8') ge 0,nakr)
-;;   if (nakr gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nakr = 0
-
-;;   if (nakr gt 0) then begin
-
-;;      dat = get_fa_fields('SfaAve_V5-V8', /all)
-;;      data   = {x:dat.time, y:alog10(dat.comp1), v:dat.yaxis}
-;;      store_data,'SFA_V5-V8', data=data
-;;      ;; dlimit = {spec:1, ystyle:1, yrange:[10., 1000.0], zrange:[-16,-10], $
-;;      dlimit = {spec:1, ystyle:1, yrange:[10., 1000.0], $
-;;                zrange:[MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))])], $
-;;                ytitle:'AKR E 55m!C!C(kHz)', ylog:1, $
-;;                ztitle: '(V/m)!U2!N/Hz', panel_size:2}
-;;      store_data,'SFA_V5-V8', dlimit=dlimit
-;;      options,'SFA_V5-V8','x_no_interp',1
-;;      options,'SFA_V5-V8','y_no_interp',1
-
-;; ;  look for big jumps in time - blank these
-
-;;      get_data,'SFA_V5-V8',data=data
-;;      dt = data.x[1:*]-data.x[0:*]
-;;      ntimes=n_elements(data.x)
-;;      bg = where (dt gt 300, ng)
-;;      if (ng gt 0) then begin
-;;         bbb = bg-1
-;;         if (bbb[0] lt 0) then bbb[0] = 0
-;;         add_tag=[data.x[bg]+dt[bbb],data.x[bg+1]-dt[bbb]]
-;;         flag_dat = fltarr(ng*2)+!values.f_nan
-;;         new_tag = [data.x,add_tag]
-;;         tsort = sort(new_tag-new_tag[0])
-;;         nvec=n_elements(data.y)/ntimes
-;;         new_dat = fltarr(n_elements(new_tag),nvec)
-;;         for nv = 0,nvec-1 do begin
-;;            new_dat[*,nv] = [data.y[*,nv],flag_dat]
-;;            new_dat[*,nv] = new_dat[tsort,nv]
-;;         endfor
-;;         data={x:new_tag[tsort],y:new_dat,v:data.v}
-;;         store_data,'SFA_V5-V8',data=data
-;;      endif
-
-;;      if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['SFA_V5-V8'] else tPlt_vars=[tPlt_vars,'SFA_V5-V8']
-
-;;      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-;;         loadct2,40
-;;         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-;;      endif
-
-;;   endif
-
-;; ENDIF

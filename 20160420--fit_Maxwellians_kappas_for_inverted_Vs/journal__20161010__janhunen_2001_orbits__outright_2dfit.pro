@@ -13,7 +13,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   fit2D__save_all_candidate_plots = 0
   fit2D__show_each_candidate      = 0
 
-  show_Strangeway_summary  = 1
+  show_Strangeway_summary  = 0
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
@@ -22,6 +22,10 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
 
   show_kappa_summary       = 1
   kSum__save_ps            = 1
+  kSum__convert_to_Newell_interp = 0
+  kSum__add_chi2_line = 1
+
+  kStats__save_stuff       = 1
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 0
@@ -46,10 +50,10 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;;15: Dombeck et al. [2013] orbit 11067
   ;;16: Bonus, orbit 1771 (poking on either side of Elphic et al. [1998] orbit 
   ;;17: Bonus, orbit 1770 (poking on either side of Elphic et al. [1998] orbit 
-  evtNum               = 18
+  evtNum               = 17
 
   ;;survey window
-  eeb_or_ees           = 'eeb'
+  eeb_or_ees           = 'ees'
   burstItvl            = 0
 
   ;;String setup
@@ -63,13 +67,16 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
      t1Str             = (orbBurstTimes[evtNum])[0,burstItvl]
      t2Str             = (orbBurstTimes[evtNum])[1,burstItvl]
      bonusPref        += '--burstItvl_' + STRCOMPRESS(burstItvl,/REMOVE_ALL)
-  ENDIF
+     kStats__include_these_startstops = (kStats_startStops__eeb[evtNum])[burstItvl]
+  ENDIF ELSE BEGIN
+     kStats__include_these_startstops = kStats_startStops__ees[evtNum]
+  ENDELSE
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
-  chi2_over_dof_thresh = 25
-  lowDens_thresh       = 0.01
-  diffEflux_thresh     = 1e7
+  chi2_over_dof_thresh = 10
+  lowDens_thresh       = 0.001
+  diffEflux_thresh     = 5e7
   nPkAbove_dEF_thresh  = 5
 
   electron_angleRange  = [-30,30]
@@ -89,6 +96,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   KAPPA_FITTER_BLACKBOX,orbit, $
                         ELECTRON_SOURCECONEANGLE=electron_angleRange, $
                         ELECTRON_LOSSCONEANGLE=electron_lca, $
+                        ENERGY_ELECTRONS=energy_electrons, $
                         MIN_PEAK_ENERGY=min_peak_energy, $
                         EEB_OR_EES=eeb_or_ees, $
                         SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
@@ -120,6 +128,8 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
                         SHOW_KAPPA_SUMMARY=show_kappa_summary, $
                         KSUM__SAVE_PS=kSum__save_ps, $
                         KSUM__SAVE_PNG=kSum__save_png, $
+                        KSUM__CONV_DESPECS_TO_NEWELL_INTERP=kSum__convert_to_Newell_interp, $
+                        KSUM__ADD_CHI2_LINE=kSum__add_chi2_line, $
                         OUT_FIT2DK=fit2DK, $
                         OUT_FIT2DGAUSS=fit2DG, $
                         OUT_KAPPA_FIT_STRUCTS=kappaFits, $
@@ -127,6 +137,8 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
                         FIT2D_KAPPA_INF_LIST=fit2DKappa_inf_list, $
                         FIT2D_GAUSS_INF_LIST=fit2DGauss_inf_list, $
                         SAVE_DIFF_EFLUX_FILE=save_diff_eFlux_file, $
-                        LOAD_DIFF_EFLUX_FILE=load_diff_eFlux_file
+                        LOAD_DIFF_EFLUX_FILE=load_diff_eFlux_file, $
+                        KAPPA_STATS__SAVE_STUFF=kStats__save_stuff, $
+                        KAPPA_STATS__INCLUDE_THESE_STARTSTOPS=kStats__include_these_startstops
 
 END

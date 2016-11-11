@@ -334,7 +334,10 @@ pro single_rjs_summary,time1,time2, $
      store_data,var_name, data=data
      options,var_name,'spec',1	
      ;; zlim,var_name,4,9,0
-     zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+        zlim,var_name, $
+             (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
+     ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
      ylim,var_name,0,360,0
      options,var_name,'ytitle','Ions!C!CAngle (Deg.)'
      options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -385,7 +388,10 @@ pro single_rjs_summary,time1,time2, $
         store_data,var_name, data=data
         options,var_name,'spec',1	
         ;; zlim,var_name,4,9,0
-        zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+        ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+        zlim,var_name, $
+             (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
         ylim,var_name,4,30000,1
         options,var_name,'ytitle','Ions!C!CEnergy (eV)'
         options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -430,7 +436,10 @@ pro single_rjs_summary,time1,time2, $
      store_data,var_name, data=data
      options,var_name,'spec',1
      ;; zlim,var_name,4,9,0
-     zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+     ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+        zlim,var_name, $
+             (MIN(data.y[WHERE(FINITE(data.y))]) > 6 ), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < 10),0
      ylim,var_name,0,360,0
      options,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
      options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -481,7 +490,10 @@ pro single_rjs_summary,time1,time2, $
         store_data,var_name, data=data
         options,var_name,'spec',1	
         ;; zlim,var_name,4,9,0
-        zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+        ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+        zlim,var_name, $
+             (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
         ylim,var_name,5,30000,1
         options,var_name,'ytitle','Electrons!C!CEnergy (eV)'
         options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
