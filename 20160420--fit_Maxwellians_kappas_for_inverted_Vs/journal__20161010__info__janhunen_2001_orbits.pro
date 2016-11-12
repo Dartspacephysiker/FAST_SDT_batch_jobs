@@ -18,7 +18,11 @@ orbs     = [3091, $             ;The Janhunen orbits
             11067, $
             1771, $             ;The bonus orbits
             1770, $
-            6717]
+            6717, $
+            5805, $
+            5825, $
+            1713, $
+            5616]
 
 orbTimes = [ $
            ['97-06-03/06:28:20','97-06-03/06:31:50'], $ ;The Janhunen orbits
@@ -39,7 +43,11 @@ orbTimes = [ $
            ['99-06-12/18:43:48','99-06-12/18:48:46'], $  ;11067
            ['97-02-01/04:58:45','97-02-01/05:00:10'], $  ;The Bonus orbits--giving ten on either side to see if that makes mag quantities less crazy
            ['97-02-01/02:44:35','97-02-01/02:46:00'], $
-           ['98-05-04/06:44:10','98-05-04/06:45:01']  $ 
+           ['98-05-04/06:44:10','98-05-04/06:45:01'], $  ;The Chaston et al. [2006] interval
+           ['98-02-09/01:39:46','98-02-09/01:41:45'], $  ;The world's longest continual observation of monoenergetic aurora
+           ['98-02-10/21:58:20','98-02-10/22:00:30'], $  ;Big current, strict mono
+           ['97-01-26/20:13:20','97-01-26/20:14:30'], $  ;Semi-big current, strict mono
+           ['98-01-22/14:34:35','98-01-22/14:35:25']  $  ;Semi-big current, strict mono
            ]
 
 orbBurstTimes = LIST( $
@@ -75,14 +83,22 @@ orbBurstTimes = LIST( $
                 ['99-06-09/17:56:57','99-06-09/17:57:14'], $   ;16
                 ['97-02-01/04:59:14','97-02-01/05:00:04'], $   ;17 ;;The bonus orbits
                 ['97-02-01/02:45:25','97-02-01/02:45:58'], $   ;18
-                ['98-05-04/06:44:10','98-05-04/06:45:01']  $ 
+                ['98-05-04/06:44:10','98-05-04/06:45:01'], $   ;19 ;;The Chaston et al. [2006] interval
+                ['98-02-09/01:40:01','98-02-09/01:40:33'], $   ;20 ;;The world's longest continual observation of monoenergetic aurora
+                ['98-02-10/01:40:01','98-02-10/01:40:33'], $   ;21 Big current, strict mono
+                ['97-01-26/01:40:01','97-01-26/01:40:33'], $   ;22 Semi-big current, strict mono
+                ['98-01-22/14:34:35','98-01-22/14:35:25']  $   ;23 Semi-big current, strict mono
                 )
 
 southArr = [ $
-           0,0,0,0,0,0,0,0,0, $ ;;The Janhunen orbits
-           1,1,1,1,1,1,1, $   ;;The Dombeck orbits
+           0,0,0,0,0,0,0,0,0, $ ;The Janhunen orbits
+           1,1,1,1,1,1,1, $     ;The Dombeck orbits
            0,0, $
-           1 ]                  ;;The Chaston interval
+           1, $                 ;The Chaston interval
+           0, $                 ;The huge mono event
+           0, $                 ;The big current, strict mono event
+           0, $
+           0]
 
 bonusPrefs = [ $
              '--Janhunen_evt--1--NM', $
@@ -103,7 +119,11 @@ bonusPrefs = [ $
              '--Dombeck_evt--6--Mono--decr_with_ILAT', $
              '--Bonus--0--MonoQQ', $
              '--Bonus--1--MonoQQ', $
-             '--Chaston_2006--0' $
+             '--Chaston_2006--0',  $
+             '--Bonus--2--huge_mono',  $
+             '--Bonus--3--monoS_bigCurrent',  $
+             '--Bonus--4--monoS_bigCurrent',  $
+             '--Bonus--5--monoS_bigCurrent'   $
              ]
 
 kStats_startStops__ees = LIST([0],[0],[0],[0],[0], $
@@ -111,4 +131,20 @@ kStats_startStops__ees = LIST([0],[0],[0],[0],[0], $
                               [0],[0],[0],[0],[0], $
                               [0],[0], $
                               '97-02-01/' + [['02:45:32.5','02:45:44'], $
-                               ['02:44:44.5','02:45:02']])
+                               ['02:44:44.5','02:45:02']], $
+                              [0], $
+                              '98-02-09/'+[['01:40:21','01:40:52'],['01:41:17.5','01:41:30']], $
+                              ;; '98-02-10/'+[['21:59:15','21:59:30'],['21:59:50','21:59:57.5']] $
+                              '98-02-10/'+[['21:59:15','21:59:30']], $
+                              '97-01-26/'+[['21:59:15','21:59:30']], $
+                              '98-01-22/'+[['14:34:40','14:35:20']] $
+                             )
+
+kStats_startStops__eeb = LIST([0],[0],[0],[0],[0], $
+                              [0],[0],[0],[0],[0], $
+                              [0],[0],[0],[0],[0], $
+                              [0],[0], $
+                              '97-02-01/' + [['02:45:32.5','02:45:44'], $
+                               ['02:44:44.5','02:45:02']], $
+                              [0], $
+                              '98-02-09/' + [['01:41:17.5','01:41:30']])

@@ -10,6 +10,10 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   save_kappa_plot      = 0
   close_kp_after_save  = 0
 
+  ;;Kill this one: 14:34:52.89
+  debug__break_on_this_time   = STR_TO_TIME("98-01-22/14:34:52.89")
+
+  fit1D__save_plotSlices          = 0
   fit2D__save_all_candidate_plots = 0
   fit2D__show_each_candidate      = 0
 
@@ -20,7 +24,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   sway__add_Newell_panel   = 0
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary       = 1
+  show_kappa_summary       = 0
   kSum__save_ps            = 1
   kSum__convert_to_Newell_interp = 0
   kSum__add_chi2_line = 1
@@ -29,7 +33,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 0
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   ;;Which Janhunen event?
   ;; 0: Inverted V, but not Maxwellian
@@ -50,7 +54,12 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;;15: Dombeck et al. [2013] orbit 11067
   ;;16: Bonus, orbit 1771 (poking on either side of Elphic et al. [1998] orbit 
   ;;17: Bonus, orbit 1770 (poking on either side of Elphic et al. [1998] orbit 
-  evtNum               = 17
+  ;;18: Bonus, orbit 6717 from Chaston et al. [2006], the dens cavity pape
+  ;;19: Bonus, orbit 5805–world's longest continual observation of monoenergetic aurora
+  ;;20: Bonus, orbit 5825 (big current, strict mono. Whence come the obs. currents? )
+  ;;21: Bonus, orbit 1713 (Semi-big current, strict mono.
+  ;;22: Bonus, orbit 5616 (Semi-big current, strict mono. Cleaner? Maybe not. I hope.
+  evtNum               = 22
 
   ;;survey window
   eeb_or_ees           = 'ees'
@@ -74,7 +83,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
-  chi2_over_dof_thresh = 10
+  chi2_over_dof_thresh = 25
   lowDens_thresh       = 0.001
   diffEflux_thresh     = 5e7
   nPkAbove_dEF_thresh  = 5
@@ -111,6 +120,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
                         T1STR=t1Str, $
                         T2STR=t2Str, $
                         SHOW_POST_PLOTS=show_post_plots, $
+                        FIT1D__SAVE_PLOTSLICES=fit1D__save_plotSlices, $
                         FIT2D__SHOW_EACH_CANDIDATE=fit2D__show_each_candidate, $
                         FIT2D__SAVE_ALL_CANDIDATE_PLOTS=fit2D__save_all_candidate_plots, $
                         FIT2D__DENSITY_ANGLERANGE=fit2D__density_angleRange, $
@@ -139,6 +149,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
                         SAVE_DIFF_EFLUX_FILE=save_diff_eFlux_file, $
                         LOAD_DIFF_EFLUX_FILE=load_diff_eFlux_file, $
                         KAPPA_STATS__SAVE_STUFF=kStats__save_stuff, $
-                        KAPPA_STATS__INCLUDE_THESE_STARTSTOPS=kStats__include_these_startstops
+                        KAPPA_STATS__INCLUDE_THESE_STARTSTOPS=kStats__include_these_startstops,$
+                        DEBUG__BREAK_ON_THIS_TIME=debug__break_on_this_time
 
 END

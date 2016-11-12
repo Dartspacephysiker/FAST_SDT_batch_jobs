@@ -676,8 +676,11 @@ pro single_rjs_summary,time1,time2, $
      iAngleChari  = iAngle
      t1eeb = 0.D 
      t2eeb = 0.D
-     bro   = GET_FA_EEB(t1eeb,/ST)
-     bro   = GET_FA_EEB(t2eeb,/EN)
+     bro   = CALL_FUNCTION('GET_FA_' + STRUPCASE(eeb_or_ees),t1eeb,/ST)
+     bro   = CALL_FUNCTION('GET_FA_' + STRUPCASE(eeb_or_ees),t2eeb,/EN)
+     t1eeb = time1 > t1eeb
+     t2eeb = time2 < t2eeb
+
      GET_2DT,'j_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Je',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
      GET_2DT,'je_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Jee',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
      GET_2DT,'j_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Ji',T1=t1eeb,T2=t2eeb,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
@@ -748,12 +751,13 @@ pro single_rjs_summary,time1,time2, $
         charEBounds[0] /= 1.1
         charEBounds[1] *= 1.1
      ENDELSE
-     FA_FIELDS_COMBINE,{time:Jee.x,comp1:Jee.y,ncomp:1}, $
-                       {time:Jei.x,comp1:chari,ncomp:1}, $
-                       RESULT=chari_interp, $
-                       /INTERP, $
-                       DELT_T=50., $
-                       /TALK
+     chari_interp = DATA_CUT({x:Jei.x,y:chari},Jee.x,/IGNORE_NAN,GAP_DIST=3)
+     ;; FA_FIELDS_COMBINE,{time:Jee.x,comp1:Jee.y,ncomp:1}, $
+     ;;                   {time:Jei.x,comp1:chari,ncomp:1}, $
+     ;;                   RESULT=chari_interp, $
+     ;;                   /INTERP, $
+     ;;                   DELT_T=50., $
+     ;;                   /TALK
      ;; chari_interp  = {x:Jee.x,y:chari_interp}
      chartot          = chare+chari_interp
      STORE_DATA,'charepanel',DATA={x:[[Jee.x],[Jee.x],[Jee.x]],y:[[chari_interp],[chare],[chartot]]}
@@ -890,26 +894,52 @@ pro single_rjs_summary,time1,time2, $
      kappaStr                       = {time:kappaTime,comp1:aStruct.kappa,ncomp:1}
      
      ;;Align to kappa fits
-     FA_FIELDS_COMBINE,kappaStr,{time:Je.x,comp1:Je_current,ncomp:1}, $
-                       RESULT=Je_kappa_interp,/INTERP,DELT_T=50.,/TALK
-     FA_FIELDS_COMBINE,kappaStr,{time:Ji.x,comp1:Ji_current,ncomp:1}, $
-                       RESULT=Ji_kappa_interp,/INTERP,DELT_T=50.,/TALK
-     FA_FIELDS_COMBINE,kappaStr,{time:Je.x,comp1:Je_current+Ji_current,ncomp:1}, $
-                       RESULT=Jtot_kappa_interp,/INTERP,DELT_T=50.,/TALK
-     FA_FIELDS_COMBINE,kappaStr,{time:Jee.x,comp1:chare,ncomp:1}, $
-                       RESULT=chare_kappa_interp,/INTERP,DELT_T=50.,/TALK
-     FA_FIELDS_COMBINE,kappaStr,{time:Jee.x,comp1:chari_interp,ncomp:1}, $
-                       RESULT=chari_kappa_interp,/INTERP,DELT_T=50.,/TALK
-     FA_FIELDS_COMBINE,kappaStr,{time:Jee.x,comp1:chartot,ncomp:1}, $
-                       RESULT=chartot_kappa_interp,/INTERP,DELT_T=50.,/TALK
-     FA_FIELDS_COMBINE,kappaStr,{time:jMag.x,comp1:jMag.y,ncomp:1}, $
-                       RESULT=jMag_kappa_interp,/INTERP,DELT_T=50.,/TALK
+     Je_kappa_interp       = DATA_CUT({x:Je.x,y:Je_current}, $
+                                      kappaStr.time, $
+                                      /IGNORE_NAN,GAP_DIST=3)
+     Ji_kappa_interp       = DATA_CUT({x:Ji.x,y:Ji_current}, $
+                                      kappaStr.time, $
+                                      /IGNORE_NAN,GAP_DIST=3)
+     Jtot_kappa_interp     = DATA_CUT({x:Je.x,y:Je_current+Ji_current}, $
+                                      kappaStr.time, $
+                                      /IGNORE_NAN,GAP_DIST=3)
+     chare_kappa_interp    = DATA_CUT({x:Jee.x,y:chare}, $
+                                      kappaStr.time, $
+                                      /IGNORE_NAN,GAP_DIST=3)
+     chari_kappa_interp    = DATA_CUT({x:Jee.x,y:chari_interp}, $
+                                      kappaStr.time, $
+                                      /IGNORE_NAN,GAP_DIST=3)
+     chartot_kappa_interp  = DATA_CUT({x:Jee.x,y:chartot}, $
+                                      kappaStr.time, $
+                                      /IGNORE_NAN,GAP_DIST=3)
+     jMag_kappa_interp     = DATA_CUT({x:JMag.x,y:jMag.y}, $
+                                      kappaStr.time, $
+                                      /IGNORE_NAN,GAP_DIST=3)
+     ;; FA_FIELDS_COMBINE,kappaStr,{time:Je.x,comp1:Je_current,ncomp:1}, $
+     ;;                   RESULT=Je_kappa_interp,/INTERP,DELT_T=50.,/TALK
+     ;; FA_FIELDS_COMBINE,kappaStr,{time:Ji.x,comp1:Ji_current,ncomp:1}, $
+     ;;                   RESULT=Ji_kappa_interp,/INTERP,DELT_T=50.,/TALK
+     ;; FA_FIELDS_COMBINE,kappaStr,{time:Je.x,comp1:Je_current+Ji_current,ncomp:1}, $
+     ;;                   RESULT=Jtot_kappa_interp,/INTERP,DELT_T=50.,/TALK
+     ;; FA_FIELDS_COMBINE,kappaStr,{time:Jee.x,comp1:chare,ncomp:1}, $
+     ;;                   RESULT=chare_kappa_interp,/INTERP,DELT_T=50.,/TALK
+     ;; FA_FIELDS_COMBINE,kappaStr,{time:Jee.x,comp1:chari_interp,ncomp:1}, $
+     ;;                   RESULT=chari_kappa_interp,/INTERP,DELT_T=50.,/TALK
+     ;; FA_FIELDS_COMBINE,kappaStr,{time:Jee.x,comp1:chartot,ncomp:1}, $
+     ;;                   RESULT=chartot_kappa_interp,/INTERP,DELT_T=50.,/TALK
+     ;; FA_FIELDS_COMBINE,kappaStr,{time:jMag.x,comp1:jMag.y,ncomp:1}, $
+     ;;                   RESULT=jMag_kappa_interp,/INTERP,DELT_T=50.,/TALK
      
      ;;Align to Je
-     FA_FIELDS_COMBINE,{time:Je.x,comp1:Je_current,ncomp:1},{time:Ji.x,comp1:Ji_current,ncomp:1}, $
-                       RESULT=Ji_interp,/INTERP,DELT_T=50.,/TALK
-     FA_FIELDS_COMBINE,{time:Je.x,comp1:Je_current,ncomp:1},{time:jMag.x,comp1:jMag.y,ncomp:1}, $
-                       RESULT=jMag_interp,/INTERP,DELT_T=50.,/TALK
+     Ji_interp   = DATA_CUT({x:Ji.x,y:Ji_current},Je.x, $
+                            /IGNORE_NAN,GAP_DIST=3)
+     Jmag_interp = DATA_CUT({x:JMag.x,y:jMag.y},Je.x, $
+                            /IGNORE_NAN,GAP_DIST=3)
+     ;; FA_FIELDS_COMBINE,{time:Je.x,comp1:Je_current,ncomp:1}, $
+     ;;                   {time:Ji.x,comp1:Ji_current,ncomp:1}, $
+     ;;                   RESULT=Ji_interp,/INTERP,DELT_T=50.,/TALK
+     ;; FA_FIELDS_COMBINE,{time:Je.x,comp1:Je_current,ncomp:1},{time:jMag.x,comp1:jMag.y,ncomp:1}, $
+     ;;                   RESULT=jMag_interp,/INTERP,DELT_T=50.,/TALK
      
      ;; Jtot_interp = {x:Je.x,y:Je_current+Ji_interp}
 
