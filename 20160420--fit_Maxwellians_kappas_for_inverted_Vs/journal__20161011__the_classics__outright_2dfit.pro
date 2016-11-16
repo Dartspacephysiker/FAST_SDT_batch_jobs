@@ -10,6 +10,10 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   save_kappa_plot      = 0
   close_kp_after_save  = 0
 
+  ;; debug__skip_to_this_time  = STR_TO_TIME('97-02-01/09:26:31')
+  ;; debug__break_on_this_time = STR_TO_TIME('97-02-01/09:26:31')
+
+  fit1D__save_plotSlices          = 0
   fit2D__save_all_candidate_plots = 0
   fit2D__show_each_candidate = 0
 
@@ -22,11 +26,13 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   show_kappa_summary  = 1
   kSum__save_ps       = 1
-  kSum__convert_to_Newell_interp = 0
+  kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
 
+  kStats__save_stuff   = 1
+
   save_diff_eFlux_file = 0
-  load_diff_eFlux_file = 1
+  load_diff_eFlux_file = 0
   restore_fitFile      = 1
 
   ;;Which classic event?
@@ -50,7 +56,10 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
      t1Str             = (orbBurstTimes[evtNum])[0,burstItvl]
      t2Str             = (orbBurstTimes[evtNum])[1,burstItvl]
      bonusPref        += '--burstItvl_' + STRCOMPRESS(burstItvl,/REMOVE_ALL)
-  ENDIF
+     kStats__include_these_startstops = (kStats_startStops__eeb[evtNum])[burstItvl]
+  ENDIF ELSE BEGIN
+     kStats__include_these_startstops = kStats_startStops__ees[evtNum]
+  ENDELSE
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
@@ -81,6 +90,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         T1STR=t1Str, $
                         T2STR=t2Str, $
                         SHOW_POST_PLOTS=show_post_plots, $
+                        FIT1D__SAVE_PLOTSLICES=fit1D__save_plotSlices, $
                         FIT2D__SHOW_EACH_CANDIDATE=fit2D__show_each_candidate, $
                         FIT2D__SAVE_ALL_CANDIDATE_PLOTS=fit2D__save_all_candidate_plots, $
                         SAVE_KAPPA_PLOTS=save_kappa_plot, $
@@ -106,8 +116,11 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         FIT2D_KAPPA_INF_LIST=fit2DKappa_inf_list, $
                         FIT2D_GAUSS_INF_LIST=fit2DGauss_inf_list, $
                         SAVE_DIFF_EFLUX_FILE=save_diff_eFlux_file, $
-                        LOAD_DIFF_EFLUX_FILE=load_diff_eFlux_file
-
+                        LOAD_DIFF_EFLUX_FILE=load_diff_eFlux_file, $
+                        KAPPA_STATS__SAVE_STUFF=kStats__save_stuff, $
+                        KAPPA_STATS__INCLUDE_THESE_STARTSTOPS=kStats__include_these_startstops,$
+                        DEBUG__SKIP_TO_THIS_TIME=debug__skip_to_this_time, $
+                        DEBUG__BREAK_ON_THIS_TIME=debug__break_on_this_time
 
 END
 

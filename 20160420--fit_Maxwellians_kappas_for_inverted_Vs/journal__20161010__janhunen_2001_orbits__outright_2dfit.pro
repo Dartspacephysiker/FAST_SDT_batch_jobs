@@ -11,11 +11,14 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   close_kp_after_save  = 0
 
   ;;Kill this one: 14:34:52.89
-  debug__break_on_this_time   = STR_TO_TIME("98-01-22/14:34:52.89")
+  ;; debug__skip_to_this_time    = STR_TO_TIME("98-01-22/14:34:52.00")
+  ;; debug__break_on_this_time   = STR_TO_TIME("98-01-22/14:34:52.89")
 
-  fit1D__save_plotSlices          = 0
-  fit2D__save_all_candidate_plots = 0
-  fit2D__show_each_candidate      = 0
+  debug__skip_to_this_time    = STR_TO_TIME("97-01-26/20:14:10.00")
+
+  fit1D__save_plotSlices          = 1
+  fit2D__save_all_candidate_plots = 1
+  fit2D__show_each_candidate      = 1
 
   show_Strangeway_summary  = 0
   sway__save_ps            = 1
@@ -29,7 +32,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   kSum__convert_to_Newell_interp = 0
   kSum__add_chi2_line = 1
 
-  kStats__save_stuff       = 1
+  kStats__save_stuff       = 0
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 0
@@ -59,7 +62,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;;20: Bonus, orbit 5825 (big current, strict mono. Whence come the obs. currents? )
   ;;21: Bonus, orbit 1713 (Semi-big current, strict mono.
   ;;22: Bonus, orbit 5616 (Semi-big current, strict mono. Cleaner? Maybe not. I hope.
-  evtNum               = 22
+  evtNum               = 21
 
   ;;survey window
   eeb_or_ees           = 'ees'
@@ -150,6 +153,7 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
                         LOAD_DIFF_EFLUX_FILE=load_diff_eFlux_file, $
                         KAPPA_STATS__SAVE_STUFF=kStats__save_stuff, $
                         KAPPA_STATS__INCLUDE_THESE_STARTSTOPS=kStats__include_these_startstops,$
+                        DEBUG__SKIP_TO_THIS_TIME=debug__skip_to_this_time, $
                         DEBUG__BREAK_ON_THIS_TIME=debug__break_on_this_time
 
 END
