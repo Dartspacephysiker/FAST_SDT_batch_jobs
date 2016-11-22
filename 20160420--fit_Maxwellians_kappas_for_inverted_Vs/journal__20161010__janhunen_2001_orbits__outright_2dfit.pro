@@ -14,22 +14,22 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;; debug__skip_to_this_time    = STR_TO_TIME("98-01-22/14:34:52.00")
   ;; debug__break_on_this_time   = STR_TO_TIME("98-01-22/14:34:52.89")
 
-  debug__skip_to_this_time    = STR_TO_TIME("97-01-26/20:14:10.00")
+  ;; debug__skip_to_this_time    = STR_TO_TIME("97-01-26/20:14:10.00")
 
-  fit1D__save_plotSlices          = 1
-  fit2D__save_all_candidate_plots = 1
-  fit2D__show_each_candidate      = 1
+  fit1D__save_plotSlices          = 0
+  fit2D__save_all_candidate_plots = 0
+  fit2D__show_each_candidate      = 0
 
-  show_Strangeway_summary  = 0
+  show_Strangeway_summary  = 1
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
   sway__add_Newell_panel   = 0
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary       = 0
+  show_kappa_summary       = 1
   kSum__save_ps            = 1
-  kSum__convert_to_Newell_interp = 0
+  kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
 
   kStats__save_stuff       = 0
@@ -62,7 +62,8 @@ PRO JOURNAL__20161010__JANHUNEN_2001_ORBITS__OUTRIGHT_2DFIT
   ;;20: Bonus, orbit 5825 (big current, strict mono. Whence come the obs. currents? )
   ;;21: Bonus, orbit 1713 (Semi-big current, strict mono.
   ;;22: Bonus, orbit 5616 (Semi-big current, strict mono. Cleaner? Maybe not. I hope.
-  evtNum               = 21
+  ;;23: Bonus, orbit 12136--Kelvin-Helmholtz???
+  evtNum               = 23
 
   ;;survey window
   eeb_or_ees           = 'ees'

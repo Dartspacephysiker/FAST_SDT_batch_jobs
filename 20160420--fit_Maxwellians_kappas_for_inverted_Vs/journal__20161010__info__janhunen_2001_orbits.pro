@@ -22,7 +22,8 @@ orbs     = [3091, $             ;The Janhunen orbits
             5805, $
             5825, $
             1713, $
-            5616]
+            5616, $
+            12136]
 
 orbTimes = [ $
            ['97-06-03/06:28:20','97-06-03/06:31:50'], $ ;The Janhunen orbits
@@ -47,7 +48,8 @@ orbTimes = [ $
            ['98-02-09/01:39:46','98-02-09/01:41:45'], $  ;The world's longest continual observation of monoenergetic aurora
            ['98-02-10/21:58:20','98-02-10/22:00:30'], $  ;Big current, strict mono
            ['97-01-26/20:13:20','97-01-26/20:14:30'], $  ;Semi-big current, strict mono
-           ['98-01-22/14:34:35','98-01-22/14:35:25']  $  ;Semi-big current, strict mono
+           ['98-01-22/14:34:35','98-01-22/14:35:25'], $  ;Semi-big current, strict mono
+           ['99-09-15/02:10:00','99-09-15/02:38:34']  $  ;KH candidáto
            ]
 
 orbBurstTimes = LIST( $
@@ -87,7 +89,8 @@ orbBurstTimes = LIST( $
                 ['98-02-09/01:40:01','98-02-09/01:40:33'], $   ;20 ;;The world's longest continual observation of monoenergetic aurora
                 ['98-02-10/01:40:01','98-02-10/01:40:33'], $   ;21 Big current, strict mono
                 ['97-01-26/01:40:01','97-01-26/01:40:33'], $   ;22 Semi-big current, strict mono
-                ['98-01-22/14:34:39','98-01-22/14:35:10']  $   ;23 Semi-big current, strict mono
+                ['98-01-22/14:34:39','98-01-22/14:35:10'], $   ;23 Semi-big current, strict mono
+                '99-09-15/'+[['02:11:51.5','02:12:11.6'],['02:23:27.5','02:24:28']]  $ ;24 KH candidáto
                 )
 
 southArr = [ $
@@ -97,6 +100,7 @@ southArr = [ $
            1, $                 ;The Chaston interval
            0, $                 ;The huge mono event
            0, $                 ;The big current, strict mono event
+           0, $
            0, $
            0]
 
@@ -123,7 +127,8 @@ bonusPrefs = [ $
              '--Bonus--2--huge_mono',  $
              '--Bonus--3--monoS_bigCurrent',  $
              '--Bonus--4--monoS_bigCurrent',  $
-             '--Bonus--5--monoS_bigCurrent'   $
+             '--Bonus--5--monoS_bigCurrent',  $
+             '--Bonus--6--KH_candidáto'   $
              ]
 
 kStats_startStops__ees = LIST([0],[0],[0],[0],[0], $
@@ -137,7 +142,8 @@ kStats_startStops__ees = LIST([0],[0],[0],[0],[0], $
                               ;; '98-02-10/'+[['21:59:15','21:59:30'],['21:59:50','21:59:57.5']] $
                               '98-02-10/'+[['21:59:15','21:59:30']], $
                               '97-01-26/'+[['21:59:15','21:59:30']], $
-                              '98-01-22/'+[['14:34:40','14:35:20']] $
+                              '98-01-22/'+[['14:34:40','14:35:20']], $
+                              '99-09-15/'+[['02:08:54','02:16:00'],['02:23:00','02:26:30']]  $
                              )
 
 kStats_startStops__eeb = LIST([0],[0],[0],[0],[0], $
@@ -148,6 +154,8 @@ kStats_startStops__eeb = LIST([0],[0],[0],[0],[0], $
                                ['02:44:44.5','02:45:02']], $
                               [0], $
                               '98-02-09/' + [['01:41:17.5','01:41:30']], $
-                             [], $
-                             [0], $
-                             '98-01-22/'+[['14:34:39','14:35:10']])
+                              [0], $
+                              [0], $
+                              '98-01-22/'+[['14:34:39','14:35:10']], $
+                              '99-09-15/'+[['02:11:51.5','02:12:11.6'],['02:23:27.5','02:24:28']]  $
+                                         )
