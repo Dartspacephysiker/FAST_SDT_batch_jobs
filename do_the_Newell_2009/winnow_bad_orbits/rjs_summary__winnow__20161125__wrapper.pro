@@ -5,7 +5,7 @@
 ;.run /disks/gpc2/home/sdt/sdt/strangeway/batch_summary.pro
 .run /home/spencerh/software/sdt/batch_jobs/jobs_for_summaries/summary_pros/batch_rjs_summary.pro
 
-batch_rjs_summary,tplot_vars=tplot_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
+batch_rjs_summary,tPlt_vars=tPlt_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all,/FORCE_PAST_9936
 
 loadct2,40
 
@@ -19,11 +19,11 @@ print,'out_fname= ', out_fname
 
 SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/eSpec_winnowing/20161125/'
 
-if n_elements(tplot_vars) gt 0 then begin
+if (n_elements(tPlt_vars) gt 0) AND ~FILE_TEST(plotDir+out_fname+'.ps') then begin
     popen, plotDir + out_fname
     loadct2,40
     print_options,/port
-    tplot,tplot_vars,var=['ALT','ILAT','MLT']
+    tplot,tPlt_vars,var=['ALT','ILAT','MLT']
     pclose
 endif
 
