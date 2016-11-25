@@ -90,7 +90,7 @@ PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
      nOrig    = N_ELEMENTS(tx)
   ENDIF
 
-  ;;throw away the first 10  points since they are often corrupted
+  ;;throw away the first 10 points since they are often corrupted
   STORE_DATA,'Je',DATA={x:tx[10:N_ELEMENTS(tx)-1],y:ty[10:N_ELEMENTS(tx)-1]}
 
   ;;Use the electron data to define the time ranges for this orbit	
