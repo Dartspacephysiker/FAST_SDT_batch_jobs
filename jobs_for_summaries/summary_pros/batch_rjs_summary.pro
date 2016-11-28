@@ -1,7 +1,7 @@
 pro batch_rjs_summary,tPlt_vars=tPlt_vars, $
 tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all, $
 screen_plot=screen_plot,use_fac_v=use_fac_v,use_fac=use_fac,no_blank_panels=no_blank_panels, $
-FORCE_PAST_9936=force_past_9936
+FORCE_PAST_9936=force_past_9936,SKIP_EXISTING=skip_existing,GOT_SKIPPED=got_skipped,PLOTDIR=plotDir
 
 ; create a summary plot of:
 ; SFA (AKR)
@@ -58,6 +58,18 @@ ucla_mag_despin,tw_mat=tw_mat,orbit=orbit,spin_axis=spin_axis,delta_phi=delta_ph
 if (n_elements(orbit) gt 0) then begin
 
 ;  if orbit > 9936 return (temporary fix)
+
+   IF KEYWORD_SET(skip_existing) THEN BEGIN
+
+      hemisph = getenv('FAST_ORBIT_HEMISPHERE')
+      out_fname=(KEYWORD_SET(plotDir) ? plotDir : '')+'esummary_orbit_'+STRCOMPRESS(orbit,/REMOVE_ALL)+'_'+hemisph+'.plt.ps'
+      IF FILE_TEST(out_fname) THEN BEGIN
+         PRINT,"File exists: " + out_fname + '! Skipping ...'
+         got_skipped = 1
+         RETURN
+      ENDIF ELSE got_skipped = 0
+
+   ENDIF
 
   if (orbit gt 9936) AND ~KEYWORD_SET(force_past_9936) then begin
 
@@ -206,7 +218,7 @@ if (got_efield) then begin
   tst_ = spl_interp(pos.x-tlimit_all[0],tst,y2,data.x-tlimit_all[0],/double)
   data.y = data.y*tst_/abs(tst_)
   store_data,'EFIT_ALONG_VSC',data=data,dlimit=dlimit
-  options,'EFIT_ALONG_VSC','yrange',0
+  ;; options,'EFIT_ALONG_VSC','yrange',0
   options,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C(mV/m)'
   options,'EFIT_ALONG_VSC','panel_size',2
 
