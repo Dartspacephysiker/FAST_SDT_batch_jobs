@@ -1,6 +1,6 @@
 *
 Header :this is the 'rjs_summary' configuration file
-Header :created on Thu Mar  7 14:22:12 2002
+Header :created on Mon Nov 28 16:59:29 2016
 *
 *
 Description :plot of summary data quantities
@@ -10,24 +10,37 @@ Description :plot of summary data quantities
 Configuration
 {
 Config Name:			'rjs_summary'
-Config MenuPosition:		67, 46
+Config MenuPosition:		6, -14
 Config MenuSize:		155, 150
-Config DefaultSpaceCraft:	'?'
+Config DefaultSourceId:	'?'
 Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 
 	PlotWinStandard
 	{
 	PlotWin Name:		'rjs_summary:0 - DA'
-	PlotWin Position:	364, -2
+	PlotWin Position:	437, 77
 	PlotWin Size:		680, 768
 	PlotWin PlotsPage:	12
-	PlotWin TopPlotOfPage:	'MagY'
-	PlotWin DefaultDataBaseResponse:	2444444 0 2444444 1 ''
+	PlotWin TopPlotOfPage:	'Eesa Survey:  Energy'
+	PlotWin DefaultDataBaseResponse:	2451161 2824.91 2451161 10780.6 'FNMLine 12'
+   '/FASTdata_2/FAST_JB_8/FAST1918_ORBIT9126/lzp/fast_lzp_DSS-29_orbit9134_r'
+   '/FASTdata_2/FAST_JB_8/FAST1918_ORBIT9126/lzp/fast_lzp_DSS-29_orbit9134_r'
+   '/FASTdata_2/FAST_JB_8/FAST1918_ORBIT9126/lzp/fast_lzp_DSS-29_orbit9139_r'
+   '/FASTdata_2/FAST_JB_8/FAST1918_ORBIT9126/lzp/fast_lzp_DSS-29_orbit9139_r'
+   '/FASTdata_2/FAST_JB_8/FAST1918_ORBIT9126/lzp/fast_lzp_DSS-29_orbit9140_r'
+   '/FASTdata_2/FAST_JB_8/FAST1918_ORBIT9126/lzp/fast_lzp_DSS-29_orbit9140_r'
+   '/FASTdata_2/FAST_JB_8/FAST1918_ORBIT9126/lzp/fast_lzp_DSS-76_orbit9137_r'
+   '/FASTdata_2/FAST_JB_8/FAST1918_ORBIT9126/lzp/fast_lzp_DSS-76_orbit9137_r'
+   '/FASTdata_2/FAST_JB_9/FAST1919_ORBIT9140/lzp/fast_lzp_DSS-29_orbit9140_r'
+   '/FASTdata_2/FAST_JB_9/FAST1919_ORBIT9140/lzp/fast_lzp_DSS-29_orbit9140_r'
+   '/FASTdata_2/FAST_JB_9/FAST1919_ORBIT9140/lzp/fast_lzp_DSS-29_orbit9141_r'
+   '/FASTdata_2/FAST_JB_9/FAST1919_ORBIT9140/lzp/fast_lzp_DSS-29_orbit9141_r'
 
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Eesa Survey:  Energy'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Eesa Survey:  Energy'
 		Plot2 PlotYTitleName:	'EesaSurvey Energy'
@@ -36,15 +49,16 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 40000, 1e+06, 1, 1, 1
-		Plot2 MinLimits:	0, 4, 2, 0, 0, 0
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
+		Plot2 MaxLimits:	4539.47, 40000, 1e+06, 1, 1, 1
+		Plot2 MinLimits:	4111.45, 4, 2, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -59,13 +73,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 LineColor:	-1
 		Plot2 Accum:		TRUE 0 40000 0 1
 		Plot2 Accum:		TRUE 0 360 0 1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Eesa Survey:  Angle'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Eesa Survey:  Angle'
 		Plot2 PlotYTitleName:	'EesaSurvey Angle'
@@ -74,15 +89,16 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LOG
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 360, 100000, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 2, 0, 0, 0
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
+		Plot2 MaxLimits:	4539.47, 360, 100000, 1, 1, 1
+		Plot2 MinLimits:	4111.45, 0, 2, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -97,13 +113,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 LineColor:	-1
 		Plot2 Accum:		TRUE 0 360 0 1
 		Plot2 Accum:		TRUE 5 40000 0 1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Iesa Survey:  Energy'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Iesa Survey:  Energy'
 		Plot2 PlotYTitleName:	'IesaSurvey Energy'
@@ -112,15 +129,16 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 40000, 1e+06, 1, 1, 1
-		Plot2 MinLimits:	0, 4, 2, 0, 0, 0
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
+		Plot2 MaxLimits:	4539.47, 40000, 1e+06, 1, 1, 1
+		Plot2 MinLimits:	4111.45, 4, 2, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -135,13 +153,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 LineColor:	-1
 		Plot2 Accum:		TRUE 0 40000 0 1
 		Plot2 Accum:		TRUE 0 360 0 1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'Iesa Survey:  Angle'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'Iesa Survey:  Angle'
 		Plot2 PlotYTitleName:	'IesaSurvey Angle'
@@ -150,15 +169,16 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LOG
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 360, 100000, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 2, 0, 0, 0
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
+		Plot2 MaxLimits:	4539.47, 360, 100000, 1, 1, 1
+		Plot2 MinLimits:	4111.45, 0, 2, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -173,13 +193,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 LineColor:	-1
 		Plot2 Accum:		TRUE 0 360 0 1
 		Plot2 Accum:		TRUE 5 40000 0 1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'MagX'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'MagX'
 		Plot2 PlotYTitleName:	'MagX'
@@ -193,13 +214,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 0, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	4539.47, 32768, 0, 0
+		Plot2 MinLimits:	4111.45, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
 		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
 		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
 		Plot2 PointsPlot:	1
 		Plot2 UseBrk:		TRUE
 		Plot2 BrkInt:		10
@@ -207,13 +229,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NSymbols:		0
 		Plot2 LineFont:		-1
 		Plot2 LineColor:	-1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'MagY'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'MagY'
 		Plot2 PlotYTitleName:	'MagY'
@@ -227,13 +250,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 0, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	4539.47, 32768, 0, 0
+		Plot2 MinLimits:	4111.45, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
 		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
 		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
 		Plot2 PointsPlot:	1
 		Plot2 UseBrk:		TRUE
 		Plot2 BrkInt:		10
@@ -241,13 +265,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NSymbols:		0
 		Plot2 LineFont:		-1
 		Plot2 LineColor:	-1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'MagZ'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'MagZ'
 		Plot2 PlotYTitleName:	'MagZ'
@@ -261,13 +286,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 32768, 0, 0
-		Plot2 MinLimits:	0, -32768, 0, 0
+		Plot2 MaxLimits:	4539.47, 32768, 0, 0
+		Plot2 MinLimits:	4111.45, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
 		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
 		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
 		Plot2 PointsPlot:	1
 		Plot2 UseBrk:		TRUE
 		Plot2 BrkInt:		10
@@ -275,13 +301,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NSymbols:		0
 		Plot2 LineFont:		-1
 		Plot2 LineColor:	-1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'V5-V8_S'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'V5-V8_S'
 		Plot2 PlotYTitleName:	'V5-V8_S'
@@ -295,14 +322,15 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 100, 0, 0
-		Plot2 MinLimits:	0, -100, 0, 0
+		Plot2 MaxLimits:	4539.47, 100, 0, 0
+		Plot2 MinLimits:	4111.45, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
 		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
 		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
 		Plot2 PointsPlot:	1
 		Plot2 UseBrk:		TRUE
 		Plot2 BrkInt:		10
@@ -310,13 +338,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NSymbols:		0
 		Plot2 LineFont:		-1
 		Plot2 LineColor:	-1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'V1-V2_S'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'V1-V2_S'
 		Plot2 PlotYTitleName:	'V1-V2_S'
@@ -330,14 +359,15 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 100, 0, 0
-		Plot2 MinLimits:	0, -100, 0, 0
+		Plot2 MaxLimits:	4539.47, 100, 0, 0
+		Plot2 MinLimits:	4111.45, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
 		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
 		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
 		Plot2 PointsPlot:	1
 		Plot2 UseBrk:		TRUE
 		Plot2 BrkInt:		10
@@ -345,13 +375,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NSymbols:		0
 		Plot2 LineFont:		-1
 		Plot2 LineColor:	-1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'V1-V4_S'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'V1-V4_S'
 		Plot2 PlotYTitleName:	'V1-V4_S'
@@ -365,14 +396,15 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 100, 0, 0
-		Plot2 MinLimits:	0, -100, 0, 0
+		Plot2 MaxLimits:	4539.47, 100, 0, 0
+		Plot2 MinLimits:	4111.45, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
 		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
 		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
 		Plot2 PointsPlot:	1
 		Plot2 UseBrk:		TRUE
 		Plot2 BrkInt:		10
@@ -380,13 +412,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NSymbols:		0
 		Plot2 LineFont:		-1
 		Plot2 LineColor:	-1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'DspADC_V5-V8_Spectra'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'DspADC_V5-V8_Spectra'
 		Plot2 PlotYTitleName:	'DspADC_V5-V8'
@@ -402,8 +435,8 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 512, 0.001, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 1e-13, 0, 0, 0
+		Plot2 MaxLimits:	4539.47, 512, 0.001, 1, 1, 1
+		Plot2 MinLimits:	4111.45, 0, 1e-13, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -417,13 +450,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 LineFont:		-1
 		Plot2 LineColor:	-1
 		Plot2 Accum:		FALSE 0 1 0 512
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'SfaAve_V5-V8'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'SfaAve_V5-V8'
 		Plot2 PlotYTitleName:	'SfaAve_V5-V8'
@@ -439,8 +473,8 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 1000, 1e-07, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 1e-15, 0, 0, 0
+		Plot2 MaxLimits:	4539.47, 1000, 1e-07, 1, 1, 1
+		Plot2 MinLimits:	4111.45, 0, 1e-15, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -454,13 +488,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 LineFont:		-1
 		Plot2 LineColor:	-1
 		Plot2 Accum:		TRUE 0 1000 0 1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'1032-spinPhase'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'1032-spinPhase'
 		Plot2 PlotYTitleName:	'1032-spinPhase'
@@ -474,13 +509,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 1024, 0, 0
-		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 MaxLimits:	4539.47, 1024, 0, 0
+		Plot2 MinLimits:	4111.45, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
 		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
 		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
 		Plot2 PointsPlot:	1
 		Plot2 UseBrk:		TRUE
 		Plot2 BrkInt:		10
@@ -488,13 +524,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NSymbols:		0
 		Plot2 LineFont:		-1
 		Plot2 LineColor:	-1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'OBJECT'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'OBJECT'
 		Plot2 PlotYTitleName:	'OBJECT'
@@ -508,13 +545,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 256, 0, 0
-		Plot2 MinLimits:	0, 0, 0, 0
+		Plot2 MaxLimits:	4539.47, 256, 0, 0
+		Plot2 MinLimits:	4111.45, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
 		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
 		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
 		Plot2 PointsPlot:	1
 		Plot2 UseBrk:		FALSE
 		Plot2 BrkInt:		10
@@ -522,13 +560,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NSymbols:		0
 		Plot2 LineFont:		-1
 		Plot2 LineColor:	-1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'DspADC_V5-V8HG_Spectra'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'DspADC_V5-V8HG_Spectra'
 		Plot2 PlotYTitleName:	'DspADC_V5-V8HG'
@@ -544,8 +583,8 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	1, 512, 0.001, 1, 1, 1
-		Plot2 MinLimits:	0, 0, 1e-13, 0, 0, 0
+		Plot2 MaxLimits:	4539.47, 512, 0.001, 1, 1, 1
+		Plot2 MinLimits:	4111.45, 0, 1e-13, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -559,14 +598,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 LineFont:		-1
 		Plot2 LineColor:	-1
 		Plot2 Accum:		FALSE 0 1 0 512
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'P12S7V'
-		Plot2 DataBaseResponse:	2444444 0 2444444 1 ''
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'P12S7V'
 		Plot2 PlotYTitleName:	'P12S7V'
@@ -580,13 +619,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 15.77, 1, 1
-		Plot2 MinLimits:	0, -0.75, 0, 0
+		Plot2 MaxLimits:	4539.47, 15.77, 1, 0
+		Plot2 MinLimits:	4111.45, -0.75, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
 		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
 		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
 		Plot2 PointsPlot:	1
 		Plot2 UseBrk:		FALSE
 		Plot2 BrkInt:		10
@@ -594,14 +634,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NSymbols:		0
 		Plot2 LineFont:		-1
 		Plot2 LineColor:	-1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 		PlotType
 		{
 		Plot2 SourceName:	'FAST'
 		Plot2 QtyName:		'CPUTEMP'
-		Plot2 DataBaseResponse:	2444444 0 2444444 1 ''
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
 		Plot2 NPanels:		1
 		Plot2 QtyTitleName:	'CPUTEMP'
 		Plot2 PlotYTitleName:	'CPUTEMP'
@@ -615,13 +655,14 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	1, 164.23, 1, 1
-		Plot2 MinLimits:	0, -170.77, 0, 0
+		Plot2 MaxLimits:	4539.47, 164.23, 1, 0
+		Plot2 MinLimits:	4111.45, -170.77, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
 		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
 		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
 		Plot2 PointsPlot:	1
 		Plot2 UseBrk:		FALSE
 		Plot2 BrkInt:		10
@@ -629,7 +670,7 @@ Config CurrentPlotWindow:	'rjs_summary:0 - DA'
 		Plot2 NSymbols:		0
 		Plot2 LineFont:		-1
 		Plot2 LineColor:	-1
-		Plot2 ColorLimits:	COLORMAP 32 1
+		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
 	PlotWin EndPlotWindow:

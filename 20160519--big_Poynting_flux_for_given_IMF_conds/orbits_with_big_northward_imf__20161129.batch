@@ -1,0 +1,18 @@
+BatchJob: "orbits_with_big_northward_imf__20161129"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/20160519--big_Poynting_flux_for_given_IMF_conds/rjs_summary__northward_imf_events__20161128.pro
+
+DataBaseRequest:
+    Orbits 5583
+           6016
+           6104
+           6692
+           6693
+           8644
+           8762
+           9831
+           9832
+           9918
+           
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/jobs_for_summaries/Strangeway_summary/
+PlotConfigurationFile: rjs_summary
