@@ -12,6 +12,7 @@ pro single_rjs_summary,time1,time2, $
                    ADD_KAPPA_PANEL=add_kappa_panel, $
                    ADD_CHARE_PANEL=add_chare_panel, $
                    ADD_NEWELL_PANEL=add_Newell_panel, $
+                   NEWELL_2009_INTERP=Newell_2009_interp, $
                    LOG_KAPPAPLOT=log_kappaPlot, $
                    FIT2DKAPPA_INF_LIST=fit2DKappa_inf_list, $
                    FIT2DGAUSS_INF_LIST=fit2DGauss_inf_list, $
@@ -107,6 +108,11 @@ pro single_rjs_summary,time1,time2, $
         outPlotName  = 'Strangeway_summary'
         outPlotName += '--' + orbString + (KEYWORD_SET(bonusPref) ? bonusPref : '' )
 
+        IF N_ELEMENTS(Newell_2009_interp) GT 0 THEN BEGIN
+           IF Newell_2009_interp EQ 0 THEN BEGIN
+              outPlotName += '--not_Newell_interpreted'
+           ENDIF
+        ENDIF
 
         t1S = STRMID(TIME_TO_STR(time1,/MSEC),11,11)
         t2S = STRMID(TIME_TO_STR(time2,/MSEC),11,11)
@@ -1110,7 +1116,9 @@ pro single_rjs_summary,time1,time2, $
      IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,data,Jee,Je,mlt,ilat,alt,orbit,events,SC_POT=sc_pot_interp
 
      var_name = 'newellPanel'
-     PREPARE_IDENTIFIED_DIFF_EFLUXES_FOR_TPLOT,events,TPLOT_NAME=var_name,/NO_STRICT_TYPES
+     PREPARE_IDENTIFIED_DIFF_EFLUXES_FOR_TPLOT,events,TPLOT_NAME=var_name, $
+                                               /NO_STRICT_TYPES, $
+                                               CONVERT_TO_NEWELL_INTERP=Newell_2009_interp
 
      if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 

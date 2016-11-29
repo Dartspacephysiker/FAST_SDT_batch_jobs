@@ -25,7 +25,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          LOWDENSITY_THRESHOLD=lowDens_thresh, $
                          DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
                          N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
-                         CONVERT_DESPECS_TO_NEWELL_INTERP=convert_to_Newell_interp, $
+                         CONVERT_DESPECS_TO_NEWELL_INTERP=Newell_2009_interp, $
                          SAVE_PS=save_ps, $
                          SAVE_PNG=save_png, $
                          SAVEKAPPA_BONUSPREF=bonusPref, $
@@ -125,8 +125,8 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         
         outPlotName += '--' + t1S + '_-_' + t2S
 
-        IF N_ELEMENTS(convert_to_Newell_interp) GT 0 THEN BEGIN
-           IF convert_to_Newell_interp EQ 0 THEN BEGIN
+        IF N_ELEMENTS(Newell_2009_interp) GT 0 THEN BEGIN
+           IF Newell_2009_interp EQ 0 THEN BEGIN
               outPlotName += '--not_Newell_interpreted'
            ENDIF
         ENDIF
@@ -1206,7 +1206,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   var_name = 'newellPanel'
   PREPARE_IDENTIFIED_DIFF_EFLUXES_FOR_TPLOT,events,TPLOT_NAME=var_name, $
                                             /NO_STRICT_TYPES, $
-                                            CONVERT_TO_NEWELL_INTERP=convert_to_Newell_interp
+                                            CONVERT_TO_NEWELL_INTERP=Newell_2009_interp
 
   if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
 
