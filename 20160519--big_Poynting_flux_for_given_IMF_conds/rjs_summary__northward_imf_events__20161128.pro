@@ -10,7 +10,7 @@
 
 SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/big_Poynting_flux_for_given_IMF_conds/' + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '/'
 
-add_burst = 1
+add_burst = 0
 screen_plot = 1
 ;.run /disks/gpc2/home/sdt/sdt/strangeway/batch_summary.pro
 .run /home/spencerh/software/sdt/batch_jobs/jobs_for_summaries/summary_pros/batch_rjs_summary.pro

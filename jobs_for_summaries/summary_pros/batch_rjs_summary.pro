@@ -50,7 +50,11 @@ upper_zlim_elec = 9
 upper_zlim_ion  = 9
 
 ees_or_eeb = 'ees'
-IF KEYWORD_SET(burst) THEN ees_or_eeb = 'eeb'
+ies_or_ieb = 'ies'
+IF KEYWORD_SET(burst) THEN BEGIN
+   ees_or_eeb = 'eeb'
+   ies_or_ieb = 'ieb'
+ENDIF
 
 @tplot_com
 
@@ -271,7 +275,7 @@ if (nesa gt 0) then begin
 ; ION PITCH ANGLE
 
   var_name='Iesa_Angle'
-  get_pa_spec,"fa_ies_c",units='eflux',name=var_name,energy=[4.,30000.]
+  get_pa_spec,"fa_" + ies_or_ieb + "_c",units='eflux',name=var_name,energy=[4.,30000.]
   get_data,var_name, data=data
   data.y = alog10(data.y)
   store_data,var_name, data=data
@@ -321,7 +325,7 @@ if (nesa gt 0) then begin
 ; ION ENERGY 
 
   var_name='Iesa_Energy'
-  get_en_spec,'fa_ies_c',name=var_name, units='eflux'
+  get_en_spec,'fa_' + ies_or_ieb + '_c',name=var_name, units='eflux'
   get_data,var_name, data=data
   data.y = alog10(data.y)
   store_data,var_name, data=data
