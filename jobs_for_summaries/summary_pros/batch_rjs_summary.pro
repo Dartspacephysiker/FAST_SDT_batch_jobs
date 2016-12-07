@@ -1,7 +1,8 @@
 pro batch_rjs_summary,tPlt_vars=tPlt_vars, $
 tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all, $
 screen_plot=screen_plot,use_fac_v=use_fac_v,use_fac=use_fac,no_blank_panels=no_blank_panels, $
-FORCE_PAST_9936=force_past_9936,SKIP_EXISTING=skip_existing,GOT_SKIPPED=got_skipped,PLOTDIR=plotDir
+FORCE_PAST_9936=force_past_9936,SKIP_EXISTING=skip_existing,GOT_SKIPPED=got_skipped,PLOTDIR=plotDir, $
+burst=burst
 
 ; create a summary plot of:
 ; SFA (AKR)
@@ -44,6 +45,12 @@ FORCE_PAST_9936=force_past_9936,SKIP_EXISTING=skip_existing,GOT_SKIPPED=got_skip
 ; including missing data, for a uniform plot product
 
 ; Step 0 - safety measure - delete all tplot quantities if found
+
+upper_zlim_elec = 9
+upper_zlim_ion  = 9
+
+ees_or_eeb = 'ees'
+IF KEYWORD_SET(burst) THEN ees_or_eeb = 'eeb'
 
 @tplot_com
 
@@ -269,7 +276,7 @@ if (nesa gt 0) then begin
   data.y = alog10(data.y)
   store_data,var_name, data=data
 	options,var_name,'spec',1	
-	zlim,var_name,4,9,0
+	zlim,var_name,4,upper_zlim_ion,0
 	ylim,var_name,0,360,0
 	options,var_name,'ytitle','Ions!C!CAngle (Deg.)'
 	options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -319,7 +326,7 @@ if (nesa gt 0) then begin
   data.y = alog10(data.y)
   store_data,var_name, data=data
 	options,var_name,'spec',1	
-	zlim,var_name,4,9,0
+	zlim,var_name,4,upper_zlim_ion,0
 	ylim,var_name,4,30000,1
 	options,var_name,'ytitle','Ions!C!CEnergy (eV)'
 	options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -358,12 +365,12 @@ if (nesa gt 0) then begin
 ; ELECTRON PITCH ANGLE
 
   var_name='Eesa_Angle'
-  get_pa_spec,"fa_ees_c",units='eflux',name=var_name, energy=[10.,30000.]
+  get_pa_spec,"fa_" + ees_or_eeb + "_c",units='eflux',name=var_name,energy=[10.,30000.]
   get_data,var_name, data=data 
   data.y = alog10(data.y)
   store_data,var_name, data=data
         options,var_name,'spec',1
-        zlim,var_name,4,9,0
+        zlim,var_name,4,upper_zlim_elec,0
         ylim,var_name,0,360,0
         options,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
         options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -408,12 +415,12 @@ if (nesa gt 0) then begin
 ; ELECTRON ENERGY
 
   var_name='Eesa_Energy'
-  get_en_spec,'fa_ees_c',name=var_name,units='eflux'
+  get_en_spec,'fa_' + ees_or_eeb + '_c',name=var_name,units='eflux'
   get_data,var_name, data=data
   data.y = alog10(data.y)
   store_data,var_name, data=data
 	options,var_name,'spec',1	
-	zlim,var_name,4,9,0
+	zlim,var_name,4,upper_zlim_elec,0
 	ylim,var_name,5,30000,1
 	options,var_name,'ytitle','Electrons!C!CEnergy (eV)'
 	options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -631,7 +638,7 @@ if (not keyword_set(no_blank_panels)) then begin
     v_arr[0,*] = [34119.7,26091.5,50.9600,5.88000]
     store_data,'Eesa_Energy', data={x:t_arr, y:y_arr, v:v_arr}
  	options,'Eesa_Energy','spec',1	
-	zlim,'Eesa_Energy',4,9,0
+	zlim,'Eesa_Energy',4,upper_zlim_elec,0
 	ylim,'Eesa_Energy',5,30000,1
 	options,'Eesa_Energy','ytitle','Electrons!C!CEnergy (eV)'
 	options,'Eesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -651,7 +658,7 @@ if (not keyword_set(no_blank_panels)) then begin
     v_arr[0,*] = [-87.7792,2.22077,114.721,267.206]
     store_data,'Eesa_Angle', data={x:t_arr, y:y_arr, v:v_arr}
     options,'Eesa_Angle','spec',1	
-    zlim,'Eesa_Angle',4,9,0
+    zlim,'Eesa_Angle',4,upper_zlim_elec,0
     ylim,'Eesa_Angle',-90,270,0
     options,'Eesa_Angle','ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
     options,'Eesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -674,7 +681,7 @@ if (not keyword_set(no_blank_panels)) then begin
     v_arr[0,*] = [26808.3,11827.2,27.7200,4.62000]
     store_data,'Iesa_Energy', data={x:t_arr, y:y_arr, v:v_arr}
  	options,'Iesa_Energy','spec',1	
-	zlim,'Iesa_Energy',4,9,0
+	zlim,'Iesa_Energy',4,upper_zlim_elec,0
 	ylim,'Iesa_Energy',4,30000,1
 	options,'Iesa_Energy','ytitle','Ions!C!CEnergy (eV)'
 	options,'Iesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -694,7 +701,7 @@ if (not keyword_set(no_blank_panels)) then begin
     v_arr[0,*] = [-87.7792,2.22077,114.721,267.206]
     store_data,'Iesa_Angle', data={x:t_arr, y:y_arr, v:v_arr}
     options,'Iesa_Angle','spec',1	
-    zlim,'Iesa_Angle',4,9,0
+    zlim,'Iesa_Angle',4,upper_zlim_elec,0
     ylim,'Iesa_Angle',-90,270,0
     options,'Iesa_Angle','ytitle','Ions!C!CAngle (Deg.)'
     options,'Iesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
