@@ -1,5 +1,5 @@
 ;;12/14/16
-PRO JOURNAL__20161214__KH__GET_PARTICLE_FLUX_DATA_FOR_ORBIT_6122
+PRO JOURNAL__20161214__KH__GET_PARTICLE_FLUX_DATA_FOR_ORBIT_6703
 
   COMPILE_OPT IDL2
 
@@ -9,7 +9,7 @@ PRO JOURNAL__20161214__KH__GET_PARTICLE_FLUX_DATA_FOR_ORBIT_6122
 
   ;; save_diff_eFlux_to_file = 1
 
-  orb              = 6122
+  orb              = 6703
   eeb_or_ees       = 'ees'
   plotNamePref     = '--checkout_KH_AGU'
 
@@ -17,7 +17,7 @@ PRO JOURNAL__20161214__KH__GET_PARTICLE_FLUX_DATA_FOR_ORBIT_6122
 
   loadDir          = '~/software/sdt/batch_jobs/saves_output_etc/'
   plotDir          = '~/Desktop/KH_plots/'
-  outName          = 'orb_6122--KH_checkitout--20161214.sav'
+  outName          = 'orb_' + orbStr + '--KH_checkitout--20161214.sav'
 
   ;; diff_eFlux_file  = 'orb_' + orbStr + $
   ;;                    '--diff_eflux--' + eeb_or_ees + $
@@ -29,7 +29,7 @@ PRO JOURNAL__20161214__KH__GET_PARTICLE_FLUX_DATA_FOR_ORBIT_6122
 
      GET_DATA,'MLT',DATA=mlt
 
-     mlt_i            = GET_MLT_INDS(!NULL,2,12, $
+     mlt_i            = GET_MLT_INDS(!NULL,2,10, $
                                      ;; /DAWNSECTOR, $
                                      DIRECT_MLTS=mlt.y)
 
@@ -150,7 +150,7 @@ PRO JOURNAL__20161214__KH__GET_PARTICLE_FLUX_DATA_FOR_ORBIT_6122
 
 
      SAVE,struct,FILENAME=loadDir+outName
-     
+
   ENDIF ELSE BEGIN
      RESTORE,loadDir+outName
   ENDELSE
@@ -161,10 +161,7 @@ PRO JOURNAL__20161214__KH__GET_PARTICLE_FLUX_DATA_FOR_ORBIT_6122
   ;; layout2 = [2,2,2]
   ;; layout3 = [2,2,3]
   xVar = struct.mlt
-  xRange = [8.5,9.6]
-
-  ;; xVar = struct.mlt
-  ;; xRange = [3.5,5.5]
+  xRange = [3.5,5.5]
 
   yVar    = LIST(struct.jee, $
                  struct.je*1.6e-9, $
@@ -224,6 +221,14 @@ PRO JOURNAL__20161214__KH__GET_PARTICLE_FLUX_DATA_FOR_ORBIT_6122
   window = WINDOW(DIMENSION=[1000,800])
 
 
+  ;; this = PLOT(xVar,ABS(struct.chare),XRANGE=xRange, $
+  ;;             LAYOUT=layout1,CURRENT=N_ELEMENTS(layout1) GT 0)
+  ;; this = PLOT(xVar,ABS(struct.derivs.jee.mlt),XRANGE=xRange, $
+  ;;             LAYOUT=layout2,CURRENT=N_ELEMENTS(layout1) GT 0)
+  ;; this = PLOT(xVar,struct.jee,XRANGE=xRange, $
+  ;;             LAYOUT=layout2,CURRENT=N_ELEMENTS(layout1) GT 0)
+  ;; this = PLOT(xVar,ABS(struct.derivs.chare.mlt),XRANGE=xRange, $
+  ;;             LAYOUT=layout3,CURRENT=N_ELEMENTS(layout1) GT 0)
   this = PLOT(xVar,ABS(struct.derivs.chare.mlt), $
               XRANGE=xRange, $
               TITLE="Orbit " + orbStr, $
@@ -237,10 +242,12 @@ PRO JOURNAL__20161214__KH__GET_PARTICLE_FLUX_DATA_FOR_ORBIT_6122
                XRANGE=xRange, $
                LAYOUT=layout3, $
                COLOR='Red', $
-              THICK=3, $
+               THICK=3, $
                /CURRENT, $
                /OVERPLOT)
 
   STOP
 
+
 END
+
