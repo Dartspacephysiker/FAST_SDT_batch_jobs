@@ -176,8 +176,8 @@ PRO JOURNAL__20161214__KH__GET_PARTICLE_FLUX_DATA_FOR_ORBIT_6122
                  ABS(struct.derivs.chare.mlt))
 
   yTitles = ['Energy flux (mW/m^2)', $
-             'Number flux ($\mu$A/m$^2$', $
-             'Char. Energy (eV)', $
+             'Number flux ($\mu$A/m$^2$)', $
+             'Average Energy (eV)', $
              'dJ$_E$/dMLT', $
              'dJ/dMLT', $
              'd|J$_E$|/dMLT', $
