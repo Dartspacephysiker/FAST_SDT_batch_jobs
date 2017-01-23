@@ -1,6 +1,6 @@
 *
 Header :this is the 'alfven_stats_6' configuration file
-Header :created on Tue Oct 18 13:32:38 2016
+Header :created on Mon Jan 23 14:45:42 2017
 *
 *
 Description : 
@@ -18,17 +18,19 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 	PlotWinStandard
 	{
 	PlotWin Name:		'alfven_stats_6:0 - DA'
-	PlotWin Position:	235, -22
+	PlotWin Position:	309, 242
 	PlotWin Size:		900, 600
 	PlotWin PlotsPage:	6
-	PlotWin TopPlotOfPage:	'Eesa Survey:  Angle'
-	PlotWin DefaultDataBaseResponse:	2451075 37737.9 2451075 45700.4 'FNMLine 6'
-   '/FASTdata_1/FAST_JB_7/FAST1673_ORBIT8199/lzp/fast_lzp_DSS-76_orbit8207_r'
-   '/FASTdata_1/FAST_JB_7/FAST1673_ORBIT8199/lzp/fast_lzp_DSS-76_orbit8207_r'
-   '/FASTdata_2/FAST_JB_8/FAST1757_ORBIT8203/lzp/fast_lzp_DSS-29_orbit8205_t'
-   '/FASTdata_2/FAST_JB_8/FAST1757_ORBIT8203/lzp/fast_lzp_DSS-29_orbit8205_t'
-   '/FASTdata_2/FAST_JB_8/FAST1758_ORBIT8205/lzp/fast_lzp_DSS-29_orbit8206_t'
-   '/FASTdata_2/FAST_JB_8/FAST1758_ORBIT8205/lzp/fast_lzp_DSS-29_orbit8206_t'
+	PlotWin TopPlotOfPage:	'V5-V8_S'
+	PlotWin DefaultDataBaseResponse:	2451297 25917.9 2451297 33864.7 'FNMLine 8'
+   '/FASTdata_2/FAST_JB_10/FAST2236_ORBIT10614/lzp/fast_lzp_DSS-29_orbit10615_r'
+   '/FASTdata_2/FAST_JB_10/FAST2236_ORBIT10614/lzp/fast_lzp_DSS-29_orbit10615_r'
+   '/FASTdata_2/FAST_JB_10/FAST2236_ORBIT10614/lzp/fast_lzp_DSS-29_orbit10616_r'
+   '/FASTdata_2/FAST_JB_10/FAST2236_ORBIT10614/lzp/fast_lzp_DSS-29_orbit10616_r'
+   '/FASTdata_2/FAST_JB_10/FAST2236_ORBIT10614/lzp/fast_lzp_DSS-29_orbit10617_r'
+   '/FASTdata_2/FAST_JB_10/FAST2236_ORBIT10614/lzp/fast_lzp_DSS-29_orbit10617_r'
+   '/FASTdata_2/FAST_JB_10/FAST2237_ORBIT10617/lzp/fast_lzp_GN-WLE_orbit10619_r'
+   '/FASTdata_2/FAST_JB_10/FAST2237_ORBIT10617/lzp/fast_lzp_GN-WLE_orbit10619_r'
 
 		PlotType
 		{
@@ -43,15 +45,15 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	UNKNOWN
+		Plot2 ShadingMode:	SHADE
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	45700.4, 360, 800, 1, 1, 1e+09
-		Plot2 MinLimits:	37737.9, 0, 0, 0, 0, 100000
+		Plot2 MaxLimits:	29976.5, 360, 800, 1, 1, 1e+09
+		Plot2 MinLimits:	29342.5, 0, 0, 0, 0, 100000
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -82,15 +84,15 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	UNKNOWN
+		Plot2 ShadingMode:	SHADE
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	45700.4, 40000, 800, 1, 1, 1e+09
-		Plot2 MinLimits:	37737.9, 1, 0, 0, 0, 100000
+		Plot2 MaxLimits:	29976.5, 40000, 800, 1, 1, 1e+09
+		Plot2 MinLimits:	29342.5, 1, 0, 0, 0, 100000
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -121,15 +123,15 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	UNKNOWN
+		Plot2 ShadingMode:	SHADE
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	45700.4, 32, 255, 1, 1, 1e+09
-		Plot2 MinLimits:	37737.9, 0, 0, 0, 0, 10000
+		Plot2 MaxLimits:	29976.5, 32, 255, 1, 1, 1e+09
+		Plot2 MinLimits:	29342.5, 0, 0, 0, 0, 10000
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -167,8 +169,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	37737.9, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	29976.5, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	29342.5, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -206,8 +208,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32, 255, 1, 1, 1
-		Plot2 MinLimits:	37737.9, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	29976.5, 32, 255, 1, 1, 1
+		Plot2 MinLimits:	29342.5, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -245,8 +247,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 48, 255, 1, 1, 1
-		Plot2 MinLimits:	37737.9, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	29976.5, 48, 255, 1, 1, 1
+		Plot2 MinLimits:	29342.5, 0, 0, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -275,15 +277,16 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 PlotYSubTitleName:	'-'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		2
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32768, 0, 0
-		Plot2 MinLimits:	37737.9, -32768, 0, 0
+		Plot2 MaxLimits:	29976.5, 32768, 0, 0
+		Plot2 MinLimits:	29342.5, -32768, 0, 0
+		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -311,15 +314,16 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 PlotYSubTitleName:	'-'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		2
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32768, 0, 0
-		Plot2 MinLimits:	37737.9, -32768, 0, 0
+		Plot2 MaxLimits:	29976.5, 32768, 0, 0
+		Plot2 MinLimits:	29342.5, -32768, 0, 0
+		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -347,15 +351,16 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 PlotYSubTitleName:	'-'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		2
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32768, 1, 0
-		Plot2 MinLimits:	37737.9, -32768, 0, 0
+		Plot2 MaxLimits:	29976.5, 32768, 0, 0
+		Plot2 MinLimits:	29342.5, -32768, 0, 0
+		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -383,15 +388,16 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 PlotYSubTitleName:	'-'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		2
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32768, 0, 0
-		Plot2 MinLimits:	37737.9, -32768, 0, 0
+		Plot2 MaxLimits:	29976.5, 32768, 0, 0
+		Plot2 MinLimits:	29342.5, -32768, 0, 0
+		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -419,15 +425,16 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 PlotYSubTitleName:	'-'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		2
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32768, 0, 0
-		Plot2 MinLimits:	37737.9, -32768, 0, 0
+		Plot2 MaxLimits:	29976.5, 32768, 0, 0
+		Plot2 MinLimits:	29342.5, -32768, 0, 0
+		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -462,8 +469,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32768, 0, 0
-		Plot2 MinLimits:	37737.9, -32768, 0, 0
+		Plot2 MaxLimits:	29976.5, 32768, 0, 0
+		Plot2 MinLimits:	29342.5, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -491,15 +498,16 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 PlotYSubTitleName:	'-'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		2
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32768, 0, 0
-		Plot2 MinLimits:	37737.9, -32768, 0, 0
+		Plot2 MaxLimits:	29976.5, 32768, 0, 0
+		Plot2 MinLimits:	29342.5, -32768, 0, 0
+		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -527,15 +535,16 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 PlotYSubTitleName:	'-'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		2
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32768, 0, 0
-		Plot2 MinLimits:	37737.9, -32768, 0, 0
+		Plot2 MaxLimits:	29976.5, 32768, 0, 0
+		Plot2 MinLimits:	29342.5, -32768, 0, 0
+		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -570,8 +579,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32768, 0, 0
-		Plot2 MinLimits:	37737.9, -32768, 0, 0
+		Plot2 MaxLimits:	29976.5, 32768, 0, 0
+		Plot2 MinLimits:	29342.5, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -606,8 +615,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32768, 0, 0
-		Plot2 MinLimits:	37737.9, -32768, 0, 0
+		Plot2 MaxLimits:	29976.5, 32768, 0, 0
+		Plot2 MinLimits:	29342.5, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -642,8 +651,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32768, 0, 0
-		Plot2 MinLimits:	37737.9, -32768, 0, 0
+		Plot2 MaxLimits:	29976.5, 32768, 0, 0
+		Plot2 MinLimits:	29342.5, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -678,8 +687,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32768, 0, 0
-		Plot2 MinLimits:	37737.9, -32768, 0, 0
+		Plot2 MaxLimits:	29976.5, 32768, 0, 0
+		Plot2 MinLimits:	29342.5, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -714,8 +723,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32768, 0, 0
-		Plot2 MinLimits:	37737.9, -32768, 0, 0
+		Plot2 MaxLimits:	29976.5, 32768, 0, 0
+		Plot2 MinLimits:	29342.5, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -750,8 +759,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 32768, 0, 0
-		Plot2 MinLimits:	37737.9, -32768, 0, 0
+		Plot2 MaxLimits:	29976.5, 32768, 0, 0
+		Plot2 MinLimits:	29342.5, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -786,8 +795,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 8000, 0, 0
-		Plot2 MinLimits:	37737.9, 0, 0, 0
+		Plot2 MaxLimits:	29976.5, 8000, 0, 0
+		Plot2 MinLimits:	29342.5, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -822,8 +831,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 90, 0, 0
-		Plot2 MinLimits:	37737.9, -90, 0, 0
+		Plot2 MaxLimits:	29976.5, 90, 0, 0
+		Plot2 MinLimits:	29342.5, -90, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -858,8 +867,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 30, 0, 0
-		Plot2 MinLimits:	37737.9, 0, 0, 0
+		Plot2 MaxLimits:	29976.5, 30, 0, 0
+		Plot2 MinLimits:	29342.5, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -894,8 +903,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 20, 0, 0
-		Plot2 MinLimits:	37737.9, 0, 0, 0
+		Plot2 MaxLimits:	29976.5, 20, 0, 0
+		Plot2 MinLimits:	29342.5, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -930,8 +939,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 256, 0, 0
-		Plot2 MinLimits:	37737.9, 0, 0, 0
+		Plot2 MaxLimits:	29976.5, 256, 0, 0
+		Plot2 MinLimits:	29342.5, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -966,8 +975,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 4096, 0, 0
-		Plot2 MinLimits:	37737.9, 0, 0, 0
+		Plot2 MaxLimits:	29976.5, 4096, 0, 0
+		Plot2 MinLimits:	29342.5, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1002,8 +1011,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 64, 0, 0
-		Plot2 MinLimits:	37737.9, 0, 0, 0
+		Plot2 MaxLimits:	29976.5, 64, 0, 0
+		Plot2 MinLimits:	29342.5, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -1038,8 +1047,8 @@ Config CurrentPlotWindow:	'alfven_stats_6:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	45700.4, 300, 0, 0
-		Plot2 MinLimits:	37737.9, 0, 0, 0
+		Plot2 MaxLimits:	29976.5, 300, 0, 0
+		Plot2 MinLimits:	29342.5, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0

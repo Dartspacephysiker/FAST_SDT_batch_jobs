@@ -725,8 +725,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            tmpMag = {x:[[magx.x[tmpI]],[magy.x[tmpI]],[magz.x[tmpI]]],y:[[magx.y[tmpI]],[magy.y[tmpI]],[magz.y[tmpI]]]}
            ;; STORE_DATA,'wavPol',DATA=tmpMag
            ;;Could do wave polarization here ...
-           wavPolStrArr = [wavPolStrArr,STRCOMPRESS(,/REMOVE_ALL)]
-           TWAVPOL,'wavPol'+wavPolStrArr[-1],NOPFFT=FFTLen
+           ;; wavPolStrArr = [wavPolStrArr,STRCOMPRESS(,/REMOVE_ALL)]
+           ;; TWAVPOL,'wavPol'+wavPolStrArr[-1],NOPFFT=FFTLen
            ;; WAVPOL,magx.x[tmpI],magx.y[tmpI],magy.y[tmpI],magz.y[tmpI], $
            ;;        timeline,freqline,powspec,degpol,waveangle,elliptict,helict,pspec3
 
@@ -884,22 +884,25 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         IF KEYWORD_SET(show_maximus_events) OR KEYWORD_SET(save_lil_package) $
            OR KEYWORD_SET(compare_pFluxes__specMethod_maximus)               $
         THEN BEGIN
-           LOAD_MAXIMUS_AND_CDBTIME,maximus,cdbTime, $
-                                    /DO_DESPUNDB, $
-                                    GOOD_I=good_i, $
-                                    MIN_MAGCURRENT=5, $
-                                    MAX_NEGMAGCURRENT=-5, $
-                                    INCLUDE_32HZ=~KEYWORD_SET(only_128Ss_data), $
-                                    HEMI__GOOD_I='BOTH', $
-                                    /NO_MEMORY_LOAD
+           @common__maximus_vars.pro
+           IF N_ELEMENTS(MAXIMUS__maximus) EQ 0 THEN BEGIN
+              LOAD_MAXIMUS_AND_CDBTIME, $;maximus,cdbTime, $
+                                       ;; /DO_DESPUNDB, $
+                                       GOOD_I=good_i, $
+                                       MIN_MAGCURRENT=1, $
+                                       MAX_NEGMAGCURRENT=-1, $
+                                       INCLUDE_32HZ=~KEYWORD_SET(only_128Ss_data), $
+                                       HEMI__GOOD_I='BOTH';; , $
+                                       ;; /NO_MEMORY_LOAD
+           ENDIF
 
-           ii = WHERE(maximus.orbit[good_i] EQ orbit,nOrb)
+           ii = WHERE(MAXIMUS__maximus.orbit[MAXIMUS__good_i] EQ orbit,nOrb)
 
            IF ii[0] NE -1 THEN BEGIN
 
-              great_i = good_i[ii]
+              great_i = MAXIMUS__good_i[ii]
               IF KEYWORD_SET(show_maximus_events) AND ~KEYWORD_SET(no_plots) THEN BEGIN
-                 STORE_DATA,'alfTimes',DATA={x:cdbTime[great_i], $
+                 STORE_DATA,'alfTimes',DATA={x:MAXIMUS__times[great_i], $
                                              y:MAKE_ARRAY(nOrb,VALUE=10)}
                  OPTIONS,'alfTimes','psym',1 ;Plus
                  TPLOT_PANEL,VARIABLE='dBpSpecFilt',OPLOTVAR='alfTimes'
@@ -907,13 +910,13 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
               ;; PRINT,maximus.time[great_i]
 
-              maximus_t = cdbTime[great_i]
-              width_t   = maximus.width_time[great_i]
+              maximus_t = MAXIMUS__times[great_i]
+              width_t   = MAXIMUS__maximus.width_time[great_i]
 
               magAlf_i  = VALUE_LOCATE(dBpSpec.time,maximus_t)
               magAlf_t  = dBpSpec.time[magAlf_i[UNIQ(magAlf_i)]]
 
-              maxPFlux  = maximus.pFluxEst[great_i]
+              maxPFlux  = MAXIMUS__maximus.pFluxEst[great_i]
 
               ;; FOR lm=0,N_ELEMENTS(magAlf_t)-1 DO BEGIN
               ;;    PRINT,FORMAT='(I0,T10,A0)',lm,TIME_TO_STR(magAlf_t[lm],/MS)
@@ -936,14 +939,29 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         FOR m=0,FFTCount-1 DO BEGIN
            ;;Frequency limits
            tmpF_i    = WHERE( ( Efreqs GE freqBounds[0,m] ) AND $
-                              ( Efreqs LE freqBounds[1,m] ) )
+                              ( Efreqs LE freqBounds[1,m] ),nTmpF )
 
-           ;;"Intergrate," as some have it, and apply test
-           ;; ESpecSum[m] = TOTAL(eAVSpecFilt.y[m,tmpF_i])
-           ;; BSpecSum[m] = TOTAL(dBpSpecFilt.y[m,tmpF_i])
-           ESpecSum[m] = INT_TABULATED(Efreqs[tmpF_i], $
-                                       eAVSpecFilt.comp1[m,tmpF_i])
-           BSpecSum[m] = INT_TABULATED(Bfreqs[tmpF_i],dBpSpecFilt.comp1[m,tmpF_i])
+           IF nTmpF GT 0 THEN BEGIN
+
+              ;;"Intergrate," as some have it, and apply test
+              ;; ESpecSum[m] = TOTAL(eAVSpecFilt.y[m,tmpF_i])
+              ;; BSpecSum[m] = TOTAL(dBpSpecFilt.y[m,tmpF_i])
+              IF nTmpF EQ 1 THEN BEGIN
+
+                 ESpecSum[m] = Efreqs[tmpF_i]*eAVSpecFilt.comp1[m,tmpF_i]
+
+                 BSpecSum[m] = Bfreqs[tmpF_i]*dBpSpecFilt.comp1[m,tmpF_i]
+              ENDIF ELSE BEGIN
+
+                 ESpecSum[m] = INT_TABULATED(Efreqs[tmpF_i], $
+                                             eAVSpecFilt.comp1[m,tmpF_i])
+
+                 BSpecSum[m] = INT_TABULATED(Bfreqs[tmpF_i], $
+                                             dBpSpecFilt.comp1[m,tmpF_i])
+              ENDELSE
+              
+
+           ENDIF
 
         ENDFOR
 
@@ -952,7 +970,12 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         ;;will meet thresholds on integrated power spectrum amplitudes, $
         ;;and will, of course, satisfy this order-of-mag E-over-B test
         E_over_B  = MAKE_ARRAY(N_ELEMENTS(BSpecSum),VALUE=0,/FLOAT)
-        nz_B      = WHERE(BSpecSum GE 1e-15)
+        nz_B      = WHERE(BSpecSum GE 1e-15,N_nz_B)
+        IF N_nz_B EQ 0 THEN BEGIN
+           PRINT,"Looks like you got nothing, chieftain. You probably had nothing in ESpecSum and BSpecSum also."
+           STOP
+        ENDIF
+        
         E_over_B[nz_B]  = (SQRT(ESpecSum[nz_B])*1e-3)/(SQRT(BSpecSum[nz_B])*1e-9)
         winFFT_i  = WHERE( ( (E_over_B/va_mlt) GE 1.0/eb_to_alfven_speed )      AND $
                            ( (E_over_B/va_mlt) LE eb_to_alfven_speed     )      AND $
@@ -1074,7 +1097,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                           magz, $
                           winAlf_i, $
                           MAXIMUS_PFLUX=maxPFlux, $
-                          CDBTIME=cdbTime, $
+                          CDBTIME=MAXIMUS__times, $
                           MAXIMUS_INDS=great_i, $
                           SHOW_MAXIMUS_EVENTS=(KEYWORD_SET(show_maximus_events) AND $
                                                (great_i[0] NE -1))
@@ -1097,7 +1120,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                                      pFluxB, $
                                      pFluxP, $
                                      great_i, $
-                                     cdbTime, $
+                                     MAXIMUS__times, $
                                      magz, $
                                      maxPFlux, $
                                      width_t, $
@@ -1142,7 +1165,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            ;; maxILAT = ilat.y
            ;; maxTJUL = UTC_TO_JULDAY(orb.x)
            ;; maxTUTC = orb.x
-           good_i = good_i[ii]
+           good_i = MAXIMUS__good_i[ii]
 
            savePackageName = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + "--orb_" + orbit_num + $
                              '--pFlux_package.sav'
@@ -1418,6 +1441,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            ENDIF
 
 
+        GET_FA_ORBIT,jeeLC_time,/TIME_ARRAY,/ALL
+        
         ;;get ion end electron characteristic energies
         chare      = (jeeLC/jeLCTmp)*6.242*1.0e11
         chare_tot  = (jeeTotTmp/jeTotTmp)*6.242*1.0e11
@@ -2200,7 +2225,7 @@ PRO PFLUX_PLOTS,pFluxP,pFluxB, $
 
   window2     = WINDOW(DIMENSIONS=[800,600])
   margin      = [0.12, 0.12, 0.12, 0.12]
-  symTransp   = 70
+  symTransp   = 80
 
   x_values    = UTC_TO_JULDAY(magz.x)
 
@@ -2221,13 +2246,17 @@ PRO PFLUX_PLOTS,pFluxP,pFluxB, $
      maxPFluxRange = pFluxYRange
   ENDIF
 
+  pFluxBSym   = '+'
+  pFluxPSym   = '*'
+  maxPFluxSym = 'o'
+
   @plot_stormstats_defaults.pro
 
   pFluxBPlot  = PLOT(x_values[winAlf_i], $
                      pFluxB[winAlf_i], $
                      NAME='Along B', $
                      COLOR=BFieldCol, $
-                     SYMBOL='+', $
+                     SYMBOL=pFluxBSym, $
                      LINESTYLE='', $
                      AXIS_STYLE=KEYWORD_SET(show_maximus_events) ? 1 : !NULL, $
                      SYM_TRANSPARENCY=symTransp, $
@@ -2250,7 +2279,7 @@ PRO PFLUX_PLOTS,pFluxP,pFluxB, $
                      pFluxP[winAlf_i], $
                      NAME='Cross-track', $
                      COLOR=EFieldCol, $
-                     SYMBOL='*', $
+                     SYMBOL=pFluxPSym, $
                      LINESTYLE='', $
                      SYM_TRANSPARENCY=symTransp, $
                      YRANGE=pFluxyRange, $
@@ -2268,7 +2297,7 @@ PRO PFLUX_PLOTS,pFluxP,pFluxB, $
                           maxPFlux, $
                           NAME='IAW Database', $
                           COLOR='Blue', $
-                          SYMBOL='+', $
+                          SYMBOL=maxPFluxSym, $
                           LINESTYLE='', $
                           AXIS_STYLE=0, $
                           SYM_TRANSPARENCY=symTransp, $
