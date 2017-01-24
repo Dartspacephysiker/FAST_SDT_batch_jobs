@@ -11,24 +11,24 @@ PRO DOWNGOING_IONS__V1, $
 
   COMPILE_OPT idl2
 
-  as5_dir                        = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
-  Newell_dir                     = '/SPENCEdata/software/sdt/batch_jobs/do_the_Newell_2009/'
-  Newell_saveDir                 = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/do_the_Newell_2009/'
+  as5_saveDir              = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
+  Newell_dir               = '/SPENCEdata/software/sdt/batch_jobs/do_the_Newell_2009/'
+  Newell_saveDir           = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/do_the_Newell_2009/'
 
-  todayStr                       = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
+  todayStr                 = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
 
   ;;For skipping the "get interval times" bit
-  indDir                         = as5_dir + 'je_time_ind_dir/'
-  ;; indFilePref                 = "je_and_cleaned_time_range_indices--orbit_"
-  intervalArrFile                = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
+  ;; indDir                = as5_dir + 'je_time_ind_dir/'
+  ;; indFilePref           = "je_and_cleaned_time_range_indices--orbit_"
+  ;; intervalArrFile       = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
 
-  outNewellDir                   = Newell_saveDir + 'downgoing_ions__v1_output/'
-  out_sc_pot_dir                 = as5_dir + 'just_potential/'
-  outFile_pref                   = 'downgoing_ions__v1--orbit_'
+  outNewellDir             = Newell_saveDir + 'downgoing_ions__v1_output/'
+  out_sc_pot_dir           = as5_saveDir + 'just_potential/'
+  outFile_pref             = 'downgoing_ions__v1--orbit_'
 
-  newellStuff_pref_sc_pot        = 'Newell_et_al_identification_of_electron_spectra--just_sc_pot--Orbit_'
+  newellStuff_pref_sc_pot  = 'Newell_et_al_identification_of_electron_spectra--just_sc_pot--Orbit_'
 
-  badFile                        = 'downgoing_ions__v1--orbs_with_issues--'+todayStr+'.txt'
+  badFile                  = 'downgoing_ions__v1--orbs_with_issues--'+todayStr+'.txt'
 
   ;;energy ranges
   IF NOT KEYWORD_SET(energy_electrons) THEN BEGIN
@@ -61,7 +61,7 @@ PRO DOWNGOING_IONS__V1, $
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;First, see that we are able to match all points in this orb
-  RESTORE,intervalArrFile 
+  ;; RESTORE,intervalArrFile 
 
   GET_FA_ORBIT,t1,t2
   ;;now get orbit quantities
@@ -98,7 +98,7 @@ PRO DOWNGOING_IONS__V1, $
         CONTINUE
      ENDIF
 
-     PRINT,'time_range',time_to_str(time_ranges[jjj,0]),time_to_str(time_ranges[jjj,1])
+     PRINT,'time_range: ',time_to_str(time_ranges[jjj,0]),' - ',time_to_str(time_ranges[jjj,1])
      
      je_tmp_time                                 = je.x[time_range_indices[jjj,0]:time_range_indices[jjj,1]]
      je_tmp_data                                 = je.y[time_range_indices[jjj,0]:time_range_indices[jjj,1]]
@@ -333,223 +333,317 @@ PRO DOWNGOING_IONS__V1, $
      GET_DATA,'JEi_down_highE_lc_ram' ,DATA=tmpJEi_down_highE_lc_ram
      GET_DATA,'Ji_down_highE_lc_ram'  ,DATA=tmpJi_down_highE_lc_ram
 
-     ;;Now get 'em all, see what we gots
-     ;; GET_DATA,'JEe_up',DATA=tmpjee_up
-     ;; GET_DATA,'Je_up',DATA=tmpje_up
-     ;; GET_DATA,'eSpec_up', DATA=tmpeSpec_up
+     ;;uniq 'em
+     uniq_i                    = UNIQ(tmpJEi_down_lowE.x,SORT(tmpJEi_down_lowE.x))
+     tmpJEi_down_lowE          = {x:tmpJEi_down_lowE.x[uniq_i],y:tmpJEi_down_lowE.y[uniq_i]}
+     uniq_i                    = UNIQ(tmpJi_down_lowE.x,SORT(tmpJi_down_lowE.x))
+     tmpJi_down_lowE           = {x:tmpJi_down_lowE.x[uniq_i],y:tmpJi_down_lowE.y[uniq_i]}
+     uniq_i                    = UNIQ(tmpJEi_down_lowE_lc.x,SORT(tmpJEi_down_lowE_lc.x))
+     tmpJEi_down_lowE_lc       = {x:tmpJEi_down_lowE_lc.x[uniq_i],y:tmpJEi_down_lowE_lc.y[uniq_i]}
+     uniq_i                    = UNIQ(tmpJi_down_lowE_lc.x,SORT(tmpJi_down_lowE_lc.x))
+     tmpJi_down_lowE_lc        = {x:tmpJi_down_lowE_lc.x[uniq_i],y:tmpJi_down_lowE_lc.y[uniq_i]}
+     uniq_i                    = UNIQ(tmpJEi_down_lowE_lc_ram.x,SORT(tmpJEi_down_lowE_lc_ram.x))
+     tmpJEi_down_lowE_lc_ram   = {x:tmpJEi_down_lowE_lc_ram.x[uniq_i],y:tmpJEi_down_lowE_lc_ram.y[uniq_i]}
+     uniq_i                    = UNIQ(tmpJi_down_lowE_lc_ram.x,SORT(tmpJi_down_lowE_lc_ram.x))
+     tmpJi_down_lowE_lc_ram    = {x:tmpJi_down_lowE_lc_ram.x[uniq_i],y:tmpJi_down_lowE_lc_ram.y[uniq_i]}
+     uniq_i                    = UNIQ(tmpJEi_down_highE.x,SORT(tmpJEi_down_highE.x))
+     tmpJEi_down_highE         = {x:tmpJEi_down_highE.x[uniq_i],y:tmpJEi_down_highE.y[uniq_i]}
+     uniq_i                    = UNIQ(tmpJi_down_highE.x,SORT(tmpJi_down_highE.x))
+     tmpJi_down_highE          = {x:tmpJi_down_highE.x[uniq_i],y:tmpJi_down_highE.y[uniq_i]}
+     uniq_i                    = UNIQ(tmpJEi_down_highE_lc.x,SORT(tmpJEi_down_highE_lc.x))
+     tmpJEi_down_highE_lc      = {x:tmpJEi_down_highE_lc.x[uniq_i],y:tmpJEi_down_highE_lc.y[uniq_i]}
+     uniq_i                    = UNIQ(tmpJi_down_highE_lc.x,SORT(tmpJi_down_highE_lc.x))
+     tmpJi_down_highE_lc       = {x:tmpJi_down_highE_lc.x[uniq_i],y:tmpJi_down_highE_lc.y[uniq_i]}
+     uniq_i                    = UNIQ(tmpJEi_down_highE_lc_ram.x,SORT(tmpJEi_down_highE_lc_ram.x))
+     tmpJEi_down_highE_lc_ram  = {x:tmpJEi_down_highE_lc_ram.x[uniq_i],y:tmpJEi_down_highE_lc_ram.y[uniq_i]}
+     uniq_i                    = UNIQ(tmpJi_down_highE_lc_ram.x,SORT(tmpJi_down_highE_lc_ram.x))
+     tmpJi_down_highE_lc_ram   = {x:tmpJi_down_highE_lc_ram.x[uniq_i],y:tmpJi_down_highE_lc_ram.y[uniq_i]}
 
-     ;; GET_DATA,'JEe_up_lc',DATA=tmpjee_up_lc
-     ;; GET_DATA,'Je_up_lc',DATA=tmpje_up_lc
-     ;; GET_DATA,'eSpec_up_lc', DATA=tmpeSpec_up_lc
-
-     ;; IF KEYWORD_SET(include_ions) THEN BEGIN
-        ;; GET_DATA,'JEi_down',DATA=tmpjei_down
-        ;; GET_DATA,'Ji_down',DATA=tmpji_down
-        ;; GET_DATA,'iSpec_down', DATA=tmpiSpec_down
-
-        ;; GET_DATA,'JEi_down_lc',DATA=tmpjei_down_lc
-        ;; GET_DATA,'Ji_down_lc',DATA=tmpji_down_lc
-        ;; GET_DATA,'iSpec_down_lc', DATA=tmpiSpec_down_lc
-
-        ;; GET_DATA,'JEi_down_lc_ram',DATA=tmpjei_down_lc_ram
-        ;; GET_DATA,'Ji_down_lc_ram',DATA=tmpji_down_lc_ram
-        ;; GET_DATA,'iSpec_down_lc_ram', DATA=tmpiSpec_down_lc_ram
-     ;; ENDIF
-
-     ;;Check for dupes and/or sort
-     ;; CHECK_DUPES,tmpjee_up.x,HAS_DUPES=jee_has_dupes,OUT_UNIQ_I=jee_uniq_i,IS_SORTED=is_jee_sorted,/QUIET
-     ;; IF jee_has_dupes OR ~is_jee_sorted THEN BEGIN
-     ;;    tmpjee_up                                   = {x:tmpjee_up.x[jee_uniq_i],y:tmpjee_up.y[jee_uniq_i]}
-     ;; ENDIF
-     ;; CHECK_DUPES,tmpje_up.x,HAS_DUPES=je_up_has_dupes,OUT_UNIQ_I=je_up_uniq_i,IS_SORTED=is_je_up_sorted,/QUIET
-     ;; IF je_up_has_dupes OR ~is_je_up_sorted THEN BEGIN
-     ;;    tmpje_up                                 = {x:tmpje_up.x[je_up_uniq_i],y:tmpje_up.y[je_up_uniq_i]}
-     ;; ENDIF
-     ;; CHECK_DUPES,tmpeSpec_up.x,HAS_DUPES=eSpec_has_dupes,OUT_UNIQ_I=eSpec_uniq_i,IS_SORTED=is_eSpec_sorted,/QUIET
-     ;; IF eSpec_has_dupes OR ~is_eSpec_sorted THEN BEGIN
-     ;;    tmpeSpec_up                                 = {x:tmpeSpec_up.x[eSpec_uniq_i],y:tmpeSpec_up.y[eSpec_uniq_i,*],v:tmpeSpec_up.v[eSpec_uniq_i,*]}
-     ;; ENDIF
-
-     ;;remove junk first--all have to be finite (i.e., not NANs and such)
-     ;; keep1                                       = WHERE(FINITE(tmpjee_up.y))
-     ;; tmpjee_up.x                                 = tmpjee_up.x[keep1]
-     ;; tmpjee_up.y                                 = tmpjee_up.y[keep1]
-
-     ;; keep1                                       = WHERE(FINITE(tmpje_up.y))
-     ;; tmpje_up.x                                  = tmpje_up.x[keep1]
-     ;; tmpje_up.y                                  = tmpje_up.y[keep1]
-     ;; out_sc_pot                                  = out_sc_pot[keep1]
-     ;; out_sc_time                                 = out_sc_time[keep1]
-     ;; out_sc_min_energy_ind                       = out_sc_min_energy_ind[keep1]
-
-     ;; keep1                                       = FINITE(tmpeSpec_up.y)
-     ;; nTimes                                      = N_ELEMENTS(tmpeSpec_up.y[*,0])
-     ;; nEnergies                                   = N_ELEMENTS(tmpeSpec_up.y[0,*])
-     ;; keepRow                                     = MAKE_ARRAY(nTimes,/BYTE,VALUE=1)
-     ;; FOR i=0,N_ELEMENTS(tmpeSpec_up.y[*,0])-1 DO BEGIN
-     ;;    test                                     = WHERE(keep1[i,*],tCount)
-     ;;    keepRow[i]                               = tCount EQ nEnergies ? 1 : 0
-     ;; ENDFOR
-     ;; tmpeSpec_up.x                               = tmpeSpec_up.x[WHERE(keepRow)]
-     ;; tmpeSpec_up.y                               = tmpeSpec_up.y[WHERE(keepRow),*]
-     ;; tmpeSpec_up.v                               = tmpeSpec_up.v[WHERE(keepRow),*]
-
-     ;; ;;Now check for zeroes
-     ;; keep2                                       = WHERE(ABS(tmpjee_up.y) GT 0.0)
-     ;; jee_tmp_time                                = tmpjee_up.x[keep2]
-     ;; jee_tmp_data                                = tmpjee_up.y[keep2]
-
-     ;; keep2                                       = WHERE(ABS(tmpje_up.y) GT 0.0)
-     ;; je_up_tmp_time                              = tmpje_up.x[keep2]
-     ;; je_up_tmp_data                              = tmpje_up.y[keep2]
-     ;; out_sc_pot                                  = out_sc_pot[keep2]
-     ;; out_sc_time                                 = out_sc_time[keep2]
-     ;; out_sc_min_energy_ind                       = out_sc_min_energy_ind[keep2]
-
-
-     ;; success = ALIGN_FLUX_EFLUX_AND_ESPEC(je_up_tmp_time,je_up_tmp_data, $
-     ;;                                      jee_tmp_time,jee_tmp_data, $
-     ;;                                      tmpeSpec_up.x, $
-     ;;                                      OUT_SC_POT=out_sc_pot, $
-     ;;                                      OUT_SC_TIME=out_sc_time, $
-     ;;                                      OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind, $
-     ;;                                      ORBSTR=orbStr, $
-     ;;                                      FLUXSTRARR=['Je_up','JEe_up','eSpec_up'], $
-     ;;                                      LOGFILE=badFile, $
-     ;;                                      BATCH_MODE=batch_mode, $
-     ;;                                      /QUIET)
-     ;; IF ~success THEN RETURN
-
-     ;; STORE_DATA,'JEe_up',DATA={x:jee_tmp_time,y:jee_tmp_data}
-     ;; STORE_DATA,'Je_up',DATA={x:je_up_tmp_time,y:je_up_tmp_data}
-     ;; STORE_DATA,'eSpec_up',DATA={x:tmpeSpec_up.x,y:tmpeSpec_up.y,v:tmpeSpec_up.v}
-
-     ;;Now get 'em and send 'em packing!
-     ;; GET_DATA,'JEe_up',DATA=tmpjee_up
-     ;; GET_DATA,'Je_up',DATA=tmpje_up
-     ;; GET_DATA,'eSpec_up',DATA=tmpeSpec_up
-     ;;Because we need MLT
-     GET_FA_ORBIT,tmpeSpec_up.x,/TIME_ARRAY
-     GET_DATA,'MLT',DATA=mlt
-     mlt                                         = FLOAT(mlt.y)
-     GET_DATA,'ILAT',DATA=ilat
-     ilat                                        = FLOAT(ilat.y)
-     GET_DATA,'ALT',DATA=alt
-     alt                                         = FLOAT(alt.y)
-     GET_DATA,'ORBIT',DATA=orbit
-     orbit                                       = FLOAT(orbit.y)
-
-     ;; IF KEYWORD_SET(include_ions) THEN BEGIN
-        CHECK_DUPES,tmpjei_down.x,HAS_DUPES=jei_down_has_dupes,OUT_UNIQ_I=jei_down_uniq_i,IS_SORTED=is_jei_down_sorted,/QUIET
-        IF jei_down_has_dupes OR ~is_jei_down_sorted THEN BEGIN
-           tmpjei_down                                   = {x:tmpjei_down.x[jei_down_uniq_i],y:tmpjei_down.y[jei_down_uniq_i]}
-        ENDIF
-        CHECK_DUPES,tmpji_down.x,HAS_DUPES=ji_down_has_dupes,OUT_UNIQ_I=ji_down_uniq_i,IS_SORTED=is_ji_down_sorted,/QUIET
-        IF ji_down_has_dupes OR ~is_ji_down_sorted THEN BEGIN
-           tmpji_down                                 = {x:tmpji_down.x[ji_down_uniq_i],y:tmpji_down.y[ji_down_uniq_i]}
-        ENDIF
-        CHECK_DUPES,tmpiSpec_down.x,HAS_DUPES=iSpec_has_dupes,OUT_UNIQ_I=iSpec_uniq_i,IS_SORTED=is_iSpec_sorted,/QUIET
-        IF iSpec_has_dupes OR ~is_iSpec_sorted THEN BEGIN
-           tmpiSpec_down                                 = {x:tmpiSpec_down.x[iSpec_uniq_i],y:tmpiSpec_down.y[iSpec_uniq_i,*],v:tmpiSpec_down.v[iSpec_uniq_i,*]}
-        ENDIF
-
-     ;;remove junk first--all have to be finite (i.e., not NANs and such)
-        keep1                                    = WHERE(FINITE(tmpjei_down.y))
-        tmpjei_down.x                              = tmpjei_down.x[keep1]
-        tmpjei_down.y                              = tmpjei_down.y[keep1]
-
-        keep1                                    = WHERE(FINITE(tmpji_down.y))
-        tmpji_down.x                               = tmpji_down.x[keep1]
-        tmpji_down.y                               = tmpji_down.y[keep1]
-        out_sc_pot_i                             = out_sc_pot_i[keep1]
-        out_sc_time_i                            = out_sc_time_i[keep1]
-        out_sc_min_energy_ind_i                  = out_sc_min_energy_ind_i[keep1]
-
-        keep1                                    = FINITE(tmpiSpec_down.y)
-        nTimes                                   = N_ELEMENTS(tmpiSpec_down.y[*,0])
-        nEnergies                                = N_ELEMENTS(tmpiSpec_down.y[0,*])
-        keepRow                                  = MAKE_ARRAY(nTimes,/BYTE,VALUE=1)
-        FOR i=0,N_ELEMENTS(tmpiSpec_down.y[*,0])-1 DO BEGIN
-           test                                  = WHERE(keep1[i,*],tCount)
-           keepRow[i]                            = tCount EQ nEnergies ? 1 : 0
-        ENDFOR
-        tmpiSpec_down.x                               = tmpiSpec_down.x[WHERE(keepRow)]
-        tmpiSpec_down.y                               = tmpiSpec_down.y[WHERE(keepRow),*]
-        tmpiSpec_down.v                               = tmpiSpec_down.v[WHERE(keepRow),*]
-
-        ;;Now check for zeroes
-        keep2                                    = WHERE(ABS(tmpjei_down.y) GT 0.0)
-        jei_down_tmp_time                          = tmpjei_down.x[keep2]
-        jei_down_tmp_data                          = tmpjei_down.y[keep2]
+     down_lowE_sameT         = ARRAY_EQUAL(tmpJEi_down_lowE.x,tmpJi_down_lowE.x)
+     down_lowE_lc_sameT      = ARRAY_EQUAL(tmpJEi_down_lowE_lc.x,tmpJi_down_lowE_lc.x)
+     down_lowE_lc_ram_sameT  = ARRAY_EQUAL(tmpJEi_down_lowE_lc_ram.x,tmpJi_down_lowE_lc_ram.x)
+     down_lowE_sammen        = down_lowE_sameT AND down_lowE_lc_sameT  AND down_lowE_lc_ram_sameT
         
-        keep2                                    = WHERE(ABS(tmpji_down.y) GT 0.0)
-        ji_down_tmp_time                           = tmpji_down.x[keep2]
-        ji_down_tmp_data                           = tmpji_down.y[keep2]
-        out_sc_pot_i                             = out_sc_pot_i[keep2]
-        out_sc_time_i                            = out_sc_time_i[keep2]
-        out_sc_min_energy_ind_i                  = out_sc_min_energy_ind_i[keep2]
+     down_highE_sameT        = ARRAY_EQUAL(tmpJEi_down_highE.x,tmpJi_down_highE.x)
+     down_highE_lc_sameT     = ARRAY_EQUAL(tmpJEi_down_highE_lc.x,tmpJi_down_highE_lc.x)
+     down_highE_lc_ram_sameT = ARRAY_EQUAL(tmpJEi_down_highE_lc_ram.x,tmpJi_down_highE_lc_ram.x)
+     down_highE_sammen       = down_highE_sameT AND down_highE_lc_sameT  AND down_highE_lc_ram_sameT
+        
+     down_sammen             = down_lowE_sameT AND down_highE_sameT
+     down_lc_sammen          = down_lowE_lc_sameT AND down_highE_lc_sameT
+     down_lc_ram_sammen      = down_lowE_lc_ram_sameT AND down_highE_lc_ram_sameT
+
+     down_lowHighE_sameT          = down_lowE_sameT        AND down_highE_sameT        AND $
+                                    ARRAY_EQUAL(tmpJEi_down_lowE.x       ,tmpJEi_down_highE.x)
+     down_lowHighE_lc_sameT       = down_lowE_lc_sameT     AND down_highE_lc_sameT     AND $
+                                    ARRAY_EQUAL(tmpJEi_down_lowE_lc.x    ,tmpJEi_down_highE_lc.x)
+     down_lowHighE_lc_ram_sameT   = down_lowE_lc_ram_sameT AND down_highE_lc_ram_sameT AND $
+                                    ARRAY_EQUAL(tmpJEi_down_lowE_lc_ram.x,tmpJEi_down_highE_lc_ram.x)
+     down_lowHighE_sammen         = down_lowHighE_sameT AND down_lowHighE_lc_sameT AND down_lowHighE_lc_ram_sameT
+
+     down_lowHighE_alle_sameT = down_lowHighE_sammen AND $
+                                    ARRAY_EQUAL(tmpJEi_down_lowE.x,tmpJEi_down_highE_lc_ram.x) AND $
+                                    ARRAY_EQUAL(tmpJEi_down_lowE_lc.x,tmpJEi_down_highE_lc_ram.x)
+
+     ;;alle_sammen = 1 betyr at alle tid er sammen
+     ;;alle_sammen = 2 betyr at tid for hver types angle range  er sammen
+     CASE 1 OF
+        down_lowHighE_alle_sameT: BEGIN
+           alle_sammen = 1
+
+           ;;Sort 'em
+
+           GET_FA_ORBIT,tmpJEi_down_lowE.x,/TIME_ARRAY,/ALL
+
+           GET_DATA,'MLT',DATA=mlt
+           mlt    = FLOAT(mlt.y)
+           GET_DATA,'ILAT',DATA=ilat
+           ilat   = FLOAT(ilat.y)
+           GET_DATA,'ALT',DATA=alt
+           alt    = FLOAT(alt.y)
+           GET_DATA,'ORBIT',DATA=orbit
+           orbit  = FLOAT(orbit.y)
+
+           GET_DATA,'B_model',DATA=tmp1
+           GET_DATA,'BFOOT',DATA=tmp2
+           mag1  = (tmp1.y[*,0]*tmp1.y[*,0]+tmp1.y[*,1]*tmp1.y[*,1]+tmp1.y[*,2]*tmp1.y[*,2])^0.5
+           mag2  = (tmp2.y[*,0]*tmp2.y[*,0]+tmp2.y[*,1]*tmp2.y[*,1]+tmp2.y[*,2]*tmp2.y[*,2])^0.5
+           ratio = (mag2/mag1)
+           
+        END
+        ;; (down_sammen AND down_lc_sammen AND down_lc_ram_sammen): BEGIN
+        ;;    alle_sammen = 2
+        ;;    GET_FA_ORBIT,tmpeSpec_up.x,/TIME_ARRAY
+        ;;    GET_DATA,'MLT',DATA=mlt
+        ;;    mlt    = FLOAT(mlt.y)
+        ;;    GET_DATA,'ILAT',DATA=ilat
+        ;;    ilat   = FLOAT(ilat.y)
+        ;;    GET_DATA,'ALT',DATA=alt
+        ;;    alt    = FLOAT(alt.y)
+        ;;    GET_DATA,'ORBIT',DATA=orbit
+        ;;    orbit  = FLOAT(orbit.y)
+        ;; END
+        ELSE: BEGIN
+           OPENW,badLun,badFile,/GET_LUN,/APPEND
+           PRINTF,badLun,FORMAT='(I8,T10,I2,T20,"ikke alle sammen")',orbStr,jjj
+           CLOSE,badLun
+           FREE_LUN,badLun
+        END
+     ENDCASE
+
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     ;;Low energy
+     CLEANUP_STRUCT,tmpJEi_down_lowE, $
+                    /MUY_RAPIDO, $
+                    SUCCESS=success, $
+                    /REMOVE_TIME, $
+                    KEPT_I=JEi_down_lowE_i
+     IF ~success THEN BEGIN
+        OPENW,badLun,badFile,/GET_LUN,/APPEND
+        PRINTF,badLun,FORMAT='(I8,T10,I2,T20,"could not clean tmpJEi_down_lowE")',orbStr,jjj
+        CLOSE,badLun
+        FREE_LUN,badLun
+        RETURN
+     ENDIF
+     CLEANUP_STRUCT,tmpJi_down_lowE, $
+                    /MUY_RAPIDO, $
+                    SUCCESS=success, $
+                    /REMOVE_TIME, $
+                    KEPT_I=Ji_down_lowE_i
+     IF ~success THEN BEGIN
+        OPENW,badLun,badFile,/GET_LUN,/APPEND
+        PRINTF,badLun,FORMAT='(I8,T10,I2,T20,"could not clean tmpJi_down_lowE")',orbStr,jjj
+        CLOSE,badLun
+        FREE_LUN,badLun
+        RETURN
+     ENDIF
+     CLEANUP_STRUCT,tmpJEi_down_lowE_lc, $
+                    /MUY_RAPIDO, $
+                    SUCCESS=success, $
+                    /REMOVE_TIME, $
+                    KEPT_I=JEi_down_lowE_lc_i
+     IF ~success THEN BEGIN
+        OPENW,badLun,badFile,/GET_LUN,/APPEND
+        PRINTF,badLun,FORMAT='(I8,T10,I2,T20,"could not clean tmpJEi_down_lowE_lc")',orbStr,jjj
+        CLOSE,badLun
+        FREE_LUN,badLun
+        RETURN
+     ENDIF
+     CLEANUP_STRUCT,tmpJi_down_lowE_lc, $
+                    /MUY_RAPIDO, $
+                    SUCCESS=success, $
+                    /REMOVE_TIME, $
+                    KEPT_I=Ji_down_lowE_lc_i
+     IF ~success THEN BEGIN
+        OPENW,badLun,badFile,/GET_LUN,/APPEND
+        PRINTF,badLun,FORMAT='(I8,T10,I2,T20,"could not clean tmpJi_down_lowE_lc")',orbStr,jjj
+        CLOSE,badLun
+        FREE_LUN,badLun
+        RETURN
+     ENDIF
+     CLEANUP_STRUCT,tmpJEi_down_lowE_lc_ram, $
+                    /MUY_RAPIDO, $
+                    SUCCESS=success, $
+                    /REMOVE_TIME, $
+                    KEPT_I=JEi_down_lowE_lc_ram_i
+     IF ~success THEN BEGIN
+        OPENW,badLun,badFile,/GET_LUN,/APPEND
+        PRINTF,badLun,FORMAT='(I8,T10,I2,T20,"could not clean tmpJEi_down_lowE_lc_ram")',orbStr,jjj
+        CLOSE,badLun
+        FREE_LUN,badLun
+        RETURN
+     ENDIF
+     CLEANUP_STRUCT,tmpJi_down_lowE_lc_ram, $
+                    /MUY_RAPIDO, $
+                    SUCCESS=success, $
+                    /REMOVE_TIME, $
+                    KEPT_I=Ji_down_lowE_lc_ram_i
+     IF ~success THEN BEGIN
+        OPENW,badLun,badFile,/GET_LUN,/APPEND
+        PRINTF,badLun,FORMAT='(I8,T10,I2,T20,"could not clean tmpJi_down_lowE_lc_ram")',orbStr,jjj
+        CLOSE,badLun
+        FREE_LUN,badLun
+        RETURN
+     ENDIF
+
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     ;;High edgery
+     CLEANUP_STRUCT,tmpJEi_down_highE, $
+                    /MUY_RAPIDO, $
+                    SUCCESS=success, $
+                    /REMOVE_TIME, $
+                    KEPT_I=JEi_down_highE_i
+     IF ~success THEN BEGIN
+        OPENW,badLun,badFile,/GET_LUN,/APPEND
+        PRINTF,badLun,FORMAT='(I8,T10,I2,T20,"could not clean tmpJEi_down_highE")',orbStr,jjj
+        CLOSE,badLun
+        FREE_LUN,badLun
+        RETURN
+     ENDIF
+     CLEANUP_STRUCT,tmpJi_down_highE, $
+                    /MUY_RAPIDO, $
+                    SUCCESS=success, $
+                    /REMOVE_TIME, $
+                    KEPT_I=Ji_down_highE_i
+     IF ~success THEN BEGIN
+        OPENW,badLun,badFile,/GET_LUN,/APPEND
+        PRINTF,badLun,FORMAT='(I8,T10,I2,T20,"could not clean tmpJi_down_highE")',orbStr,jjj
+        CLOSE,badLun
+        FREE_LUN,badLun
+        RETURN
+     ENDIF
+     CLEANUP_STRUCT,tmpJEi_down_highE_lc, $
+                    /MUY_RAPIDO, $
+                    SUCCESS=success, $
+                    /REMOVE_TIME, $
+                    KEPT_I=JEi_down_highE_lc_i
+     IF ~success THEN BEGIN
+        OPENW,badLun,badFile,/GET_LUN,/APPEND
+        PRINTF,badLun,FORMAT='(I8,T10,I2,T20,"could not clean tmpJEi_down_highE_lc")',orbStr,jjj
+        CLOSE,badLun
+        FREE_LUN,badLun
+        RETURN
+     ENDIF
+     CLEANUP_STRUCT,tmpJi_down_highE_lc, $
+                    /MUY_RAPIDO, $
+                    SUCCESS=success, $
+                    /REMOVE_TIME, $
+                    KEPT_I=Ji_down_highE_lc_i
+     IF ~success THEN BEGIN
+        OPENW,badLun,badFile,/GET_LUN,/APPEND
+        PRINTF,badLun,FORMAT='(I8,T10,I2,T20,"could not clean tmpJi_down_highE_lc")',orbStr,jjj
+        CLOSE,badLun
+        FREE_LUN,badLun
+        RETURN
+     ENDIF
+     CLEANUP_STRUCT,tmpJEi_down_highE_lc_ram, $
+                    /MUY_RAPIDO, $
+                    SUCCESS=success, $
+                    /REMOVE_TIME, $
+                    KEPT_I=JEi_down_highE_lc_ram_i
+     IF ~success THEN BEGIN
+        OPENW,badLun,badFile,/GET_LUN,/APPEND
+        PRINTF,badLun,FORMAT='(I8,T10,I2,T20,"could not clean tmpJEi_down_highE_lc_ram")',orbStr,jjj
+        CLOSE,badLun
+        FREE_LUN,badLun
+        RETURN
+     ENDIF
+     CLEANUP_STRUCT,tmpJi_down_highE_lc_ram, $
+                    /MUY_RAPIDO, $
+                    SUCCESS=success, $
+                    /REMOVE_TIME, $
+                    KEPT_I=Ji_down_highE_lc_ram_i
+     IF ~success THEN BEGIN
+        OPENW,badLun,badFile,/GET_LUN,/APPEND
+        PRINTF,badLun,FORMAT='(I8,T10,I2,T20,"could not clean tmpJi_down_highE_lc_ram")',orbStr,jjj
+        CLOSE,badLun
+        FREE_LUN,badLun
+        RETURN
+     ENDIF
 
 
-        success = ALIGN_FLUX_EFLUX_AND_ESPEC(ji_down_tmp_time,ji_down_tmp_data, $
-                                             jei_down_tmp_time,jei_down_tmp_data, $
-                                             tmpiSpec_down.x, $
-                                             OUT_SC_POT=out_sc_pot_i, $
-                                             OUT_SC_TIME=out_sc_time_i, $
-                                             OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i, $
-                                             ORBSTR=orbStr, $
-                                             FLUXSTRARR=['Ji_down','JEi_down','iSpec_down'], $
-                                             LOGFILE=badFile, $
-                                             BATCH_MODE=batch_mode, $
-                                             /QUIET)
+        ;; keep1                                    = FINITE(tmpiSpec_down.y)
+        ;; nTimes                                   = N_ELEMENTS(tmpiSpec_down.y[*,0])
+        ;; nEnergies                                = N_ELEMENTS(tmpiSpec_down.y[0,*])
+        ;; keepRow                                  = MAKE_ARRAY(nTimes,/BYTE,VALUE=1)
+        ;; FOR i=0,N_ELEMENTS(tmpiSpec_down.y[*,0])-1 DO BEGIN
+        ;;    test                                  = WHERE(keep1[i,*],tCount)
+        ;;    keepRow[i]                            = tCount EQ nEnergies ? 1 : 0
+        ;; ENDFOR
+        ;; tmpiSpec_down.x                               = tmpiSpec_down.x[WHERE(keepRow)]
+        ;; tmpiSpec_down.y                               = tmpiSpec_down.y[WHERE(keepRow),*]
+        ;; tmpiSpec_down.v                               = tmpiSpec_down.v[WHERE(keepRow),*]
+
         
-        STORE_DATA,'JEi_down',DATA={x:jei_down_tmp_time,y:jei_down_tmp_data}
-        STORE_DATA,'Ji_down',DATA={x:ji_down_tmp_time,y:ji_down_tmp_data}
-        STORE_DATA,'iSpec_down',DATA={x:tmpiSpec_down.x,y:tmpiSpec_down.y,v:tmpiSpec_down.v}
-        
-        ;;Now get 'em and send 'em packing!
-        ;; GET_DATA,'JEi_down',DATA=tmpjei_down
-        ;; GET_DATA,'Ji_down',DATA=tmpji_down
-        ;; GET_DATA,'iSpec_down',DATA=tmpiSpec_down
-        GET_DATA,'JEi_down',DATA=jei_down
-        GET_DATA,'Ji_down',DATA=ji_down
-        GET_DATA,'iSpec_down',DATA=iSpec_down
-        ;;Because we need MLT
-        ;; GET_FA_ORBIT,tmpiSpec_down.x,/TIME_ARRAY
-        ;; GET_DATA,'MLT',DATA=mlt
-        ;; mlt                                         = FLOAT(mlt.y)
-        ;; GET_DATA,'ILAT',DATA=ilat
-        ;; ilat                                        = FLOAT(ilat.y)
-        
-     ;; ENDIF
 
      ;;Now make 'em cry
-     IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,tmpeSpec_up,tmpjee_up,tmpje_up, $
-                                             mlt,ilat,alt,orbit, $
-                                             eSpecs_parsed, $
-                                             SC_POT=out_sc_pot, $ ;The reason for no negative is that the sign gets flipped get_2d_ts_pot
-                                             /QUIET, $
-                                             BATCH_MODE=batch_mode, $
-                                             ORBSTR=orbStr, $
-                                             ERRORLOGFILE=badFile
+     ;; IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,tmpeSpec_up,tmpjee_up,tmpje_up, $
+     ;;                                         mlt,ilat,alt,orbit, $
+     ;;                                         eSpecs_parsed, $
+     ;;                                         SC_POT=out_sc_pot, $ ;The reason for no negative is that the sign gets flipped get_2d_ts_pot
+     ;;                                         /QUIET, $
+     ;;                                         BATCH_MODE=batch_mode, $
+     ;;                                         ORBSTR=orbStr, $
+     ;;                                         ERRORLOGFILE=badFile
      
 
-     IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,iSpec_down,jei_down,ji_down, $
-                                             mlt,ilat,alt,orbit, $
-                                             iSpecs_parsed, $
-                                             SC_POT=(-1.)*out_sc_pot, $ ;The reason for the negative is that that's what we actually get from V8_S
-                                             /QUIET, $
-                                             BATCH_MODE=batch_mode, $
-                                             ORBSTR=orbStr, $
-                                             ERRORLOGFILE=badFile
+     ;; IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,iSpec_down,jei_down,ji_down, $
+     ;;                                         mlt,ilat,alt,orbit, $
+     ;;                                         iSpecs_parsed, $
+     ;;                                         SC_POT=(-1.)*out_sc_pot, $ ;The reason for the negative is that that's what we actually get from V8_S
+     ;;                                         /QUIET, $
+     ;;                                         BATCH_MODE=batch_mode, $
+     ;;                                         ORBSTR=orbStr, $
+     ;;                                         ERRORLOGFILE=badFile
+
+     GET_DATA,'iSpec_down',DATA=iSpec_down_lc_ram
+     GET_DATA,'iSpec_down_lc_ram',DATA=iSpec_down_lc_ram
+
 
      ;; IF KEYWORD_SET(include_ions) THEN BEGIN
         ;;Save the electron stuff
-        PRINT,'Saving Newell file with ions: ' + out_newell_file
-        SAVE,eSpecs_parsed,tmpeSpec_up,tmpjee_up,tmpje_up, $
-             out_sc_pot,out_sc_time,out_sc_min_energy_ind, $
-             iSpecs_parsed,iSpec_down,jei_down,ji_down, $
-             out_sc_pot_i,out_sc_time_i,out_sc_min_energy_ind_i, $
-             FILENAME=outNewellDir+out_newell_file
+        PRINT,'Saving downgoing_ion file: ' + out_newell_file
+        ;; SAVE,eSpecs_parsed,tmpeSpec_up,tmpjee_up,tmpje_up, $
+        ;;      out_sc_pot,out_sc_time,out_sc_min_energy_ind, $
+        ;;      iSpecs_parsed,iSpec_down,jei_down,ji_down, $
+        ;;      out_sc_pot_i,out_sc_time_i,out_sc_min_energy_ind_i, $
+        ;;      FILENAME=outNewellDir+out_newell_file
+        SAVE, $
+           tmpJEi_down_lowE,tmpJi_down_lowE, $
+           tmpJEi_down_lowE_lc,tmpJi_down_lowE_lc, $
+           tmpJEi_down_lowE_lc_ram,tmpJi_down_lowE_lc_ram, $
+           tmpJEi_down_highE,tmpJi_down_highE, $
+           tmpJEi_down_highE_lc,tmpJi_down_highE_lc, $
+           tmpJEi_down_highE_lc_ram,tmpJi_down_highE_lc_ram, $
+           JEi_down_lowE_i,Ji_down_lowE_i, $
+           JEi_down_lowE_lc_i,Ji_down_lowE_lc_i, $
+           JEi_down_lowE_lc_ram_i,Ji_down_lowE_lc_ram_i, $
+           JEi_down_highE_i,Ji_down_highE_i, $
+           JEi_down_highE_lc_i,Ji_down_highE_lc_i, $
+           JEi_down_highE_lc_ram_i,Ji_down_highE_lc_ram_i, $
+           mlt,ilat,alt,orbit,ratio, $
+           iSpec_down,iSpec_down_lc_ram, $
+           FILENAME=outNewellDir+out_newell_file
      ;; ENDIF ELSE BEGIN
      ;;    ;;Save the electron stuff
      ;;    PRINT,'Saving Newell file: ' + out_newell_file
