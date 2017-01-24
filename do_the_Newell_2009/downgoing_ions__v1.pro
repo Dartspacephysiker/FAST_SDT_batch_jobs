@@ -11,46 +11,39 @@ PRO DOWNGOING_IONS__V1, $
 
   COMPILE_OPT idl2
 
-  ;; dbDir                                  = '/SPENCEdata/Research/database/FAST/dartdb/saves/'
-  ;; dbTFile                                = 'Dartdb_20150814--500-16361_inc_lower_lats--burst_1000-16361--cdbtime.sav'
-  ;; dbOrbFile                              = 'Dartdb_20151222--500-16361_inc_lower_lats--burst_1000-16361--orbits.sav'
-  as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/do_the_Newell_2009/'
-  ;; alfven_startstop_maxJ_file             = './alfven_startstop_maxJ_times--500-16361_inc_lower_lats--burst_1000-16361.sav'
+  as5_dir                        = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
+  Newell_dir                     = '/SPENCEdata/software/sdt/batch_jobs/do_the_Newell_2009/'
+  Newell_saveDir                 = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/do_the_Newell_2009/'
 
-  todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
+  todayStr                       = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
 
   ;;For skipping the "get interval times" bit
-  indDir                                 = as5_dir + 'je_time_ind_dir/'
-  ;; indFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
-  intervalArrFile                        = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
+  indDir                         = as5_dir + 'je_time_ind_dir/'
+  ;; indFilePref                 = "je_and_cleaned_time_range_indices--orbit_"
+  intervalArrFile                = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
 
-  outNewellDir                           = as5_dir + 'Newell_batch_output/'
-  out_sc_pot_dir                         = as5_dir + 'just_potential/'
-  outFile_pref                           = 'Dartdb--Alfven--Newell_identification_of_electron_spectra--Orbit_'
+  outNewellDir                   = Newell_saveDir + 'downgoing_ions__v1_output/'
+  out_sc_pot_dir                 = as5_dir + 'just_potential/'
+  outFile_pref                   = 'downgoing_ions__v1--orbit_'
 
-  newellStuff_pref_sc_pot                = 'Newell_et_al_identification_of_electron_spectra--just_sc_pot--Orbit_'
+  newellStuff_pref_sc_pot        = 'Newell_et_al_identification_of_electron_spectra--just_sc_pot--Orbit_'
 
-  ;; IF KEYWORD_SET(include_ions) THEN BEGIN
-     newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--downgoing_ions_upgoing_electrons--Orbit_'
-  ;; ENDIF ELSE BEGIN
-  ;;    newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--Orbit_'
-  ;; ENDELSE
-  ;; noEventsFile                           = 'Orbs_without_Alfven_events--'+todayStr+'.txt'
-  badFile                                = 'Orbs_with_other_issues--'+todayStr+'.txt'
+  badFile                        = 'downgoing_ions__v1--orbs_with_issues--'+todayStr+'.txt'
 
   ;;energy ranges
   IF NOT KEYWORD_SET(energy_electrons) THEN BEGIN
-     energy_electrons                    = [0.,30000.]                           ;use 0.0 for lower bound since the sc_pot is used to set this
+     energy_electrons            = [0.,30000.]                           ;use 0.0 for lower bound since the sc_pot is used to set this
   ENDIF
   IF NOT KEYWORD_SET(energy_ions) THEN BEGIN
-     energy_ions                         = [0.,500.]     ;use 0.0 for lower bound since the sc_pot is used to set this
+     energy_ions_low             = [0.,300.]     ;use 3.0 for lower bound since the sc_pot is used to set this
+     energy_ions_high            = [300,2.4e4]
   ENDIF
 
   ;; If no data exists, return to main
   ;; t=0
   ;; dat                                 = get_fa_ees(t,/st)
   ;;Jack Vernetti's recommendation
-  dat                                    = GET_FA_EES(0.0D, EN=1)
+  dat                                    = GET_FA_EES(0.0D,EN=1)
   IF dat.valid EQ 0 THEN BEGIN
      print,' ERROR: No FAST electron survey data -- GET_FA_EES(0.0, EN=1) returned invalid data'
     RETURN
@@ -76,13 +69,7 @@ PRO DOWNGOING_IONS__V1, $
   orbit_num                              = orb.y[0]
   orbStr                                 = STRCOMPRESS(orbit_num,/REMOVE_ALL)
 
-  number_of_intervals                    = intervalArr[orbit_num]
-  print,'number_of_intervals',number_of_intervals
-
-  ;; indFile                                = STRING(FORMAT='(A0,I0,"--",I0,"_intervals.sav")', $
-  ;;                                                 indFilePref,orbit_num,number_of_intervals)
-
-  ;;This file gives us je,orbit_num,time_range_indices, and time_range
+  ;;The loader gives us je,orbit_num,time_range_indices, and time_range
   ;; PRINT,'Restoring indFile ' + indFile + ' ...'
   ;; RESTORE,indDir+indFile
   this = LOAD_JE_AND_JE_TIMES_FOR_ORB(orbit_num, $
@@ -95,6 +82,7 @@ PRO DOWNGOING_IONS__V1, $
      PRINT,"Can't get ESA time ranges/time range indices for orbit " + orbStr + '! Returning ...'
      RETURN
   ENDIF
+  PRINT,'orb, nIntervals: ',orbit_num,number_of_intervals
 
   STORE_DATA,'Je',DATA=je
 
@@ -102,7 +90,7 @@ PRO DOWNGOING_IONS__V1, $
   FOR jjj=0,number_of_intervals-1 DO BEGIN
 
      ;;We're going to make output in any case. We're already here, after all!
-     out_newell_file                             = newellStuff_pref + orbStr + '_' + STRCOMPRESS(jjj,/REMOVE_ALL) + '.sav'
+     out_newell_file                             = outFile_pref + orbStr + '_' + STRCOMPRESS(jjj,/REMOVE_ALL) + '.sav'
 
      IF KEYWORD_SET(skip_if_file_exists) AND FILE_TEST(outNewellDir+out_newell_file) THEN BEGIN
         PRINT,'Skipping ' + out_newell_file + '...'
@@ -122,41 +110,41 @@ PRO DOWNGOING_IONS__V1, $
      
      ;;define loss cone angle
      GET_DATA,'ALT',DATA=alt
-     loss_cone_alt                               = alt.y[0]*1000.0
-     lcw                                         = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
+     loss_cone_alt           = alt.y[0]*1000.0
+     lcw                     = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
      GET_DATA,'ILAT',DATA=ilat
-     north_south                                 = ABS(ilat.y[0])/ilat.y[0]
+     north_south             = ABS(ilat.y[0])/ilat.y[0]
      
      if north_south EQ -1 then begin
-        ;; e_angle                                  = [180.-lcw,180+lcw] ; for Southern Hemis.
-        e_angle_up                               = [270.,90.]            ; for Southern Hemis.
-        e_angle_up_lc                            = [360.-lcw,lcw]        ; for Southern Hemis.
+        ;; e_angle           = [180.-lcw,180+lcw] ; for Southern Hemis.
+        ;; e_angle_up        = [270.,90.]            ; for Southern Hemis.
+        ;; e_angle_up_lc     = [360.-lcw,lcw]        ; for Southern Hemis.
         ;;i_angle=[270.0,90.0]	
         ;;elimnate ram from data
-        ;; i_angle                                  = [180.0,360.0]
-        ;; i_angle_up                               = [270.0,360.0]
-        i_angle_down                             = [180.0    ,270.     ]
-        i_angle_down_lc                          = [180.0    ,180.0+lcw]
-        i_angle_down_lc_ram                      = [180.0-lcw,180.0+lcw]
+        ;; i_angle           = [180.0,360.0]
+        ;; i_angle_up        = [270.0,360.0]
+        i_angle_down         = [180.0    ,270.     ]
+        i_angle_down_lc      = [180.0    ,180.0+lcw]
+        i_angle_down_lc_ram  = [180.0-lcw,180.0+lcw]
         
      endif else begin
-        ;; e_angle                                  = [360.-lcw,lcw]     ;	for Northern Hemis.
-        e_angle_up                               = [90.0,270.0]          ;	for Northern Hemis.
-        e_angle_up_lc                            = [180.-lcw,180.+lcw]  ;	for Northern Hemis.
+        ;; e_angle           = [360.-lcw,lcw]     ;	for Northern Hemis.
+        ;; e_angle_up        = [90.0,270.0]          ;	for Northern Hemis.
+        ;; e_angle_up_lc     = [180.-lcw,180.+lcw]  ;	for Northern Hemis.
         ;;i_angle=[90.,270.0]
         ;;eliminate ram from data
-        ;; i_angle                                  = [0.0,180.0]
-        ;; i_angle_up                               = [90.0,180.0]
-        i_angle_down                             = [0.,90.]
-        i_angle_down_lc                          = [0.,lcw]
-        i_angle_down_ram                         = [0.-lcw,lcw]
+        ;; i_angle           = [0.0,180.0]
+        ;; i_angle_up        = [90.0,180.0]
+        i_angle_down         = [0.,90.]
+        i_angle_down_lc      = [0.,lcw]
+        i_angle_down_lc_ram  = [0.-lcw,lcw]
         
      endelse
      
      ;;get fields mode
-     fields_mode=GET_FA_FIELDS('DataHdr_1032',time_ranges[jjj,0],time_ranges[jjj,1])
+     fields_mode             = GET_FA_FIELDS('DataHdr_1032',time_ranges[jjj,0],time_ranges[jjj,1])
      
-     out_newell_file_sc_pot                   = newellStuff_pref_sc_pot + orbStr + '_' + STRCOMPRESS(jjj,/REMOVE_ALL) + '.sav'
+     out_newell_file_sc_pot  = newellStuff_pref_sc_pot + orbStr + '_' + STRCOMPRESS(jjj,/REMOVE_ALL) + '.sav'
 
      IF FILE_TEST(out_sc_pot_dir+out_newell_file_sc_pot) THEN BEGIN
         PRINT,"Restoring S/C pot file: " + out_newell_file_sc_pot
@@ -177,71 +165,187 @@ PRO DOWNGOING_IONS__V1, $
      ENDIF
 
      ;;get moments/integrals of various fluxes
-     GET_2DT_TS_POT,'je_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
-                    NAME='JEe_up',ANGLE=e_angle_up,ENERGY=energy_electrons,SC_POT=sc_pot
-     GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
-                    NAME='Je_up',ENERGY=energy_electrons,ANGLE=e_angle_up,SC_POT=sc_pot, $
-                    OUT_SC_POT=out_sc_pot, $
-                    OUT_SC_TIME=out_sc_time, $
-                    OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind
-     GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='eSpec_up',ANGLE=e_angle_up, $ ;RETRACE=1, $
-                 T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
+     ;; GET_2DT_TS_POT,'je_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+     ;;                NAME='JEe_up',ANGLE=e_angle_up,ENERGY=energy_electrons,SC_POT=sc_pot
+     ;; GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+     ;;                NAME='Je_up',ENERGY=energy_electrons,ANGLE=e_angle_up,SC_POT=sc_pot, $
+     ;;                OUT_SC_POT=out_sc_pot, $
+     ;;                OUT_SC_TIME=out_sc_time, $
+     ;;                OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind
+     ;; GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='eSpec_up',ANGLE=e_angle_up,RETRACE=1, $
+     ;;             T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
 
-     GET_2DT_TS_POT,'je_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
-                    NAME='JEe_up_lc',ANGLE=e_angle_up_lc,ENERGY=energy_electrons,SC_POT=sc_pot
-     GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
-                    NAME='Je_up_lc',ENERGY=energy_electrons,ANGLE=e_angle_up_lc,SC_POT=sc_pot, $
-                    OUT_SC_POT=out_sc_pot, $
-                    OUT_SC_TIME=out_sc_time, $
-                    OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind
-     GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='eSpec_up_lc',ANGLE=e_angle_up_lc, $ ;RETRACE=1, $
-                 T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
+     ;; GET_2DT_TS_POT,'je_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+     ;;                NAME='JEe_up_lc',ANGLE=e_angle_up_lc,ENERGY=energy_electrons,SC_POT=sc_pot
+     ;; GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+     ;;                NAME='Je_up_lc',ENERGY=energy_electrons,ANGLE=e_angle_up_lc,SC_POT=sc_pot, $
+     ;;                OUT_SC_POT=out_sc_pot, $
+     ;;                OUT_SC_TIME=out_sc_time, $
+     ;;                OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind
+     ;; GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='eSpec_up_lc', $
+     ;;             ANGLE=e_angle_up_lc,RETRACE=1, $
+     ;;             T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
 
-     ;; IF KEYWORD_SET(include_ions) THEN BEGIN
-        GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
-                       NAME='JEi_down',ENERGY=energy_ions,ANGLE=i_angle_down,SC_POT=sc_pot,/CALIB
-        GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
-                       NAME='Ji_down',ENERGY=energy_ions,ANGLE=i_angle_down,SC_POT=sc_pot,/CALIB, $
-                       OUT_SC_POT=out_sc_pot_i, $
-                       OUT_SC_TIME=out_sc_time_i, $
-                       OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i
-        GET_EN_SPEC,"fa_ies_c",UNITS='eflux',NAME='iSpec_down',ANGLE=i_angle_down,RETRACE=1, $
-                    T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     ;;Low energy
+     GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                    NAME='JEi_down_lowE',ENERGY=energy_ions_low, $
+                    ANGLE=i_angle_down, $
+                    SC_POT=sc_pot, $
+                    /CALIB
 
-        ;; GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
-        ;;                NAME='JEi_down_lc',ENERGY=energy_ions,ANGLE=i_angle_down_lc,SC_POT=sc_pot,/CALIB
-        ;; GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
-        ;;                NAME='Ji_down_lc',ENERGY=energy_ions,ANGLE=i_angle_down_lc,SC_POT=sc_pot,/CALIB, $
-        ;;                OUT_SC_POT=out_sc_pot_i, $
-        ;;                OUT_SC_TIME=out_sc_time_i, $
-        ;;                OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i
-        ;; GET_EN_SPEC,"fa_ies_c",UNITS='eflux',NAME='iSpec_down_lc',ANGLE=i_angle_down_lc,RETRACE=1, $
-        ;;             T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
+     GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                    NAME='Ji_down_lowE',ENERGY=energy_ions_low, $
+                    ANGLE=i_angle_down, $
+                    SC_POT=sc_pot, $
+                    OUT_SC_POT=out_sc_pot_i, $
+                    OUT_SC_TIME=out_sc_time_i, $
+                    OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i, $
+                    /CALIB
 
-        ;; GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
-        ;;                NAME='JEi_down_lc_ram',ENERGY=energy_ions,ANGLE=i_angle_down_lc_ram,SC_POT=sc_pot,/CALIB
-        ;; GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
-        ;;                NAME='Ji_down_lc_ram',ENERGY=energy_ions,ANGLE=i_angle_down_lc_ram,SC_POT=sc_pot,/CALIB, $
-        ;;                OUT_SC_POT=out_sc_pot_i, $
-        ;;                OUT_SC_TIME=out_sc_time_i, $
-        ;;                OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i
-        ;; GET_EN_SPEC,"fa_ies_c",UNITS='eflux',NAME='iSpec_down_lc_ram',ANGLE=i_angle_down_lc_ram,RETRACE=1, $
-        ;;             T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],/CALIB
-     ;; ENDIF     
+
+     ;;Low energy--loss cone
+     GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                    NAME='JEi_down_lowE_lc',ENERGY=energy_ions_low, $
+                    ANGLE=i_angle_down_lc, $
+                    SC_POT=sc_pot, $
+                    /CALIB
+
+     GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                    NAME='Ji_down_lowE_lc',ENERGY=energy_ions_low, $
+                    ANGLE=i_angle_down_lc,SC_POT=sc_pot, $
+                    OUT_SC_POT=out_sc_pot_i, $
+                    OUT_SC_TIME=out_sc_time_i, $
+                    OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i, $
+                    /CALIB
+
+     ;;Low energy--loss cone + ram
+     GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                    NAME='JEi_down_lowE_lc_ram',ENERGY=energy_ions_low, $
+                    ANGLE=i_angle_down_lc_ram,SC_POT=sc_pot,/CALIB
+
+     GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                    NAME='Ji_down_lowE_lc_ram',ENERGY=energy_ions_low, $
+                    ANGLE=i_angle_down_lc_ram, $
+                    SC_POT=sc_pot, $
+                    OUT_SC_POT=out_sc_pot_i, $
+                    OUT_SC_TIME=out_sc_time_i, $
+                    OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i, $
+                    /CALIB
+
+
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     ;;High energy
+     ;; GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+     GET_2DT_TS,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                NAME='JEi_down_highE',ENERGY=energy_ions_high, $
+                ANGLE=i_angle_down, $
+                ;; SC_POT=sc_pot, $
+                /CALIB
+
+     ;; GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+     GET_2DT_TS,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                NAME='Ji_down_highE',ENERGY=energy_ions_high, $
+                ANGLE=i_angle_down, $
+                ;; SC_POT=sc_pot, $
+                ;; OUT_SC_POT=out_sc_pot_i, $
+                ;; OUT_SC_TIME=out_sc_time_i, $
+                ;; OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i, $
+                /CALIB
+
+     ;;High energy--loss cone
+     ;; GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+     GET_2DT_TS,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                NAME='JEi_down_highE_lc',ENERGY=energy_ions_high, $
+                ANGLE=i_angle_down_lc, $
+                ;; SC_POT=sc_pot, $
+                /CALIB
+
+     ;; GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+     GET_2DT_TS,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                NAME='Ji_down_highE_lc',ENERGY=energy_ions_high, $
+                ANGLE=i_angle_down_lc, $
+                ;; SC_POT=sc_pot, $
+                ;; OUT_SC_POT=out_sc_pot_i, $
+                ;; OUT_SC_TIME=out_sc_time_i, $
+                ;; OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i, $
+                /CALIB
+
+     ;;High energy--loss cone + ram
+     ;; GET_2DT_TS_POT,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+     GET_2DT_TS,'je_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                NAME='JEi_down_highE_lc_ram',ENERGY=energy_ions_high, $
+                ANGLE=i_angle_down_lc_ram, $
+                ;; SC_POT=sc_pot, $
+                /CALIB
+
+     ;; GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+     GET_2DT_TS,'j_2d_b','fa_ies',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                NAME='Ji_down_highE_lc_ram',ENERGY=energy_ions_high, $
+                ANGLE=i_angle_down_lc_ram, $
+                ;; SC_POT=sc_pot, $
+                ;; OUT_SC_POT=out_sc_pot_i, $
+                ;; OUT_SC_TIME=out_sc_time_i, $
+                ;; OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind_i, $
+                /CALIB
+
+
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     ;;Spectrum
+     GET_EN_SPEC,"fa_ies_c", $
+                 UNITS='eflux', $
+                 NAME='iSpec_down', $
+                 ANGLE=i_angle_down, $
+                 RETRACE=1, $
+                 T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                 /CALIB
+
+     GET_EN_SPEC,"fa_ies_c", $
+                 UNITS='eflux',NAME='iSpec_down_lc_ram', $
+                 ANGLE=i_angle_down_lc_ram, $
+                 RETRACE=1, $
+                 T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $
+                 /CALIB
+
+     ;; NAME='JEi_down_lowE'         ,ENERGY=energy_ions_low
+     ;; NAME='Ji_down_lowE'          ,ENERGY=energy_ions_low
+     ;; NAME='JEi_down_lowE_lc'      ,ENERGY=energy_ions_low
+     ;; NAME='Ji_down_lowE_lc'       ,ENERGY=energy_ions_low
+     ;; NAME='JEi_down_lowE_lc_ram'  ,ENERGY=energy_ions_low
+     ;; NAME='Ji_down_lowE_lc_ram'   ,ENERGY=energy_ions_low
+     ;; NAME='JEi_down_highE'        ,ENERGY=energy_ions_high
+     ;; NAME='Ji_down_highE'         ,ENERGY=energy_ions_high
+     ;; NAME='JEi_down_highE_lc'     ,ENERGY=energy_ions_high
+     ;; NAME='Ji_down_highE_lc'      ,ENERGY=energy_ions_high
+     ;; NAME='JEi_down_highE_lc_ram' ,ENERGY=energy_ions_high
+     ;; NAME='Ji_down_highE_lc_ram'  ,ENERGY=energy_ions_high
+
+     GET_DATA,'JEi_down_lowE'         ,DATA=tmpJEi_down_lowE
+     GET_DATA,'Ji_down_lowE'          ,DATA=tmpJi_down_lowE
+     GET_DATA,'JEi_down_lowE_lc'      ,DATA=tmpJEi_down_lowE_lc
+     GET_DATA,'Ji_down_lowE_lc'       ,DATA=tmpJi_down_lowE_lc
+     GET_DATA,'JEi_down_lowE_lc_ram'  ,DATA=tmpJEi_down_lowE_lc_ram
+     GET_DATA,'Ji_down_lowE_lc_ram'   ,DATA=tmpJi_down_lowE_lc_ram
+     GET_DATA,'JEi_down_highE'        ,DATA=tmpJEi_down_highE
+     GET_DATA,'Ji_down_highE'         ,DATA=tmpJi_down_highE
+     GET_DATA,'JEi_down_highE_lc'     ,DATA=tmpJEi_down_highE_lc
+     GET_DATA,'Ji_down_highE_lc'      ,DATA=tmpJi_down_highE_lc
+     GET_DATA,'JEi_down_highE_lc_ram' ,DATA=tmpJEi_down_highE_lc_ram
+     GET_DATA,'Ji_down_highE_lc_ram'  ,DATA=tmpJi_down_highE_lc_ram
 
      ;;Now get 'em all, see what we gots
-     GET_DATA,'JEe_up',DATA=tmpjee_up
-     GET_DATA,'Je_up',DATA=tmpje_up
-     GET_DATA,'eSpec_up', DATA=tmpeSpec_up
+     ;; GET_DATA,'JEe_up',DATA=tmpjee_up
+     ;; GET_DATA,'Je_up',DATA=tmpje_up
+     ;; GET_DATA,'eSpec_up', DATA=tmpeSpec_up
 
      ;; GET_DATA,'JEe_up_lc',DATA=tmpjee_up_lc
      ;; GET_DATA,'Je_up_lc',DATA=tmpje_up_lc
      ;; GET_DATA,'eSpec_up_lc', DATA=tmpeSpec_up_lc
 
      ;; IF KEYWORD_SET(include_ions) THEN BEGIN
-        GET_DATA,'JEi_down',DATA=tmpjei_down
-        GET_DATA,'Ji_down',DATA=tmpji_down
-        GET_DATA,'iSpec_down', DATA=tmpiSpec_down
+        ;; GET_DATA,'JEi_down',DATA=tmpjei_down
+        ;; GET_DATA,'Ji_down',DATA=tmpji_down
+        ;; GET_DATA,'iSpec_down', DATA=tmpiSpec_down
 
         ;; GET_DATA,'JEi_down_lc',DATA=tmpjei_down_lc
         ;; GET_DATA,'Ji_down_lc',DATA=tmpji_down_lc
@@ -253,77 +357,77 @@ PRO DOWNGOING_IONS__V1, $
      ;; ENDIF
 
      ;;Check for dupes and/or sort
-     CHECK_DUPES,tmpjee_up.x,HAS_DUPES=jee_has_dupes,OUT_UNIQ_I=jee_uniq_i,IS_SORTED=is_jee_sorted,/QUIET
-     IF jee_has_dupes OR ~is_jee_sorted THEN BEGIN
-        tmpjee_up                                   = {x:tmpjee_up.x[jee_uniq_i],y:tmpjee_up.y[jee_uniq_i]}
-     ENDIF
-     CHECK_DUPES,tmpje_up.x,HAS_DUPES=je_up_has_dupes,OUT_UNIQ_I=je_up_uniq_i,IS_SORTED=is_je_up_sorted,/QUIET
-     IF je_up_has_dupes OR ~is_je_up_sorted THEN BEGIN
-        tmpje_up                                 = {x:tmpje_up.x[je_up_uniq_i],y:tmpje_up.y[je_up_uniq_i]}
-     ENDIF
-     CHECK_DUPES,tmpeSpec_up.x,HAS_DUPES=eSpec_has_dupes,OUT_UNIQ_I=eSpec_uniq_i,IS_SORTED=is_eSpec_sorted,/QUIET
-     IF eSpec_has_dupes OR ~is_eSpec_sorted THEN BEGIN
-        tmpeSpec_up                                 = {x:tmpeSpec_up.x[eSpec_uniq_i],y:tmpeSpec_up.y[eSpec_uniq_i,*],v:tmpeSpec_up.v[eSpec_uniq_i,*]}
-     ENDIF
+     ;; CHECK_DUPES,tmpjee_up.x,HAS_DUPES=jee_has_dupes,OUT_UNIQ_I=jee_uniq_i,IS_SORTED=is_jee_sorted,/QUIET
+     ;; IF jee_has_dupes OR ~is_jee_sorted THEN BEGIN
+     ;;    tmpjee_up                                   = {x:tmpjee_up.x[jee_uniq_i],y:tmpjee_up.y[jee_uniq_i]}
+     ;; ENDIF
+     ;; CHECK_DUPES,tmpje_up.x,HAS_DUPES=je_up_has_dupes,OUT_UNIQ_I=je_up_uniq_i,IS_SORTED=is_je_up_sorted,/QUIET
+     ;; IF je_up_has_dupes OR ~is_je_up_sorted THEN BEGIN
+     ;;    tmpje_up                                 = {x:tmpje_up.x[je_up_uniq_i],y:tmpje_up.y[je_up_uniq_i]}
+     ;; ENDIF
+     ;; CHECK_DUPES,tmpeSpec_up.x,HAS_DUPES=eSpec_has_dupes,OUT_UNIQ_I=eSpec_uniq_i,IS_SORTED=is_eSpec_sorted,/QUIET
+     ;; IF eSpec_has_dupes OR ~is_eSpec_sorted THEN BEGIN
+     ;;    tmpeSpec_up                                 = {x:tmpeSpec_up.x[eSpec_uniq_i],y:tmpeSpec_up.y[eSpec_uniq_i,*],v:tmpeSpec_up.v[eSpec_uniq_i,*]}
+     ;; ENDIF
 
      ;;remove junk first--all have to be finite (i.e., not NANs and such)
-     keep1                                       = WHERE(FINITE(tmpjee_up.y))
-     tmpjee_up.x                                 = tmpjee_up.x[keep1]
-     tmpjee_up.y                                 = tmpjee_up.y[keep1]
+     ;; keep1                                       = WHERE(FINITE(tmpjee_up.y))
+     ;; tmpjee_up.x                                 = tmpjee_up.x[keep1]
+     ;; tmpjee_up.y                                 = tmpjee_up.y[keep1]
 
-     keep1                                       = WHERE(FINITE(tmpje_up.y))
-     tmpje_up.x                                  = tmpje_up.x[keep1]
-     tmpje_up.y                                  = tmpje_up.y[keep1]
-     out_sc_pot                                  = out_sc_pot[keep1]
-     out_sc_time                                 = out_sc_time[keep1]
-     out_sc_min_energy_ind                       = out_sc_min_energy_ind[keep1]
+     ;; keep1                                       = WHERE(FINITE(tmpje_up.y))
+     ;; tmpje_up.x                                  = tmpje_up.x[keep1]
+     ;; tmpje_up.y                                  = tmpje_up.y[keep1]
+     ;; out_sc_pot                                  = out_sc_pot[keep1]
+     ;; out_sc_time                                 = out_sc_time[keep1]
+     ;; out_sc_min_energy_ind                       = out_sc_min_energy_ind[keep1]
 
-     keep1                                       = FINITE(tmpeSpec_up.y)
-     nTimes                                      = N_ELEMENTS(tmpeSpec_up.y[*,0])
-     nEnergies                                   = N_ELEMENTS(tmpeSpec_up.y[0,*])
-     keepRow                                     = MAKE_ARRAY(nTimes,/BYTE,VALUE=1)
-     FOR i=0,N_ELEMENTS(tmpeSpec_up.y[*,0])-1 DO BEGIN
-        test                                     = WHERE(keep1[i,*],tCount)
-        keepRow[i]                               = tCount EQ nEnergies ? 1 : 0
-     ENDFOR
-     tmpeSpec_up.x                               = tmpeSpec_up.x[WHERE(keepRow)]
-     tmpeSpec_up.y                               = tmpeSpec_up.y[WHERE(keepRow),*]
-     tmpeSpec_up.v                               = tmpeSpec_up.v[WHERE(keepRow),*]
+     ;; keep1                                       = FINITE(tmpeSpec_up.y)
+     ;; nTimes                                      = N_ELEMENTS(tmpeSpec_up.y[*,0])
+     ;; nEnergies                                   = N_ELEMENTS(tmpeSpec_up.y[0,*])
+     ;; keepRow                                     = MAKE_ARRAY(nTimes,/BYTE,VALUE=1)
+     ;; FOR i=0,N_ELEMENTS(tmpeSpec_up.y[*,0])-1 DO BEGIN
+     ;;    test                                     = WHERE(keep1[i,*],tCount)
+     ;;    keepRow[i]                               = tCount EQ nEnergies ? 1 : 0
+     ;; ENDFOR
+     ;; tmpeSpec_up.x                               = tmpeSpec_up.x[WHERE(keepRow)]
+     ;; tmpeSpec_up.y                               = tmpeSpec_up.y[WHERE(keepRow),*]
+     ;; tmpeSpec_up.v                               = tmpeSpec_up.v[WHERE(keepRow),*]
 
-     ;;Now check for zeroes
-     keep2                                       = WHERE(ABS(tmpjee_up.y) GT 0.0)
-     jee_tmp_time                                = tmpjee_up.x[keep2]
-     jee_tmp_data                                = tmpjee_up.y[keep2]
+     ;; ;;Now check for zeroes
+     ;; keep2                                       = WHERE(ABS(tmpjee_up.y) GT 0.0)
+     ;; jee_tmp_time                                = tmpjee_up.x[keep2]
+     ;; jee_tmp_data                                = tmpjee_up.y[keep2]
 
-     keep2                                       = WHERE(ABS(tmpje_up.y) GT 0.0)
-     je_up_tmp_time                              = tmpje_up.x[keep2]
-     je_up_tmp_data                              = tmpje_up.y[keep2]
-     out_sc_pot                                  = out_sc_pot[keep2]
-     out_sc_time                                 = out_sc_time[keep2]
-     out_sc_min_energy_ind                       = out_sc_min_energy_ind[keep2]
+     ;; keep2                                       = WHERE(ABS(tmpje_up.y) GT 0.0)
+     ;; je_up_tmp_time                              = tmpje_up.x[keep2]
+     ;; je_up_tmp_data                              = tmpje_up.y[keep2]
+     ;; out_sc_pot                                  = out_sc_pot[keep2]
+     ;; out_sc_time                                 = out_sc_time[keep2]
+     ;; out_sc_min_energy_ind                       = out_sc_min_energy_ind[keep2]
 
 
-     success = ALIGN_FLUX_EFLUX_AND_ESPEC(je_up_tmp_time,je_up_tmp_data, $
-                                          jee_tmp_time,jee_tmp_data, $
-                                          tmpeSpec_up.x, $
-                                          OUT_SC_POT=out_sc_pot, $
-                                          OUT_SC_TIME=out_sc_time, $
-                                          OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind, $
-                                          ORBSTR=orbStr, $
-                                          FLUXSTRARR=['Je_up','JEe_up','eSpec_up'], $
-                                          LOGFILE=badFile, $
-                                          BATCH_MODE=batch_mode, $
-                                          /QUIET)
+     ;; success = ALIGN_FLUX_EFLUX_AND_ESPEC(je_up_tmp_time,je_up_tmp_data, $
+     ;;                                      jee_tmp_time,jee_tmp_data, $
+     ;;                                      tmpeSpec_up.x, $
+     ;;                                      OUT_SC_POT=out_sc_pot, $
+     ;;                                      OUT_SC_TIME=out_sc_time, $
+     ;;                                      OUT_SC_MIN_ENERGY_IND=out_sc_min_energy_ind, $
+     ;;                                      ORBSTR=orbStr, $
+     ;;                                      FLUXSTRARR=['Je_up','JEe_up','eSpec_up'], $
+     ;;                                      LOGFILE=badFile, $
+     ;;                                      BATCH_MODE=batch_mode, $
+     ;;                                      /QUIET)
      ;; IF ~success THEN RETURN
 
-     STORE_DATA,'JEe_up',DATA={x:jee_tmp_time,y:jee_tmp_data}
-     STORE_DATA,'Je_up',DATA={x:je_up_tmp_time,y:je_up_tmp_data}
-     STORE_DATA,'eSpec_up',DATA={x:tmpeSpec_up.x,y:tmpeSpec_up.y,v:tmpeSpec_up.v}
+     ;; STORE_DATA,'JEe_up',DATA={x:jee_tmp_time,y:jee_tmp_data}
+     ;; STORE_DATA,'Je_up',DATA={x:je_up_tmp_time,y:je_up_tmp_data}
+     ;; STORE_DATA,'eSpec_up',DATA={x:tmpeSpec_up.x,y:tmpeSpec_up.y,v:tmpeSpec_up.v}
 
      ;;Now get 'em and send 'em packing!
-     GET_DATA,'JEe_up',DATA=tmpjee_up
-     GET_DATA,'Je_up',DATA=tmpje_up
-     GET_DATA,'eSpec_up',DATA=tmpeSpec_up
+     ;; GET_DATA,'JEe_up',DATA=tmpjee_up
+     ;; GET_DATA,'Je_up',DATA=tmpje_up
+     ;; GET_DATA,'eSpec_up',DATA=tmpeSpec_up
      ;;Because we need MLT
      GET_FA_ORBIT,tmpeSpec_up.x,/TIME_ARRAY
      GET_DATA,'MLT',DATA=mlt
