@@ -1,6 +1,7 @@
 ;;2017/01/24
 
-;;TO BE DONE: NEED TO FIGURE OUT WHAT WE'RE SAVING (2016/06/08, 07:43 EDT)
+;;(2016/06/08, 07:43 EDT) TO BE DONE: NEED TO FIGURE OUT WHAT WE'RE SAVING 
+;;(2017/01/30, 09:59 EDT) Man, I forgot to include timestamps in the first 8644 files!!
 
 PRO DOWNGOING_IONS__V1, $
    SKIP_IF_FILE_EXISTS=skip_if_file_exists, $
@@ -431,6 +432,7 @@ PRO DOWNGOING_IONS__V1, $
         END
      ENDCASE
 
+     x = tmpJEi_down_lowE.x
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;;Low energy
      CLEANUP_STRUCT,tmpJEi_down_lowE, $
@@ -445,6 +447,7 @@ PRO DOWNGOING_IONS__V1, $
         FREE_LUN,badLun
         RETURN
      ENDIF
+     x = x[JEi_down_lowE_i]
      CLEANUP_STRUCT,tmpJi_down_lowE, $
                     /MUY_RAPIDO, $
                     SUCCESS=success, $
@@ -641,7 +644,7 @@ PRO DOWNGOING_IONS__V1, $
            JEi_down_highE_i,Ji_down_highE_i, $
            JEi_down_highE_lc_i,Ji_down_highE_lc_i, $
            JEi_down_highE_lc_ram_i,Ji_down_highE_lc_ram_i, $
-           mlt,ilat,alt,orbit,ratio, $
+           x,mlt,ilat,alt,orbit,ratio, $
            iSpec_down,iSpec_down_lc_ram, $
            FILENAME=outNewellDir+out_newell_file
      ;; ENDIF ELSE BEGIN
