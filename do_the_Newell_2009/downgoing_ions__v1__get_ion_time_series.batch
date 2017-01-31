@@ -1,0 +1,10 @@
+BatchJob: "downgoing_ions__v1__get_ion_time_series"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/do_the_Newell_2009/downgoing_ions__v1__get_ion_time_series_wrapper.pro
+
+DataBaseRequest:
+    Orbits 500-8644
+    
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/do_the_Newell_2009/
+PlotConfigurationFile: survey_5__no_efield

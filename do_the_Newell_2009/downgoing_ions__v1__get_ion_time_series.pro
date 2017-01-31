@@ -43,21 +43,21 @@ PRO DOWNGOING_IONS__V1__GET_ION_TIME_SERIES, $
   ;; t=0
   ;; dat                                 = get_fa_ees(t,/st)
   ;;Jack Vernetti's recommendation
-  dat                                    = GET_FA_EES(0.0D,EN=1)
+  dat                                    = GET_FA_IES(0.0D,EN=1)
   IF dat.valid EQ 0 THEN BEGIN
-     print,' ERROR: No FAST electron survey data -- GET_FA_EES(0.0, EN=1) returned invalid data'
+     print,' ERROR: No FAST ion survey data -- GET_FA_IES(0.0, EN=1) returned invalid data'
     RETURN
   ENDIF ELSE BEGIN
-     n_EESA_spectra                      = dat.index+1
+     n_IESA_spectra                      = dat.index+1
      last_index                          = LONG(dat.index)
   
-     PRINT,'There are ' + STRCOMPRESS(n_EESA_spectra,/REMOVE_ALL) + ' EESA survey spectra currently loaded in SDT...'
+     PRINT,'There are ' + STRCOMPRESS(n_IESA_spectra,/REMOVE_ALL) + ' EESA survey spectra currently loaded in SDT...'
   ENDELSE
 
   t2                                     = 0.0D
-  temp                                   = GET_FA_EES(t2,INDEX=0.0D)
+  temp                                   = GET_FA_IES(t2,INDEX=0.0D)
   t1                                     = t2
-  temp                                   = GET_FA_EES(t2,/ADV)
+  temp                                   = GET_FA_IES(t2,/ADV)
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;First, see that we are able to match all points in this orb
@@ -142,27 +142,27 @@ PRO DOWNGOING_IONS__V1__GET_ION_TIME_SERIES, $
      endelse
      
      ;;get fields mode
-     fields_mode             = GET_FA_FIELDS('DataHdr_1032',time_ranges[jjj,0],time_ranges[jjj,1])
+     ;; fields_mode             = GET_FA_FIELDS('DataHdr_1032',time_ranges[jjj,0],time_ranges[jjj,1])
      
-     out_newell_file_sc_pot  = newellStuff_pref_sc_pot + orbStr + '_' + STRCOMPRESS(jjj,/REMOVE_ALL) + '.sav'
+     ;; out_newell_file_sc_pot  = newellStuff_pref_sc_pot + orbStr + '_' + STRCOMPRESS(jjj,/REMOVE_ALL) + '.sav'
 
-     IF FILE_TEST(out_sc_pot_dir+out_newell_file_sc_pot) THEN BEGIN
-        PRINT,"Restoring S/C pot file: " + out_newell_file_sc_pot
-        RESTORE,out_sc_pot_dir+out_newell_file_sc_pot
-        IF N_ELEMENTS(sc_pot) EQ 0 THEN BEGIN
-           get_potential = 1
-        ENDIF ELSE BEGIN
-           get_potential = 0
-        ENDELSE
-     ENDIF ELSE BEGIN
-        get_potential = 1
-     ENDELSE
+     ;; IF FILE_TEST(out_sc_pot_dir+out_newell_file_sc_pot) THEN BEGIN
+     ;;    PRINT,"Restoring S/C pot file: " + out_newell_file_sc_pot
+     ;;    RESTORE,out_sc_pot_dir+out_newell_file_sc_pot
+     ;;    IF N_ELEMENTS(sc_pot) EQ 0 THEN BEGIN
+     ;;       get_potential = 1
+     ;;    ENDIF ELSE BEGIN
+     ;;       get_potential = 0
+     ;;    ENDELSE
+     ;; ENDIF ELSE BEGIN
+     ;;    get_potential = 1
+     ;; ENDELSE
 
-     IF KEYWORD_SET(get_potential) THEN BEGIN
-        GET_SC_POTENTIAL,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],DATA=sc_pot
-        PRINT,'Saving potential to ' + out_newell_file_sc_pot
-        SAVE,sc_pot,FILENAME=out_sc_pot_dir+out_newell_file_sc_pot
-     ENDIF
+     ;; IF KEYWORD_SET(get_potential) THEN BEGIN
+     ;;    GET_SC_POTENTIAL,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],DATA=sc_pot
+     ;;    PRINT,'Saving potential to ' + out_newell_file_sc_pot
+     ;;    SAVE,sc_pot,FILENAME=out_sc_pot_dir+out_newell_file_sc_pot
+     ;; ENDIF
 
      ;;get moments/integrals of various fluxes
      ;; GET_2DT_TS_POT,'je_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $

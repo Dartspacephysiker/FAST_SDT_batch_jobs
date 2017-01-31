@@ -1,7 +1,7 @@
 ;;2017/01/24
 
 ;;(2016/06/08, 07:43 EDT) TO BE DONE: NEED TO FIGURE OUT WHAT WE'RE SAVING 
-;;(2017/01/30, 09:59 EDT) Man, I forgot to include timestamps in the first 8644 files!!
+;;(2017/01/30, 09:59 EDT) Man, I forgot to include timestamps for orbits up to (and including) 8644!!
 
 PRO DOWNGOING_IONS__V1, $
    SKIP_IF_FILE_EXISTS=skip_if_file_exists, $
