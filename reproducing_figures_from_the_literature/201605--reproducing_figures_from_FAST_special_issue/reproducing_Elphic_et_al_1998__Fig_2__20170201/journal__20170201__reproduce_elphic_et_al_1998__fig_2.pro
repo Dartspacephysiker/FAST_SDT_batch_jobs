@@ -22,7 +22,7 @@
 ;routines themselves, rather than through a separate call to the spectral density estimation routines (see Spectral
 ;Estimates below).
 
-PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE_PS=save_ps
+PRO JOURNAL__20170201__REPRODUCE_ELPHIC_ET_AL_1998__FIG_2,SAVE_PNG=save_png,SAVE_PS=save_ps
 
   energy_electrons        = [50.,32000.]
   ucla_mag_despin         = 1
@@ -33,7 +33,7 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
   t1                      = STR_TO_TIME(t1Str)
   t2                      = STR_TO_TIME(t2Str)
 
-  outPlotName             = 'Elphic_et_al_1998--Fig_1'
+  outPlotName             = 'Elphic_et_al_1998--Fig_2'
 
   ;;Get fields stuff, eFields and magFields
   FA_FIELDS_DESPIN,T1=t1,T2=t2,DAT=despun_E
