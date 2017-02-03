@@ -1,0 +1,2 @@
+2017/02/03
+Every routine in this directory was based on my faulty assumption, limited understanding, unskilled approach, etc. when it came to FAST ephemeris data. Quit wasting people's time! Just use GET_FA_ORBIT, and either specify a time range or else a time series. Then let it do it's job. Whatever you do, don't obtain FAST ephemeris data with a freaking batch job.
