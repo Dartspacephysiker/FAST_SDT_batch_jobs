@@ -1,6 +1,6 @@
 ;;05/30/16
 ;;The original implementation of the Newell et al. [2009] algorithm was off, so I'm here to try to repair the damage.
-;;In specific, I was making the mistake of requiring that THREE or more bins fall above the 140 eV threshold
+;;In specific, I was mistakenly requiring that THREE or more bins fall above the 140 eV threshold
 PRO JOURNAL__20160530__GET_DIAGS_ON_MISCHARACTERIZED_ESPECS, $
    SAVE_OUTPUT=save_output, $
    DIAGNOSTIC_MODE=diagnostic_mode
