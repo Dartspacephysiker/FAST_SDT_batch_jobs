@@ -11,68 +11,67 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
 
   COMPILE_OPT idl2
 
-  as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
-  todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
+  todayStr                 = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
 
   ;;For skipping the "get interval times" bit
-  savesDir                               = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/eesa_time_intervals/'
+  savesDir                 = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/eesa_time_intervals/'
 
-  outNewellDir                           = as5_dir + 'Newell_batch_output/'
-  out_sc_pot_dir                         = savesDir + 'just_potential/'
-  outFile_pref                           = 'Dartdb--Alfven--Newell_identification_of_electron_spectra--Orbit_'
+  outNewellDir             = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/do_the_Newell_2009/Newell_batch_output/'
+  out_sc_pot_dir           = savesDir + 'just_potential/'
+  outFile_pref             = 'Dartdb--Alfven--Newell_identification_of_electron_spectra--Orbit_'
 
-  newellStuff_pref_sc_pot                = 'Newell_et_al_identification_of_electron_spectra--just_sc_pot--Orbit_'
+  newellStuff_pref_sc_pot  = 'Newell_et_al_identification_of_electron_spectra--just_sc_pot--Orbit_'
 
   ;; IF KEYWORD_SET(include_ions) THEN BEGIN
-     newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--downgoing_ions_upgoing_electrons--Orbit_'
+     newellStuff_pref      = 'Newell_et_al_identification_of_electron_spectra--downgoing_ions_upgoing_electrons--Orbit_'
   ;; ENDIF ELSE BEGIN
-  ;;    newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--Orbit_'
+  ;;    newellStuff_pref   = 'Newell_et_al_identification_of_electron_spectra--Orbit_'
   ;; ENDELSE
-  ;; noEventsFile                           = 'Orbs_without_Alfven_events--'+todayStr+'.txt'
-  badFile                                = 'Orbs_with_other_issues--'+todayStr+'.txt'
+  ;; noEventsFile          = 'Orbs_without_Alfven_events--'+todayStr+'.txt'
+  badFile                  = 'Orbs_with_other_issues--'+todayStr+'.txt'
 
   ;;energy ranges
   IF NOT KEYWORD_SET(energy_electrons) THEN BEGIN
-     energy_electrons                    = [0.,30000.]                           ;use 0.0 for lower bound since the sc_pot is used to set this
+     energy_electrons      = [0.,30000.]                           ;use 0.0 for lower bound since the sc_pot is used to set this
   ENDIF
   IF NOT KEYWORD_SET(energy_ions) THEN BEGIN
-     energy_ions                         = [0.,500.]     ;use 0.0 for lower bound since the sc_pot is used to set this
+     energy_ions           = [0.,500.]     ;use 0.0 for lower bound since the sc_pot is used to set this
   ENDIF
 
   ;; If no data exists, return to main
   ;; t=0
-  ;; dat                                 = get_fa_ees(t,/st)
+  ;; dat                   = get_fa_ees(t,/st)
   ;;Jack Vernetti's recommendation
-  dat                                    = GET_FA_EES(0.0D, EN=1)
+  dat                      = GET_FA_EES(0.0D, EN=1)
   IF dat.valid EQ 0 THEN BEGIN
      print,' ERROR: No FAST electron survey data -- GET_FA_EES(0.0, EN=1) returned invalid data'
     RETURN
   ENDIF ELSE BEGIN
-     n_EESA_spectra                      = dat.index+1
-     last_index                          = LONG(dat.index)
+     n_EESA_spectra        = dat.index+1
+     last_index            = LONG(dat.index)
   
      PRINT,'There are ' + STRCOMPRESS(n_EESA_spectra,/REMOVE_ALL) + ' EESA survey spectra currently loaded in SDT...'
   ENDELSE
 
-  t2                                     = 0.0D
-  temp                                   = GET_FA_EES(t2,INDEX=0.0D)
-  t1                                     = t2
-  temp                                   = GET_FA_EES(t2,/ADV)
+  t2                       = 0.0D
+  temp                     = GET_FA_EES(t2,INDEX=0.0D)
+  t1                       = t2
+  temp                     = GET_FA_EES(t2,/ADV)
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;First, see that we are able to match all points in this orb
   GET_FA_ORBIT,t1,t2
   ;;now get orbit quantities
   GET_DATA,'ORBIT',DATA=orb
-  orbit_num                              = orb.y[0]
-  orbStr                                 = STRCOMPRESS(orbit_num,/REMOVE_ALL)
+  orbit_num                = orb.y[0]
+  orbStr                   = STRCOMPRESS(orbit_num,/REMOVE_ALL)
 
-  this                                   = LOAD_JE_AND_JE_TIMES_FOR_ORB(orbit_num, $
-                                                                        /USE_DUPELESS_FILES, $
-                                                                        JE_OUT=je, $
-                                                                        NINTERVALS_OUT=number_of_intervals, $
-                                                                        TIME_RANGE_INDICES_OUT=time_range_indices, $
-                                                                        TIME_RANGES_OUT=time_ranges)
+  this                     = LOAD_JE_AND_JE_TIMES_FOR_ORB(orbit_num, $
+                                                          /USE_DUPELESS_FILES, $
+                                                          JE_OUT=je, $
+                                                          NINTERVALS_OUT=number_of_intervals, $
+                                                          TIME_RANGE_INDICES_OUT=time_range_indices, $
+                                                          TIME_RANGES_OUT=time_ranges)
 
   IF ~this THEN BEGIN
      PRINT,"Couldn't load eesa tInterval stuff for orbit " + orbStr + "!!"
