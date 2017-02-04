@@ -1,0 +1,10 @@
+BatchJob: "electron_spec_identification_v2__downgoing_ions"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/do_the_Newell_2009/electron_spec_identification_v2__downgoing_ions_wrapper.pro
+
+DataBaseRequest:
+    Orbits 3256-16361
+    
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun
+PlotConfigurationFile: chaston_survey_5__super_pared__no_langmuir

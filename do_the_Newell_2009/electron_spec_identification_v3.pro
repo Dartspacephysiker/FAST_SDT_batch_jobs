@@ -1,5 +1,5 @@
 ;2016/06/11 I hosed it so badly. I totally screwed up the s/c potential.
-PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V3, $
+PRO ELECTRON_SPEC_IDENTIFICATION_V3, $
    SKIP_IF_FILE_EXISTS=skip_if_file_exists, $
    ENERGY_ELECTRONS=energy_electrons,ENERGY_IONS=energy_ions, $
    T1=t1,T2=t2, $
