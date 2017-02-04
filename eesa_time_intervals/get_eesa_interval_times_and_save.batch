@@ -1,6 +1,6 @@
-BatchJob: "alfven_stats_5__just_get_interval_times_and_save"
+BatchJob: "get_eesa_interval_times_and_save"
 NoPlots:
-IDL: /home/spencerh/software/sdt/batch_jobs/eesa_time_intervals/alfven_stats_5__just_get_interval_times_and_save_wrapper.pro
+IDL: /home/spencerh/software/sdt/batch_jobs/eesa_time_intervals/get_eesa_interval_times_and_save_wrapper.pro
 
 DataBaseRequest:
     Orbits 23907-50000

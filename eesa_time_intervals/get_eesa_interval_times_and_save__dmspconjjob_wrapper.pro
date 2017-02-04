@@ -13,14 +13,15 @@
 ;time_stamp,off=1
 
 ; To get "alfven_stats_5.pro" in the PATH, we need this line:
-!PATH='/SPENCEdata/software/sdt/batch_jobs/eesa_time_intervals:'+!PATH
+;!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F:'+!PATH
+!PATH='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun:'+!PATH
       
 
 ;*****************************
 ;Put code here:
 
 ;; ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2,/BATCH_MODE,/INCLUDE_IONS
-ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE
+GET_EESA_INTERVAL_TIMES_AND_SAVE,ALTERNATIVE_OUTDIR='~/Desktop/',ALTERNATIVE_FILEPREFIX='je_and_cleaned_tRange--DMSP_conjunctionTest--orbit_'
 
 ;*****************************
 ;End routine:

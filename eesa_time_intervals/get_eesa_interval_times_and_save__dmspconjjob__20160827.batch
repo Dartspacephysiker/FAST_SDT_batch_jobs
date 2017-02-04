@@ -1,6 +1,6 @@
-BatchJob: "alfven_stats_5__just_get_interval_times_and_save__dmspconjjob_20160827"
+BatchJob: "get_eesa_interval_times_and_save__dmspconjjob_20160827"
 NoPlots:
-IDL: /home/spencerh/software/sdt/batch_jobs/eesa_time_intervals/alfven_stats_5__just_get_interval_times_and_save__dmspconjjob_wrapper.pro
+IDL: /home/spencerh/software/sdt/batch_jobs/eesa_time_intervals/get_eesa_interval_times_and_save__dmspconjjob_wrapper.pro
 
 DataBaseRequest:
     Orbits 10241-10242
