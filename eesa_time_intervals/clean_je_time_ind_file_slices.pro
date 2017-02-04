@@ -7,8 +7,7 @@ PRO CLEAN_JE_TIME_IND_FILE_SLICES
   PRINT,"Not ready yet. Still need to figure out best way to clean. Why should there be dupes, anyway?"
   STOP
 
-  dbDir  = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Alfven_study/' + $
-           '20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
+  dbDir  = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/eesa_time_intervals/'
   dbPref = 'cleaned_Je__Je_tRanges__and_Je_tRange_inds__0-50000.sav--orbs_'
 
   orbRanges = [ $

@@ -7,35 +7,35 @@ PRO ALFVEN_STATS_5__JUST_GET_INTERVAL_TIMES_AND_SAVE, $
 
   COMPILE_OPT idl2
 
-  as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
-  todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
+  eesa_dir             = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/eesa_time_intervals/'
+  todayStr             = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
 
-  defDir                                 = as5_dir + 'je_time_ind_dir/'
-  ;; defFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
-  defFilePref                            = "je_and_cleaned_time_range_indices--noDupes--orbit_"
+  defDir               = eesa_dir + 'je_time_ind_dir__noDupes/'
+  ;; defFilePref       = "je_and_cleaned_time_range_indices--orbit_"
+  defFilePref          = "je_and_cleaned_time_range_indices--noDupes--orbit_"
 
-  filePref                               = KEYWORD_SET(altPrefix) ? altPrefix : defFilePref
+  filePref             = KEYWORD_SET(altPrefix) ? altPrefix : defFilePref
 
-  dupeReportFile                         = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--DUPE_REPORT--as5__just_get_interval_times_and_save.txt'
+  dupeReportFile       = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--DUPE_REPORT--as5__just_get_interval_times_and_save.txt'
 
   IF KEYWORD_SET(altOutDir) THEN BEGIN
      IF FILE_TEST(altOutDir) THEN BEGIN
-        outDir                           = altOutDir
+        outDir         = altOutDir
      ENDIF ELSE BEGIN
         PRINT,"Provided directory doesn't exist! Switching to default."
-        outDir                           = defDir
+        outDir         = defDir
      ENDELSE
   ENDIF ELSE BEGIN
-     outDir                              = defDir
+     outDir            = defDir
   ENDELSE
 
   IF ~KEYWORD_SET(dupeReportDir) THEN BEGIN
-     dupeReportDir                       = './'
+     dupeReportDir     = './'
   ENDIF
 
   ;;energy ranges
   IF NOT KEYWORD_SET(energy_electrons) THEN BEGIN
-     energy_electrons                    = [0.,30000.]                           ;use 0.0 for lower bound since the sc_pot is used to set this
+     energy_electrons  = [0.,30000.]                           ;use 0.0 for lower bound since the sc_pot is used to set this
   ENDIF
 
   ;; If no data exists, return to main

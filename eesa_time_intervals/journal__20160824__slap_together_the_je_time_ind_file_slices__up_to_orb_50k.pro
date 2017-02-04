@@ -11,7 +11,7 @@ PRO JOURNAL__20160824__SLAP_TOGETHER_THE_JE_TIME_IND_FILE_SLICES__UP_TO_ORB_50K
   ;;For skipping the "get interval times" bit
   ;; as5_dir                       = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
 
-  intervalArrDir                = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/"
+  intervalArrDir                = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/eesa_time_intervals/"
 
   nOrbs                         = 50000
   nSteps                        = nOrbs/1000

@@ -13,8 +13,7 @@
 ;time_stamp,off=1
 
 ; To get "alfven_stats_5.pro" in the PATH, we need this line:
-;!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F:'+!PATH
-!PATH='/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun:'+!PATH
+!PATH='/SPENCEdata/software/sdt/batch_jobs/eesa_time_intervals:'+!PATH
       
 
 ;*****************************
