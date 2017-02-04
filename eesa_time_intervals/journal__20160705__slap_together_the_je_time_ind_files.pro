@@ -6,9 +6,7 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
   noDupesVersion   = 1
 
   ;;For skipping the "get interval times" bit
-  as5_dir          = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
-
-  intervalArrDir   = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/"
+  eesa_dir         = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/eesa_time_intervals/'
 
   orbSaveInterval  = 1000
 
@@ -17,18 +15,20 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
         ;;No dupes version
         PRINT,"Doing the 'no dupes version' of je_time_ind stuff ..."
 
-        outFile             = 'cleaned_Je__Je_tRanges__and_Je_tRange_inds__0-16361--noDupes.sav'
+        firstOrb            = 500
+        outFile             = 'cleaned_Je__Je_tRanges__and_Je_tRange_inds__500-25007--noDupes.sav'
 
-        indDir              = as5_dir + 'je_time_ind_dir__noDupes/'
+        indDir              = eesa_dir + 'je_time_ind_dir__noDupes/'
         indFilePref         = "je_and_cleaned_time_range_indices--noDupes--orbit_"
-        intervalArrFile     = "orb_and_num_intervals--noDupes--0-16361.sav" ;;Use it to figure out which file to restore
+        intervalArrFile     = "orb_and_num_intervals--noDupes--500-25007.sav" ;;Use it to figure out which file to restore
      END
      ELSE: BEGIN
         ;;Outfile stuff
         ;; outFile          = 'cleaned_Je__Je_tRanges__and_Je_tRange_inds.sav'
         outFile             = 'cleaned_Je__Je_tRanges__and_Je_tRange_inds__0-50000.sav'
 
-        indDir              = as5_dir + 'je_time_ind_dir/'
+        firstOrb            = 0
+        indDir              = eesa_dir + 'je_time_ind_dir/'
         indFilePref         = "je_and_cleaned_time_range_indices--orbit_"
 
         ;; intervalArrFile  = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
@@ -40,7 +40,7 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
   ENDCASE
 
   ;;Restore the file that has the master list of orbs 
-  RESTORE,intervalArrDir+intervalArrFile 
+  RESTORE,eesa_dir+intervalArrFile 
 
   nOrbs             = N_ELEMENTS(intervalArr)
 
@@ -48,16 +48,16 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
 
      PRINT,"Making sure none of these files exist before doing the orbit thing ..."
      lastOrb        = 0
-     FOR iOrb=0,nOrbs-1 DO BEGIN
+     FOR iOrb=firstOrb,nOrbs-1 DO BEGIN
 
         IF ( ( ( iOrb + 1) MOD orbSaveInterval) EQ 0 ) AND (iOrb GT 0) THEN BEGIN
            suff     = STRING(FORMAT='("--orbs_",I0,"-",I0)',lastOrb,iOrb)
 
            PRINT,outFile+suff + ' ...'
 
-           IF FILE_TEST(intervalArrDir+outFile+suff) THEN BEGIN
-              PRINT,"FILE EXISTS : " + intervalArrDir+outFile+suff
-              SPAWN,'ls -laht ' + intervalArrDir+outFile+suff,shellOutput
+           IF FILE_TEST(eesa_dir+outFile+suff) THEN BEGIN
+              PRINT,"FILE EXISTS : " + eesa_dir+outFile+suff
+              SPAWN,'ls -laht ' + eesa_dir+outFile+suff,shellOutput
               PRINT,shellOutput
               PRINT,"Please set keyword FORCE_REPLACEMENT if you really want me to commit this crime"
               STOP
@@ -78,8 +78,9 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
   je_tRange_inds_hash     = HASH()
   lastOrb                 = 0
   gotOrbs                 = 0  
-  FOR iOrb=0,nOrbs-1 DO BEGIN
-     number_of_intervals  = intervalArr[iOrb]
+  orbCnt                  = 0
+  FOR iOrb=firstOrb,nOrbs-1 DO BEGIN
+     number_of_intervals  = intervalArr[orbCnt++]
      PRINT,'orbit, nIntervals',iOrb,number_of_intervals
      ;; print,'number_of_intervals',number_of_intervals
 
@@ -116,15 +117,15 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
         suff = STRING(FORMAT='("--orbs_",I0,"-",I0)',lastOrb,iOrb)
         PRINT,'Saving je stuff to ' + outFile+suff + ' ...'
 
-        IF FILE_TEST(intervalArrDir+outFile+suff) AND ~KEYWORD_SET(force_replacement) THEN BEGIN
-           PRINT,"FILE EXISTS : " + intervalArrDir+outFile+suff
-           SPAWN,'ls -laht ' + intervalArrDir+outFile+suff,shellOutput
+        IF FILE_TEST(eesa_dir+outFile+suff) AND ~KEYWORD_SET(force_replacement) THEN BEGIN
+           PRINT,"FILE EXISTS : " + eesa_dir+outFile+suff
+           SPAWN,'ls -laht ' + eesa_dir+outFile+suff,shellOutput
            PRINT,shellOutput
            PRINT,"Please set keyword FORCE_REPLACEMENT if you really want me to commit this crime"
            STOP
         ENDIF
 
-        SAVE,je_tRange_hash,je_tRange_inds_hash,je_hash,FILENAME=intervalArrDir+outFile+suff
+        SAVE,je_tRange_hash,je_tRange_inds_hash,je_hash,FILENAME=eesa_dir+outFile+suff
         je_tRange_hash      = !NULL
         je_tRange_inds_hash = !NULL
         je_hash             = !NULL
@@ -142,7 +143,7 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
   ;; suff = STRING(FORMAT='("--orbs_",I0,"-",I0)',iOrb-orbSaveInterval,iOrb)
   suff = STRING(FORMAT='("--orbs_",I0,"-",I0)',lastOrb,iOrb)
   PRINT,'Saving FINAL je stuff to ' + outFile+suff + ' ...'
-  SAVE,je_tRange_hash,je_tRange_inds_hash,je_hash,FILENAME=intervalArrDir+outFile+suff
+  SAVE,je_tRange_hash,je_tRange_inds_hash,je_hash,FILENAME=eesa_dir+outFile+suff
   ;; je_tRange_hash      = !NULL
   ;; je_tRange_inds_hash = !NULL
   ;; je_hash             = !NULL
@@ -151,7 +152,7 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
   ;; je_hash             = HASH()
 
   ;; PRINT,'Saving je stuff to ' + outFile + ' ...'
-  ;; SAVE,je_tRange_hash,je_tRange_inds_hash,je_hash,FILENAME=intervalArrDir+outFile
+  ;; SAVE,je_tRange_hash,je_tRange_inds_hash,je_hash,FILENAME=eesa_dir+outFile
 
 
 END
