@@ -11,21 +11,14 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
 
   COMPILE_OPT idl2
 
-  ;; dbDir                                  = '/SPENCEdata/Research/database/FAST/dartdb/saves/'
-  ;; dbTFile                                = 'Dartdb_20150814--500-16361_inc_lower_lats--burst_1000-16361--cdbtime.sav'
-  ;; dbOrbFile                              = 'Dartdb_20151222--500-16361_inc_lower_lats--burst_1000-16361--orbits.sav'
-  as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
-  ;; alfven_startstop_maxJ_file             = './alfven_startstop_maxJ_times--500-16361_inc_lower_lats--burst_1000-16361.sav'
-
+  as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
   todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
 
   ;;For skipping the "get interval times" bit
-  indDir                                 = as5_dir + 'je_time_ind_dir/'
-  indFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
-  intervalArrFile                        = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
+  savesDir                               = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/eesa_time_intervals/'
 
   outNewellDir                           = as5_dir + 'Newell_batch_output/'
-  out_sc_pot_dir                         = as5_dir + 'just_potential/'
+  out_sc_pot_dir                         = savesDir + 'just_potential/'
   outFile_pref                           = 'Dartdb--Alfven--Newell_identification_of_electron_spectra--Orbit_'
 
   newellStuff_pref_sc_pot                = 'Newell_et_al_identification_of_electron_spectra--just_sc_pot--Orbit_'
@@ -68,24 +61,24 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2__DOWNGOING_IONS, $
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;First, see that we are able to match all points in this orb
-  RESTORE,intervalArrFile 
-
   GET_FA_ORBIT,t1,t2
   ;;now get orbit quantities
   GET_DATA,'ORBIT',DATA=orb
   orbit_num                              = orb.y[0]
   orbStr                                 = STRCOMPRESS(orbit_num,/REMOVE_ALL)
 
-  number_of_intervals                    = intervalArr[orbit_num]
-  print,'number_of_intervals',number_of_intervals
+  this                                   = LOAD_JE_AND_JE_TIMES_FOR_ORB(orbit_num, $
+                                                                        /USE_DUPELESS_FILES, $
+                                                                        JE_OUT=je, $
+                                                                        NINTERVALS_OUT=number_of_intervals, $
+                                                                        TIME_RANGE_INDICES_OUT=time_range_indices, $
+                                                                        TIME_RANGES_OUT=time_ranges)
 
-  indFile                                = STRING(FORMAT='(A0,I0,"--",I0,"_intervals.sav")', $
-                                                  indFilePref,orbit_num,number_of_intervals)
+  IF ~this THEN BEGIN
+     PRINT,"Couldn't load eesa tInterval stuff for orbit " + orbStr + "!!"
+     RETURN
+  ENDIF
 
-  ;;This file gives us je,orbit_num,time_range_indices, and time_range
-  PRINT,'Restoring indFile ' + indFile + ' ...'
-  RESTORE,indDir+indFile
-  
   STORE_DATA,'Je',DATA=je
 
   ;;begin looping each interval

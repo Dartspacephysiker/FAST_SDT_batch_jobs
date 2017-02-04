@@ -3,29 +3,19 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V3, $
    SKIP_IF_FILE_EXISTS=skip_if_file_exists, $
    ENERGY_ELECTRONS=energy_electrons,ENERGY_IONS=energy_ions, $
    T1=t1,T2=t2, $
-   JUST_SC_POT=just_sc_pot, $
    BATCH_MODE=batch_mode, $
    INCLUDE_IONS=include_ions
 
   COMPILE_OPT idl2
 
-
-  dbDir                                  = '/SPENCEdata/Research/database/FAST/dartdb/saves/'
-  dbTFile                                = 'Dartdb_20150814--500-16361_inc_lower_lats--burst_1000-16361--cdbtime.sav'
-  dbOrbFile                              = 'Dartdb_20151222--500-16361_inc_lower_lats--burst_1000-16361--orbits.sav'
-  as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
-  alfven_startstop_maxJ_file             = './alfven_startstop_maxJ_times--500-16361_inc_lower_lats--burst_1000-16361.sav'
+  as5_dir                                = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
+  todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
 
   ;;For skipping the "get interval times" bit
-  indDir                                 = as5_dir + 'je_time_ind_dir/'
-  indFilePref                            = "je_and_cleaned_time_range_indices--orbit_"
-  intervalArrDir                         = "/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20160520--get_Newell_identification/"
-  intervalArrFile                        = "orb_and_num_intervals--0-16361.sav"                                                           ;;Use it to figure out which file to restore
+  savesDir                               = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/eesa_time_intervals/'
 
-  todayStr                               = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
-  outDir                                 = as5_dir + 'batch_output/'
   outNewellDir                           = as5_dir + 'Newell_batch_output/'
-  out_sc_pot_dir                         = as5_dir + 'just_potential/'
+  out_sc_pot_dir                         = savesDir + 'just_potential/'
   outFile_pref                           = 'Dartdb--Alfven--Newell_identification_of_electron_spectra--Orbit_'
 
   newellStuff_pref_sc_pot                = 'Newell_et_al_identification_of_electron_spectra--just_sc_pot--Orbit_'
@@ -35,10 +25,10 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V3, $
   ENDIF ELSE BEGIN
      newellStuff_pref                    = 'Newell_et_al_identification_of_electron_spectra--Orbit_'
   ENDELSE
-
   noEventsFile                           = 'Orbs_without_Alfven_events--'+todayStr+'.txt'
   badFile                                = 'Orbs_with_other_issues--'+todayStr+'.txt'
 
+  ;;energy ranges
   IF NOT KEYWORD_SET(energy_electrons) THEN BEGIN
      energy_electrons                    = [0.,30000.]                           ;use 0.0 for lower bound since the sc_pot is used to set this
   ENDIF
@@ -68,23 +58,23 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V3, $
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;First, see that we are able to match all points in this orb
-  RESTORE,intervalArrDir+intervalArrFile 
-
   GET_FA_ORBIT,t1,t2
   ;;now get orbit quantities
   GET_DATA,'ORBIT',DATA=orb
   orbit_num                              = orb.y[0]
   orbStr                                 = STRCOMPRESS(orbit_num,/REMOVE_ALL)
 
-  number_of_intervals                    = intervalArr[orbit_num]
-  print,'number_of_intervals',number_of_intervals
+  this                                   = LOAD_JE_AND_JE_TIMES_FOR_ORB(orbit_num, $
+                                                                        /USE_DUPELESS_FILES, $
+                                                                        JE_OUT=je, $
+                                                                        NINTERVALS_OUT=number_of_intervals, $
+                                                                        TIME_RANGE_INDICES_OUT=time_range_indices, $
+                                                                        TIME_RANGES_OUT=time_ranges)
 
-  indFile                                = STRING(FORMAT='(A0,I0,"--",I0,"_intervals.sav")', $
-                                                  indFilePref,orbit_num,number_of_intervals)
-
-  ;;This file gives us je,orbit_num,time_range_indices, and time_range
-  PRINT,'Restoring indFile ' + indFile + ' ...'
-  RESTORE,indDir+indFile
+  IF ~this THEN BEGIN
+     PRINT,"Couldn't load eesa tInterval stuff for orbit " + orbStr + "!!"
+     RETURN
+  ENDIF
 
   STORE_DATA,'Je',DATA=je
 
@@ -104,18 +94,6 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V3, $
      
      je_tmp_time                                 = je.x[time_range_indices[jjj,0]:time_range_indices[jjj,1]]
      je_tmp_data                                 = je.y[time_range_indices[jjj,0]:time_range_indices[jjj,1]]
-
-     IF KEYWORD_SET(just_sc_pot) THEN BEGIN
-        out_newell_file_sc_pot                   = newellStuff_pref_sc_pot + orbStr + '_' + STRCOMPRESS(jjj,/REMOVE_ALL) + '.sav'
-
-        GET_SC_POTENTIAL,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],DATA=sc_pot
-
-        PRINT,'Saving potential to ' + out_newell_file_sc_pot
-        SAVE,sc_pot,FILENAME=out_sc_pot_dir+out_newell_file_sc_pot
-
-        PRINT,'Moving to next interval or file...'
-        CONTINUE
-     ENDIF
 
      STORE_DATA,'Je_tmp',DATA={x:je_tmp_time,y:je_tmp_data}
 
@@ -148,7 +126,25 @@ PRO ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V3, $
      ;;get fields mode
      fields_mode=GET_FA_FIELDS('DataHdr_1032',time_ranges[jjj,0],time_ranges[jjj,1])
      
-     GET_SC_POTENTIAL,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],DATA=sc_pot
+     out_newell_file_sc_pot  = newellStuff_pref_sc_pot + orbStr + '_' + STRCOMPRESS(jjj,/REMOVE_ALL) + '.sav'
+
+     IF FILE_TEST(out_sc_pot_dir+out_newell_file_sc_pot) THEN BEGIN
+        PRINT,"Restoring S/C pot file: " + out_newell_file_sc_pot
+        RESTORE,out_sc_pot_dir+out_newell_file_sc_pot
+        IF N_ELEMENTS(sc_pot) EQ 0 THEN BEGIN
+           get_potential = 1
+        ENDIF ELSE BEGIN
+           get_potential = 0
+        ENDELSE
+     ENDIF ELSE BEGIN
+        get_potential = 1
+     ENDELSE
+
+     IF KEYWORD_SET(get_potential) THEN BEGIN
+        GET_SC_POTENTIAL,T1=time_ranges[jjj,0],T2=time_ranges[jjj,1],DATA=sc_pot
+        PRINT,'Saving potential to ' + out_newell_file_sc_pot
+        SAVE,sc_pot,FILENAME=out_sc_pot_dir+out_newell_file_sc_pot
+     ENDIF
 
      ;;get moments/integrals of various fluxes
      GET_2DT_TS_POT,'je_2d_b','fa_ees',T1=time_ranges[jjj,0],T2=time_ranges[jjj,1], $

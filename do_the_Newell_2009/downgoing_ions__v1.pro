@@ -12,19 +12,13 @@ PRO DOWNGOING_IONS__V1, $
 
   COMPILE_OPT idl2
 
-  as5_saveDir              = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun/'
   Newell_dir               = '/SPENCEdata/software/sdt/batch_jobs/do_the_Newell_2009/'
   Newell_saveDir           = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/do_the_Newell_2009/'
 
   todayStr                 = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
 
-  ;;For skipping the "get interval times" bit
-  ;; indDir                = as5_dir + 'je_time_ind_dir/'
-  ;; indFilePref           = "je_and_cleaned_time_range_indices--orbit_"
-  ;; intervalArrFile       = "orb_and_num_intervals--0-16361.sav" ;;Use it to figure out which file to restore
-
   outNewellDir             = Newell_saveDir + 'downgoing_ions__v1_output/'
-  out_sc_pot_dir           = as5_saveDir + 'just_potential/'
+  out_sc_pot_dir           = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/just_potential/'
   outFile_pref             = 'downgoing_ions__v1--orbit_'
 
   newellStuff_pref_sc_pot  = 'Newell_et_al_identification_of_electron_spectra--just_sc_pot--Orbit_'
