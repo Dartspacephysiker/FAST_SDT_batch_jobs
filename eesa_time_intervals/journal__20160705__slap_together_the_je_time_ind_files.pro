@@ -9,13 +9,15 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
   eesa_dir         = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/eesa_time_intervals/'
 
   orbSaveInterval  = 1000
+  force_replacement = 1
 
   CASE 1 OF
      KEYWORD_SET(noDupesVersion): BEGIN
         ;;No dupes version
         PRINT,"Doing the 'no dupes version' of je_time_ind stuff ..."
 
-        firstOrb            = 500
+        ;; firstOrb            = 500
+        firstOrb            = 24000
         outFile             = 'cleaned_Je__Je_tRanges__and_Je_tRange_inds__500-25007--noDupes.sav'
 
         indDir              = eesa_dir + 'je_time_ind_dir__noDupes/'
@@ -40,14 +42,16 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
   ENDCASE
 
   ;;Restore the file that has the master list of orbs 
+  ;;It also comes with intervalStartOrb and intervalStopOrb
   RESTORE,eesa_dir+intervalArrFile 
 
-  nOrbs             = N_ELEMENTS(intervalArr)
+  nOrbs             = N_ELEMENTS(intervalArr)+intervalStartOrb
 
   IF ~KEYWORD_SET(force_replacement) THEN BEGIN
 
      PRINT,"Making sure none of these files exist before doing the orbit thing ..."
-     lastOrb        = 0
+     lastOrb        = LONG(ROUND_TO_NTH_DECIMAL_PLACE(firstOrb,3,/FLOOR))
+
      FOR iOrb=firstOrb,nOrbs-1 DO BEGIN
 
         IF ( ( ( iOrb + 1) MOD orbSaveInterval) EQ 0 ) AND (iOrb GT 0) THEN BEGIN
@@ -76,9 +80,9 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
   je_hash                 = HASH()
   je_tRange_hash          = HASH()
   je_tRange_inds_hash     = HASH()
-  lastOrb                 = 0
+  lastOrb                 = LONG(ROUND_TO_NTH_DECIMAL_PLACE(firstOrb,3,/FLOOR))
   gotOrbs                 = 0  
-  orbCnt                  = 0
+  orbCnt                  = firstOrb-intervalStartOrb ;because intervalArr only has entries starting at intervalStartOrb
   FOR iOrb=firstOrb,nOrbs-1 DO BEGIN
      number_of_intervals  = intervalArr[orbCnt++]
      PRINT,'orbit, nIntervals',iOrb,number_of_intervals
@@ -117,12 +121,16 @@ PRO JOURNAL__20160705__SLAP_TOGETHER_THE_JE_TIME_IND_FILES
         suff = STRING(FORMAT='("--orbs_",I0,"-",I0)',lastOrb,iOrb)
         PRINT,'Saving je stuff to ' + outFile+suff + ' ...'
 
-        IF FILE_TEST(eesa_dir+outFile+suff) AND ~KEYWORD_SET(force_replacement) THEN BEGIN
-           PRINT,"FILE EXISTS : " + eesa_dir+outFile+suff
-           SPAWN,'ls -laht ' + eesa_dir+outFile+suff,shellOutput
-           PRINT,shellOutput
-           PRINT,"Please set keyword FORCE_REPLACEMENT if you really want me to commit this crime"
-           STOP
+        IF FILE_TEST(eesa_dir+outFile+suff) THEN BEGIN
+           IF KEYWORD_SET(force_replacement) THEN BEGIN
+              PRINT,"Replacing " + eesa_dir+outFile+suff + ' ...'
+           ENDIF ELSE BEGIN
+              PRINT,"FILE EXISTS : " + eesa_dir+outFile+suff
+              SPAWN,'ls -laht ' + eesa_dir+outFile+suff,shellOutput
+              PRINT,shellOutput
+              PRINT,"Please set keyword FORCE_REPLACEMENT if you really want me to commit this crime"
+              STOP
+           ENDELSE
         ENDIF
 
         SAVE,je_tRange_hash,je_tRange_inds_hash,je_hash,FILENAME=eesa_dir+outFile+suff

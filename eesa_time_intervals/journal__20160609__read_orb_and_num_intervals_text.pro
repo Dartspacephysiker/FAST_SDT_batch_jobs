@@ -5,7 +5,15 @@
 ;;Then do some editing. Try, for example, regexp find and replace with this line:
 ;;je_and_cleaned_time_range_indices--noDupes--orbit_\([0-9]\{3,5\}\)--\([0-9]+\)_intervals.sav
 ;;
-PRO JOURNAL__20160609__READ_ORB_AND_NUM_INTERVALS_TEXT
+;;2017/02/08 Here's a helper:
+;; nNoHit = N_ELEMENTS(noHitOrbs)
+;; FOR k=0,nNoHit-1 DO BEGIN & $
+;;    PRINT,FORMAT='(I0,"/",I0,": Orb ",I0)',K,nNoHit,noHitOrbs[k] & $
+;;    IF (WHERE(eSpec.orbit EQ noHitOrbs[k],nHit_eSpec))[0] NE -1 THEN BEGIN & $
+;;    PRINT,"ORB " + STRCOMPRESS(noHitOrbs[k],/REMOVE_ALL) + ": But eSpecDB has " + STRCOMPRESS(nHit_eSpec,/REMOVE_ALL) + ' entries for this orbit!'
+;; ENDIF & $
+;; ENDFOR
+PRO JOURNAL__20160609__READ_ORB_AND_NUM_INTERVALS_TEXT,NOHITORBS=noHitOrbs
 
   COMPILE_OPT IDL2
 
@@ -32,7 +40,7 @@ PRO JOURNAL__20160609__READ_ORB_AND_NUM_INTERVALS_TEXT
   intervalArr  = MAKE_ARRAY(stopOrb-startOrb+1,/LONG,VALUE=0)
   orbArr       = LINDGEN(stopOrb-startOrb+1)+startOrb
 
-
+  noHitOrbs    = !NULL
   FOR i=0,N_ELEMENTS(orbArr)-1 DO BEGIN
      curOrb                = orbArr[i]
 
@@ -45,13 +53,16 @@ PRO JOURNAL__20160609__READ_ORB_AND_NUM_INTERVALS_TEXT
         ENDELSE
      ENDIF ELSE BEGIN
         PRINT,'No hits for orb' + STRCOMPRESS(curOrb,/REMOVE_ALL)
+        noHitOrbs = [noHitOrbs,curOrb]
      ENDELSE
   ENDFOR
 
   ;; oAndI                 = {orb:orbArr, $
   ;;               n_int:intervalArr}
 
+  intervalStartOrb = startOrb
+  intervalStopOrb  = stopOrb
   PRINT,'Saving ' + outFile
-  SAVE,intervalArr,FILENAME=eesa_dir+outFile
+  SAVE,intervalArr,intervalStartOrb,FILENAME=eesa_dir+outFile
 
 END
