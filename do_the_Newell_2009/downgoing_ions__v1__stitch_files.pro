@@ -4,8 +4,11 @@ PRO DOWNGOING_IONS__V1__STITCH_FILES, $
 
   COMPILE_OPT IDL2
 
+  PRINT,"Do yourself a favor and mosey on over to JOURNAL__20170130__CHECK_OUT_NEW_DOWNGOING_ION_DB, where the REAL stitching happens."
+  RETURN
+
   startOrb       = 500
-  stopOrb        = 599
+  stopOrb        = 14361
 
   Newell_saveDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/do_the_Newell_2009/'
   outNewellDir   = Newell_saveDir + 'downgoing_ions__v1_output/'
