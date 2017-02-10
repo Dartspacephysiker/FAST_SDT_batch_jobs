@@ -1,4 +1,4 @@
-BatchJob: "downgoing_ions__v1"
+BatchJob: "downgoing_ions__v1__the_redos__20170109"
 NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/do_the_Newell_2009/downgoing_ions__v1_wrapper.pro
 
