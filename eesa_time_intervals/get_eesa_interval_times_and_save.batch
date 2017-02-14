@@ -3,7 +3,7 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/eesa_time_intervals/get_eesa_interval_times_and_save_wrapper.pro
 
 DataBaseRequest:
-    Orbits 17193-17195
+    Orbits 25007-40000
     
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/Alfven_study/20160520--get_Newell_identification_for_Alfven_events--NOT_despun
 PlotConfigurationFile: chaston_survey_5__super_pared__no_langmuir
