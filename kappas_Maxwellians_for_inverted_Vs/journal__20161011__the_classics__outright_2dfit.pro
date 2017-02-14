@@ -18,22 +18,22 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   fit2D__show_each_candidate = 0
 
   show_Strangeway_summary  = 0
-  sway__save_ps            = 1
+  sway__save_ps            = 0
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
   sway__add_Newell_panel   = 0
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary  = 1
-  kSum__save_ps       = 1
+  show_kappa_summary  = 0
+  kSum__save_ps       = 0
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
 
   kStats__save_stuff   = 1
 
   save_diff_eFlux_file = 0
-  load_diff_eFlux_file = 0
-  restore_fitFile      = 1
+  load_diff_eFlux_file = 1
+  restore_fitFile      = 0
 
   ;;Which classic event?
   ;; '0 :  Ergun_et_al_1998'
