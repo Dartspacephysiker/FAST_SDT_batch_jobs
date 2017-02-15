@@ -200,10 +200,23 @@ PRO DOWNGOING_IONS__V1__GET_ION_TIME_SERIES, $
      uniq_i                    = UNIQ(tmpJEi_down_highE.x,SORT(tmpJEi_down_highE.x))
      tmpJEi_down_highE         = {x:tmpJEi_down_highE.x[uniq_i],y:tmpJEi_down_highE.y[uniq_i]}
 
-     x = (TEMPORARY(tmpJEi_down_highE)).x
+     ;; x = (TEMPORARY(tmpJEi_down_highE)).x
 
+     x = tmpJEi_down_highE.x
+     CLEANUP_STRUCT,tmpJEi_down_highE, $
+                    /MUY_RAPIDO, $
+                    SUCCESS=success, $
+                    /REMOVE_TIME, $
+                    KEPT_I=JEi_down_highE_i
+     IF ~success THEN BEGIN
+        OPENW,badLun,badFile,/GET_LUN,/APPEND
+        PRINTF,badLun,FORMAT='(I8,T10,I2,T20,"could not clean tmpJEi_down_highE")',orbStr,jjj
+        CLOSE,badLun
+        FREE_LUN,badLun
+        RETURN
+     ENDIF
      PRINT,'Saving downgoing_ion time: ' + out_newell_file
-     SAVE,x,FILENAME=outNewellDir+out_newell_file
+     SAVE,x,tmpJEi_down_highE,JEi_down_highE_i,FILENAME=outNewellDir+out_newell_file
   ENDFOR
 
   RETURN 
