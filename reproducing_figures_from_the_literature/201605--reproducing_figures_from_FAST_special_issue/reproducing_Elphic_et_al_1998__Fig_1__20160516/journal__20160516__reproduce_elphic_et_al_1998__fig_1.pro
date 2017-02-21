@@ -24,7 +24,7 @@
 
 PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE_PS=save_ps
 
-  energy_electrons        = [50.,32000.]
+  energy_electrons        = [50.,30000.]
   ucla_mag_despin         = 1
 
   t1Str                   = '97-2-1/09:25:30'
@@ -34,6 +34,14 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
   t2                      = STR_TO_TIME(t2Str)
 
   outPlotName             = 'Elphic_et_al_1998--Fig_1'
+
+  upTimesStr              = '1997-02-01/09:' + $
+                            [['25:41.0','25:49.4'], $
+                             ['25:56.75','26:02.9'], $
+                             ['26:04.03','26:09.51'], $
+                             ['27:07.1','27:13.4']]
+  ;; dims                    = SIZE(upTimesStr,/DIMENSIONS)
+  upTimes                 = REFORM(STR_TO_TIME(upTimesStr),SIZE(upTimesStr,/DIMENSIONS))
 
   ;;Get fields stuff, eFields and magFields
   FA_FIELDS_DESPIN,T1=t1,T2=t2,DAT=despun_E
@@ -150,20 +158,6 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
   OPTIONS,'POTENTIAL','ytickv',[-8000,-6000,-4000,-2000,0]            ; set y-axis labels
   YLIM,'POTENTIAL',-8500,1900
 
-  ;;Calculate current from ESAs
-  GET_2DT_TS,'j_2d_b','fa_ees',T1=t1,T2=t2, $
-             NAME='Je',ENERGY=energy_electrons ;,ANGLE=e_angle
-
-  GET_2DT_TS,'j_2d_b','fa_ees',T1=t1,T2=t2, $
-             NAME='Je_lc',ENERGY=energy_electrons,ANGLE=e_angle
-
-  ;;Remove_crap
-  GET_DATA,'Je',DATA=tmp
-  keep1                   = WHERE(FINITE(tmp.y) NE 0)
-  tmp.x                   = tmp.x[keep1]
-  tmp.y                   = tmp.y[keep1]
-  keep2                   = WHERE(ABS(tmp.y) GT 0.0)
-  je_tmp_time          = tmp.x[keep2]
   je_tmp_data          = tmp.y[keep2]
   STORE_DATA,'Je',DATA={x:je_tmp_time,y:(-1.)*je_tmp_data}
   YLIM,'Je',-1.e9,2.e9
@@ -267,7 +261,8 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Now the easy ones, ripped right from the crib sheet
-  GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='el_0',ANGLE=e_angle,RETRACE=1,T1=t1,T2=t2,/CALIB
+  GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='el_0',ANGLE=e_angle, $
+              RETRACE=1,T1=t1,T2=t2,/CALIB
   GET_DATA,'el_0', DATA=tmp                                            ; get data structure
   tmp.y                   = tmp.y>1.e1        ; Remove zeros 
   tmp.y                   = ALOG10(tmp.y)     ; Pre-log
@@ -331,6 +326,7 @@ PRO JOURNAL__20160516__REPRODUCE_ELPHIC_ET_AL_1998__FIG_1,SAVE_PNG=save_png,SAVE
      TPLOT,['dB_East','jtemp','Je','JEei','Ped','POTENTIAL','el_0','el_pa'], $
            VAR_LABEL=['ALT','MLT','ILAT'],TRANGE=[t1,t2]
      ;; TPLOT_PANEL,VARIABLE='jtemp',OPLOTVAR='jtemp_fill'
+     TIMEBAR,upTimes
 
      IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
         CGPS_CLOSE, PNG=KEYWORD_SET(save_png),DELETE_PS=KEYWORD_SET(save_png);, WIDTH=1000

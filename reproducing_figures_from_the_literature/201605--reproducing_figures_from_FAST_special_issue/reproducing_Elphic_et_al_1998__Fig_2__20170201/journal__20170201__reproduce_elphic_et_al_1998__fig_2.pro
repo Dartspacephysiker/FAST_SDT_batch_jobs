@@ -24,7 +24,7 @@
 
 PRO JOURNAL__20170201__REPRODUCE_ELPHIC_ET_AL_1998__FIG_2,SAVE_PNG=save_png,SAVE_PS=save_ps
 
-  energy_electrons        = [50.,32000.]
+  energy_electrons        = [50.,30000.]
   ucla_mag_despin         = 1
 
   t1Str                   = '97-2-1/09:25:30'
@@ -267,7 +267,8 @@ PRO JOURNAL__20170201__REPRODUCE_ELPHIC_ET_AL_1998__FIG_2,SAVE_PNG=save_png,SAVE
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Now the easy ones, ripped right from the crib sheet
-  GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='el_0',ANGLE=e_angle,RETRACE=1,T1=t1,T2=t2,/CALIB
+  GET_EN_SPEC,"fa_ees_c",UNITS='eflux',NAME='el_0',ANGLE=e_angle, $
+              RETRACE=1,T1=t1,T2=t2,/CALIB
   GET_DATA,'el_0', DATA=tmp                                            ; get data structure
   tmp.y                   = tmp.y>1.e1        ; Remove zeros 
   tmp.y                   = ALOG10(tmp.y)     ; Pre-log
@@ -331,6 +332,7 @@ PRO JOURNAL__20170201__REPRODUCE_ELPHIC_ET_AL_1998__FIG_2,SAVE_PNG=save_png,SAVE
      TPLOT,['dB_East','jtemp','Je','JEei','Ped','POTENTIAL','el_0','el_pa'], $
            VAR_LABEL=['ALT','MLT','ILAT'],TRANGE=[t1,t2]
      ;; TPLOT_PANEL,VARIABLE='jtemp',OPLOTVAR='jtemp_fill'
+     ;; TIMEBAR,upTimes
 
      IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
         CGPS_CLOSE, PNG=KEYWORD_SET(save_png),DELETE_PS=KEYWORD_SET(save_png);, WIDTH=1000
