@@ -1,40 +1,40 @@
-;;2017/02/21
-PRO JOURNAL__20170221__ORBIT_1773__FIG2TIME
+;;2017/02/22
+PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
 
   COMPILE_OPT IDL2
+
+  Elphic1998_defaults     = 1
 
   error_estimates         = 1
   dens_errors             = 1
   remake_masterFile       = 1
-  
+
   ;;get orbTimes here
   orbit                   = 1773
-  orbTimes                = ['97-02-01/09:25:50','97-02-01/09:27:30']
-  orbBurstTimes           = ['97-02-01/09:26:05','97-02-01/09:27:27']
+  orbTimes                = ['97-02-01/09:25:40','97-02-01/09:29:30']
+  orbBurstTimes           = ['97-02-01/09:25:40','97-02-01/09:29:30']
   bonusPref               = '--Elphic_et_al_1998--Fig2'
 
-  downTimesStr            = '1997-02-01/' + $
-                            [['09:26:12','09:26:23'], $ ;;These are the money times that seem to give good kappa fits
-                             ['09:26:53','09:27:07.5']]
+  ;; downTimesStr            = '1997-02-01/' + $
+  ;;                           [['09:26:12','09:26:23'], $ ;;These are the money times that seem to give good kappa fits
+  ;;                            ['09:26:53','09:27:07.5']]
 
   ;; downTimesStr            = '1997-02-01/' + $
   ;;                           [['09:26:12','09:27:07.5']]
 
-  upTimesStr              = '1997-02-01/' + $
-                            [['09:25:41.0','09:25:49.4'], $
-                             ['09:25:56.75','09:26:02.9'], $
-                             ['09:26:04.03','09:26:09.51'], $
-                             ['09:27:07.1','09:27:13.4']]
+  ;; upTimesStr              = '1997-02-01/' + $
+  ;;                           [['09:25:41.0','09:25:49.4'], $
+  ;;                            ['09:25:56.75','09:26:02.9'], $
+  ;;                            ['09:26:04.03','09:26:09.51'], $
+  ;;                            ['09:27:07.1','09:27:13.4']]
 
-  downTimes               = REFORM(STR_TO_TIME(downTimesStr),SIZE(downTimesStr,/DIMENSIONS))
-  upTimes                 = REFORM(STR_TO_TIME(upTimesStr  ),SIZE(upTimesStr  ,/DIMENSIONS))
+  ;;They'll just walk up and bring you the keys! MO MONEY MO MONEY MO MONEY
+  downTimesStr            = '1997-02-01/' + $
+                            [['09:25:40','09:29:30']]
 
-  ;; downTimes               = STR_TO_TIME(downTimesStr)
-  ;; upTimes                 = STR_TO_TIME(upTimesStr  )
-  ;; downTimes               = REFORM(downTimes,SIZE(downTimesStr,/DIMENSIONS))
-  ;; upTimes                 = REFORM(upTimes  ,SIZE(upTimesStr  ,/DIMENSIONS))
+  upTimesStr              = downTimesStr
 
-  timesList               = LIST(downTimes,upTimes)
+  ;; timesList               = LIST(downTimes,upTimes)
 
   ;; kStats_startStops__ees  = LIST('1997-02-01/' + [['09:25:50','09:26:10'], $ ;These are for the downward current regions
   ;;                                                 ['09:27:05','09:27:15']])
@@ -48,8 +48,9 @@ PRO JOURNAL__20170221__ORBIT_1773__FIG2TIME
   outDir                  = '~/software/sdt/batch_jobs/saves_output_etc/'
   datFile                 = 'Elphic_et_al__Fig2_ingredients.sav'
 
-  save_diff_eFlux_to_file = 1
-  load_diff_eFlux_file    = 1
+  saveCurPotFile          = 'Elphic_et_al__Fig2__meal.sav'
+  save_diff_eFlux_file    = 1
+  load_diff_eFlux_file    = 0
   ;; restore_fitFile         = 0
 
   ;;Which classic event?
@@ -62,8 +63,8 @@ PRO JOURNAL__20170221__ORBIT_1773__FIG2TIME
   order                   = [0,2,1]
   label                   = ['downgoing_e','upgoing_e','upgoing_i']
 
-  aRange__moments_e_down  = [0,360]
-  aRange__moments_i_up    = [0,360]
+  aRange__moments_e_down  = [0.,360.]
+  aRange__moments_i_up    = [0.,360.]
 
   label__which_eeb        = [0,0,1]
   label__which_times      = [0,1,0]
@@ -82,9 +83,6 @@ PRO JOURNAL__20170221__ORBIT_1773__FIG2TIME
   upgoingArr                      = [0,1,1]
 
   CURRENT_AND_POTENTIAL_ANALYSIS, $
-     ERROR_ESTIMATES=error_estimates, $
-     DENS_ERRORS=dens_errors, $
-     REMAKE_MASTERFILE=remake_masterFile, $
      ORBIT=orbit, $
      ORBTIMES=orbTimes, $
      ORBBURSTTIMES=orbBurstTimes, $
@@ -95,7 +93,8 @@ PRO JOURNAL__20170221__ORBIT_1773__FIG2TIME
      UNITS=units, $
      OUTDIR=outDir, $
      DATFILE=datFile, $
-     SAVE_DIFF_EFLUX_TO_FILE=save_diff_eFlux_to_file, $
+     REMAKE_MASTERFILE=remake_masterFile, $
+     SAVE_DIFF_EFLUX_FILE=save_diff_eFlux_file, $
      LOAD_DIFF_EFLUX_FILE=load_diff_eFlux_file, $
      EEB_OR_EESARR=eeb_or_eesArr, $
      ORDER=order, $
@@ -108,11 +107,17 @@ PRO JOURNAL__20170221__ORBIT_1773__FIG2TIME
      ARANGE__MOMENTS_LIST=aRange__moments_list, $
      ARANGE__PEAKEN_LIST=aRange__peakEn_list, $
      ARANGE__CHARE_LIST=aRange__charE_list, $
+     ELPHIC1998_DEFAULTS=Elphic1998_defaults, $
      MIN_PEAK_ENERGYARR=min_peak_energyArr, $
      MAX_PEAK_ENERGYARR=max_peak_energyArr, $
      PEAK_ENERGY__START_AT_HIGHEARR=peak_energy__start_at_highEArr, $
-     UPGOINGARR=upgoingArr
+     UPGOINGARR=upgoingArr, $
+     ERROR_ESTIMATES=error_estimates, $
+     DENS_ERRORS=dens_errors, $
+     SAVECURPOTFILE=saveCurPotFile, $
+     OUT_CURPOTLIST=curPotList
+
+  STOP
+
 
 END
-
-
