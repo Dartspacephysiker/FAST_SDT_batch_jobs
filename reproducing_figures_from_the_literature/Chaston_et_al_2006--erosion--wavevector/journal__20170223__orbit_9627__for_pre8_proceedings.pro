@@ -1,0 +1,1170 @@
+;2017/02/23
+;This is entirely ripped off from Strangeway's batch_summary.pro, gifted to me by that beautiful human, Jack Vernetti
+;So says my Alf wave DB (via JOURNAL__20161024__LOOK_FOR_STREAKS_OF_ALFVEN_WAVES__BELLAN_METHOD):
+;
+;9627     1999-01-27/11:32:42.211  1999-01-27/11:33:24.344  42.133      115       0.36637   21.549    -34.942
+;                                                                                                      ^^
+;                                                                                                      ||
+; create a summary plot of:
+; SFA (AKR)
+; DSP (VLF)
+; Eesa Energy
+; Eesa Angle
+; Iesa Energy
+; Iesa Angle
+; E fit along V (Southern hemisphere corrected)
+; dB_fac_v (dB_fac and dB_SM also stored)
+;
+; Returns:
+; tPlt_vars  - array of tplot variables
+; tlimit_north - tlimits for northern hemisphere
+; tlimit_south - tlimits for southern hemisphere
+; tlimit_all -  tlimits for all the data
+PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
+   TPLT_VARS=tPlt_vars, $
+   PLOT_NORTH=plot_north, $
+   PLOT_SOUTH=plot_south, $
+   TLIMIT_NORTH=tlimit_north, $
+   TLIMIT_SOUTH=tlimit_south, $
+   TLIMIT_ALL=tlimit_all, $
+   SCREEN_PLOT=screen_plot, $
+   USE_DB_FAC=use_db_fac, $
+   ;; USE_db_FAC_v=use_db_fac_v, $
+   NO_BLANK_PANELS=no_blank_panels, $
+   SAVE_PNG=save_png, $
+   SAVE_PS=save_ps, $
+   TPLOT_RIGHTNOW=tPlot_rightNow, $
+   SAVE_B_AND_J_DATA=save_B_and_J_data, $
+   ANCILLARY_PLOTS=ancillary_plots, $
+   ADD_TIMEBAR=add_timebar
+
+  ;; eeb_or_ees        = 'ees'
+  ;; ieb_or_ies        = 'ies'
+
+  eeb_or_ees        = 'eeb'
+  ieb_or_ies        = 'ieb'
+
+  ee_ie_string      = '-' + eeb_or_ees + '-' + ieb_or_ies
+  outPlotName       = 'Orb_9627-PRE_VIII-Fig_1' + ee_ie_string
+  saveFile          = 'Orbit_9627-B_and_J' + $
+                      GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + $
+                      ee_ie_string + $
+                      '-fixed_currents-with_sc_pot.sav'
+
+
+  IF N_ELEMENTS(ancillary_plots) EQ 0 THEN ancillary_plots = 1
+  IF KEYWORD_SET(ancillary_plots) THEN BEGIN
+     outPlotName   += '-with_ancillaries'
+  ENDIF
+
+  dato              = '1999-01-27/'
+  t1ZoomStr         = dato + '22:10:00'
+  t2ZoomStr         = dato + '22:20:00'
+
+  timesBarStr       = dato + ['11:32:42.211','11:33:24.344']
+
+  t1Zoom            = STR_TO_TIME(t1ZoomStr)
+  t2Zoom            = STR_TO_TIME(t2ZoomStr)
+
+  ;;Alternative
+  outPlotName      += '-alt_timebar'
+  saveFile         += '-alt_timebar'
+
+  timesBar          = STR_TO_TIME(timesBarStr)
+
+  energy_electrons  = [0.,30000.]
+  energy_ions       = [0.,30000.]
+  ion_angle         = [180,360]
+
+  EFieldVar         = 'EFIT_ALONG_VSC'
+  EFieldVar         = 'E_ALONG_V'
+  EFieldSpecVar     = 'E_ALONG_V_16k'
+  sc_potName        = 'SC_POT'
+
+  plotDirSuff       = '/PREVIII_proceedings'
+  IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
+     SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF=plotDirSuff
+  ENDIF
+
+  IF (KEYWORD_SET(screen_plot) OR KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) $
+     AND KEYWORD_SET(tPlot_rightNow) $
+  THEN BEGIN
+
+     needed         = ["Eesa_Energy" , $
+                       "Eesa_Angle"  , $
+                       "Iesa_Energy" , $
+                       "Iesa_Angle"  , $
+                       "Je_plot"     , $
+                       "jtemp"       , $
+                       "dB_East"     , $
+                       "E_ALONG_V", $
+                       sc_potName]
+     nNeeded        = N_ELEMENTS(needed)
+
+     TPLOT_NAMES,NAMES=names
+     haveIt         = 0
+     iGuy           = 0
+     WHILE iGuy LT nNeeded DO BEGIN
+        IF (N_ELEMENTS(WHERE((STRUPCASE(needed))[iGuy] EQ STRUPCASE(names),/NULL)) GT 0) THEN BEGIN
+           PRINT,"Got it: ",needed[iGuy]
+           haveIt++
+        ENDIF
+        
+        iGuy++
+     ENDWHILE
+     
+     IF haveIt EQ nNeeded THEN BEGIN
+
+        GET_DATA,sc_potName,DATA=sc_pot
+        ;; GET_DATA,'dB_fac_v',DATA=db_fac
+        GET_DATA,'jtemp',DATA=jtemp
+
+        IF KEYWORD_SET(save_png) THEN BEGIN
+           CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=0 ;,XSIZE=4,YSIZE=7
+        ENDIF ELSE BEGIN
+           IF KEYWORD_SET(save_ps) THEN BEGIN
+
+              POPEN,plotDir+outPlotName,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
+              DEVICE,/PALATINO,FONT_SIZE=8
+
+
+           ENDIF ELSE BEGIN
+              WINDOW,0,XSIZE=600,YSIZE=800
+           ENDELSE
+        ENDELSE
+        
+        CASE 1 OF
+           ;; (n_elements(tlimit_north) gt 0): BEGIN
+           ;;    tlimit,tlimit_north
+           ;; END
+           ;; (n_elements(tlimit_south) gt 0): BEGIN
+           ;;    tlimit,tlimit_south
+           ;; END
+           KEYWORD_SET(plot_north): BEGIN
+              tLims = tlimit_north
+           END
+           KEYWORD_SET(plot_south): BEGIN
+              tLims = tlimit_south
+           END
+           ELSE: BEGIN
+              tLims = [t1Zoom,t2Zoom]
+           END        
+        ENDCASE
+
+        LOADCT2,40
+        TPLOT,/LASTVAR,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
+        ;; TPLOT_PANEL,VARIABLE=langVar,OPLOTVAR='ESACur'
+        TPLOT_PANEL,sc_pot.x,(-1.)*sc_pot.y,VARIABLE='Iesa_Energy'                 ;,OPLOTVAR='SC_POT'
+        TPLOT_PANEL,jtemp.x,MAKE_ARRAY(N_ELEMENTS(jtemp.x),VALUE=0),VARIABLE='jtemp' ;,OPLOTVAR='SC_POT'
+
+        IF KEYWORD_SET(add_timebar) THEN BEGIN
+           TIMEBAR,timesBar,COLOR=!D.N_COLORS-4
+        ENDIF
+
+
+        IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
+           PCLOSE
+        ENDIF ELSE BEGIN
+
+        ENDELSE
+
+        RETURN
+
+     ENDIF
+
+  ENDIF
+
+  !Y.STYLE = (!Y.STYLE) OR 16
+
+  IF N_ELEMENTS(use_db_fac) EQ 0 AND N_ELEMENTS(use_db_fac_v) EQ 0 THEN use_db_fac  = 1
+
+; Step 0 - safety measure - delete all tplot quantities if found
+
+@tplot_com
+
+  nn = n_elements(data_quants)
+
+  if (nn gt 1) then for n = nn-1L,1L,-1L do store_data,data_quants(n).name,/delete
+
+  field  = GET_FA_FIELDS('MagDC',t1Zoom-10,t2Zoom+10,/store)
+  magAC = GET_FA_FIELDS('Mag3ac_S',t1Zoom-10,t2Zoom+10,/store)
+
+  magVar = 'MAGDATA'
+
+  GET_FA_ORBIT,t1Zoom-10,t2Zoom+10,/DEFINITIVE
+  GET_DATA,'ORBIT',data=orbit
+  orbit = orbit.y[0]
+  
+  GET_DATA,'MagDCcomp3',data=magz
+  GET_DATA,'Mag3ac_S',data=magz_AC
+
+  ;;Get model field for subtraction
+  GET_FA_ORBIT,magz_AC.x,/DEFINITIVE,/ALL,/TIME_ARRAY
+  GET_DATA,'B_model',data=bMod
+
+  ;;Which? Those.
+  ;; this  = plot(bmod.x-bmod.x[0],bmod.y[*,0]-bmod.y[0,0]) 
+  ;; that  = plot(bmod.x-bmod.x[0],bmod.y[*,1]-bMod.y[0,1],/OVERPLOT,COLOR='RED') 
+  ;; those = plot(bmod.x-bmod.x[0],bmod.y[*,2]-bMod.y[0,2],/OVERPLOT,COLOR='GREEN')
+  min  = MIN(bmod.x-t1Zoom,ind)
+  bOff = bmod.y[*,2]-bMod.y[ind,2]
+
+  FA_FIELDS_COMBINE,{time:magz_AC.x,comp1:magz_AC.y,ncomp:1}, $
+                    {time:magz.x,comp1:magz.y}, $
+                    RESULT=magzInterp, $
+                    /SPLINE
+
+  magz = {x:magz_AC.x, $
+          y:magzInterp}
+
+  bro = WHERE(FINITE(magz.y))
+  firstB = magz.y[bro[0]]
+
+  ;; bogus = (magz_AC.x-magz_AC.x[0])/(magz_AC.x[-1]-magz_AC.x[0])*(-900)
+
+  magVarData = {x:[[magz_AC.x],[magz_AC.x]], $
+                y:[[magz.y-firstB+bOff],[magz.y+magz_AC.y-firstB+bOff]]}
+                ;; y:[[magz.y-firstB+bogus],[magz.y+magz_AC.y-firstB+bogus]]}
+
+  store_data,magVar,data=magVarData
+  options,magVar,'yrange',[-1200,500]
+  options,magVar,'ytitle','B!Dy!N!C!C(nT))'
+  options,magVar,'panel_size',2
+  options,magVar,'colors',[6,4]
+  options,magVar,'labels',['FG','FG+SC']
+
+  t1 = magz.x[0]
+  t2 = magz.x[n_elements(magz.x)-1L]
+  tlimit_all = [t1,t2]
+
+  ;; tPlt_vars = magVar
+
+  ;; IF KEYWORD_SET(screen_plot) THEN BEGIN
+  ;;    TPLOT,tPlt_vars,TRANGE=tlimit_all
+  ;; ENDIF
+
+
+; Step 1 - DC Mag data
+
+
+; step 2 - E field
+
+; JBV, 2011/05/22.   If we are running Multi-User SDT, we need
+; to get the SDT index for this run.  Otherwise "showDQIs" won't
+; return.  If this is old, single-user SDT, "sdt_idx" is returned
+; as 255 and we handle the call in the old way.
+  sdt_idx = get_sdt_run_idx()
+
+  prog = getenv('FASTBIN') + '/showDQIs'
+  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
+     if (sdt_idx GE 10) then begin
+        sidstr = string(sdt_idx, format='(I2)')
+     endif else begin
+        sidstr = string(sdt_idx, format='(I1)')
+     endelse
+     spawn, [prog, sidstr], result, /noshell
+  endif else begin
+     spawn, prog, result, /noshell
+  endelse
+
+
+  b = where (strpos(result,'V1-V4_S') ge 0,nb4)
+  if (nb4 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb4 = 0
+  b = where (strpos(result,'V1-V2_S') ge 0,nb2)
+  if (nb2 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb2 = 0
+  if (nb4 gt 0) then v12=get_fa_fields('V1-V4_S',/all) $
+  else if (nb2 gt 0) then v12=get_fa_fields('V1-V2_S',/all)
+
+  b = where (strpos(result,'V5-V8_S') ge 0,nb5)
+  if (nb5 gt 0) then v58=get_fa_fields('V5-V8_S',/all)
+
+  got_efield = (nb4 gt 0 or nb2 gt 0) and nb5 gt 0
+
+  if (got_efield) then begin
+
+; despin e field data
+
+     fa_fields_despin,v58,v12 ;,/shadow_notch,/sinterp
+
+     FA_FIELDS_DESPIN_16K
+     ;; options,'EFIT_ALONG_V','yrange',0
+     ;; options,'EFIT_ALONG_V','ytitle','E along V!C!C(mV/m)'
+     ;; options,'EFIT_ALONG_V','panel_size',2
+
+; reset time limits if needed
+
+     ;; get_data,'EFIT_ALONG_V',data=data
+     ;; t1 = data.x[0]
+     ;; t2 = data.x[n_elements(data.x)-1L]
+
+     ;; if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
+     ;;    if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
+     ;;    if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
+     ;;    get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
+     ;;    get_new_igrf,/no_store_old
+     ;; endif
+
+; check for southern hemisphere and fix 
+; NOTE IT IS ASSUMED THAT FA_FIELDS_DESPIN DOES NOT CORRECT PHASE
+
+     get_data,'B_model',data=bm
+     get_data,'fa_vel',data=vel
+     get_data,'fa_pos',data=pos
+     n=n_elements(reform(pos.y[*,0]))
+     rxv = dblarr(n,3)
+     rxv[*,0] = pos.y[*,1]*vel.y[*,2] - pos.y[*,2]*vel.y[*,1]
+     rxv[*,1] = pos.y[*,2]*vel.y[*,0] - pos.y[*,0]*vel.y[*,2]
+     rxv[*,2] = pos.y[*,0]*vel.y[*,1] - pos.y[*,1]*vel.y[*,0]
+     vxb = dblarr(n,3)
+     vxb[*,0] = vel.y[*,1]*bm.y[*,2] - vel.y[*,2]*bm.y[*,1]
+     vxb[*,1] = vel.y[*,2]*bm.y[*,0] - vel.y[*,0]*bm.y[*,2]
+     vxb[*,2] = vel.y[*,0]*bm.y[*,1] - vel.y[*,1]*bm.y[*,0]
+     tst = rxv[*,0]*vxb[*,0] + rxv[*,1]*vxb[*,1] + rxv[*,2]*vxb[*,2]
+
+     get_data,'EFIT_ALONG_V',data=data,dlimit=dlimit
+     y2=spl_init(pos.x-tlimit_all[0],tst,/double)
+     tst_ = spl_interp(pos.x-tlimit_all[0],tst,y2,data.x-tlimit_all[0],/double)
+     data.y = data.y*tst_/abs(tst_)
+     store_data,'EFIT_ALONG_VSC',data=data,dlimit=dlimit
+
+     ;;Stuff for EField plot
+     options,EFieldVar,'yrange',[-750,250]
+     options,EFieldVar,'ytitle','E along V!Dsc!N!C!C(mV/m)'
+     options,EFieldVar,'panel_size',2
+     options,EFieldVar,'yticks',4
+     options,EFieldVar,'ytickv',[-750,-500,-250,0,250]
+
+     ;; store_data,'E_NEAR_B',/delete
+     ;; store_data,'E_ALONG_V',/delete
+     ;; store_data,'EFIT_NEAR_B',/delete
+     ;; store_data,'EFIT_ALONG_V',/delete
+
+     t = 0.
+     dat=get_fa_fields('V5-V8_S',t,/start)
+     if dat.valid eq 0 then begin
+        print,' ERROR: No FAST V5-V8 data-get_fa_fields returned invalid data'
+        data_valid=0.0
+     endif else begin
+
+        efieldV58=get_fa_fields('V5-V8_S',t1Zoom,t2Zoom)
+        efieldV1214=get_fa_fields('V1-V2_S',t1Zoom,t2Zoom)
+        if efieldV1214.valid eq 0 then begin
+           print,'No V1-V2_S data - trying V1-V4_S'
+           efieldV1214=get_fa_fields('V1-V4_S',t1Zoom,t2Zoom)
+           if efieldV1214.valid eq 0 AND KEYWORD_SET(burst) then begin
+              print,'No V1-V4_S data - trying V1-V2_4k (burst)'
+              efieldV1214=get_fa_fields('V1-V2_4k',t1Zoom,t2Zoom)
+              if efieldV1214.valid eq 0 then begin
+                 print,'No V1-V2_4k data - trying V1-V4_4k (burst)'
+                 efieldV1214=get_fa_fields('V1-V4_4k',t1Zoom,t2Zoom)
+                 if efieldV1214.valid eq 0 then begin
+                    print,'No FAST fields data-get_fa_fields returned invalid data'
+                    data_valid=0.0
+                 endif
+              endif
+           endif else begin
+              print,'No FAST fields data-get_fa_fields returned invalid data'
+              data_valid=0.0
+           endelse
+        endif 
+     endelse
+
+     FA_FIELDS_COMBINE,efieldV1214,efieldV58,result=efields_combine,/talk
+     
+     efield={x:efieldV1214.time,y:sqrt(efieldV1214.comp1^2+efields_combine^2)}
+     
+     ;; STORE_DATA,EFieldVar,DATA=efield
+
+     ;; magz={time:magz.x,comp1:magz.y,ncomp:1}
+     ;; efield={time:efield.x,comp1:efield.y}
+     
+     ;; FA_FIELDS_COMBINE,magz,efield,result=fields,/interp,delt_t=50.,/talk
+     ;; fields={time:magz.time,comp1:magz.comp1,comp2:fields,ncomp:2}
+
+     ;; Langmuir_2=get_fa_fields('NE2_S',t1Zoom,t2Zoom)
+     ;; Langmuir_6=get_fa_fields('NE6_S',t1Zoom,t2Zoom)
+     ;; Langmuir_9=get_fa_fields('NE9_S',t1Zoom,t2Zoom)
+     ;; Langmuir_data=[0]
+     ;; Langmuir_time=[0]
+     ;; Langmuir_prob=[0]
+     ;; if Langmuir_2.valid NE 0 then begin
+     ;;    langmuir_data=[Langmuir_data,Langmuir_2.comp1]
+     ;;    langmuir_time=[Langmuir_time,Langmuir_2.time]
+     ;;    langmuir_prob=[Langmuir_prob,replicate(2,n_elements(Langmuir_2.time))]
+     ;; endif
+     ;; if Langmuir_6.valid NE 0 then begin
+     ;;    langmuir_data=[Langmuir_data,Langmuir_6.comp1]
+     ;;    langmuir_time=[Langmuir_time,Langmuir_6.time]
+     ;;    langmuir_prob=[Langmuir_prob,replicate(6,n_elements(Langmuir_6.time))]
+     ;; endif
+     ;; if Langmuir_9.valid NE 0 then begin
+     ;;    langmuir_data=[Langmuir_data,Langmuir_9.comp1]
+     ;;    langmuir_time=[Langmuir_time,Langmuir_9.time]
+     ;;    langmuir_prob=[Langmuir_prob,replicate(9,n_elements(Langmuir_9.time))]
+     ;; endif
+     ;; if n_elements(langmuir_data) GT 1 then begin
+     ;;    langmuir_time=langmuir_time(1:n_elements(Langmuir_time)-1)
+     ;;    langmuir_data=langmuir_data(1:n_elements(Langmuir_time)-1)
+     ;;    langmuir_prob=langmuir_prob(1:n_elements(Langmuir_time)-1)
+     ;;    time_order_langmuir=sort(langmuir_time)
+     ;;    langmuir={x:langmuir_time(time_order_langmuir),y:langmuir_data(time_order_langmuir)}
+     ;;    dens_probe={x:langmuir_time(time_order_langmuir),y:langmuir_prob(time_order_langmuir)}
+     ;; endif else data_valid=0.0
+
+     ;; langVar = 'LANGMUIR'
+     ;; STORE_DATA,langVar,DATA=langmuir
+     ;; ylim,langVar,2e1,2e4,1
+     ;; options,langVar,'ytitle','Probe Current!C(nA)'
+     ;; options,langVar,'panel_size',3
+     
+     ;; tPlt_vars = [langVar,tPlt_vars]
+
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[EFieldVar] else tPlt_vars=[EFieldVar,tPlt_vars]
+
+     if (keyword_set(screen_plot)) then begin
+        loadct2,40
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+     endif
+
+  endif else if (n_elements(tPlt_vars) ne 0) then begin
+
+     tPlt_vars = 'dB_fac_v'
+
+     if (keyword_set(use_db_fac)) then tPlt_vars = 'dB_fac'
+     if ~KEYWORD_SET(no_blank_panels) then tPlt_vars = 'dB_fac_v'
+
+  endif
+
+
+  ;; GET_DATA,EFieldSpecVar,DATA=eAlongV16K
+  ;; GET_DATA,'E_NEAR_B_16k',DATA=eNearB16K
+
+  ;; yVar = eAlongV16K.y
+  ;; yVar = SQRT(eAlongV16K.y^2 + eNearB16K.y^2)
+
+
+  ;; eAlongV16KTmp   = {TIME         :  eAlongV16K.x , $
+  ;;                    COMP1        :  yVar         , $
+  ;;                    NCOMP        : 1             , $
+  ;;                    VALID        : 1             , $
+  ;;                    DATA_NAME    :'E Along V'    , $
+  ;;                    PROJECT_NAME : 'FAST'        , $
+  ;;                    UNITS_NAME   : 'mV/m'        , $
+  ;;                    CALIBRATED   : 1}
+
+  ;; n_ave = 2
+  ;; nPts  = 1024
+  ;; slide = 1.0
+  ;; ESpecVar = 'EAVSpec'
+  ;; ESpecThresh = 1e-6          ;in (mV/m)^2/Hz
+
+  ;; spec = FA_FIELDS_SPEC(eAlongV16KTmp, $
+  ;;                       /STORE, $
+  ;;                       T_NAME=ESpecVar, $
+  ;;                       STRUCTURE=eAVSpec, $
+  ;;                       NPTS=nPts, $
+  ;;                       N_AVE=n_ave, $
+  ;;                       SLIDE=slide)
+
+  ;; eAVSpecLims      = [1.e-5,1.e4]
+  ;; ZLIM,ESpecVar,eAVSpecLims[0],eAVSpecLims[1],1 ; set z limits
+  ;; YLIM,ESpecVar,1.e-2,1.e1,1
+  ;; OPTIONS,ESpecVar,'ytitle','Frequency!C(kHz)'
+  ;; OPTIONS,ESpecVar,'ztitle','Log ' + eAVSpec.units_name ; z title
+  ;; OPTIONS,ESpecVar,'panel_size',2.0
+
+  ;; GET_DATA,ESpecVar,DATA=tmp        
+  ;; tmp.y[WHERE(~FINITE(tmp.y) OR (tmp.y LT ESpecThresh) )] = 0.0
+  ;; STORE_DATA,ESpecVar,DATA=tmp
+
+     ;; if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[ESpecVar] else tPlt_vars=[ESpecVar,tPlt_vars]
+
+  UCLA_MAG_DESPIN
+
+  ;;NOTE:
+  ;;z (or 2)-along B, y (or 1)-east (BxR), x (or 0)-nominally out
+
+  GET_DATA,'dB_fac_v',DATA=db_fac
+  mintime              = MIN(ABS(t1-db_fac.x),ind1)
+  mintime              = MIN(ABS(t2-db_fac.x),ind2)
+  
+  magx                 = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,0]}
+  magy                 = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,1]}
+  magz                 = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,2]}
+
+  ;;Get orbit stuff
+  GET_FA_ORBIT,magy.x,/TIME_ARRAY ;,/all
+
+  ;;Define loss cone angle
+  GET_DATA,'ALT',DATA=alt
+  loss_cone_alt           = alt.y[0]*1000.0
+  lcw                     = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
+  GET_DATA,'ILAT',DATA=ilat
+  north_south             = ABS(ilat.y[0])/ilat.y[0]
+  
+  if north_south EQ -1 then begin
+     e_angle              = [180.-lcw,180+lcw] ; for Southern Hemis.
+
+     ;;Eliminate ram from data
+     i_angle              = [180.0,360.0]
+     i_angle_up=[270.0,360.0]
+     
+  endif else begin
+     e_angle              = [360.-lcw,lcw] ;	for Northern Hemis.
+
+     ;;Eliminate ram from data
+     i_angle              = [0.0,180.0]
+     i_angle_up           = [90.0,180.0]
+     
+  endelse
+
+  ;;Mag stuff
+  UCLA_MAG_DESPIN
+
+  ;;NOTE:
+  ;;z (or 2)-along B, y (or 1)-east (BxR), x (or 0)-nominally out
+  GET_DATA,'dB_fac_v',DATA=db_fac
+  mintime              = MIN(ABS(t1-db_fac.x),ind1)
+  mintime              = MIN(ABS(t2-db_fac.x),ind2)
+  
+  magx                 = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,0]}
+  magy                 = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,1]}
+  magz                 = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,2]}
+
+  ;;Get orbit stuff
+  GET_FA_ORBIT,magy.x,/TIME_ARRAY ;,/all
+
+  ;;Get speed and position for calculation of mag stuff
+  GET_DATA,'fa_vel',DATA=vel
+  speed                   = SQRT(vel.y[*,0]^2+vel.y[*,1]^2+vel.y[*,2]^2)*1000.0
+
+  old_pos                 = 0.
+  position                = MAKE_ARRAY(N_ELEMENTS(magy.x),/DOUBLE)
+  speed_mag_point         = MAKE_ARRAY(N_ELEMENTS(magy.x),/DOUBLE)
+  FOR j=0L,N_ELEMENTS(magy.x)-2 DO BEGIN
+     speed_point_ind      = MIN(ABS(vel.x-magy.x[j]),ind)
+
+     speed_mag_point[j]   = speed[ind]
+     samplingperiod       = magy.x[j+1] - magy.x[j]
+
+     position[j]          = old_pos + speed_mag_point[j]*samplingperiod
+     old_pos              = position[j]
+  ENDFOR
+
+  ;;Calculate the current from mag
+  deltaBY                 = DERIV(position,SMOOTH(magy.y,5))
+  ;; deltaBY                 = DERIV(position,magy.y)
+  ;; deltaBY                 = DERIV(position,SMOOTH(magy.y,5))
+  ;; jtemp                = ABS(1.0e-3*(deltaBx)/1.26e-6)
+  ;; jtemp                = 1.0e-3*(deltaBx)/1.26e-6
+  ;;in number flux units
+  jtemp                   = 1.0e-3*(deltaBY)/1.26e-6
+  muLetter = '!4l!X'
+  ;; IF KEYWORD_SET(show_currents_not_fluxes) THEN BEGIN
+  YLIM,'jtemp',-50,100
+  ;; OPTIONS,'jtemp','yticks',4                              ; set y-axis labels
+  ;; OPTIONS,'jtemp','ytickname',['-2e1','0','2e1','4e1']    ; set y-axis labels
+  ;; OPTIONS,'jtemp','ytickv',[-2e1,0,2e1,4e1]               ; set y-axis labels
+  OPTIONS,'jtemp','ytitle','Mag current!C(' + muLetter + 'A/m!U2!N)'
+  OPTIONS,'jtemp','panel_size',2
+  ;; ENDIF ELSE BEGIN
+  ;;    jtemp               *= (DOUBLE(1. / 1.6e-9))
+  ;;    YLIM,'jtemp',-1.e10,2.e10
+  ;;    OPTIONS,'jtemp','yticks',4                           ; set y-axis labels
+  ;;    OPTIONS,'jtemp','ytickname',['-1e10','0','1e10','2e10'] ; set y-axis labels
+  ;;    OPTIONS,'jtemp','ytickv',[-1e10,0,1e10,2e10]            ; set y-axis labels
+  ;;    OPTIONS,'jtemp','ytitle','Electron!CFlux!C(cm!U2!Ns!U-1!N)'
+  ;; ENDELSE
+  sign_jtemp              = ABS(deltaBY)/deltaBY
+  STORE_DATA,'jtemp',DATA={x:magy.x,y:jtemp}
+  ;; OPTIONS,'jtemp','psym','10'
+  ;; OPTIONS,'jtemp','fill',1
+  ;; OPTIONS,'jtemp','tplot_routine','polyfill_tplot'
+  ;; ;; OPTIONS,'jtemp','color','808080'x
+  ;; OPTIONS,'jtemp','fill_color',250
+
+  STORE_DATA,'dB_East',DATA={x:magy.x,y:magy.y-magy.y[0]+150}
+  OPTIONS,'dB_East','ytitle',CGGREEK('Delta') + 'B!DEast!N (nT)' ; y title
+  YLIM,'dB_East',150,450
+  OPTIONS,'dB_East','yticks',2                                   ; set y-axis labels
+  OPTIONS,'dB_East','ytickname',['200','400']          ; set y-axis labels
+  OPTIONS,'dB_East','ytickv',[200,400]                    ; set y-axis labels
+  OPTIONS,'dB_East','panel_size',2
+
+
+; Step 3 - Iesa data
+
+  prog = getenv('FASTBIN') + '/showDQIs'
+  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
+     if (sdt_idx GE 10) then begin
+        sidstr = string(sdt_idx, format='(I2)')
+     endif else begin
+        sidstr = string(sdt_idx, format='(I1)')
+     endelse
+     spawn, [prog, sidstr], result, /noshell
+  endif else begin
+     spawn, prog, result, /noshell
+  endelse
+  b = where (strpos(result,'Iesa Survey') ge 0,nesa)
+  if (nesa gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nesa = 0
+
+  if (nesa gt 0) then begin
+
+; ION ENERGY 
+
+     var_name='Iesa_Energy'
+     get_en_spec,T1=t1Zoom,T2=t2Zoom, $
+                 'fa_'+ieb_or_ies+'_c',name=var_name,units='eflux',angle=ion_angle
+     ;; data.y = alog10(data.y)
+     ;; store_data,var_name, data=data
+     options,var_name,'spec',1	
+     zlim,var_name,1e5,1e8,0
+     ylim,var_name,4,30000,1
+     options,var_name,'ytitle','Ions!C!CEnergy (eV)'
+     options,var_name,'ztitle','eV!C/cm!U2!N-s-sr-eV'
+     options,var_name,'x_no_interp',1
+     options,var_name,'y_no_interp',1
+     options,var_name,'panel_size',2
+
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
+
+     if (keyword_set(screen_plot)) then begin
+        loadct2,40
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+     endif
+
+  endif
+
+
+; ION PITCH ANGLE
+
+  var_name='Iesa_Angle'
+  get_pa_spec,"fa_"+ieb_or_ies+"_c",units='eflux',name=var_name,energy=energy_ions
+  get_data,var_name, data=data
+  this = where(data.v[0,*] GT 170)
+  data = {x:data.x, $
+          y:data.y[*,this], $
+          v:data.v[*,this]}
+  ;; get_data,var_name, data=data
+  ;; data.y = alog10(data.y)
+  store_data,var_name, data=data
+  options,var_name,'spec',1	
+  zlim,var_name,1e5,5e7,0
+  ylim,var_name,180,360,0
+  options,var_name,'ytitle','Ions!C!CAngle (Deg.)'
+  options,var_name,'ztitle','eV!C/cm!U2!N-s-sr-eV'
+  options,var_name,'x_no_interp',1
+  options,var_name,'y_no_interp',1
+  options,var_name,'panel_size',2
+
+  get_data,var_name, data=data
+  bb = where (data.v gt 270.,nb)
+  if (nb gt 0) then data.v(bb)=data.v(bb)-360.
+  nn = n_elements(data.x)
+  for n = 0,nn-1L do begin 
+     bs = sort (data.v(n,*))
+     data.v(n,*)=data.v(n,bs)
+     data.y(n,*)=data.y(n,bs)
+  endfor
+  ;; store_data,var_name, data=data	
+  ;; options,var_name,'yminor',9
+  options,var_name,'yticks',1
+  options,var_name,'ytickv',[180,270,360]
+  options,var_name,'ynozero',1
+  options,var_name,'ystyle',16
+  ;; ylim,var_name,-90,270,0
+
+  if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
+
+; reset time limits if needed
+
+  t1 = data.x[0]
+  t2 = data.x[n_elements(data.x)-1L]
+
+  if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
+     if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
+     if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
+     get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
+     get_new_igrf,/no_store_old
+  endif
+
+  if (keyword_set(screen_plot)) then begin
+     loadct2,40
+     tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+  endif
+
+  ;;Get potential
+  sc_pot  = GET_FA_POTENTIAL(t1Zoom,t2Zoom, $
+                                 ;; /SPIN, $
+                                 /REPAIR)
+
+  sc_pot  = {x:sc_pot.time, $
+             y:(-1.)*sc_pot.comp1, $ ;;Reverse sign of pot for use with GET_2DT_TS_POT
+             valid:sc_pot.valid} 
+
+  STORE_DATA,sc_potName,DATA={x:sc_pot.x,y:(-1.)*sc_pot.y}
+  
+
+  GET_2DT_TS_POT,'j_2d_fs','fa_'+ieb_or_ies,name='Ji_up',t1=t1,t2=t2, $
+                 energy=energy_ions,angle=ion_angle, $
+                 sc_pot=sc_pot
+  ;; ylim,'Ji_up',1.e5,1.e8,1 	; set y limits
+  ;; options,'Ji_up','tplot_routine','pmplot' 	; set 2 color plot
+  ;; options,'Ji_up','labels',['Downgoing!C Ions','Upgoing!C Ions '] 	; set color label
+  ;; options,'Ji_up','labflag',3 	; set color label
+  ;; options,'Ji_up','labpos',[2.e7,1.e6] 	; set color label
+  GET_DATA,'Ji_up',DATA=tmp
+  ;; tmp.y = SMOOTH((-1.)*tmp.y,5)
+  ;; doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
+  ;; STORE_DATA,'Ji_up',DATA={x:tS_1s,y:doDat}
+  ylim,'Ji_up',1.e7,1.e10,1                             ; set y limits
+  options,'Ji_up','ytitle','Ion Flux!C#/(cm!U2!N-s)'    ; set y title
+  options,'Ji_up','panel_size',2                        ; set panel size
+
+; Step 4 - Eesa data
+
+  prog = getenv('FASTBIN') + '/showDQIs'
+  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
+     if (sdt_idx GE 10) then begin
+        sidstr = string(sdt_idx, format='(I2)')
+     endif else begin
+        sidstr = string(sdt_idx, format='(I1)')
+     endelse
+     spawn, [prog, sidstr], result, /noshell
+  endif else begin
+     spawn, prog, result, /noshell
+  endelse
+  b = where (strpos(result,'Eesa Survey') ge 0,nesa)
+  if (nesa gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nesa = 0
+
+  if (nesa gt 0) then begin
+
+; ELECTRON ENERGY
+
+     var_name='Eesa_Energy'
+     get_en_spec,T1=t1Zoom,T2=t2Zoom, $
+                 'fa_'+eeb_or_ees+'_c',name=var_name,units='eflux',RETRACE=1
+     get_data,var_name, data=data
+     data.y = alog10(data.y)
+     store_data,var_name, data=data
+     options,var_name,'spec',1	
+     zlim,var_name,6,10,0
+     ylim,var_name,5,30000,1
+     options,var_name,'ytitle','Electrons!C!CEnergy (eV)'
+     options,var_name,'ztitle','Log eV!C/cm!U2!N-s-sr-eV'
+     options,var_name,'x_no_interp',1
+     options,var_name,'y_no_interp',1
+     options,var_name,'panel_size',2
+
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
+
+     if (keyword_set(screen_plot)) then begin
+        loadct2,40
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+     endif
+
+  endif
+
+
+; ELECTRON PITCH ANGLE
+
+  var_name='Eesa_Angle'
+  get_pa_spec,"fa_"+eeb_or_ees+"_c",units='eflux',name=var_name,energy=energy_electrons
+  ;; get_data,var_name, data=data 
+  ;; data.y = alog10(data.y)
+  ;; store_data,var_name, data=data
+  options,var_name,'spec',1
+  zlim,var_name,1e6,5e9,0
+  ylim,var_name,0,360,0
+  ;; options,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
+  options,var_name,'ytitle','Electrons!C!CAngle (Deg.)'
+  options,var_name,'ztitle','eV!C/cm!U2!N-s-sr-eV'
+  options,var_name,'x_no_interp',1
+  options,var_name,'y_no_interp',1
+  options,var_name,'panel_size',2
+
+  get_data,var_name, data=data
+  bb = where (data.v gt 270.,nb)
+  if (nb gt 0) then data.v(bb)=data.v(bb)-360.
+  nn = n_elements(data.x)
+  for n = 0,nn-1L do begin & $
+     bs = sort (data.v(n,*)) & $
+     data.v(n,*)=data.v(n,bs) & $
+     data.y(n,*)=data.y(n,bs) & $
+     endfor
+     store_data,var_name, data=data
+     options,var_name,'yminor',9
+     options,var_name,'yticks',4
+     options,var_name,'ytickv',[-90,0,90,180,270]
+     ylim,var_name,-90,270,0
+
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
+
+; reset time limits if needed
+
+     t1 = data.x[0]
+     t2 = data.x[n_elements(data.x)-1L]
+
+     if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
+        if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
+        if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
+        get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
+        get_new_igrf,/no_store_old
+     endif
+
+     if (keyword_set(screen_plot)) then begin
+        loadct2,40
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+     endif
+
+     sphRadius = 4e-2 ;in meters, from Ergun et al. [2001]
+     sphCrossSec = !PI*sphRadius^2
+     
+     ;;Get EESA current
+     GET_2DT_TS_POT,'j_2d_b','fa_eeb',t1=t1Zoom,t2=t2Zoom, $
+                    name='Je_tot', $
+                    energy=energy_electrons, $
+                    SC_POT=sc_pot
+     
+     GET_DATA,'Je_tot',DATA=tmp
+     keep1          = WHERE(FINITE(tmp.y))
+     tmp.x          = tmp.x[keep1]
+     tmp.y          = tmp.y[keep1]
+
+     ;;For output
+     ;;NOTE: we here decide to make currents field-aligned.
+     ;;That is, positive currents are along B; in SH, that means spaceward
+     jeTotTmp_time  = tmp.x
+     jeTotTmp       = tmp.y*1.6e-9*(-1.) ;;in microA/cm2, and flip sign 
+     
+
+     ;;For nice plots
+     tmp.y         *= -1. ;;Since we're in Southern Hemi
+     keep2          = WHERE(tmp.y GT 0.0)
+     IeTotTmp_time  = tmp.x[keep2]
+     IeTotTmp       = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
+     IeTotTmp      *= sphCrossSec
+
+     Je_z           = {x:jeTotTmp_time,y:jeTotTmp}
+     IeTot_z        = {x:IeTotTmp_time,y:IeTotTmp}
+     STORE_DATA,'ESACur',DATA=IeTot_z
+     OPTIONS,'ESACur','colors',250
+
+     STORE_DATA,'Je_tot',DATA=Je_z
+
+  IF KEYWORD_SET(save_B_and_J_data) OR KEYWORD_SET(ancillary_plots) THEN BEGIN
+     UCLA_MAG_DESPIN,TW_MAT=tw_mat,ORBIT=orbit,SPIN_AXIS=spin_axis,DELTA_PHI=delta_phi
+
+     PRINT,"Getting Ji current density fo' yeh'"
+     GET_2DT_TS_POT,'j_2d_b','fa_ieb',t1=t1Zoom,t2=t2Zoom, $
+                    name='Ji_tot', $
+                    energy=[0,energy_ions[1]], $
+                    SC_POT=sc_pot
+     GET_2DT_TS_POT,'j_2d_b','fa_ies',t1=t1Zoom,t2=t2Zoom, $
+                    name='Ji_tot_S', $
+                    energy=[0,energy_ions[1]], $
+                    angle=[180,360], $
+                    SC_POT=sc_pot
+     GET_2DT_TS_POT,'j_2d_b','fa_ees',t1=t1Zoom,t2=t2Zoom, $
+                    name='Je_tot_S', $
+                    energy=energy_electrons, $
+                    SC_POT=sc_pot
+     
+     ;;First, burst ion data
+     GET_DATA,'Ji_tot',DATA=tmp
+     keep1          = WHERE(FINITE(tmp.y))
+     tmp.x          = tmp.x[keep1]
+     tmp.y          = tmp.y[keep1]
+
+     ;;For output
+     jiTotTmp_time  = tmp.x
+     jiTotTmp       = tmp.y*1.6e-9*2. ;;in microA/m2, times 2 since half angle range
+
+     ;;For nice plots
+     tmp.y         *= -1. ;;Since we're in Southern Hemi
+     keep2          = WHERE(tmp.y GT 0.0)
+     IiTotTmp_time  = tmp.x[keep2]
+     IiTotTmp       = tmp.y[keep2]*1.6e-6*2. ;;in nanoA/m2
+     IiTotTmp      *= sphCrossSec
+
+     Ji_z           = {x:jiTotTmp_time,y:jiTotTmp}
+     IiTot_z        = {x:IiTotTmp_time,y:IiTotTmp}
+
+     STORE_DATA,'Ji_tot',DATA=Ji_z
+
+     ;;Now survey ESA ion data for patching the burst holes
+     GET_DATA,'Ji_tot_S',DATA=tmp
+     keep1          = WHERE(FINITE(tmp.y))
+     tmp.x          = tmp.x[keep1]
+     tmp.y          = tmp.y[keep1]
+
+     ;;For output
+     jiTotTmp_time  = tmp.x
+     jiTotTmp       = tmp.y*1.6e-9*2. ;;in microA/m2, times 2 since half angle range
+
+     ;;For nice plots
+     tmp.y         *= -1. ;;Since we're in Southern Hemi
+     keep2          = WHERE(tmp.y GT 0.0)
+     IiTotTmp_time  = tmp.x[keep2]
+     IiTotTmp       = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
+     IiTotTmp      *= sphCrossSec
+
+     Ji_z_S         = {x:jiTotTmp_time,y:jiTotTmp}
+     IiTot_z_S      = {x:IiTotTmp_time,y:IiTotTmp}
+
+     ;;Now electron ESA survey
+     GET_DATA,'Je_tot_S',DATA=tmp
+     keep1          = WHERE(FINITE(tmp.y))
+     tmp.x          = tmp.x[keep1]
+     tmp.y          = tmp.y[keep1]
+
+     ;;For output
+     jeTotTmp_time  = tmp.x
+     jeTotTmp       = tmp.y*1.6e-9 ;;in microA/m2
+
+     ;;For nice plots
+     tmp.y         *= -1. ;;Since we're in Southern Hemi
+     keep2          = WHERE(tmp.y GT 0.0)
+     IeTotTmp_time  = tmp.x[keep2]
+     IeTotTmp       = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
+     IeTotTmp      *= sphCrossSec
+
+     Je_z_S         = {x:jeTotTmp_time,y:jeTotTmp}
+     IeTot_z        = {x:IeTotTmp_time,y:IeTotTmp}
+
+
+  ENDIF
+
+  IF KEYWORD_SET(save_B_AND_J_data) THEN BEGIN
+     saveDir  = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/'
+     ;; B_J_file = 'Chaston_et_al_2006-B_and_J.dat'
+
+     GET_DATA,'dB_fac_v',DATA=dB_fac_v
+     GET_DATA,'dB_fac',DATA=dB_fac
+
+     PRINT,'Saving ' + saveFile + ' ...'
+     SAVE,Je_z,Ji_z, $
+          Je_z_S,Ji_z_S, $
+          dB_fac_v,dB_fac,FILENAME=saveDir+saveFile
+
+  ENDIF
+
+
+; STEP 6 - Clean up and return
+
+; determine tlimit_north and tlimit_south also change plot title
+
+  get_data,'LAT',data=data
+
+  if (n_elements(data.y) le 0) then return
+
+  bb = where (data.y gt 10,nn)
+  if (nn gt 0) then tlimit_north=[data.x[bb[0]],data.x[bb[nn-1L]]]
+
+  bb = where (data.y lt -10,nn)
+  if (nn gt 0) then tlimit_south=[data.x[bb[0]],data.x[bb[nn-1L]]]
+
+  hemisph = getenv('FAST_ORBIT_HEMISPHERE')
+
+  get_data,'ORBIT',data=data
+  nn = n_elements(data.y)/2
+  orbit = data.y(nn)
+  orbit_lab = strcompress(string(orbit,format="(i5.4)"),/remove_all)
+  tplot_options,'title','FAST Orbit ' + orbit_lab + ' ' + hemisph
+
+; force tPlt_vars to be all the panels unless no_blank_panels is set
+
+  if ~KEYWORD_SET(no_blank_panels) then begin
+
+
+; Eesa_Energy
+
+     bdat = where(tPlt_vars eq 'Eesa_Energy',ndat)
+     if (ndat eq 0) then begin
+        t_arr = tlimit_all
+        y_arr = fltarr(2,4)
+        y_arr[*,*] = !values.f_nan
+        v_arr = fltarr(2,4)
+        v_arr[0,*] = [34119.7,26091.5,50.9600,5.88000]
+        store_data,'Eesa_Energy', data={x:t_arr, y:y_arr, v:v_arr}
+        options,'Eesa_Energy','spec',1	
+        zlim,'Eesa_Energy',4,9,0
+        ylim,'Eesa_Energy',5,30000,1
+        options,'Eesa_Energy','ytitle','Electrons!C!CEnergy (eV)'
+        options,'Eesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        options,'Eesa_Energy','x_no_interp',1
+        options,'Eesa_Energy','y_no_interp',1
+        options,'Eesa_Energy','panel_size',2
+     endif
+
+; Eesa_Angle
+
+     bdat = where(tPlt_vars eq 'Eesa_Angle',ndat)
+     if (ndat eq 0) then begin
+        t_arr = tlimit_all
+        y_arr = fltarr(2,4)
+        y_arr[*,*] = !values.f_nan
+        v_arr = fltarr(2,4)
+        v_arr[0,*] = [-87.7792,2.22077,114.721,267.206]
+        store_data,'Eesa_Angle', data={x:t_arr, y:y_arr, v:v_arr}
+        options,'Eesa_Angle','spec',1	
+        zlim,'Eesa_Angle',4,9,0
+        ylim,'Eesa_Angle',-90,270,0
+        options,'Eesa_Angle','ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
+        options,'Eesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        options,'Eesa_Angle','x_no_interp',1
+        options,'Eesa_Angle','y_no_interp',1
+        options,'Eesa_Angle','panel_size',2
+        options,'Eesa_Angle','yminor',9
+        options,'Eesa_Angle','yticks',4
+        options,'Eesa_Angle','ytickv',[-90,0,90,180,270]
+     endif
+
+; Iesa_Energy
+
+     bdat = where(tPlt_vars eq 'Iesa_Energy',ndat)
+     if (ndat eq 0) then begin
+        t_arr = tlimit_all
+        y_arr = fltarr(2,4)
+        y_arr[*,*] = !values.f_nan
+        v_arr = fltarr(2,4)
+        v_arr[0,*] = [26808.3,11827.2,27.7200,4.62000]
+        store_data,'Iesa_Energy', data={x:t_arr, y:y_arr, v:v_arr}
+        options,'Iesa_Energy','spec',1	
+        zlim,'Iesa_Energy',4,9,0
+        ylim,'Iesa_Energy',4,30000,1
+        options,'Iesa_Energy','ytitle','Ions!C!CEnergy (eV)'
+        options,'Iesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        options,'Iesa_Energy','x_no_interp',1
+        options,'Iesa_Energy','y_no_interp',1
+        options,'Iesa_Energy','panel_size',2
+     endif
+
+; Iesa_Angle
+
+     bdat = where(tPlt_vars eq 'Iesa_Angle',ndat)
+     if (ndat eq 0) then begin
+        t_arr = tlimit_all
+        y_arr = fltarr(2,4)
+        y_arr[*,*] = !values.f_nan
+        v_arr = fltarr(2,4)
+        v_arr[0,*] = [-87.7792,2.22077,114.721,267.206]
+        store_data,'Iesa_Angle', data={x:t_arr, y:y_arr, v:v_arr}
+        options,'Iesa_Angle','spec',1	
+        zlim,'Iesa_Angle',4,9,0
+        ylim,'Iesa_Angle',-90,270,0
+        options,'Iesa_Angle','ytitle','Ions!C!CAngle (Deg.)'
+        options,'Iesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        options,'Iesa_Angle','x_no_interp',1
+        options,'Iesa_Angle','y_no_interp',1
+        options,'Iesa_Angle','panel_size',2
+        options,'Iesa_Angle','yminor',9
+        options,'Iesa_Angle','yticks',4
+        options,'Iesa_Angle','ytickv',[-90,0,90,180,270]
+     endif
+
+     ;; tPlt_vars=['Iesa_Energy','Iesa_Angle','Ji_up','Eesa_Energy','Eesa_Angle', $
+     ;;             EFieldVar,ESpecVar,magVar,langVar]
+     ;; tPlt_vars=['Iesa_Energy','Iesa_Angle','Ji_up','Eesa_Energy','Eesa_Angle', $
+     ;;             EFieldVar,magVar,langVar]
+     tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','Je_plot', $
+                 'jtemp','dB_East',EFieldVar]
+  endif
+
+  IF KEYWORD_SET(screen_plot) OR KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
+
+     IF KEYWORD_SET(save_png) THEN BEGIN
+        CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=0 ;,XSIZE=4,YSIZE=7
+     ENDIF ELSE BEGIN
+        IF KEYWORD_SET(save_ps) THEN BEGIN
+
+           POPEN,plotDir+outPlotName,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
+           DEVICE,/PALATINO,FONT_SIZE=8
+
+
+        ENDIF ELSE BEGIN
+           WINDOW,0,XSIZE=600,YSIZE=800
+        ENDELSE
+     ENDELSE
+     
+     CASE 1 OF
+        ;; (n_elements(tlimit_north) gt 0): BEGIN
+        ;;    tlimit,tlimit_north
+        ;; END
+        ;; (n_elements(tlimit_south) gt 0): BEGIN
+        ;;    tlimit,tlimit_south
+        ;; END
+        KEYWORD_SET(plot_north): BEGIN
+           tLims = tlimit_north
+        END
+        KEYWORD_SET(plot_south): BEGIN
+           tLims = tlimit_south
+        END
+        ELSE: BEGIN
+           tLims = [t1Zoom,t2Zoom]
+        END        
+     ENDCASE
+
+     ;; IF KEYWORD_SET(ancillary_plots) THEN BEGIN
+     options,'Ji_tot','ytitle','Ion Current!C(!4l!XA m!U2!N)' ; set y title
+     options,'Ji_tot','panel_size',2                          ; set panel size
+
+     options,'Je_plot','ytitle','Current density!C(!4l!XA/m!U2!N)' ; set y title
+     options,'Je_plot','panel_size',2                             ; set panel size
+     ylim,'Je_plot',-50,100,0
+
+     options,'Je_plot','labels',['i!U+!N ESA','e!U-!N ESA']
+     options,'Je_plot','labflag',-1
+     options,'Je_plot','colors',[140,250,0]
+
+     ;; GET_DATA,'Ji_tot',DATA=tmpi
+     GET_DATA,'Je_tot',DATA=tmpe
+     
+     jiDat = DATA_CUT('Ji_tot',tmpe.x)
+
+     STORE_DATA,'Je_plot',DATA={x:[[tmpe.x],[tmpe.x],[tmpe.x]],y:[[jiDat],[tmpe.y],[MAKE_ARRAY(N_ELEMENTS(tmpe.y),VALUE=0.)]]}
+
+        ;; ancillary_vars = ['Je_tot','Ji_tot']
+     ;; ancillary_vars = []
+
+        ;; IF ~(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) THEN BEGIN
+        ;;    WINDOW,1,XSIZE=600,YSIZE=800
+        ;; ENDIF
+
+        ;; tPlt_vars = [tPlt_vars,ancillary_vars]
+        ;; TPLOT,ancillary_vars,VAR=['ALT','ILAT','MLT'], $
+        ;;       TRANGE=tLims, $
+        ;;       WINDOW=(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) ? !NULL : -1
+
+        ;; IF KEYWORD_SET(add_timebar) THEN BEGIN
+        ;;    TIMEBAR,timesBar,COLOR=!D.N_COLORS-4
+        ;; ENDIF
+
+     ;; ENDIF
+
+     LOADCT2,40
+     TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
+     ;; TPLOT_PANEL,VARIABLE=langVar,OPLOTVAR='ESACur'
+     TPLOT_PANEL,sc_pot.x,(-1.)*sc_pot.y,VARIABLE='Iesa_Energy' ;,OPLOTVAR='SC_POT'
+     TPLOT_PANEL,magy.x,MAKE_ARRAY(N_ELEMENTS(magy.x),VALUE=0),VARIABLE='jtemp' ;,OPLOTVAR='SC_POT'
+
+     IF KEYWORD_SET(add_timebar) THEN BEGIN
+        TIMEBAR,timesBar,COLOR=!D.N_COLORS-4
+     ENDIF
+
+
+     IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
+        PCLOSE
+     ENDIF ELSE BEGIN
+
+     ENDELSE
+
+  ENDIF
+
+
+  RETURN
+
+
+END
+
+
