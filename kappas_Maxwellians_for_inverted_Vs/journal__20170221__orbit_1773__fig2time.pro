@@ -48,7 +48,7 @@ PRO JOURNAL__20170221__ORBIT_1773__FIG2TIME
   outDir                  = '~/software/sdt/batch_jobs/saves_output_etc/'
   datFile                 = 'Elphic_et_al__Fig2_ingredients.sav'
 
-  save_diff_eFlux_to_file = 1
+  save_diff_eFlux_file    = 1
   load_diff_eFlux_file    = 1
   ;; restore_fitFile         = 0
 
@@ -95,7 +95,7 @@ PRO JOURNAL__20170221__ORBIT_1773__FIG2TIME
      UNITS=units, $
      OUTDIR=outDir, $
      DATFILE=datFile, $
-     SAVE_DIFF_EFLUX_TO_FILE=save_diff_eFlux_to_file, $
+     SAVE_DIFF_EFLUX_FILE=save_diff_eFlux_file, $
      LOAD_DIFF_EFLUX_FILE=load_diff_eFlux_file, $
      EEB_OR_EESARR=eeb_or_eesArr, $
      ORDER=order, $
