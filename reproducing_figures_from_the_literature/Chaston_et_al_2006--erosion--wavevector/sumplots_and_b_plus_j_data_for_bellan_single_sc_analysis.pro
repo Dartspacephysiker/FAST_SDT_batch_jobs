@@ -6,6 +6,9 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
    TIMEBAR_TIMES=timeBar_times, $
    EEB_OR_EES=eeb_or_ees, $
    IEB_OR_IES=ieb_or_ies, $
+   ENERGY_ELECTRONS=energy_electrons, $
+   ENERGY_IONS=energy_ions, $
+   ION_ANGLE=ion_angle, $
    TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $
    PLOT_SOUTH=plot_south, $
@@ -18,14 +21,15 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
    NO_BLANK_PANELS=no_blank_panels, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps, $
+   PLOTPREF=plotPref, $
    TPLOT_RIGHTNOW=tPlot_rightNow, $
    SAVE_B_AND_J_DATA=save_B_and_J_data, $
+   SAVESUFF=saveSuff, $
+   SAVEDIR=saveDir, $
    ANCILLARY_PLOTS=ancillary_plots, $
    BONUSSUFF=bonusSuff, $
    PLOTDIRSUFF=plotDirSuff, $
    ADD_TIMEBAR=add_timebar
-
-  COMPILE_OPT IDL2
 
   IF ~KEYWORD_SET(eeb_or_ees) THEN BEGIN
      eeb_or_ees     = 'eeb'
@@ -34,13 +38,16 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      ieb_or_ies     = 'ieb'
   ENDIF
 
-  orbStr            = STR_COMPRESS(orbit,/REMOVE_ALL)
+  IF ~KEYWORD_SET(plotPref) THEN plotPref = ''
+  IF ~KEYWORD_SET(saveSuff) THEN saveSuff = ''
+
+  orbStr            = STRCOMPRESS(orbit,/REMOVE_ALL)
   ee_ie_string      = '-' + eeb_or_ees + '-' + ieb_or_ies
-  outPlotName       = 'Orb_' + orbStr + '-PRE_VIII-Fig_1' + ee_ie_string
+  outPlotName       = 'Orb_' + orbStr + plotPref + ee_ie_string
   saveFile          = 'Orbit_' + orbStr + '-B_and_J-' + $
                       GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + $
                       ee_ie_string + $
-                      '-fixed_currents-with_sc_pot.sav'
+                      saveSuff + '.sav'
 
 
   IF N_ELEMENTS(ancillary_plots) EQ 0 THEN ancillary_plots = 1
@@ -109,6 +116,10 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
            STOP
         END
      ENDCASE
+
+     IF N_ELEMENTS(add_timeBar) EQ 0 THEN BEGIN
+        add_timeBar    = 1B
+     ENDIF
   ENDIF
 
   ;;Alternative
@@ -119,9 +130,15 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
   timesBar          = STR_TO_TIME(timesBarStr)
 
-  energy_electrons  = [0.,30000.]
-  energy_ions       = [0.,30000.]
-  ion_angle         = [180,360]
+  IF ~KEYWORD_SET(energy_electrons) THEN BEGIN
+     energy_electrons  = [0.,30000.]
+  ENDIF
+  IF ~KEYWORD_SET(energy_ions) THEN BEGIN
+     energy_ions       = [0.,30000.]
+  ENDIF
+  IF ~KEYWORD_SET(ion_angle) THEN BEGIN
+     ion_angle         = [180,360]
+  ENDIF
 
   EFieldVar         = 'EFIT_ALONG_VSC'
   EFieldVar         = 'E_ALONG_V'
@@ -231,7 +248,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
   nn = n_elements(data_quants)
 
-  if (nn gt 1) then for n = nn-1L,1L,-1L do store_data,data_quants(n).name,/delete
+  if (nn gt 1) then for n = nn-1L,1L,-1L do store_data,data_quants[n].name,/delete
 
   field  = GET_FA_FIELDS('MagDC',t1Zoom-10,t2Zoom+10,/store)
   magAC = GET_FA_FIELDS('Mag3ac_S',t1Zoom-10,t2Zoom+10,/store)
@@ -706,12 +723,12 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
   get_data,var_name, data=data
   bb = where (data.v gt 270.,nb)
-  if (nb gt 0) then data.v(bb)=data.v(bb)-360.
+  if (nb gt 0) then data.v[bb]=data.v[bb]-360.
   nn = n_elements(data.x)
   for n = 0,nn-1L do begin 
-     bs = sort (data.v(n,*))
-     data.v(n,*)=data.v(n,bs)
-     data.y(n,*)=data.y(n,bs)
+     bs = sort (data.v[n,*])
+     data.v[n,*]=data.v[n,bs]
+     data.y[n,*]=data.y[n,bs]
   endfor
   ;; store_data,var_name, data=data	
   ;; options,var_name,'yminor',9
@@ -832,12 +849,12 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
   get_data,var_name, data=data
   bb = where (data.v gt 270.,nb)
-  if (nb gt 0) then data.v(bb)=data.v(bb)-360.
+  if (nb gt 0) then data.v[bb]=data.v[bb]-360.
   nn = n_elements(data.x)
   for n = 0,nn-1L do begin & $
-     bs = sort (data.v(n,*)) & $
-     data.v(n,*)=data.v(n,bs) & $
-     data.y(n,*)=data.y(n,bs) & $
+     bs = sort (data.v[n,*]) & $
+     data.v[n,*]=data.v[n,bs] & $
+     data.y[n,*]=data.y[n,bs] & $
      endfor
      store_data,var_name, data=data
      options,var_name,'yminor',9
@@ -983,7 +1000,9 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   ENDIF
 
   IF KEYWORD_SET(save_B_AND_J_data) THEN BEGIN
-     saveDir  = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/'
+     IF ~KEYWORD_SET(saveDir) THEN BEGIN
+        saveDir    = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/'
+     ENDIF
      ;; B_J_file = 'Chaston_et_al_2006-B_and_J.dat'
 
      GET_DATA,'dB_fac_v',DATA=dB_fac_v
