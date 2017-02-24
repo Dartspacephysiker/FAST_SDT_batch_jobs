@@ -646,8 +646,8 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   ;; OPTIONS,'jtemp','tplot_routine','polyfill_tplot'
   ;; ;; OPTIONS,'jtemp','color','808080'x
   ;; OPTIONS,'jtemp','fill_color',250
-
-  STORE_DATA,'dB_East',DATA={x:magy.x,y:magy.y-magy.y[0]+150}
+  junk = MIN(ABS(magy.x-t1),minInd)
+  STORE_DATA,'dB_East',DATA={x:magy.x,y:magy.y-magy.y[minInd]+100}
   OPTIONS,'dB_East','ytitle',CGGREEK('Delta') + 'B!DEast!N (nT)' ; y title
   YLIM,'dB_East',150,450
   OPTIONS,'dB_East','yticks',2                                   ; set y-axis labels
