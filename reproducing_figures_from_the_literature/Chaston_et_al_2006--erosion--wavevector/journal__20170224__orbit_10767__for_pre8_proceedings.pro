@@ -29,7 +29,7 @@ PRO JOURNAL__20170224__ORBIT_10767__FOR_PRE8_PROCEEDINGS, $
    TLIMIT_ALL=tlimit_all, $
    SCREEN_PLOT=screen_plot, $
    USE_DB_FAC=use_db_fac, $
-   ;; USE_db_FAC_v=use_db_fac_v, $
+   SKIP_DESPIN=skip_despin, $
    NO_BLANK_PANELS=no_blank_panels, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps, $
@@ -54,11 +54,8 @@ PRO JOURNAL__20170224__ORBIT_10767__FOR_PRE8_PROCEEDINGS, $
   t1                = dato + '07:26:40'
   t2                = dato + '07:27:15'
 
-  timeBar_times     = dato + ['07:26:45.314','07:27:07.744']
-
-  ;; energy_electrons  = [0.,30000.]
-  ;; energy_ions       = [0.,30000.]
-  ;; ion_angle         = [180,360]
+  ;; timeBar_times     = dato + ['07:26:45.314','07:27:07.744']
+  timeBar_times     = dato + ['07:26:57.000','07:27:09.000']
 
   plotDirSuff       = '/PREVIII_proceedings'
 
@@ -80,7 +77,7 @@ PRO JOURNAL__20170224__ORBIT_10767__FOR_PRE8_PROCEEDINGS, $
      TLIMIT_ALL=tlimit_all, $
      SCREEN_PLOT=screen_plot, $
      USE_DB_FAC=use_db_fac, $
-     ;; USE_db_FAC_v=use_db_fac_v, $
+     SKIP_DESPIN=skip_despin, $
      NO_BLANK_PANELS=no_blank_panels, $
      SAVE_PNG=save_png, $
      SAVE_PS=save_ps, $
