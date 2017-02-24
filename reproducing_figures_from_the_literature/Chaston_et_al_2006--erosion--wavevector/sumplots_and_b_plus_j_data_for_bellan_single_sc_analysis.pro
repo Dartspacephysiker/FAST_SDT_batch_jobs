@@ -1011,7 +1011,10 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      PRINT,'Saving ' + saveFile + ' ...'
      SAVE,Je_z,Ji_z, $
           Je_z_S,Ji_z_S, $
-          dB_fac_v,dB_fac,FILENAME=saveDir+saveFile
+          dB_fac_v,dB_fac, $
+          orbit, $
+          timeBar_times,t1Zoom,t2Zoom, $
+          FILENAME=saveDir+saveFile
 
   ENDIF
 
