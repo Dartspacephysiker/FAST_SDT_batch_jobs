@@ -44,7 +44,6 @@ PRO JOURNAL__20170224__ORBIT_10832__FOR_PRE8_PROCEEDINGS, $
   plotPref          = '-PRE_VIII-Fig_1'
   saveSuff          = '-fixed_currents-with_sc_pot'
 
-
   orbit             = 10832
 
   dato              = '1999-05-18/'
