@@ -158,15 +158,24 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
      ENDIF
   ENDIF
 
+  ;;Time, the time
+  time        = curPotList[edind].time
+
+  ;;Current for plotting
   ;; cur         = curPotList[edind].cur
   ;; cur         = curPotList[edind].cur+curPotList[iuind].cur
   ;; cur         = curPotList[edind].cur+curPotList[euind].cur
-  time        = curPotList[edind].time
   cur         = curPotList[edind].cur+curPotList[euind].cur+curPotList[iuind].cur
+
+  ;;Errors
+  curErr      = curPotList[edind].curErr
+  curErr      = TRANSPOSE([[cur-curErr],[cur+curErr]])
+
   posC_i      = WHERE(cur GT 0,nPos, $
                       COMPLEMENT=negC_i, $
                       NCOMPLEMENT=nNeg)
 
+  ;;Et potential
   pot         = curPotList[edind].charE+curPotList[iuind].charE
   pot         = curPotList[edind].peakE+curPotList[iuind].peakE
   pot[posC_i] = curPotList[euind].peakE[posC_i]
@@ -194,11 +203,11 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   IF nSafe LT 3 THEN STOP
 
   ;; xRange      = [-10,15]
-  xRange      = MINMAX(cur)
+  jRange      = MINMAX(cur)
   yRange      = [1,3e4]
   ;; plot        = PLOT(cur[safe_i], $
   ;;                    pot[safe_i], $
-  ;;                    XRANGE=xRange, $
+  ;;                    XRANGE=jRange, $
   ;;                    YRANGE=yRange, $
   ;;                    /YLOG, $
   ;;                    LINESTYLE='', $
@@ -213,8 +222,8 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   ;;                    YSUBTICKLEN=0.01)
 
   ;; tMag         = (time[safe_i]-time[safe_i[0]])
-  tMag         = (time-time[0])
-  tMag        /= tMag[-1]
+  tDiff        = (time-time[0])
+  tMag         = tDiff/tDiff[-1]
   rgbTable     = 4
 
   IF KEYWORD_SET(orig_plotIdee) THEN BEGIN
@@ -222,7 +231,7 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
 
      sPlot     = SCATTERPLOT(cur[safe_i], $
                              pot[safe_i], $
-                             XRANGE=xRange, $
+                             XRANGE=jRange, $
                              YRANGE=yRange, $
                              /YLOG, $
                              RGB_TABLE=rgbTable, $
@@ -268,39 +277,109 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   ;; cbpos        = [0.52,0.97,0.95,0.99]
   cbpos        = [0.10,0.97,0.95,0.99]
   nColors      = 256
+  ;; nColors      = N_ELEMENTS(safe_i)
   ;; stretch      = INDGEN(nColors-1)
   ;; stretch      = -100
   ;; stretch      = MAKE_ARRAY(nColors-1,VALUE=-80)
-  stretch      = [REPLICATE(10,127),REPLICATE(-10,128)]
-  transpose    = 0
+  ;; stretch      = [REPLICATE(10,127),REPLICATE(-10,128)]
+  transpose    = 1
   hammerCT     = COLORTABLE(4,STRETCH=stretch,NCOLORS=nColors,TRANSPOSE=transpose)
-  plot_1       = SCATTERPLOT((time[safe_i]-time[safe_i[0]]), $
-                             cur[safe_i], $
-                             XTITLE='Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[0]]), $
-                             YTITLE='j!D||!N($\mu$A m!U-2!N)', $
-                             RGB_TABLE=hammerCT, $
-                             MAGNITUDE=tMag[safe_i], $
-                             ;; LINESTYLE='', $
-                             SYMBOL='.', $
-                             SYM_SIZE=3.0, $
-                             /SYM_FILLED, $
-                             /CURRENT, $
-                             POSITION=p1pos)
 
-  plot_2       = SCATTERPLOT((time[safe_i]-time[safe_i[0]]), $
-                             pot[safe_i], $
-                             ;; XTITLE='Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[0]]), $
-                             YTITLE='$\Phi$ (V)', $
-                             RGB_TABLE=hammerCT, $
-                             MAGNITUDE=tMag[safe_i], $
-                             ;; LINESTYLE='', $
-                             SYMBOL='.', $
-                             SYM_SIZE=3.0, $
-                             /SYM_FILLED, $
-                             /CURRENT, $
-                             POSITION=p2pos)
+  CTInds       = BYTSCL(tMag[safe_i])
+  ;; hammerCT     = COLORTABLE(4
+  ;; plot_1       = SCATTERPLOT((time[safe_i]-time[safe_i[0]]), $
+  ;;                            cur[safe_i], $
+  ;;                            XTITLE='Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[0]]), $
+  ;;                            YTITLE='j!D||!N($\mu$A m!U-2!N)', $
+  ;;                            RGB_TABLE=hammerCT, $
+  ;;                            MAGNITUDE=tMag[safe_i], $
+  ;;                            ;; LINESTYLE='', $
+  ;;                            SYMBOL='.', $
+  ;;                            SYM_SIZE=3.0, $
+  ;;                            /SYM_FILLED, $
+  ;;                            /CURRENT, $
+  ;;                            POSITION=p1pos)
+  ;; plot_1       = ERRORPLOT((time[safe_i]-time[safe_i[0]]), $
+  ;;                            cur[safe_i], $
+  ;;                            curErr[safe_i], $
+  ;;                            XTITLE='Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[0]]), $
+  ;;                            YTITLE='j!D||!N($\mu$A m!U-2!N)', $
+  ;;                            RGB_TABLE=hammerCT, $
+  ;;                            VERT_COLORS=BYTSCL(tMag[safe_i]), $
+  ;;                            ;; LINESTYLE='', $
+  ;;                            SYMBOL='*', $
+  ;;                            SYM_SIZE=3.0, $
+  ;;                            /SYM_FILLED, $
+  ;;                            /CURRENT, $
+  ;;                            POSITION=p1pos)
 
-  plot_2.xshowtext = 0B
+  tRange            = [0,tDiff[safe_i[-1]]]
+  errSym            = '.'
+  errSym_size       = 3.0
+  errSym_fill       = 0
+  errSym_capSize    = 0.05
+  errJRange         = MINMAX(curErr)
+
+  ;;Initialize things
+  inds              = [0,1]
+  tmpErr            = curErr[*,safe_i[inds]]
+  ;; tmpErr            = curErr[safe_i[inds]]
+
+  plot_1            = ERRORPLOT((tDiff[safe_i[inds]]), $
+                                cur[safe_i[inds]], $
+                                tmpErr, $
+                                XRANGE=tRange, $
+                                ;; YRANGE=jRange, $
+                                YRANGE=errJRange, $
+                                XTITLE='Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[inds]]), $
+                                YTITLE='j!D||!N($\mu$A m!U-2!N)', $
+                                RGB_TABLE=hammerCT, $
+                                ERRORBAR_COLOR=hammerCT[*,CTInds[0]], $
+                                VERT_COLORS=CTInds[inds], $
+                                ;; LINESTYLE='', $
+                                ERRORBAR_CAPSIZE=errSym_capSize, $
+                                SYMBOL=errSym, $
+                                SYM_SIZE=errSym_size, $
+                                SYM_FILLED=errSym_fill, $
+                                /CURRENT, $
+                                POSITION=p1pos)
+
+  ;;Now add all the other symbols
+  FOR k=1,N_ELEMENTS(safe_i)-1,2 DO BEGIN
+
+     inds           = [k,k+1]
+     tmpErr         = curErr[*,safe_i[inds]]
+     ;; tmpErr         = curErr[safe_i[inds]]
+
+     plot_1         = ERRORPLOT((tDiff[safe_i[inds]]), $
+                                cur[safe_i[inds]], $
+                                tmpErr, $
+                                ;; RGB_TABLE=hammerCT, $
+                                VERT_COLORS=hammerCT[*,CTInds[inds]], $
+                                ERRORBAR_COLOR=hammerCT[*,CTInds[k]], $
+                                ERRORBAR_CAPSIZE=errSym_capSize, $
+                                SYMBOL=errSym, $
+                                SYM_SIZE=errSym_size, $
+                                SYM_FILLED=errSym_fill, $
+                                /CURRENT, $
+                                ;; POSITION=p1pos, $
+                                /OVERPLOT)
+  ENDFOR
+
+  plot_2            = SCATTERPLOT((time[safe_i]-time[safe_i[0]]), $
+                                  pot[safe_i], $
+                                  ;; XTITLE='Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[0]]), $
+                                  YTITLE='$\Phi$ (V)', $
+                                  RGB_TABLE=hammerCT, $
+                                  MAGNITUDE=tMag[safe_i], $
+                                  ;; LINESTYLE='', $
+                                  SYMBOL='.', $
+                                  SYM_SIZE=3.0, $
+                                  /SYM_FILLED, $
+                                  /CURRENT, $
+                                  POSITION=p2pos)
+
+  plot_2.xshowtext  = 0B
 
   this3       = ROUND_TO_NTH_DECIMAL_PLACE(ALOG10(yRange[1]))
   tickValues3 = (10L)^(LINDGEN(FIX(this3))+1)
@@ -316,7 +395,7 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   FOR k=0,this3-1 DO tickNames3 = [tickNames3,STRING(FORMAT='("10!U",I0,"!N")',k)]
   plot_3      = SCATTERPLOT(cur[safe_i], $
                             pot[safe_i], $
-                            XRANGE=xRange, $
+                            XRANGE=jRange, $
                             YRANGE=yRange, $
                             /YLOG, $
                             RGB_TABLE=hammerCT, $
