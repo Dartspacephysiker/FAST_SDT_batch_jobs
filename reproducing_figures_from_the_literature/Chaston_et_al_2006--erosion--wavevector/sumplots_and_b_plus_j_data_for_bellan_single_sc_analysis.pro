@@ -1001,7 +1001,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
   IF KEYWORD_SET(save_B_AND_J_data) THEN BEGIN
      IF ~KEYWORD_SET(saveDir) THEN BEGIN
-        saveDir    = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/'
+        saveDir    = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/saves_output_etc/'
      ENDIF
      ;; B_J_file = 'Chaston_et_al_2006-B_and_J.dat'
 
