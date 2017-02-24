@@ -29,7 +29,7 @@ PRO JOURNAL__20170224__ORBIT_10832__FOR_PRE8_PROCEEDINGS, $
    TLIMIT_ALL=tlimit_all, $
    SCREEN_PLOT=screen_plot, $
    USE_DB_FAC=use_db_fac, $
-   ;; USE_db_FAC_v=use_db_fac_v, $
+   SKIP_DESPIN=skip_despin, $
    NO_BLANK_PANELS=no_blank_panels, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps, $
@@ -80,7 +80,7 @@ PRO JOURNAL__20170224__ORBIT_10832__FOR_PRE8_PROCEEDINGS, $
      TLIMIT_ALL=tlimit_all, $
      SCREEN_PLOT=screen_plot, $
      USE_DB_FAC=use_db_fac, $
-     ;; USE_db_FAC_v=use_db_fac_v, $
+     SKIP_DESPIN=skip_despin, $
      NO_BLANK_PANELS=no_blank_panels, $
      SAVE_PNG=save_png, $
      SAVE_PS=save_ps, $

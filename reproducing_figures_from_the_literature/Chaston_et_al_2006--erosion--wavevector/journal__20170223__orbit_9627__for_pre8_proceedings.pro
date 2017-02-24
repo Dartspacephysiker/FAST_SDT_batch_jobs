@@ -29,7 +29,7 @@ PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
    TLIMIT_ALL=tlimit_all, $
    SCREEN_PLOT=screen_plot, $
    USE_DB_FAC=use_db_fac, $
-   ;; USE_db_FAC_v=use_db_fac_v, $
+   SKIP_DESPIN=skip_despin, $
    NO_BLANK_PANELS=no_blank_panels, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps, $
@@ -44,7 +44,6 @@ PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
   plotPref          = '-PRE_VIII-Fig_1'
   saveSuff          = '-fixed_currents-with_sc_pot'
 
-
   orbit             = 9627
 
   dato              = '1999-01-27/'
@@ -52,10 +51,6 @@ PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
   t2                = dato + '11:33:26.5'
 
   timeBar_times     = dato + ['11:32:42.211','11:33:24.344']
-
-  ;; energy_electrons  = [0.,30000.]
-  ;; energy_ions       = [0.,30000.]
-  ;; ion_angle         = [180,360]
 
   plotDirSuff       = '/PREVIII_proceedings'
 
@@ -77,7 +72,7 @@ PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
      TLIMIT_ALL=tlimit_all, $
      SCREEN_PLOT=screen_plot, $
      USE_DB_FAC=use_db_fac, $
-     ;; USE_db_FAC_v=use_db_fac_v, $
+     SKIP_DESPIN=skip_despin, $
      NO_BLANK_PANELS=no_blank_panels, $
      SAVE_PNG=save_png, $
      SAVE_PS=save_ps, $
@@ -90,7 +85,6 @@ PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
      BONUSSUFF=bonusSuff, $
      PLOTDIRSUFF=plotDirSuff, $
      ADD_TIMEBAR=add_timebar
-
 
 END
 

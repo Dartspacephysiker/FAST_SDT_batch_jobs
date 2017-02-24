@@ -408,14 +408,16 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      STORE_DATA,'EFIT_ALONG_VSC',DATA=data,DLIMIT=dlimit
 
      ;;Stuff for EField plot
-     junk = MIN(ABS(data.x-t1Zoom),minEInd)
-     junk = MIN(ABS(data.x-t2Zoom),maxEInd)
+     GET_DATA,EFieldVar,DATA=dat
+     junk   = MIN(ABS(dat.x-t1Zoom),minEInd)
+     junk   = MIN(ABS(dat.x-t2Zoom),maxEInd)
+     EInds  = [minEInd:maxEInd]
      ;; OPTIONS,EFieldVar,'yrange',[-750,250]
-     OPTIONS,EFieldVar,'yrange',MINMAX(data.y[minEInd:maxEInd])
+     YLIM,EFieldVar,MIN(dat.y[EInds]),MAX(dat.y[EInds]),0;MINMAX((TEMPORARY(dat.y))[EInds])
      OPTIONS,EFieldVar,'ytitle','E along V!Dsc!N!C!C(mV/m)'
      OPTIONS,EFieldVar,'panel_size',2
-     OPTIONS,EFieldVar,'yticks',4
-     OPTIONS,EFieldVar,'ytickv',[-750,-500,-250,0,250]
+     ;; OPTIONS,EFieldVar,'yticks',4
+     ;; OPTIONS,EFieldVar,'ytickv',[-750,-500,-250,0,250]
 
      ;; store_data,'E_NEAR_B',/delete
      ;; store_data,'E_ALONG_V',/delete
@@ -743,56 +745,59 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   ENDIF
 
 
-; ION PITCH ANGLE
-
+  ;; ION PITCH ANGLE
   var_NAME='Iesa_Angle'
-  get_pa_spec,"fa_"+ieb_or_ies+"_c",UNITS='eflux',NAME=var_name,ENERGY=energy_ions
-  GET_DATA,var_name, data=data
-  this = where(data.v[0,*] GT 170)
-  data = {x:data.x, $
-          y:data.y[*,this], $
-          v:data.v[*,this]}
-  ;; GET_DATA,var_name, data=data
-  ;; data.y = alog10(data.y)
-  store_data,var_name, data=data
+  GET_PA_SPEC,"fa_"+ieb_or_ies+"_c",UNITS='eflux',NAME=var_name,ENERGY=energy_ions
+  GET_DATA,var_name,DATA=data
+  ;; this = WHERE(data.v[0,*] GT 170)
+  ;; data = {x:data.x, $
+  ;;         y:data.y[*,this], $
+  ;;         v:data.v[*,this]}
+
+
+  ;; STORE_DATA,var_name,DATA=data
   OPTIONS,var_name,'spec',1
   ZLIM,var_name,1e5,5e7,0
-  YLIM,var_name,180,360,0
+  YLIM,var_name,ion_angle[0],ion_angle[1],0
   OPTIONS,var_name,'ytitle','Ions!C!CAngLE (Deg.)'
   OPTIONS,var_name,'ztitle','eV!C/cm!U2!N-s-sr-eV'
   OPTIONS,var_name,'x_no_interp',1
   OPTIONS,var_name,'y_no_interp',1
   OPTIONS,var_name,'panel_size',2
 
-  GET_DATA,var_name, data=data
-  bb = where (data.v GT 270.,nb)
-  IF (nb GT 0) THEN data.v[bb]=data.v[bb]-360.
-  nn = N_ELEMENTS(data.x)
-  for n = 0,nn-1L do BEGIN
-     bs = sort (data.v[n,*])
-     data.v[n,*]=data.v[n,bs]
-     data.y[n,*]=data.y[n,bs]
-  endfor
+  ;;For shifting things 90°
+  ;; GET_DATA,var_name,DATA=data
+  ;; bb = WHERE(data.v GT 270.,nb)
+  ;; IF (nb GT 0) THEN data.v[bb] = data.v[bb]-360.
+  ;; nn = N_ELEMENTS(data.x)
+  ;; FOR n=0,nn-1L do BEGIN
+  ;;    bs          = SORT(data.v[n,*])
+  ;;    data.v[n,*] = data.v[n,bs]
+  ;;    data.y[n,*] = data.y[n,bs]
+  ;; ENDFOR
   ;; store_data,var_name, data=data
   ;; OPTIONS,var_name,'yminor',9
-  OPTIONS,var_name,'yticks',1
-  OPTIONS,var_name,'ytickv',[180,270,360]
+  ;; OPTIONS,var_name,'yticks',1
+  ;; OPTIONS,var_name,'ytickv',[180,270,360]
   OPTIONS,var_name,'ynozero',1
   OPTIONS,var_name,'ystyle',16
   ;; YLIM,var_name,-90,270,0
 
   IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[var_name] ELSE tPlt_vars=[var_name,tPlt_vars]
 
-; reset time limits IF needed
-
+  ;; reset time limits if needed
   t1 = data.x[0]
   t2 = data.x[N_ELEMENTS(data.x)-1L]
 
   IF ((t1 LT tlimit_all[0]) or (t2 GT tlimit_all[1])) THEN BEGIN
      IF (t1 LT tlimit_all[0]) THEN tlimit_all[0] = t1
      IF (t2 GT tlimit_all[1]) THEN tlimit_all[1] = t2
-     get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-     get_new_igrf,/no_store_old
+     GET_FA_ORBIT,tlimit_all[0],tlimit_all[1], $
+                  /ALL,STATUS=no_model, $
+                  DELTA=1., $
+                  /DEFINITIVE, $
+                  /DRAG_PROP
+     GET_NEW_IGRF,/NO_STORE_OLD
   ENDIF
 
   IF (KEYWORD_SET(screen_plot)) THEN BEGIN
@@ -1218,42 +1223,29 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
         END
      ENDCASE
 
-     ;; IF KEYWORD_SET(ancillary_plots) THEN BEGIN
-     OPTIONS,'Ji_tot','ytitle','Ion Current!C(!4l!XA m!U2!N)' ; set y title
-     OPTIONS,'Ji_tot','panel_size',2                          ; set panel size
-
-     OPTIONS,'Je_plot','ytitle','Current density!C(!4l!XA/m!U2!N)' ; set y title
-     OPTIONS,'Je_plot','panel_size',2                             ; set panel size
-     YLIM,'Je_plot',-50,100,0
-
-     OPTIONS,'Je_plot','labels',['i!U+!N ESA','e!U-!N ESA']
-     OPTIONS,'Je_plot','labflag',-1
-     OPTIONS,'Je_plot','colors',[140,250,0]
-
      ;; GET_DATA,'Ji_tot',DATA=tmpi
      GET_DATA,'Je_tot',DATA=tmpe
 
      jiDat = DATA_CUT('Ji_tot',tmpe.x)
 
+     ;; OPTIONS,'Ji_tot','ytitle','Ion Current!C(!4l!XA m!U2!N)' ; set y title
+     ;; OPTIONS,'Ji_tot','panel_size',2                          ; set panel size
+
+     junk    = MIN(ABS(tmpe.x-t1Zoom),minCurInd)
+     junk    = MIN(ABS(tmpe.x-t2Zoom),maxCurInd)
+     curInds = [minCurInd:maxCurInd]
+
+     OPTIONS,'Je_plot','ytitle','Current density!C(!4l!XA/m!U2!N)' ; set y title
+     OPTIONS,'Je_plot','panel_size',2                             ; set panel size
+     ;; YLIM,'Je_plot',-50,100,0
+     YLIM,'Je_plot',MIN([jiDat[curInds],tmpe.y[curInds]]),MAX([jiDat[curInds],tmpe.y[curInds]]),0
+
+     OPTIONS,'Je_plot','labels',['i!U+!N ESA','e!U-!N ESA']
+     OPTIONS,'Je_plot','labflag',-1
+     OPTIONS,'Je_plot','colors',[140,250,0]
+
+
      STORE_DATA,'Je_plot',DATA={x:[[tmpe.x],[tmpe.x],[tmpe.x]],y:[[jiDat],[tmpe.y],[MAKE_ARRAY(N_ELEMENTS(tmpe.y),VALUE=0.)]]}
-
-        ;; ancillary_vars = ['Je_tot','Ji_tot']
-     ;; ancillary_vars = []
-
-        ;; IF ~(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) THEN BEGIN
-        ;;    WINDOW,1,XSIZE=600,YSIZE=800
-        ;; ENDIF
-
-        ;; tPlt_vars = [tPlt_vars,ancillary_vars]
-        ;; TPLOT,ancillary_vars,VAR=['ALT','ILAT','MLT'], $
-        ;;       TRANGE=tLims, $
-        ;;       WINDOW=(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) ? !NULL : -1
-
-        ;; IF KEYWORD_SET(add_timebar) THEN BEGIN
-        ;;    TIMEBAR,timesBar,COLOR=!D.N_COLORS-4
-        ;; ENDIF
-
-     ;; ENDIF
 
      LOADCT2,40
      TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
