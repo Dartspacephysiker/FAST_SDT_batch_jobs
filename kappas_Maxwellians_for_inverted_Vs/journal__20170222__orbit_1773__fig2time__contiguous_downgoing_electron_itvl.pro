@@ -3,12 +3,22 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
 
   COMPILE_OPT IDL2
 
+  routName                = 'JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL'
+  
   Elphic1998_defaults     = 1
 
   error_estimates         = 1
-  ;; dens_errors             = 1
   remake_masterFile       = 0
   map_to_100km            = 1
+
+  add_oneCount_stats      = 1
+  
+  savePlot                = 1
+  sPName                  = 'errorbarsalso.png'
+  errorBarFac             = 1.
+
+  ;; sPName                  = 'noErrorBars.png'
+  ;; errorBarFac             = 0.00000001
 
   ;;get orbTimes here
   orbit                   = 1773
@@ -101,6 +111,7 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
      EEB_OR_EESARR=eeb_or_eesArr, $
      ORDER=order, $
      LABEL=label, $
+     ADD_ONECOUNT_STATS=add_oneCount_stats, $
      ARANGE__MOMENTS_E_DOWN=aRange__moments_e_down, $
      ARANGE__MOMENTS_I_UP=aRange__moments_i_up, $
      WHICH_EEB__LABEL=label__which_eeb, $
@@ -168,8 +179,8 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   cur         = curPotList[edind].cur+curPotList[euind].cur+curPotList[iuind].cur
 
   ;;Errors
-  curErr      = curPotList[edind].curErr
-  curErr      = TRANSPOSE([[cur-curErr],[cur+curErr]])
+  curErr      = ABS(curPotList[edind].curErr) * errorBarFac
+  ;; curErr      = TRANSPOSE([[cur-curErr],[cur+curErr]])
 
   posC_i      = WHERE(cur GT 0,nPos, $
                       COMPLEMENT=negC_i, $
@@ -180,6 +191,8 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   pot         = curPotList[edind].peakE+curPotList[iuind].peakE
   pot[posC_i] = curPotList[euind].peakE[posC_i]
   ;; pot[posC_i] = curPotList[euind].charE[posC_i]
+
+  potErr      = ABS(curPotList[edind].peakErr+curPotList[iuind].peakErr)
   
 
   safe_i      = WHERE((curPotList[edind].peakE GE 0.) OR  $
@@ -227,7 +240,8 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   rgbTable     = 4
 
   IF KEYWORD_SET(orig_plotIdee) THEN BEGIN
-     window    = WINDOW(DIMENSIONS=[900,600])
+     window    = WINDOW(DIMENSIONS=[900,600], $
+                        BUFFER=savePlot)
 
      sPlot     = SCATTERPLOT(cur[safe_i], $
                              pot[safe_i], $
@@ -249,7 +263,8 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
                              XSUBTICKLEN=0.01, $
                              YSUBTICKLEN=0.01, $
                              /CURRENT, $
-                             POSITION=[0.1,0.1,0.95,0.8])
+                             POSITION=[0.1,0.1,0.95,0.8], $
+                             BUFFER=savePlot)
 
      ;;And a colorbar thing
      nTMarks     = 5
@@ -269,7 +284,8 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
 
   ENDIF
 
-  window1      = WINDOW(DIMENSIONS=[900,600])
+  window1      = WINDOW(DIMENSIONS=[900,600], $
+                        BUFFER=savePlot)
   p1pos        = [0.10,0.08,0.46,0.50]
   p2pos        = [0.10,0.53,0.46,0.94]
   p3pos        = [0.54,0.08,0.95,0.94]
@@ -318,46 +334,50 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   errSym_size       = 3.0
   errSym_fill       = 0
   errSym_capSize    = 0.05
-  errJRange         = MINMAX(curErr)
+  ;; errJRange         = MINMAX(curErr)
+  errJRange         = jRange
 
   ;;Initialize things
   inds              = [0,1]
-  tmpErr            = curErr[*,safe_i[inds]]
-  ;; tmpErr            = curErr[safe_i[inds]]
+  ;; tmpCurErr         = curErr[*,safe_i[inds]]
+  tmpCurErr         = curErr[safe_i[inds]]
 
+  p1Title           = 'Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[0]])
   plot_1            = ERRORPLOT((tDiff[safe_i[inds]]), $
                                 cur[safe_i[inds]], $
-                                tmpErr, $
+                                tmpCurErr, $
                                 XRANGE=tRange, $
                                 ;; YRANGE=jRange, $
                                 YRANGE=errJRange, $
-                                XTITLE='Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[inds]]), $
+                                XTITLE=p1Title, $
                                 YTITLE='j!D||!N($\mu$A m!U-2!N)', $
                                 RGB_TABLE=hammerCT, $
                                 ERRORBAR_COLOR=hammerCT[*,CTInds[0]], $
                                 VERT_COLORS=CTInds[inds], $
-                                ;; LINESTYLE='', $
+                                LINESTYLE='', $
                                 ERRORBAR_CAPSIZE=errSym_capSize, $
                                 SYMBOL=errSym, $
                                 SYM_SIZE=errSym_size, $
                                 SYM_FILLED=errSym_fill, $
                                 /CURRENT, $
-                                POSITION=p1pos)
+                                POSITION=p1pos, $
+                                BUFFER=savePlot)
 
   ;;Now add all the other symbols
-  FOR k=1,N_ELEMENTS(safe_i)-1,2 DO BEGIN
+  FOR k=2,N_ELEMENTS(safe_i)-1,2 DO BEGIN
 
      inds           = [k,k+1]
-     tmpErr         = curErr[*,safe_i[inds]]
-     ;; tmpErr         = curErr[safe_i[inds]]
+     ;; tmpCurErr      = curErr[*,safe_i[inds]]
+     tmpCurErr      = curErr[safe_i[inds]]
 
      plot_1         = ERRORPLOT((tDiff[safe_i[inds]]), $
                                 cur[safe_i[inds]], $
-                                tmpErr, $
+                                tmpCurErr, $
                                 ;; RGB_TABLE=hammerCT, $
                                 VERT_COLORS=hammerCT[*,CTInds[inds]], $
                                 ERRORBAR_COLOR=hammerCT[*,CTInds[k]], $
                                 ERRORBAR_CAPSIZE=errSym_capSize, $
+                                LINESTYLE='', $
                                 SYMBOL=errSym, $
                                 SYM_SIZE=errSym_size, $
                                 SYM_FILLED=errSym_fill, $
@@ -366,20 +386,70 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
                                 /OVERPLOT)
   ENDFOR
 
-  plot_2            = SCATTERPLOT((time[safe_i]-time[safe_i[0]]), $
-                                  pot[safe_i], $
-                                  ;; XTITLE='Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[0]]), $
-                                  YTITLE='$\Phi$ (V)', $
-                                  RGB_TABLE=hammerCT, $
-                                  MAGNITUDE=tMag[safe_i], $
-                                  ;; LINESTYLE='', $
-                                  SYMBOL='.', $
-                                  SYM_SIZE=3.0, $
-                                  /SYM_FILLED, $
-                                  /CURRENT, $
-                                  POSITION=p2pos)
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;Second plot
 
+  ;;The old, error bar–less way
+  ;; plot_2            = SCATTERPLOT(tDiff[safe_i], $
+  ;;                                 pot[safe_i], $
+  ;;                                 ;; XTITLE='Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[0]]), $
+  ;;                                 YTITLE='$\Phi$ (V)', $
+  ;;                                 RGB_TABLE=hammerCT, $
+  ;;                                 MAGNITUDE=tMag[safe_i], $
+  ;;                                 ;; LINESTYLE='', $
+  ;;                                 SYMBOL='.', $
+  ;;                                 SYM_SIZE=3.0, $
+  ;;                                 /SYM_FILLED, $
+  ;;                                 /CURRENT, $
+  ;;                                 POSITION=p2pos)
+
+  inds              = [0,1]
+  ;; tmpPotErr         = curErr[*,safe_i[inds]]
+  tmpPotErr         = potErr[safe_i[inds]]
+
+  errPotRange       = MINMAX(potErr[safe_i])
+  ;; errPotRange       = MINMAX(pot[safe_i])
+  plot_2            = ERRORPLOT((tDiff[safe_i[inds]]), $
+                                pot[safe_i[inds]], $
+                                tmpPotErr, $
+                                XRANGE=tRange, $
+                                YRANGE=errPotRange, $
+                                YTITLE='$\Phi$ (V)', $
+                                RGB_TABLE=hammerCT, $
+                                ERRORBAR_COLOR=hammerCT[*,CTInds[0]], $
+                                VERT_COLORS=CTInds[inds], $
+                                LINESTYLE='', $
+                                ERRORBAR_CAPSIZE=errSym_capSize, $
+                                SYMBOL=errSym, $
+                                SYM_SIZE=errSym_size, $
+                                SYM_FILLED=errSym_fill, $
+                                /CURRENT, $
+                                POSITION=p2pos)
   plot_2.xshowtext  = 0B
+
+  ;;Now add all the other symbols
+  FOR k=2,N_ELEMENTS(safe_i)-1,2 DO BEGIN
+
+     inds           = [k,k+1]
+     ;; tmpPotErr      = potErr[*,safe_i[inds]]
+     tmpPotErr      = potErr[safe_i[inds]]
+
+     plot_2         = ERRORPLOT((tDiff[safe_i[inds]]), $
+                                pot[safe_i[inds]], $
+                                tmpPotErr, $
+                                VERT_COLORS=hammerCT[*,CTInds[inds]], $
+                                ERRORBAR_COLOR=hammerCT[*,CTInds[k]], $
+                                ERRORBAR_CAPSIZE=errSym_capSize, $
+                                LINESTYLE='', $
+                                SYMBOL=errSym, $
+                                SYM_SIZE=errSym_size, $
+                                SYM_FILLED=errSym_fill, $
+                                /CURRENT, $
+                                /OVERPLOT)
+  ENDFOR
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;Third plot
 
   this3       = ROUND_TO_NTH_DECIMAL_PLACE(ALOG10(yRange[1]))
   tickValues3 = (10L)^(LINDGEN(FIX(this3))+1)
@@ -393,30 +463,106 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   jvSymTransp = 70
   jvSymFilled = 1
   FOR k=0,this3-1 DO tickNames3 = [tickNames3,STRING(FORMAT='("10!U",I0,"!N")',k)]
-  plot_3      = SCATTERPLOT(cur[safe_i], $
-                            pot[safe_i], $
-                            XRANGE=jRange, $
-                            YRANGE=yRange, $
-                            /YLOG, $
-                            RGB_TABLE=hammerCT, $
-                            MAGNITUDE=tMag[safe_i], $
-                            SYMBOL=jvSym, $
-                            SYM_SIZE=jvSymSize, $
-                            SYM_THICK=jvSymThick, $
-                            SYM_TRANSPARENCY=jvSymTransp, $
-                            SYM_FILLED=jvSymFilled, $
-                            YTICKVALUES=tickValues3, $
-                            YTICKNAME=tickNames3, $
-                            XTITLE='j!D||!N($\mu$A m!U-2!N)', $
-                            YTITLE='$\Phi$ (V)', $
-                            XGRIDSTYLE=':', $
-                            YGRIDSTYLE=':', $
-                            XTICKLEN=1, $
-                            YTICKLEN=1, $
-                            XSUBTICKLEN=0.01, $
-                            YSUBTICKLEN=0.01, $
-                            /CURRENT, $
-                            POSITION=p3pos)
+
+  ;;The old, error bar–less way
+  ;; plot_3      = SCATTERPLOT(cur[safe_i], $
+  ;;                           pot[safe_i], $
+  ;;                           XRANGE=jRange, $
+  ;;                           YRANGE=yRange, $
+  ;;                           /YLOG, $
+  ;;                           RGB_TABLE=hammerCT, $
+  ;;                           MAGNITUDE=tMag[safe_i], $
+  ;;                           SYMBOL=jvSym, $
+  ;;                           SYM_SIZE=jvSymSize, $
+  ;;                           SYM_THICK=jvSymThick, $
+  ;;                           SYM_TRANSPARENCY=jvSymTransp, $
+  ;;                           SYM_FILLED=jvSymFilled, $
+  ;;                           YTICKVALUES=tickValues3, $
+  ;;                           YTICKNAME=tickNames3, $
+  ;;                           XTITLE='j!D||!N($\mu$A m!U-2!N)', $
+  ;;                           YTITLE='$\Phi$ (V)', $
+  ;;                           XGRIDSTYLE=':', $
+  ;;                           YGRIDSTYLE=':', $
+  ;;                           XTICKLEN=1, $
+  ;;                           YTICKLEN=1, $
+  ;;                           XSUBTICKLEN=0.01, $
+  ;;                           YSUBTICKLEN=0.01, $
+  ;;                           /CURRENT, $
+  ;;                           POSITION=p3pos)
+
+  ;; plot_1            = ERRORPLOT((tDiff[safe_i[inds]]), $
+  ;;                               cur[safe_i[inds]], $
+  ;;                               tmpErr, $
+  ;;                               XRANGE=tRange, $
+  ;;                               ;; YRANGE=jRange, $
+  ;;                               YRANGE=errJRange, $
+  ;;                               XTITLE='Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[inds]]), $
+  ;;                               YTITLE='j!D||!N($\mu$A m!U-2!N)', $
+  ;;                               /CURRENT, $
+  ;;                               POSITION=p1pos)
+
+  inds              = [0,1]
+  ;; tmpCurErr         = curErr[*,safe_i[inds]]
+  ;; tmpPotErr         = potErr[*,safe_i[inds]]
+  tmpCurErr         = curErr[safe_i[inds]]
+  tmpPotErr         = potErr[safe_i[inds]]
+
+  plot_3      = ERRORPLOT(cur[safe_i[inds]], $
+                          pot[safe_i[inds]], $
+                          tmpCurErr, $
+                          tmpPotErr, $
+                          XRANGE=jRange, $
+                          YRANGE=yRange, $
+                          /YLOG, $
+                          ;; RGB_TABLE=hammerCT, $
+                          LINESTYLE='', $
+                          ERRORBAR_COLOR=hammerCT[*,CTInds[0]], $
+                          ERRORBAR_CAPSIZE=errSym_capSize, $
+                          SYMBOL=errSym, $
+                          SYM_SIZE=errSym_size, $
+                          SYM_FILLED=errSym_fill, $
+                          VERT_COLORS=CTInds[inds], $
+                          ;; SYMBOL=jvSym, $
+                          ;; SYM_SIZE=jvSymSize, $
+                          ;; SYM_THICK=jvSymThick, $
+                          ;; SYM_TRANSPARENCY=jvSymTransp, $
+                          ;; SYM_FILLED=jvSymFilled, $
+                          YTICKVALUES=tickValues3, $
+                          YTICKNAME=tickNames3, $
+                          XTITLE='j!D||!N($\mu$A m!U-2!N)', $
+                          YTITLE='$\Phi$ (V)', $
+                          XGRIDSTYLE=':', $
+                          YGRIDSTYLE=':', $
+                          XTICKLEN=1, $
+                          YTICKLEN=1, $
+                          XSUBTICKLEN=0.01, $
+                          YSUBTICKLEN=0.01, $
+                          /CURRENT, $
+                          POSITION=p3pos)
+
+  ;;Now add all the other symbols
+  FOR k=2,N_ELEMENTS(safe_i)-1,2 DO BEGIN
+
+     inds           = [k,k+1]
+     tmpCurErr      = curErr[safe_i[inds]]
+     tmpPotErr      = potErr[safe_i[inds]]
+
+     plot_3         = ERRORPLOT((cur[safe_i[inds]]), $
+                                pot[safe_i[inds]], $
+                                tmpCurErr, $
+                                tmpPotErr, $
+                                ;; RGB_TABLE=hammerCT, $
+                                LINESTYLE='', $
+                                VERT_COLORS=hammerCT[*,CTInds[inds]], $
+                                ERRORBAR_COLOR=hammerCT[*,CTInds[k]], $
+                                ERRORBAR_CAPSIZE=errSym_capSize, $
+                                SYMBOL=errSym, $
+                                SYM_SIZE=errSym_size, $
+                                SYM_FILLED=errSym_fill, $
+                                /CURRENT, $
+                                /OVERPLOT)
+  ENDFOR
+
 
   ;;And a colorbar thing
   nTMarks     = 5
@@ -433,6 +579,26 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
                          ;; TEXT_ORIENTATION=180, $
                          /NORMAL)
 
-  STOP
+  IF KEYWORD_SET(savePlot) THEN BEGIN
+     IF ~KEYWORD_SET(sPName) THEN BEGIN
+        sPName = routName + '-believeIt.png'
+     ENDIF
+     IF ~KEYWORD_SET(plotDir) THEN BEGIN
+        pDirSuff = '/cur_and_pot_analysis'
+        SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF=pDirSuff
+     ENDIF
+     PRINT,"Saving to " + sPName + ' ...'
 
+     window1.Save,plotDir+sPName
+
+  ENDIF
+
+  STOP
+  
+  ;;Why are errors so large during the hottest action?
+  ;; this = PLOT(tDiff[safe_i], $
+  ;;             (ABS(curerr/cur))[safe_i], $
+  ;;             LINESTYLE='', $
+  ;;             SYMBOL='*', $
+  ;;             YRANGE=jrange)
 END
