@@ -6,7 +6,7 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   Elphic1998_defaults     = 1
 
   error_estimates         = 1
-  dens_errors             = 1
+  ;; dens_errors             = 1
   remake_masterFile       = 0
   map_to_100km            = 1
 
@@ -115,7 +115,7 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
      PEAK_ENERGY__START_AT_HIGHEARR=peak_energy__start_at_highEArr, $
      UPGOINGARR=upgoingArr, $
      ERROR_ESTIMATES=error_estimates, $
-     DENS_ERRORS=dens_errors, $
+     ;; DENS_ERRORS=dens_errors, $
      MAP_TO_100KM=map_to_100km, $
      SAVECURPOTFILE=saveCurPotFile, $
      OUT_CURPOTLIST=curPotList
@@ -215,9 +215,12 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   ;; tMag         = (time[safe_i]-time[safe_i[0]])
   tMag         = (time-time[0])
   tMag        /= tMag[-1]
-  window       = WINDOW(DIMENSIONS=[900,600])
   rgbTable     = 4
-  sPlot        = SCATTERPLOT(cur[safe_i], $
+
+  IF KEYWORD_SET(orig_plotIdee) THEN BEGIN
+     window    = WINDOW(DIMENSIONS=[900,600])
+
+     sPlot     = SCATTERPLOT(cur[safe_i], $
                              pot[safe_i], $
                              XRANGE=xRange, $
                              YRANGE=yRange, $
@@ -239,6 +242,103 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
                              /CURRENT, $
                              POSITION=[0.1,0.1,0.95,0.8])
 
+     ;;And a colorbar thing
+     nTMarks     = 5
+     tInds       = (INDGEN(nTMarks)*N_ELEMENTS(safe_i))/(nTMarks-1)
+     tickValues  = tMag[safe_i[tInds]]
+     tickTimes   = time[safe_i[tInds]]
+     tickName    = STRMID(TIME_TO_STR(tickTimes),11,15)
+     tMagRange   = [tMag[safe_i[0]],tMag[safe_i[-1]]]
+     cb          = COLORBAR(RGB_TABLE=rgbTable, $
+                            TICKNAME=tickName, $
+                            TICKVALUES=tickValues, $
+                            POSITION=[0.1,0.96,0.95,0.98], $
+                            RANGE=tMagRange, $
+                            ;; TEXT_ORIENTATION=180, $
+                            /NORMAL)
+     STOP
+
+  ENDIF
+
+  window1      = WINDOW(DIMENSIONS=[900,600])
+  p1pos        = [0.10,0.08,0.46,0.50]
+  p2pos        = [0.10,0.53,0.46,0.94]
+  p3pos        = [0.54,0.08,0.95,0.94]
+  ;; cbpos        = [0.1,0.96,0.96,0.99]
+  ;; cbpos        = [0.52,0.97,0.95,0.99]
+  cbpos        = [0.10,0.97,0.95,0.99]
+  nColors      = 256
+  ;; stretch      = INDGEN(nColors-1)
+  ;; stretch      = -100
+  ;; stretch      = MAKE_ARRAY(nColors-1,VALUE=-80)
+  stretch      = [REPLICATE(10,127),REPLICATE(-10,128)]
+  transpose    = 0
+  hammerCT     = COLORTABLE(4,STRETCH=stretch,NCOLORS=nColors,TRANSPOSE=transpose)
+  plot_1       = SCATTERPLOT((time[safe_i]-time[safe_i[0]]), $
+                             cur[safe_i], $
+                             XTITLE='Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[0]]), $
+                             YTITLE='j!D||!N($\mu$A m!U-2!N)', $
+                             RGB_TABLE=hammerCT, $
+                             MAGNITUDE=tMag[safe_i], $
+                             ;; LINESTYLE='', $
+                             SYMBOL='.', $
+                             SYM_SIZE=3.0, $
+                             /SYM_FILLED, $
+                             /CURRENT, $
+                             POSITION=p1pos)
+
+  plot_2       = SCATTERPLOT((time[safe_i]-time[safe_i[0]]), $
+                             pot[safe_i], $
+                             ;; XTITLE='Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[0]]), $
+                             YTITLE='$\Phi$ (V)', $
+                             RGB_TABLE=hammerCT, $
+                             MAGNITUDE=tMag[safe_i], $
+                             ;; LINESTYLE='', $
+                             SYMBOL='.', $
+                             SYM_SIZE=3.0, $
+                             /SYM_FILLED, $
+                             /CURRENT, $
+                             POSITION=p2pos)
+
+  plot_2.xshowtext = 0B
+
+  this3       = ROUND_TO_NTH_DECIMAL_PLACE(ALOG10(yRange[1]))
+  tickValues3 = (10L)^(LINDGEN(FIX(this3))+1)
+  tickNames3  = !NULL
+  ;; jvSym       = '*'
+  ;; jvSymSize   = 2.0
+  ;; jvSymThick  = 2.0
+  jvSym       = '*'
+  jvSymSize   = 2.0
+  jvSymThick  = 2.0
+  jvSymTransp = 70
+  jvSymFilled = 1
+  FOR k=0,this3-1 DO tickNames3 = [tickNames3,STRING(FORMAT='("10!U",I0,"!N")',k)]
+  plot_3      = SCATTERPLOT(cur[safe_i], $
+                            pot[safe_i], $
+                            XRANGE=xRange, $
+                            YRANGE=yRange, $
+                            /YLOG, $
+                            RGB_TABLE=hammerCT, $
+                            MAGNITUDE=tMag[safe_i], $
+                            SYMBOL=jvSym, $
+                            SYM_SIZE=jvSymSize, $
+                            SYM_THICK=jvSymThick, $
+                            SYM_TRANSPARENCY=jvSymTransp, $
+                            SYM_FILLED=jvSymFilled, $
+                            YTICKVALUES=tickValues3, $
+                            YTICKNAME=tickNames3, $
+                            XTITLE='j!D||!N($\mu$A m!U-2!N)', $
+                            YTITLE='$\Phi$ (V)', $
+                            XGRIDSTYLE=':', $
+                            YGRIDSTYLE=':', $
+                            XTICKLEN=1, $
+                            YTICKLEN=1, $
+                            XSUBTICKLEN=0.01, $
+                            YSUBTICKLEN=0.01, $
+                            /CURRENT, $
+                            POSITION=p3pos)
+
   ;;And a colorbar thing
   nTMarks     = 5
   tInds       = (INDGEN(nTMarks)*N_ELEMENTS(safe_i))/(nTMarks-1)
@@ -246,10 +346,10 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   tickTimes   = time[safe_i[tInds]]
   tickName    = STRMID(TIME_TO_STR(tickTimes),11,15)
   tMagRange   = [tMag[safe_i[0]],tMag[safe_i[-1]]]
-  cb          = COLORBAR(RGB_TABLE=rgbTable, $
+  cb          = COLORBAR(RGB_TABLE=hammerCT, $
                          TICKNAME=tickName, $
                          TICKVALUES=tickValues, $
-                         POSITION=[0.1,0.96,0.95,0.98], $
+                         POSITION=cbpos, $
                          RANGE=tMagRange, $
                          ;; TEXT_ORIENTATION=180, $
                          /NORMAL)
