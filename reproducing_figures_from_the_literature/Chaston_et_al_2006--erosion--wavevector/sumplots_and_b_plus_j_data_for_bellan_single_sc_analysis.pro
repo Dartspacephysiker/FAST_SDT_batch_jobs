@@ -799,7 +799,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
   GET_2DT_TS_POT,'j_2d_fs','fa_'+ieb_or_ies,NAME='Ji_up',T1=t1,T2=t2, $
                  ENERGY=energy_ions,ANGLE=ion_angle, $
-                 sc_pot=sc_pot
+                 SC_POT=sc_pot
   ;; YLIM,'Ji_up',1.e5,1.e8,1   ; set y limits
   ;; OPTIONS,'Ji_up','tplot_routine','pmplot'   ; set 2 color plot
   ;; OPTIONS,'Ji_up','labels',['Downgoing!C Ions','Upgoing!C Ions ']    ; set color label
