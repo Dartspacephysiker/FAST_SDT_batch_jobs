@@ -1,26 +1,5 @@
-;2017/02/23
-;This is entirely ripped off from Strangeway's batch_summary.pro, gifted to me by that beautiful human, Jack Vernetti
-;So says my Alf wave DB (via JOURNAL__20161024__LOOK_FOR_STREAKS_OF_ALFVEN_WAVES__BELLAN_METHOD):
-;
-;9627     1999-01-27/11:32:42.211  1999-01-27/11:33:24.344  42.133      115       0.36637   21.549    -34.942
-;                                                                                                      ^^
-;                                                                                                      ||
-; create a summary plot of:
-; SFA (AKR)
-; DSP (VLF)
-; Eesa Energy
-; Eesa Angle
-; Iesa Energy
-; Iesa Angle
-; E fit along V (Southern hemisphere corrected)
-; dB_fac_v (dB_fac and dB_SM also stored)
-;
-; Returns:
-; tPlt_vars  - array of tplot variables
-; tlimit_north - tlimits for northern hemisphere
-; tlimit_south - tlimits for southern hemisphere
-; tlimit_all -  tlimits for all the data
-PRO JOURNAL__20170225__ORBIT_9585__FOR_PRE8_PROCEEDINGS, $
+;;2017/02/25
+PRO JOURNAL__20170225__ORBIT_10927__FOR_PRE8_PROCEEDINGS, $
    TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $
    PLOT_SOUTH=plot_south, $
@@ -44,14 +23,15 @@ PRO JOURNAL__20170225__ORBIT_9585__FOR_PRE8_PROCEEDINGS, $
   plotPref          = '-PRE_VIII-Fig_1'
   saveSuff          = '-fixed_currents-with_sc_pot'
 
-  orbit             = 9585
+  orbit             = 10927
 
-  dato              = '1999-01-23/'
+  dato              = '1999-05-27/'
 
-  t1                = dato + '14:50:35'
-  t2                = dato + '14:51:15'
+  t1                = dato + '00:30:21'
+  t2                = dato + '00:30:59'
 
-  timeBar_times     = dato + ['14:50:56','14:51:06']
+  ;; timeBar_times     = dato + ['00:30:30','00:30:47']
+  timeBar_times     = dato + ['00:30:22','00:30:42.5']
 
   ;; energy_electrons  = [0.,30000.]
   ;; energy_ions       = [0.,30000.]
@@ -93,4 +73,3 @@ PRO JOURNAL__20170225__ORBIT_9585__FOR_PRE8_PROCEEDINGS, $
 
 
 END
-
