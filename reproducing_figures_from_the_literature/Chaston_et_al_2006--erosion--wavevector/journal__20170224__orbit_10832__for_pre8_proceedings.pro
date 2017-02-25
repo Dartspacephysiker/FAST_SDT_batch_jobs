@@ -53,7 +53,8 @@ PRO JOURNAL__20170224__ORBIT_10832__FOR_PRE8_PROCEEDINGS, $
   t1                = dato + '06:50:35'
   t2                = dato + '06:51:25'
 
-  timeBar_times     = dato + ['06:50:51.705','06:51:13.791']
+  ;; timeBar_times     = dato + ['06:50:51.705','06:51:13.791']
+  timeBar_times     = dato + ['06:50:46.5','06:51:13.791']
 
   ;; energy_electrons  = [0.,30000.]
   ;; energy_ions       = [0.,30000.]

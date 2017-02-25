@@ -47,10 +47,10 @@ PRO JOURNAL__20170223__ORBIT_10839__FOR_PRE8_PROCEEDINGS, $
   orbit             = 10839
 
   dato              = '1999-05-18/'
-  t1                = dato + '22:14:00'
-  t2                = dato + '22:16:00'
+  t1                = dato + '22:14:20'
+  t2                = dato + '22:15:35'
 
-  timeBar_times     = dato + ['22:14:28.657','22:15:38.204']
+  timeBar_times     = dato + ['22:14:28.657','22:15:05.0']
 
   plotDirSuff       = '/PREVIII_proceedings'
 

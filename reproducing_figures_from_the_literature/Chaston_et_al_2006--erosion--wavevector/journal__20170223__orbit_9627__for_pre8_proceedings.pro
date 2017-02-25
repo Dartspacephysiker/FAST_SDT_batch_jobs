@@ -50,7 +50,8 @@ PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
   t1                = dato + '11:32:34.2'
   t2                = dato + '11:33:26.5'
 
-  timeBar_times     = dato + ['11:32:42.211','11:33:24.344']
+  ;; timeBar_times     = dato + ['11:32:42.211','11:33:24.344']
+  timeBar_times     = dato + ['11:32:44','11:33:09']
 
   plotDirSuff       = '/PREVIII_proceedings'
 

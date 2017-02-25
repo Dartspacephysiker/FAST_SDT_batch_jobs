@@ -597,7 +597,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   loss_cone_aLT           = alt.y[0]*1000.0
   lcw                     = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
   GET_DATA,'ILAT',DATA=ilat
-  north_south             = ABS(ilat.y[0])/ilat.y[0]
+  north_south             = FIX(ABS(ilat.y[0])/ilat.y[0])
 
   IF north_south EQ -1 THEN BEGIN
      e_angle              = [180.-lcw,180+lcw] ; for Southern Hemis.
@@ -606,12 +606,16 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      i_angle              = [180.0,360.0]
      i_angle_up           = [270.0,360.0]
 
+     ;; magC_multFac         = -1.
+
   ENDIF ELSE BEGIN
      e_angle              = [360.-lcw,lcw] ;	for Northern Hemis.
 
      ;;Eliminate ram from data
      i_angle              = [0.0,180.0]
      i_angle_up           = [90.0,180.0]
+
+     ;; magC_multFac         = -1.
 
   ENDELSE
 
@@ -620,17 +624,33 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   ENDIF
 
   ;;Get speed and position for calculation of mag stuff
+  ;;Define northbound as positive speed, southbound as negative speed 
+  ;;Since the derivative is with respect to deltaB_East,
+  ;;the mag_current is nominally outward   if northbound and the fluctuation is eastward, and
+  ;;the mag_current is nominally earthward if southbound and the fluctuation is eastward
+  ;;We make all earthward current positive below, after multiplying by sign_dILAT to get the direction of current predicted by
+  ;;Ampère's law
   GET_DATA,'fa_vel',DATA=vel
   speed                   = SQRT(vel.y[*,0]^2+vel.y[*,1]^2+vel.y[*,2]^2)*1000.0
+  sign_dILAT              = (ilat.y[1:-1]-ilat.y[0:-2])
+  sign_dILAT              = ABS(sign_dILAT)/sign_dILAT
+  sign_dILAT              = [sign_dILAT[0],sign_dILAT]
 
+  ;;My way
+  mag_dt                  = magy.x[1:-1]-magy.x[0:-2]
+  ;; mag_dt                  = [mag_dt[0],mag_dt]
+  speed_mag               = speed[VALUE_CLOSEST2(vel.x,magy.x[1:-1])]
+  position2               = TOTAL([0,speed_mag*mag_dt],/CUMULATIVE)
+
+  ;;Old way
   old_pos                 = 0.
   position                = MAKE_ARRAY(N_ELEMENTS(magy.x),/DOUBLE)
   speed_mag_point         = MAKE_ARRAY(N_ELEMENTS(magy.x),/DOUBLE)
-  FOR j=0L,N_ELEMENTS(magy.x)-2 DO BEGIN
+  FOR j=1L,N_ELEMENTS(magy.x)-1 DO BEGIN
      speed_point_ind      = MIN(ABS(vel.x-magy.x[j]),ind)
 
      speed_mag_point[j]   = speed[ind]
-     samplingperiod       = magy.x[j+1] - magy.x[j]
+     samplingperiod       = magy.x[j] - magy.x[j-1]
 
      position[j]          = old_pos + speed_mag_point[j]*samplingperiod
      old_pos              = position[j]
@@ -641,7 +661,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   junk                    = MIN(ABS(magy.x-t2Zoom),maxMagInd)
   magInds                 = [minMagInd:maxMagInd]
   ;;Calculate the current from mag
-  deltaBY                 = DERIV(position,SMOOTH(magy.y,5))
+  deltaBY                 = DERIV(position,SMOOTH(magy.y,5))*sign_dILAT
   ;; deltaBY                 = DERIV(position,magy.y)
   ;; deltaBY                 = DERIV(position,SMOOTH(magy.y,5))
   ;; jtemp                = ABS(1.0e-3*(deltaBx)/1.26e-6)
@@ -924,11 +944,10 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      tmp.y          = tmp.y[keep1]
 
      ;;For output
-     ;;NOTE: we here decide to make currents field-aligned.
-     ;;That is, positive currents are along B; in SH, that means spaceward
+     ;;NOTE: we here decide to make currents field-aligned and EARTHWARD.
+     ;;NIX THE FOLLOWING"That is, positive currents are along B; in SH, that means spaceward"
      jeTotTmp_time  = tmp.x
-     jeTotTmp       = tmp.y*1.6e-9*(-1.) ;;in microA/cm2, and flip sign
-
+     jeTotTmp       = tmp.y*1.6e-9*(-1.)*north_south ;;in microA/m2, and flip sign once for electrons, and possibly again for SH
 
      ;;For nice plots
      tmp.y         *= -1. ;;Since we're in Southern Hemi
@@ -948,15 +967,19 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      ;; UCLA_MAG_DESPIN,TW_MAT=tw_mat,ORBIT=orbit,SPIN_AXIS=spin_axis,DELTA_PHI=delta_phi
 
      PRINT,"Getting Ji current density fo' yeh'"
+
      GET_2DT_TS_POT,'j_2d_b','fa_ieb',T1=t1Zoom,T2=t2Zoom, $
                     NAME='Ji_tot', $
                     ENERGY=[0,energy_ions[1]], $
+                    ANGLE=ion_angle, $
                     SC_POT=sc_pot
+
      GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=t1Zoom,T2=t2Zoom, $
                     NAME='Ji_tot_S', $
                     ENERGY=[0,energy_ions[1]], $
-                    ANGLE=[180,360], $
+                    ANGLE=ion_angle, $
                     SC_POT=sc_pot
+
      GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=t1Zoom,T2=t2Zoom, $
                     NAME='Je_tot_S', $
                     ENERGY=energy_electrons, $
@@ -970,7 +993,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
      ;;For output
      jiTotTmp_time  = tmp.x
-     jiTotTmp       = tmp.y*1.6e-9*2. ;;in microA/m2, times 2 since half angle range
+     jiTotTmp       = tmp.y*1.6e-9*2.*north_south ;;in microA/m2, times 2 since half angle range, and possibly flip sign if in SH
 
      ;;For nice plots
      tmp.y         *= -1. ;;Since we're in Southern Hemi
@@ -992,7 +1015,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
      ;;For output
      jiTotTmp_time  = tmp.x
-     jiTotTmp       = tmp.y*1.6e-9*2. ;;in microA/m2, times 2 since half angle range
+     jiTotTmp       = tmp.y*1.6e-9*2.*north_south ;;in microA/m2, times 2 since half angle range, and possibly flip sign if in SH
 
      ;;For nice plots
      tmp.y         *= -1. ;;Since we're in Southern Hemi
@@ -1012,7 +1035,8 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
      ;;For output
      jeTotTmp_time  = tmp.x
-     jeTotTmp       = tmp.y*1.6e-9 ;;in microA/m2
+     jeTotTmp       = tmp.y*1.6e-9*(-1.)*north_south ;;in microA/m2, and flip sign once for electrons, and possibly again for SH
+
 
      ;;For nice plots
      tmp.y         *= -1. ;;Since we're in Southern Hemi
@@ -1220,12 +1244,15 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      ;; YLIM,'Je_plot',-50,100,0
      YLIM,'Je_plot',MIN([jiDat[curInds],tmpe.y[curInds]]),MAX([jiDat[curInds],tmpe.y[curInds]]),0
 
-     OPTIONS,'Je_plot','labels',['i!U+!N ESA','e!U-!N ESA']
+     OPTIONS,'Je_plot','labels',['i!U+!N ESA','e!U-!N ESA','tot']
      OPTIONS,'Je_plot','labflag',-1
-     OPTIONS,'Je_plot','colors',[140,250,0]
+     OPTIONS,'Je_plot','colors',[140,250,0,0]
 
 
-     STORE_DATA,'Je_plot',DATA={x:[[tmpe.x],[tmpe.x],[tmpe.x]],y:[[jiDat],[tmpe.y],[MAKE_ARRAY(N_ELEMENTS(tmpe.y),VALUE=0.)]]}
+     STORE_DATA,'Je_plot',DATA={x:[[tmpe.x],[tmpe.x],[tmpe.x], $
+                                   [tmpe.x]], $
+                                y:[[jiDat],[tmpe.y],[tmpe.y+jiDat], $
+                                   [MAKE_ARRAY(N_ELEMENTS(tmpe.y),VALUE=0.)]]}
 
      LOADCT2,40
      TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
