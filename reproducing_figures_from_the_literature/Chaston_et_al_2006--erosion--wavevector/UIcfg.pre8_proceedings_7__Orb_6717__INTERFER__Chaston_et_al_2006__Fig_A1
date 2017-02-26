@@ -1,0 +1,309 @@
+*
+Header :this is the 'pre8_proceedings_7__Orb_6717__INTERFER__Chaston_et_al_2006__Fig_A1' configuration file
+Header :created on Sat Feb 25 19:19:48 2017
+*
+*
+Description : 
+
+*
+
+Configuration
+{
+Config Name:			'pre8_proceedings_7__Orb_6717__INTERFER__Chaston_et_al_2006__Fig_A1'
+Config MenuPosition:		6, -14
+Config MenuSize:		300, 300
+Config DefaultSourceId:	'?'
+Config CurrentPlotWindow:	'pre8_proceedings_7__Orb_6717:0 - DA'
+
+	PlotWinStandard
+	{
+	PlotWin Name:		'pre8_proceedings_7__Orb_6717:0 - DA'
+	PlotWin Position:	246, 86
+	PlotWin Size:		899, 616
+	PlotWin PlotsPage:	6
+	PlotWin TopPlotOfPage:	'Eesa Burst:  Energy'
+	PlotWin DefaultDataBaseResponse:	2450938 20052.8 2450938 28026.3 'FNMLine 16'
+   '/FASTdata_1/FAST_JB_7/FAST1394_ORBIT6716/lzp/fast_lzp_DSS-29_orbit6718_r'
+   '/FASTdata_1/FAST_JB_7/FAST1394_ORBIT6716/lzp/fast_lzp_DSS-29_orbit6718_r'
+   '/FASTdata_1/FAST_JB_7/FAST1394_ORBIT6716/lzp/fast_lzp_DSS-29_orbit6719_r'
+   '/FASTdata_1/FAST_JB_7/FAST1394_ORBIT6716/lzp/fast_lzp_DSS-29_orbit6719_r'
+   '/FASTdata_1/FAST_JB_7/FAST1394_ORBIT6716/lzp/fast_lzp_DSS-29_orbit6720_r'
+   '/FASTdata_1/FAST_JB_7/FAST1394_ORBIT6716/lzp/fast_lzp_DSS-29_orbit6720_r'
+   '/FASTdata_1/FAST_JB_7/FAST1394_ORBIT6716/lzp/fast_lzp_DSS-29_orbit6721_r'
+   '/FASTdata_1/FAST_JB_7/FAST1394_ORBIT6716/lzp/fast_lzp_DSS-29_orbit6721_r'
+   '/FASTdata_1/FAST_JB_7/FAST1395_ORBIT6716/lzp/fast_lzp_DSS-76_orbit6716_p'
+   '/FASTdata_1/FAST_JB_7/FAST1395_ORBIT6716/lzp/fast_lzp_DSS-76_orbit6716_p'
+   '/FASTdata_1/FAST_JB_7/FAST1402_ORBIT6246/lzp/fast_lzp_DSS-29_orbit6719_p'
+   '/FASTdata_1/FAST_JB_7/FAST1402_ORBIT6246/lzp/fast_lzp_DSS-29_orbit6719_p'
+   '/FASTdata_1/FAST_JB_7/FAST1476_ORBIT6349/lzp/fast_lzp_DSS-28_orbit6721_t'
+   '/FASTdata_1/FAST_JB_7/FAST1476_ORBIT6349/lzp/fast_lzp_DSS-28_orbit6721_t'
+   '/FASTdata_1/FAST_JB_7/FAST1476_ORBIT6349/lzp/fast_lzp_DSS-29_orbit6721_t'
+   '/FASTdata_1/FAST_JB_7/FAST1476_ORBIT6349/lzp/fast_lzp_DSS-29_orbit6721_t'
+
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa Burst:  Angle'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa Burst:  Angle'
+		Plot2 PlotYTitleName:	'EesaBurst Angle'
+		Plot2 PlotYSubTitleName:	'Deg'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
+		Plot2 MaxLimits:	24267, 360, 255, 1, 1, 1e+10
+		Plot2 MinLimits:	24254, 0, 0, 0, 0, 1e+07
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 0 360 0 32
+		Plot2 Accum:		TRUE 0 40000 0 48
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa Burst:  Energy'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa Burst:  Energy'
+		Plot2 PlotYTitleName:	'EesaBurst Energy'
+		Plot2 PlotYSubTitleName:	'_'
+		Plot2 PlotZTitleName:	'Counts'
+		Plot2 PlotZSubTitleName:	'#'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		3
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LOG LOG
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
+		Plot2 MaxLimits:	24267, 35000, 255, 1, 1, 1e+10
+		Plot2 MinLimits:	24254, 1, 0, 0, 0, 1e+07
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		FALSE
+		Plot2 BrkInt:		10
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 Accum:		TRUE 1 40000 0 48
+		Plot2 Accum:		TRUE 0 360 0 32
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'V1-V2_4k'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'V1-V2_4k'
+		Plot2 PlotYTitleName:	'V1-V2 (4K)'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	UNKNOWN
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	24267, 35000, 1, 1
+		Plot2 MinLimits:	24254, -35000, 0, 0
+		Plot2 AutoScale:	FALSE, TRUE
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		0.2
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'V1-V4_16k'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'V1-V4_16k'
+		Plot2 PlotYTitleName:	'V1-V4 (16K)'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	UNKNOWN
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	24267, 35000, 1, 1
+		Plot2 MinLimits:	24254, -35000, 0, 0
+		Plot2 AutoScale:	FALSE, TRUE
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		0.2
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'V5-V8_16k'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'V5-V8_16k'
+		Plot2 PlotYTitleName:	'V5-V8 (16K)'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	UNKNOWN
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	24267, 35000, 1, 1
+		Plot2 MinLimits:	24254, -35000, 0, 0
+		Plot2 AutoScale:	FALSE, TRUE
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		0.2
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'V7-V8_16k'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'V7-V8_16k'
+		Plot2 PlotYTitleName:	'V7-V8 (16K)'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	UNKNOWN
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		1
+		Plot2 ScaleTypes:	TIME LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	24267, 35000, 1, 1
+		Plot2 MinLimits:	24254, -35000, 0, 0
+		Plot2 AutoScale:	FALSE, TRUE
+		Plot2 UseOff:		FALSE
+		Plot2 LinOff:		0
+		Plot2 LogOff:		0
+		Plot2 LineStyle:	SDT_MLSTYLE_COLOR
+		Plot2 LinePointsMode:	GRAPH_MODE_LINE
+		Plot2 PreservePtsModeinFullZoom:
+		Plot2 PointsPlot:	1
+		Plot2 UseBrk:		TRUE
+		Plot2 BrkInt:		0.2
+		Plot2 ErrorBar:		SDT_EBAR_NONE
+		Plot2 NSymbols:		0
+		Plot2 LineFont:		Solid
+		Plot2 LineColor:	White
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+		PlotType
+		{
+		Plot2 SourceName:	'FAST'
+		Plot2 QtyName:		'Eesa_Burst_Hdr'
+		Plot2 DataBaseResponse:	'SameAsPlotWindow'
+		Plot2 NPanels:		1
+		Plot2 QtyTitleName:	'Eesa_Burst_Hdr'
+		Plot2 PlotYTitleName:	'Eesa_Burst_Hdr'
+		Plot2 PlotYSubTitleName:	'-'
+		Plot2 HeightUnits:	1
+		Plot2 SkipPoints:	0
+		Plot2 ShadingMode:	SHADE
+		Plot2 RedLimits:	FALSE 0 0
+		Plot2 YellowLimits:	FALSE 0 0
+		Plot2 NAxes:		2
+		Plot2 NDraws:		0
+		Plot2 ScaleTypes:	LINEAR LINEAR
+		Plot2 AxesUseBins:	FALSE, FALSE
+		Plot2 MaxLimits:	24267, 2, 0, 0
+		Plot2 MinLimits:	24254, -2, 0, 0
+		Plot2 UseOff:		
+		Plot2 LinOff:		
+		Plot2 LogOff:		
+		Plot2 LineStyle:	
+		Plot2 LinePointsMode:	
+		Plot2 PointsPlot:
+		Plot2 UseBrk:		
+		Plot2 BrkInt:		
+		Plot2 ErrorBar:		
+		Plot2 NSymbols:		
+		Plot2 LineFont:		
+		Plot2 LineColor:	
+		Plot2 ColorLimits:	COLORMAP 239 1
+		Plot2 EndPlot:
+		}
+	PlotWin EndPlotWindow:
+	}
+}
+
+*
+*
