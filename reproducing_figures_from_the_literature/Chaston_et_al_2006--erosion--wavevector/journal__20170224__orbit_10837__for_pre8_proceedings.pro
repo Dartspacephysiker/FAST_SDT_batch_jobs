@@ -42,7 +42,7 @@ PRO JOURNAL__20170224__ORBIT_10837__FOR_PRE8_PROCEEDINGS, $
   ieb_or_ies        = 'ieb'
 
   plotPref          = '-PRE_VIII-Fig_1'
-  saveSuff          = '-fixed_currents-with_sc_pot'
+  saveSuff          = '-with_sc_pot'
 
   orbit             = 10837
 

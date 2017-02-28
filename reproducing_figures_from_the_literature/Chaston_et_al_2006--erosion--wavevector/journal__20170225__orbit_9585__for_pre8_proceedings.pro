@@ -33,6 +33,7 @@ PRO JOURNAL__20170225__ORBIT_9585__FOR_PRE8_PROCEEDINGS, $
    NO_BLANK_PANELS=no_blank_panels, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps, $
+   SAVE_EPS=save_eps, $
    TPLOT_RIGHTNOW=tPlot_rightNow, $
    SAVE_B_AND_J_DATA=save_B_and_J_data, $
    ANCILLARY_PLOTS=ancillary_plots, $
@@ -42,7 +43,7 @@ PRO JOURNAL__20170225__ORBIT_9585__FOR_PRE8_PROCEEDINGS, $
   ieb_or_ies        = 'ieb'
 
   plotPref          = '-PRE_VIII-Fig_1'
-  saveSuff          = '-fixed_currents-with_sc_pot'
+  saveSuff          = '-with_sc_pot'
 
   orbit             = 9585
 
@@ -59,6 +60,9 @@ PRO JOURNAL__20170225__ORBIT_9585__FOR_PRE8_PROCEEDINGS, $
 
   plotDirSuff       = '/PREVIII_proceedings'
 
+  EESA_lims         = [1D7,1D10]
+  IESA_lims         = [1D5,1D8]
+
   SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      T1=t1, $
      T2=t2, $
@@ -69,6 +73,8 @@ PRO JOURNAL__20170225__ORBIT_9585__FOR_PRE8_PROCEEDINGS, $
      ENERGY_ELECTRONS=energy_electrons, $
      ENERGY_IONS=energy_ions, $
      ION_ANGLE=ion_angle, $
+     EESA_LIMS=EESA_lims, $
+     IESA_LIMS=IESA_lims, $     
      TPLT_VARS=tPlt_vars, $
      PLOT_NORTH=plot_north, $
      PLOT_SOUTH=plot_south, $
@@ -81,6 +87,7 @@ PRO JOURNAL__20170225__ORBIT_9585__FOR_PRE8_PROCEEDINGS, $
      NO_BLANK_PANELS=no_blank_panels, $
      SAVE_PNG=save_png, $
      SAVE_PS=save_ps, $
+     SAVE_EPS=save_eps, $
      PLOTPREF=plotPref, $
      TPLOT_RIGHTNOW=tPlot_rightNow, $
      SAVE_B_AND_J_DATA=save_B_and_J_data, $

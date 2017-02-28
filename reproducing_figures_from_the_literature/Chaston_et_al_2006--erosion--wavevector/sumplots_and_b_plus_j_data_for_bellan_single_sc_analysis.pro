@@ -9,6 +9,8 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
    ENERGY_ELECTRONS=energy_electrons, $
    ENERGY_IONS=energy_ions, $
    ION_ANGLE=ion_angle, $
+   EESA_LIMS=EESA_lims, $
+   IESA_LIMS=IESA_lims, $     
    TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $
    PLOT_SOUTH=plot_south, $
@@ -21,6 +23,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
    NO_BLANK_PANELS=no_blank_panels, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps, $
+   SAVE_EPS=save_eps, $
    PLOTPREF=plotPref, $
    TPLOT_RIGHTNOW=tPlot_rightNow, $
    SAVE_B_AND_J_DATA=save_B_and_J_data, $
@@ -29,8 +32,85 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
    ANCILLARY_PLOTS=ancillary_plots, $
    BONUSSUFF=bonusSuff, $
    PLOTDIRSUFF=plotDirSuff, $
-   ADD_TIMEBAR=add_timebar
+   ADD_TIMEBAR=add_timebar, $
+   LOGPLOTS=logPlots
 
+  highEESAZLim        = 1.D9
+  highestEESAZLim     = 1.D10
+  lowEESAZLim         = 1.D7
+  lowestEESAZLim      = 1.D6
+
+  highEESAZThresh     = 1.D8
+  highestEESAZThresh  = 1.D9
+  lowEESAZThresh      = 1.D7
+  lowestEESAZThresh   = 1.D6
+
+  highEESAZThrPct     = .70
+  highestEESAZThrPct  = .10
+  lowEESAZThrPct      = .40
+  lowestEESAZThrPct   = .30
+
+  highIESAZLim        = 1.D8
+  highestIESAZLim     = 1.D9
+  lowIESAZLim         = 1.D6
+  lowestIESAZLim      = 1.D5
+
+  highIESAZThresh     = 1.D7
+  highestIESAZThresh  = 1.D8
+  lowIESAZThresh      = 1.D6
+  lowestIESAZThresh   = 1.D5
+
+  highIESAZThrPct     = .70
+  highestIESAZThrPct  = .10
+  lowIESAZThrPct      = .30
+  lowestIESAZThrPct   = .20
+
+  savePlot = KEYWORD_SET(save_eps) OR KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)
+
+  IF KEYWORD_SET(EESA_lims) THEN BEGIN
+     ELims = EESA_lims
+  ENDIF
+
+  IF KEYWORD_SET(IESA_lims) THEN BEGIN
+     ILims = IESA_lims
+  ENDIF
+
+  IF N_ELEMENTS(logPlots) EQ 0 THEN BEGIN
+     logPlots         = 1B
+  ENDIF
+
+  IF KEYWORD_SET(logPlots) THEN BEGIN
+
+     highEESAZLim        = ALOG10(highEESAZLim      )
+     highestEESAZLim     = ALOG10(highestEESAZLim   )
+     lowEESAZLim         = ALOG10(lowEESAZLim       )
+     lowestEESAZLim      = ALOG10(lowestEESAZLim    )
+
+     highEESAZThresh     = ALOG10(highEESAZThresh   )
+     highestEESAZThresh  = ALOG10(highestEESAZThresh)
+     lowEESAZThresh      = ALOG10(lowEESAZThresh    )
+     lowestEESAZThresh   = ALOG10(lowestEESAZThresh )
+
+     highIESAZLim        = ALOG10(highIESAZLim      )
+     highestIESAZLim     = ALOG10(highestIESAZLim   )
+     lowIESAZLim         = ALOG10(lowIESAZLim       )
+     lowestIESAZLim      = ALOG10(lowestIESAZLim    )
+
+     highIESAZThresh     = ALOG10(highIESAZThresh   )
+     highestIESAZThresh  = ALOG10(highestIESAZThresh)
+     lowIESAZThresh      = ALOG10(lowIESAZThresh    )
+     lowestIESAZThresh   = ALOG10(lowestIESAZThresh )
+
+     IF KEYWORD_SET(ELims) THEN BEGIN
+        ELims            = ALOG10(ELims)
+     ENDIF
+        
+     IF KEYWORD_SET(ILims) THEN BEGIN
+        ILims            = ALOG10(ILims)
+     ENDIF
+        
+  ENDIF
+  
   ;;Pick up filenames
   SUMPLOTS_AND_B_PLUS_J__GET_FILENAME, $
      ORBIT=orbit, $
@@ -128,7 +208,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      energy_electrons  = [0.,30000.]
   ENDIF
   IF ~KEYWORD_SET(energy_ions) THEN BEGIN
-     energy_ions       = [0.,30000.]
+     energy_ions       = [0.,24000.]
   ENDIF
   ;; IF ~KEYWORD_SET(ion_angle) THEN BEGIN
   ;;    ion_angle         = [180,360]
@@ -140,11 +220,11 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   sc_potName        = 'SC_POT'
 
   ;; plotDirSuff       = '/PREVIII_proceedings'
-  IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
+  IF savePlot THEN BEGIN
      SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF=plotDirSuff
   ENDIF
 
-  IF (KEYWORD_SET(screen_plot) OR KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) $
+  IF (KEYWORD_SET(screen_plot) OR savePlot) $
      AND KEYWORD_SET(tPlot_rightNow) $
   THEN BEGIN
 
@@ -180,9 +260,9 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
         IF KEYWORD_SET(save_png) THEN BEGIN
            CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=0 ;,XSIZE=4,YSIZE=7
         ENDIF ELSE BEGIN
-           IF KEYWORD_SET(save_ps) THEN BEGIN
+           IF KEYWORD_SET(save_ps) OR KEYWORD_SET(save_eps) THEN BEGIN
 
-              POPEN,plotDir+outPlotName,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
+              POPEN,plotDir+outPlotName,/PORT,FONT=-1,ENCAPSULATED=save_eps ;,XSIZE=4,YSIZE=7
               DEVICE,/PALATINO,FONT_SIZE=8
 
 
@@ -212,7 +292,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
         LOADCT2,40
         TPLOT,/LASTVAR,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
         ;; TPLOT_PANEL,VARIABLE=langVar,OPLOTVAR='ESACur'
-        TPLOT_PANEL,sc_pot.x,(-1.)*sc_pot.y,VARIABLE='Iesa_Energy'                 ;,OPLOTVAR='SC_POT'
+        TPLOT_PANEL,sc_pot.x,(-1.)*sc_pot.y,VARIABLE='Iesa_Energy'                   ;,OPLOTVAR='SC_POT'
         TPLOT_PANEL,jtemp.x,MAKE_ARRAY(N_ELEMENTS(jtemp.x),VALUE=0),VARIABLE='jtemp' ;,OPLOTVAR='SC_POT'
 
         IF KEYWORD_SET(add_timebar) THEN BEGIN
@@ -220,7 +300,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
         ENDIF
 
 
-        IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
+        IF savePlot THEN BEGIN
            PCLOSE
         ENDIF ELSE BEGIN
 
@@ -282,7 +362,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
   magVarData = {x:[[magz_AC.x],[magz_AC.x]], $
                 y:[[magz.y-firstB+bOff],[magz.y+magz_AC.y-firstB+bOff]]}
-                ;; y:[[magz.y-firstB+bogus],[magz.y+magz_AC.y-firstB+bogus]]}
+  ;; y:[[magz.y-firstB+bogus],[magz.y+magz_AC.y-firstB+bogus]]}
 
   STORE_DATA,magVar,DATA=magVarData
   OPTIONS,magVar,'yrange',[-1200,500]
@@ -342,7 +422,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
 ; despin e field data
 
-     FA_FIELDS_DESPIN,v58,v12 ;,/shadow_notch,/sinterp
+     FA_FIELDS_DESPIN,v58,v12   ;,/shadow_notch,/sinterp
 
      FA_FIELDS_DESPIN_16K
      ;; OPTIONS,'EFIT_ALONG_V','yrange',0
@@ -393,7 +473,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      junk   = MIN(ABS(dat.x-t2Zoom),maxEInd)
      EInds  = [minEInd:maxEInd]
      ;; OPTIONS,EFieldVar,'yrange',[-750,250]
-     YLIM,EFieldVar,MIN(dat.y[EInds]),MAX(dat.y[EInds]),0;MINMAX((TEMPORARY(dat.y))[EInds])
+     YLIM,EFieldVar,MIN(dat.y[EInds]),MAX(dat.y[EInds]),0 ;MINMAX((TEMPORARY(dat.y))[EInds])
      OPTIONS,EFieldVar,'ytitle','E along V!Dsc!N!C!C(mV/m)'
      OPTIONS,EFieldVar,'panel_size',2
      ;; OPTIONS,EFieldVar,'yticks',4
@@ -542,7 +622,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   ;; tmp.y[WHERE(~FINITE(tmp.y) OR (tmp.y LT ESpecThresh) )] = 0.0
   ;; STORE_DATA,ESpecVar,DATA=tmp
 
-     ;; IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[ESpecVar] ELSE tPlt_vars=[ESpecVar,tPlt_vars]
+  ;; IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[ESpecVar] ELSE tPlt_vars=[ESpecVar,tPlt_vars]
 
   IF KEYWORD_SET(skip_despin) THEN BEGIN
      field    = GET_FA_FIELDS('MagDC',t1Zoom,t2Zoom,/STORE)
@@ -606,6 +686,9 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      i_angle              = [180.0,360.0]
      i_angle_up           = [270.0,360.0]
 
+     iATicks              = 4
+     iATickName           = ['180','225','270','315','360']
+     iATickV              = [180,225,270,315,360]
      ;; magC_multFac         = -1.
 
   ENDIF ELSE BEGIN
@@ -615,6 +698,9 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      i_angle              = [0.0,180.0]
      i_angle_up           = [90.0,180.0]
 
+     iATicks              = 4
+     iATickName           = ['0','45','90','135','180']
+     iATickV              = [0,45,90,135,180]
      ;; magC_multFac         = -1.
 
   ENDELSE
@@ -628,7 +714,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   ;;Since the derivative is with respect to deltaB_East,
   ;;the mag_current is nominally outward   if northbound and the fluctuation is eastward, and
   ;;the mag_current is nominally earthward if southbound and the fluctuation is eastward
-  ;;We make all earthward current positive below, after multiplying by sign_dILAT to get the direction of current predicted by
+  ;;We make all spaceward current positive below, after multiplying by sign_dILAT to get the direction of current predicted by
   ;;Ampère's law
   GET_DATA,'fa_vel',DATA=vel
   speed                   = SQRT(vel.y[*,0]^2+vel.y[*,1]^2+vel.y[*,2]^2)*1000.0
@@ -661,13 +747,13 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   junk                    = MIN(ABS(magy.x-t2Zoom),maxMagInd)
   magInds                 = [minMagInd:maxMagInd]
   ;;Calculate the current from mag
-  deltaBY                 = DERIV(position,SMOOTH(magy.y,5))*sign_dILAT
+  deltaBY                 = DERIV(position,SMOOTH(magy.y,5))*sign_dILAT ;Take stock of hemi
   ;; deltaBY                 = DERIV(position,magy.y)
   ;; deltaBY                 = DERIV(position,SMOOTH(magy.y,5))
   ;; jtemp                = ABS(1.0e-3*(deltaBx)/1.26e-6)
   ;; jtemp                = 1.0e-3*(deltaBx)/1.26e-6
   ;;in number flux units
-  jtemp                   = 1.0e-3*(deltaBY)/1.26e-6
+  jtemp                   = 1.0e-3*(deltaBY)/1.26e-6*(-1.) ;Spaceward currents positive
   muLetter = '!4l!X'
   ;; IF KEYWORD_SET(show_currents_not_fluxes) THEN BEGIN
   ;; YLIM,'jtemp',-50,100
@@ -695,9 +781,22 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   STORE_DATA,'dB_East',DATA={x:magy.x,y:magy.y-magy.y[minMagInd]+100}
   OPTIONS,'dB_East','ytitle',CGGREEK('Delta') + 'B!DEast!N (nT)' ; y title
   YLIM,'dB_East',MIN(magy.y[magInds]-magy.y[minMagInd]+100),MAX(magy.y[magInds]-magy.y[minMagInd]+100)
-  OPTIONS,'dB_East','yticks',2                                   ; set y-axis labels
-  OPTIONS,'dB_East','ytickname',['200','400']          ; set y-axis labels
-  OPTIONS,'dB_East','ytickv',[200,400]                    ; set y-axis labels
+
+  yTicks        = 2
+  yTickName     = ['200','400']
+  yTickV        = [200,400]
+  upLim         = 400
+  upDelta       = 200
+  WHILE MAX(magy.y[magInds]-magy.y[minMagInd]+100) GT upLim DO BEGIN
+     upLim += upDelta
+     yTicks++
+     yTickName  = [yTickName,STRING(FORMAT='(I0)',upLim)]
+     yTickV     = [yTickV,upLim]
+  ENDWHILE
+
+  OPTIONS,'dB_East','yticks',yTicks                ; set y-axis labels
+  OPTIONS,'dB_East','ytickname',yTickName ; set y-axis labels
+  OPTIONS,'dB_East','ytickv',yTickV        ; set y-axis labels
   OPTIONS,'dB_East','panel_size',2
 
 
@@ -724,13 +823,42 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      var_name = 'Iesa_Energy'
      GET_EN_SPEC,T1=t1Zoom,T2=t2Zoom, $
                  'fa_'+ieb_or_ies+'_c',NAME=var_name,UNITS='eflux',ANGLE=ion_angle
-     ;; data.y = alog10(data.y)
-     ;; store_data,var_name, data=data
+
+     ;;Logger
+     GET_DATA,var_name,DATA=data
+     data.y = ALOG10(data.y)
+     STORE_DATA,var_name,DATA=data
+
+     ;;Fancy Zlim
+     IF KEYWORD_SET(ILims) THEN BEGIN
+        highZLim     = ILims[1]
+        lowZLim      = ILims[0]
+     ENDIF ELSE BEGIN
+        IF ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highestIESAZThresh)))/N_ELEMENTS(data.y)) GE highestIESAZThrPct ) OR $
+           ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highIESAZThresh   )))/N_ELEMENTS(data.y)) GE highIESAZThrPct    )    $
+        THEN BEGIN
+           highZLim  = highestIESAZLim
+        ENDIF ELSE BEGIN
+           highZLim  = highIESAZLim
+        ENDELSE
+
+        IF ( (FLOAT(N_ELEMENTS(WHERE(data.y LE lowestIESAZThresh)))/N_ELEMENTS(data.y)) GE lowestIESAZThrPct ) OR $
+           ( (FLOAT(N_ELEMENTS(WHERE(data.y LE lowIESAZThresh   )))/N_ELEMENTS(data.y)) GE lowIESAZThrPct    )    $
+        THEN BEGIN
+           lowZLim   = lowestIESAZLim
+        ENDIF ELSE BEGIN
+           lowZLim   = lowIESAZLim
+        ENDELSE
+     ENDELSE
+     ZLIM,var_name,lowZLim,highZLim,~KEYWORD_SET(logPlots)
+
      OPTIONS,var_name,'spec',1
-     ZLIM,var_name,1e5,1e8,0
-     YLIM,var_name,4,30000,1
+     YLIM,var_name,4,24000,1
      OPTIONS,var_name,'ytitle','Ions!C!CEnergy (eV)'
-     OPTIONS,var_name,'ztitle','eV!C/cm!U2!N-s-sr-eV'
+     ;; OPTIONS,var_name,'ztitle','eV!C/cm!U2!N-s-sr-eV'
+     ;; ZLIM,var_name,1e5,1e8,0
+     OPTIONS,var_name,'ztitle','Log eV!C/cm!U2!N-s-sr-eV'
+     ;; ZLIM,var_name,5,8,0
      OPTIONS,var_name,'x_no_interp',1
      OPTIONS,var_name,'y_no_interp',1
      OPTIONS,var_name,'panel_size',2
@@ -748,22 +876,56 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   ;; ION PITCH ANGLE
   var_NAME='Iesa_Angle'
   GET_PA_SPEC,"fa_"+ieb_or_ies+"_c",UNITS='eflux',NAME=var_name,ENERGY=energy_ions
+
+  ;;Logger
   GET_DATA,var_name,DATA=data
+  data.y = ALOG10(data.y)
   ;; this = WHERE(data.v[0,*] GT 170)
   ;; data = {x:data.x, $
   ;;         y:data.y[*,this], $
   ;;         v:data.v[*,this]}
+  STORE_DATA,var_name,DATA=data
 
+  ;;Fancy Zlim
+  IF KEYWORD_SET(ILims) THEN BEGIN
+     highZLim     = ILims[1]
+     lowZLim      = ILims[0]
+  ENDIF ELSE BEGIN
+     IF ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highestIESAZThresh)))/N_ELEMENTS(data.y)) GE highestIESAZThrPct ) OR $
+        ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highIESAZThresh   )))/N_ELEMENTS(data.y)) GE highIESAZThrPct    )    $
+     THEN BEGIN
+        highZLim  = highestIESAZLim
+     ENDIF ELSE BEGIN
+        highZLim  = highIESAZLim
+     ENDELSE
 
-  ;; STORE_DATA,var_name,DATA=data
+     IF ( (FLOAT(N_ELEMENTS(WHERE(data.y LE lowestIESAZThresh)))/N_ELEMENTS(data.y)) GE lowestIESAZThrPct ) OR $
+        ( (FLOAT(N_ELEMENTS(WHERE(data.y LE lowIESAZThresh   )))/N_ELEMENTS(data.y)) GE lowIESAZThrPct    )    $
+     THEN BEGIN
+        lowZLim   = lowestIESAZLim
+     ENDIF ELSE BEGIN
+        lowZLim   = lowIESAZLim
+     ENDELSE
+  ENDELSE
+  ZLIM,var_name,lowZLim,highZLim,~KEYWORD_SET(logPlots)
+
   OPTIONS,var_name,'spec',1
-  ZLIM,var_name,1e5,5e7,0
+  ;; ZLIM,var_name,1e5,5e7,0
+  ;; ZLIM,var_name,5,8,0
   YLIM,var_name,ion_angle[0],ion_angle[1],0
-  OPTIONS,var_name,'ytitle','Ions!C!CAngLE (Deg.)'
-  OPTIONS,var_name,'ztitle','eV!C/cm!U2!N-s-sr-eV'
+  OPTIONS,var_name,'ytitle','Ions!C!CAngle (Deg.)'
+  ;; OPTIONS,var_name,'ztitle','eV!C/cm!U2!N-s-sr-eV'
+  OPTIONS,var_name,'ztitle','Log eV!C/cm!U2!N-s-sr-eV'
   OPTIONS,var_name,'x_no_interp',1
   OPTIONS,var_name,'y_no_interp',1
   OPTIONS,var_name,'panel_size',2
+
+  OPTIONS,var_name,'yticks',iATicks                ; set y-axis labels
+  OPTIONS,var_name,'ytickname',iATickName ; set y-axis labels
+  OPTIONS,var_name,'ytickv',iATickV        ; set y-axis labels
+  OPTIONS,var_name,'yminor',3
+  OPTIONS,var_name,'panel_size',2
+
 
   ;;For shifting things 90°
   ;; GET_DATA,var_name,DATA=data
@@ -780,14 +942,14 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   ;; OPTIONS,var_name,'yticks',1
   ;; OPTIONS,var_name,'ytickv',[180,270,360]
   OPTIONS,var_name,'ynozero',1
-  OPTIONS,var_name,'ystyle',16
+  OPTIONS,var_name,'ystyle',1  ;; OPTIONS,var_name,'ystyle',16
   ;; YLIM,var_name,-90,270,0
 
   IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[var_name] ELSE tPlt_vars=[var_name,tPlt_vars]
 
   ;; reset time limits if needed
   t1 = data.x[0]
-  t2 = data.x[N_ELEMENTS(data.x)-1L]
+  t2 = data.x[-1]
 
   IF ((t1 LT tlimit_all[0]) or (t2 GT tlimit_all[1])) THEN BEGIN
      IF (t1 LT tlimit_all[0]) THEN tlimit_all[0] = t1
@@ -807,8 +969,8 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
   ;;Get potential
   sc_pot  = GET_FA_POTENTIAL(t1Zoom,t2Zoom, $
-                                 ;; /SPIN, $
-                                 /REPAIR)
+                             ;; /SPIN, $
+                             /REPAIR)
 
   sc_pot  = {x:sc_pot.time, $
              y:(-1.)*sc_pot.comp1, $ ;;Reverse sign of pot for use with GET_2DT_TS_POT
@@ -817,25 +979,26 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   STORE_DATA,sc_potName,DATA={x:sc_pot.x,y:(-1.)*sc_pot.y}
 
 
-  GET_2DT_TS_POT,'j_2d_fs','fa_'+ieb_or_ies,NAME='Ji_up',T1=t1,T2=t2, $
-                 ENERGY=energy_ions,ANGLE=ion_angle, $
-                 SC_POT=sc_pot
-  ;; YLIM,'Ji_up',1.e5,1.e8,1   ; set y limits
-  ;; OPTIONS,'Ji_up','tplot_routine','pmplot'   ; set 2 color plot
-  ;; OPTIONS,'Ji_up','labels',['Downgoing!C Ions','Upgoing!C Ions ']    ; set color label
-  ;; OPTIONS,'Ji_up','labflag',3        ; set color label
-  ;; OPTIONS,'Ji_up','labpos',[2.e7,1.e6]       ; set color label
-  GET_DATA,'Ji_up',DATA=tmp
-  ;; tmp.y = SMOOTH((-1.)*tmp.y,5)
-  ;; doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
-  ;; STORE_DATA,'Ji_up',DATA={x:tS_1s,y:doDat}
-  YLIM,'Ji_up',1.e7,1.e10,1                             ; set y limits
-  OPTIONS,'Ji_up','ytitle','Ion Flux!C#/(cm!U2!N-s)'    ; set y title
-  OPTIONS,'Ji_up','panel_size',2                        ; set panel size
+  ;; GET_2DT_TS_POT,'j_2d_fs','fa_'+ieb_or_ies,NAME='Ji_up',T1=t1,T2=t2, $
+  ;;                ENERGY=energy_ions,ANGLE=ion_angle, $
+  ;;                SC_POT=sc_pot
+  ;; ;; YLIM,'Ji_up',1.e5,1.e8,1   ; set y limits
+  ;; ;; OPTIONS,'Ji_up','tplot_routine','pmplot'   ; set 2 color plot
+  ;; ;; OPTIONS,'Ji_up','labels',['Downgoing!C Ions','Upgoing!C Ions ']    ; set color label
+  ;; ;; OPTIONS,'Ji_up','labflag',3        ; set color label
+  ;; ;; OPTIONS,'Ji_up','labpos',[2.e7,1.e6]       ; set color label
+  ;; GET_DATA,'Ji_up',DATA=tmp
+  ;; ;; tmp.y = SMOOTH((-1.)*tmp.y,5)
+  ;; ;; doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
+  ;; ;; STORE_DATA,'Ji_up',DATA={x:tS_1s,y:doDat}
+  ;; ;; YLIM,'Ji_up',1.e7,1.e10,1                             ; set y limits
+  ;; YLIM,'Ji_up',1.e7,1.e10,1                          ; set y limits
+  ;; OPTIONS,'Ji_up','ytitle','Ion Flux!C#/(cm!U2!N-s)' ; set y title
+  ;; OPTIONS,'Ji_up','panel_size',2                     ; set panel size
 
 ; Step 4 - Eesa data
 
-  prog = getenv('FASTBIN') + '/showDQIs'
+  prog = GETENV('FASTBIN') + '/showDQIs'
   IF ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN BEGIN
      IF (sdt_idx GE 10) THEN BEGIN
         sidstr = STRING(sdt_idx, FORMAT='(I2)')
@@ -846,8 +1009,9 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   ENDIF ELSE BEGIN
      SPAWN, prog, result, /NOSHELL
   ENDELSE
-  b = where (STRPOS(result,'Eesa Survey') GE 0,nesa)
-  IF (nesa GT 0) THEN IF STRPOS(result(b(0)+1),'Points (cur/aloc): 0       /') GE 0 THEN nesa = 0
+  b = WHERE(STRPOS(result,'Eesa Survey') GE 0,nesa)
+  IF (nesa GT 0) THEN IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0$
+  THEN nesa = 0
 
   IF (nesa GT 0) THEN BEGIN
 
@@ -856,11 +1020,37 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      var_NAME='Eesa_Energy'
      GET_EN_SPEC,T1=t1Zoom,T2=t2Zoom, $
                  'fa_'+eeb_or_ees+'_c',NAME=var_name,UNITS='eflux',RETRACE=1
-     GET_DATA,var_name, data=data
-     data.y = alog10(data.y)
-     store_data,var_name, data=data
+
+     ;;Logger
+     GET_DATA,var_name,DATA=data
+     data.y = ALOG10(data.y)
+     STORE_DATA,var_name,DATA=data
      OPTIONS,var_name,'spec',1
-     ZLIM,var_name,6,10,0
+     ;; ZLIM,var_name,6,9,0
+
+     ;;Fancy Zlim
+     IF KEYWORD_SET(ELims) THEN BEGIN
+        highZLim     = ELims[1]
+        lowZLim      = ELims[0]
+     ENDIF ELSE BEGIN
+        IF ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highestEESAZThresh)))/N_ELEMENTS(data.y)) GE highestEESAZThrPct ) OR $
+           ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highEESAZThresh   )))/N_ELEMENTS(data.y)) GE highEESAZThrPct    )    $
+        THEN BEGIN
+           highZLim  = highestEESAZLim
+        ENDIF ELSE BEGIN
+           highZLim  = highEESAZLim
+        ENDELSE
+
+        IF ( (FLOAT(N_ELEMENTS(WHERE(data.y LE lowestEESAZThresh)))/N_ELEMENTS(data.y)) GE lowestEESAZThrPct ) OR $
+           ( (FLOAT(N_ELEMENTS(WHERE(data.y LE lowEESAZThresh   )))/N_ELEMENTS(data.y)) GE lowEESAZThrPct    )    $
+        THEN BEGIN
+           lowZLim   = lowestEESAZLim
+        ENDIF ELSE BEGIN
+           lowZLim   = lowEESAZLim
+        ENDELSE
+     ENDELSE
+     ZLIM,var_name,lowZLim,highZLim,~KEYWORD_SET(logPlots)
+
      YLIM,var_name,5,30000,1
      OPTIONS,var_name,'ytitle','Electrons!C!CEnergy (eV)'
      OPTIONS,var_name,'ztitle','Log eV!C/cm!U2!N-s-sr-eV'
@@ -881,87 +1071,129 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 ; ELECTRON PITCH ANGLE
 
   var_NAME='Eesa_Angle'
-  get_pa_spec,"fa_"+eeb_or_ees+"_c",UNITS='eflux',NAME=var_name,ENERGY=energy_electrons
-  ;; GET_DATA,var_name, data=data
-  ;; data.y = alog10(data.y)
-  ;; store_data,var_name, data=data
+  GET_PA_SPEC,"fa_"+eeb_or_ees+"_c",UNITS='eflux',NAME=var_name,ENERGY=energy_electrons
+
+  ;;Logger
+  GET_DATA,var_name,DATA=data
+  data.y = ALOG10(data.y)
+  STORE_DATA,var_name,DATA=data
+
+  ;;Fancy Zlim
+  IF KEYWORD_SET(ELims) THEN BEGIN
+     highZLim     = ELims[1]
+     lowZLim      = ELims[0]
+  ENDIF ELSE BEGIN
+     IF ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highestEESAZThresh)))/N_ELEMENTS(data.y)) GE highestEESAZThrPct ) OR $
+        ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highEESAZThresh   )))/N_ELEMENTS(data.y)) GE highEESAZThrPct    )    $
+     THEN BEGIN
+        highZLim  = highestEESAZLim
+     ENDIF ELSE BEGIN
+        highZLim  = highEESAZLim
+     ENDELSE
+
+     IF ( (FLOAT(N_ELEMENTS(WHERE(data.y LE lowestEESAZThresh)))/N_ELEMENTS(data.y)) GE lowestEESAZThrPct ) OR $
+        ( (FLOAT(N_ELEMENTS(WHERE(data.y LE lowEESAZThresh   )))/N_ELEMENTS(data.y)) GE lowEESAZThrPct    )    $
+     THEN BEGIN
+        lowZLim   = lowestEESAZLim
+     ENDIF ELSE BEGIN
+        lowZLim   = lowEESAZLim
+     ENDELSE
+  ENDELSE
+
+  ZLIM,var_name,lowZLim,highZLim,~KEYWORD_SET(logPlots)
+
   OPTIONS,var_name,'spec',1
-  ZLIM,var_name,1e6,5e9,0
   YLIM,var_name,0,360,0
-  ;; OPTIONS,var_name,'ytitle','Electrons > 10 eV!C!CAngLE (Deg.)'
-  OPTIONS,var_name,'ytitle','Electrons!C!CAngLE (Deg.)'
-  OPTIONS,var_name,'ztitle','eV!C/cm!U2!N-s-sr-eV'
+  ;; OPTIONS,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
+  OPTIONS,var_name,'ytitle','Electrons!C!CAngle (Deg.)'
+  ;; OPTIONS,var_name,'ztitle','eV!C/cm!U2!N-s-sr-eV'
+  ;; ZLIM,var_name,1e6,5e9,0
+  OPTIONS,var_name,'ztitle','Log eV!C/cm!U2!N-s-sr-eV'
+
+  ;; ZLIM,var_name,6,9,0
+  ;; IF ( (FLOAT(N_ELEMENTS(WHERE(data.y GT 9.)))/N_ELEMENTS(data.y)) GT 0.1 ) OR $
+  ;;    ( (FLOAT(N_ELEMENTS(WHERE(data.y GT 8.)))/N_ELEMENTS(data.y)) GT 0.7 )    $
+  ;; THEN BEGIN
+  ;;    ZLIM,var_name,6,10,0
+  ;; ENDIF
+  ;; IF (FLOAT(N_ELEMENTS(WHERE(data.y LE 6.)))/N_ELEMENTS(data.y)) GT 0.2 THEN BEGIN
+  ;;    lowZLim = ALOG10(lowestEESAZLim)
+  ;; ENDIF ELSE BEGIN
+  ;;    lowZLim = ALOG10(lowEESAZLim)
+  ;; ENDELSE
+
   OPTIONS,var_name,'x_no_interp',1
   OPTIONS,var_name,'y_no_interp',1
   OPTIONS,var_name,'panel_size',2
 
-  GET_DATA,var_name, data=data
+  GET_DATA,var_name,DATA=data
   bb = where (data.v GT 270.,nb)
   IF (nb GT 0) THEN data.v[bb]=data.v[bb]-360.
   nn = N_ELEMENTS(data.x)
-  for n = 0,nn-1L do BEGIN & $
-     bs = sort (data.v[n,*]) & $
-     data.v[n,*]=data.v[n,bs] & $
-     data.y[n,*]=data.y[n,bs] & $
-     endfor
-     store_data,var_name, data=data
-     OPTIONS,var_name,'yminor',9
-     OPTIONS,var_name,'yticks',4
-     OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
-     YLIM,var_name,-90,270,0
+  FOR n = 0,nn-1L do BEGIN
+     bs = sort (data.v[n,*])
+     data.v[n,*]=data.v[n,bs]
+     data.y[n,*]=data.y[n,bs]
+  ENDFOR
+  STORE_DATA,var_name,DATA=data
+  OPTIONS,var_name,'yminor',6
+  OPTIONS,var_name,'yticks',4
+  OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
+  YLIM,var_name,-90,270,0
 
-     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[var_name] ELSE tPlt_vars=[var_name,tPlt_vars]
+  IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[var_name] ELSE tPlt_vars=[var_name,tPlt_vars]
 
 ; reset time limits IF needed
 
-     t1 = data.x[0]
-     t2 = data.x[N_ELEMENTS(data.x)-1L]
+  t1 = data.x[0]
+  t2 = data.x[-1]
 
-     IF ((t1 LT tlimit_all[0]) or (t2 GT tlimit_all[1])) THEN BEGIN
-        IF (t1 LT tlimit_all[0]) THEN tlimit_all[0] = t1
-        IF (t2 GT tlimit_all[1]) THEN tlimit_all[1] = t2
-        get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-        get_new_igrf,/no_store_old
-     ENDIF
+  IF ((t1 LT tlimit_all[0]) or (t2 GT tlimit_all[1])) THEN BEGIN
+     IF (t1 LT tlimit_all[0]) THEN tlimit_all[0] = t1
+     IF (t2 GT tlimit_all[1]) THEN tlimit_all[1] = t2
+     get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
+     get_new_igrf,/no_store_old
+  ENDIF
 
-     IF (KEYWORD_SET(screen_plot)) THEN BEGIN
-        LOADCT2,40
-        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
-     ENDIF
+  IF (KEYWORD_SET(screen_plot)) THEN BEGIN
+     LOADCT2,40
+     TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+  ENDIF
 
-     sphRadius = 4e-2 ;in meters, from Ergun et al. [2001]
-     sphCrossSec = !PI*sphRadius^2
+  sphRadius = 4e-2              ;in meters, from Ergun et al. [2001]
+  sphCrossSec = !PI*sphRadius^2
 
-     ;;Get EESA current
-     GET_2DT_TS_POT,'j_2d_b','fa_eeb',T1=t1Zoom,T2=t2Zoom, $
-                    NAME='Je_tot', $
-                    ENERGY=energy_electrons, $
-                    SC_POT=sc_pot
+  ;;Get EESA current
+  GET_2DT_TS_POT,'j_2d_b','fa_eeb',T1=t1Zoom,T2=t2Zoom, $
+                 NAME='Je_tot', $
+                 ENERGY=energy_electrons, $
+                 SC_POT=sc_pot
 
-     GET_DATA,'Je_tot',DATA=tmp
-     keep1          = WHERE(FINITE(tmp.y))
-     tmp.x          = tmp.x[keep1]
-     tmp.y          = tmp.y[keep1]
+  GET_DATA,'Je_tot',DATA=tmp
+  keep1          = WHERE(FINITE(tmp.y))
+  tmp.x          = tmp.x[keep1]
+  tmp.y          = tmp.y[keep1]
 
-     ;;For output
-     ;;NOTE: we here decide to make currents field-aligned and EARTHWARD.
-     ;;NIX THE FOLLOWING"That is, positive currents are along B; in SH, that means spaceward"
-     jeTotTmp_time  = tmp.x
-     jeTotTmp       = tmp.y*1.6e-9*(-1.)*north_south ;;in microA/m2, and flip sign once for electrons, and possibly again for SH
+  ;;For output
+  ;;NOTE: we here decide to make currents field-aligned and EARTHWARD.
+  ;;NIX THE FOLLOWING"That is, positive currents are along B; in SH, that means spaceward"
+  jeTotTmp_time  = tmp.x
+  ;; jeTotTmp       = tmp.y*1.6e-9*(-1.)*north_south ;;in microA/m2, and flip sign once for electrons, and possibly again for SH
+  jeTotTmp       = tmp.y*1.6e-9*(north_south) ;;in microA/m2; DON't flip sign for electrons (but possibly for SH)
 
-     ;;For nice plots
-     tmp.y         *= -1. ;;Since we're in Southern Hemi
-     keep2          = WHERE(tmp.y GT 0.0)
-     IeTotTmp_time  = tmp.x[keep2]
-     IeTotTmp       = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
-     IeTotTmp      *= sphCrossSec
+  ;;For nice plots
+  tmp.y         *= -1. ;;Since we're in Southern Hemi
+  keep2          = WHERE(tmp.y GT 0.0)
+  IeTotTmp_time  = tmp.x[keep2]
+  IeTotTmp       = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
+  IeTotTmp      *= sphCrossSec
 
-     Je_z           = {x:jeTotTmp_time,y:jeTotTmp}
-     IeTot_z        = {x:IeTotTmp_time,y:IeTotTmp}
-     STORE_DATA,'ESACur',DATA=IeTot_z
-     OPTIONS,'ESACur','colors',250
+  Je_z           = {x:jeTotTmp_time,y:jeTotTmp}
+  IeTot_z        = {x:IeTotTmp_time,y:IeTotTmp}
+  STORE_DATA,'ESACur',DATA=IeTot_z
+  OPTIONS,'ESACur','colors',250
 
-     STORE_DATA,'Je_tot',DATA=Je_z
+  STORE_DATA,'Je_tot',DATA=Je_z
 
   IF KEYWORD_SET(save_B_and_J_data) OR KEYWORD_SET(ancillary_plots) THEN BEGIN
      ;; UCLA_MAG_DESPIN,TW_MAT=tw_mat,ORBIT=orbit,SPIN_AXIS=spin_axis,DELTA_PHI=delta_phi
@@ -993,7 +1225,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
      ;;For output
      jiTotTmp_time  = tmp.x
-     jiTotTmp       = tmp.y*1.6e-9*2.*north_south ;;in microA/m2, times 2 since half angle range, and possibly flip sign if in SH
+     jiTotTmp       = tmp.y*1.6e-9*2.*(-north_south) ;;in microA/m2, times 2 since half angle range, and possibly flip sign if in SH
 
      ;;For nice plots
      tmp.y         *= -1. ;;Since we're in Southern Hemi
@@ -1015,7 +1247,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
      ;;For output
      jiTotTmp_time  = tmp.x
-     jiTotTmp       = tmp.y*1.6e-9*2.*north_south ;;in microA/m2, times 2 since half angle range, and possibly flip sign if in SH
+     jiTotTmp       = tmp.y*1.6e-9*2.*(-north_south) ;;in microA/m2, times 2 since half angle range, and possibly flip sign if in SH
 
      ;;For nice plots
      tmp.y         *= -1. ;;Since we're in Southern Hemi
@@ -1035,7 +1267,8 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
      ;;For output
      jeTotTmp_time  = tmp.x
-     jeTotTmp       = tmp.y*1.6e-9*(-1.)*north_south ;;in microA/m2, and flip sign once for electrons, and possibly again for SH
+     ;; jeTotTmp       = tmp.y*1.6e-9*(-1.)*north_south ;in microA/m2, and flip sign once for electrons, and possibly again for SH
+     jeTotTmp       = tmp.y*1.6e-9*(north_south) ;in microA/m2; DON't flip sign for electrons (but possibly for NH)
 
 
      ;;For nice plots
@@ -1096,94 +1329,96 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
 ; force tPlt_vars to be all the panels unless no_blank_panels is set
 
-  IF ~KEYWORD_SET(no_blank_panels) THEN BEGIN
+;;   IF ~KEYWORD_SET(no_blank_panels) THEN BEGIN
 
 
-; Eesa_Energy
+;; ; Eesa_Energy
 
-     bdat = where(tPlt_vars EQ 'Eesa_Energy',ndat)
-     IF (ndat EQ 0) THEN BEGIN
-        t_arr = tlimit_all
-        y_arr = fltarr(2,4)
-        y_arr[*,*] = !values.f_nan
-        v_arr = fltarr(2,4)
-        v_arr[0,*] = [34119.7,26091.5,50.9600,5.88000]
-        store_data,'Eesa_Energy', data={x:t_arr, y:y_arr, v:v_arr}
-        OPTIONS,'Eesa_Energy','spec',1
-        ZLIM,'Eesa_Energy',4,9,0
-        YLIM,'Eesa_Energy',5,30000,1
-        OPTIONS,'Eesa_Energy','ytitle','Electrons!C!CEnergy (eV)'
-        OPTIONS,'Eesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        OPTIONS,'Eesa_Energy','x_no_interp',1
-        OPTIONS,'Eesa_Energy','y_no_interp',1
-        OPTIONS,'Eesa_Energy','panel_size',2
-     ENDIF
+;;      bdat = where(tPlt_vars EQ 'Eesa_Energy',ndat)
+;;      IF (ndat EQ 0) THEN BEGIN
+;;         t_arr = tlimit_all
+;;         y_arr = fltarr(2,4)
+;;         y_arr[*,*] = !values.f_nan
+;;         v_arr = fltarr(2,4)
+;;         v_arr[0,*] = [34119.7,26091.5,50.9600,5.88000]
+;;         store_data,'Eesa_Energy', data={x:t_arr, y:y_arr, v:v_arr}
+;;         OPTIONS,'Eesa_Energy','spec',1
+;;         ZLIM,'Eesa_Energy',4,9,0
+;;         YLIM,'Eesa_Energy',5,30000,1
+;;         OPTIONS,'Eesa_Energy','ytitle','Electrons!C!CEnergy (eV)'
+;;         OPTIONS,'Eesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+;;         OPTIONS,'Eesa_Energy','x_no_interp',1
+;;         OPTIONS,'Eesa_Energy','y_no_interp',1
+;;         OPTIONS,'Eesa_Energy','panel_size',2
+;;      ENDIF
 
-; Eesa_Angle
+;; ; Eesa_Angle
 
-     bdat = where(tPlt_vars EQ 'Eesa_Angle',ndat)
-     IF (ndat EQ 0) THEN BEGIN
-        t_arr = tlimit_all
-        y_arr = fltarr(2,4)
-        y_arr[*,*] = !values.f_nan
-        v_arr = fltarr(2,4)
-        v_arr[0,*] = [-87.7792,2.22077,114.721,267.206]
-        store_data,'Eesa_Angle', data={x:t_arr, y:y_arr, v:v_arr}
-        OPTIONS,'Eesa_Angle','spec',1
-        ZLIM,'Eesa_Angle',4,9,0
-        YLIM,'Eesa_Angle',-90,270,0
-        OPTIONS,'Eesa_Angle','ytitle','Electrons > 10 eV!C!CAngLE (Deg.)'
-        OPTIONS,'Eesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        OPTIONS,'Eesa_Angle','x_no_interp',1
-        OPTIONS,'Eesa_Angle','y_no_interp',1
-        OPTIONS,'Eesa_Angle','panel_size',2
-        OPTIONS,'Eesa_Angle','yminor',9
-        OPTIONS,'Eesa_Angle','yticks',4
-        OPTIONS,'Eesa_Angle','ytickv',[-90,0,90,180,270]
-     ENDIF
+;;      bdat = where(tPlt_vars EQ 'Eesa_Angle',ndat)
+;;      IF (ndat EQ 0) THEN BEGIN
+;;         t_arr = tlimit_all
+;;         y_arr = fltarr(2,4)
+;;         y_arr[*,*] = !values.f_nan
+;;         v_arr = fltarr(2,4)
+;;         v_arr[0,*] = [-87.7792,2.22077,114.721,267.206]
+;;         store_data,'Eesa_Angle', data={x:t_arr, y:y_arr, v:v_arr}
+;;         OPTIONS,'Eesa_Angle','spec',1
+;;         ZLIM,'Eesa_Angle',4,9,0
+;;         YLIM,'Eesa_Angle',-90,270,0
+;;         OPTIONS,'Eesa_Angle','ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
+;;         OPTIONS,'Eesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+;;         OPTIONS,'Eesa_Angle','x_no_interp',1
+;;         OPTIONS,'Eesa_Angle','y_no_interp',1
+;;         OPTIONS,'Eesa_Angle','panel_size',2
+;;         OPTIONS,'Eesa_Angle','yminor',9
+;;         OPTIONS,'Eesa_Angle','yticks',4
+;;         OPTIONS,'Eesa_Angle','ytickv',[-90,0,90,180,270]
+;;      ENDIF
 
-; Iesa_Energy
+;; ; Iesa_Energy
 
-     bdat = where(tPlt_vars EQ 'Iesa_Energy',ndat)
-     IF (ndat EQ 0) THEN BEGIN
-        t_arr = tlimit_all
-        y_arr = fltarr(2,4)
-        y_arr[*,*] = !values.f_nan
-        v_arr = fltarr(2,4)
-        v_arr[0,*] = [26808.3,11827.2,27.7200,4.62000]
-        store_data,'Iesa_Energy', data={x:t_arr, y:y_arr, v:v_arr}
-        OPTIONS,'Iesa_Energy','spec',1
-        ZLIM,'Iesa_Energy',4,9,0
-        YLIM,'Iesa_Energy',4,30000,1
-        OPTIONS,'Iesa_Energy','ytitle','Ions!C!CEnergy (eV)'
-        OPTIONS,'Iesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        OPTIONS,'Iesa_Energy','x_no_interp',1
-        OPTIONS,'Iesa_Energy','y_no_interp',1
-        OPTIONS,'Iesa_Energy','panel_size',2
-     ENDIF
+;;      bdat = where(tPlt_vars EQ 'Iesa_Energy',ndat)
+;;      IF (ndat EQ 0) THEN BEGIN
+;;         t_arr = tlimit_all
+;;         y_arr = fltarr(2,4)
+;;         y_arr[*,*] = !values.f_nan
+;;         v_arr = fltarr(2,4)
+;;         v_arr[0,*] = [26808.3,11827.2,27.7200,4.62000]
+;;         store_data,'Iesa_Energy', data={x:t_arr, y:y_arr, v:v_arr}
+;;         OPTIONS,'Iesa_Energy','spec',1
+;;         ZLIM,'Iesa_Energy',4,9,0
+;;         YLIM,'Iesa_Energy',4,30000,1
+;;         OPTIONS,'Iesa_Energy','ytitle','Ions!C!CEnergy (eV)'
+;;         OPTIONS,'Iesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+;;         OPTIONS,'Iesa_Energy','x_no_interp',1
+;;         OPTIONS,'Iesa_Energy','y_no_interp',1
+;;         OPTIONS,'Iesa_Energy','panel_size',2
+;;      ENDIF
 
-; Iesa_Angle
+;; ; Iesa_Angle
 
-     bdat = where(tPlt_vars EQ 'Iesa_Angle',ndat)
-     IF (ndat EQ 0) THEN BEGIN
-        t_arr = tlimit_all
-        y_arr = fltarr(2,4)
-        y_arr[*,*] = !values.f_nan
-        v_arr = fltarr(2,4)
-        v_arr[0,*] = [-87.7792,2.22077,114.721,267.206]
-        store_data,'Iesa_Angle', data={x:t_arr, y:y_arr, v:v_arr}
-        OPTIONS,'Iesa_Angle','spec',1
-        ZLIM,'Iesa_Angle',4,9,0
-        YLIM,'Iesa_Angle',-90,270,0
-        OPTIONS,'Iesa_Angle','ytitle','Ions!C!CAngLE (Deg.)'
-        OPTIONS,'Iesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        OPTIONS,'Iesa_Angle','x_no_interp',1
-        OPTIONS,'Iesa_Angle','y_no_interp',1
-        OPTIONS,'Iesa_Angle','panel_size',2
-        OPTIONS,'Iesa_Angle','yminor',9
-        OPTIONS,'Iesa_Angle','yticks',4
-        OPTIONS,'Iesa_Angle','ytickv',[-90,0,90,180,270]
-     ENDIF
+;;      bdat = where(tPlt_vars EQ 'Iesa_Angle',ndat)
+;;      IF (ndat EQ 0) THEN BEGIN
+;;         t_arr = tlimit_all
+;;         y_arr = fltarr(2,4)
+;;         y_arr[*,*] = !values.f_nan
+;;         v_arr = fltarr(2,4)
+;;         v_arr[0,*] = [-87.7792,2.22077,114.721,267.206]
+;;         store_data,'Iesa_Angle', data={x:t_arr, y:y_arr, v:v_arr}
+;;         OPTIONS,'Iesa_Angle','spec',1
+;;         ZLIM,'Iesa_Angle',4,9,0
+;;         YLIM,'Iesa_Angle',-90,270,0
+;;         OPTIONS,'Iesa_Angle','ytitle','Ions!C!CAngle (Deg.)'
+;;         OPTIONS,'Iesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+;;         OPTIONS,'Iesa_Angle','x_no_interp',1
+;;         OPTIONS,'Iesa_Angle','y_no_interp',1
+;;         OPTIONS,'Iesa_Angle','panel_size',2
+;;         OPTIONS,'Iesa_Angle','yminor',9
+;;         OPTIONS,'Iesa_Angle','yticks',4
+;;         OPTIONS,'Iesa_Angle','ytickv',[-90,0,90,180,270]
+;;      ENDIF
+
+;;   ENDIF
 
      ;; tPlt_vars=['Iesa_Energy','Iesa_Angle','Ji_up','Eesa_Energy','Eesa_Angle', $
      ;;             EFieldVar,ESpecVar,magVar,langVar]
@@ -1191,16 +1426,15 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      ;;             EFieldVar,magVar,langVar]
      tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','Je_plot', $
                  'jtemp','dB_East',EFieldVar]
-  ENDIF
 
-  IF KEYWORD_SET(screen_plot) OR KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
-
+  IF KEYWORD_SET(screen_plot) OR savePlot THEN BEGIN
+     
      IF KEYWORD_SET(save_png) THEN BEGIN
         CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=0 ;,XSIZE=4,YSIZE=7
      ENDIF ELSE BEGIN
-        IF KEYWORD_SET(save_ps) THEN BEGIN
+        IF KEYWORD_SET(save_ps) OR KEYWORD_SET(save_eps) THEN BEGIN
 
-           POPEN,plotDir+outPlotName,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
+           POPEN,plotDir+outPlotName,/PORT,FONT=-1,ENCAPSULATED=save_eps ;,XSIZE=4,YSIZE=7
            DEVICE,/PALATINO,FONT_SIZE=8
 
 
@@ -1240,11 +1474,11 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      curInds = [minCurInd:maxCurInd]
 
      OPTIONS,'Je_plot','ytitle','Current density!C(!4l!XA/m!U2!N)' ; set y title
-     OPTIONS,'Je_plot','panel_size',2                             ; set panel size
+     OPTIONS,'Je_plot','panel_size',2                              ; set panel size
      ;; YLIM,'Je_plot',-50,100,0
      YLIM,'Je_plot',MIN([jiDat[curInds],tmpe.y[curInds]]),MAX([jiDat[curInds],tmpe.y[curInds]]),0
 
-     OPTIONS,'Je_plot','labels',['i!U+!N ESA','e!U-!N ESA','tot']
+     OPTIONS,'Je_plot','labels',['i!U+!N ESA','e!U-!N ESA','Total']
      OPTIONS,'Je_plot','labflag',-1
      OPTIONS,'Je_plot','colors',[140,250,0,0]
 
@@ -1257,7 +1491,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      LOADCT2,40
      TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
      ;; TPLOT_PANEL,VARIABLE=langVar,OPLOTVAR='ESACur'
-     TPLOT_PANEL,sc_pot.x,(-1.)*sc_pot.y,VARIABLE='Iesa_Energy' ;,OPLOTVAR='SC_POT'
+     TPLOT_PANEL,sc_pot.x,(-1.)*sc_pot.y,VARIABLE='Iesa_Energy'                 ;,OPLOTVAR='SC_POT'
      TPLOT_PANEL,magy.x,MAKE_ARRAY(N_ELEMENTS(magy.x),VALUE=0),VARIABLE='jtemp' ;,OPLOTVAR='SC_POT'
 
      IF KEYWORD_SET(add_timebar) THEN BEGIN
@@ -1265,7 +1499,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      ENDIF
 
 
-     IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
+     IF savePlot THEN BEGIN
         PCLOSE
      ENDIF ELSE BEGIN
 
