@@ -13,7 +13,7 @@ PRO JOURNAL__20170227__CHASTON_ET_AL_2006__INTERFEROMETRY__SEPARATED_V1214_AND_V
   store           = 1
   
   all_1           = 1
-  all_2           = 2
+  all_2           = 1
 
   nAve_1          = 2
   nAve_2          = 2
@@ -22,7 +22,7 @@ PRO JOURNAL__20170227__CHASTON_ET_AL_2006__INTERFEROMETRY__SEPARATED_V1214_AND_V
   v58v78_2        = 1
 
   load_16k_v578_2 = 0
-  load_16k_v578_2 = 1
+  load_16k_v578_2 = 0
 
   wavelet         = 1
 
@@ -46,14 +46,18 @@ PRO JOURNAL__20170227__CHASTON_ET_AL_2006__INTERFEROMETRY__SEPARATED_V1214_AND_V
      TPLOT_NAMES,NAMES=names
      haveIt         = 0
      iGuy           = 0
-     WHILE iGuy LT nNeeded DO BEGIN
-        IF (N_ELEMENTS(WHERE((STRUPCASE(needed))[iGuy] EQ STRUPCASE(names),/NULL)) GT 0) THEN BEGIN
-           PRINT,"Got it: ",needed[iGuy]
-           haveIt++
-        ENDIF
+     IF N_ELEMENTS(names) GT 0 THEN BEGIN
 
-        iGuy++
-     ENDWHILE
+        WHILE iGuy LT nNeeded DO BEGIN
+           IF (N_ELEMENTS(WHERE((STRUPCASE(needed))[iGuy] EQ STRUPCASE(names),/NULL)) GT 0) THEN BEGIN
+              PRINT,"Got it: ",needed[iGuy]
+              haveIt++
+           ENDIF
+
+           iGuy++
+        ENDWHILE
+
+     ENDIF
 
      IF haveIt EQ nNeeded THEN BEGIN
 
@@ -67,6 +71,9 @@ PRO JOURNAL__20170227__CHASTON_ET_AL_2006__INTERFEROMETRY__SEPARATED_V1214_AND_V
 
 
            ENDIF ELSE BEGIN
+              IF N_ELEMENTS(winID) EQ 0 THEN BEGIN
+                 winID = 0
+              ENDIF
               WINDOW,winID,XSIZE=600,YSIZE=800
            ENDELSE
         ENDELSE
@@ -158,6 +165,7 @@ PRO JOURNAL__20170227__CHASTON_ET_AL_2006__INTERFEROMETRY__SEPARATED_V1214_AND_V
      INPUTDIR=inDir, $
      STORE=store, $
      TPLT_VARS=tPlt_vars, $
+     TPLT_FREQLIMS=tPlt_freqLims, $
      WAVELET=wavelet, $
      WV__FAMILY=family, $
      WV__START_SCALE=start_scale, $
@@ -165,7 +173,7 @@ PRO JOURNAL__20170227__CHASTON_ET_AL_2006__INTERFEROMETRY__SEPARATED_V1214_AND_V
      WV__DSCALE=dScale, $
      WV__NSCALE=nScale, $
      WV__PAD=pad_1, $
-     WV__PHASECORRECT=phaseCorr, $
+     WV__PHASECORRECT=phaseCorr_1, $
      DOUBLE=double, $
      V58V78=v58v78_1, $
      LOAD_16k_V578=load_16k_v578_1
@@ -181,6 +189,7 @@ PRO JOURNAL__20170227__CHASTON_ET_AL_2006__INTERFEROMETRY__SEPARATED_V1214_AND_V
      INPUTDIR=inDir, $
      STORE=store, $
      TPLT_VARS=tPlt_vars, $
+     TPLT_FREQLIMS=tPlt_freqLims, $
      WAVELET=wavelet, $
      WV__FAMILY=family, $
      WV__START_SCALE=start_scale, $
@@ -188,10 +197,68 @@ PRO JOURNAL__20170227__CHASTON_ET_AL_2006__INTERFEROMETRY__SEPARATED_V1214_AND_V
      WV__DSCALE=dScale, $
      WV__NSCALE=nScale, $
      WV__PAD=pad_2, $
-     WV__PHASECORRECT=phaseCorr, $
+     WV__PHASECORRECT=phaseCorr_2, $
      DOUBLE=double, $
      V58V78=v58v78_2, $
      LOAD_16k_V578=load_16k_v578_2
+
+  ;; "coh5878",,"coh1214"
+  varName = "phase1214"
+  GET_DATA,varName,DATA=p1214
+
+  varName = "phase5878"
+  GET_DATA,varName,DATA=p5878
+
+  t1214   = p1214.x
+  t5878   = p5878.x
+
+  phi1214 = p1214.y
+  phi5878 = p5878.y
+
+  ratio   = N_ELEMENTS(p5878.y[*,0])/N_ELEMENTS(p1214.y[*,0])
+  IF ratio NE 1. THEN BEGIN
+
+     WHILE (ratio GT 1) DO BEGIN
+        CASE 1 OF
+           (ratio GT 4): BEGIN
+              phi5878 = (phi5878[0:-4:4]+phi5878[1:-3:4]+phi5878[2:-2:4]+phi5878[3:-1:4])/4.
+              t5878   = t5878[0:-1:4]
+           END
+           (ratio GT 2): BEGIN
+              phi5878 = (phi5878[0:-4:4]+phi5878[1:-3:4])/2.
+              t5878   = t5878[0:-1:2]
+           END
+           (ratio LT 1): BEGIN
+              STOP
+           END
+        ENDCASE
+     ENDWHILE
+
+  ENDIF
+
+  x1214   = 12.  ;meters
+  x5878   = 25.5 ;meters
+
+  nTimes  = N_ELEMENTS(p1214.x)
+
+  k1214   = phi1214/x1214
+  k5878   = phi5878/x5878
+  
+  ksp     = SQRT(k1214*k1214+k5878*k5878)
+
+  STOP
+
+  k1214_avg = TOTAL(k1214,1)/FLOAT(nTimes)
+  k5878_avg = TOTAL(k5878,1)/FLOAT(nTimes)
+
+  ;; ksp_avg = TOTAL(ksp,1)/FLOAT(nTimes)
+  ksp_avg   = SQRT(k1214_avg*k1214_avg+k5878_avg*k5878_avg)
+
+  theta1214 = ATAN(phi5878/phi1214*x1214/x5878)
+
+  this = PLOT(REFORM(p1214.v[0,*]),ksp_avg,/XLOG,/YLOG,XRANGE=[1,2e3],YRANGE=[0.001,0.2])
+
+  ;; tPlt_vars = 
 
   IF KEYWORD_SET(tPlot_rightNow) THEN BEGIN
      WINDOW,winID, $

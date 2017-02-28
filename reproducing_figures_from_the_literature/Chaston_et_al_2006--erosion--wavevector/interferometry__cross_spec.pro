@@ -12,6 +12,7 @@ PRO INTERFEROMETRY__CROSS_SPEC, $
    INPUTDIR=inDir, $
    STORE=store, $
    TPLT_VARS=tPlt_vars, $
+   TPLT_FREQLIMS=tPlt_freqLims, $
    WAVELET=wavelet, $
    WV__FAMILY=family, $
    WV__START_SCALE=start_scale, $
@@ -257,6 +258,7 @@ PRO INTERFEROMETRY__CROSS_SPEC, $
               CROSS_SPEC_WAVELET, $
                  fields1[tmpInds],fields2[tmpInds], $
                  cohv,phasev,freqv, $
+                 TIMES=time[tmpInds], $
                  N_AVE=nAve, $
                  NPTS=nPts, $
                  OVERLAP=overlap, $
@@ -267,17 +269,17 @@ PRO INTERFEROMETRY__CROSS_SPEC, $
                  DSCALE=dScale, $
                  NSCALE=nScale, $
                  PAD=pad, $
-                 PHASE_CORRECT=phaseCorr124, $
+                 PHASE_CORRECT=phaseCorr, $
                  DOUBLE=double
 
               ;;Update arrays
-              nCoh124                = N_ELEMENTS(cohv[*,0])
-              timeArr[tmpNi]         = time[tmpSti]
+              nCoh                = N_ELEMENTS(cohv[*,0])
+              timeArr[tmpNi]      = time[tmpSti]
               cohvArr[tmpNi,*]    = TEMPORARY(cohv)
               phasevArr[tmpNi,*]  = TEMPORARY(phasev)
               freqvArr[tmpNi,*]   = TEMPORARY(freqv)
 
-              PRINT,tmpSti[0],' ',TIME_TO_STR(timeArr[tmpNi[0]],/MS),' ',nCoh124,' ',' ',tmpNi[0],' ',tmpNi[-1]
+              PRINT,tmpSti[0],' ',TIME_TO_STR(timeArr[tmpNi[0]],/MS),' ',nCoh,' ',' ',tmpNi[0],' ',tmpNi[-1]
 
            ENDFOR
 
@@ -375,9 +377,29 @@ PRO INTERFEROMETRY__CROSS_SPEC, $
      OPTIONS,varName,'panel_size',2
      YLIM,varName,freqLims[0],freqLims[1],freqLims[2]
      ZLIM,varName,phaseLims[0],phaseLims[1],phaseLims[2]
-     tPlt_vars     = N_ELEMENTS(tPt_vars) GT 0 ? $
+     tPlt_vars     = N_ELEMENTS(tPlt_vars) GT 0 ? $
                      (N_ELEMENTS(WHERE(STRMATCH(STRUPCASE(tPlt_vars),STRUPCASE(varName)),/NULL)) GT 0 ? tPlt_vars : [tPlt_vars,varName]) : $
                      varName
+
+
+     IF KEYWORD_SET(tPlt_freqLims) THEN BEGIN
+
+        tmp_freqLims = freqLims
+
+        CASE N_ELEMENTS(tPlt_freqLims) OF
+           1: BEGIN
+              tmp_freqLims[1] = MAX(freqvArr)
+              tmp_freqLims[2] = 1
+           END
+           2: BEGIN
+              tmp_freqLims[2] = 1
+           END
+           3: BEGIN
+           END
+        ENDCASE
+
+        YLIM,varName,tmp_freqLims[0],tmp_freqLims[1],tmp_freqLims[2]
+     ENDIF
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;;Coherence
