@@ -334,10 +334,11 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   orbit = orbit.y[0]
 
   GET_DATA,'MagDCcomp3',DATA=magz
-  GET_DATA,'Mag3ac_S',DATA=magz_AC
+  ;; GET_DATA,'Mag3ac_S',DATA=magz_AC
 
   ;;Get model field for subtraction
-  GET_FA_ORBIT,magz_AC.x,/DEFINITIVE,/ALL,/TIME_ARRAY
+  ;; GET_FA_ORBIT,magz_AC.x,/DEFINITIVE,/ALL,/TIME_ARRAY
+  GET_FA_ORBIT,magz.x,/DEFINITIVE,/ALL,/TIME_ARRAY
   GET_DATA,'B_model',DATA=bMod
 
   ;;Which? Those.
@@ -347,33 +348,33 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   min  = MIN(bmod.x-t1Zoom,ind)
   bOff = bmod.y[*,2]-bMod.y[ind,2]
 
-  FA_FIELDS_COMBINE,{time:magz_AC.x,comp1:magz_AC.y,ncomp:1}, $
-                    {time:magz.x,comp1:magz.y}, $
-                    RESULT=magzInterp, $
-                    /SPLINE
+  ;; FA_FIELDS_COMBINE,{time:magz_AC.x,comp1:magz_AC.y,ncomp:1}, $
+  ;;                   {time:magz.x,comp1:magz.y}, $
+  ;;                   RESULT=magzInterp, $
+  ;;                   /SPLINE
 
-  magz = {x:magz_AC.x, $
-          y:magzInterp}
+  ;; magz = {x:magz_AC.x, $
+  ;;         y:magzInterp}
 
-  bro = WHERE(FINITE(magz.y))
-  firstB = magz.y[bro[0]]
+  ;; bro = WHERE(FINITE(magz.y))
+  ;; firstB = magz.y[bro[0]]
 
-  ;; bogus = (magz_AC.x-magz_AC.x[0])/(magz_AC.x[-1]-magz_AC.x[0])*(-900)
+  ;; ;; bogus = (magz_AC.x-magz_AC.x[0])/(magz_AC.x[-1]-magz_AC.x[0])*(-900)
 
-  magVarData = {x:[[magz_AC.x],[magz_AC.x]], $
-                y:[[magz.y-firstB+bOff],[magz.y+magz_AC.y-firstB+bOff]]}
-  ;; y:[[magz.y-firstB+bogus],[magz.y+magz_AC.y-firstB+bogus]]}
+  ;; magVarData = {x:[[magz_AC.x],[magz_AC.x]], $
+  ;;               y:[[magz.y-firstB+bOff],[magz.y+magz_AC.y-firstB+bOff]]}
+  ;; ;; y:[[magz.y-firstB+bogus],[magz.y+magz_AC.y-firstB+bogus]]}
 
-  STORE_DATA,magVar,DATA=magVarData
-  OPTIONS,magVar,'yrange',[-1200,500]
-  OPTIONS,magVar,'ytitle','B!Dy!N!C!C(nT))'
-  OPTIONS,magVar,'panel_size',2
-  OPTIONS,magVar,'colors',[6,4]
-  OPTIONS,magVar,'labels',['FG','FG+SC']
+  ;; STORE_DATA,magVar,DATA=magVarData
+  ;; OPTIONS,magVar,'yrange',[-1200,500]
+  ;; OPTIONS,magVar,'ytitle','B!Dy!N!C!C(nT))'
+  ;; OPTIONS,magVar,'panel_size',2
+  ;; OPTIONS,magVar,'colors',[6,4]
+  ;; OPTIONS,magVar,'labels',['FG','FG+SC']
 
-  t1 = magz.x[0]
-  t2 = magz.x[N_ELEMENTS(magz.x)-1L]
-  tlimit_all = [t1,t2]
+  ;; t1 = magz.x[0]
+  ;; t2 = magz.x[N_ELEMENTS(magz.x)-1L]
+  tlimit_all = [t1Zoom,t2Zoom]
 
   ;; tPlt_vars = magVar
 
@@ -429,7 +430,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      ;; OPTIONS,'EFIT_ALONG_V','ytitle','E along V!C!C(mV/m)'
      ;; OPTIONS,'EFIT_ALONG_V','panel_size',2
 
-; reset time limits IF needed
+; reset time limits if needed
 
      ;; get_data,'EFIT_ALONG_V',DATA=data
      ;; t1 = data.x[0]
@@ -631,8 +632,8 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      GET_DATA,'MagDCcomp2',data=magx
      GET_DATA,'MagDCcomp3',data=magy ;Need magy to be cross-track
 
-     mintime  = MIN(ABS(t1-magx.x),ind1)
-     mintime  = MIN(ABS(t2-magx.x),ind2)
+     mintime  = MIN(ABS(t1Zoom-magx.x),ind1)
+     mintime  = MIN(ABS(t2Zoom-magx.x),ind2)
 
      magx     = {x : magx.x[ind1:ind2],y : magx.y[ind1:ind2]}
      magy     = {x : magy.x[ind1:ind2],y : magy.y[ind1:ind2]}
@@ -658,8 +659,8 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      ;;z (or 2)-along B, y (or 1)-east (BxR), x (or 0)-nominally out
 
      GET_DATA,'dB_fac_v',DATA=db_fac
-     mintime  = MIN(ABS(t1-db_fac.x),ind1)
-     mintime  = MIN(ABS(t2-db_fac.x),ind2)
+     mintime  = MIN(ABS(t1Zoom-db_fac.x),ind1)
+     mintime  = MIN(ABS(t2Zoom-db_fac.x),ind2)
 
      magx     = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,0]}
      magy     = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,1]}
@@ -972,13 +973,33 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
                              ;; /SPIN, $
                              /REPAIR)
 
-  sc_pot  = {x:sc_pot.time, $
-             y:(-1.)*sc_pot.comp1, $ ;;Reverse sign of pot for use with GET_2DT_TS_POT
-             valid:sc_pot.valid}
+  IF sc_pot.valid THEN BEGIN
+     sc_pot  = {x:sc_pot.time, $
+                y:(-1.)*sc_pot.comp1, $ ;;Reverse sign of pot for use with GET_2DT_TS_POT
+                valid:sc_pot.valid}
 
-  STORE_DATA,sc_potName,DATA={x:sc_pot.x,y:(-1.)*sc_pot.y}
+     STORE_DATA,sc_potName,DATA={x:sc_pot.x,y:(-1.)*sc_pot.y}
 
+  ENDIF ELSE BEGIN
+     minEE = 30.
+     minIE = 30.
+     PRINT,"WARNING! Couldn't get s/c potential!! Setting min electron energy to " + $
+           STRCOMPRESS(minEE,/REMOVE_ALL) + $
+           " and min ion energy to " + $
+           STRCOMPRESS(minIE,/REMOVE_ALL)
+     WAIT,1
+     
+     ;; sc_pot = !NULL
 
+     IF energy_electrons[0] LT 1. THEN BEGIN
+        energy_electrons[0] = energy_electrons[0] > minEE
+     ENDIF
+
+     IF energy_ions[0] LT 1. THEN BEGIN
+        energy_ions[0] = energy_ions[0]           > minIE
+     ENDIF
+
+  ENDELSE
   ;; GET_2DT_TS_POT,'j_2d_fs','fa_'+ieb_or_ies,NAME='Ji_up',T1=t1,T2=t2, $
   ;;                ENERGY=energy_ions,ANGLE=ion_angle, $
   ;;                SC_POT=sc_pot
@@ -1167,7 +1188,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   GET_2DT_TS_POT,'j_2d_b','fa_eeb',T1=t1Zoom,T2=t2Zoom, $
                  NAME='Je_tot', $
                  ENERGY=energy_electrons, $
-                 SC_POT=sc_pot
+                 SC_POT=(sc_pot.valid ? sc_pot : !NULL)
 
   GET_DATA,'Je_tot',DATA=tmp
   keep1          = WHERE(FINITE(tmp.y))
@@ -1204,18 +1225,18 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
                     NAME='Ji_tot', $
                     ENERGY=[0,energy_ions[1]], $
                     ANGLE=ion_angle, $
-                    SC_POT=sc_pot
+                    SC_POT=(sc_pot.valid ? sc_pot : !NULL)
 
      GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=t1Zoom,T2=t2Zoom, $
                     NAME='Ji_tot_S', $
                     ENERGY=[0,energy_ions[1]], $
                     ANGLE=ion_angle, $
-                    SC_POT=sc_pot
+                    SC_POT=(sc_pot.valid ? sc_pot : !NULL)
 
      GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=t1Zoom,T2=t2Zoom, $
                     NAME='Je_tot_S', $
                     ENERGY=energy_electrons, $
-                    SC_POT=sc_pot
+                    SC_POT=(sc_pot.valid ? sc_pot : !NULL)
 
      ;;First, burst ion data
      GET_DATA,'Ji_tot',DATA=tmp
@@ -1491,7 +1512,9 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      LOADCT2,40
      TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
      ;; TPLOT_PANEL,VARIABLE=langVar,OPLOTVAR='ESACur'
-     TPLOT_PANEL,sc_pot.x,(-1.)*sc_pot.y,VARIABLE='Iesa_Energy'                 ;,OPLOTVAR='SC_POT'
+     IF sc_pot.valid THEN BEGIN
+        TPLOT_PANEL,sc_pot.x,(-1.)*sc_pot.y,VARIABLE='Iesa_Energy' ;,OPLOTVAR='SC_POT'
+     ENDIF
      TPLOT_PANEL,magy.x,MAKE_ARRAY(N_ELEMENTS(magy.x),VALUE=0),VARIABLE='jtemp' ;,OPLOTVAR='SC_POT'
 
      IF KEYWORD_SET(add_timebar) THEN BEGIN
