@@ -60,6 +60,9 @@ PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
   EESA_lims         = [1D7,1D10]
   IESA_lims         = [1D5,1D8]
 
+  ;; PLOT_FA_CROSSING,ORBIT=orbit,/MAGPOLE,/SOUTH
+  ;; PLOT_FA_CROSSING,TMIN=STR_TO_TIME(timebar_times[0]),TMAX=STR_TO_TIME(timebar_times[1]),/magpole,/south,/zoom,/fill,/WHOLE
+
   SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      T1=t1, $
      T2=t2, $
