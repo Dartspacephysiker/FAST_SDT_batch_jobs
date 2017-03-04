@@ -23,7 +23,8 @@ PRO PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,curPotList, $
 
   errorBarFac     = KEYWORD_SET(errorBarFac) ? errorBarFac : 1.
   rgbTable        = 4
-  hammerCT        = COLORTABLE(4,STRETCH=stretch,NCOLORS=nColors,TRANSPOSE=transpose)
+  nColors         = 256
+  hammerCT        = COLORTABLE(rgbTable,STRETCH=stretch,NCOLORS=nColors,TRANSPOSE=transpose)
 
   curTitle        = 'j!D||!N($\mu$A m!U-2!N)'
 
@@ -63,7 +64,6 @@ PRO PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,curPotList, $
   p2pos           = [0.10,0.53,0.46,0.94]
   p3pos           = [0.54,0.08,0.95,0.94]
   cbpos           = [0.10,0.97,0.95,0.99]
-  nColors         = 256
 
   orig_p1Pos      = [0.1,0.1,0.95,0.8]
   orig_cbPos      = [0.1,0.96,0.95,0.98]
@@ -242,7 +242,7 @@ PRO PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,curPotList, $
                                 XTITLE=timeTitle, $
                                 YTITLE=curTitle, $
                                 RGB_TABLE=hammerCT, $
-                                ERRORBAR_COLOR=hammerCT[*,CTInds[0]], $
+                                ;; ERRORBAR_COLOR=hammerCT[*,CTInds[0]], $
                                 VERT_COLORS=CTInds[inds], $
                                 LINESTYLE='', $
                                 ERRORBAR_CAPSIZE=errSym_capSize, $
