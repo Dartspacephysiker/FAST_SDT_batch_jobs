@@ -11,11 +11,20 @@ PRO PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,curPotList, $
   
   COMPILE_OPT IDL2
 
+  ;;Temperature plot
+  ;; TErr = TRANSPOSE([[curPotList[0].Terr < curPotList[0].T[3,*]],[curPotList[0].Terr]])
+  ;; this = ERRORPLOT(curPotList[0].time-curPotList[0].time[0], $
+  ;;                  curPotList[0].T[3,*], $
+  ;;                  TErr, $
+  ;;                  LINESTYLE='', $
+  ;;                  SYMBOL='x', $
+  ;;                  /YLOG, $
+  ;;                  YRANGE=[1.,1e3])
+
   errorBarFac     = KEYWORD_SET(errorBarFac) ? errorBarFac : 1.
   rgbTable        = 4
   hammerCT        = COLORTABLE(4,STRETCH=stretch,NCOLORS=nColors,TRANSPOSE=transpose)
 
-  timeTitle       = 'Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[0]])
   curTitle        = 'j!D||!N($\mu$A m!U-2!N)'
 
   potRange        = [1,3e4]
@@ -106,14 +115,10 @@ PRO PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,curPotList, $
   time        = curPotList[edind].time
 
   ;;Current for plotting
-  ;; cur         = curPotList[edind].cur
-  ;; cur         = curPotList[edind].cur+curPotList[iuind].cur
-  ;; cur         = curPotList[edind].cur+curPotList[euind].cur
   cur         = curPotList[edind].cur+curPotList[euind].cur+curPotList[iuind].cur
 
   ;;Errors
   curErr      = ABS(curPotList[edind].curErr) * errorBarFac
-  ;; curErr      = TRANSPOSE([[cur-curErr],[cur+curErr]])
 
   posC_i      = WHERE(cur GT 0,nPos, $
                       COMPLEMENT=negC_i, $
@@ -132,6 +137,8 @@ PRO PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,curPotList, $
                       (curPotList[euind].peakE GE 0.) OR  $
                       (curPotList[euind].peakE GE 0.),    $
                       nSafe)
+
+  timeTitle       = 'Seconds since ' + TIME_TO_STR(curPotList[0].time[safe_i[0]])
 
   IF nSafe LT 3 THEN STOP
 
