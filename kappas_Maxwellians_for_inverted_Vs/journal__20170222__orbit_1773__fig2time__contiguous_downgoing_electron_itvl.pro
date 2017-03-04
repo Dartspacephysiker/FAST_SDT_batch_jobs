@@ -8,7 +8,7 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   Elphic1998_defaults     = 1
 
   error_estimates         = 1
-  remake_masterFile       = 0
+  remake_masterFile       = 1
   map_to_100km            = 1
 
   add_oneCount_stats      = 1
@@ -22,7 +22,7 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
 
   ;;get orbTimes here
   orbit                   = 1773
-  orbTimes                = ['97-02-01/09:25:40','97-02-01/09:26:30']
+  orbTimes                = ['97-02-01/09:25:40','97-02-01/09:27:13']
   ;; orbTimes                = ['97-02-01/09:25:40','97-02-01/09:29:30']
   orbBurstTimes           = ['97-02-01/09:25:40','97-02-01/09:29:30']
   bonusPref               = '--Elphic_et_al_1998--Fig2'
@@ -57,7 +57,7 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   ;; units                = 'flux'
   ;; units                = 'dfStd'
   
-  outDir                  = '~/software/sdt/batch_jobs/saves_output_etc/'
+  outDir                  = '~/software/sdt/batch_jobs/saves_output_etc/cur_and_pot_analysis/'
   datFile                 = 'Elphic_et_al__Fig2_ingredients.sav'
 
   saveCurPotFile          = 'Elphic_et_al__Fig2__meal.sav'
@@ -75,24 +75,28 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   order                   = [0,1,2]
   label                   = ['downgoing_e','upgoing_e','upgoing_i']
 
+  ;;OPTIONS! OPTIONS! OPTIONS!
   aRange__moments_e_down  = [0.,360.]
   aRange__moments_i_up    = [0.,360.]
 
   label__which_eeb        = [0,0,1]
   label__which_times      = [0,1,0]
-  energyArr               = [[4e1,3.0e4],[4e1,3.0e4],[4,2.4e4]]
   aRange__moments_list    = LIST(aRange__moments_e_down,!NULL,aRange__moments_i_up)
   aRange__peakEn_list     = LIST(!NULL,!NULL,!NULL)
   aRange__charE_list      = LIST(!NULL,!NULL,!NULL)
+
+  ;;If doing upgoing electrons
+  peak_energy__start_at_highEArr  = [0,1,1]
+  upgoingArr                      = [0,1,1]
+
+  ;; energyArr               = [[4e1,3.0e4],[4e1,3.0e4],[4,2.4e4]]
+  use_sc_pot_for_lowerbound = 1
+  energyArr               = [[0,3.0e4],[0,3.0e4],[0,2.4e4]]
 
   ;; min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : 500
   ;; max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
   min_peak_energyArr      = [300,100,100]
   max_peak_energyArr      = [3e4,3e4,2.4e4]
-
-  ;;If doing upgoing electrons
-  peak_energy__start_at_highEArr  = [0,1,1]
-  upgoingArr                      = [0,1,1]
 
   CURRENT_AND_POTENTIAL_ANALYSIS, $
      ORBIT=orbit, $
@@ -117,6 +121,7 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
      WHICH_EEB__LABEL=label__which_eeb, $
      WHICH_TIMES__LABEL=label__which_times, $
      ENERGYARR=energyArr, $
+     USE_SC_POT_FOR_LOWERBOUND=use_sc_pot_for_lowerbound, $
      ARANGE__MOMENTS_LIST=aRange__moments_list, $
      ARANGE__PEAKEN_LIST=aRange__peakEn_list, $
      ARANGE__CHARE_LIST=aRange__charE_list, $
@@ -407,13 +412,14 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   ;; tmpPotErr         = curErr[*,safe_i[inds]]
   tmpPotErr         = potErr[safe_i[inds]]
 
-  errPotRange       = MINMAX(potErr[safe_i])
-  ;; errPotRange       = MINMAX(pot[safe_i])
+  ;; errPotRange       = MINMAX(potErr[safe_i])
+  errPotRange       = MINMAX(pot[safe_i])
   plot_2            = ERRORPLOT((tDiff[safe_i[inds]]), $
                                 pot[safe_i[inds]], $
                                 tmpPotErr, $
                                 XRANGE=tRange, $
-                                YRANGE=errPotRange, $
+                                /YLOG, $
+                                YRANGE=yRange, $
                                 YTITLE='$\Phi$ (V)', $
                                 RGB_TABLE=hammerCT, $
                                 ERRORBAR_COLOR=hammerCT[*,CTInds[0]], $
@@ -424,8 +430,9 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
                                 SYM_SIZE=errSym_size, $
                                 SYM_FILLED=errSym_fill, $
                                 /CURRENT, $
-                                POSITION=p2pos)
-  plot_2.xshowtext  = 0B
+                                POSITION=p2pos, $
+                                XSHOWTEXT=0B)
+  ;; plot_2.xshowtext  = 0B
 
   ;;Now add all the other symbols
   FOR k=2,N_ELEMENTS(safe_i)-1,2 DO BEGIN
@@ -437,6 +444,7 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
      plot_2         = ERRORPLOT((tDiff[safe_i[inds]]), $
                                 pot[safe_i[inds]], $
                                 tmpPotErr, $
+                                /YLOG, $
                                 VERT_COLORS=hammerCT[*,CTInds[inds]], $
                                 ERRORBAR_COLOR=hammerCT[*,CTInds[k]], $
                                 ERRORBAR_CAPSIZE=errSym_capSize, $
@@ -462,7 +470,7 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   jvSymThick  = 2.0
   jvSymTransp = 70
   jvSymFilled = 1
-  FOR k=0,this3-1 DO tickNames3 = [tickNames3,STRING(FORMAT='("10!U",I0,"!N")',k)]
+  FOR k=0,this3-1 DO tickNames3 = [tickNames3,STRING(FORMAT='("10!U",I0,"!N")',k+1)]
 
   ;;The old, error bar–less way
   ;; plot_3      = SCATTERPLOT(cur[safe_i], $
@@ -580,13 +588,16 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
                          /NORMAL)
 
   IF KEYWORD_SET(savePlot) THEN BEGIN
+
      IF ~KEYWORD_SET(sPName) THEN BEGIN
         sPName = routName + '-believeIt.png'
      ENDIF
+
      IF ~KEYWORD_SET(plotDir) THEN BEGIN
         pDirSuff = '/cur_and_pot_analysis'
         SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF=pDirSuff
      ENDIF
+
      PRINT,"Saving to " + sPName + ' ...'
 
      window1.Save,plotDir+sPName
@@ -602,3 +613,4 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   ;;             SYMBOL='*', $
   ;;             YRANGE=jrange)
 END
+

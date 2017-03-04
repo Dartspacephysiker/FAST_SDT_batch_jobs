@@ -58,7 +58,7 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   ;; units                = 'flux'
   ;; units                = 'dfStd'
   
-  outDir                  = '~/software/sdt/batch_jobs/saves_output_etc/'
+  outDir                  = '~/software/sdt/batch_jobs/saves_output_etc/cur_and_pot_analysis/'
   datFile                 = 'Elphic_et_al__Fig2_ingredients__checkJError_downgoing_e.sav'
 
   saveCurPotFile          = 'Elphic_et_al__Fig2__meal__checkJError_downgoing_e.sav'
@@ -413,13 +413,14 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   ;; tmpPotErr         = curErr[*,safe_i[inds]]
   tmpPotErr         = potErr[safe_i[inds]]
 
-  errPotRange       = MINMAX(potErr[safe_i])
-  ;; errPotRange       = MINMAX(pot[safe_i])
+  ;; errPotRange       = MINMAX(potErr[safe_i])
+  errPotRange       = MINMAX(pot[safe_i])
   plot_2            = ERRORPLOT((tDiff[safe_i[inds]]), $
                                 pot[safe_i[inds]], $
                                 tmpPotErr, $
                                 XRANGE=tRange, $
-                                YRANGE=errPotRange, $
+                                /YLOG, $
+                                YRANGE=yRange, $
                                 YTITLE='$\Phi$ (V)', $
                                 RGB_TABLE=hammerCT, $
                                 ERRORBAR_COLOR=hammerCT[*,CTInds[0]], $
@@ -430,8 +431,9 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
                                 SYM_SIZE=errSym_size, $
                                 SYM_FILLED=errSym_fill, $
                                 /CURRENT, $
-                                POSITION=p2pos)
-  plot_2.xshowtext  = 0B
+                                POSITION=p2pos, $
+                                XSHOWTEXT=0B)
+  ;; plot_2.xshowtext  = 0B
 
   ;;Now add all the other symbols
   FOR k=2,N_ELEMENTS(safe_i)-1,2 DO BEGIN
@@ -443,6 +445,7 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
      plot_2         = ERRORPLOT((tDiff[safe_i[inds]]), $
                                 pot[safe_i[inds]], $
                                 tmpPotErr, $
+                                /YLOG, $
                                 VERT_COLORS=hammerCT[*,CTInds[inds]], $
                                 ERRORBAR_COLOR=hammerCT[*,CTInds[k]], $
                                 ERRORBAR_CAPSIZE=errSym_capSize, $
@@ -468,7 +471,7 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   jvSymThick  = 2.0
   jvSymTransp = 70
   jvSymFilled = 1
-  FOR k=0,this3-1 DO tickNames3 = [tickNames3,STRING(FORMAT='("10!U",I0,"!N")',k)]
+  FOR k=0,this3-1 DO tickNames3 = [tickNames3,STRING(FORMAT='("10!U",I0,"!N")',k+1)]
 
   ;;The old, error bar–less way
   ;; plot_3      = SCATTERPLOT(cur[safe_i], $
@@ -586,13 +589,16 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
                          /NORMAL)
 
   IF KEYWORD_SET(savePlot) THEN BEGIN
+
      IF ~KEYWORD_SET(sPName) THEN BEGIN
         sPName = routName + '-believeIt.png'
      ENDIF
+
      IF ~KEYWORD_SET(plotDir) THEN BEGIN
         pDirSuff = '/cur_and_pot_analysis'
         SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF=pDirSuff
      ENDIF
+
      PRINT,"Saving to " + sPName + ' ...'
 
      window1.Save,plotDir+sPName
