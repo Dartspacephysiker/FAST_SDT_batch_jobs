@@ -1,13 +1,9 @@
-;2017/03/03
-;Here are the winners from 2017/03/04's headbangerfest:
-;  aRange__moments_e_down  = [330.,30.]
-;  energyArr               = [[300,3.0e4],[0,3.0e4],[0,2.4e4]]
-
-PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_REDUCE_J_ERROR
+;2017/03/04
+PRO JOURNAL__20170304__ORBIT_1849__MCFADDEN_ME
 
   COMPILE_OPT IDL2
 
-  routName                = 'JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_REDUCE_J_ERROR'
+  routName                = 'JOURNAL__20170304__ORBIT_1849__MCFADDEN_ME'
 
   Elphic1998_defaults     = 1
 
@@ -17,8 +13,9 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
 
   add_oneCount_stats      = 1
 
-  plot_times              = ['1997-02-01/09:25:41.0', $
-                             '1997-02-01/09:27:13.4']
+  plot_times              = ['97-02-08/10:11:22', $
+                             '97-02-08/10:11:52']
+
   plot_t1                 = STR_TO_TIME(plot_times[0])
   plot_t2                 = STR_TO_TIME(plot_times[1])
   add_iu_pot              = 1
@@ -29,55 +26,36 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   savePlot                = 0
 
   plot_jv_a_la_Elphic     = 0B
-  a_la_Elphic_spName      = 'errorbarsalso_downgoing_e.png'
+  a_la_Elphic_spName      = 'orb_1849__errorbarsalso_downgoing_e.png'
 
   plot_j_v_potBar         = 1B
-  jvpotBar_spName         = 'j_vs_potBar__downgoing_e.png'
+  jvpotBar_spName         = 'orb_1849__j_vs_potBar__downgoing_e.png'
   jvpotBar__j_on_yAxis    = 1
 
   ;;get orbTimes here
-  orbit                   = 1773
+  orbit                   = 1849
   ;; orbTimes                = ['97-02-01/09:25:40','97-02-01/09:26:30']
   ;; orbTimes                = ['97-02-01/09:25:40','97-02-01/09:29:30']
-  orbTimes                = ['97-02-01/09:25:40','97-02-01/09:27:13']
-  orbBurstTimes           = ['97-02-01/09:25:40','97-02-01/09:29:30']
-  bonusPref               = '--Elphic_et_al_1998--Fig2'
-
-  ;; downTimesStr            = '1997-02-01/' + $
-  ;;                           [['09:26:12','09:26:23'], $ ;;These are the money times that seem to give good kappa fits
-  ;;                            ['09:26:53','09:27:07.5']]
-
-  ;; downTimesStr            = '1997-02-01/' + $
-  ;;                           [['09:26:12','09:27:07.5']]
-
-  ;; upTimesStr              = '1997-02-01/' + $
-  ;;                           [['09:25:41.0','09:25:49.4'], $
-  ;;                            ['09:25:56.75','09:26:02.9'], $
-  ;;                            ['09:26:04.03','09:26:09.51'], $
-  ;;                            ['09:27:07.1','09:27:13.4']]
+  orbTimes                = ['97-02-08/10:11:22','97-02-08/10:11:52']
+  orbBurstTimes           = ['97-02-08/10:11:22','97-02-08/10:11:52']
+  bonusPref               = '--McFadden_et_al_1998--ripoff_Elphic'
 
   ;;They'll just walk up and bring you the keys! MO MONEY MO MONEY MO MONEY
-  downTimesStr            = '1997-02-01/' + $
-                            [['09:25:40','09:29:30']]
+  downTimesStr            = ['97-02-08/10:11:22','97-02-08/10:11:52']
 
   upTimesStr              = downTimesStr
 
   ;; timesList               = LIST(downTimes,upTimes)
-
-  ;; kStats_startStops__ees  = LIST('1997-02-01/' + [['09:25:50','09:26:10'], $ ;These are for the downward current regions
-  ;;                                                 ['09:27:05','09:27:15']])
-  ;; kStats_startStops__eeb  = LIST('1997-02-01/' + [['09:26:12','09:26:23'], $
-  ;;                                                 ['09:26:53','09:27:07.5']])
 
   units                   = 'eFlux'
   ;; units                = 'flux'
   ;; units                = 'dfStd'
 
   outDir                  = '~/software/sdt/batch_jobs/saves_output_etc/cur_and_pot_analysis/'
-  datFile                 = 'Elphic_et_al__Fig2_ingredients__checkJError_downgoing_e.sav'
+  datFile                 = 'McFadden_et_al__ripoff_Elphic__ingredients__checkJError_downgoing_e.sav'
 
-  saveCurPotFile          = 'Elphic_et_al__Fig2__meal__checkJError_downgoing_e.sav'
-  save_diff_eFlux_file    = 0
+  saveCurPotFile          = 'McFadden_et_al__ripoff_Elphic__meal__checkJError_downgoing_e.sav'
+  save_diff_eFlux_file    = 1
   load_diff_eFlux_file    = 1
   ;; restore_fitFile         = 0
 
@@ -105,9 +83,8 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   peak_energy__start_at_highEArr  = [0,1,1]
   upgoingArr                      = [0,1,1]
 
-  ;; energyArr               = [[4e1,3.0e4],[4e1,3.0e4],[4,2.4e4]]
   use_sc_pot_for_lowerbound = 1
-  energyArr               = [[300,3.0e4],[0,3.0e4],[0,2.4e4]]
+  energyArr               = [[500,3.0e4],[0,3.0e4],[0,2.4e4]]
 
   ;; min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : 500
   ;; max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
@@ -184,3 +161,4 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   ENDIF
 
 END
+

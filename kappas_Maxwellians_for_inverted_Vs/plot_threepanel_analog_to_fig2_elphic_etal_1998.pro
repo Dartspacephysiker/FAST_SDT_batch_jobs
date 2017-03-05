@@ -11,6 +11,21 @@ PRO PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,jvPlotData, $
   
   COMPILE_OPT IDL2
 
+  ;;Check out potBar
+  
+  ;; !P.MULTI = [0,1,2,0,0]
+  ;; binSize  = 0.2
+  ;; posCur_i = WHERE(jvPlotData.cur LT 0,COMPLEMENT=negCur_i)
+  ;; xRange   = [-2,5.5]
+  ;; CGHISTOPLOT,ALOG10(jvplotdata.pbarall.ederr[negCur_i]/jvplotdata.pbarall.ed[negCur_i]), $
+  ;;             BINSIZE=binSize, $
+  ;;             MININPUT=xRange[0], $
+  ;;             MAXINPUT=xRange[1]
+  ;; CGHISTOPLOT,ALOG10(jvplotdata.pbarall.euerr[posCur_i]/jvplotdata.pbarall.eu[posCur_i]), $
+  ;;             BINSIZE=binSize, $
+  ;;             MININPUT=xRange[0], $
+  ;;             MAXINPUT=xRange[1]
+
   ;;Temperature plot
   ;; TErr = TRANSPOSE([[curPotList[0].Terr < curPotList[0].T[3,*]],[curPotList[0].Terr]])
   ;; this = ERRORPLOT(curPotList[0].time-curPotList[0].time[0], $
@@ -371,6 +386,7 @@ PRO PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,jvPlotData, $
   ;;And a colorbar thing
   nTMarks     = 5
   tInds       = (INDGEN(nTMarks)*nPoints)/(nTMarks-1)
+  IF tInds[-1] EQ nPoints THEN tInds[-1] -= 1
   tickValues  = jvPlotData.tMag[tInds]
   tickTimes   = jvPlotData.time[tInds]
   tickName    = STRMID(TIME_TO_STR(tickTimes),11,15)
