@@ -137,15 +137,32 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
      SAVECURPOTFILE=saveCurPotFile, $
      OUT_CURPOTLIST=curPotList
 
-  PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,curPotList, $
+  CURRENT_AND_POTENTIAL_PLOTDATA_PREP,curPotList,jvPlotData, $
      T1=plot_t1, $
      T2=plot_t2, $
+     ERROR_BAR_FACTOR=errorBarFac
+
+  !P.MULTI = [0,1,2,0,0]
+  binSize  = 0.2
+  posCur_i = WHERE(jvPlotData.cur LT 0,COMPLEMENT=negCur_i)
+  xRange   = [-2,5.5]
+  CGHISTOPLOT,ALOG10(jvplotdata.pbarall.ederr[negCur_i]/jvplotdata.pbarall.ed[negCur_i]), $
+              BINSIZE=binSize, $
+              MININPUT=xRange[0], $
+              MAXINPUT=xRange[1]
+  CGHISTOPLOT,ALOG10(jvplotdata.pbarall.euerr[posCur_i]/jvplotdata.pbarall.eu[posCur_i]), $
+              BINSIZE=binSize, $
+              MININPUT=xRange[0], $
+              MAXINPUT=xRange[1]
+
+  ;; PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,curPotList, $
+  PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,jvPlotData, $
      ORIGINAL_PLOTIDEE=orig_plotIdee, $
      SAVEPLOT=savePlot, $
      SPNAME=spName, $
      ORIGINATING_ROUTINE=routName, $
-     PLOTDIR=plotDir, $
-     ERROR_BAR_FACTOR=errorBarFac
+     PLOTDIR=plotDir;; , $
+     ;; ERROR_BAR_FACTOR=errorBarFac
 
 END
 
