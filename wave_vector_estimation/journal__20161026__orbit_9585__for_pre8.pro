@@ -17,47 +17,8 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
    ANCILLARY_PLOTS=ancillary_plots, $
    ADD_TIMEBAR=add_timebar
 
-; create a summary plot of:
-; SFA (AKR)
-; DSP (VLF)
-; Eesa Energy
-; Eesa Angle
-; Iesa Energy
-; Iesa Angle
-; E fit along V (Southern hemisphere corrected)
-; dB_fac_v (dB_fac and dB_SM also stored)
+  savePlot = KEYWORD_SET(save_eps) OR KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)
 
-; Returns:
-; tPlt_vars  - array of tplot variables
-; tlimit_north - tlimits for northern hemisphere
-; tlimit_south - tlimits for southern hemisphere
-; tlimit_all -  tlimits for all the data
-
-; procedure for making summary plots
-; batch_summary,tPlt_vars=tPlt_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
-; loadct2,40  ; load color table
-; if (n_elements(tPlt_vars) gt 0) then tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-; if (n_elements(tlimit_north) gt 0) then tlimit,tlimit_north  ; northern hemisphere
-; if (n_elements(tlimit_south) gt 0) then tlimit,tlimit_south  ; southern hemisphere
-
-; if running interactively
-; batch_summary,tPlt_vars=tPlt_vars,/screen_plot,/no_blank_panels
-
-; Input needed on:
-; (a) Northern/southern hemisphere limits
-; (b) ESA data limits
-; (c) DSP calibration
-
-
-; Under development - R. J. Strangeway 4/4/08
-
-; Program will use fac_v if E field data are available, other use fac_v
-; over-ride with use_fac_v and use_fac keywords
-
-; if no_blank_panels is not set procedure will generate tplot data for all the parameters,
-; including missing data, for a uniform plot product
-
-  ;;Set YNOZERO
   !Y.STYLE = (!Y.STYLE) OR 16
 
   IF N_ELEMENTS(use_db_fac) EQ 0 AND N_ELEMENTS(use_db_fac_v) EQ 0 THEN use_db_fac  = 1
@@ -71,7 +32,9 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
   outPlotName       = 'Orb_9858--PRE_VIII--Fig_1'
   saveFile          = 'Orbit_9585--B_and_J--20161024--fixed_currents--with_sc_pot--bro.sav'
 
-
+  ;;Thel or Tadr?
+  saveFile          = saveFile.Replace('.sav','-'+WHOAMIHOST()+'.sav')
+  
   IF N_ELEMENTS(ancillary_plots) EQ 0 THEN ancillary_plots = 1
   IF KEYWORD_SET(ancillary_plots) THEN BEGIN
      outPlotName   += '--with_ancillaries'
@@ -97,7 +60,7 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
   timesBar          = STR_TO_TIME(timesBarStr)
 
   energy_electrons  = [0.,30000.]
-  energy_ions       = [0.,30000.]
+  energy_ions       = [0.,24000.]
   ion_angle         = [180,360]
 
   EFieldVar         = 'EFIT_ALONG_VSC'
@@ -112,8 +75,8 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
 
   if (nn gt 1) then for n = nn-1L,1L,-1L do store_data,data_quants(n).name,/delete
 
-  field  = GET_FA_FIELDS('MagDC',t1Zoom-10,t2Zoom+10,/store)
-  magAC = GET_FA_FIELDS('Mag3ac_S',t1Zoom-10,t2Zoom+10,/store)
+  field  = GET_FA_FIELDS('MagDC',t1Zoom-10,t2Zoom+10,/store,CALIBRATE=calib,REPAIR=repair)
+  magAC = GET_FA_FIELDS('Mag3ac_S',t1Zoom-10,t2Zoom+10,/store,CALIBRATE=calib,REPAIR=repair)
 
   magVar = 'MAGDATA'
 
@@ -198,8 +161,8 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
   if (nb4 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb4 = 0
   b = where (strpos(result,'V1-V2_S') ge 0,nb2)
   if (nb2 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb2 = 0
-  if (nb4 gt 0) then v12=get_fa_fields('V1-V4_S',/all) $
-  else if (nb2 gt 0) then v12=get_fa_fields('V1-V2_S',/all)
+  if (nb4 gt 0) then v12=get_fa_fields('V1-V4_S',/all,CALIBRATE=calib,REPAIR=repair) $
+  else if (nb2 gt 0) then v12=get_fa_fields('V1-V2_S',/all,CALIBRATE=calib,REPAIR=repair)
 
   b = where (strpos(result,'V5-V8_S') ge 0,nb5)
   if (nb5 gt 0) then v58=get_fa_fields('V5-V8_S',/all)
@@ -266,23 +229,23 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
      ;; store_data,'EFIT_ALONG_V',/delete
 
      t = 0.
-     dat=get_fa_fields('V5-V8_S',t,/start)
+     dat=get_fa_fields('V5-V8_S',t,/start,CALIBRATE=calib,REPAIR=repair)
      if dat.valid eq 0 then begin
         print,' ERROR: No FAST V5-V8 data-get_fa_fields returned invalid data'
         data_valid=0.0
      endif else begin
 
-        efieldV58=get_fa_fields('V5-V8_S',t1Zoom,t2Zoom)
-        efieldV1214=get_fa_fields('V1-V2_S',t1Zoom,t2Zoom)
+        efieldV58=get_fa_fields('V5-V8_S',t1Zoom,t2Zoom,CALIBRATE=calib,REPAIR=repair)
+        efieldV1214=get_fa_fields('V1-V2_S',t1Zoom,t2Zoom,CALIBRATE=calib,REPAIR=repair)
         if efieldV1214.valid eq 0 then begin
            print,'No V1-V2_S data - trying V1-V4_S'
-           efieldV1214=get_fa_fields('V1-V4_S',t1Zoom,t2Zoom)
+           efieldV1214=get_fa_fields('V1-V4_S',t1Zoom,t2Zoom,CALIBRATE=calib,REPAIR=repair)
            if efieldV1214.valid eq 0 AND KEYWORD_SET(burst) then begin
               print,'No V1-V4_S data - trying V1-V2_4k (burst)'
-              efieldV1214=get_fa_fields('V1-V2_4k',t1Zoom,t2Zoom)
+              efieldV1214=get_fa_fields('V1-V2_4k',t1Zoom,t2Zoom,CALIBRATE=calib,REPAIR=repair)
               if efieldV1214.valid eq 0 then begin
                  print,'No V1-V2_4k data - trying V1-V4_4k (burst)'
-                 efieldV1214=get_fa_fields('V1-V4_4k',t1Zoom,t2Zoom)
+                 efieldV1214=get_fa_fields('V1-V4_4k',t1Zoom,t2Zoom,CALIBRATE=calib,REPAIR=repair)
                  if efieldV1214.valid eq 0 then begin
                     print,'No FAST fields data-get_fa_fields returned invalid data'
                     data_valid=0.0
@@ -540,7 +503,8 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
 
      var_name='Iesa_Energy'
      get_en_spec,T1=t1Zoom,T2=t2Zoom, $
-                 'fa_'+ieb_or_ies+'_c',name=var_name,units='eflux',angle=ion_angle
+                 'fa_'+ieb_or_ies+'_c',name=var_name,units='eflux',angle=ion_angle, $
+                 CALIB=calib,RETRACE=retrace
      ;; data.y = alog10(data.y)
      ;; store_data,var_name, data=data
      options,var_name,'spec',1	
@@ -565,7 +529,8 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
 ; ION PITCH ANGLE
 
   var_name='Iesa_Angle'
-  get_pa_spec,"fa_"+ieb_or_ies+"_c",units='eflux',name=var_name,energy=energy_ions
+  get_pa_spec,"fa_"+ieb_or_ies+"_c",units='eflux',name=var_name,energy=energy_ions, $
+              CALIB=calib,RETRACE=retrace
   get_data,var_name, data=data
   this = where(data.v[0,*] GT 170)
   data = {x:data.x, $
@@ -621,8 +586,8 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
 
   ;;Get potential
   sc_pot  = GET_FA_POTENTIAL(t1Zoom,t2Zoom, $
-                             ;; /SPIN, $
-                             /REPAIR)
+                             CALIBRATE=calib, $
+                             REPAIR=repair)
 
   sc_pot  = {x:sc_pot.time, $
              y:(-1.)*sc_pot.comp1, $ ;;Reverse sign of pot for use with GET_2DT_TS_POT
@@ -633,7 +598,8 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
 
   GET_2DT_TS_POT,'j_2d_fs','fa_'+ieb_or_ies,name='Ji_up',t1=t1,t2=t2, $
                  energy=energy_ions,angle=ion_angle, $
-                 sc_pot=sc_pot
+                 sc_pot=sc_pot, $
+                 CALIB=calib
   ;; ylim,'Ji_up',1.e5,1.e8,1 	; set y limits
   ;; options,'Ji_up','tplot_routine','pmplot' 	; set 2 color plot
   ;; options,'Ji_up','labels',['Downgoing!C Ions','Upgoing!C Ions '] 	; set color label
@@ -669,7 +635,9 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
 
      var_name='Eesa_Energy'
      get_en_spec,T1=t1Zoom,T2=t2Zoom, $
-                 'fa_'+eeb_or_ees+'_c',name=var_name,units='eflux',RETRACE=1
+                 'fa_'+eeb_or_ees+'_c',name=var_name,units='eflux', $
+                 CALIB=calib, $
+                 RETRACE=1
      get_data,var_name, data=data
      data.y = alog10(data.y)
      store_data,var_name, data=data
@@ -695,7 +663,8 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
 ; ELECTRON PITCH ANGLE
 
   var_name='Eesa_Angle'
-  get_pa_spec,"fa_"+eeb_or_ees+"_c",units='eflux',name=var_name,energy=energy_electrons
+  get_pa_spec,"fa_"+eeb_or_ees+"_c",units='eflux',name=var_name,energy=energy_electrons, $
+              CALIB=calib
   ;; get_data,var_name, data=data 
   ;; data.y = alog10(data.y)
   ;; store_data,var_name, data=data
@@ -713,18 +682,18 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
   bb = where (data.v gt 270.,nb)
   if (nb gt 0) then data.v(bb)=data.v(bb)-360.
   nn = n_elements(data.x)
-  for n = 0,nn-1L do begin & $
-     bs = sort (data.v(n,*)) & $
-     data.v(n,*)=data.v(n,bs) & $
-     data.y(n,*)=data.y(n,bs) & $
-     endfor
-     store_data,var_name, data=data
-     options,var_name,'yminor',9
-     options,var_name,'yticks',4
-     options,var_name,'ytickv',[-90,0,90,180,270]
-     ylim,var_name,-90,270,0
+  for n = 0,nn-1L do begin
+     bs = sort (data.v(n,*))
+     data.v(n,*)=data.v(n,bs)
+     data.y(n,*)=data.y(n,bs)
+  endfor
+  store_data,var_name, data=data
+  options,var_name,'yminor',9
+  options,var_name,'yticks',4
+  options,var_name,'ytickv',[-90,0,90,180,270]
+  ylim,var_name,-90,270,0
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
+  if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
 ; reset time limits if needed
 
@@ -750,7 +719,8 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
      GET_2DT_TS_POT,'j_2d_b','fa_eeb',t1=t1Zoom,t2=t2Zoom, $
                     name='Je_tot', $
                     energy=energy_electrons, $
-                    SC_POT=sc_pot
+                    SC_POT=sc_pot, $
+                    CALIBRATE=calib
      
      GET_DATA,'Je_tot',DATA=tmp
      keep1          = WHERE(FINITE(tmp.y))
@@ -785,15 +755,18 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
      GET_2DT_TS_POT,'j_2d_b','fa_ieb',t1=t1Zoom,t2=t2Zoom, $
                     name='Ji_tot', $
                     energy=[0,energy_ions[1]], $
+                    CALIB=calib, $
                     SC_POT=sc_pot
      GET_2DT_TS_POT,'j_2d_b','fa_ies',t1=t1Zoom,t2=t2Zoom, $
                     name='Ji_tot_S', $
                     energy=[0,energy_ions[1]], $
                     angle=[180,360], $
+                    CALIB=calib, $
                     SC_POT=sc_pot
      GET_2DT_TS_POT,'j_2d_b','fa_ees',t1=t1Zoom,t2=t2Zoom, $
                     name='Je_tot_S', $
                     energy=energy_electrons, $
+                    CALIB=calib, $
                     SC_POT=sc_pot
      
      ;;First, burst ion data

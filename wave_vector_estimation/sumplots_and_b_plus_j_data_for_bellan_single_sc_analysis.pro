@@ -41,6 +41,18 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
    SKIP_DB_EAST_PANEL=skip_dB_east_panel, $
    LOGPLOTS=logPlots
 
+  IF N_ELEMENTS(calib) EQ 0 THEN BEGIN
+     calib            = 1B
+  ENDIF
+
+  IF N_ELEMENTS(retrace) EQ 0 THEN BEGIN
+     retrace          = 1B
+  ENDIF
+
+  IF N_ELEMENTS(repair) EQ 0 THEN BEGIN
+     repair           = 1B
+  ENDIF
+
   highEESAZLim        = 1.D9
   highestEESAZLim     = 1.D10
   lowEESAZLim         = 1.D7
@@ -366,8 +378,14 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
   IF (nn GT 1) THEN FOR n = nn-1L,1L,-1L DO STORE_DATA,data_quants[n].name,/DELETE
 
-  field  = GET_FA_FIELDS('MagDC',t1Zoom-10,t2Zoom+10,/STORE)
-  magAC = GET_FA_FIELDS('Mag3ac_S',t1Zoom-10,t2Zoom+10,/STORE)
+  field  = GET_FA_FIELDS('MagDC',t1Zoom-10,t2Zoom+10, $
+                         /STORE, $
+                         CALIBRATE=calib, $
+                         REPAIR=repair)
+  magAC = GET_FA_FIELDS('Mag3ac_S',t1Zoom-10,t2Zoom+10, $
+                        /STORE, $
+                        CALIBRATE=calib, $
+                        REPAIR=repair)
 
   magVar = 'MAGDATA'
 
@@ -453,11 +471,19 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   IF (nb4 GT 0) THEN IF STRPOS(result(b(0)+1),'Points (cur/aloc): 0       /') GE 0 THEN nb4 = 0
   b = WHERE(STRPOS(result,'V1-V2_S') GE 0,nb2)
   IF (nb2 GT 0) THEN IF STRPOS(result(b(0)+1),'Points (cur/aloc): 0       /') GE 0 THEN nb2 = 0
-  IF (nb4 GT 0) THEN v12 = GET_FA_FIELDS('V1-V4_S',/all) $
-  ELSE IF (nb2 GT 0) THEN v12 = GET_FA_FIELDS('V1-V2_S',/all)
+  IF (nb4 GT 0) THEN v12 = GET_FA_FIELDS('V1-V4_S', $
+                                         /all, $
+                                         CALIBRATE=calib, $
+                                         REPAIR=repair) $
+  ELSE IF (nb2 GT 0) THEN v12 = GET_FA_FIELDS('V1-V2_S', $
+                                              /all, $
+                                              CALIBRATE=calib, $
+                                              REPAIR=repair)
 
   b = WHERE(STRPOS(result,'V5-V8_S') GE 0,nb5)
-  IF (nb5 GT 0) THEN v58 = GET_FA_FIELDS('V5-V8_S',/all)
+  IF (nb5 GT 0) THEN v58 = GET_FA_FIELDS('V5-V8_S',/all, $
+                                         CALIBRATE=calib, $
+                                         REPAIR=repair)
 
   got_efield = (nb4 GT 0 or nb2 GT 0) and nb5 GT 0
 
@@ -528,23 +554,36 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      ;; store_data,'EFIT_ALONG_V',/delete
 
      t = 0.
-     dat=get_fa_fields('V5-V8_S',t,/start)
+     dat=get_fa_fields('V5-V8_S',t, $
+                       /start, $
+                       CALIBRATE=calib, $
+                       REPAIR=repair)
      IF dat.valid EQ 0 THEN BEGIN
         print,' ERROR: No FAST V5-V8 data-get_fa_fields returned invalid data'
         data_valid=0.0
      ENDIF ELSE BEGIN
 
-        efieldV58=get_fa_fields('V5-V8_S',t1Zoom,t2Zoom)
-        efieldV1214=get_fa_fields('V1-V2_S',t1Zoom,t2Zoom)
+        efieldV58=get_fa_fields('V5-V8_S',t1Zoom,t2Zoom, $
+                                CALIBRATE=calib, $
+                                REPAIR=repair)
+        efieldV1214=get_fa_fields('V1-V2_S',t1Zoom,t2Zoom, $
+                                  CALIBRATE=calib, $
+                                  REPAIR=repair)
         IF efieldV1214.valid EQ 0 THEN BEGIN
            print,'No V1-V2_S data - trying V1-V4_S'
-           efieldV1214=get_fa_fields('V1-V4_S',t1Zoom,t2Zoom)
+           efieldV1214=get_fa_fields('V1-V4_S',t1Zoom,t2Zoom, $
+                                     CALIBRATE=calib, $
+                                     REPAIR=repair)
            IF efieldV1214.valid EQ 0 AND KEYWORD_SET(burst) THEN BEGIN
               print,'No V1-V4_S data - trying V1-V2_4k (burst)'
-              efieldV1214=get_fa_fields('V1-V2_4k',t1Zoom,t2Zoom)
+              efieldV1214=get_fa_fields('V1-V2_4k',t1Zoom,t2Zoom, $
+                                        CALIBRATE=calib, $
+                                        REPAIR=repair)
               IF efieldV1214.valid EQ 0 THEN BEGIN
                  print,'No V1-V2_4k data - trying V1-V4_4k (burst)'
-                 efieldV1214=get_fa_fields('V1-V4_4k',t1Zoom,t2Zoom)
+                 efieldV1214=get_fa_fields('V1-V4_4k',t1Zoom,t2Zoom, $
+                                           CALIBRATE=calib, $
+                                           REPAIR=repair)
                  IF efieldV1214.valid EQ 0 THEN BEGIN
                     print,'No FAST fields data-get_fa_fields returned invalid data'
                     data_valid=0.0
@@ -668,7 +707,10 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   ;; IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[ESpecVar] ELSE tPlt_vars=[ESpecVar,tPlt_vars]
 
   IF KEYWORD_SET(skip_despin) THEN BEGIN
-     field    = GET_FA_FIELDS('MagDC',t1Zoom,t2Zoom,/STORE)
+     field    = GET_FA_FIELDS('MagDC',t1Zoom,t2Zoom, $
+                              /STORE, $
+                              CALIBRATE=calib, $
+                              REPAIR=repair)
 
      GET_DATA,'MagDCcomp1',data=magz
      GET_DATA,'MagDCcomp2',data=magx
@@ -865,8 +907,13 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
      var_name = 'Iesa_Energy'
      GET_EN_SPEC,T1=t1Zoom,T2=t2Zoom, $
-                 'fa_'+ieb_or_ies+'_c',NAME=var_name,UNITS='eflux',ANGLE=ion_angle
-
+                 'fa_'+ieb_or_ies+'_c', $
+                 NAME=var_name, $
+                 UNITS='eflux', $
+                 ANGLE=ion_angle, $
+                 CALIB=calib, $
+                 REPAIR=repair
+	
      ;;Logger
      GET_DATA,var_name,DATA=data
      data.y = ALOG10(data.y)
@@ -918,7 +965,11 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
   ;; ION PITCH ANGLE
   var_NAME='Iesa_Angle'
-  GET_PA_SPEC,"fa_"+ieb_or_ies+"_c",UNITS='eflux',NAME=var_name,ENERGY=energy_ions
+  GET_PA_SPEC,"fa_"+ieb_or_ies+"_c",UNITS='eflux', $
+              NAME=var_name, $
+              ENERGY=energy_ions, $
+              CALIB=calib, $
+              RETRACE=retrace
 
   ;;Logger
   GET_DATA,var_name,DATA=data
@@ -1015,7 +1066,9 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   ;;Get potential
   sc_pot  = GET_FA_POTENTIAL(t1Zoom,t2Zoom, $
                              ;; /SPIN, $
-                             /REPAIR)
+                             ;; /REPAIR, $
+                             ;; CALIBRATE=calib, $
+                             REPAIR=repair)
 
   IF sc_pot.valid THEN BEGIN
      sc_pot  = {x:sc_pot.time, $
@@ -1084,7 +1137,11 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
      var_NAME='Eesa_Energy'
      GET_EN_SPEC,T1=t1Zoom,T2=t2Zoom, $
-                 'fa_'+eeb_or_ees+'_c',NAME=var_name,UNITS='eflux',RETRACE=1
+                 'fa_'+eeb_or_ees+'_c', $
+                 NAME=var_name, $
+                 UNITS='eflux', $
+                 CALIB=calib, $
+                 RETRACE=1
 
      ;;Logger
      GET_DATA,var_name,DATA=data
@@ -1136,7 +1193,12 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 ; ELECTRON PITCH ANGLE
 
   var_NAME='Eesa_Angle'
-  GET_PA_SPEC,"fa_"+eeb_or_ees+"_c",UNITS='eflux',NAME=var_name,ENERGY=energy_electrons
+  GET_PA_SPEC,"fa_"+eeb_or_ees+"_c", $
+              UNITS='eflux', $
+              NAME=var_name, $
+              ENERGY=energy_electrons, $
+              CALIB=calib, $
+              RETRACE=retrace
 
   ;;Logger
   GET_DATA,var_name,DATA=data
@@ -1232,7 +1294,8 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   GET_2DT_TS_POT,'j_2d_b','fa_eeb',T1=t1Zoom,T2=t2Zoom, $
                  NAME='Je_tot', $
                  ENERGY=energy_electrons, $
-                 SC_POT=(sc_pot.valid ? sc_pot : !NULL)
+                 SC_POT=(sc_pot.valid ? sc_pot : !NULL), $
+                 CALIB=calib
 
   GET_DATA,'Je_tot',DATA=tmp
   keep1          = WHERE(FINITE(tmp.y))
@@ -1269,18 +1332,21 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
                     NAME='Ji_tot', $
                     ENERGY=[0,energy_ions[1]], $
                     ANGLE=ion_angle, $
-                    SC_POT=(sc_pot.valid ? sc_pot : !NULL)
+                    SC_POT=(sc_pot.valid ? sc_pot : !NULL), $
+                    CALIB=calib
 
      GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=t1Zoom,T2=t2Zoom, $
                     NAME='Ji_tot_S', $
                     ENERGY=[0,energy_ions[1]], $
                     ANGLE=ion_angle, $
-                    SC_POT=(sc_pot.valid ? sc_pot : !NULL)
+                    SC_POT=(sc_pot.valid ? sc_pot : !NULL), $
+                    CALIB=calib
 
      GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=t1Zoom,T2=t2Zoom, $
                     NAME='Je_tot_S', $
                     ENERGY=energy_electrons, $
-                    SC_POT=(sc_pot.valid ? sc_pot : !NULL)
+                    SC_POT=(sc_pot.valid ? sc_pot : !NULL), $
+                    CALIB=calib
 
      ;;First, burst ion data
      GET_DATA,'Ji_tot',DATA=tmp
