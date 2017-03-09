@@ -27,6 +27,7 @@ PRO JOURNAL__20170225__ORBIT_9585__FOR_PRE8_PROCEEDINGS, $
    TLIMIT_NORTH=tlimit_north, $
    TLIMIT_SOUTH=tlimit_south, $
    TLIMIT_ALL=tlimit_all, $
+   ION_ANGLE=ion_angle, $
    SCREEN_PLOT=screen_plot, $
    USE_DB_FAC=use_db_fac, $
    SKIP_DESPIN=skip_despin, $
@@ -37,10 +38,14 @@ PRO JOURNAL__20170225__ORBIT_9585__FOR_PRE8_PROCEEDINGS, $
    TPLOT_RIGHTNOW=tPlot_rightNow, $
    SAVE_B_AND_J_DATA=save_B_and_J_data, $
    ANCILLARY_PLOTS=ancillary_plots, $
-   ADD_TIMEBAR=add_timebar
+   ADD_TIMEBAR=add_timebar, $
+   TIMEBAR_THICK=timeBar_thick, $
+   SKIP_DB_EAST_PANEL=skip_dB_east_panel
 
   eeb_or_ees        = 'eeb'
   ieb_or_ies        = 'ieb'
+
+  skip_dB_east_panel = 1
 
   plotPref          = '-PRE_VIII-Fig_1'
   saveSuff          = '-with_sc_pot'
@@ -61,7 +66,8 @@ PRO JOURNAL__20170225__ORBIT_9585__FOR_PRE8_PROCEEDINGS, $
   plotDirSuff       = '/PREVIII_proceedings'
 
   EESA_lims         = [1D7,1D10]
-  IESA_lims         = [1D5,1D8]
+  IESA_lims         = [1D6,1D8]
+  Ienergy_dE_lims   = [1D6,1D9]
 
   SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      T1=t1, $
@@ -74,7 +80,11 @@ PRO JOURNAL__20170225__ORBIT_9585__FOR_PRE8_PROCEEDINGS, $
      ENERGY_IONS=energy_ions, $
      ION_ANGLE=ion_angle, $
      EESA_LIMS=EESA_lims, $
+     EESA_ANGLE_DE_LIMS=Eangle_dE_lims, $
+     EESA_ENERGY_DE_LIMS=Eenergy_dE_lims, $
      IESA_LIMS=IESA_lims, $     
+     IESA_ANGLE_DE_LIMS=Iangle_dE_lims, $
+     IESA_ENERGY_DE_LIMS=Ienergy_dE_lims, $
      TPLT_VARS=tPlt_vars, $
      PLOT_NORTH=plot_north, $
      PLOT_SOUTH=plot_south, $
@@ -96,8 +106,9 @@ PRO JOURNAL__20170225__ORBIT_9585__FOR_PRE8_PROCEEDINGS, $
      ANCILLARY_PLOTS=ancillary_plots, $
      BONUSSUFF=bonusSuff, $
      PLOTDIRSUFF=plotDirSuff, $
-     ADD_TIMEBAR=add_timebar
-
+     ADD_TIMEBAR=add_timebar, $
+     TIMEBAR_THICK=timeBar_thick, $
+     SKIP_DB_EAST_PANEL=skip_dB_east_panel
 
 END
 

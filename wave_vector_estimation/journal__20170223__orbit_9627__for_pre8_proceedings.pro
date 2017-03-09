@@ -37,7 +37,9 @@ PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
    TPLOT_RIGHTNOW=tPlot_rightNow, $
    SAVE_B_AND_J_DATA=save_B_and_J_data, $
    ANCILLARY_PLOTS=ancillary_plots, $
-   ADD_TIMEBAR=add_timebar
+   ADD_TIMEBAR=add_timebar, $
+   TIMEBAR_THICK=timeBar_thick, $
+   SKIP_DB_EAST_PANEL=skip_dB_east_panel
 
   eeb_or_ees        = 'eeb'
   ieb_or_ies        = 'ieb'
@@ -48,17 +50,18 @@ PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
   orbit             = 9627
 
   dato              = '1999-01-27/'
-  t1                = dato + '11:32:34.2'
-  t2                = dato + '11:33:26.5'
+  t1                = dato + '11:32:35.1'
+  t2                = dato + '11:33:24.0'
 
   ;; timeBar_times     = dato + ['11:32:42.211','11:33:24.344']
   ;; timeBar_times     = dato + ['11:32:44','11:33:09']
-  timeBar_times     = dato + ['11:32:52','11:33:09']
+  timeBar_times     = dato + ['11:32:51.5','11:33:09.5']
 
   plotDirSuff       = '/PREVIII_proceedings'
 
   EESA_lims         = [1D7,1D10]
-  IESA_lims         = [1D5,1D8]
+  IESA_lims         = [1D6,1D8]
+  Ienergy_dE_lims   = [1D6,1D8]
 
   ;; PLOT_FA_CROSSING,ORBIT=orbit,/MAGPOLE,/SOUTH
   ;; PLOT_FA_CROSSING,TMIN=STR_TO_TIME(timebar_times[0]),TMAX=STR_TO_TIME(timebar_times[1]),/magpole,/south,/zoom,/fill,/WHOLE
@@ -74,7 +77,11 @@ PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
      ENERGY_IONS=energy_ions, $
      ION_ANGLE=ion_angle, $
      EESA_LIMS=EESA_lims, $
+     EESA_ANGLE_DE_LIMS=Eangle_dE_lims, $
+     EESA_ENERGY_DE_LIMS=Eenergy_dE_lims, $
      IESA_LIMS=IESA_lims, $     
+     IESA_ANGLE_DE_LIMS=Iangle_dE_lims, $
+     IESA_ENERGY_DE_LIMS=Ienergy_dE_lims, $
      TPLT_VARS=tPlt_vars, $
      PLOT_NORTH=plot_north, $
      PLOT_SOUTH=plot_south, $
@@ -96,7 +103,9 @@ PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
      ANCILLARY_PLOTS=ancillary_plots, $
      BONUSSUFF=bonusSuff, $
      PLOTDIRSUFF=plotDirSuff, $
-     ADD_TIMEBAR=add_timebar
+     ADD_TIMEBAR=add_timebar, $
+     TIMEBAR_THICK=timeBar_thick, $
+     SKIP_DB_EAST_PANEL=skip_dB_east_panel
 
 END
 

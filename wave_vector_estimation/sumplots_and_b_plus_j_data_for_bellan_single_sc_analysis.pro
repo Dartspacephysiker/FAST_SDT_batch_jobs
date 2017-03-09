@@ -10,7 +10,11 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
    ENERGY_IONS=energy_ions, $
    ION_ANGLE=ion_angle, $
    EESA_LIMS=EESA_lims, $
+   EESA_ANGLE_DE_LIMS=Eangle_dE_lims, $
+   EESA_ENERGY_DE_LIMS=Eenergy_dE_lims, $
    IESA_LIMS=IESA_lims, $     
+   IESA_ANGLE_DE_LIMS=Iangle_dE_lims, $
+   IESA_ENERGY_DE_LIMS=Ienergy_dE_lims, $
    TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $
    PLOT_SOUTH=plot_south, $
@@ -33,6 +37,8 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
    BONUSSUFF=bonusSuff, $
    PLOTDIRSUFF=plotDirSuff, $
    ADD_TIMEBAR=add_timebar, $
+   TIMEBAR_THICK=timeBar_thick, $
+   SKIP_DB_EAST_PANEL=skip_dB_east_panel, $
    LOGPLOTS=logPlots
 
   highEESAZLim        = 1.D9
@@ -68,11 +74,31 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   savePlot = KEYWORD_SET(save_eps) OR KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)
 
   IF KEYWORD_SET(EESA_lims) THEN BEGIN
+
      ELims = EESA_lims
+
+     IF ~KEYWORD_SET(Eangle_dE_lims) THEN BEGIN
+        Eangle_dE_lims = ELims
+     ENDIF
+
+     IF ~KEYWORD_SET(Eenergy_dE_lims) THEN BEGIN
+        Eenergy_dE_lims = ELims
+     ENDIF
+
   ENDIF
 
   IF KEYWORD_SET(IESA_lims) THEN BEGIN
+
      ILims = IESA_lims
+
+     IF ~KEYWORD_SET(Iangle_dE_lims) THEN BEGIN
+        Iangle_dE_lims = ILims
+     ENDIF
+
+     IF ~KEYWORD_SET(Ienergy_dE_lims) THEN BEGIN
+        Ienergy_dE_lims = ILims
+     ENDIF
+
   ENDIF
 
   IF N_ELEMENTS(logPlots) EQ 0 THEN BEGIN
@@ -105,6 +131,22 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
         ELims            = ALOG10(ELims)
      ENDIF
         
+     IF KEYWORD_SET(Eangle_dE_lims) THEN BEGIN
+        Eangle_dE_lims  = ALOG10(Eangle_dE_lims)
+     ENDIF
+
+     IF KEYWORD_SET(Eenergy_dE_lims) THEN BEGIN
+        Eenergy_dE_lims  = ALOG10(Eenergy_dE_lims)
+     ENDIF
+
+     IF KEYWORD_SET(Iangle_dE_lims) THEN BEGIN
+        Iangle_dE_lims  = ALOG10(Iangle_dE_lims)
+     ENDIF
+
+     IF KEYWORD_SET(Ienergy_dE_lims) THEN BEGIN
+        Ienergy_dE_lims  = ALOG10(Ienergy_dE_lims)
+     ENDIF
+
      IF KEYWORD_SET(ILims) THEN BEGIN
         ILims            = ALOG10(ILims)
      ENDIF
@@ -296,7 +338,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
         TPLOT_PANEL,jtemp.x,MAKE_ARRAY(N_ELEMENTS(jtemp.x),VALUE=0),VARIABLE='jtemp' ;,OPLOTVAR='SC_POT'
 
         IF KEYWORD_SET(add_timebar) THEN BEGIN
-           TIMEBAR,timesBar,COLOR=!D.N_COLORS-4
+           TIMEBAR,timesBar,COLOR=!D.N_COLORS-4,THICK=timeBar_thick
         ENDIF
 
 
@@ -831,9 +873,9 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      STORE_DATA,var_name,DATA=data
 
      ;;Fancy Zlim
-     IF KEYWORD_SET(ILims) THEN BEGIN
-        highZLim     = ILims[1]
-        lowZLim      = ILims[0]
+     IF KEYWORD_SET(Ienergy_dE_lims) THEN BEGIN
+        highZLim     = Ienergy_dE_lims[1]
+        lowZLim      = Ienergy_dE_lims[0]
      ENDIF ELSE BEGIN
         IF ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highestIESAZThresh)))/N_ELEMENTS(data.y)) GE highestIESAZThrPct ) OR $
            ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highIESAZThresh   )))/N_ELEMENTS(data.y)) GE highIESAZThrPct    )    $
@@ -888,9 +930,9 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   STORE_DATA,var_name,DATA=data
 
   ;;Fancy Zlim
-  IF KEYWORD_SET(ILims) THEN BEGIN
-     highZLim     = ILims[1]
-     lowZLim      = ILims[0]
+  IF KEYWORD_SET(Iangle_dE_lims) THEN BEGIN
+     highZLim     = Iangle_dE_lims[1]
+     lowZLim      = Iangle_dE_lims[0]
   ENDIF ELSE BEGIN
      IF ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highestIESAZThresh)))/N_ELEMENTS(data.y)) GE highestIESAZThrPct ) OR $
         ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highIESAZThresh   )))/N_ELEMENTS(data.y)) GE highIESAZThrPct    )    $
@@ -921,9 +963,11 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   OPTIONS,var_name,'y_no_interp',1
   OPTIONS,var_name,'panel_size',2
 
-  OPTIONS,var_name,'yticks',iATicks                ; set y-axis labels
-  OPTIONS,var_name,'ytickname',iATickName ; set y-axis labels
-  OPTIONS,var_name,'ytickv',iATickV        ; set y-axis labels
+  IF KEYWORD_SET(iATicks) THEN BEGIN
+     OPTIONS,var_name,'yticks',iATicks       ; set y-axis labels
+     OPTIONS,var_name,'ytickname',iATickName ; set y-axis labels
+     OPTIONS,var_name,'ytickv',iATickV       ; set y-axis labels
+  ENDIF
   OPTIONS,var_name,'yminor',3
   OPTIONS,var_name,'panel_size',2
 
@@ -1050,9 +1094,9 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      ;; ZLIM,var_name,6,9,0
 
      ;;Fancy Zlim
-     IF KEYWORD_SET(ELims) THEN BEGIN
-        highZLim     = ELims[1]
-        lowZLim      = ELims[0]
+     IF KEYWORD_SET(Eenergy_dE_lims) THEN BEGIN
+        highZLim     = Eenergy_dE_lims[1]
+        lowZLim      = Eenergy_dE_lims[0]
      ENDIF ELSE BEGIN
         IF ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highestEESAZThresh)))/N_ELEMENTS(data.y)) GE highestEESAZThrPct ) OR $
            ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highEESAZThresh   )))/N_ELEMENTS(data.y)) GE highEESAZThrPct    )    $
@@ -1100,9 +1144,9 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   STORE_DATA,var_name,DATA=data
 
   ;;Fancy Zlim
-  IF KEYWORD_SET(ELims) THEN BEGIN
-     highZLim     = ELims[1]
-     lowZLim      = ELims[0]
+  IF KEYWORD_SET(Eangle_dE_lims) THEN BEGIN
+     highZLim     = Eangle_dE_lims[1]
+     lowZLim      = Eangle_dE_lims[0]
   ENDIF ELSE BEGIN
      IF ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highestEESAZThresh)))/N_ELEMENTS(data.y)) GE highestEESAZThrPct ) OR $
         ( (FLOAT(N_ELEMENTS(WHERE(data.y GE highEESAZThresh   )))/N_ELEMENTS(data.y)) GE highEESAZThrPct    )    $
@@ -1445,8 +1489,16 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      ;;             EFieldVar,ESpecVar,magVar,langVar]
      ;; tPlt_vars=['Iesa_Energy','Iesa_Angle','Ji_up','Eesa_Energy','Eesa_Angle', $
      ;;             EFieldVar,magVar,langVar]
-     tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','Je_plot', $
-                 'jtemp','dB_East',EFieldVar]
+  CASE 1 OF
+     KEYWORD_SET(skip_dB_east_panel): BEGIN
+        tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','Je_plot', $
+                   'jtemp',EFieldVar]
+     END
+     ELSE: BEGIN
+        tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','Je_plot', $
+                   'jtemp','dB_East',EFieldVar]
+     END
+  ENDCASE
 
   IF KEYWORD_SET(screen_plot) OR savePlot THEN BEGIN
      
@@ -1502,6 +1554,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      OPTIONS,'Je_plot','labels',['i!U+!N ESA','e!U-!N ESA','Total']
      OPTIONS,'Je_plot','labflag',-1
      OPTIONS,'Je_plot','colors',[140,250,0,0]
+     ;; OPTIONS,'Je_plot','thick',[1.5,1.5,1.,1.]
 
 
      STORE_DATA,'Je_plot',DATA={x:[[tmpe.x],[tmpe.x],[tmpe.x], $
@@ -1518,7 +1571,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      TPLOT_PANEL,magy.x,MAKE_ARRAY(N_ELEMENTS(magy.x),VALUE=0),VARIABLE='jtemp' ;,OPLOTVAR='SC_POT'
 
      IF KEYWORD_SET(add_timebar) THEN BEGIN
-        TIMEBAR,timesBar,COLOR=!D.N_COLORS-4
+        TIMEBAR,timesBar,COLOR=!D.N_COLORS-4,THICK=timeBar_thick
      ENDIF
 
 
