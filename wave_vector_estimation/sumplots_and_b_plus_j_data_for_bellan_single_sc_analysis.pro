@@ -912,7 +912,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
                  UNITS='eflux', $
                  ANGLE=ion_angle, $
                  CALIB=calib, $
-                 REPAIR=repair
+                 RETRACE=retrace
 	
      ;;Logger
      GET_DATA,var_name,DATA=data
