@@ -63,7 +63,7 @@ PRO JOURNAL__20170225__ORBIT_9585__FOR_PRE8_PROCEEDINGS, $
   ;; energy_ions       = [0.,30000.]
   ;; ion_angle         = [180,360]
 
-  plotDirSuff       = '/PREVIII_proceedings'
+  plotDirSuff       = '/wave_vector_estimation/PREVIII_proceedings'
 
   EESA_lims         = [1D7,1D10]
   IESA_lims         = [1D6,1D8]

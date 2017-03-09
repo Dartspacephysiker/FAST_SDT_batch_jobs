@@ -45,7 +45,7 @@ PRO JOURNAL__20170225__ORBIT_6717__FOR_PRE8_PROCEEDINGS, $
   ;;    END
   ;; ENDCASE
 
-  plotDirSuff       = '/PREVIII_proceedings'
+  plotDirSuff       = '/wave_vector_estimation/PREVIII_proceedings'
 
   SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      T1=t1, $

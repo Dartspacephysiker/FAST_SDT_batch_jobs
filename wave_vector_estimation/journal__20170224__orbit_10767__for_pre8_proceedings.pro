@@ -57,7 +57,7 @@ PRO JOURNAL__20170224__ORBIT_10767__FOR_PRE8_PROCEEDINGS, $
   ;; timeBar_times     = dato + ['07:26:45.314','07:27:07.744']
   timeBar_times     = dato + ['07:26:57.000','07:27:09.000']
 
-  plotDirSuff       = '/PREVIII_proceedings'
+  plotDirSuff       = '/wave_vector_estimation/PREVIII_proceedings'
 
   SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      T1=t1, $

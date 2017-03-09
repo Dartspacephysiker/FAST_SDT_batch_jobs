@@ -37,7 +37,7 @@ PRO JOURNAL__20170225__ORBIT_10927__FOR_PRE8_PROCEEDINGS, $
   ;; energy_ions       = [0.,30000.]
   ;; ion_angle         = [180,360]
 
-  plotDirSuff       = '/PREVIII_proceedings'
+  plotDirSuff       = '/wave_vector_estimation/PREVIII_proceedings'
 
   SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      T1=t1, $

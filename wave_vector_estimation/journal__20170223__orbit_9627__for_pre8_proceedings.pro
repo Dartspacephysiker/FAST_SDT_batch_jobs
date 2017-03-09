@@ -57,7 +57,7 @@ PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
   ;; timeBar_times     = dato + ['11:32:44','11:33:09']
   timeBar_times     = dato + ['11:32:51.5','11:33:09.5']
 
-  plotDirSuff       = '/PREVIII_proceedings'
+  plotDirSuff       = '/wave_vector_estimation/PREVIII_proceedings'
 
   EESA_lims         = [1D7,1D10]
   IESA_lims         = [1D6,1D8]

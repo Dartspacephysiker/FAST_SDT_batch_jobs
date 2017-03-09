@@ -17,7 +17,19 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
    ANCILLARY_PLOTS=ancillary_plots, $
    ADD_TIMEBAR=add_timebar
 
-  savePlot = KEYWORD_SET(save_eps) OR KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)
+  IF N_ELEMENTS(calib) EQ 0 THEN BEGIN
+     calib            = 1B
+  ENDIF
+
+  IF N_ELEMENTS(retrace) EQ 0 THEN BEGIN
+     retrace          = 1B
+  ENDIF
+
+  IF N_ELEMENTS(repair) EQ 0 THEN BEGIN
+     repair           = 1B
+  ENDIF
+
+  ;; savePlot = KEYWORD_SET(save_eps) OR KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)
 
   !Y.STYLE = (!Y.STYLE) OR 16
 
@@ -33,7 +45,12 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
   saveFile          = 'Orbit_9585--B_and_J--20161024--fixed_currents--with_sc_pot--bro.sav'
 
   ;;Thel or Tadr?
-  saveFile          = saveFile.Replace('.sav','-'+WHOAMIHOST()+'.sav')
+  saveFile          = saveFile.Replace('.sav','-' + WHOAMIHOST() + '.sav')
+  IF KEYWORD_SET(repair) THEN BEGIN
+     tmpSuff        = 'RepRetCalib'
+     saveFile       = saveFile.Replace('.sav','-' + tmpSuff + '.sav')
+     outPlotName   += tmpSuff
+  ENDIF
   
   IF N_ELEMENTS(ancillary_plots) EQ 0 THEN ancillary_plots = 1
   IF KEYWORD_SET(ancillary_plots) THEN BEGIN
@@ -586,7 +603,6 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
 
   ;;Get potential
   sc_pot  = GET_FA_POTENTIAL(t1Zoom,t2Zoom, $
-                             CALIBRATE=calib, $
                              REPAIR=repair)
 
   sc_pot  = {x:sc_pot.time, $
@@ -720,7 +736,7 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
                     name='Je_tot', $
                     energy=energy_electrons, $
                     SC_POT=sc_pot, $
-                    CALIBRATE=calib
+                    CALIB=calib
      
      GET_DATA,'Je_tot',DATA=tmp
      keep1          = WHERE(FINITE(tmp.y))
@@ -976,7 +992,7 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
 
 
      IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
-        SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/Chaston_et_al_2006'
+        SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/wave_vector_estimation/PREVIII'
      ENDIF
 
      IF KEYWORD_SET(save_png) THEN BEGIN
