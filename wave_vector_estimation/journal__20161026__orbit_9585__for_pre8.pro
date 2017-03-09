@@ -57,7 +57,7 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
   outPlotName      += '--alt_timebar'
   saveFile         += '--alt_timebar'
 
-  timesBar          = STR_TO_TIME(timesBarStr)
+  timeBar_times     = STR_TO_TIME(timesBarStr)
 
   energy_electrons  = [0.,30000.]
   energy_ions       = [0.,24000.]
@@ -835,7 +835,7 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
   ENDIF
 
   IF KEYWORD_SET(save_B_AND_J_data) THEN BEGIN
-     saveDir  = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/'
+     saveDir  = '/SPENCEdata/Research/Satellites/FAST/single_sc_wavevector/saves_output_etc/'
      ;; B_J_file = 'Chaston_et_al_2006--B_and_J.dat'
 
      GET_DATA,'dB_fac_v',DATA=dB_fac_v
@@ -844,7 +844,9 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
      PRINT,'Saving ' + saveFile + ' ...'
      SAVE,Je_z,Ji_z, $
           Je_z_S,Ji_z_S, $
-          dB_fac_v,dB_fac,FILENAME=saveDir+saveFile
+          dB_fac_v,dB_fac, $
+          timeBar_times, $
+          FILENAME=saveDir+saveFile
 
   ENDIF
 
@@ -1041,7 +1043,7 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
         ;;       WINDOW=(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) ? !NULL : -1
 
         ;; IF KEYWORD_SET(add_timebar) THEN BEGIN
-        ;;    TIMEBAR,timesBar,COLOR=!D.N_COLORS-4
+        ;;    TIMEBAR,timeBar_times,COLOR=!D.N_COLORS-4
         ;; ENDIF
 
      ;; ENDIF
@@ -1053,7 +1055,7 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
      TPLOT_PANEL,magy.x,MAKE_ARRAY(N_ELEMENTS(magy.x),VALUE=0),VARIABLE='jtemp' ;,OPLOTVAR='SC_POT'
 
      IF KEYWORD_SET(add_timebar) THEN BEGIN
-        TIMEBAR,timesBar,COLOR=!D.N_COLORS-4
+        TIMEBAR,timeBar_times,COLOR=!D.N_COLORS-4
      ENDIF
 
 
