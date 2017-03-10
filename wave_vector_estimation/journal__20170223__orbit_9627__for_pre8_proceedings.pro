@@ -5,21 +5,6 @@
 ;9627     1999-01-27/11:32:42.211  1999-01-27/11:33:24.344  42.133      115       0.36637   21.549    -34.942
 ;                                                                                                      ^^
 ;                                                                                                      ||
-; create a summary plot of:
-; SFA (AKR)
-; DSP (VLF)
-; Eesa Energy
-; Eesa Angle
-; Iesa Energy
-; Iesa Angle
-; E fit along V (Southern hemisphere corrected)
-; dB_fac_v (dB_fac and dB_SM also stored)
-;
-; Returns:
-; tPlt_vars  - array of tplot variables
-; tlimit_north - tlimits for northern hemisphere
-; tlimit_south - tlimits for southern hemisphere
-; tlimit_all -  tlimits for all the data
 PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
    TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $

@@ -41,7 +41,7 @@ PRO JOURNAL__20161026__ORBIT_9585__FOR_PRE8, $
   eeb_or_ees        = 'eeb'
   ieb_or_ies        = 'ieb'
 
-  outPlotName       = 'Orb_9858--PRE_VIII--Fig_1'
+  outPlotName       = 'Orb_9585--PRE_VIII--Fig_1'
   saveFile          = 'Orbit_9585--B_and_J--20161024--fixed_currents--with_sc_pot--bro.sav'
 
   ;;Thel or Tadr?

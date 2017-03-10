@@ -273,6 +273,12 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   EFieldSpecVar     = 'E_ALONG_V_16k'
   sc_potName        = 'SC_POT'
 
+  IF KEYWORD_SET(repair) THEN BEGIN
+     tmpSuff        = '-' + 'RepRetCalib'
+     saveFile       = saveFile.Replace('.sav',tmpSuff + '.sav')
+     outPlotName   += tmpSuff
+  ENDIF
+
   ;; plotDirSuff       = '/PREVIII_proceedings'
   IF savePlot THEN BEGIN
      SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF=plotDirSuff
