@@ -274,7 +274,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   sc_potName        = 'SC_POT'
 
   IF KEYWORD_SET(repair) THEN BEGIN
-     tmpSuff        = '-' + 'RepRetCalib'
+     tmpSuff        = '-' + 'RRC'
      saveFile       = saveFile.Replace('.sav',tmpSuff + '.sav')
      outPlotName   += tmpSuff
   ENDIF

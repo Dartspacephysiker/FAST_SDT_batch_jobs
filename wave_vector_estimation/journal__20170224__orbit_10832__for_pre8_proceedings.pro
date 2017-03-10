@@ -36,7 +36,10 @@ PRO JOURNAL__20170224__ORBIT_10832__FOR_PRE8_PROCEEDINGS, $
    TPLOT_RIGHTNOW=tPlot_rightNow, $
    SAVE_B_AND_J_DATA=save_B_and_J_data, $
    ANCILLARY_PLOTS=ancillary_plots, $
-   ADD_TIMEBAR=add_timebar
+   ADD_TIMEBAR=add_timebar, $
+   TIMEBAR_THICK=timeBar_thick, $
+   SKIP_DB_EAST_PANEL=skip_dB_east_panel
+
 
   eeb_or_ees        = 'eeb'
   ieb_or_ies        = 'ieb'
@@ -50,11 +53,15 @@ PRO JOURNAL__20170224__ORBIT_10832__FOR_PRE8_PROCEEDINGS, $
   ;; t1                = dato + '07:25:00'
   ;; t2                = dato + '07:29:00'
 
-  t1                = dato + '06:50:35'
-  t2                = dato + '06:51:25'
+  ;; t1                = dato + '06:50:35'
+  ;; t2                = dato + '06:51:25'
+
+  t1                = dato + '06:50:45'
+  t2                = dato + '06:51:20'
 
   ;; timeBar_times     = dato + ['06:50:51.705','06:51:13.791']
-  timeBar_times     = dato + ['06:50:46.5','06:51:13.791']
+  ;; timeBar_times     = dato + ['06:50:46.5','06:51:13.791']
+  timeBar_times     = dato + ['06:50:57.0','06:51:08.0'  ]
 
   ;; energy_electrons  = [0.,30000.]
   ;; energy_ions       = [0.,30000.]
@@ -92,8 +99,9 @@ PRO JOURNAL__20170224__ORBIT_10832__FOR_PRE8_PROCEEDINGS, $
      ANCILLARY_PLOTS=ancillary_plots, $
      BONUSSUFF=bonusSuff, $
      PLOTDIRSUFF=plotDirSuff, $
-     ADD_TIMEBAR=add_timebar
-
+     ADD_TIMEBAR=add_timebar, $
+     TIMEBAR_THICK=timeBar_thick, $
+     SKIP_DB_EAST_PANEL=skip_dB_east_panel
 
 END
 
