@@ -31,7 +31,7 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   plot_jv_a_la_Elphic     = 0B
   a_la_Elphic_spName      = 'errorbarsalso_downgoing_e.png'
 
-  plot_j_v_potBar         = 1B
+  plot_j_v_potBar         = 0B
   jvpotBar_spName         = 'j_vs_potBar__downgoing_e.png'
   jvpotBar__j_on_yAxis    = 1
 
@@ -92,7 +92,8 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   label                   = ['downgoing_e','upgoing_e','upgoing_i']
 
   ;;OPTIONS! OPTIONS! OPTIONS!
-  aRange__moments_e_down  = [315.,45.]
+  ;; aRange__moments_e_down  = [315.,45.]
+  aRange__moments_e_down  = 'lc'
   aRange__moments_i_up    = [0.,360.]
 
   label__which_eeb        = [0,0,1]
@@ -106,7 +107,8 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   upgoingArr                      = [0,1,1]
 
   ;; energyArr               = [[4e1,3.0e4],[4e1,3.0e4],[4,2.4e4]]
-  use_sc_pot_for_lowerbound = 1
+  ;; use_sc_pot_for_lowerbound = 1
+  use_sc_pot_for_lowerbound = 0
   energyArr               = [[300,3.0e4],[0,3.0e4],[0,2.4e4]]
 
   ;; min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : 500
@@ -182,5 +184,145 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
                       ORIGINATING_ROUTINE=routName, $
                       PLOTDIR=plotDir
   ENDIF
+
+  ;; SAVE,KnightRelat30,KnightRelat300,KnightRelat3000,jvplotdata,FILENAME=
+  ;; RESTORE,'
+  negcur_i      = WHERE(jvplotdata.cur LE 0)
+  negcur_i      = negcur_i[SORT(jvplotdata.pot[negcur_i])]
+  KnightRelat30 = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[negcur_i], $
+                                                   jvplotdata.ndown[negcur_i], $
+                                                   jvplotdata.pot[negcur_i], $
+                                                   30, $
+                                                   /NO_MULT_BY_CHARGE, $
+                                                   OUT_POTBAR=pb30) ; /(-1D-6)
+  KnightRelat300 = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[negcur_i], $
+                                                    jvplotdata.ndown[negcur_i], $
+                                                    jvplotdata.pot[negcur_i], $
+                                                    300, $
+                                                    /NO_MULT_BY_CHARGE, $
+                                                    OUT_POTBAR=pb300) ; /(-1D-6)
+  KnightRelat3000 = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[negcur_i], $
+                                                     jvplotdata.ndown[negcur_i], $
+                                                     jvplotdata.pot[negcur_i], $
+                                                     3000, $
+                                                     /NO_MULT_BY_CHARGE, $
+                                                     OUT_POTBAR=pb3000) ; /(-1D-6)
+
+  kappa = 2.0
+  kappa1 = 1.6
+  kRelat30 = KNIGHT_RELATION__DORS_KLETZING_11(kappa,jvplotdata.tdown[negcur_i], $
+                                                   jvplotdata.ndown[negcur_i], $
+                                                   jvplotdata.pot[negcur_i], $
+                                                   30, $
+                                                   /NO_MULT_BY_CHARGE, $
+                                                   OUT_POTBAR=pb30) ; /(-1D-6)
+  kRelat300 = KNIGHT_RELATION__DORS_KLETZING_11(kappa,jvplotdata.tdown[negcur_i], $
+                                                    jvplotdata.ndown[negcur_i], $
+                                                    jvplotdata.pot[negcur_i], $
+                                                    300, $
+                                                    /NO_MULT_BY_CHARGE, $
+                                                    OUT_POTBAR=pb300) ; /(-1D-6)
+  kRelat3000 = KNIGHT_RELATION__DORS_KLETZING_11(kappa,jvplotdata.tdown[negcur_i], $
+                                                     jvplotdata.ndown[negcur_i], $
+                                                     jvplotdata.pot[negcur_i], $
+                                                     3000, $
+                                                     /NO_MULT_BY_CHARGE, $
+                                                     OUT_POTBAR=pb3000) ; /(-1D-6)
+  kRelat3001 = KNIGHT_RELATION__DORS_KLETZING_11(kappa1,jvplotdata.tdown[negcur_i]*20., $
+                                                     jvplotdata.ndown[negcur_i], $
+                                                     jvplotdata.pot[negcur_i], $
+                                                     3000, $
+                                                     /NO_MULT_BY_CHARGE, $
+                                                     OUT_POTBAR=pb3000) ; /(-1D-6)
+
+  ;;The points that have a clear affinity for kappa = 2
+  thesepointslovekappa_ii = WHERE((jvplotdata.pot[negcur_i] LE 4000) AND (jvplotdata.cur[negcur_i]*(-1D-6) GE 1D-6),nLovers)
+  PRINT,"THESE POINTS LOVE KAPPA=2.0"
+  nestie = negcur_i[thesepointslovekappa_ii]
+  GET_STREAKS,nestie[SORT(nestie)],START_I=nestieStrt_ii,STOP_I=nestieStop_ii,OUT_STREAKLENS=streakLens
+  times = TIME_TO_STR(jvplotdata.time[nestie[SORT(jvplotdata.time[nestie])]],/MS)
+  FOR k=0,nLovers-1 DO BEGIN
+     PRINT,TIME_TO_STR(jvplotdata.time[nestie[k]])
+  ENDFOR
+
+  wind     = WINDOW(DIMENSIONS=[1000,800])
+  yLog     = 0
+  dataplot = PLOT(jvplotdata.pot[negcur_i], $
+                  jvplotdata.cur[negcur_i]*(-1D-6), $
+                  LINESTYLE='', $
+                  SYMBOL='o', $
+                  XTITLE='Potential (V)', $
+                  YTITLE='Current density ($\mu$A/m!U2!N), mapped to 100km', $
+                  NAME='Data', $
+                  YLOG=yLog, $
+                  /CURRENT)
+  ;; kr30plot = PLOT(jvplotdata.pot[negcur_i], $
+  ;;                 KnightRelat30, $
+  ;;                 TRANSPARENCY=30, $
+  ;;                 LINESTYLE='', $
+  ;;                 SYMBOL='*', $
+  ;;                 COLOR='Green', $
+  ;;                 /OVERPLOT, $
+  ;;                 NAME='R!DB!N = 30')
+  ;; kr300plot = PLOT(jvplotdata.pot[negcur_i], $
+  ;;                  KnightRelat300, $
+  ;;                  TRANSPARENCY=30, $
+  ;;                  LINESTYLE='', $
+  ;;                  SYMBOL='*', $
+  ;;                  COLOR='Blue', $
+  ;;                  /OVERPLOT, $
+  ;;                  NAME='R!DB!N = 300')
+  kr3000plot = PLOT(jvplotdata.pot[negcur_i], $
+                    KnightRelat3000, $
+                    TRANSPARENCY=30, $
+                    LINESTYLE='', $
+                    SYMBOL='*', $
+                    COLOR='Red', $
+                    /OVERPLOT, $
+                    NAME='R!DB!N = 3000')
+
+  ;; kap30plot = PLOT(jvplotdata.pot[negcur_i], $
+  ;;                 kRelat30, $
+  ;;                 TRANSPARENCY=30, $
+  ;;                 LINESTYLE='', $
+  ;;                 SYMBOL='x', $
+  ;;                 COLOR='Brown', $
+  ;;                 /OVERPLOT, $
+  ;;                 NAME='R!DB!N = 30')
+  ;; kap300plot = PLOT(jvplotdata.pot[negcur_i], $
+  ;;                  kRelat300, $
+  ;;                  TRANSPARENCY=30, $
+  ;;                  LINESTYLE='', $
+  ;;                  SYMBOL='x', $
+  ;;                  COLOR='dark green', $
+  ;;                  /OVERPLOT, $
+  ;;                  NAME='R!DB!N = 300')
+  kap3000plot = PLOT(jvplotdata.pot[negcur_i], $
+                    kRelat3000, $
+                    TRANSPARENCY=30, $
+                    LINESTYLE='', $
+                    SYMBOL='x', $
+                    COLOR='Purple', $
+                    /OVERPLOT, $
+                    NAME='R!DB!N = 3000 ($\kappa$=2.0)')
+  kap3001plot = PLOT(jvplotdata.pot[negcur_i], $
+                    kRelat3001, $
+                    TRANSPARENCY=30, $
+                    LINESTYLE='', $
+                    SYMBOL='tu', $
+                    COLOR='Brown', $
+                    /OVERPLOT, $
+                    NAME='R!DB!N = 3000 ($\kappa$=1.6,T*=20)')
+
+  leg = LEGEND(TARGET=[dataplot, $
+                       ;; kr30plot, $
+                       ;; kr300plot, $
+                       kr3000plot, $
+                       ;; kap30plot, $
+                       ;; kap300plot, $
+                       kap3000plot, $
+                       kap3001plot])
+
+  STOP
 
 END

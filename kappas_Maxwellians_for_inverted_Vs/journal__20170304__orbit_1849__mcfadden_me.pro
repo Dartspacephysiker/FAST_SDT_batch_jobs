@@ -1,4 +1,5 @@
 ;2017/03/04
+;2017/03/11 Try what's at the bottom of the joinal
 PRO JOURNAL__20170304__ORBIT_1849__MCFADDEN_ME
 
   COMPILE_OPT IDL2
@@ -70,7 +71,8 @@ PRO JOURNAL__20170304__ORBIT_1849__MCFADDEN_ME
   label                   = ['downgoing_e','upgoing_e','upgoing_i']
 
   ;;OPTIONS! OPTIONS! OPTIONS!
-  aRange__moments_e_down  = [315.,45.]
+  ;; aRange__moments_e_down  = [315.,45.]
+  aRange__moments_e_down  = 'lc'
   aRange__moments_i_up    = [0.,360.]
 
   label__which_eeb        = [0,0,1]
@@ -83,7 +85,7 @@ PRO JOURNAL__20170304__ORBIT_1849__MCFADDEN_ME
   peak_energy__start_at_highEArr  = [0,1,1]
   upgoingArr                      = [0,1,1]
 
-  use_sc_pot_for_lowerbound = 1
+  use_sc_pot_for_lowerbound = 0
   energyArr               = [[500,3.0e4],[0,3.0e4],[0,2.4e4]]
 
   ;; min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : 500
@@ -115,6 +117,9 @@ PRO JOURNAL__20170304__ORBIT_1849__MCFADDEN_ME
      WHICH_TIMES__LABEL=label__which_times, $
      ENERGYARR=energyArr, $
      USE_SC_POT_FOR_LOWERBOUND=use_sc_pot_for_lowerbound, $
+     POT__FROM_FA_POTENTIAL=pot__from_fa_potential, $
+     POT__CHASTON_STYLE=pot__Chaston_style, $
+     POT__FROM_FILE=pot__from_file, $
      ARANGE__MOMENTS_LIST=aRange__moments_list, $
      ARANGE__PEAKEN_LIST=aRange__peakEn_list, $
      ARANGE__CHARE_LIST=aRange__charE_list, $
@@ -160,5 +165,67 @@ PRO JOURNAL__20170304__ORBIT_1849__MCFADDEN_ME
                       PLOTDIR=plotDir
   ENDIF
 
+  ;; SAVE,KnightRelat30,KnightRelat300,KnightRelat3000,jvplotdata,FILENAME=
+  ;; RESTORE,'
+  negcur_i      = WHERE(jvplotdata.cur LE 0)
+  negcur_i      = negcur_i[SORT(jvplotdata.pot[negcur_i])]
+  KnightRelat30 = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[negcur_i], $
+                                                   jvplotdata.ndown[negcur_i], $
+                                                   jvplotdata.pot[negcur_i], $
+                                                   30, $
+                                                   /NO_MULT_BY_CHARGE, $
+                                                   OUT_POTBAR=pb30) ; /(-1D-6)
+  KnightRelat300 = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[negcur_i], $
+                                                    jvplotdata.ndown[negcur_i], $
+                                                    jvplotdata.pot[negcur_i], $
+                                                    300, $
+                                                    /NO_MULT_BY_CHARGE, $
+                                                    OUT_POTBAR=pb300) ; /(-1D-6)
+  KnightRelat3000 = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[negcur_i], $
+                                                     jvplotdata.ndown[negcur_i], $
+                                                     jvplotdata.pot[negcur_i], $
+                                                     3000, $
+                                                     /NO_MULT_BY_CHARGE, $
+                                                     OUT_POTBAR=pb3000) ; /(-1D-6)
+
+  dataplot = PLOT(jvplotdata.pot[negcur_i], $
+                  jvplotdata.cur[negcur_i]*(-1D-6), $
+                  LINESTYLE='', $
+                  SYMBOL='+', $
+                  XTITLE='Potential (V)', $
+                  YTITLE='Current density ($\mu$A/m!U2!N), mapped to 100km', $
+                  NAME='Data', $
+                  /YLOG)
+  kr30plot = PLOT(jvplotdata.pot[negcur_i], $
+                  KnightRelat30, $
+                  TRANSPARENCY=30, $
+                  LINESTYLE='', $
+                  SYMBOL='*', $
+                  COLOR='Green', $
+                  /OVERPLOT, $
+                  NAME='R!DB!N = 30')
+  kr300plot = PLOT(jvplotdata.pot[negcur_i], $
+                   KnightRelat300, $
+                   TRANSPARENCY=30, $
+                   LINESTYLE='', $
+                   SYMBOL='*', $
+                   COLOR='Blue', $
+                   /OVERPLOT, $
+                   NAME='R!DB!N = 300')
+  kr3000plot = PLOT(jvplotdata.pot[negcur_i], $
+                    KnightRelat3000, $
+                    TRANSPARENCY=30, $
+                    LINESTYLE='', $
+                    SYMBOL='*', $
+                    COLOR='Red', $
+                    /OVERPLOT, $
+                    NAME='R!DB!N = 3000')
+  leg = LEGEND(TARGET=[dataplot, $
+                       kr30plot, $
+                       kr300plot, $
+                       kr3000plot])
+
+  STOP
+  
 END
 
