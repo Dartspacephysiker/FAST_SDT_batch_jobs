@@ -5,6 +5,8 @@
 ;9627     1999-01-27/11:32:42.211  1999-01-27/11:33:24.344  42.133      115       0.36637   21.549    -34.942
 ;                                                                                                      ^^
 ;                                                                                                      ||
+;do it this way:
+;JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS,/SAVE_PS,/ADD_TIMEBAR,TIMEBAR_THICK=2.5,/SKIP_DB_EAST_PANEL,/SAVE_B_AND_J_DATA
 PRO JOURNAL__20170223__ORBIT_9627__FOR_PRE8_PROCEEDINGS, $
    TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $

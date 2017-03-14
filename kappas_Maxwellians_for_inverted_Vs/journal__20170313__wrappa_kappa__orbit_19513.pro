@@ -6,6 +6,12 @@ PRO JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513
 
   routName                = 'JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513'
 
+  ;;get orbTimes here
+  orbit                   = 19513
+  orbTimes                = ['2001-07-19/14:07:56','2001-07-19/14:13:43']
+  orbBurstTimes           = ['2001-07-19/14:07:56','2001-07-19/14:13:43']
+  bonusPref               = '--efter_Elphic_ea_1998--Fig2'
+
   Elphic1998_defaults     = 1
 
   error_estimates         = 1
@@ -17,22 +23,15 @@ PRO JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513
   add_iu_pot              = 1
   use_all_currents        = 1
 
-  interactive_overplot    = 1
-  
   savePlot                = 0
 
   plot_jv_a_la_Elphic     = 0B
-  a_la_Elphic_spName      = 'errorbarsalso_downgoing_e.png'
+  a_la_Elphic_spName      = 'Orbit_' + STRCOMPRESS(orbit,/REMOVE_ALL) + '-errorbarsalso_downgoing_e.png'
 
   plot_j_v_potBar         = 0B
-  jvpotBar_spName         = 'j_vs_potBar__downgoing_e.png'
+  jvpotBar_spName         = 'Orbit_' + STRCOMPRESS(orbit,/REMOVE_ALL) + '-j_vs_potBar__downgoing_e.png'
   jvpotBar__j_on_yAxis    = 1
-
-  ;;get orbTimes here
-  orbit                   = 19513
-  orbTimes                = ['2001-07-19/14:07:56','2001-07-19/14:13:43']
-  orbBurstTimes           = ['2001-07-19/14:07:56','2001-07-19/14:13:43']
-  bonusPref               = '--efter_Elphic_ea_1998--Fig2'
+  interactive_overplot    = 1
 
   ;;They'll just walk up and bring you the keys! MO MONEY MO MONEY MO MONEY
   downTimesStr            = '2001-07-19/' + $
@@ -55,7 +54,7 @@ PRO JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513
   datFile                 = '__Fig2_ingredients.sav'
 
   saveCurPotFile          = '__Fig2_meal.sav'
-  save_diff_eFlux_file    = 0
+  save_diff_eFlux_file    = 1
   load_diff_eFlux_file    = 1
   ;; restore_fitFile         = 0
 

@@ -752,23 +752,27 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      mintime  = MIN(ABS(t1Zoom-db_fac.x),ind1)
      mintime  = MIN(ABS(t2Zoom-db_fac.x),ind2)
 
-     magx     = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,0]}
-     magy     = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,1]}
-     magz     = {x:db_fac.x[ind1:ind2],y:db_fac.y[ind1:ind2,2]}
+     magFullInds = [ind1:ind2]
+
+     magx     = {x:db_fac.x[magFullInds],y:db_fac.y[magFullInds,0]}
+     magy     = {x:db_fac.x[magFullInds],y:db_fac.y[magFullInds,1]}
+     magz     = {x:db_fac.x[magFullInds],y:db_fac.y[magFullInds,2]}
 
      is_despun = 1B
+
+     magyFull = {x:db_fac.x,y:db_fac.y[*,1]}
 
   ENDELSE
 
   ;;Get orbit stuff
-  GET_FA_ORBIT,magy.x,/TIME_ARRAY ;,/all
+  GET_FA_ORBIT,magyFull.x,/TIME_ARRAY ;,/all
 
   ;;Define loss cone angle
   GET_DATA,'ALT',DATA=alt
-  loss_cone_aLT           = alt.y[0]*1000.0
+  loss_cone_alt           = alt.y[magFullInds[0]]*1000.0
   lcw                     = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
   GET_DATA,'ILAT',DATA=ilat
-  north_south             = FIX(ABS(ilat.y[0])/ilat.y[0])
+  north_south             = FIX(ABS(ilat.y[magFullInds[0]])/ilat.y[magFullInds[0]])
 
   IF north_south EQ -1 THEN BEGIN
      e_angle              = [180.-lcw,180+lcw] ; for Southern Hemis.
@@ -814,33 +818,34 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   sign_dILAT              = [sign_dILAT[0],sign_dILAT]
 
   ;;My way
-  mag_dt                  = magy.x[1:-1]-magy.x[0:-2]
+  mag_dt                  = magyFull.x[1:-1]-magyFull.x[0:-2]
   ;; mag_dt                  = [mag_dt[0],mag_dt]
-  speed_mag               = speed[VALUE_CLOSEST2(vel.x,magy.x[1:-1])]
+  speed_mag               = speed[VALUE_CLOSEST2(vel.x,magyFull.x[1:-1])]
   position2               = TOTAL([0,speed_mag*mag_dt],/CUMULATIVE)
 
   ;;Old way
-  old_pos                 = 0.
-  position                = MAKE_ARRAY(N_ELEMENTS(magy.x),/DOUBLE)
-  speed_mag_point         = MAKE_ARRAY(N_ELEMENTS(magy.x),/DOUBLE)
-  FOR j=1L,N_ELEMENTS(magy.x)-1 DO BEGIN
-     speed_point_ind      = MIN(ABS(vel.x-magy.x[j]),ind)
+  ;; old_pos                 = 0.
+  ;; position                = MAKE_ARRAY(N_ELEMENTS(magyFull.x),/DOUBLE)
+  ;; speed_mag_point         = MAKE_ARRAY(N_ELEMENTS(magyFull.x),/DOUBLE)
+  ;; FOR j=1L,N_ELEMENTS(magy.x)-1 DO BEGIN
+  ;;    speed_point_ind      = MIN(ABS(vel.x-magyFull.x[j]),ind)
 
-     speed_mag_point[j]   = speed[ind]
-     samplingperiod       = magy.x[j] - magy.x[j-1]
+  ;;    speed_mag_point[j]   = speed[ind]
+  ;;    samplingperiod       = magyFull.x[j] - magyFull.x[j-1]
 
-     position[j]          = old_pos + speed_mag_point[j]*samplingperiod
-     old_pos              = position[j]
-  ENDFOR
+  ;;    position[j]          = old_pos + speed_mag_point[j]*samplingperiod
+  ;;    old_pos              = position[j]
+  ;; ENDFOR
 
   ;;Pick up inds from mag
-  junk                    = MIN(ABS(magy.x-t1Zoom),minMagInd)
-  junk                    = MIN(ABS(magy.x-t2Zoom),maxMagInd)
-  magInds                 = [minMagInd:maxMagInd]
+  junk                    = MIN(ABS(magyFull.x-t1Zoom),minMagFullInd)
+  junk                    = MIN(ABS(magyFull.x-t2Zoom),maxMagFullInd)
+  magRedInds              = [minMagFullInd:maxMagFullInd]
   ;;Calculate the current from mag
-  deltaBY                 = DERIV(position,SMOOTH(magy.y,5))*sign_dILAT ;Take stock of hemi
-  ;; deltaBY                 = DERIV(position,magy.y)
-  ;; deltaBY                 = DERIV(position,SMOOTH(magy.y,5))
+  ;; deltaBY                 = DERIV(position2,SMOOTH(magy.y,5))*sign_dILAT ;Take stock of hemi
+  deltaBY                 = DERIV(position2,magyFull.y)*sign_dILAT ;Take stock of hemi
+  ;; deltaBY                 = DERIV(position,magyFull.y)
+  ;; deltaBY                 = DERIV(position,SMOOTH(magyFull.y,5))
   ;; jtemp                = ABS(1.0e-3*(deltaBx)/1.26e-6)
   ;; jtemp                = 1.0e-3*(deltaBx)/1.26e-6
   ;;in number flux units
@@ -848,7 +853,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   muLetter = '!4l!X'
   ;; IF KEYWORD_SET(show_currents_not_fluxes) THEN BEGIN
   ;; YLIM,'jtemp',-50,100
-  YLIM,'jtemp',MIN(jtemp[magInds]),MAX(jtemp[magInds])
+  YLIM,'jtemp',MIN(jtemp[magFullInds]),MAX(jtemp[magFullInds])
   ;; OPTIONS,'jtemp','yticks',4                              ; set y-axis labels
   ;; OPTIONS,'jtemp','ytickname',['-2e1','0','2e1','4e1']    ; set y-axis labels
   ;; OPTIONS,'jtemp','ytickv',[-2e1,0,2e1,4e1]               ; set y-axis labels
@@ -863,22 +868,22 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
   ;;    OPTIONS,'jtemp','ytitle','Electron!CFlux!C(cm!U2!Ns!U-1!N)'
   ;; ENDELSE
   sign_jtemp              = ABS(deltaBY)/deltaBY
-  STORE_DATA,'jtemp',DATA={x:magy.x,y:jtemp}
+  STORE_DATA,'jtemp',DATA={x:magyFull.x,y:jtemp}
   ;; OPTIONS,'jtemp','psym','10'
   ;; OPTIONS,'jtemp','fill',1
   ;; OPTIONS,'jtemp','tplot_routine','polyfill_tplot'
   ;; ;; OPTIONS,'jtemp','color','808080'x
   ;; OPTIONS,'jtemp','fill_color',250
-  STORE_DATA,'dB_East',DATA={x:magy.x,y:magy.y-magy.y[minMagInd]+100}
+  STORE_DATA,'dB_East',DATA={x:magyFull.x,y:magyFull.y-magyFull.y[minMagFullInd]+100}
   OPTIONS,'dB_East','ytitle',CGGREEK('Delta') + 'B!DEast!N (nT)' ; y title
-  YLIM,'dB_East',MIN(magy.y[magInds]-magy.y[minMagInd]+100),MAX(magy.y[magInds]-magy.y[minMagInd]+100)
+  YLIM,'dB_East',MIN(magyFull.y[magRedInds]-magyFull.y[minMagFullInd]+100),MAX(magyFull.y[magRedInds]-magyFull.y[minMagFullInd]+100)
 
   yTicks        = 2
   yTickName     = ['200','400']
   yTickV        = [200,400]
   upLim         = 400
   upDelta       = 200
-  WHILE MAX(magy.y[magInds]-magy.y[minMagInd]+100) GT upLim DO BEGIN
+  WHILE MAX(magyFull.y[magRedInds]-magyFull.y[minMagFullInd]+100) GT upLim DO BEGIN
      upLim += upDelta
      yTicks++
      yTickName  = [yTickName,STRING(FORMAT='(I0)',upLim)]
@@ -1430,11 +1435,14 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      GET_DATA,'dB_fac_v',DATA=dB_fac_v
      GET_DATA,'dB_fac',DATA=dB_fac
 
+     magCurrent = jTemp 
+
      PRINT,'Saving ' + saveFile + ' ...'
      SAVE,Je_z,Ji_z, $
           Je_z_S,Ji_z_S, $
           dB_fac_v,dB_fac, $
           orbit, $
+          magCurrent, $
           is_despun, $
           timeBar_times,t1Zoom,t2Zoom, $
           FILENAME=saveDir+saveFile
@@ -1640,7 +1648,7 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
      IF sc_pot.valid THEN BEGIN
         TPLOT_PANEL,sc_pot.x,(-1.)*sc_pot.y,VARIABLE='Iesa_Energy' ;,OPLOTVAR='SC_POT'
      ENDIF
-     TPLOT_PANEL,magy.x,MAKE_ARRAY(N_ELEMENTS(magy.x),VALUE=0),VARIABLE='jtemp' ;,OPLOTVAR='SC_POT'
+     TPLOT_PANEL,magyFull.x,MAKE_ARRAY(N_ELEMENTS(magyFull.x),VALUE=0),VARIABLE='jtemp' ;,OPLOTVAR='SC_POT'
 
      IF KEYWORD_SET(add_timebar) THEN BEGIN
         TIMEBAR,timesBar,COLOR=!D.N_COLORS-4,THICK=timeBar_thick

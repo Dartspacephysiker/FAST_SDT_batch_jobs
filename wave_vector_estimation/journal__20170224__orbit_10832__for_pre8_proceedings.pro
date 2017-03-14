@@ -2,24 +2,8 @@
 ;This is entirely ripped off from Strangeway's batch_summary.pro, gifted to me by that beautiful human, Jack Vernetti
 ;So says my Alf wave DB (via JOURNAL__20161024__LOOK_FOR_STREAKS_OF_ALFVEN_WAVES__BELLAN_METHOD):
 ;
-;9627     1999-01-27/11:32:42.211  1999-01-27/11:33:24.344  42.133      115       0.36637   21.549    -34.942
-;                                                                                                      ^^
-;                                                                                                      ||
-; create a summary plot of:
-; SFA (AKR)
-; DSP (VLF)
-; Eesa Energy
-; Eesa Angle
-; Iesa Energy
-; Iesa Angle
-; E fit along V (Southern hemisphere corrected)
-; dB_fac_v (dB_fac and dB_SM also stored)
-;
-; Returns:
-; tPlt_vars  - array of tplot variables
-; tlimit_north - tlimits for northern hemisphere
-; tlimit_south - tlimits for southern hemisphere
-; tlimit_all -  tlimits for all the data
+;this way:
+;JOURNAL__20170224__ORBIT_10832__FOR_PRE8_PROCEEDINGS,/SKIP_DB_EAST_PANEL,/SAVE_B_AND_J_DATA,/ADD_TIMEBAR,TIMEBAR_THICK=2.5
 PRO JOURNAL__20170224__ORBIT_10832__FOR_PRE8_PROCEEDINGS, $
    TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $
