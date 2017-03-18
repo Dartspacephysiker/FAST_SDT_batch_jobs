@@ -1,13 +1,10 @@
-;;2017/02/22
-PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
+;2017/03/17
+PRO JOURNAL__20170317__ORB_1773__TEMP_AND_DENS_SURFACES
 
-  COMPILE_OPT IDL2
+  COMPILE_OPT IDL2,STRICTARRSUBS
 
-  PRINT,"Info on the routine at the bottom of this pro is out of date and obsolete. Go to the next joinal: JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_REDUCE_J_ERROR."
-  RETURN
+  routName                = 'JOURNAL__20170317__ORB_1773__TEMP_AND_DENS_SURFACES'
 
-  routName                = 'JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL'
-  
   Elphic1998_defaults     = 1
 
   error_estimates         = 1
@@ -15,59 +12,35 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   map_to_100km            = 1
 
   add_oneCount_stats      = 1
-  
-  savePlot                = 1
-  sPName                  = 'errorbarsalso.png'
-  plot_times              = ['1997-02-01/09:25:41.0', $
-                             '1997-02-01/09:27:13.4']
+
+  plot_times              = ['1997-02-01/09:26:10.0', $
+                             '1997-02-01/09:27:07.5']
   plot_t1                 = STR_TO_TIME(plot_times[0])
   plot_t2                 = STR_TO_TIME(plot_times[1])
-
-  ;; sPName                  = 'noErrorBars.png'
-  ;; errorBarFac             = 0.00000001
+  add_iu_pot              = 1
+  use_all_currents        = 1
 
   ;;get orbTimes here
   orbit                   = 1773
-  orbTimes                = ['97-02-01/09:25:40','97-02-01/09:27:13']
-  ;; orbTimes                = ['97-02-01/09:25:40','97-02-01/09:29:30']
-  orbBurstTimes           = ['97-02-01/09:25:40','97-02-01/09:29:30']
-  bonusPref               = '--Elphic_et_al_1998--Fig2'
-
-  ;; downTimesStr            = '1997-02-01/' + $
-  ;;                           [['09:26:12','09:26:23'], $ ;;These are the money times that seem to give good kappa fits
-  ;;                            ['09:26:53','09:27:07.5']]
-
-  ;; downTimesStr            = '1997-02-01/' + $
-  ;;                           [['09:26:12','09:27:07.5']]
-
-  ;; upTimesStr              = '1997-02-01/' + $
-  ;;                           [['09:25:41.0','09:25:49.4'], $
-  ;;                            ['09:25:56.75','09:26:02.9'], $
-  ;;                            ['09:26:04.03','09:26:09.51'], $
-  ;;                            ['09:27:07.1','09:27:13.4']]
+  orbTimes                = ['97-02-01/09:26:10','97-02-01/09:27:07.5']
+  orbBurstTimes           = ['97-02-01/09:26:10','97-02-01/09:27:07.5']
+  bonusPref               = '--Elphic_et_al_1998-Fig2-'+TIMESPAN_STRING__UTC(orbTimes)
 
   ;;They'll just walk up and bring you the keys! MO MONEY MO MONEY MO MONEY
   downTimesStr            = '1997-02-01/' + $
-                            [['09:25:40','09:29:30']]
+                            [['09:26:10','09:27:07.5']]
 
   upTimesStr              = downTimesStr
-
-  ;; timesList               = LIST(downTimes,upTimes)
-
-  ;; kStats_startStops__ees  = LIST('1997-02-01/' + [['09:25:50','09:26:10'], $ ;These are for the downward current regions
-  ;;                                                 ['09:27:05','09:27:15']])
-  ;; kStats_startStops__eeb  = LIST('1997-02-01/' + [['09:26:12','09:26:23'], $
-  ;;                                                 ['09:26:53','09:27:07.5']])
 
   units                   = 'eFlux'
   ;; units                = 'flux'
   ;; units                = 'dfStd'
-  
-  outDir                  = '~/software/sdt/batch_jobs/saves_output_etc/cur_and_pot_analysis/'
-  datFile                 = 'Elphic_et_al__Fig2_ingredients.sav'
 
-  saveCurPotFile          = 'Elphic_et_al__Fig2__meal.sav'
-  save_diff_eFlux_file    = 1
+  outDir                  = '~/software/sdt/batch_jobs/saves_output_etc/cur_and_pot_analysis/'
+  datFile                 = bonusPref + '-ingredients__T_and_n_surfaces.sav'
+
+  saveCurPotFile          = bonusPref + '-meal__T_and_n_surfaces.sav'
+  save_diff_eFlux_file    = 0
   load_diff_eFlux_file    = 1
   ;; restore_fitFile         = 0
 
@@ -82,7 +55,8 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   label                   = ['downgoing_e','upgoing_e','upgoing_i']
 
   ;;OPTIONS! OPTIONS! OPTIONS!
-  aRange__moments_e_down  = [0.,360.]
+  ;; aRange__moments_e_down  = [315.,45.]
+  aRange__moments_e_down  = 'lc'
   aRange__moments_i_up    = [0.,360.]
 
   label__which_eeb        = [0,0,1]
@@ -95,9 +69,8 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
   peak_energy__start_at_highEArr  = [0,1,1]
   upgoingArr                      = [0,1,1]
 
-  ;; energyArr               = [[4e1,3.0e4],[4e1,3.0e4],[4,2.4e4]]
   use_sc_pot_for_lowerbound = 1
-  energyArr               = [[0,3.0e4],[0,3.0e4],[0,2.4e4]]
+  energyArr               = [[100,3.0e4],[0,3.0e4],[0,2.4e4]]
 
   ;; min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : 500
   ;; max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
@@ -142,15 +115,18 @@ PRO JOURNAL__20170222__ORBIT_1773__FIG2TIME__CONTIGUOUS_DOWNGOING_ELECTRON_ITVL
      SAVECURPOTFILE=saveCurPotFile, $
      OUT_CURPOTLIST=curPotList
 
-  PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,curPotList, $
-     ;; T1=plot_t1, $
-     ;; T2=plot_t2, $
-     ORIGINAL_PLOTIDEE=orig_plotIdee, $
-     SAVEPLOT=savePlot, $
-     SPNAME=spName, $
-     ORIGINATING_ROUTINE=routName, $
-     PLOTDIR=plotDir;; , $
-     ;; ERROR_BAR_FACTOR=errorBarFac
+  CURRENT_AND_POTENTIAL_PLOTDATA_PREP,curPotList,jvPlotData, $
+                                      T1=plot_t1, $
+                                      T2=plot_t2, $
+                                      USE_ALL_CURRENTS=use_all_currents, $
+                                      USE_DOWNGOING_ELECTRON_CURRENT=use_ed_current, $
+                                      USE_UPGOING_ION_CURRENT=use_iu_current, $
+                                      USE_UPGOING_ELECTRON_CURRENT=use_eu_current, $
+                                      USE_CHAR_EN_FOR_DOWNPOT=use_charE_for_downPot, $
+                                      USE_PEAK_EN_FOR_DOWNPOT=use_peakE_for_downPot, $
+                                      ADD_UPGOING_ION_POT=add_iu_pot, $
+                                      ERROR_BAR_FACTOR=errorBarFac
+
+
 
 END
-

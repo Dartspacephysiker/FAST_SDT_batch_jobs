@@ -17,48 +17,45 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
 
   add_oneCount_stats      = 1
 
-  plot_times              = ['1997-02-01/09:25:41.0', $
+  ;; plot_times              = ['1997-02-01/09:25:41.0', $
+  ;;                            '1997-02-01/09:27:13.4']
+  plot_times              = ['1997-02-01/09:26:10.0', $
                              '1997-02-01/09:27:13.4']
+
   plot_t1                 = STR_TO_TIME(plot_times[0])
   plot_t2                 = STR_TO_TIME(plot_times[1])
   add_iu_pot              = 1
   use_all_currents        = 1
 
-  interactive_overplot    = 1
+  interactive_overplot    = 0
   
-  savePlot                = 0
+  savePlot                = 1
+  savePSuff               = '__fixedPotQQ'
 
   plot_jv_a_la_Elphic     = 0B
-  a_la_Elphic_spName      = 'errorbarsalso_downgoing_e.png'
+  ;; a_la_Elphic_spName      = 'errorbarsalso_downgoing_e.png'
+  a_la_Elphic_spName      = 'errorbarsalso_downgoing_e' + savePSuff + '.png'
 
   plot_j_v_potBar         = 0B
-  jvpotBar_spName         = 'j_vs_potBar__downgoing_e.png'
+  jvpotBar_spName         = 'j_vs_potBar__downgoing_e' + savePSuff + '.png'
   jvpotBar__j_on_yAxis    = 1
 
+  plot_T_and_N            = 1B
+  TN_spName               = 'T_and_N__downgoing_e' + savePSuff + '.png'
+  
   ;;get orbTimes here
   orbit                   = 1773
-  ;; orbTimes                = ['97-02-01/09:25:40','97-02-01/09:26:30']
-  ;; orbTimes                = ['97-02-01/09:25:40','97-02-01/09:29:30']
-  orbTimes                = ['97-02-01/09:25:40','97-02-01/09:27:13']
-  orbBurstTimes           = ['97-02-01/09:25:40','97-02-01/09:29:30']
+
+
+  orbTimes                = plot_times
+  orbBurstTimes           = plot_times
   bonusPref               = '--Elphic_et_al_1998--Fig2'
 
-  ;; downTimesStr            = '1997-02-01/' + $
-  ;;                           [['09:26:12','09:26:23'], $ ;;These are the money times that seem to give good kappa fits
-  ;;                            ['09:26:53','09:27:07.5']]
-
-  ;; downTimesStr            = '1997-02-01/' + $
-  ;;                           [['09:26:12','09:27:07.5']]
-
-  ;; upTimesStr              = '1997-02-01/' + $
-  ;;                           [['09:25:41.0','09:25:49.4'], $
-  ;;                            ['09:25:56.75','09:26:02.9'], $
-  ;;                            ['09:26:04.03','09:26:09.51'], $
-  ;;                            ['09:27:07.1','09:27:13.4']]
 
   ;;They'll just walk up and bring you the keys! MO MONEY MO MONEY MO MONEY
-  downTimesStr            = '1997-02-01/' + $
-                            [['09:25:40','09:29:30']]
+  ;; downTimesStr            = '1997-02-01/' + $
+  ;;                           [['09:25:40','09:29:30']]
+  downTimesStr            = plot_times
 
   upTimesStr              = downTimesStr
 
@@ -106,10 +103,8 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   peak_energy__start_at_highEArr  = [0,1,1]
   upgoingArr                      = [0,1,1]
 
-  ;; energyArr               = [[4e1,3.0e4],[4e1,3.0e4],[4,2.4e4]]
-  ;; use_sc_pot_for_lowerbound = 1
-  use_sc_pot_for_lowerbound = 0
-  energyArr               = [[300,3.0e4],[0,3.0e4],[0,2.4e4]]
+  use_sc_pot_for_lowerbound = 1
+  energyArr               = [[100,3.0e4],[0,3.0e4],[0,2.4e4]]
 
   ;; min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : 500
   ;; max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
@@ -140,6 +135,9 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
      WHICH_TIMES__LABEL=label__which_times, $
      ENERGYARR=energyArr, $
      USE_SC_POT_FOR_LOWERBOUND=use_sc_pot_for_lowerbound, $
+     POT__FROM_FA_POTENTIAL=pot__from_fa_potential, $
+     POT__CHASTON_STYLE=pot__Chaston_style, $
+     POT__FROM_FILE=pot__from_file, $
      ARANGE__MOMENTS_LIST=aRange__moments_list, $
      ARANGE__PEAKEN_LIST=aRange__peakEn_list, $
      ARANGE__CHARE_LIST=aRange__charE_list, $
@@ -184,6 +182,21 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
                       ORIGINATING_ROUTINE=routName, $
                       PLOTDIR=plotDir
   ENDIF
+
+  IF KEYWORD_SET(plot_T_and_N) THEN BEGIN
+     PLOT_TEMPERATURE_AND_DENSITY_TSERIES, $
+        jvPlotData, $
+        ORIGINAL_PLOTIDEE=orig_plotIdee, $
+        SAVEPLOT=savePlot, $
+        SPNAME=TN_spName, $
+        ORIGINATING_ROUTINE=routName, $
+        PLOTDIR=plotDir, $
+        OUT_WINDOW=window1, $
+        OVERPLOTALL=overplotAll, $
+        OVERPLOT_WINDOW=overplot_window
+  ENDIF
+
+  STOP
 
   ;; SAVE,KnightRelat30,KnightRelat300,KnightRelat3000,jvplotdata,FILENAME=
   ;; RESTORE,'
