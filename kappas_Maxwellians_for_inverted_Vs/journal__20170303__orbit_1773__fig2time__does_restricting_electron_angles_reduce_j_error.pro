@@ -12,7 +12,7 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   Elphic1998_defaults     = 1
 
   error_estimates         = 1
-  remake_masterFile       = 1
+  remake_masterFile       = 0
   map_to_100km            = 1
 
   add_oneCount_stats      = 1
@@ -40,7 +40,7 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   jvpotBar_spName         = 'j_vs_potBar__downgoing_e' + savePSuff + '.png'
   jvpotBar__j_on_yAxis    = 1
 
-  plot_T_and_N            = 1B
+  plot_T_and_N            = 0B
   TN_spName               = 'T_and_N__downgoing_e' + savePSuff + '.png'
   
   ;;get orbTimes here
@@ -198,143 +198,141 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
 
   STOP
 
-  ;; SAVE,KnightRelat30,KnightRelat300,KnightRelat3000,jvplotdata,FILENAME=
-  ;; RESTORE,'
   negcur_i      = WHERE(jvplotdata.cur LE 0)
   negcur_i      = negcur_i[SORT(jvplotdata.pot[negcur_i])]
-  KnightRelat30 = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[negcur_i], $
-                                                   jvplotdata.ndown[negcur_i], $
-                                                   jvplotdata.pot[negcur_i], $
-                                                   30, $
-                                                   /NO_MULT_BY_CHARGE, $
-                                                   OUT_POTBAR=pb30) ; /(-1D-6)
-  KnightRelat300 = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[negcur_i], $
-                                                    jvplotdata.ndown[negcur_i], $
-                                                    jvplotdata.pot[negcur_i], $
-                                                    300, $
-                                                    /NO_MULT_BY_CHARGE, $
-                                                    OUT_POTBAR=pb300) ; /(-1D-6)
-  KnightRelat3000 = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[negcur_i], $
-                                                     jvplotdata.ndown[negcur_i], $
-                                                     jvplotdata.pot[negcur_i], $
-                                                     3000, $
-                                                     /NO_MULT_BY_CHARGE, $
-                                                     OUT_POTBAR=pb3000) ; /(-1D-6)
-
-  kappa = 2.0
-  kappa1 = 1.6
-  kRelat30 = KNIGHT_RELATION__DORS_KLETZING_11(kappa,jvplotdata.tdown[negcur_i], $
-                                                   jvplotdata.ndown[negcur_i], $
-                                                   jvplotdata.pot[negcur_i], $
-                                                   30, $
-                                                   /NO_MULT_BY_CHARGE, $
-                                                   OUT_POTBAR=pb30) ; /(-1D-6)
-  kRelat300 = KNIGHT_RELATION__DORS_KLETZING_11(kappa,jvplotdata.tdown[negcur_i], $
-                                                    jvplotdata.ndown[negcur_i], $
-                                                    jvplotdata.pot[negcur_i], $
-                                                    300, $
-                                                    /NO_MULT_BY_CHARGE, $
-                                                    OUT_POTBAR=pb300) ; /(-1D-6)
-  kRelat3000 = KNIGHT_RELATION__DORS_KLETZING_11(kappa,jvplotdata.tdown[negcur_i], $
-                                                     jvplotdata.ndown[negcur_i], $
-                                                     jvplotdata.pot[negcur_i], $
-                                                     3000, $
-                                                     /NO_MULT_BY_CHARGE, $
-                                                     OUT_POTBAR=pb3000) ; /(-1D-6)
-  kRelat3001 = KNIGHT_RELATION__DORS_KLETZING_11(kappa1,jvplotdata.tdown[negcur_i]*20., $
-                                                     jvplotdata.ndown[negcur_i], $
-                                                     jvplotdata.pot[negcur_i], $
-                                                     3000, $
-                                                     /NO_MULT_BY_CHARGE, $
-                                                     OUT_POTBAR=pb3000) ; /(-1D-6)
 
   ;;The points that have a clear affinity for kappa = 2
   thesepointslovekappa_ii = WHERE((jvplotdata.pot[negcur_i] LE 4000) AND (jvplotdata.cur[negcur_i]*(-1D-6) GE 1D-6),nLovers)
   PRINT,"THESE POINTS LOVE KAPPA=2.0"
-  nestie = negcur_i[thesepointslovekappa_ii]
-  GET_STREAKS,nestie[SORT(nestie)],START_I=nestieStrt_ii,STOP_I=nestieStop_ii,OUT_STREAKLENS=streakLens
-  times = TIME_TO_STR(jvplotdata.time[nestie[SORT(jvplotdata.time[nestie])]],/MS)
+  loveKappa_i = negcur_i[thesepointslovekappa_ii]
+  GET_STREAKS,loveKappa_i[SORT(loveKappa_i)],START_I=loveKappa_iStrt_ii,STOP_I=loveKappa_iStop_ii,OUT_STREAKLENS=streakLens
+  times = TIME_TO_STR(jvplotdata.time[loveKappa_i[SORT(jvplotdata.time[loveKappa_i])]],/MS)
   FOR k=0,nLovers-1 DO BEGIN
-     PRINT,TIME_TO_STR(jvplotdata.time[nestie[k]])
+     PRINT,TIME_TO_STR(jvplotdata.time[loveKappa_i[k]])
   ENDFOR
 
-  wind     = WINDOW(DIMENSIONS=[1000,800])
-  yLog     = 0
-  dataplot = PLOT(jvplotdata.pot[negcur_i], $
-                  jvplotdata.cur[negcur_i]*(-1D-6), $
-                  LINESTYLE='', $
-                  SYMBOL='o', $
-                  XTITLE='Potential (V)', $
-                  YTITLE='Current density ($\mu$A/m!U2!N), mapped to 100km', $
-                  NAME='Data', $
+  useInds  = negcur_i
+  useInds  = loveKappa_i
+
+  ;; SAVE,KnightRelat30,KnightRelat300,KnightRelat3000,jvplotdata,FILENAME=
+  ;; RESTORE,'
+  R_Bs__M           = [30,300,3000]
+  R_Bs__K           = [30,300,3000]
+  kappas            = [2.0,2.0,2.0,1.6]
+  kappa             = 2.0
+  kappa1            = 1.6
+  kap3001name       = STRING(FORMAT='("R!DB!N = ",I0," ($\kappa$=",F0.2,",T*=",I0,")")',R_B1,kappa1,TmultFac)
+  TmultFac          = 1
+  R_B1              = 3000
+
+  nR_Bs__M          = N_ELEMENTS(R_Bs__M)
+  nR_Bs__K          = N_ELEMENTS(R_Bs__K)
+  nDer              = N_ELEMENTS(useInds)
+
+  maxwellJVs        = MAKE_ARRAY(nR_Bs__M,nDer,/DOUBLE)
+  kappaJVs          = MAKE_ARRAY(nR_Bs__K,nDer,/DOUBLE)
+
+  MaxwellTransp     = 30
+  MaxwellSym        = '*'
+  MaxwellColors     = ['Red','Brown','Dark Green']
+  MaxwellLinestyle  = ['']
+  MaxwellNames      = 'R!DB!N = ' + STRING('(I0)',R_Bs__M[k])
+
+  kappaTransp       = 30
+  kappaSym          = ['x','tu']
+  kappaColors       = ['Purple','Brown']
+  kappaLinestyle    = ['']
+  kappaNames        = 'R!DB!N = ' + STRING('(I0)',R_Bs__K) + STRING(' ("$\kappa$=",F0.2")")',kappas)
+
+  FOR k=0,nR_Bs__M-1 DO BEGIN
+     maxwellJVs[k,*] = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[useInds], $
+                                                        jvplotdata.ndown[useInds], $
+                                                        jvplotdata.pot[useInds], $
+                                                        R_Bs__M[k], $
+                                                        /NO_MULT_BY_CHARGE)
+
+  ENDFOR
+
+  ;; KnightRelat300 = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[useInds], $
+  ;;                                                   jvplotdata.ndown[useInds], $
+  ;;                                                   jvplotdata.pot[useInds], $
+  ;;                                                   300, $
+  ;;                                                   /NO_MULT_BY_CHARGE)
+  ;; KnightRelat3000 = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[useInds], $
+  ;;                                                    jvplotdata.ndown[useInds], $
+  ;;                                                    jvplotdata.pot[useInds], $
+  ;;                                                    3000, $
+  ;;                                                    /NO_MULT_BY_CHARGE)
+
+  FOR k=0,nR_Bs__K-1 DO BEGIN
+     kappaJVs[k,*] = KNIGHT_RELATION__DORS_KLETZING_11(kappa,jvplotdata.tdown[useInds], $
+                                                       jvplotdata.ndown[useInds], $
+                                                       jvplotdata.pot[useInds], $
+                                                       R_Bs__K[k], $
+                                                       /NO_MULT_BY_CHARGE)
+
+  ENDFOR
+  ;; kRelat300 = KNIGHT_RELATION__DORS_KLETZING_11(kappa,jvplotdata.tdown[useInds], $
+  ;;                                                   jvplotdata.ndown[useInds], $
+  ;;                                                   jvplotdata.pot[useInds], $
+  ;;                                                   300, $
+  ;;                                                   /NO_MULT_BY_CHARGE)
+  ;; kRelat3000 = KNIGHT_RELATION__DORS_KLETZING_11(kappa,jvplotdata.tdown[useInds], $
+  ;;                                                jvplotdata.ndown[useInds], $
+  ;;                                                jvplotdata.pot[useInds], $
+  ;;                                                3000, $
+  ;;                                                /NO_MULT_BY_CHARGE)
+  ;; ;; kRelat3001 = KNIGHT_RELATION__DORS_KLETZING_11(kappa1,jvplotdata.tdown[useInds]*20., $
+  ;; kRelat3001  = KNIGHT_RELATION__DORS_KLETZING_11(kappa1,jvplotdata.tdown[useInds]*TmultFac, $
+  ;;                                                 jvplotdata.ndown[useInds], $
+  ;;                                                 jvplotdata.pot[useInds], $
+  ;;                                                 3000, $
+  ;;                                                 /NO_MULT_BY_CHARGE)
+
+  MaxwellPlots = MAKE_ARRAY(nR_Bs__M,/OBJ)
+  kappaPlots   = MAKE_ARRAY(nR_Bs__K,/OBJ)
+  wind         = WINDOW(DIMENSIONS=[1000,800])
+  yLog         = 0
+  dataLStyle   = ''
+  dataSym      = 'o'
+  dataName     = 'Data'
+  xTitle       = 'Potential (V)'
+  yTitle       = 'Current density ($\mu$A/m!U2!N), mapped to 100km'
+
+  dataplot     = PLOT(jvplotdata.pot[useInds], $
+                  jvplotdata.cur[useInds]*(-1D-6), $
+                  LINESTYLE=dataLStyle, $
+                  SYMBOL=dataSym, $
+                  XTITLE=xTitle, $
+                  YTITLE=yTitle, $
+                  NAME=dataName, $
                   YLOG=yLog, $
                   /CURRENT)
-  ;; kr30plot = PLOT(jvplotdata.pot[negcur_i], $
-  ;;                 KnightRelat30, $
-  ;;                 TRANSPARENCY=30, $
-  ;;                 LINESTYLE='', $
-  ;;                 SYMBOL='*', $
-  ;;                 COLOR='Green', $
-  ;;                 /OVERPLOT, $
-  ;;                 NAME='R!DB!N = 30')
-  ;; kr300plot = PLOT(jvplotdata.pot[negcur_i], $
-  ;;                  KnightRelat300, $
-  ;;                  TRANSPARENCY=30, $
-  ;;                  LINESTYLE='', $
-  ;;                  SYMBOL='*', $
-  ;;                  COLOR='Blue', $
-  ;;                  /OVERPLOT, $
-  ;;                  NAME='R!DB!N = 300')
-  kr3000plot = PLOT(jvplotdata.pot[negcur_i], $
-                    KnightRelat3000, $
-                    TRANSPARENCY=30, $
-                    LINESTYLE='', $
-                    SYMBOL='*', $
-                    COLOR='Red', $
-                    /OVERPLOT, $
-                    NAME='R!DB!N = 3000')
 
-  ;; kap30plot = PLOT(jvplotdata.pot[negcur_i], $
-  ;;                 kRelat30, $
-  ;;                 TRANSPARENCY=30, $
-  ;;                 LINESTYLE='', $
-  ;;                 SYMBOL='x', $
-  ;;                 COLOR='Brown', $
-  ;;                 /OVERPLOT, $
-  ;;                 NAME='R!DB!N = 30')
-  ;; kap300plot = PLOT(jvplotdata.pot[negcur_i], $
-  ;;                  kRelat300, $
-  ;;                  TRANSPARENCY=30, $
-  ;;                  LINESTYLE='', $
-  ;;                  SYMBOL='x', $
-  ;;                  COLOR='dark green', $
-  ;;                  /OVERPLOT, $
-  ;;                  NAME='R!DB!N = 300')
-  kap3000plot = PLOT(jvplotdata.pot[negcur_i], $
-                    kRelat3000, $
-                    TRANSPARENCY=30, $
-                    LINESTYLE='', $
-                    SYMBOL='x', $
-                    COLOR='Purple', $
-                    /OVERPLOT, $
-                    NAME='R!DB!N = 3000 ($\kappa$=2.0)')
-  kap3001plot = PLOT(jvplotdata.pot[negcur_i], $
-                    kRelat3001, $
-                    TRANSPARENCY=30, $
-                    LINESTYLE='', $
-                    SYMBOL='tu', $
-                    COLOR='Brown', $
-                    /OVERPLOT, $
-                    NAME='R!DB!N = 3000 ($\kappa$=1.6,T*=20)')
+  FOR k=0,nR_Bs__M-1 DO BEGIN
+     MaxwellPlots[k] = PLOT(jvplotdata.pot[useInds], $
+                            MaxwellJVs[k,*], $
+                            TRANSPARENCY=MaxwellTransp, $
+                            LINESTYLE=MaxwellLinestyle[k], $
+                            SYMBOL=MaxwellSym, $
+                            COLOR=MaxwellColors[k], $
+                            /OVERPLOT, $
+                            NAME=MaxwellNames[k])
+  ENDFOR
 
+  FOR k=0,nR_Bs__K-1 DO BEGIN
+     kappaPlots[k] = PLOT(jvplotdata.pot[useInds], $
+                        kappaJVs[*,k], $
+                        TRANSPARENCY=kappaTransp, $
+                        LINESTYLE='', $
+                        SYMBOL=kappaSym[k], $
+                        COLOR=kappaColors[k], $
+                        /OVERPLOT, $
+                        NAME=kappaNames[k])
+  ENDFOR
   leg = LEGEND(TARGET=[dataplot, $
-                       ;; kr30plot, $
-                       ;; kr300plot, $
-                       kr3000plot, $
-                       ;; kap30plot, $
-                       ;; kap300plot, $
-                       kap3000plot, $
-                       kap3001plot])
+                       MaxwellPlots, $
+                       kappaPlots])
 
   STOP
 
