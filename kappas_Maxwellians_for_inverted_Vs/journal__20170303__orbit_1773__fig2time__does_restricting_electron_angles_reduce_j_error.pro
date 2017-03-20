@@ -7,7 +7,7 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   Elphic1998_defaults     = 1
 
   error_estimates         = 1
-  remake_masterFile       = 1
+  remake_masterFile       = 0
   map_to_100km            = 1
 
   add_oneCount_stats      = 1
@@ -79,9 +79,9 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   ;; '0 :  Elphic_et_al_1998'
 
   ;;survey window
-  ;; eeb_or_eesArr           = ['ees','ies']
-  eeb_or_eesArr           = ['eeb','ieb']
-  spectra_average_interval = 4
+  eeb_or_eesArr           = ['ees','ies']
+  ;; eeb_or_eesArr           = ['eeb','ieb']
+  ;; spectra_average_interval = 4
 
   order                   = [0,1,2]
   label                   = ['downgoing_e','upgoing_e','upgoing_i']
@@ -142,7 +142,6 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
      ARANGE__CHARE_E_DOWN=aRange__charE_e_down, $
      ARANGE__CHARE_E_UP=aRange__charE_e_up, $
      ARANGE__CHARE_I_UP=aRange__charE_i_up, $
-     ARANGE__MOMENTS_I_UP=aRange__moments_i_up, $
      WHICH_EEB__LABEL=label__which_eeb, $
      WHICH_TIMES__LABEL=label__which_times, $
      ENERGYARR=energyArr, $
