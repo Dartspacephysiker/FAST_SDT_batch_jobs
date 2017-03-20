@@ -33,7 +33,7 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   jvpotBar_spName         = 'j_vs_potBar__downgoing_e' + savePSuff + '.png'
   jvpotBar__j_on_yAxis    = 1
 
-  plot_T_and_N            = 0B
+  plot_T_and_N            = 1B
   TN_spName               = 'T_and_N__downgoing_e' + savePSuff + '.png'
   
   ;;get orbTimes here
@@ -91,9 +91,9 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
   aRange__moments_e_down  = 'lc'
   ;; aRange__moments_i_up    = [0.,360.]
 
-  aRange__moments_i_up    = '2lc'
-  aRange__peakEn_i_up     = '2lc'
-  aRange__charE_i_up      = '2lc'
+  ;; aRange__moments_i_up    = 'lc'
+  ;; aRange__peakEn_i_up     = 'lc'
+  ;; aRange__charE_i_up      = 'lc'
 
   label__which_eeb        = [0,0,1]
   label__which_times      = [0,1,0]
@@ -226,9 +226,9 @@ PRO JOURNAL__20170303__ORBIT_1773__FIG2TIME__DOES_RESTRICTING_ELECTRON_ANGLES_RE
                            (ABS(JVPlotData.TDownErr/JVPlotData.TDown) LE fracError_TDown) AND $
                            (ABS(JVPlotData.NDownErr/JVPlotData.NDown) LE fracError_NDown))
 
-  useInds         = CGSETINTERSECTION(smochange_NDown,smochange_TDown,COUNT=nSmo)
+  ;; useInds         = CGSETINTERSECTION(smochange_NDown,smochange_TDown,COUNT=nSmo)
 
-  useInds         = CGSETINTERSECTION(useInds,otrasCondiciones,COUNT=nSmo)
+  ;; useInds         = CGSETINTERSECTION(useInds,otrasCondiciones,COUNT=nSmo)
   IF KEYWORD_SET(plot_j_v_and_theory) THEN BEGIN
 
      PLOT_JV_DATA_AND_THEORETICAL_CURVES,jvPlotData, $
