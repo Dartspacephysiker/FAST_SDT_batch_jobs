@@ -247,7 +247,7 @@ PRO PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,jvPlotData, $
         ;;Now add all the other symbols
         FOR k=2,nPoints-1,2 DO BEGIN
 
-           inds           = [k,k+1]
+           inds           = [k,((k+1) < (nPoints-1))]
            ;; tmpCurErr      = curErr[*,inds]
            tmpCurErr      = jvPlotData.curErr[inds]
 
@@ -303,7 +303,7 @@ PRO PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,jvPlotData, $
         ;;Now add all the other symbols
         FOR k=2,nPoints-1,2 DO BEGIN
 
-           inds           = [k,k+1]
+           inds           = [k,((k+1) < (nPoints-1))]
            tmpPotErr      = jvPlotData.potErr[inds]
 
            plot_2         = ERRORPLOT((jvPlotData.tDiff[inds]), $
@@ -360,7 +360,7 @@ PRO PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,jvPlotData, $
         ;;Now add all the other symbols
         FOR k=2,nPoints-1,2 DO BEGIN
 
-           inds           = [k,k+1]
+           inds           = [k,((k+1) < (nPoints-1))]
            tmpCurErr      = jvPlotData.curErr[inds]
            tmpPotErr      = jvPlotData.potErr[inds]
 

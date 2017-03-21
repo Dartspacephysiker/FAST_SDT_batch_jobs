@@ -213,7 +213,7 @@ PRO PLOT_TEMPERATURE_AND_DENSITY_TSERIES, $
         ;;Now add all the other symbols
         FOR k=2,nPoints-1,2 DO BEGIN
 
-           inds           = [k,k+1]
+           inds           = [k,((k+1) < (nPoints-1))]
            ;; tmpTDownErr      = tDownErr[*,inds]
            tmpTDownErr      = jvPlotData.tDownErr[inds]
 
@@ -270,7 +270,7 @@ PRO PLOT_TEMPERATURE_AND_DENSITY_TSERIES, $
         ;;Now add all the other symbols
         FOR k=2,nPoints-1,2 DO BEGIN
 
-           inds           = [k,k+1]
+           inds           = [k,((k+1) < (nPoints-1))]
            tmpNDownErr      = jvPlotData.nDownErr[inds]
 
            plot_2         = ERRORPLOT((jvPlotData.tDiff[inds]), $
