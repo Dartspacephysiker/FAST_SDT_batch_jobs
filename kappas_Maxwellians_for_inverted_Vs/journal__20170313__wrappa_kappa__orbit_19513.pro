@@ -8,62 +8,98 @@ PRO JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513
 
   ;;get orbTimes here
   orbit                   = 19513
-  orbTimes                = ['2001-07-19/14:07:56','2001-07-19/14:13:43']
-  orbBurstTimes           = ['2001-07-19/14:07:56','2001-07-19/14:13:43']
-  bonusPref               = '--efter_Elphic_ea_1998--Fig2'
+  orbPref                 = 'Orbit_' + STRCOMPRESS(orbit,/REMOVE_ALL)
+  bonusPref               = orbPref + '-efter_Elphic_ea_1998_Fig2-'
+
+  ;;They'll just walk up and bring you the keys! MO MONEY MO MONEY MO MONEY
+  plot_times              = '2001-07-19/' + $
+                            [['14:07:56','14:13:43']]
+  orbTimes                = plot_times
+  orbBurstTimes           = plot_times
+
+  downTimesStr            = plot_times
+  upTimesStr              = downTimesStr
 
   Elphic1998_defaults     = 1
 
   error_estimates         = 1
-  remake_masterFile       = 1
+  remake_masterFile       = 0
   map_to_100km            = 1
 
   add_oneCount_stats      = 1
 
+  ;; useInds__relChange      = 1
+  ;; fracChange_TDown        = 0.5
+  ;; fracChange_NDown        = 0.25
+  ;; fracError_TDown         = 0.20
+  ;; fracError_NDown         = 0.05
+  ;; max_TDown               = 250
+  ;; min_TDown               = 180
+  max_NDown               = 0.155
+  ;; fracError_TDown         = 0.20
+  ;; fracError_NDown         = 0.10
+  useInds__twoLumps       = 1
+  tRanges                 = '2001-07-19/' + $
+                            [['14:11:16', $
+                              '14:11:36'], $
+                             ['14:10:26', $
+                              '14:10:46']]
+  tRanges                 = tRanges[*,1]
+
+
+  plot_t1                 = STR_TO_TIME(plot_times[0])
+  plot_t2                 = STR_TO_TIME(plot_times[1])
   add_iu_pot              = 1
   use_all_currents        = 1
 
+  interactive_overplot    = 0
+  
   savePlot                = 0
+  savePSuff               = ''
 
+  ;;Which plots?
   plot_jv_a_la_Elphic     = 0B
-  a_la_Elphic_spName      = 'Orbit_' + STRCOMPRESS(orbit,/REMOVE_ALL) + '-errorbarsalso_downgoing_e.png'
-
   plot_j_v_potBar         = 0B
-  jvpotBar_spName         = 'Orbit_' + STRCOMPRESS(orbit,/REMOVE_ALL) + '-j_vs_potBar__downgoing_e.png'
+  plot_T_and_N            = 0B
+  plot_j_v_and_theory     = 1B
+
+
+  ;;Options for j_v_potBar plot
   jvpotBar__j_on_yAxis    = 1
-  interactive_overplot    = 1
 
-  ;;They'll just walk up and bring you the keys! MO MONEY MO MONEY MO MONEY
-  downTimesStr            = '2001-07-19/' + $
-                            [['14:07:56','14:07:56']]
 
-  upTimesStr              = downTimesStr
-
-  ;; timesList               = LIST(downTimes,upTimes)
-
-  ;; kStats_startStops__ees  = LIST('1997-02-01/' + [['09:25:50','09:26:10'], $ ;These are for the downward current regions
-  ;;                                                 ['09:27:05','09:27:15']])
-  ;; kStats_startStops__eeb  = LIST('1997-02-01/' + [['09:26:12','09:26:23'], $
-  ;;                                                 ['09:26:53','09:27:07.5']])
+  a_la_Elphic_spName      = bonusPref + '.png'
+  jvpotBar_spName         = bonusPref + 'j_vs_potBar__downgoing_e' + savePSuff + '.png'
+  TN_spName               = bonusPref + 'T_and_N__downgoing_e' + savePSuff + '.png'
+  JV_theor_spName         = bonusPref + 'j_v_data_n_theory__downgoing_e' + savePSuff + '.png'
+  
+  ;;Options for j_v_and_theory plot
+  plot_j_ratios           = 0B
+  plot_ion_elec_ratios    = 0B
+  jv_theor__minPot        = 1500
+  jv_theor__maxPot        = 4000
+  jv_theor__minCur        = 1D-6
+  jv_theor__maxCur        = !NULL
 
   units                   = 'eFlux'
   ;; units                = 'flux'
   ;; units                = 'dfStd'
 
   outDir                  = '~/software/sdt/batch_jobs/saves_output_etc/cur_and_pot_analysis/'
-  datFile                 = '__Fig2_ingredients.sav'
+  datFile                 = bonusPref + 'Fig2_ingredients.sav'
 
-  saveCurPotFile          = '__Fig2_meal.sav'
-  save_diff_eFlux_file    = 1
+  saveCurPotFile          = bonusPref + 'Fig2__meal.sav'
+  save_diff_eFlux_file    = 0
   load_diff_eFlux_file    = 1
   ;; restore_fitFile         = 0
 
-  ;;Which classic event?
-  ;; '0 :  Elphic_et_al_1998'
-
   ;;survey window
-  eeb_or_eesArr           = ['ees','ies']
-  ;; eeb_or_eesArr        = ['eeb','ieb']
+  eeb_or_eesArr            = ['ees','ies']
+  spectra_average_interval = 3
+
+  ;; eeb_or_eesArr           = ['eeb','ieb']
+  ;; spectra_average_interval = 4
+
 
   order                   = [0,1,2]
   label                   = ['downgoing_e','upgoing_e','upgoing_i']
@@ -71,25 +107,31 @@ PRO JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513
   ;;OPTIONS! OPTIONS! OPTIONS!
   ;; aRange__moments_e_down  = [315.,45.]
   aRange__moments_e_down  = 'lc'
-  aRange__moments_i_up    = [0.,360.]
+  ;; aRange__moments_i_up    = [0.,360.]
+
+  aRange__moments_i_up    = 'lc'
+  aRange__peakEn_i_up     = 'lc'
+  aRange__charE_i_up      = 'lc'
+
+  ;; blankers                = !NULL
+  blankers                = 'lc'
 
   label__which_eeb        = [0,0,1]
   label__which_times      = [0,1,0]
-  aRange__moments_list    = LIST(aRange__moments_e_down,!NULL,aRange__moments_i_up)
-  aRange__peakEn_list     = LIST(!NULL,!NULL,!NULL)
-  aRange__charE_list      = LIST(!NULL,!NULL,!NULL)
+  aRange__moments_list    = LIST(aRange__moments_e_down,blankers,aRange__moments_i_up)
+  aRange__peakEn_list     = LIST(blankers,blankers,aRange__peakEn_i_up)
+  aRange__charE_list      = LIST(blankers,blankers,aRange__charE_i_up)
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highEArr  = [0,1,1]
   upgoingArr                      = [0,1,1]
 
-  ;; energyArr               = [[4e1,3.0e4],[4e1,3.0e4],[4,2.4e4]]
-  ;; use_sc_pot_for_lowerbound = 1
-  use_sc_pot_for_lowerbound = 0
-  energyArr               = [[300,3.0e4],[0,3.0e4],[0,2.4e4]]
+  use_sc_pot_for_lowerbound = 1
+  pot__save_file          = 0
+  pot__all                = 0
+  pot__from_fa_potential  = 1
+  energyArr               = [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
 
-  ;; min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : 500
-  ;; max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
   min_peak_energyArr      = [300,100,100]
   max_peak_energyArr      = [3e4,3e4,2.4e4]
 
@@ -112,11 +154,23 @@ PRO JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513
      LABEL=label, $
      ADD_ONECOUNT_STATS=add_oneCount_stats, $
      ARANGE__MOMENTS_E_DOWN=aRange__moments_e_down, $
+     ARANGE__MOMENTS_E_UP=aRange__moments_e_up, $
      ARANGE__MOMENTS_I_UP=aRange__moments_i_up, $
+     ARANGE__PEAKEN_E_DOWN=aRange__peakEn_e_down, $
+     ARANGE__PEAKEN_E_UP=aRange__peakEn_e_up, $
+     ARANGE__PEAKEN_I_UP=aRange__peakEn_i_up, $
+     ARANGE__CHARE_E_DOWN=aRange__charE_e_down, $
+     ARANGE__CHARE_E_UP=aRange__charE_e_up, $
+     ARANGE__CHARE_I_UP=aRange__charE_i_up, $
      WHICH_EEB__LABEL=label__which_eeb, $
      WHICH_TIMES__LABEL=label__which_times, $
      ENERGYARR=energyArr, $
      USE_SC_POT_FOR_LOWERBOUND=use_sc_pot_for_lowerbound, $
+     POT__FROM_FA_POTENTIAL=pot__from_fa_potential, $
+     POT__ALL=pot__all, $
+     POT__CHASTON_STYLE=pot__Chaston_style, $
+     POT__FROM_FILE=pot__from_file, $
+     POT__SAVE_FILE=pot__save_file, $
      ARANGE__MOMENTS_LIST=aRange__moments_list, $
      ARANGE__PEAKEN_LIST=aRange__peakEn_list, $
      ARANGE__CHARE_LIST=aRange__charE_list, $
@@ -127,6 +181,7 @@ PRO JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513
      UPGOINGARR=upgoingArr, $
      ERROR_ESTIMATES=error_estimates, $
      ;; DENS_ERRORS=dens_errors, $
+     SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
      MAP_TO_100KM=map_to_100km, $
      SAVECURPOTFILE=saveCurPotFile, $
      OUT_CURPOTLIST=curPotList
@@ -162,145 +217,85 @@ PRO JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513
                       PLOTDIR=plotDir
   ENDIF
 
-  ;; SAVE,KnightRelat30,KnightRelat300,KnightRelat3000,jvplotdata,FILENAME=
-  ;; RESTORE,'
-  negcur_i      = WHERE(jvplotdata.cur LE 0)
-  negcur_i      = negcur_i[SORT(jvplotdata.pot[negcur_i])]
-  KnightRelat30 = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[negcur_i], $
-                                                   jvplotdata.ndown[negcur_i], $
-                                                   jvplotdata.pot[negcur_i], $
-                                                   30, $
-                                                   /NO_MULT_BY_CHARGE, $
-                                                   OUT_POTBAR=pb30) ; /(-1D-6)
-  KnightRelat300 = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[negcur_i], $
-                                                    jvplotdata.ndown[negcur_i], $
-                                                    jvplotdata.pot[negcur_i], $
-                                                    300, $
-                                                    /NO_MULT_BY_CHARGE, $
-                                                    OUT_POTBAR=pb300) ; /(-1D-6)
-  KnightRelat3000 = KNIGHT_RELATION__DORS_KLETZING_4(jvplotdata.tdown[negcur_i], $
-                                                     jvplotdata.ndown[negcur_i], $
-                                                     jvplotdata.pot[negcur_i], $
-                                                     3000, $
-                                                     /NO_MULT_BY_CHARGE, $
-                                                     OUT_POTBAR=pb3000) ; /(-1D-6)
+  IF KEYWORD_SET(plot_T_and_N) THEN BEGIN
+     PLOT_TEMPERATURE_AND_DENSITY_TSERIES, $
+        jvPlotData, $
+        ORIGINAL_PLOTIDEE=orig_plotIdee, $
+        SAVEPLOT=savePlot, $
+        SPNAME=TN_spName, $
+        ORIGINATING_ROUTINE=routName, $
+        PLOTDIR=plotDir, $
+        OUT_WINDOW=window1, $
+        OVERPLOTALL=overplotAll, $
+        OVERPLOT_WINDOW=overplot_window
+  ENDIF
 
-  kappa = 2.0
-  kappa1 = 1.6
-  kRelat30 = KNIGHT_RELATION__DORS_KLETZING_11(kappa,jvplotdata.tdown[negcur_i], $
-                                                   jvplotdata.ndown[negcur_i], $
-                                                   jvplotdata.pot[negcur_i], $
-                                                   30, $
-                                                   /NO_MULT_BY_CHARGE, $
-                                                   OUT_POTBAR=pb30) ; /(-1D-6)
-  kRelat300 = KNIGHT_RELATION__DORS_KLETZING_11(kappa,jvplotdata.tdown[negcur_i], $
-                                                    jvplotdata.ndown[negcur_i], $
-                                                    jvplotdata.pot[negcur_i], $
-                                                    300, $
-                                                    /NO_MULT_BY_CHARGE, $
-                                                    OUT_POTBAR=pb300) ; /(-1D-6)
-  kRelat3000 = KNIGHT_RELATION__DORS_KLETZING_11(kappa,jvplotdata.tdown[negcur_i], $
-                                                     jvplotdata.ndown[negcur_i], $
-                                                     jvplotdata.pot[negcur_i], $
-                                                     3000, $
-                                                     /NO_MULT_BY_CHARGE, $
-                                                     OUT_POTBAR=pb3000) ; /(-1D-6)
-  kRelat3001 = KNIGHT_RELATION__DORS_KLETZING_11(kappa1,jvplotdata.tdown[negcur_i]*20., $
-                                                     jvplotdata.ndown[negcur_i], $
-                                                     jvplotdata.pot[negcur_i], $
-                                                     3000, $
-                                                     /NO_MULT_BY_CHARGE, $
-                                                     OUT_POTBAR=pb3000) ; /(-1D-6)
+  useInds = GET_INDS_FOR_PLOT_TEORIE(JVPlotData, $
+                                     USEINDS__RELCHANGE=useInds__relChange, $
+                                     FRACCHANGE_TDOWN=fracChange_TDown, $
+                                     FRACCHANGE_NDOWN=fracChange_NDown, $
+                                     FRACERROR_TDOWN=fracError_TDown, $
+                                     FRACERROR_NDOWN=fracError_NDown, $
+                                     USEINDS__TWOLUMPS=useInds__twoLumps, $
+                                     MAX_TDOWN=max_TDown, $
+                                     MIN_TDOWN=min_TDown, $
+                                     MAX_NDOWN=max_NDown, $
+                                     MIN_NDOWN=min_NDown, $
+                                     TRANGES=tRanges)
 
-  ;;The points that have a clear affinity for kappa = 2
-  thesepointslovekappa_ii = WHERE((jvplotdata.pot[negcur_i] LE 4000) AND (jvplotdata.cur[negcur_i]*(-1D-6) GE 1D-6),nLovers)
-  PRINT,"THESE POINTS LOVE KAPPA=2.0"
-  nestie = negcur_i[thesepointslovekappa_ii]
-  GET_STREAKS,nestie[SORT(nestie)],START_I=nestieStrt_ii,STOP_I=nestieStop_ii,OUT_STREAKLENS=streakLens
-  times = TIME_TO_STR(jvplotdata.time[nestie[SORT(jvplotdata.time[nestie])]],/MS)
-  FOR k=0,nLovers-1 DO BEGIN
-     PRINT,TIME_TO_STR(jvplotdata.time[nestie[k]])
+  IF KEYWORD_SET(plot_j_v_and_theory) THEN BEGIN
+
+     PLOT_JV_DATA_AND_THEORETICAL_CURVES,jvPlotData, $
+                                         CURPOTLIST=curPotList, $
+                                         MINPOT=jv_theor__minPot, $
+                                         MAXPOT=jv_theor__maxPot, $
+                                         MINCUR=jv_theor__minCur, $
+                                         MAXCUR=jv_theor__maxCur, $
+                                         USEINDS=useInds, $
+                                         PLOT_J_RATIOS=plot_j_ratios, $
+                                         PLOT_ION_ELEC_RATIOS=plot_ion_elec_ratios, $
+                                         ORIGINATING_ROUTINE=routName, $
+                                         PLOTDIR=plotDir, $
+                                         SAVEPLOT=savePlot, $
+                                         SPNAME=JV_theor_spName, $
+                                         OUT_AVGS_FOR_FITTING=avgs_JVfit
+
+
+  ENDIF
+
+  ;;             kappa,            Temp,            Dens,  R_B
+  A_in         = [  10,avgs_JVfit.T.avg,avgs_JVfit.N.avg, 1D4]
+  ESTIMATE_JV_CURVE_FROM_AVERAGE_PARAMS,jvPlotData,avgs_JVfit, $
+                                        A_IN=A_in
+
+  nUsers       = N_ELEMENTS(useInds)
+  useInds      = useInds[SORT(jvplotdata.time[useInds])]
+
+  PRINT,FORMAT='(I0,T5,A0,T35,A0,T45,A0,T55,A0,T65,A0,T75,A0,T85,A0,T95,A0)', $
+        'i','Time','Temp','N','Pot','Current','TFracErr','NFracErr','JFracErr'
+  FOR k=0,nUsers-1 DO BEGIN
+     PRINT,FORMAT='(I0,T5,A0,T35,F-8.3,T45,F-8.3,T55,F-8.3,T65,F-8.3,T75,F-8.3,T85,F-8.3,T95,F-8.3)', $
+           k, $
+           TIME_TO_STR(JVPlotData.time[useInds[k]]), $
+           JVPlotData.TDown[useInds[k]], $
+           JVPlotData.NDown[useInds[k]], $
+           JVPlotData.pot[useInds[k]], $
+           JVPlotData.cur[useInds[k]], $
+           JVPlotData.TDownErr[useInds[k]]/JVPlotData.TDown[useInds[k]], $
+           JVPlotData.NDownErr[useInds[k]]/JVPlotData.NDown[useInds[k]], $
+           ABS(JVPlotData.curErr[useInds[k]]/JVPlotData.cur[useInds[k]])
+           
   ENDFOR
+  PRINT,FORMAT='(A0,T35,F-8.3,T45,F-8.3,T55,F-8.3,T65,G-8.3)', $
+        "Avg", $
+        MEAN(JVPlotData.TDown[useInds]), $
+        MEAN(JVPlotData.NDown[useInds]), $
+        MEAN(JVPlotData.pot[useInds]), $
+        MEAN(JVPlotData.cur[useInds])
 
-  wind     = WINDOW(DIMENSIONS=[1000,800])
-  yLog     = 0
-  dataplot = PLOT(jvplotdata.pot[negcur_i], $
-                  jvplotdata.cur[negcur_i]*(-1D-6), $
-                  LINESTYLE='', $
-                  SYMBOL='o', $
-                  XTITLE='Potential (V)', $
-                  YTITLE='Current density ($\mu$A/m!U2!N), mapped to 100km', $
-                  NAME='Data', $
-                  YLOG=yLog, $
-                  /CURRENT)
-  ;; kr30plot = PLOT(jvplotdata.pot[negcur_i], $
-  ;;                 KnightRelat30, $
-  ;;                 TRANSPARENCY=30, $
-  ;;                 LINESTYLE='', $
-  ;;                 SYMBOL='*', $
-  ;;                 COLOR='Green', $
-  ;;                 /OVERPLOT, $
-  ;;                 NAME='R!DB!N = 30')
-  ;; kr300plot = PLOT(jvplotdata.pot[negcur_i], $
-  ;;                  KnightRelat300, $
-  ;;                  TRANSPARENCY=30, $
-  ;;                  LINESTYLE='', $
-  ;;                  SYMBOL='*', $
-  ;;                  COLOR='Blue', $
-  ;;                  /OVERPLOT, $
-  ;;                  NAME='R!DB!N = 300')
-  kr3000plot = PLOT(jvplotdata.pot[negcur_i], $
-                    KnightRelat3000, $
-                    TRANSPARENCY=30, $
-                    LINESTYLE='', $
-                    SYMBOL='*', $
-                    COLOR='Red', $
-                    /OVERPLOT, $
-                    NAME='R!DB!N = 3000')
-
-  ;; kap30plot = PLOT(jvplotdata.pot[negcur_i], $
-  ;;                 kRelat30, $
-  ;;                 TRANSPARENCY=30, $
-  ;;                 LINESTYLE='', $
-  ;;                 SYMBOL='x', $
-  ;;                 COLOR='Brown', $
-  ;;                 /OVERPLOT, $
-  ;;                 NAME='R!DB!N = 30')
-  ;; kap300plot = PLOT(jvplotdata.pot[negcur_i], $
-  ;;                  kRelat300, $
-  ;;                  TRANSPARENCY=30, $
-  ;;                  LINESTYLE='', $
-  ;;                  SYMBOL='x', $
-  ;;                  COLOR='dark green', $
-  ;;                  /OVERPLOT, $
-  ;;                  NAME='R!DB!N = 300')
-  kap3000plot = PLOT(jvplotdata.pot[negcur_i], $
-                    kRelat3000, $
-                    TRANSPARENCY=30, $
-                    LINESTYLE='', $
-                    SYMBOL='x', $
-                    COLOR='Purple', $
-                    /OVERPLOT, $
-                    NAME='R!DB!N = 3000 ($\kappa$=2.0)')
-  kap3001plot = PLOT(jvplotdata.pot[negcur_i], $
-                    kRelat3001, $
-                    TRANSPARENCY=30, $
-                    LINESTYLE='', $
-                    SYMBOL='tu', $
-                    COLOR='Brown', $
-                    /OVERPLOT, $
-                    NAME='R!DB!N = 3000 ($\kappa$=1.6,T*=20)')
-
-  leg = LEGEND(TARGET=[dataplot, $
-                       ;; kr30plot, $
-                       ;; kr300plot, $
-                       kr3000plot, $
-                       ;; kap30plot, $
-                       ;; kap300plot, $
-                       kap3000plot, $
-                       kap3001plot])
 
   STOP
+
 
 END
 

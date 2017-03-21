@@ -12,7 +12,9 @@ PRO PLOT_JV_DATA_AND_THEORETICAL_CURVES,jvPlotData, $
                                         PLOTDIR=plotDir, $
                                         SAVEPLOT=savePlot, $
                                         SPNAME=spName, $
-                                        OUT_AVGS_FOR_FITTING=avgs_JVfit
+                                        AVGS_FOR_FITTING=avgs_JVfit, $
+                                        FIT_TIME_SERIES=fit_time_series, $
+                                        FIT_TSERIES__A_IN=A_in
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -46,53 +48,143 @@ PRO PLOT_JV_DATA_AND_THEORETICAL_CURVES,jvPlotData, $
 
   ENDIF
 
-  negcur_i                    = WHERE(jvplotdata.cur LE 0)
-  negcur_i                    = negcur_i[SORT(jvplotdata.pot[negcur_i])]
-
-  minPot                      = KEYWORD_SET(minPot) ? minPot : 0.D
-  maxPot                      = KEYWORD_SET(maxPot) ? maxPot : 4000
-
-  minCur                      = KEYWORD_SET(minCur) ? minCur : 1D-6
-  maxCur                      = KEYWORD_SET(maxCur) ? maxCur : 1D-3
-
-
-  IF N_ELEMENTS(useInds) EQ 0 THEN BEGIN
-     ;;The points that have a clear affinity for kappa = 2
-     thesepointslovekappa_ii  = WHERE((jvplotdata.pot[negcur_i] LE maxPot) AND $
-                                      (jvplotdata.pot[negcur_i] GE minPot) AND $
-                                      (jvplotdata.cur[negcur_i]*(-1D-6) GE minCur) AND $
-                                      (jvplotdata.cur[negcur_i]*(-1D-6) LE maxCur),nLovers)
-     PRINT,"THESE POINTS LOVE KAPPA=2.0"
-     loveKappa_i              = negcur_i[thesepointslovekappa_ii]
-     GET_STREAKS,loveKappa_i[SORT(loveKappa_i)],START_I=loveKappa_iStrt_ii,STOP_I=loveKappa_iStop_ii,OUT_STREAKLENS=streakLens
-     times                    = TIME_TO_STR(jvplotdata.time[loveKappa_i[SORT(jvplotdata.time[loveKappa_i])]],/MS)
-     FOR k=0,nLovers-1 DO BEGIN
-        PRINT,TIME_TO_STR(jvplotdata.time[loveKappa_i[k]])
-     ENDFOR
-
-     ;; useInds               = negcur_i
-     useInds                  = loveKappa_i
-
-  ENDIF
-
-  useInds                     = useInds[SORT(jvplotdata.pot[useInds])]
-  
   curDat                      = jvplotdata.cur*(-1D-6) / (KEYWORD_SET(plot_j_ratios) ? jvplotdata.cur*(-1D-6) : 1.D)
   divDat                      = jvplotdata.cur*(-1D-6)
+
   ;; SAVE,KnightRelat30,KnightRelat300,KnightRelat3000,jvplotdata,FILENAME=
   ;; RESTORE,'
-  ;; R_Bs__M                  = [30,300,3000]
-  R_Bs__M                     = [100,10000,100,10000]
-  ;; R_Bs__K                  = [30,300,3000]
-  ;; kappas                   = [2.0,2.0,2.0,1.6]
-  TmultFac__Maxwell           = [1,1,10,10]
-  R_Bs__K                     = [100,100,10000,10000]
-  kappas                      = [2.0,1.8,2.0,1.8]
-  TmultFac__kappa             = [1,1,1,1]
+  CASE 1 OF
+     KEYWORD_SET(fit_time_series): BEGIN
 
-  nR_Bs__M                    = N_ELEMENTS(R_Bs__M)
-  nR_Bs__K                    = N_ELEMENTS(R_Bs__K)
-  nDer                        = N_ELEMENTS(useInds)
+        maxIter     = 150
+        fit_tol     = 1D-15
+        gTol        = 1D-15
+
+        ;;            kappa,            Temp,            Dens,  R_B
+        A           = KEYWORD_SET(A_in) ? A_in : [  10,avgs_JVfit.T.avg,avgs_JVfit.N.avg, 1D3]
+
+        ;;Keep the original guesses
+        Aorig       = A
+        AGaussOrig  = A
+
+        kappa_fixA  = [0,1,1,0]
+        gauss_fixA  = [1,1,1,0]
+
+        ;; PRINT,"Kappa startGuess: "
+        ;; PRINT_JV_FIT_PARAMS,A
+        ;; PRINT,"Gauss startGuess: "
+        ;; PRINT_JV_FIT_PARAMS,AGaussOrig
+
+        kappaParamStruct = INIT_JV_FITPARAM_INFO(           A,kappa_fixA)
+        gaussParamStruct = INIT_JV_FITPARAM_INFO(TEMPORARY(A),gauss_fixA)
+
+        fa_kappa    = {no_mult_by_charge : 1B, $
+                       is_Maxwellian_fit : 0B, $
+                       in_temperatures   : jvPlotData.TDown[avgs_JVfit.useInds], $
+                       in_densities      : jvPlotData.NDown[avgs_JVfit.useInds]}
+
+        fa_Gauss    = {no_mult_by_charge : 1B, $
+                       is_Maxwellian_fit : 1B, $
+                       in_temperatures   : jvPlotData.TDown[avgs_JVfit.useInds], $
+                       in_densities      : jvPlotData.NDown[avgs_JVfit.useInds]}
+
+        jvFitFunc   = 'JV_CURVE_FIT__MAXWELL_KAPPA'
+        OKStatus    = [1,2,3,4] ;These are all the acceptable outcomes of fitting with MPFIT2DFUN
+
+        X           = jvPlotData.pot[avgs_JVfit.useInds]
+        Y           = jvPlotData.cur[avgs_JVfit.useInds]*(-1D)
+        XError      = jvPlotData.potErr[avgs_JVfit.useInds]
+        YError      = jvPlotData.curErr[avgs_JVfit.useInds]
+        weights     = 1./ABS(jvPlotData.curErr[avgs_JVfit.useInds])^2
+
+        A           = MPFITFUN(jvFitFunc, $
+                               X,Y, $
+                               /NAN, $
+                               WEIGHTS=weights, $
+                               FUNCTARGS=fa_kappa, $
+                               BESTNORM=bestNorm, $
+                               NFEV=nfev, $
+                               FTOL=fit_tol, $
+                               GTOL=gTol, $
+                               STATUS=status, $
+                               BEST_RESID=best_resid, $
+                               PFREE_INDEX=ifree, $
+                               CALC_FJAC=calc_fjac, $
+                               BEST_FJAC=best_fjac, $
+                               PARINFO=kappaParamStruct, $
+                               QUERY=query, $
+                               NPEGGED=npegged, $
+                               NFREE=nfree, $
+                               DOF=dof, $
+                               COVAR=covar, $
+                               PERROR=perror, $
+                               MAXITER=maxIter, $
+                               NITER=itNum, $
+                               YFIT=yFit, $
+                               /QUIET, $
+                               ERRMSG=errMsg, $
+                               _EXTRA=extra)
+
+        AGauss      = MPFITFUN(jvFitFunc, $
+                               X,Y, $
+                               /NAN, $
+                               WEIGHTS=weights, $
+                               FUNCTARGS=fa_Gauss, $
+                               BESTNORM=bestNorm, $
+                               NFEV=nfev, $
+                               FTOL=fit_tol, $
+                               GTOL=gTol, $
+                               STATUS=gaussStatus, $
+                               BEST_RESID=best_resid, $
+                               PFREE_INDEX=ifree, $
+                               CALC_FJAC=calc_fjac, $
+                               BEST_FJAC=best_fjac, $
+                               PARINFO=gaussParamStruct, $
+                               QUERY=query, $
+                               NPEGGED=npegged, $
+                               NFREE=nfree, $
+                               DOF=dof, $
+                               COVAR=covar, $
+                               PERROR=perror, $
+                               MAXITER=maxIter, $
+                               NITER=itNum, $
+                               YFIT=yGaussFit, $
+                               /QUIET, $
+                               ERRMSG=errMsg, $
+                               _EXTRA=extra)
+
+        PRINT,"TIME SERIES: Kappa fitparams : "
+        PRINT_JV_FIT_PARAMS,A
+        PRINT,""
+        PRINT,"TIME SERIES: Gauss fitparams: "
+        PRINT_JV_FIT_PARAMS,AGauss
+        PRINT,""
+
+        kappas             = A[0]
+
+        R_Bs__K            = A[3]
+        R_Bs__M            = AGauss[3]
+
+        TmultFac__kappa    = [1]
+        TmultFac__Maxwell  = [1]
+     END
+     ELSE: BEGIN
+
+        ;; R_Bs__M         = [30,300,3000]
+        R_Bs__M            = [100,10000,100,10000]
+        ;; R_Bs__K         = [30,300,3000]
+        ;; kappas          = [2.0,2.0,2.0,1.6]
+        TmultFac__Maxwell  = [1,1,10,10]
+        R_Bs__K            = [100,100,10000,10000]
+        kappas             = [2.0,1.8,2.0,1.8]
+        TmultFac__kappa    = [1,1,1,1]
+
+     END
+  ENDCASE
+
+  nR_Bs__M                 = N_ELEMENTS(R_Bs__M)
+  nR_Bs__K                 = N_ELEMENTS(R_Bs__K)
+  nDer                     = N_ELEMENTS(useInds)
 
   maxwellJVs                  = MAKE_ARRAY(nR_Bs__M,nDer,/DOUBLE)
   kappaJVs                    = MAKE_ARRAY(nR_Bs__K,nDer,/DOUBLE)
@@ -226,40 +318,5 @@ PRO PLOT_JV_DATA_AND_THEORETICAL_CURVES,jvPlotData, $
      window1.Save,plotDir+sPName
 
   ENDIF
-
-  fmtStr = '(A0," (min, max,stdDev) ",T35,": ",F0.2," (",F0.2,", ",F0.2,", ",F0.2,")")'
-
-  quantL = LIST(jvplotdata.Tdown[useInds],jvplotdata.Ndown[useInds])
-  navn   = ['T avg','N avg']
-  sNavn  = ['T','N']
-  IF KEYWORD_SET(ji_je_ratio) THEN BEGIN
-     quantL.Add,ji_je_ratio[useInds]
-     navn  = [navn,'Ji/Je avg']
-     sNavn = [sNavn,'JiJeRat']
-  ENDIF
-  
-  avgs_JVfit = {useInds : useInds}
-
-  FOR k=0,N_ELEMENTS(quantL)-1 DO BEGIN
-     tmpQuant = quantL[k]
-     PRINT,FORMAT=fmtStr, $
-           navn[k], $
-           MEAN(tmpQuant), $
-           MIN(tmpQuant), $
-           MAX(tmpQuant), $
-           STDDEV(tmpQuant)
-
-     execStr = sNavn[k] + ' = {avg:MEAN(tmpQuant),stddev:STDDEV(tmpQuant),min:MIN(tmpQuant),max:MAX(tmpQuant)}'
-     IF ~EXECUTE(execStr) THEN STOP
-
-     IF N_ELEMENTS(avgs_JVfit) EQ 0 THEN BEGIN
-        exec2Str = 'avgs_JVfit = {' + sNavn[k] + ' : ' + sNavn[k] + '}'
-     ENDIF ELSE BEGIN
-        exec2Str = 'avgs_JVfit = CREATE_STRUCT(avgs_JVfit,"' + sNavn[k] + '",' + sNavn[k] + ')'
-     ENDELSE
-
-     IF ~EXECUTE(exec2Str) THEN STOP
-
-  ENDFOR
 
 END

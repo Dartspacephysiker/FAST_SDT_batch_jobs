@@ -1,6 +1,6 @@
 *
-Header :this is the 'Orb_1843__the_classics__1__Ergun_et_al_1998__20_49_30__thelonious' configuration file
-Header :created on Tue Oct 11 13:28:25 2016
+Header :this is the 'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30__thelonious' configuration file
+Header :created on Tue Mar 21 12:12:25 2017
 *
 *
 Description : 
@@ -9,20 +9,20 @@ Description :
 
 Configuration
 {
-Config Name:			'Orb_1843__the_classics__1__Ergun_et_al_1998__20_49_30__thelonious'
+Config Name:			'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30__thelonious'
 Config MenuPosition:		6, -14
 Config MenuSize:		155, 150
 Config DefaultSourceId:	'?'
-Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:0 - DA'
+Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30__thelonious:0 - DA'
 
 	PlotWinStandard
 	{
-	PlotWin Name:		'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:0 - DA'
-	PlotWin Position:	514, 90
+	PlotWin Name:		'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30__thelonious:0 - DA'
+	PlotWin Position:	511, 68
 	PlotWin Size:		680, 768
 	PlotWin PlotsPage:	12
 	PlotWin TopPlotOfPage:	'Eesa Survey:  Energy'
-	PlotWin DefaultDataBaseResponse:	2450487 74970 2450487 75010 'FNMLine 6'
+	PlotWin DefaultDataBaseResponse:	2450487 74965 2450487 75015 'FNMLine 6'
    '/FASTdata_2/FAST_JB_4/FAST310_ORBIT1841/lzp/fast_lzp_DSS-29_orbit1843_r'
    '/FASTdata_2/FAST_JB_4/FAST310_ORBIT1841/lzp/fast_lzp_DSS-29_orbit1843_r'
    '/FASTdata_2/FAST_JB_4/FAST310_ORBIT1841/lzp/fast_lzp_DSS-76_orbit1845_r'
@@ -50,8 +50,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	75010, 40000, 1e+06, 1, 1, 1e+09
-		Plot2 MinLimits:	74970, 4, 2, 0, 0, 100000
+		Plot2 MaxLimits:	75015, 40000, 1e+06, 1, 1, 1e+09
+		Plot2 MinLimits:	74965, 4, 2, 0, 0, 100000
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -89,8 +89,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	75010, 360, 100000, 1, 1, 1
-		Plot2 MinLimits:	74970, 0, 2, 0, 0, 0
+		Plot2 MaxLimits:	75015, 360, 100000, 1, 1, 1
+		Plot2 MinLimits:	74965, 0, 2, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -129,8 +129,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	75010, 40000, 1e+06, 1, 1, 1
-		Plot2 MinLimits:	74970, 4, 2, 0, 0, 0
+		Plot2 MaxLimits:	75015, 40000, 1e+06, 1, 1, 1
+		Plot2 MinLimits:	74965, 4, 2, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -169,8 +169,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	75010, 360, 100000, 1, 1, 1
-		Plot2 MinLimits:	74970, 0, 2, 0, 0, 0
+		Plot2 MaxLimits:	75015, 360, 100000, 1, 1, 1
+		Plot2 MinLimits:	74965, 0, 2, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -209,8 +209,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	75010, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	74970, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	75015, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	74965, 0, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -249,8 +249,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	75010, 35000, 255, 1, 1, 1
-		Plot2 MinLimits:	74970, 1, 0, 0, 0, 0
+		Plot2 MaxLimits:	75015, 35000, 255, 1, 1, 1
+		Plot2 MinLimits:	74965, 1, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -289,8 +289,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	75010, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	74970, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	75015, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	74965, 0, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -329,8 +329,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	75010, 35000, 255, 1, 1, 1
-		Plot2 MinLimits:	74970, 1, 0, 0, 0, 0
+		Plot2 MaxLimits:	75015, 35000, 255, 1, 1, 1
+		Plot2 MinLimits:	74965, 1, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -367,8 +367,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	75010, 32768, 0, 0
-		Plot2 MinLimits:	74970, -32768, 0, 0
+		Plot2 MaxLimits:	75015, 32768, 0, 0
+		Plot2 MinLimits:	74965, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -403,8 +403,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	75010, 32768, 0, 0
-		Plot2 MinLimits:	74970, -32768, 0, 0
+		Plot2 MaxLimits:	75015, 32768, 0, 0
+		Plot2 MinLimits:	74965, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -439,8 +439,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	75010, 32768, 0, 0
-		Plot2 MinLimits:	74970, -32768, 0, 0
+		Plot2 MaxLimits:	75015, 32768, 0, 0
+		Plot2 MinLimits:	74965, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -475,8 +475,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	75010, 100, 0, 0
-		Plot2 MinLimits:	74970, -100, 0, 0
+		Plot2 MaxLimits:	75015, 100, 0, 0
+		Plot2 MinLimits:	74965, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -512,8 +512,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	75010, 100, 0, 0
-		Plot2 MinLimits:	74970, -100, 0, 0
+		Plot2 MaxLimits:	75015, 100, 0, 0
+		Plot2 MinLimits:	74965, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -549,8 +549,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	75010, 100, 0, 0
-		Plot2 MinLimits:	74970, -100, 0, 0
+		Plot2 MaxLimits:	75015, 100, 0, 0
+		Plot2 MinLimits:	74965, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -586,8 +586,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	34080, 32768, 1, 0
-		Plot2 MinLimits:	33930, -32768, 0, 0
+		Plot2 MaxLimits:	75015, 32768, 0, 0
+		Plot2 MinLimits:	74965, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -615,15 +615,15 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 PlotYSubTitleName:	'-'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	UNKNOWN
+		Plot2 ShadingMode:	SHADE
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		2
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	39914.6, 32768, 1, 1
-		Plot2 MinLimits:	31923.2, -32768, 0, 0
+		Plot2 MaxLimits:	75015, 32768, 1, 0
+		Plot2 MinLimits:	74965, -32768, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -661,8 +661,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	75010, 512, 0.001, 1, 1, 1
-		Plot2 MinLimits:	74970, 0, 1e-13, 0, 0, 0
+		Plot2 MaxLimits:	75015, 512, 0.001, 1, 1, 1
+		Plot2 MinLimits:	74965, 0, 1e-13, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -699,8 +699,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	75010, 1000, 1e-07, 1, 1, 1
-		Plot2 MinLimits:	74970, 0, 1e-15, 0, 0, 0
+		Plot2 MaxLimits:	75015, 1000, 1e-07, 1, 1, 1
+		Plot2 MinLimits:	74965, 0, 1e-15, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -736,8 +736,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	75010, 1024, 0, 0
-		Plot2 MinLimits:	74970, 0, 0, 0
+		Plot2 MaxLimits:	75015, 1024, 0, 0
+		Plot2 MinLimits:	74965, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -772,8 +772,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	75010, 256, 0, 0
-		Plot2 MinLimits:	74970, 0, 0, 0
+		Plot2 MaxLimits:	75015, 256, 0, 0
+		Plot2 MinLimits:	74965, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -810,8 +810,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	75010, 512, 0.001, 1, 1, 1
-		Plot2 MinLimits:	74970, 0, 1e-13, 0, 0, 0
+		Plot2 MaxLimits:	75015, 512, 0.001, 1, 1, 1
+		Plot2 MinLimits:	74965, 0, 1e-13, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -847,8 +847,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	75010, 15.77, 0, 0
-		Plot2 MinLimits:	74970, -0.75, 0, 0
+		Plot2 MaxLimits:	75015, 15.77, 0, 0
+		Plot2 MinLimits:	74965, -0.75, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -883,8 +883,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_neighbor__1__03_43_40__thelonious:
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	75010, 164.23, 0, 0
-		Plot2 MinLimits:	74970, -170.77, 0, 0
+		Plot2 MaxLimits:	75015, 164.23, 0, 0
+		Plot2 MinLimits:	74965, -170.77, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
