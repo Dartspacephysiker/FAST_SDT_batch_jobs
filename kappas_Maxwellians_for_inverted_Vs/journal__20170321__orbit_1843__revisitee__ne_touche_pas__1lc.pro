@@ -21,7 +21,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   Elphic1998_defaults     = 1
 
   error_estimates         = 1
-  remake_masterFile       = 0
+  remake_masterFile       = 1
   map_to_100km            = 1
 
   add_oneCount_stats      = 1
@@ -54,7 +54,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
 
   interactive_overplot    = 0
   
-  savePlot                = 1
+  savePlot                = 0
   savePSuff               = ''
 
   ;;Which plots?
