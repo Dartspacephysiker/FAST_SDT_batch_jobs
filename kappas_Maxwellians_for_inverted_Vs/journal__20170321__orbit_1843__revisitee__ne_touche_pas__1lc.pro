@@ -26,30 +26,32 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
 
   add_oneCount_stats      = 1
 
-  useInds__relChange      = 1
-  fracChange_TDown        = 0.5
-  fracChange_NDown        = 0.25
-  fracError_TDown         = 0.20
-  fracError_NDown         = 0.05
-  max_TDown               = 700
-  ;; min_TDown               = 180
-  max_NDown               = 0.1
-  min_NDown               = 0.07
+  ;; useInds__relChange      = 1
+  ;; fracChange_TDown        = 0.5
+  ;; fracChange_NDown        = 0.25
+  ;; fracError_TDown         = 0.20
+  ;; fracError_NDown         = 0.05
+  ;; max_TDown               = 700
+  ;; ;; min_TDown               = 180
+  ;; max_NDown               = 0.1
+  ;; min_NDown               = 0.07
   ;; fracError_TDown         = 0.20
   ;; fracError_NDown         = 0.10
-  ;; useInds__twoLumps       = 1
-  ;; tRanges                 = '2001-07-19/' + $
-  ;;                           [['14:11:16', $
-  ;;                             '14:11:36'], $
-  ;;                            ['14:10:26', $
-  ;;                             '14:10:46']]
-  ;; tRanges                 = tRanges[*,1]
+  useInds__twoLumps       = 1
+  tRanges                 = '1997-02-07/' + $
+                            [['20:49:56', $
+                              '20:50:09'], $
+                             ['20:49:26', $
+                              '20:49:46']]
+  tRanges                 = tRanges[*,0]
 
 
   plot_t1                 = STR_TO_TIME(plot_times[0])
   plot_t2                 = STR_TO_TIME(plot_times[1])
   add_iu_pot              = 1
-  use_all_currents        = 1
+  use_ed_current          = 1
+  use_iu_current          = 1
+  use_all_currents        = 0
 
   interactive_overplot    = 0
   
@@ -63,15 +65,18 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   plot_j_v_and_theory     = 1B
   plot_j_v__fixed_t_and_n = 1B
 
-  ;;Options for j_v_potBar plot
-  jvpotBar__j_on_yAxis    = 1
-
 
   a_la_Elphic_spName      = bonusPref + '.png'
   jvpotBar_spName         = bonusPref + 'j_vs_potBar__downgoing_e' + savePSuff + '.png'
   TN_spName               = bonusPref + 'T_and_N__downgoing_e' + savePSuff + '.png'
   JV_theor_spName         = bonusPref + 'j_v_data_n_theory__' + savePSuff + '.png'
   j_v__fixTandN__spName   = bonusPref + 'j_v_fixTandN__' + savePSuff + '.png'
+
+  ;;Options for j_v_potBar plot
+  jvpotBar__j_on_yAxis    = 1
+
+  ;;Options for TandN plot
+  TN_yLog_nDown           = 0B
 
   ;;Options for j_v_and_theory plot
   plot_j_ratios           = 0B
@@ -241,6 +246,9 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
      PLOT_TEMPERATURE_AND_DENSITY_TSERIES, $
         jvPlotData, $
         ORIGINAL_PLOTIDEE=orig_plotIdee, $
+        YLOG_NDOWN=TN_yLog_nDown, $
+        USEI__TWOLUMPS=useInds__twoLumps, $
+        USEINDS=useInds, $
         SAVEPLOT=savePlot, $
         SPNAME=TN_spName, $
         ORIGINATING_ROUTINE=routName, $

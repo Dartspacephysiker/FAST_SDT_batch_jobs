@@ -1,5 +1,6 @@
 ;2017/03/21
 FUNCTION GET_INDS_FOR_PLOT_TEORIE,JVPlotData, $
+                                  USEINDS__INCLUDE_POSCURRENT=useInds__include_posCurrent, $
                                   USEINDS__RELCHANGE=useInds__relChange, $
                                   FRACCHANGE_TDOWN=fracChange_TDown, $
                                   FRACCHANGE_NDOWN=fracChange_NDown, $
@@ -26,8 +27,7 @@ FUNCTION GET_INDS_FOR_PLOT_TEORIE,JVPlotData, $
         useInds1        = CGSETINTERSECTION(smochange_NDown,smochange_TDown,COUNT=nUsers)
 
         ;;Any otras condiciones?
-        useInds2        = WHERE((jvplotdata.cur LE 0) AND $
-                                (ABS(JVPlotData.TDownErr/JVPlotData.TDown) LE fracError_TDown) AND $
+        useInds2        = WHERE((ABS(JVPlotData.TDownErr/JVPlotData.TDown) LE fracError_TDown) AND $
                                 (ABS(JVPlotData.NDownErr/JVPlotData.NDown) LE fracError_NDown))
 
         useInds         = CGSETINTERSECTION(TEMPORARY(useInds1),TEMPORARY(useInds2),COUNT=nUsers)
@@ -80,6 +80,13 @@ FUNCTION GET_INDS_FOR_PLOT_TEORIE,JVPlotData, $
                                  WHERE(JVPlotData.NDown GE min_NDown), $
                                  COUNT=nUsers)
   ENDIF
+
+  IF ~KEYWORD_SET(useInds__include_posCurrent) THEN BEGIN
+     useInds = CGSETINTERSECTION(useInds, $
+                                 WHERE(JVPlotData.cur LE 0.), $
+                                 COUNT=nUsers)
+  ENDIF
+
 
   IF nUsers LE 1 THEN STOP
 

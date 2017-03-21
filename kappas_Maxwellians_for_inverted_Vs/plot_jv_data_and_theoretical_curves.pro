@@ -208,8 +208,8 @@ PRO PLOT_JV_DATA_AND_THEORETICAL_CURVES,jvPlotData, $
                                                         R_Bs__M[k], $
                                                         /NO_MULT_BY_CHARGE)
 
-     MaxwellNames[k] = 'R!DB!N = ' + STRING(FORMAT='(I0)',R_Bs__M[k])
-     MaxwellNames[k] = STRING(FORMAT='("R!DB!N = ",I0," (T*=",I0,")")', $
+     MaxwellNames[k] = 'R!DB!N = ' + STRING(FORMAT='(G0.4)',R_Bs__M[k])
+     MaxwellNames[k] = STRING(FORMAT='("R!DB!N = ",G0.4," (T*=",I0,")")', $
                             R_Bs__M[k],TmultFac__Maxwell[k])
 
      IF KEYWORD_SET(plot_j_ratios) THEN BEGIN
@@ -224,7 +224,7 @@ PRO PLOT_JV_DATA_AND_THEORETICAL_CURVES,jvPlotData, $
                                                        R_Bs__K[k], $
                                                        /NO_MULT_BY_CHARGE)
 
-     kappaNames[k] = STRING(FORMAT='("R!DB!N = ",I0," ($\kappa$=",F0.2,",T*=",I0,")")', $
+     kappaNames[k] = STRING(FORMAT='("R!DB!N = ",G0.4," ($\kappa$=",F0.2,",T*=",I0,")")', $
                             R_Bs__K[k],kappas[k],TmultFac__kappa[k])
 
      IF KEYWORD_SET(plot_j_ratios) THEN BEGIN

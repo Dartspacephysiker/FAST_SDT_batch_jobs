@@ -1,11 +1,21 @@
+;;2017/03/21 Either of these are money in the bank
 PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TOUCH__1LC
 
   COMPILE_OPT IDL2
 
-  PRINT,"Do you understand me? This is a good one, and you aren't at liberty to hose around with it!"
-  WAIT,1
-
   routName                = 'JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TOUCH__1LC'
+
+  ;;get orbTimes here
+  orbit                   = 1773
+
+  ;;They'll just walk up and bring you the keys! MO MONEY MO MONEY MO MONEY
+  plot_times              = ['1997-02-01/09:26:10.0', $
+                             '1997-02-01/09:27:13.4']
+  orbTimes                = plot_times
+  orbBurstTimes           = plot_times
+
+  downTimesStr            = plot_times
+  upTimesStr              = downTimesStr
 
   Elphic1998_defaults     = 1
 
@@ -15,75 +25,72 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
 
   add_oneCount_stats      = 1
 
-  useInds__relChange      = 1
-  fracChange_TDown        = 0.5
-  fracChange_NDown        = 0.25
-  fracError_TDown         = 0.25
-  fracError_NDown         = 0.05
-  max_TDown               = 140
-  min_TDown               = 90
-  max_NDown               = 0.15
+  ;; useInds__relChange      = 1
+  ;; fracChange_TDown        = 0.5
+  ;; fracChange_NDown        = 0.25
+  ;; fracError_TDown         = 0.25
+  ;; fracError_NDown         = 0.05
+  ;; max_TDown               = 140
+  ;; min_TDown               = 90
+  ;; max_NDown               = 0.15
+  ;; min_NDown               = .14
   ;; fracError_TDown         = 0.20
   ;; fracError_NDown         = 0.10
-  ;; useInds__twoLumps       = 1
+  useInds__twoLumps       = 1
   ;; tRanges                 = '1997-02-01/' + $
   ;;                           [['09:26:14.0', $
   ;;                             '09:26:23.0'], $
   ;;                            ['09:26:54.0', $
   ;;                             '09:27:05.0']]
   ;; tRanges                 = tRanges[*,1]
+  tRanges                 = '1997-02-01/' + $
+                            [['09:26:55.0', $
+                              '09:27:05.0'], $
+                             ['09:26:14.2', $
+                              '09:26:23.0']]
+  tRanges                 = tRanges[*,0]
 
-
-  plot_times              = ['1997-02-01/09:26:10.0', $
-                             '1997-02-01/09:27:13.4']
 
   plot_t1                 = STR_TO_TIME(plot_times[0])
   plot_t2                 = STR_TO_TIME(plot_times[1])
   add_iu_pot              = 1
-  use_all_currents        = 1
+  use_ed_current          = 1
+  use_iu_current          = 1
+  use_all_currents        = 0
 
   interactive_overplot    = 0
   
-  savePlot                = 0
-  savePSuff               = '__lumpSep'
+  savePlot                = 1
+  savePSuff               = '__lumpSep2'
 
+  ;;Which plots?
   plot_jv_a_la_Elphic     = 0B
-  ;; a_la_Elphic_spName      = 'errorbarsalso_downgoing_e.png'
-  a_la_Elphic_spName      = 'errorbarsalso_downgoing_e' + savePSuff + '.png'
-
   plot_j_v_potBar         = 0B
+  plot_T_and_N            = 0B
+  plot_j_v_and_theory     = 0B
+  plot_j_v__fixed_t_and_n = 1B
+
+  a_la_Elphic_spName      = 'errorbarsalso_downgoing_e' + savePSuff + '.png'
   jvpotBar_spName         = 'j_vs_potBar__downgoing_e' + savePSuff + '.png'
+  TN_spName               = 'T_and_N__downgoing_e' + savePSuff + '.png'
+  JV_theor_spName         = 'j_v_data_n_theory__downgoing_e' + savePSuff + '.png' & j_v__fixTandN__spName = 'j_v_fixTandN__' + savePSuff + '.png'
+
+  ;;Options for j_v_potBar plot
   jvpotBar__j_on_yAxis    = 1
 
-  plot_T_and_N            = 1B
-  TN_spName               = 'T_and_N__downgoing_e' + savePSuff + '.png'
-  
-  ;;get orbTimes here
-  orbit                   = 1773
+  ;;Options for TandN plot
+  TN_yLog_nDown           = 0B
 
-  plot_j_v_and_theory     = 1B
+  ;;Options for j_v_and_theory plot
   plot_j_ratios           = 0B
   plot_ion_elec_ratios    = 0B
-  JV_theor_spName         = 'j_v_data_n_theory__downgoing_e' + savePSuff + '.png'
+  JV_theor__fit_time_series = 1B
   jv_theor__minPot        = 1500
   jv_theor__maxPot        = 4000
   jv_theor__minCur        = 1D-6
   jv_theor__maxCur        = !NULL
 
-  orbTimes                = plot_times
-  orbBurstTimes           = plot_times
   bonusPref               = '--Elphic_et_al_1998--Fig2'
-
-
-  ;;They'll just walk up and bring you the keys! MO MONEY MO MONEY MO MONEY
-  downTimesStr            = plot_times
-
-  upTimesStr              = downTimesStr
-
-  ;; kStats_startStops__ees  = LIST('1997-02-01/' + [['09:25:50','09:26:10'], $ ;These are for the downward current regions
-  ;;                                                 ['09:27:05','09:27:15']])
-  ;; kStats_startStops__eeb  = LIST('1997-02-01/' + [['09:26:12','09:26:23'], $
-  ;;                                                 ['09:26:53','09:27:07.5']])
 
   units                   = 'eFlux'
   ;; units                = 'flux'
@@ -102,10 +109,10 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
 
   ;;survey window
   eeb_or_eesArr            = ['ees','ies']
-  spectra_average_interval = 4
+  spectra_average_interval = 3
 
   ;; eeb_or_eesArr           = ['eeb','ieb']
-  ;; spectra_average_interval = 4
+  ;; spectra_average_interval = 10
 
 
   order                   = [0,1,2]
@@ -120,11 +127,14 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   aRange__peakEn_i_up     = 'lc'
   aRange__charE_i_up      = 'lc'
 
+  blankers                = !NULL
+  blankers                = 'lc'
+
   label__which_eeb        = [0,0,1]
   label__which_times      = [0,1,0]
-  aRange__moments_list    = LIST(aRange__moments_e_down,!NULL,aRange__moments_i_up)
-  aRange__peakEn_list     = LIST(!NULL,!NULL,aRange__peakEn_i_up)
-  aRange__charE_list      = LIST(!NULL,!NULL,aRange__charE_i_up)
+  aRange__moments_list    = LIST(aRange__moments_e_down,blankers,aRange__moments_i_up)
+  aRange__peakEn_list     = LIST(blankers,blankers,aRange__peakEn_i_up)
+  aRange__charE_list      = LIST(blankers,blankers,aRange__charE_i_up)
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highEArr  = [0,1,1]
@@ -200,7 +210,26 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
                                       USE_CHAR_EN_FOR_DOWNPOT=use_charE_for_downPot, $
                                       USE_PEAK_EN_FOR_DOWNPOT=use_peakE_for_downPot, $
                                       ADD_UPGOING_ION_POT=add_iu_pot, $
-                                      ERROR_BAR_FACTOR=errorBarFac
+                                      ERROR_BAR_FACTOR=errorBarFac, $
+                                      USEI__RELCHANGE=useInds__relChange, $
+                                      FRACCHANGE_TDOWN=fracChange_TDown, $
+                                      FRACCHANGE_NDOWN=fracChange_NDown, $
+                                      FRACERROR_TDOWN=fracError_TDown, $
+                                      FRACERROR_NDOWN=fracError_NDown, $
+                                      USEI__TWOLUMPS=useInds__twoLumps, $
+                                      MAX_TDOWN=max_TDown, $
+                                      MIN_TDOWN=min_TDown, $
+                                      MAX_NDOWN=max_NDown, $
+                                      MIN_NDOWN=min_NDown, $
+                                      TRANGES=tRanges, $
+                                      MINPOT=minPot, $
+                                      MAXPOT=maxPot, $
+                                      MINCUR=minCur, $
+                                      MAXCUR=maxCur, $
+                                      USEINDS=useInds, $
+                                      PLOT_J_RATIOS=plot_j_ratios, $
+                                      OUT_AVGS_FOR_FITTING=avgs_JVfit
+
 
   IF KEYWORD_SET(plot_jv_a_la_Elphic) THEN BEGIN
      PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,jvPlotData, $
@@ -225,6 +254,9 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
      PLOT_TEMPERATURE_AND_DENSITY_TSERIES, $
         jvPlotData, $
         ORIGINAL_PLOTIDEE=orig_plotIdee, $
+        USEI__TWOLUMPS=useInds__twoLumps, $
+        USEINDS=useInds, $
+        YLOG_NDOWN=TN_yLog_nDown, $
         SAVEPLOT=savePlot, $
         SPNAME=TN_spName, $
         ORIGINATING_ROUTINE=routName, $
@@ -234,71 +266,8 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
         OVERPLOT_WINDOW=overplot_window
   ENDIF
 
-  CASE 1 OF
-     KEYWORD_SET(useInds__relChange): BEGIN
-
-        relChange_TDown = (JVPlotData.TDown [1:-1]-JVPlotData.TDown [0:-2])/JVPlotData.TDown [0:-2]
-        relChange_NDown = (JVPlotData.NDown [1:-1]-JVPlotData.NDown [0:-2])/JVPlotData.NDown [0:-2]
-
-        ;; smochange_TDown = WHERE(ABS(relChange_TDown) LE 0.1*JVPlotData.TDownErr/JVPlotData.TDown)
-        ;; smochange_NDown = WHERE(ABS(relChange_NDown) LE 0.1*JVPlotData.NDownErr/JVPlotData.NDown)
-
-        smochange_TDown = WHERE(ABS(relChange_TDown) LE fracChange_TDown)
-        smochange_NDown = WHERE(ABS(relChange_NDown) LE fracChange_NDown)
-
-        ;;Any otras condiciones?
-        otrasCondiciones = WHERE((jvplotdata.cur LE 0) AND $
-                                 (ABS(JVPlotData.TDownErr/JVPlotData.TDown) LE fracError_TDown) AND $
-                                 (ABS(JVPlotData.NDownErr/JVPlotData.NDown) LE fracError_NDown))
-
-        IF KEYWORD_SET(max_TDown) THEN BEGIN
-           otrasCondiciones = CGSETINTERSECTION(otrasCondiciones, $
-                                                WHERE(JVPlotData.TDown LE max_TDown), $
-                                                COUNT=nUsers)
-        ENDIF
-
-        IF KEYWORD_SET(min_TDown) THEN BEGIN
-           otrasCondiciones = CGSETINTERSECTION(otrasCondiciones, $
-                                                WHERE(JVPlotData.TDown GE min_TDown), $
-                                                COUNT=nUsers)
-        ENDIF
-
-        IF KEYWORD_SET(max_NDown) THEN BEGIN
-           otrasCondiciones = CGSETINTERSECTION(otrasCondiciones, $
-                                                WHERE(JVPlotData.NDown LE max_NDown), $
-                                                COUNT=nUsers)
-        ENDIF
-
-        useInds         = CGSETINTERSECTION(smochange_NDown,smochange_TDown,COUNT=nUsers)
-
-        useInds         = CGSETINTERSECTION(useInds,otrasCondiciones,COUNT=nUsers)
-
-        IF nUsers LE 1 THEN STOP
-
-     END
-     KEYWORD_SET(useInds__twoLumps): BEGIN
-
-        nTRanges = N_ELEMENTS(tRanges[0,*])
-        useInds  = !NULL
-        FOR k=0,nTRanges-1 DO BEGIN
-
-           tmpInds = WHERE(JVPlotData.time GE STR_TO_TIME(tRanges[0,k]) AND $
-                           JVPlotData.time LE STR_TO_TIME(tRanges[1,k]),nTmp)
-
-           IF nTmp GT 0 THEN BEGIN
-              useInds = [useInds,tmpInds]
-           ENDIF ELSE BEGIN
-              PRINT,"Ingenting her!"
-              STOP
-           ENDELSE
-           
-        ENDFOR
-
-        nUsers = N_ELEMENTS(useInds)
-
-     END
-     ELSE:
-  ENDCASE
+  ;;             kappa,            Temp,            Dens,  R_B
+  A_in         = [  10,avgs_JVfit.T.avg,avgs_JVfit.N.avg, 1D3]
   IF KEYWORD_SET(plot_j_v_and_theory) THEN BEGIN
 
      PLOT_JV_DATA_AND_THEORETICAL_CURVES,jvPlotData, $
@@ -314,43 +283,50 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
                                          PLOTDIR=plotDir, $
                                          SAVEPLOT=savePlot, $
                                          SPNAME=JV_theor_spName, $
-                                         OUT_AVGS_FOR_FITTING=avgs_JVfit
+                                         AVGS_FOR_FITTING=avgs_JVfit, $
+                                         FIT_TIME_SERIES=JV_theor__fit_time_series, $
+                                         FIT_TSERIES__A_IN=A_in
 
 
   ENDIF
 
-  ;;             kappa,            Temp,            Dens,  R_B
-  A_in         = [  10,avgs_JVfit.T.avg,avgs_JVfit.N.avg, 1D4]
-  ESTIMATE_JV_CURVE_FROM_AVERAGE_PARAMS,jvPlotData,avgs_JVfit, $
-                                        A_IN=A_in
+  IF KEYWORD_SET(plot_j_v__fixed_t_and_n) THEN BEGIN
 
-  useInds      = useInds[SORT(jvplotdata.time[useInds])]
+     ESTIMATE_JV_CURVE_FROM_AVERAGE_PARAMS,jvPlotData,avgs_JVfit, $
+                                           ORBIT=orbit, $
+                                           A_IN=A_in, $
+                                           ORIGINATING_ROUTINE=routName, $
+                                           SAVEPLOT=savePlot, $
+                                           SPNAME=j_v__fixTandN__spName
 
-  PRINT,FORMAT='(I0,T5,A0,T35,A0,T45,A0,T55,A0,T65,A0,T75,A0,T85,A0,T95,A0)', $
-        'i','Time','Temp','N','Pot','Current','TFracErr','NFracErr','JFracErr'
-  FOR k=0,nUsers-1 DO BEGIN
-     PRINT,FORMAT='(I0,T5,A0,T35,F-8.3,T45,F-8.3,T55,F-8.3,T65,F-8.3,T75,F-8.3,T85,F-8.3,T95,F-8.3)', $
-           k, $
-           TIME_TO_STR(JVPlotData.time[useInds[k]]), $
-           JVPlotData.TDown[useInds[k]], $
-           JVPlotData.NDown[useInds[k]], $
-           JVPlotData.pot[useInds[k]], $
-           JVPlotData.cur[useInds[k]], $
-           JVPlotData.TDownErr[useInds[k]]/JVPlotData.TDown[useInds[k]], $
-           JVPlotData.NDownErr[useInds[k]]/JVPlotData.NDown[useInds[k]], $
-           ABS(JVPlotData.curErr[useInds[k]]/JVPlotData.cur[useInds[k]])
-           
-  ENDFOR
-  PRINT,FORMAT='(A0,T35,F-8.3,T45,F-8.3,T55,F-8.3,T65,G-8.3)', $
-        "Avg", $
-        MEAN(JVPlotData.TDown[useInds]), $
-        MEAN(JVPlotData.NDown[useInds]), $
-        MEAN(JVPlotData.pot[useInds]), $
-        MEAN(JVPlotData.cur[useInds])
+     nUsers       = N_ELEMENTS(useInds)
+     useInds      = useInds[SORT(jvplotdata.time[useInds])]
 
+     PRINT,FORMAT='(I0,T5,A0,T35,A0,T45,A0,T55,A0,T65,A0,T75,A0,T85,A0,T95,A0)', $
+           'i','Time','Temp','N','Pot','Current','TFracErr','NFracErr','JFracErr'
+     FOR k=0,nUsers-1 DO BEGIN
+        PRINT,FORMAT='(I0,T5,A0,T35,F-8.3,T45,F-8.3,T55,F-8.3,T65,F-8.3,T75,F-8.3,T85,F-8.3,T95,F-8.3)', $
+              k, $
+              TIME_TO_STR(JVPlotData.time[useInds[k]],/MS), $
+              JVPlotData.TDown[useInds[k]], $
+              JVPlotData.NDown[useInds[k]], $
+              JVPlotData.pot[useInds[k]], $
+              JVPlotData.cur[useInds[k]], $
+              JVPlotData.TDownErr[useInds[k]]/JVPlotData.TDown[useInds[k]], $
+              JVPlotData.NDownErr[useInds[k]]/JVPlotData.NDown[useInds[k]], $
+              ABS(JVPlotData.curErr[useInds[k]]/JVPlotData.cur[useInds[k]])
+        
+     ENDFOR
+     PRINT,FORMAT='(A0,T35,F-8.3,T45,F-8.3,T55,F-8.3,T65,G-8.3)', $
+           "Avg", $
+           MEAN(JVPlotData.TDown[useInds]), $
+           MEAN(JVPlotData.NDown[useInds]), $
+           MEAN(JVPlotData.pot[useInds]), $
+           MEAN(JVPlotData.cur[useInds])
+
+  ENDIF
 
   STOP
-
 END
 
 

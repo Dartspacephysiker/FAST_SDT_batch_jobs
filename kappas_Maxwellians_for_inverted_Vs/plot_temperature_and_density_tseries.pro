@@ -2,6 +2,9 @@
 PRO PLOT_TEMPERATURE_AND_DENSITY_TSERIES, $
    jvPlotData, $
    ORIGINAL_PLOTIDEE=orig_plotIdee, $
+   YLOG_NDOWN=yLog_nDown, $
+   USEI__TWOLUMPS=useInds__twoLumps, $
+   USEINDS=useInds, $
    SAVEPLOT=savePlot, $
    SPNAME=spName, $
    ORIGINATING_ROUTINE=routName, $
@@ -55,7 +58,7 @@ PRO PLOT_TEMPERATURE_AND_DENSITY_TSERIES, $
      SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF=pDirSuff
   ENDIF
 
-  timeTitle        = 'Seconds since ' + TIME_TO_STR(jvPlotData.time[0])
+  timeTitle        = 'Seconds since ' + TIME_TO_STR(jvPlotData.time[0],/MS)
 
   tDownRange       = MINMAX(jvPlotData.tDown)
 
@@ -233,6 +236,30 @@ PRO PLOT_TEMPERATURE_AND_DENSITY_TSERIES, $
                                       /OVERPLOT)
         ENDFOR
 
+        IF KEYWORD_SET(useInds__twoLumps) AND KEYWORD_SET(useInds) THEN BEGIN
+           
+           minI      = MIN(useInds)
+           maxI      = MAX(useInds)
+           line1X    = [jvPlotData.tDiff[minI],jvPlotData.tDiff[minI]]
+           line2X    = [jvPlotData.tDiff[maxI],jvPlotData.tDiff[maxI]]
+
+           line1Y    = [MIN(TDownRange),MAX(TDownRange)]
+           line2Y    = [MIN(TDownRange),MAX(TDownRange)]
+
+           linePlot1 = PLOT(line1X, $
+                            line1Y, $
+                            RGB_TABLE=hammerCT, $
+                            VERT_COLORS=jvPlotData.tMag[[minI,minI]], $
+                            /OVERPLOT)
+           
+           linePlot2 = PLOT(line2X, $
+                            line2Y, $
+                            RGB_TABLE=hammerCT, $
+                            VERT_COLORS=jvPlotData.tMag[[maxI,maxI]], $
+                            /OVERPLOT)
+
+        ENDIF
+
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ;;Second plot
 
@@ -244,7 +271,7 @@ PRO PLOT_TEMPERATURE_AND_DENSITY_TSERIES, $
                                       jvPlotData.nDown[inds], $
                                       tmpNDownErr, $
                                       XRANGE=tRange, $
-                                      /YLOG, $
+                                      YLOG=yLog_nDown, $
                                       YRANGE=nDownRange, $
                                       YTITLE=nDownTitle, $
                                       RGB_TABLE=hammerCT, $
@@ -276,7 +303,7 @@ PRO PLOT_TEMPERATURE_AND_DENSITY_TSERIES, $
            plot_2         = ERRORPLOT((jvPlotData.tDiff[inds]), $
                                       jvPlotData.nDown[inds], $
                                       tmpNDownErr, $
-                                      /YLOG, $
+                                      YLOG=yLog_nDown, $
                                       VERT_COLORS=hammerCT[*,CTInds[inds]], $
                                       ERRORBAR_COLOR=hammerCT[*,CTInds[k]], $
                                       ERRORBAR_CAPSIZE=errSym_capSize, $
@@ -349,6 +376,30 @@ PRO PLOT_TEMPERATURE_AND_DENSITY_TSERIES, $
 
      END
   ENDCASE
+
+  IF KEYWORD_SET(useInds__twoLumps) AND KEYWORD_SET(useInds) THEN BEGIN
+     
+     minI      = MIN(useInds)
+     maxI      = MAX(useInds)
+     line1X    = [jvPlotData.tDiff[minI],jvPlotData.tDiff[minI]]
+     line2X    = [jvPlotData.tDiff[maxI],jvPlotData.tDiff[maxI]]
+
+     line1Y    = [MIN(nDownRange),MAX(nDownRange)]
+     line2Y    = [MIN(nDownRange),MAX(nDownRange)]
+
+     linePlot1 = PLOT(line1X, $
+                      line1Y, $
+                      RGB_TABLE=hammerCT, $
+                      VERT_COLORS=jvPlotData.tMag[[minI,minI]], $
+                      /OVERPLOT)
+     
+     linePlot2 = PLOT(line2X, $
+                      line2Y, $
+                      RGB_TABLE=hammerCT, $
+                      VERT_COLORS=jvPlotData.tMag[[maxI,maxI]], $
+                      /OVERPLOT)
+
+  ENDIF
 
   ;;And a colorbar thing
   IF ~KEYWORD_SET(overplotAll) THEN BEGIN
