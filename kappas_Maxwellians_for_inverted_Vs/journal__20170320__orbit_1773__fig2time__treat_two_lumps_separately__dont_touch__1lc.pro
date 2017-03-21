@@ -50,7 +50,6 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
                               '09:26:23.0']]
   tRanges                 = tRanges[*,0]
 
-
   plot_t1                 = STR_TO_TIME(plot_times[0])
   plot_t2                 = STR_TO_TIME(plot_times[1])
   add_iu_pot              = 1

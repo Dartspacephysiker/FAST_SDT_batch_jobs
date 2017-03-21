@@ -45,7 +45,6 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
                               '20:49:46']]
   tRanges                 = tRanges[*,0]
 
-
   plot_t1                 = STR_TO_TIME(plot_times[0])
   plot_t2                 = STR_TO_TIME(plot_times[1])
   add_iu_pot              = 1

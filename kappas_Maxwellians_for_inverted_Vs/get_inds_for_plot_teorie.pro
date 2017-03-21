@@ -1,17 +1,17 @@
 ;2017/03/21
-FUNCTION GET_INDS_FOR_PLOT_TEORIE,JVPlotData, $
-                                  USEINDS__INCLUDE_POSCURRENT=useInds__include_posCurrent, $
-                                  USEINDS__RELCHANGE=useInds__relChange, $
-                                  FRACCHANGE_TDOWN=fracChange_TDown, $
-                                  FRACCHANGE_NDOWN=fracChange_NDown, $
-                                  FRACERROR_TDOWN=fracError_TDown, $
-                                  FRACERROR_NDOWN=fracError_NDown, $
-                                  USEINDS__TWOLUMPS=useInds__twoLumps, $
-                                  MAX_TDOWN=max_TDown, $
-                                  MIN_TDOWN=min_TDown, $
-                                  MAX_NDOWN=max_NDown, $
-                                  MIN_NDOWN=min_NDown, $
-                                  TRANGES=tRanges
+FUNCTION GET_INDS_FOR_PLOT_THEORIE,JVPlotData, $
+                                   USEINDS__INCLUDE_POSCURRENT=useInds__include_posCurrent, $
+                                   USEINDS__RELCHANGE=useInds__relChange, $
+                                   FRACCHANGE_TDOWN=fracChange_TDown, $
+                                   FRACCHANGE_NDOWN=fracChange_NDown, $
+                                   FRACERROR_TDOWN=fracError_TDown, $
+                                   FRACERROR_NDOWN=fracError_NDown, $
+                                   USEINDS__TWOLUMPS=useInds__twoLumps, $
+                                   MAX_TDOWN=max_TDown, $
+                                   MIN_TDOWN=min_TDown, $
+                                   MAX_NDOWN=max_NDown, $
+                                   MIN_NDOWN=min_NDown, $
+                                   TRANGES=tRanges
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
