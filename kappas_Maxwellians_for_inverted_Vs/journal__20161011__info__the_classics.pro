@@ -32,10 +32,10 @@ orbBurstTimes = LIST( $
                 )
 
 bonusPrefs = [ $
-             '--classics--1--Ergun_et_al_1998', $
-             '--classics--2--McFadden_et_al_1998', $
-             '--classics--3--Elphic_et_al_1998', $
-             '--classics--4--Carlson_et_al_2001' $
+             '-classics-1-Ergun_et_al_1998', $
+             '-classics-2-McFadden_et_al_1998', $
+             '-classics-3-Elphic_et_al_1998', $
+             '-classics-4-Carlson_et_al_2001' $
              ]
 
 
@@ -58,3 +58,10 @@ kStats_startStops__eeb = LIST([0],[0],LIST('1997-02-01/' + [['09:26:12','09:26:2
                               [0], $
                               [0], $
                               [0])
+
+cAP_tRanges_list              = LIST('1997-02-07/'+['20:49:41','20:50:10'], $
+                                     [0], $
+                                     '1997-02-01/'+['09:26:10.0','09:27:13.4'])
+
+spectra_average_interval_list = LIST(6,!NULL,3)
+eeb_or_ees__recommande        = LIST('eeb',!NULL,'ees')

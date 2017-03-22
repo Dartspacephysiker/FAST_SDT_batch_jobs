@@ -1,5 +1,4 @@
 ;2017/03/13
-;
 PRO JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513
 
   COMPILE_OPT IDL2
@@ -40,17 +39,19 @@ PRO JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513
   ;; fracError_NDown         = 0.10
   useInds__twoLumps       = 1
   tRanges                 = '2001-07-19/' + $
-                            [['14:11:16', $
-                              '14:11:36'], $
+                            [['14:11:21', $
+                              '14:11:51'], $
                              ['14:10:26', $
                               '14:10:46']]
-  tRanges                 = tRanges[*,1]
+  tRanges                 = tRanges[*,0]
 
 
   plot_t1                 = STR_TO_TIME(plot_times[0])
   plot_t2                 = STR_TO_TIME(plot_times[1])
-  add_iu_pot              = 1
-  use_all_currents        = 1
+  add_iu_pot              = 0
+  use_ed_current          = 1
+  use_iu_current          = 1
+  use_all_currents        = 0
 
   interactive_overplot    = 0
   
@@ -60,19 +61,21 @@ PRO JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513
   ;;Which plots?
   plot_jv_a_la_Elphic     = 0B
   plot_j_v_potBar         = 0B
-  plot_T_and_N            = 0B
+  plot_T_and_N            = 1B
   plot_j_v_and_theory     = 1B
-
-
-  ;;Options for j_v_potBar plot
-  jvpotBar__j_on_yAxis    = 1
-
+  plot_j_v__fixed_t_and_n = 1B
 
   a_la_Elphic_spName      = bonusPref + '.png'
   jvpotBar_spName         = bonusPref + 'j_vs_potBar__downgoing_e' + savePSuff + '.png'
   TN_spName               = bonusPref + 'T_and_N__downgoing_e' + savePSuff + '.png'
   JV_theor_spName         = bonusPref + 'j_v_data_n_theory__downgoing_e' + savePSuff + '.png'
   
+  ;;Options for TandN plot
+  TN_yLog_nDown           = 0B
+
+  ;;Options for j_v_potBar plot
+  jvpotBar__j_on_yAxis    = 1
+
   ;;Options for j_v_and_theory plot
   plot_j_ratios           = 0B
   plot_ion_elec_ratios    = 0B
@@ -135,10 +138,12 @@ PRO JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513
   min_peak_energyArr      = [300,100,100]
   max_peak_energyArr      = [3e4,3e4,2.4e4]
 
-  CURRENT_AND_POTENTIAL_ANALYSIS, $
+  CURRENT_AND_POTENTIAL_SUITE, $
      ORBIT=orbit, $
      ORBTIMES=orbTimes, $
      ORBBURSTTIMES=orbBurstTimes, $
+     PLOT_T1=plot_t1, $
+     PLOT_T2=plot_t2, $
      BONUSPREF=bonusPref, $
      DOWNTIMESSTR=downTimesStr, $
      UPTIMESSTR=upTimesStr, $
@@ -167,7 +172,6 @@ PRO JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513
      ENERGYARR=energyArr, $
      USE_SC_POT_FOR_LOWERBOUND=use_sc_pot_for_lowerbound, $
      POT__FROM_FA_POTENTIAL=pot__from_fa_potential, $
-     POT__ALL=pot__all, $
      POT__CHASTON_STYLE=pot__Chaston_style, $
      POT__FROM_FILE=pot__from_file, $
      POT__SAVE_FILE=pot__save_file, $
@@ -180,122 +184,59 @@ PRO JOURNAL__20170313__WRAPPA_KAPPA__ORBIT_19513
      PEAK_ENERGY__START_AT_HIGHEARR=peak_energy__start_at_highEArr, $
      UPGOINGARR=upgoingArr, $
      ERROR_ESTIMATES=error_estimates, $
-     ;; DENS_ERRORS=dens_errors, $
      SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
      MAP_TO_100KM=map_to_100km, $
      SAVECURPOTFILE=saveCurPotFile, $
-     OUT_CURPOTLIST=curPotList
-
-  CURRENT_AND_POTENTIAL_PLOTDATA_PREP,curPotList,jvPlotData, $
-                                      T1=plot_t1, $
-                                      T2=plot_t2, $
-                                      USE_ALL_CURRENTS=use_all_currents, $
-                                      USE_DOWNGOING_ELECTRON_CURRENT=use_ed_current, $
-                                      USE_UPGOING_ION_CURRENT=use_iu_current, $
-                                      USE_UPGOING_ELECTRON_CURRENT=use_eu_current, $
-                                      USE_CHAR_EN_FOR_DOWNPOT=use_charE_for_downPot, $
-                                      USE_PEAK_EN_FOR_DOWNPOT=use_peakE_for_downPot, $
-                                      ADD_UPGOING_ION_POT=add_iu_pot, $
-                                      ERROR_BAR_FACTOR=errorBarFac
-
-  IF KEYWORD_SET(plot_jv_a_la_Elphic) THEN BEGIN
-     PLOT_THREEPANEL_ANALOG_TO_FIG2_ELPHIC_ETAL_1998,jvPlotData, $
-        ORIGINAL_PLOTIDEE=orig_plotIdee, $
-        SAVEPLOT=savePlot, $
-        SPNAME=a_la_Elphic_spName, $
-        ORIGINATING_ROUTINE=routName, $
-        PLOTDIR=plotDir
-  ENDIF
-
-  IF KEYWORD_SET(plot_j_v_potBar) THEN BEGIN
-     PLOT_J_VS_POTBAR,jvPlotData, $
-                      J_ON_YAXIS=jvPotBar__j_on_yAxis, $
-                      SAVEPLOT=savePlot, $
-                      SPNAME=jvpotBar_spName, $
-                      INTERACTIVE_OVERPLOT=interactive_overplot, $
-                      ORIGINATING_ROUTINE=routName, $
-                      PLOTDIR=plotDir
-  ENDIF
-
-  IF KEYWORD_SET(plot_T_and_N) THEN BEGIN
-     PLOT_TEMPERATURE_AND_DENSITY_TSERIES, $
-        jvPlotData, $
-        ORIGINAL_PLOTIDEE=orig_plotIdee, $
-        SAVEPLOT=savePlot, $
-        SPNAME=TN_spName, $
-        ORIGINATING_ROUTINE=routName, $
-        PLOTDIR=plotDir, $
-        OUT_WINDOW=window1, $
-        OVERPLOTALL=overplotAll, $
-        OVERPLOT_WINDOW=overplot_window
-  ENDIF
-
-  useInds = GET_INDS_FOR_PLOT_TEORIE(JVPlotData, $
-                                     USEINDS__RELCHANGE=useInds__relChange, $
-                                     FRACCHANGE_TDOWN=fracChange_TDown, $
-                                     FRACCHANGE_NDOWN=fracChange_NDown, $
-                                     FRACERROR_TDOWN=fracError_TDown, $
-                                     FRACERROR_NDOWN=fracError_NDown, $
-                                     USEINDS__TWOLUMPS=useInds__twoLumps, $
-                                     MAX_TDOWN=max_TDown, $
-                                     MIN_TDOWN=min_TDown, $
-                                     MAX_NDOWN=max_NDown, $
-                                     MIN_NDOWN=min_NDown, $
-                                     TRANGES=tRanges)
-
-  IF KEYWORD_SET(plot_j_v_and_theory) THEN BEGIN
-
-     PLOT_JV_DATA_AND_THEORETICAL_CURVES,jvPlotData, $
-                                         CURPOTLIST=curPotList, $
-                                         MINPOT=jv_theor__minPot, $
-                                         MAXPOT=jv_theor__maxPot, $
-                                         MINCUR=jv_theor__minCur, $
-                                         MAXCUR=jv_theor__maxCur, $
-                                         USEINDS=useInds, $
-                                         PLOT_J_RATIOS=plot_j_ratios, $
-                                         PLOT_ION_ELEC_RATIOS=plot_ion_elec_ratios, $
-                                         ORIGINATING_ROUTINE=routName, $
-                                         PLOTDIR=plotDir, $
-                                         SAVEPLOT=savePlot, $
-                                         SPNAME=JV_theor_spName, $
-                                         OUT_AVGS_FOR_FITTING=avgs_JVfit
-
-
-  ENDIF
-
-  ;;             kappa,            Temp,            Dens,  R_B
-  A_in         = [  10,avgs_JVfit.T.avg,avgs_JVfit.N.avg, 1D4]
-  ESTIMATE_JV_CURVE_FROM_AVERAGE_PARAMS,jvPlotData,avgs_JVfit, $
-                                        A_IN=A_in
-
-  nUsers       = N_ELEMENTS(useInds)
-  useInds      = useInds[SORT(jvplotdata.time[useInds])]
-
-  PRINT,FORMAT='(I0,T5,A0,T35,A0,T45,A0,T55,A0,T65,A0,T75,A0,T85,A0,T95,A0)', $
-        'i','Time','Temp','N','Pot','Current','TFracErr','NFracErr','JFracErr'
-  FOR k=0,nUsers-1 DO BEGIN
-     PRINT,FORMAT='(I0,T5,A0,T35,F-8.3,T45,F-8.3,T55,F-8.3,T65,F-8.3,T75,F-8.3,T85,F-8.3,T95,F-8.3)', $
-           k, $
-           TIME_TO_STR(JVPlotData.time[useInds[k]]), $
-           JVPlotData.TDown[useInds[k]], $
-           JVPlotData.NDown[useInds[k]], $
-           JVPlotData.pot[useInds[k]], $
-           JVPlotData.cur[useInds[k]], $
-           JVPlotData.TDownErr[useInds[k]]/JVPlotData.TDown[useInds[k]], $
-           JVPlotData.NDownErr[useInds[k]]/JVPlotData.NDown[useInds[k]], $
-           ABS(JVPlotData.curErr[useInds[k]]/JVPlotData.cur[useInds[k]])
-           
-  ENDFOR
-  PRINT,FORMAT='(A0,T35,F-8.3,T45,F-8.3,T55,F-8.3,T65,G-8.3)', $
-        "Avg", $
-        MEAN(JVPlotData.TDown[useInds]), $
-        MEAN(JVPlotData.NDown[useInds]), $
-        MEAN(JVPlotData.pot[useInds]), $
-        MEAN(JVPlotData.cur[useInds])
-
-
-  STOP
-
+     USE_DOWNGOING_ELECTRON_CURRENT=use_ed_current, $
+     USE_UPGOING_ION_CURRENT=use_iu_current, $
+     USE_UPGOING_ELECTRON_CURRENT=use_eu_current, $
+     USE_CHAR_EN_FOR_DOWNPOT=use_charE_for_downPot, $
+     USE_PEAK_EN_FOR_DOWNPOT=use_peakE_for_downPot, $
+     ADD_UPGOING_ION_POT=add_iu_pot, $
+     ERROR_BAR_FACTOR=errorBarFac, $
+     USEI__RELCHANGE=useInds__relChange, $
+     USEI__TWOLUMPS=useInds__twoLumps, $
+     FRACCHANGE_TDOWN=fracChange_TDown, $
+     FRACCHANGE_NDOWN=fracChange_NDown, $
+     FRACERROR_TDOWN=fracError_TDown, $
+     FRACERROR_NDOWN=fracError_NDown, $
+     MAX_TDOWN=max_TDown, $
+     MIN_TDOWN=min_TDown, $
+     MAX_NDOWN=max_NDown, $
+     MIN_NDOWN=min_NDown, $
+     TRANGES=tRanges, $
+     MINPOT=minPot, $
+     MAXPOT=maxPot, $
+     MINCUR=minCur, $
+     MAXCUR=maxCur, $
+     JV_THEOR__MINPOT=jv_theor__minPot, $
+     JV_THEOR__MAXPOT=jv_theor__maxPot, $
+     JV_THEOR__MINCUR=jv_theor__minCur, $
+     JV_THEOR__MAXCUR=jv_theor__maxCur, $
+     JV_THEOR__PLOT_J_RATIOS=plot_j_ratios, $
+     JV_THEOR__PLOT_ION_ELEC_RATIOS=plot_ion_elec_ratios, $
+     JV_THEOR__FIT_TIME_SERIES=JV_theor__fit_time_series, $
+     JVPOTBAR__J_ON_YAXIS=jvPotBar__j_on_yAxis, $
+     JVPOTBAR__INTERACTIVE_OVERPLOT=interactive_overplot, $
+     TN_YLOG_NDOWN=TN_yLog_nDown, $
+     PLOT_J_V_POTBAR=plot_j_v_potBar, $
+     PLOT_JV_A_LA_ELPHIC=plot_jv_a_la_Elphic, $
+     PLOT_T_AND_N=plot_T_and_N, $
+     PLOT_J_V_AND_THEORY=plot_j_v_and_theory, $
+     PLOT_J_V__FIXED_T_AND_N=plot_j_v__fixed_t_and_n, $
+     A_LA_ELPHIC_SPNAME=a_la_Elphic_spName, $
+     JVPOTBAR_SPNAME=jvpotBar_spName, $
+     TN_SPNAME=TN_spName, $
+     JV_THEOR_SPNAME=JV_theor_spName, $
+     J_V__FIXTANDN__SPNAME=j_v__fixTandN__spName, $
+     ORIGINAL_PLOTIDEE=orig_plotIdee, $
+     ORIGINATING_ROUTINE=routName, $
+     SAVEPLOT=savePlot, $
+     PLOTDIR=plotDir, $
+     OUT_CURPOTLIST=curPotList, $
+     OUT_JVPLOTDATA=jvPlotData, $
+     OUT_AVGS_FOR_FITTING=avgs_JVfit, $
+     _REF_EXTRA=e
 
 END
 

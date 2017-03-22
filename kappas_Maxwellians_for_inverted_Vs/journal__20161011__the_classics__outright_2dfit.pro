@@ -3,6 +3,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   COMPILE_OPT IDL2
 
+  routName = 'JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT'
+
   ;;get orbTimes here
   @journal__20161011__info__the_classics.pro
 
@@ -13,33 +15,33 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; debug__skip_to_this_time  = STR_TO_TIME('97-02-01/09:26:31')
   ;; debug__break_on_this_time = STR_TO_TIME('97-02-01/09:26:31')
 
-  only_1D_fits                      = 1
+  only_1D_fits                      = 0
   fit1D__sourceCone_energy_spectrum = 1
   fit1D__nFlux                      = 0
-  fit1D__weighting                  = 1 ;1 = lin 2 = square
+  fit1D__weighting                  = 2 ;1 = lin 2 = square
   
   add_oneCount_curve                = 1
 
   ;;If doing upgoing electrons
-  peak_energy__start_at_highE       = 1
-  upgoing                           = 1
+  peak_energy__start_at_highE       = 0
+  upgoing                           = 0
 
-  electron_angleRange  = [-24,24]
+  electron_angleRange  = 'lc'
   energy_electrons     = [3e1,3.0e4]
   electron_lca         = [150,-150]
   min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : 500
   max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
 
-  fit1D__save_plotSlices            = 1
+  fit1D__save_plotSlices            = 0
   fit2D__save_all_candidate_plots   = 0
   fit2D__show_each_candidate        = 0
-  fit2D__weighting                  = 1 ;1 = lin 2 = square
+  fit2D__weighting                  = 2 ;1 = lin 2 = square
 
   show_Strangeway_summary  = 0
   sway__save_ps            = 0
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
-  sway__add_Newell_panel   = 0
+  sway__add_Newell_panel   = 1
   sway__log_kappaPlot      = 0
 
   show_kappa_summary  = 0
@@ -49,19 +51,22 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   kStats__save_stuff   = 1
 
-  save_diff_eFlux_file = 0
-  load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  save_diff_eFlux_file = 1
+  load_diff_eFlux_file = 0
+  restore_fitFile      = 1
 
   ;;Which classic event?
   ;; '0 :  Ergun_et_al_1998'
   ;; '1 :  McFadden_et_al_1998'
   ;; '2 :  Elphic_et_al_1998'
   ;; '3 :  Carlson_et_al_2001'
-  evtNum               = 2
+  ;; evtNum               = 2
+
+  ;;2017/03/22
+  evtNum               = 0
 
   ;;survey window
-  eeb_or_ees           = 'ees'
+  eeb_or_ees           = eeb_or_ees__recommande[evtNum]
   burstItvl            = 0
 
   ;;String setup
@@ -85,6 +90,21 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   lowDens_thresh       = 0.01
   diffEflux_thresh     = 5e7
   nPkAbove_dEF_thresh  = 5
+
+  ;;Current and potential analysis
+  curAndPot_analysis        = 1  
+  cAP_remake_masterFile     = 0
+  cAP_map_to_100km          = 1
+  ;; cAP_use_all_currents      = 0
+  cAP_use_ed_current        = 1
+  cAP_use_iu_current        = 1
+  ;; cAP_use_eu_current        = 0
+  cAP_use_charE_for_downPot = 1
+  ;; cAP_use_peakE_for_downPot = 0
+  cAP_add_iu_pot            = 1
+
+  cAP_tRanges               = cAP_tRanges_list[evtNum]
+  spectra_average_interval = spectra_average_interval_list[evtNum]
 
   KAPPA_FITTER_BLACKBOX,orbit, $
                         ELECTRON_SOURCECONEANGLE=electron_angleRange, $
@@ -142,7 +162,19 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         KAPPA_STATS__SAVE_STUFF=kStats__save_stuff, $
                         KAPPA_STATS__INCLUDE_THESE_STARTSTOPS=kStats__include_these_startstops,$
                         DEBUG__SKIP_TO_THIS_TIME=debug__skip_to_this_time, $
-                        DEBUG__BREAK_ON_THIS_TIME=debug__break_on_this_time
-
+                        DEBUG__BREAK_ON_THIS_TIME=debug__break_on_this_time, $
+                        ORIGINATING_ROUTINE=routName, $
+                        CURANDPOT_ANALYSIS=curAndPot_analysis, $
+                        CURANDPOT_TRANGES=cAP_tRanges, $
+                        CURANDPOT_REMAKE_MASTERFILE=cAP_remake_masterFile, $
+                        CURANDPOT_MAP_TO_100KM=cAP_map_to_100km, $
+                        CURANDPOT_USE_ALL_CURRENTS=cAP_use_all_currents, $
+                        CURANDPOT_USE_DOWNGOING_ELECTRON_CURRENT=cAP_use_ed_current, $
+                        CURANDPOT_USE_UPGOING_ION_CURRENT=cAP_use_iu_current, $
+                        CURANDPOT_USE_UPGOING_ELECTRON_CURRENT=cAP_use_eu_current, $
+                        CURANDPOT_USE_CHAR_EN_FOR_DOWNPOT=cAP_use_charE_for_downPot, $
+                        CURANDPOT_USE_PEAK_EN_FOR_DOWNPOT=cAP_use_peakE_for_downPot, $
+                        CURANDPOT_ADD_UPGOING_ION_POT=cAP_add_iu_pot
+  
 END
 

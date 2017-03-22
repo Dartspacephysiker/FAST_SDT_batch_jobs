@@ -91,7 +91,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   ;; units                = 'dfStd'
 
   outDir                  = '~/software/sdt/batch_jobs/saves_output_etc/cur_and_pot_analysis/'
-  datFile                 = bonusPref + 'Fig2_ingredients.sav'
+  masterFile              = bonusPref + 'Fig2_ingredients.sav'
 
   saveCurPotFile          = bonusPref + 'Fig2__meal.sav'
   save_diff_eFlux_file    = 0
@@ -152,7 +152,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
      TIMESLIST=timesList, $
      UNITS=units, $
      OUTDIR=outDir, $
-     DATFILE=datFile, $
+     MASTERFILE=masterFile, $
      REMAKE_MASTERFILE=remake_masterFile, $
      SAVE_DIFF_EFLUX_FILE=save_diff_eFlux_file, $
      LOAD_DIFF_EFLUX_FILE=load_diff_eFlux_file, $
@@ -186,7 +186,6 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
      PEAK_ENERGY__START_AT_HIGHEARR=peak_energy__start_at_highEArr, $
      UPGOINGARR=upgoingArr, $
      ERROR_ESTIMATES=error_estimates, $
-     ;; DENS_ERRORS=dens_errors, $
      SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
      MAP_TO_100KM=map_to_100km, $
      SAVECURPOTFILE=saveCurPotFile, $
@@ -242,5 +241,3 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
      _REF_EXTRA=e
 
 END
-
-

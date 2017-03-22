@@ -104,15 +104,13 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
      ;; endif
 
-     orbString           = STRING(FORMAT='(I0)',orbit)
+     orbString    = STRING(FORMAT='(I0)',orbit)
 
 ;;Handle PNGness or PSness before kicking things off
 
+     outPlotName  = 'Kappa_summary'
+     outPlotName += '--' + orbString + (KEYWORD_SET(bonusPref) ? bonusPref : '' )
      IF keyword_set(save_ps) THEN BEGIN
-
-        outPlotName  = 'Kappa_summary'
-        outPlotName += '--' + orbString + (KEYWORD_SET(bonusPref) ? bonusPref : '' )
-
 
         t1S = STRMID(TIME_TO_STR(time1,/MSEC),11,11)
         t2S = STRMID(TIME_TO_STR(time2,/MSEC),11,11)
