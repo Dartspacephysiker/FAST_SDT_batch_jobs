@@ -53,7 +53,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 0
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   ;;Which classic event?
   ;; '0 :  Ergun_et_al_1998'

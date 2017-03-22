@@ -1,7 +1,8 @@
 ;;07/05/16
 PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png, $
    SET_FOR_ORIGINAL_FIG=set_for_original_fig, $
-   SET_FOR_KAPPA_PAPER=set_for_kappa_paper
+   SET_FOR_KAPPA_PAPER=set_for_kappa_paper, $
+   SET_FOR_ORB_1843=set_for_orb_1843
 
   COMPILE_OPT IDL2
 
@@ -11,6 +12,9 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png,
      END
      KEYWORD_SET(set_for_kappa_paper): BEGIN
         plotSN          = 'Dors_Kletzing_1999-esque.png'
+     END
+     KEYWORD_SET(set_for_orb_1843): BEGIN
+        plotSN          = 'Dors_Kletzing_1999--orb_1843_vals.png'
      END
      ELSE: BEGIN
         plotSN          = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + $
@@ -27,10 +31,11 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png,
                             10, 10, 10, 10, 10, $
                             30, 30, 30, 30, 30, $
                            100,100,100,100,100, $
-                           1e6,1e6,1e6,1e6,1e6]
+                           1D3,1D3,1D3,1D3,1D3]
 
   ;;More extreme
-  k1                    = 1.6
+  ;; k1                    = 1.6
+  k1                    = 1.55
   k2                    = 2.0
   k3                    = 2.5
   ;; k2                    = 10
@@ -137,6 +142,43 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png,
   densk_m               = dens_m
   densm_m               = dens_m
 
+  IF KEYWORD_SET(set_for_orb_1843) THEN BEGIN
+
+     in_potBar          = 10.D^(DOUBLE(INDGEN(25)/4.-2))
+
+     R_B                = [10, 10, 10, 10, $
+                          598,598,598,598, $
+                          1D5,1D5,1D5,1D5]
+     
+     lineStyle          = [':','__',"-.","-", $
+                           ':','__',"-.","-", $
+                           ':','__',"-.","-"]
+     
+     color              = ['purple','blue','brown','gold', $
+                           'purple','blue','brown','gold', $
+                           'purple','blue','brown','gold']
+
+     k1                 = 1.59
+     k2                 = 2.2
+     k3                 = 5
+
+     kappa              = [k1,k2,k3,100, $
+                           k1,k2,k3,100, $
+                           k1,k2,k3,100, $
+                           k1,k2,k3,100]
+
+     changeKappa        = k3
+
+     potBar_bars        = [10,18]
+
+     ;; xRange             = [1e-2,1e3]
+     ;; yRange             = [1e-4,1e2]
+
+     yTickValues        = 10.^(INDGEN(4)-6)
+     yTickName          = STRING(FORMAT='("1e",I0)',INDGEN(4)-6)
+
+  ENDIF
+
   IF KEYWORD_SET(set_for_kappa_paper) THEN BEGIN
      Tk_m    = 2830.D         ;eV
      densk_m = 0.03D          ; cm^-3
@@ -198,7 +240,7 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png,
      PRINT,"kappa: ",kTemp
      PRINT,"R_B  : ",RTemp
      ;; plotName           = STRING(FORMAT='("Kappa = ",I0,", R_B = ",I0)',kTemp,RTemp)
-     plotName           = STRING(FORMAT='("Kappa = ",F0.1)',kTemp)
+     plotName           = STRING(FORMAT='("Kappa = ",F0.2)',kTemp)
 
      kappa_j            = KNIGHT_RELATION__DORS_KLETZING_11(kTemp,Tk_m,densk_m,pot,RTemp, $
                                                             IN_POTBAR=in_potBar, $
@@ -222,8 +264,10 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png,
                                YLOG=1, $
                                XTITLE=xTitle, $
                                YTITLE=yTitle, $
-                               YTICKVALUES=yTickValues, $
-                               YTICKNAME=yTickName, $
+                               XTICKFORMAT='exponentlabel', $
+                               YTICKFORMAT='exponentlabel', $
+                               ;; YTICKVALUES=yTickValues, $
+                               ;; YTICKNAME=yTickName, $
                                LINESTYLE=lineStyle[iPlot], $
                                COLOR=color[iPlot], $
                                FONT_SIZE=fontSize, $
@@ -261,6 +305,29 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png,
 
 
   ENDFOR
+
+  IF KEYWORD_SET(potBar_bars) THEN BEGIN
+     nBars = N_ELEMENTS(potBar_bars)
+
+     barPlots = MAKE_ARRAY(nBars,/OBJ)
+
+     barTxtArr = MAKE_ARRAY(nBars,/OBJ)
+     FOR k=0,nBars-1 DO BEGIN
+        tmpx = [potBar_bars[k],potBar_bars[k]]
+        tmpy = [1D-9,1D-3]
+
+        barPlots[k] = PLOT(tmpx,tmpy, $
+                           LINESTYLE='--', $
+                           /OVERPLOT)
+
+        barTxtArr[k] = TEXT(potBar_bars[k], $
+                            MIN(yRange)*0.9, $
+                            xTitle + '='+STRCOMPRESS(potBar_bars[k],/REMOVE_ALL), $
+                            CLIP=0)
+     ENDFOR
+
+     
+  ENDIF
 
   legPos            = [0.4,0.8]
   legFontSize       = 18
