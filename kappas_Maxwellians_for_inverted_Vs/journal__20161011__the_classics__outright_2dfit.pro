@@ -53,7 +53,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 0
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   ;;Which classic event?
   ;; '0 :  Ergun_et_al_1998'
@@ -63,7 +63,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; evtNum               = 2
 
   ;;2017/03/22
-  evtNum               = 0
+  evtNum               = 2
 
   ;;survey window
   eeb_or_ees           = eeb_or_ees__recommande[evtNum]

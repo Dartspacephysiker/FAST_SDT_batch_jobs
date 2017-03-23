@@ -146,7 +146,7 @@ PRO JOURNAL__20160705__REPRODUCE_FIGURE_2__DORS_KLETZING_1999,SAVE_PNG=save_png,
 
      in_potBar          = 10.D^(DOUBLE(INDGEN(25)/4.-2))
 
-     R_B                = [10, 10, 10, 10, $
+     R_B                = [30, 30, 30, 30, $
                           598,598,598,598, $
                           1D5,1D5,1D5,1D5]
      
