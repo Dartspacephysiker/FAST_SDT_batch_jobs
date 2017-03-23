@@ -56,7 +56,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   plot_t2                 = STR_TO_TIME(plot_times[1])
   add_iu_pot              = 1
   use_ed_current          = 1
-  use_iu_current          = 1
+  use_iu_current          = 0
   use_all_currents        = 0
 
   interactive_overplot    = 0
@@ -68,9 +68,9 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   ENDIF
 
   ;;Which plots?
-  plot_jv_a_la_Elphic     = 0B
+  plot_jv_a_la_Elphic     = 1B
   plot_j_v_potBar         = 0B
-  plot_T_and_N            = 0B
+  plot_T_and_N            = 1B
   plot_j_v_and_theory     = 1B
   plot_j_v__fixed_t_and_n = 1B
 

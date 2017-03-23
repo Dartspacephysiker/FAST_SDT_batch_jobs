@@ -19,7 +19,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   fit1D__sourceCone_energy_spectrum = 1
   fit1D__nFlux                      = 0
   fit1D__weighting                  = 2 ;1 = lin 2 = square
-  
+  fit1D__clampTemperature           = 1
+
   add_oneCount_curve                = 1
 
   ;;If doing upgoing electrons
@@ -36,6 +37,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   fit2D__save_all_candidate_plots   = 0
   fit2D__show_each_candidate        = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
+  fit2D__clampTemperature           = 1
 
   show_Strangeway_summary  = 0
   sway__save_ps            = 0
@@ -97,7 +99,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   cAP_map_to_100km          = 1
   ;; cAP_use_all_currents      = 0
   cAP_use_ed_current        = 1
-  cAP_use_iu_current        = 1
+  cAP_use_iu_current        = 0
   ;; cAP_use_eu_current        = 0
   cAP_use_charE_for_downPot = 1
   ;; cAP_use_peakE_for_downPot = 0
@@ -130,10 +132,12 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         FIT1D__SOURCECONE_ENERGY_SPECTRUM=fit1D__sourceCone_energy_spectrum, $
                         FIT1D__NFLUX=fit1D__nFlux, $
                         FIT1D__WEIGHTING=fit1D__weighting, $
+                        FIT1D__CLAMPTEMPERATURE=fit1D__clampTemperature, $
                         FIT1D__SAVE_PLOTSLICES=fit1D__save_plotSlices, $
                         FIT2D__SHOW_EACH_CANDIDATE=fit2D__show_each_candidate, $
                         FIT2D__SAVE_ALL_CANDIDATE_PLOTS=fit2D__save_all_candidate_plots, $
                         FIT2D__WEIGHTING=fit2D__weighting, $
+                        FIT2D__CLAMPTEMPERATURE=fit2D__clampTemperature, $
                         ADD_ONECOUNT_CURVE=add_oneCount_curve, $
                         SAVE_KAPPA_PLOTS=save_kappa_plot, $
                         SAVEKAPPA_BONUSPREF=bonusPref, $
