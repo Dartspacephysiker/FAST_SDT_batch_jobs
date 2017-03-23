@@ -20,6 +20,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   fit1D__nFlux                      = 0
   fit1D__weighting                  = 2 ;1 = lin 2 = square
   fit1D__clampTemperature           = 1
+  fit1D__clampDensity               = 0
 
   add_oneCount_curve                = 1
 
@@ -37,7 +38,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   fit2D__save_all_candidate_plots   = 0
   fit2D__show_each_candidate        = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
-  fit2D__clampTemperature           = 1
+  fit2D__clampTemperature           = 0
+  fit2D__clampDensity               = 0
 
   show_Strangeway_summary  = 0
   sway__save_ps            = 0
@@ -106,6 +108,13 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   cAP_add_iu_pot            = 1
 
   cAP_tRanges               = cAP_tRanges_list[evtNum]
+
+  cAP_plot_j_v_potBar          = 0B
+  cAP_plot_jv_a_la_Elphic      = 0B
+  cAP_plot_T_and_N             = 0B
+  cAP_plot_j_v_and_theory      = 1B
+  cAP_plot_j_v__fixed_t_and_n  = 1B
+
   spectra_average_interval = spectra_average_interval_list[evtNum]
 
   KAPPA_FITTER_BLACKBOX,orbit, $
@@ -133,11 +142,13 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         FIT1D__NFLUX=fit1D__nFlux, $
                         FIT1D__WEIGHTING=fit1D__weighting, $
                         FIT1D__CLAMPTEMPERATURE=fit1D__clampTemperature, $
+                        FIT1D__CLAMPDENSITY=fit1D__clampDensity, $
                         FIT1D__SAVE_PLOTSLICES=fit1D__save_plotSlices, $
                         FIT2D__SHOW_EACH_CANDIDATE=fit2D__show_each_candidate, $
                         FIT2D__SAVE_ALL_CANDIDATE_PLOTS=fit2D__save_all_candidate_plots, $
                         FIT2D__WEIGHTING=fit2D__weighting, $
                         FIT2D__CLAMPTEMPERATURE=fit2D__clampTemperature, $
+                        FIT2D__CLAMPDENSITY=fit2D__clampDensity, $
                         ADD_ONECOUNT_CURVE=add_oneCount_curve, $
                         SAVE_KAPPA_PLOTS=save_kappa_plot, $
                         SAVEKAPPA_BONUSPREF=bonusPref, $
@@ -178,7 +189,12 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         CURANDPOT_USE_UPGOING_ELECTRON_CURRENT=cAP_use_eu_current, $
                         CURANDPOT_USE_CHAR_EN_FOR_DOWNPOT=cAP_use_charE_for_downPot, $
                         CURANDPOT_USE_PEAK_EN_FOR_DOWNPOT=cAP_use_peakE_for_downPot, $
-                        CURANDPOT_ADD_UPGOING_ION_POT=cAP_add_iu_pot
+                        CURANDPOT_ADD_UPGOING_ION_POT=cAP_add_iu_pot, $
+                        CURANDPOT_PLOT_J_V_POTBAR=cAP_plot_j_v_potBar, $
+                        CURANDPOT_PLOT_JV_A_LA_ELPHIC=cAP_plot_jv_a_la_Elphic, $
+                        CURANDPOT_PLOT_T_AND_N=cAP_plot_T_and_N, $
+                        CURANDPOT_PLOT_J_V_AND_THEORY=cAP_plot_j_v_and_theory, $
+                        CURANDPOT_PLOT_J_V__FIXED_T_AND_N=cAP_plot_j_v__fixed_t_and_n
   
 END
 

@@ -47,7 +47,11 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
                             [['09:26:55.0', $
                               '09:27:05.0'], $
                              ['09:26:14.2', $
-                              '09:26:23.0']]
+                              '09:26:23.0'], $
+                             ['09:26:28.5', $
+                              '09:26:35.0'], $
+                             ['09:26:28.5', $
+                              '09:26:45.0']]
 
   hvilken_tRange          = 0
   tRanges                 = tRanges[*,hvilken_tRange]
@@ -68,11 +72,11 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   ENDIF
 
   ;;Which plots?
-  plot_jv_a_la_Elphic     = 1B
+  plot_jv_a_la_Elphic     = 0B
   plot_j_v_potBar         = 0B
-  plot_T_and_N            = 1B
+  plot_T_and_N            = 0B
   plot_j_v_and_theory     = 1B
-  plot_j_v__fixed_t_and_n = 1B
+  plot_j_v__fixed_t_and_n = 0B
 
   a_la_Elphic_spName      = 'errorbarsalso_downgoing_e' + savePSuff + '.png'
   jvpotBar_spName         = 'j_vs_potBar__downgoing_e' + savePSuff + '.png'
