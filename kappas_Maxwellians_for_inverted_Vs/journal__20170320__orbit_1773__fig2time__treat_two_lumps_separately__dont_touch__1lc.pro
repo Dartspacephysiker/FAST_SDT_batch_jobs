@@ -1,5 +1,12 @@
 ;;2017/03/21 Either of these are money in the bank
-PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TOUCH__1LC
+PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TOUCH__1LC, $
+   PLOT_JV_A_LA_ELPHIC=plot_jv_a_la_Elphic, $
+   PLOT_J_V_POTBAR=plot_j_v_potBar, $    
+   PLOT_T_AND_N=plot_T_and_N, $       
+   PLOT_J_V_AND_THEORY=plot_j_v_and_theory, $
+   PLOT_J_V__FIXED_T_AND_N=plot_j_v__fixed_t_and_n, $
+   SAVEPLOT=savePlot, $
+   WHICH_TRANGE=which_tRange
 
   COMPILE_OPT IDL2
 
@@ -44,16 +51,16 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   ;;                             '09:27:05.0']]
   ;; tRanges                 = tRanges[*,1]
   tRanges                 = '1997-02-01/' + $
-                            [['09:26:55.0', $
-                              '09:27:05.0'], $
-                             ['09:26:14.2', $
+                            [['09:26:14.2', $
                               '09:26:23.0'], $
+                             ['09:26:55.0', $
+                              '09:27:05.0'], $
                              ['09:26:28.5', $
                               '09:26:35.0'], $
                              ['09:26:28.5', $
                               '09:26:45.0']]
 
-  hvilken_tRange          = 0
+  hvilken_tRange          = KEYWORD_SET(which_tRange) ? which_tRange : 0
   tRanges                 = tRanges[*,hvilken_tRange]
 
   plot_t1                 = STR_TO_TIME(plot_times[0])
@@ -65,18 +72,17 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
 
   interactive_overplot    = 0
   
-  savePlot                = 0
+  savePlot                = N_ELEMENTS(savePlot) GT 0 ? savePlot : 0B
   savePSuff               = '__lumpSep'
-  IF hvilken_tRange EQ 0 THEN BEGIN
-     savePSuff           += '2'
-  ENDIF
+  savePSuff              += STRING(FORMAT='(I0)',hvilken_tRange)
+
 
   ;;Which plots?
-  plot_jv_a_la_Elphic     = 0B
-  plot_j_v_potBar         = 0B
-  plot_T_and_N            = 0B
-  plot_j_v_and_theory     = 1B
-  plot_j_v__fixed_t_and_n = 0B
+  plot_jv_a_la_Elphic     = KEYWORD_SET(plot_jv_a_la_Elphic    ) ? plot_jv_a_la_Elphic     : 0B
+  plot_j_v_potBar         = KEYWORD_SET(plot_j_v_potBar        ) ? plot_j_v_potBar         : 0B
+  plot_T_and_N            = KEYWORD_SET(plot_T_and_N           ) ? plot_T_and_N            : 0B
+  plot_j_v_and_theory     = KEYWORD_SET(plot_j_v_and_theory    ) ? plot_j_v_and_theory     : 0B
+  plot_j_v__fixed_t_and_n = KEYWORD_SET(plot_j_v__fixed_t_and_n) ? plot_j_v__fixed_t_and_n : 0B
 
   a_la_Elphic_spName      = 'errorbarsalso_downgoing_e' + savePSuff + '.png'
   jvpotBar_spName         = 'j_vs_potBar__downgoing_e' + savePSuff + '.png'
@@ -92,11 +98,16 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   ;;Options for j_v_and_theory plot
   plot_j_ratios           = 0B
   plot_ion_elec_ratios    = 0B
-  JV_theor__fit_time_series = 1B
+  jv_theor__fit_time_series = 1B
   jv_theor__minPot        = 1500
   jv_theor__maxPot        = 4000
   jv_theor__minCur        = 1D-6
   jv_theor__maxCur        = !NULL
+  jv_theor__kappaLims     = [1.501,100]
+  ;; jv_theor__TempLims      = [,]
+  ;; jv_theor__DensLims      = [,]
+  ;; jv_theor__magRatioLims  = [,]
+
 
   bonusPref               = '--Elphic_et_al_1998--Fig2'
 
@@ -117,7 +128,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
 
   ;;survey window
   eeb_or_eesArr            = ['ees','ies']
-  spectra_average_interval = 3
+  spectra_average_interval = 2
 
   ;; eeb_or_eesArr           = ['eeb','ieb']
   ;; spectra_average_interval = 10
@@ -235,7 +246,11 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
      JV_THEOR__MAXCUR=jv_theor__maxCur, $
      JV_THEOR__PLOT_J_RATIOS=plot_j_ratios, $
      JV_THEOR__PLOT_ION_ELEC_RATIOS=plot_ion_elec_ratios, $
-     JV_THEOR__FIT_TIME_SERIES=JV_theor__fit_time_series, $
+     JV_THEOR__FIT_TIME_SERIES=jv_theor__fit_time_series, $
+     JV_THEOR__KAPPALIMS=jv_theor__kappaLims, $   
+     JV_THEOR__TEMPLIMS=jv_theor__TempLims, $    
+     JV_THEOR__DENSLIMS=jv_theor__DensLims, $    
+     JV_THEOR__MAGRATIOLIMS=jv_theor__magRatioLims, $
      JVPOTBAR__J_ON_YAXIS=jvPotBar__j_on_yAxis, $
      JVPOTBAR__INTERACTIVE_OVERPLOT=interactive_overplot, $
      TN_YLOG_NDOWN=TN_yLog_nDown, $
