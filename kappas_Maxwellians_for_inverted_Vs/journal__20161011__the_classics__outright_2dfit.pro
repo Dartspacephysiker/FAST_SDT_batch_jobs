@@ -19,7 +19,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   fit1D__sourceCone_energy_spectrum = 1
   fit1D__nFlux                      = 0
   fit1D__weighting                  = 2 ;1 = lin 2 = square
-  fit1D__clampTemperature           = 1
+  fit1D__clampTemperature           = 0
   fit1D__clampDensity               = 0
 
   add_oneCount_curve                = 1
@@ -41,23 +41,28 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   fit2D__clampTemperature           = 0
   fit2D__clampDensity               = 0
 
+  ;;PostScript options
+  timeBars                 = 1
+
   show_Strangeway_summary  = 0
-  sway__save_ps            = 0
+  sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
   sway__add_Newell_panel   = 1
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary  = 0
-  kSum__save_ps       = 0
+  show_kappa_summary  = 1
+  kSum__save_ps       = 1
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
+  kSum__add_meas_T_and_N = 1
+  kSum__GRL           = 1
 
   kStats__save_stuff   = 1
 
   save_diff_eFlux_file = 1
-  load_diff_eFlux_file = 0
-  restore_fitFile      = 1
+  load_diff_eFlux_file = 1
+  restore_fitFile      = 0
 
   ;;Which classic event?
   ;; '0 :  Ergun_et_al_1998'
@@ -115,6 +120,10 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   cAP_plot_j_v_and_theory      = 1B
   cAP_plot_j_v__fixed_t_and_n  = 1B
 
+  IF KEYWORD_SET(timeBars) THEN BEGIN
+     timeBars                  = cAP_tRanges
+  ENDIF
+
   spectra_average_interval = spectra_average_interval_list[evtNum]
 
   KAPPA_FITTER_BLACKBOX,orbit, $
@@ -166,6 +175,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         KSUM__SAVE_PNG=kSum__save_png, $
                         KSUM__CONV_DESPECS_TO_NEWELL_INTERP=kSum__convert_to_Newell_interp, $
                         KSUM__ADD_CHI2_LINE=kSum__add_chi2_line, $
+                        KSUM__ADD_MEASURED_T_AND_N=kSum__add_meas_T_and_N, $
+                        KSUM__GRL=kSum__GRL, $
                         OUT_FIT2DK=fit2DK, $
                         OUT_FIT2DGAUSS=fit2DG, $
                         OUT_KAPPA_FIT_STRUCTS=kappaFits, $
@@ -194,7 +205,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         CURANDPOT_PLOT_JV_A_LA_ELPHIC=cAP_plot_jv_a_la_Elphic, $
                         CURANDPOT_PLOT_T_AND_N=cAP_plot_T_and_N, $
                         CURANDPOT_PLOT_J_V_AND_THEORY=cAP_plot_j_v_and_theory, $
-                        CURANDPOT_PLOT_J_V__FIXED_T_AND_N=cAP_plot_j_v__fixed_t_and_n
+                        CURANDPOT_PLOT_J_V__FIXED_T_AND_N=cAP_plot_j_v__fixed_t_and_n, $
+                        TIMEBARS=timeBars
   
 END
 

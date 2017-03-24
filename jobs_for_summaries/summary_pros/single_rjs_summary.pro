@@ -27,6 +27,7 @@ pro single_rjs_summary,time1,time2, $
                    SAVE_PS=save_ps, $
                    SAVE_PNG=save_png, $
                    SAVEKAPPA_BONUSPREF=bonusPref, $
+                   GRL=GRL, $
                    PLOTDIR=plotDir
 
 
@@ -589,66 +590,68 @@ pro single_rjs_summary,time1,time2, $
 
 ; Step 5 - AKR data
 
-  prog = getenv('FASTBIN') + '/showDQIs'
-  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-     if (sdt_idx GE 10) then begin
-        sidstr = string(sdt_idx, format='(I2)')
+  IF ~KEYWORD_SET(GRL) THEN BEGIN
+     prog = getenv('FASTBIN') + '/showDQIs'
+     if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
+        if (sdt_idx GE 10) then begin
+           sidstr = string(sdt_idx, format='(I2)')
+        endif else begin
+           sidstr = string(sdt_idx, format='(I1)')
+        endelse
+        spawn, [prog, sidstr], result, /noshell
      endif else begin
-        sidstr = string(sdt_idx, format='(I1)')
+        spawn, prog, result, /noshell
      endelse
-     spawn, [prog, sidstr], result, /noshell
-  endif else begin
-     spawn, prog, result, /noshell
-  endelse
-  b = where (strpos(result,'SfaAve_V5-V8') ge 0,nakr)
-  if (nakr gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nakr = 0
+     b = where (strpos(result,'SfaAve_V5-V8') ge 0,nakr)
+     if (nakr gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nakr = 0
 
-  if (nakr gt 0) then begin
+     if (nakr gt 0) then begin
 
-     dat = get_fa_fields('SfaAve_V5-V8', /all)
-     data   = {x:dat.time, y:alog10(dat.comp1), v:dat.yaxis}
-     store_data,'SFA_V5-V8', data=data
-     ;; dlimit = {spec:1, ystyle:1, yrange:[10., 1000.0], zrange:[-16,-10], $
-     dlimit = {spec:1, ystyle:1, yrange:[10., 1000.0], $
-               zrange:[MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))])], $
-               ytitle:'AKR E 55m!C!C(kHz)', ylog:1, $
-               ztitle: '(V/m)!U2!N/Hz', panel_size:2}
-     store_data,'SFA_V5-V8', dlimit=dlimit
-     options,'SFA_V5-V8','x_no_interp',1
-     options,'SFA_V5-V8','y_no_interp',1
+        dat = get_fa_fields('SfaAve_V5-V8', /all)
+        data   = {x:dat.time, y:alog10(dat.comp1), v:dat.yaxis}
+        store_data,'SFA_V5-V8', data=data
+        ;; dlimit = {spec:1, ystyle:1, yrange:[10., 1000.0], zrange:[-16,-10], $
+        dlimit = {spec:1, ystyle:1, yrange:[10., 1000.0], $
+                  zrange:[MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))])], $
+                  ytitle:'AKR E 55m!C!C(kHz)', ylog:1, $
+                  ztitle: '(V/m)!U2!N/Hz', panel_size:2}
+        store_data,'SFA_V5-V8', dlimit=dlimit
+        options,'SFA_V5-V8','x_no_interp',1
+        options,'SFA_V5-V8','y_no_interp',1
 
 ;  look for big jumps in time - blank these
 
-     get_data,'SFA_V5-V8',data=data
-     dt = data.x[1:*]-data.x[0:*]
-     ntimes=n_elements(data.x)
-     bg = where (dt gt 300, ng)
-     if (ng gt 0) then begin
-        bbb = bg-1
-        if (bbb[0] lt 0) then bbb[0] = 0
-        add_tag=[data.x[bg]+dt[bbb],data.x[bg+1]-dt[bbb]]
-        flag_dat = fltarr(ng*2)+!values.f_nan
-        new_tag = [data.x,add_tag]
-        tsort = sort(new_tag-new_tag[0])
-        nvec=n_elements(data.y)/ntimes
-        new_dat = fltarr(n_elements(new_tag),nvec)
-        for nv = 0,nvec-1 do begin
-           new_dat[*,nv] = [data.y[*,nv],flag_dat]
-           new_dat[*,nv] = new_dat[tsort,nv]
-        endfor
-        data={x:new_tag[tsort],y:new_dat,v:data.v}
-        store_data,'SFA_V5-V8',data=data
-     endif
+        get_data,'SFA_V5-V8',data=data
+        dt = data.x[1:*]-data.x[0:*]
+        ntimes=n_elements(data.x)
+        bg = where (dt gt 300, ng)
+        if (ng gt 0) then begin
+           bbb = bg-1
+           if (bbb[0] lt 0) then bbb[0] = 0
+           add_tag=[data.x[bg]+dt[bbb],data.x[bg+1]-dt[bbb]]
+           flag_dat = fltarr(ng*2)+!values.f_nan
+           new_tag = [data.x,add_tag]
+           tsort = sort(new_tag-new_tag[0])
+           nvec=n_elements(data.y)/ntimes
+           new_dat = fltarr(n_elements(new_tag),nvec)
+           for nv = 0,nvec-1 do begin
+              new_dat[*,nv] = [data.y[*,nv],flag_dat]
+              new_dat[*,nv] = new_dat[tsort,nv]
+           endfor
+           data={x:new_tag[tsort],y:new_dat,v:data.v}
+           store_data,'SFA_V5-V8',data=data
+        endif
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['SFA_V5-V8'] else tPlt_vars=['SFA_V5-V8',tPlt_vars]
+        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['SFA_V5-V8'] else tPlt_vars=['SFA_V5-V8',tPlt_vars]
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-        loadct2,40
-        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-     endif
+        if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+           loadct2,40
+           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+        endif
 
-  endif
+     ENDIF
 
+  ENDIF
 ; STEP 6 - Clean up and return
 
 ; determine tlimit_north and tlimit_south also change plot title

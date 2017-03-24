@@ -17,8 +17,18 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          LOG_KAPPAPLOT=log_kappaPlot, $
                          FIT2DKAPPA_INF_LIST=fit2DKappa_inf_list, $
                          FIT2DGAUSS_INF_LIST=fit2DGauss_inf_list, $
+                         KAPPA2D=kappa2D, $
+                         GAUSS2D=gauss2D, $
+                         KAPPA_FITPARAM_STRUCT=k2DParms, $
+                         GAUSS_FITPARAM_STRUCT=g2DParms, $
                          KAPPAFITS=kappaFits, $
                          GAUSSFITS=gaussFits, $
+                         DIFF_EFLUX=diff_eFlux, $
+                         CURPOTLIST=curPotList, $
+                         JVPLOTDATA=jvPlotData, $
+                         SC_POT=sc_pot, $
+                         ELECTRON_ANGLERANGE=electron_angleRange, $
+                         ADD_MEASURED_T_AND_N=add_meas_T_and_N, $
                          CHI2_THRESHOLD=chi2_thresh, $
                          CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
                          HIGHDENSITY_THRESHOLD=highDens_thresh, $
@@ -33,7 +43,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          SAVE_FOR_OFFLINE=save_for_offline, $
                          LOAD_FROM_OFFLINE=load_from_offline, $
                          KAPPA_STATS__SAVE_STUFF=kStats__save_stuff, $
-                         KAPPA_STATS__INCLUDE_THESE_STARTSTOPS=kStats__include_these_startstops
+                         KAPPA_STATS__INCLUDE_THESE_STARTSTOPS=kStats__include_these_startstops, $
+                         GRL=GRL, $
+                         TIMEBARS=timeBars
 
   ;;Some defaults
   red              = 250
@@ -43,31 +55,79 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   black            = 10
 
   kappaColor = blue
-  kappaSym   = 2                ;Asterisk
+  kappaSym   = 7                ;X
 
   GaussColor = red
-  GaussSym   = 1                ;Cross
+  GaussSym   = 1                ;Plus sign
+  ;; GaussSym   = 1                ;Asterisk
+
+  dataColor  = black
+  dataSym    = 4                ;Diamond
 
   saveDir    = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
 
-; create a summary plot of:
-; Eesa Energy
-; Eesa Angle
-; Iesa Energy
-; Iesa Angle
-; dB_fac_v (dB_fac and dB_SM also stored)
+  ;;Are we supposed to add stuff from diff_eFlux?
+  ;; IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
 
-; Returns:
-; tPlt_vars  - array of tplot variables
-; tlimit_north - tlimits for northern hemisphere
-; tlimit_south - tlimits for southern hemisphere
-; tlimit_all -  tlimits for all the data
+  ;;    can_add_meas = SIZE(diff_eFlux,/TYPE) EQ 8
+  ;;    IF ~can_add_meas THEN BEGIN
+  ;;       CASE SIZE(diff_eFlux,/TYPE) OF
+  ;;          0: BEGIN
+  ;;             PRINT,"No diff_eFlux provided! How can I add measured temp and dens?"
+  ;;             STOP
+  ;;          END
+  ;;          ELSE: BEGIN
+  ;;             PRINT,"Huh?"
+  ;;             STOP
+  ;;          END
+  ;;       ENDCASE
+  ;;    ENDIF
 
-; Program will use fac_v if E field data are available, other use fac_v
-; over-ride with use_fac_v and use_fac keywords
+  ;;    MOMENT_SUITE_2D,diff_eFlux, $
+  ;;                    ENERGY=energy, $
+  ;;                    ARANGE__MOMENTS=electron_angleRange, $
+  ;;                    ARANGE__CHARE=electron_angleRange, $
+  ;;                    SC_POT=sc_pot, $
+  ;;                    EEB_OR_EES=eeb_or_ees, $
+  ;;                    /ERROR_ESTIMATES, $
+  ;;                    /MAP_TO_100KM, $ 
+  ;;                    ORBIT=orbit, $
+  ;;                    QUIET=quiet, $
+  ;;                    OUT_N=nData, $
+  ;;                    OUT_J_=jData, $
+  ;;                    OUT_JE=jeData, $
+  ;;                    OUT_T=TData, $
+  ;;                    OUT_CHARE=charEData, $
+  ;;                    OUT_CURRENT=curData, $
+  ;;                    OUT_JJE_COVAR=jje_coVarData, $
+  ;;                    OUT_ERRORS=errorsData, $
+  ;;                    OUT_ERR_N=nErrData, $
+  ;;                    OUT_ERR_J_=jErrData, $
+  ;;                    OUT_ERR_JE=jeErrData, $
+  ;;                    OUT_ERR_T=TErrData, $
+  ;;                    OUT_ERR_CURRENT=curErrData, $
+  ;;                    OUT_ERR_CHARE=charEErrData
 
-; if no_blank_panels is not set procedure will generate tplot data for all the parameters,
-; including missing data, for a uniform plot product
+
+  ;; ENDIF
+
+  IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
+
+     can_add_meas = SIZE(jvPlotData,/TYPE) EQ 8
+     IF ~can_add_meas THEN BEGIN
+        CASE SIZE(jvPlotData,/TYPE) OF
+           0: BEGIN
+              PRINT,"No jvPlotData provided! How can I add measured temp and dens?"
+              STOP
+           END
+           ELSE: BEGIN
+              PRINT,"Huh?"
+              STOP
+           END
+        ENDCASE
+     ENDIF
+
+  ENDIF
 
 ; Step 0 - safety measure - delete all tplot quantities if found
 
@@ -510,12 +570,8 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   orbit_lab = strcompress(string(orbit,format="(i5.4)"),/remove_all)
   tplot_options,'title','FAST Orbit ' + orbit_lab + ' ' + hemisph
 
-;;Include chare panel?
-
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;Chare panel
   ;; IF KEYWORD_SET(add_chare_panel) OR KEYWORD_SET(add_kappa_panel) OR KEYWORD_SET(add_Newell_panel) THEN BEGIN
-  eAngle       = [360.-30.,30.]
+  eAngle       = KEYWORD_SET(electron_angleRange) ? electron_angleRange : [360.-30.,30.]
   iAngle       = [135.,225.]
   eAngleChare  = eAngle
   iAngleChari  = iAngle
@@ -601,6 +657,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   GET_DATA,'Jei',DATA=Jei
   ;; ENDIF
 
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;Chare panel
+
   chare            = Jee.y/Je.y*6.242*1.0e11
   chari            = Jei.y/Ji.y*6.242*1.0e11
   chari_interp     = DATA_CUT({x:Jei.x,y:chari},Jee.x,/IGNORE_NAN,GAP_DIST=3)
@@ -613,7 +672,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   ;; chari_interp  = {x:Jee.x,y:chari_interp}
   chartot          = chare+chari_interp
 
-  IF KEYWORD_SET(add_chare_panel) THEN BEGIN
+  IF KEYWORD_SET(add_chare_panel) AND ~KEYWORD_SET(GRL) THEN BEGIN
      charEBounds      = [MIN(chare[WHERE(chare GT 0)]) + MIN(chari[WHERE(chari GT 0)]), $
                          MAX(chare[WHERE(chare GT 0)]) + MAX(chari[WHERE(chari GT 0)])]
      ;; showLog_charE    = (ALOG10(MAX(chare[WHERE(chare GT 0)]))-ALOG10(MIN(chare[WHERE(chare GT 0)]))) GT 2
@@ -654,40 +713,40 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   IF N_ELEMENTS(kappaFits) NE N_ELEMENTS(gaussFits) THEN STOP
 
   ;;Set these to 1 to pull them out of the following routines
-  k2DParms           = 1
-  g2DParms           = 1
+  ;; k2DParms           = 1
+  ;; g2DParms           = 1
 
-  kappa2D            = PARSE_KAPPA_FIT2D_INFO_LIST_V2(fit2DKappa_inf_list, $
-                                                      CHI2_THRESHOLD=chi2_thresh, $
-                                                      CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
-                                                      HIGHDENSITY_THRESHOLD=highDens_thresh, $
-                                                      LOWDENSITY_THRESHOLD=lowDens_thresh, $
-                                                      KAPPA_LOWTHRESHOLD=lKappa_thresh, $
-                                                      KAPPA_HIGHTHRESHOLD=hKappa_thresh, $
-                                                      DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
-                                                      N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
-                                                      /DESTROY_INFO_LIST, $
-                                                      OUT_FITPARAM_STRUCT=k2DParms, $
-                                                      OUT_GOOD_I=includeK_i, $
-                                                      OUT_GOOD_T=includeK_t, $
-                                                      OUT_BAD_I=excludeK_i, $
-                                                      OUT_BAD_T=excludeK_t)
+  ;; kappa2D            = PARSE_KAPPA_FIT2D_INFO_LIST_V2(fit2DKappa_inf_list, $
+  ;;                                                     CHI2_THRESHOLD=chi2_thresh, $
+  ;;                                                     CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
+  ;;                                                     HIGHDENSITY_THRESHOLD=highDens_thresh, $
+  ;;                                                     LOWDENSITY_THRESHOLD=lowDens_thresh, $
+  ;;                                                     KAPPA_LOWTHRESHOLD=lKappa_thresh, $
+  ;;                                                     KAPPA_HIGHTHRESHOLD=hKappa_thresh, $
+  ;;                                                     DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
+  ;;                                                     N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
+  ;;                                                     /DESTROY_INFO_LIST, $
+  ;;                                                     OUT_FITPARAM_STRUCT=k2DParms, $
+  ;;                                                     OUT_GOOD_I=includeK_i, $
+  ;;                                                     OUT_GOOD_T=includeK_t, $
+  ;;                                                     OUT_BAD_I=excludeK_i, $
+  ;;                                                     OUT_BAD_T=excludeK_t)
 
-  gauss2D            = PARSE_KAPPA_FIT2D_INFO_LIST_V2(fit2DGauss_inf_list, $
-                                                      CHI2_THRESHOLD=chi2_thresh, $
-                                                      CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
-                                                      HIGHDENSITY_THRESHOLD=highDens_thresh, $
-                                                      LOWDENSITY_THRESHOLD=lowDens_thresh, $
-                                                      KAPPA_LOWTHRESHOLD=lKappa_thresh, $
-                                                      KAPPA_HIGHTHRESHOLD=100.1, $
-                                                      DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
-                                                      N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
-                                                      /DESTROY_INFO_LIST, $
-                                                      OUT_FITPARAM_STRUCT=g2DParms, $
-                                                      OUT_GOOD_I=includeG_i, $
-                                                      OUT_GOOD_T=includeG_t, $
-                                                      OUT_BAD_I=excludeG_i, $
-                                                      OUT_BAD_T=excludeG_t)
+  ;; gauss2D            = PARSE_KAPPA_FIT2D_INFO_LIST_V2(fit2DGauss_inf_list, $
+  ;;                                                     CHI2_THRESHOLD=chi2_thresh, $
+  ;;                                                     CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
+  ;;                                                     HIGHDENSITY_THRESHOLD=highDens_thresh, $
+  ;;                                                     LOWDENSITY_THRESHOLD=lowDens_thresh, $
+  ;;                                                     KAPPA_LOWTHRESHOLD=lKappa_thresh, $
+  ;;                                                     KAPPA_HIGHTHRESHOLD=100.1, $
+  ;;                                                     DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
+  ;;                                                     N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
+  ;;                                                     /DESTROY_INFO_LIST, $
+  ;;                                                     OUT_FITPARAM_STRUCT=g2DParms, $
+  ;;                                                     OUT_GOOD_I=includeG_i, $
+  ;;                                                     OUT_GOOD_T=includeG_t, $
+  ;;                                                     OUT_BAD_I=excludeG_i, $
+  ;;                                                     OUT_BAD_T=excludeG_t)
 
   PARSE_KAPPA_FIT_STRUCTS,kappaFits, $
                           A=a, $
@@ -757,6 +816,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   OPTIONS,'kappa_fit','ytitle',"Kappa"
   OPTIONS,'kappa_fit','psym',kappaSym  
+  OPTIONS,'kappa_fit','colors',kappaColor
 
   ;;And a line to show where the awesome kappa vals are
   STORE_DATA,'kappa_critisk',DATA={x:kappaTime,y:MAKE_ARRAY(N_ELEMENTS(kappaTime),VALUE=2.5)}
@@ -828,9 +888,16 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   OPTIONS,'Temp2DG','psym',GaussSym
   OPTIONS,'Temp2DG','colors',GaussColor
 
-  OPTIONS,'Temp2DK','ytitle','Temperature!C(eV)'
-  TempBounds      = [MIN([k2DParms.temperature,g2DParms.temperature]), $
-                     MAX([k2DParms.temperature,g2DParms.temperature])]
+  IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
+     ;; STORE_DATA,'Temp2DD',DATA={x:TData.x,y:REFORM(TData.y[3,*]),dy:TErrData}
+     STORE_DATA,'Temp2DD',DATA={x:jvPlotData.time,y:jvPlotData.TDown,dy:jvPlotData.TDownErr}
+     OPTIONS,'Temp2DD','psym',dataSym
+     OPTIONS,'Temp2DD','colors',dataColor
+  ENDIF
+
+  OPTIONS,'Temp2DK','ytitle','Temperature!C(eV)' & candidatos = [k2DParms.temperature,g2DParms.temperature] & IF KEYWORD_SET(add_meas_T_and_N) THEN candidatos = [candidatos,jvPlotdata.TDown]
+  TempBounds      = [MIN(candidatos), $
+                     MAX(candidatos)]
   showLog_Temp    = (ALOG10(TempBounds[1])-ALOG10(TempBounds[0])) GT 2
      IF showLog_Temp THEN BEGIN
         TempBounds[0] -= (TempBounds[0]*0.1)
@@ -859,9 +926,16 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   OPTIONS,'Dens2DG','psym',GaussSym
   OPTIONS,'Dens2DG','colors',GaussColor
 
-  OPTIONS,'Dens2DK','ytitle','Density!C(cm!U-3!N)'
-  DensBounds      = [MIN([k2DParms.N,g2DParms.N]), $
-                     MAX([k2DParms.N,g2DParms.N])]
+  IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
+     ;; STORE_DATA,'Dens2DD',DATA={x:nData.x,y:nData.y,dy:nErrData}
+     STORE_DATA,'Dens2DD',DATA={x:jvPlotData.time,y:jvPlotData.NDown,dy:jvPlotData.NDownErr}
+     OPTIONS,'Dens2DD','psym',dataSym
+     OPTIONS,'Dens2DD','colors',dataColor
+  ENDIF
+
+  OPTIONS,'Dens2DK','ytitle','Density!C(cm!U-3!N)' & candidatos = [k2DParms.N,g2DParms.N] & IF KEYWORD_SET(add_meas_T_and_N) THEN candidatos = [candidatos,jvPlotdata.NDown]
+  DensBounds      = [MIN(candidatos), $
+                     MAX(candidatos)]
   ;; showLog_Dens    = (ALOG10(DensBounds[1])-ALOG10(DensBounds[0])) GT 2
   IF showLog_Dens THEN BEGIN
      DensBounds[0] -= (DensBounds[0]*0.1)
@@ -880,71 +954,83 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;PSYM=BRO
      TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
      TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
+     IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
+        TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DD',PSYM=dataSym
+        TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DD',PSYM=dataSym
+     ENDIF
   endif
 
-  ;;Now Bulk energy
-  STORE_DATA,'BlkE2DK',DATA={x:kappaTime,y:k2DParms.bulk_energy}
-  OPTIONS,'BlkE2DK','psym',kappaSym
-  OPTIONS,'BlkE2DK','colors',kappaColor
+  IF ~KEYWORD_SET(GRL) THEN BEGIN
+     ;;Now Bulk energy
+     STORE_DATA,'BlkE2DK',DATA={x:kappaTime,y:k2DParms.bulk_energy}
+     OPTIONS,'BlkE2DK','psym',kappaSym
+     OPTIONS,'BlkE2DK','colors',kappaColor
 
-  STORE_DATA,'BlkE2DG',DATA={x:GaussTime,y:g2DParms.bulk_energy}
-  OPTIONS,'BlkE2DG','psym',GaussSym
-  OPTIONS,'BlkE2DG','colors',GaussColor
+     STORE_DATA,'BlkE2DG',DATA={x:GaussTime,y:g2DParms.bulk_energy}
+     OPTIONS,'BlkE2DG','psym',GaussSym
+     OPTIONS,'BlkE2DG','colors',GaussColor
 
-  OPTIONS,'BlkE2DK','ytitle','Bulk energy!C(eV)'
-  BlkEBounds      = [MIN([k2DParms.bulk_energy,g2DParms.bulk_energy]), $
-                     MAX([k2DParms.bulk_energy,g2DParms.bulk_energy])]
-  ;; showLog_BlkE    = (ALOG10(BlkEBounds[1])-ALOG10(BlkEBounds[0])) GT 2
-  IF showLog_BlkE THEN BEGIN
-     BlkEBounds[0] -= (BlkEBounds[0]*0.1)
-     BlkEBounds[1] += (BlkEBounds[1]*0.1)
-  ENDIF ELSE BEGIN
-     BlkEBounds[0] /= 1.1
-     BlkEBounds[1] *= 1.1
-  ENDELSE
-  YLIM,'BlkE2DK',BlkEBounds[0],BlkEBounds[1],showLog_BlkE
+     OPTIONS,'BlkE2DK','ytitle','Bulk energy!C(eV)'
+     BlkEBounds      = [MIN([k2DParms.bulk_energy,g2DParms.bulk_energy]), $
+                        MAX([k2DParms.bulk_energy,g2DParms.bulk_energy])]
+     ;; showLog_BlkE    = (ALOG10(BlkEBounds[1])-ALOG10(BlkEBounds[0])) GT 2
+     IF showLog_BlkE THEN BEGIN
+        BlkEBounds[0] -= (BlkEBounds[0]*0.1)
+        BlkEBounds[1] += (BlkEBounds[1]*0.1)
+     ENDIF ELSE BEGIN
+        BlkEBounds[0] /= 1.1
+        BlkEBounds[1] *= 1.1
+     ENDELSE
+     YLIM,'BlkE2DK',BlkEBounds[0],BlkEBounds[1],showLog_BlkE
 
-  if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['BlkE2DK'] else tPlt_vars=[tPlt_vars,'BlkE2DK']
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['BlkE2DK'] else tPlt_vars=[tPlt_vars,'BlkE2DK']
 
-  if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-     loadct2,40
-     tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-     TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;PSYM=BRO
-     TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
-     TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
-     TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
-  endif
+     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+        loadct2,40
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+        TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;PSYM=BRO
+        TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
+        TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
+
+        IF ~KEYWORD_SET(GRL) THEN BEGIN
+           TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
+        ENDIF
+        
+     endif
+  ENDIF
+
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Four-current panel (it's like four-cheese pizza)
+  IF ~KEYWORD_SET(GRL) THEN BEGIN
 
-  ;;Get mag current
-  get_data,'dB_fac_v',data=db_fac
+     ;;Get mag current
+     get_data,'dB_fac_v',data=db_fac
 
-  IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-     jMag  = GET_CURRENT_FROM_FLUXMAG(t1,t2, $
-                                      db_fac,vel, $
-                                      /USE_DESPUN, $
-                                      SDTNAME__JMAG=jMagName, $
-                                      ;; INFERRED_E_NUMFLUX=inferred_e_numFlux, $
-                                      ;; SDTNAME__INFERRED_E_NUMFLUX=e_numFluxName, $
-                                      QUIET=quiet)
-  ENDIF
-  IF KEYWORD_SET(save_for_offline) THEN BEGIN
-     jMag_off = jMag
-     saveStr += 'jMag_off,'
-     GET_DATA,'fa_vel',DATA=fa_vel_off
-     saveStr += 'fa_vel_off,'
-  ENDIF
-  
-  ;;Get electron ESA current, ion ESA current
-  Je_current                   = (-1.)*Je.y*1.6e-9    ;;in microA/m2
-  Ji_current                   =       Ji.y*1.6e-9    ;;in microA/m2
+     IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+        jMag  = GET_CURRENT_FROM_FLUXMAG(t1,t2, $
+                                         db_fac,vel, $
+                                         /USE_DESPUN, $
+                                         SDTNAME__JMAG=jMagName, $
+                                         ;; INFERRED_E_NUMFLUX=inferred_e_numFlux, $
+                                         ;; SDTNAME__INFERRED_E_NUMFLUX=e_numFluxName, $
+                                         QUIET=quiet)
+     ENDIF
+     IF KEYWORD_SET(save_for_offline) THEN BEGIN
+        jMag_off = jMag
+        saveStr += 'jMag_off,'
+        GET_DATA,'fa_vel',DATA=fa_vel_off
+        saveStr += 'fa_vel_off,'
+     ENDIF
+     
+     ;;Get electron ESA current, ion ESA current
+     Je_current                   = (-1.)*Je.y*1.6e-9    ;;in microA/m2
+     Ji_current                   =       Ji.y*1.6e-9    ;;in microA/m2
 
-  ;;Get Kappa-predicted current
-  kappaStr                       = {time:kappaTime,comp1:aStruct.kappa,ncomp:1}
-  
-  ;;Align to kappa fits
+     ;;Get Kappa-predicted current
+     kappaStr                       = {time:kappaTime,comp1:aStruct.kappa,ncomp:1}
+     
+     ;;Align to kappa fits
      Je_kappa_interp       = DATA_CUT({x:Je.x,y:Je_current}, $
                                       kappaStr.time, $
                                       /IGNORE_NAN,GAP_DIST=3)
@@ -966,182 +1052,188 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      jMag_kappa_interp     = DATA_CUT({x:JMag.x,y:jMag.y}, $
                                       kappaStr.time, $
                                       /IGNORE_NAN,GAP_DIST=3)
-  ;; FA_FIELDS_COMBINE,kappaStr,{time:Je.x,comp1:Je_current,ncomp:1}, $
-  ;;                   RESULT=Je_kappa_interp,/INTERP,DELT_T=50.,/TALK
-  ;; FA_FIELDS_COMBINE,kappaStr,{time:Ji.x,comp1:Ji_current,ncomp:1}, $
-  ;;                   RESULT=Ji_kappa_interp,/INTERP,DELT_T=50.,/TALK
-  ;; FA_FIELDS_COMBINE,kappaStr,{time:Je.x,comp1:Je_current+Ji_current,ncomp:1}, $
-  ;;                   RESULT=Jtot_kappa_interp,/INTERP,DELT_T=50.,/TALK
-  ;; FA_FIELDS_COMBINE,kappaStr,{time:Jee.x,comp1:chare,ncomp:1}, $
-  ;;                   RESULT=chare_kappa_interp,/INTERP,DELT_T=50.,/TALK
-  ;; FA_FIELDS_COMBINE,kappaStr,{time:Jee.x,comp1:chari_interp,ncomp:1}, $
-  ;;                   RESULT=chari_kappa_interp,/INTERP,DELT_T=50.,/TALK
-  ;; FA_FIELDS_COMBINE,kappaStr,{time:Jee.x,comp1:chartot,ncomp:1}, $
-  ;;                   RESULT=chartot_kappa_interp,/INTERP,DELT_T=50.,/TALK
-  ;; FA_FIELDS_COMBINE,kappaStr,{time:jMag.x,comp1:jMag.y,ncomp:1}, $
-  ;;                   RESULT=jMag_kappa_interp,/INTERP,DELT_T=50.,/TALK
-  
-  ;;Align to Je
+     ;; FA_FIELDS_COMBINE,kappaStr,{time:Je.x,comp1:Je_current,ncomp:1}, $
+     ;;                   RESULT=Je_kappa_interp,/INTERP,DELT_T=50.,/TALK
+     ;; FA_FIELDS_COMBINE,kappaStr,{time:Ji.x,comp1:Ji_current,ncomp:1}, $
+     ;;                   RESULT=Ji_kappa_interp,/INTERP,DELT_T=50.,/TALK
+     ;; FA_FIELDS_COMBINE,kappaStr,{time:Je.x,comp1:Je_current+Ji_current,ncomp:1}, $
+     ;;                   RESULT=Jtot_kappa_interp,/INTERP,DELT_T=50.,/TALK
+     ;; FA_FIELDS_COMBINE,kappaStr,{time:Jee.x,comp1:chare,ncomp:1}, $
+     ;;                   RESULT=chare_kappa_interp,/INTERP,DELT_T=50.,/TALK
+     ;; FA_FIELDS_COMBINE,kappaStr,{time:Jee.x,comp1:chari_interp,ncomp:1}, $
+     ;;                   RESULT=chari_kappa_interp,/INTERP,DELT_T=50.,/TALK
+     ;; FA_FIELDS_COMBINE,kappaStr,{time:Jee.x,comp1:chartot,ncomp:1}, $
+     ;;                   RESULT=chartot_kappa_interp,/INTERP,DELT_T=50.,/TALK
+     ;; FA_FIELDS_COMBINE,kappaStr,{time:jMag.x,comp1:jMag.y,ncomp:1}, $
+     ;;                   RESULT=jMag_kappa_interp,/INTERP,DELT_T=50.,/TALK
+     
+     ;;Align to Je
      Ji_interp   = DATA_CUT({x:Ji.x,y:Ji_current},Je.x, $
                             /IGNORE_NAN,GAP_DIST=3)
      Jmag_interp = DATA_CUT({x:JMag.x,y:jMag.y},Je.x, $
-                                           /IGNORE_NAN,GAP_DIST=3)
-  ;; FA_FIELDS_COMBINE,{time:Je.x,comp1:Je_current,ncomp:1},{time:Ji.x,comp1:Ji_current,ncomp:1}, $
-  ;;                   RESULT=Ji_interp,/INTERP,DELT_T=50.,/TALK
-  ;; FA_FIELDS_COMBINE,{time:Je.x,comp1:Je_current,ncomp:1},{time:jMag.x,comp1:jMag.y,ncomp:1}, $
-  ;;                   RESULT=jMag_interp,/INTERP,DELT_T=50.,/TALK
-  
-  ;; Jtot_interp = {x:Je.x,y:Je_current+Ji_interp}
+                            /IGNORE_NAN,GAP_DIST=3)
+     ;; FA_FIELDS_COMBINE,{time:Je.x,comp1:Je_current,ncomp:1},{time:Ji.x,comp1:Ji_current,ncomp:1}, $
+     ;;                   RESULT=Ji_interp,/INTERP,DELT_T=50.,/TALK
+     ;; FA_FIELDS_COMBINE,{time:Je.x,comp1:Je_current,ncomp:1},{time:jMag.x,comp1:jMag.y,ncomp:1}, $
+     ;;                   RESULT=jMag_interp,/INTERP,DELT_T=50.,/TALK
+     
+     ;; Jtot_interp = {x:Je.x,y:Je_current+Ji_interp}
 
-  STORE_DATA,'Je',DATA=Je
+     STORE_DATA,'Je',DATA=Je
 
 
-  setup = {kappaS:Astruct, $
-           gaussS:AStructGauss, $
-           charE:charE_kappa_interp, $
-           charI:charI_kappa_interp, $
-           charTot:charTot_kappa_interp, $
-           Jtot:Jtot_kappa_interp, $
-           JMag:jMag_kappa_interp, $
-           Je:Je_kappa_interp, $
-           Ji:Ji_kappa_interp}
+     setup = {kappaS:Astruct, $
+              gaussS:AStructGauss, $
+              charE:charE_kappa_interp, $
+              charI:charI_kappa_interp, $
+              charTot:charTot_kappa_interp, $
+              Jtot:Jtot_kappa_interp, $
+              JMag:jMag_kappa_interp, $
+              Je:Je_kappa_interp, $
+              Ji:Ji_kappa_interp}
 
-  IF KEYWORD_SET(kStats__save_stuff) THEN BEGIN
+     IF KEYWORD_SET(kStats__save_stuff) THEN BEGIN
+        CASE 1 OF
+           KEYWORD_SET(kStats__include_these_startstops): BEGIN
+              PRINT,'Save it, save stuff: ' + saveDir + outplotname + $
+                    '--for_kStats_analysis--has_startstops.sav'
+              startStop_t = kStats__include_these_startstops
+              SAVE,setup,kappa2d,gauss2d,orbString, $
+                   startStop_t, $
+                   FILENAME=saveDir + outplotname + '--for_kStats_analysis--has_startstops.sav'
+              
+           END
+           ELSE: BEGIN
+              PRINT,'Save it, save stuff: ' + saveDir + outplotname + $
+                    '--for_kStats_analysis.sav'
+              SAVE,setup,kappa2d,gauss2d,orbString, $
+                   FILENAME=saveDir + outplotname + '--for_kStats_analysis.sav'
+           END
+        ENDCASE
+     ENDIF
+
+     SETUP_POTENTIAL_AND_CURRENT,setup, $ 
+                                 obs_current,obsName,obsSuff, $
+                                 kappaPot,gaussPot, $
+                                 potName,potTitleStr, $
+                                 USE_JE_CURRENT=use_je_current, $
+                                 USE_JMAG_CURRENT=use_jMag_current, $
+                                 ;; /BOTH_USE_KAPPA_BULKENERGY, $
+                                 ;; /BOTH_USE_MAXWELL_BULKENERGY, $
+                                 BOTH_USE_KAPPA_BULKENERGY=both_use_kappa_bulkEnergy, $
+                                 BOTH_USE_MAXWELL_BULKENERGY=both_use_maxwell_bulkEnergy, $
+                                 NO_CHARI_FOR_POT=no_charI_for_pot
+
+     kappaDens = KAPPA__SELECT_2DFIT_DENS(kappa2D, $
+                                          USE_DATA_DENS=use_data_dens, $
+                                          CALC_FITDENS_OVER_ELECTRON_ARANGE=calc_fitDens__aRange, $
+                                          ELECTRON_ANGLERANGE=(N_ELEMENTS(calc_fitDens__aRange) EQ 2 ? calc_fitDens__aRange : eAngleChare), $
+                                          ;; ELECTRON_ANGLERANGE=eAngleChare, $
+                                          FITTYPE__STRING='Kappa')
+
+     gaussDens = KAPPA__SELECT_2DFIT_DENS(gauss2D, $
+                                          USE_DATA_DENS=use_data_dens, $
+                                          CALC_FITDENS_OVER_ELECTRON_ARANGE=calc_fitDens__aRange, $
+                                          ELECTRON_ANGLERANGE=(N_ELEMENTS(calc_fitDens__aRange) EQ 2 ? calc_fitDens__aRange : eAngleChare), $
+                                          ;; ELECTRON_ANGLERANGE=eAngleChare, $
+                                          FITTYPE__STRING='Maxwell')
+
      CASE 1 OF
-        KEYWORD_SET(kStats__include_these_startstops): BEGIN
-           PRINT,'Save it, save stuff: ' + saveDir + outplotname + $
-                 '--for_kStats_analysis--has_startstops.sav'
-           startStop_t = kStats__include_these_startstops
-           SAVE,setup,kappa2d,gauss2d,orbString, $
-                startStop_t, $
-                FILENAME=saveDir + outplotname + '--for_kStats_analysis--has_startstops.sav'
-           
+        KEYWORD_SET(SDT_calc__no_model): BEGIN
+           GET_2DFIT_KAPPA_AND_MAXWELLIAN_CURRENT,kappa2D,gauss2D, $
+                                                  kappa_current,gauss_current, $
+                                                  ENERGY_ELECTRONS=energy_electrons, $
+                                                  ANGLE=eAngleCharE
         END
         ELSE: BEGIN
-           PRINT,'Save it, save stuff: ' + saveDir + outplotname + $
-                 '--for_kStats_analysis.sav'
-           SAVE,setup,kappa2d,gauss2d,orbString, $
-                FILENAME=saveDir + outplotname + '--for_kStats_analysis.sav'
+           GET_KAPPA_AND_MAXWELLIAN_CURRENT,kappa2D,gauss2D, $
+                                            kappaPot,gaussPot,R_B, $
+                                            kappa_current,gauss_current,obs_current, $
+                                            DENSITY_KAPPA2D=kappaDens, $
+                                            DENSITY_GAUSS2D=gaussDens, $
+                                            /MAKE_CURRENTS_POSITIVE, $
+                                            QUIET=quiet
         END
      ENDCASE
+
+     
+     STORE_DATA,'onecheese',DATA={x:kappaTime, $
+
+                                  y:obs_current}
+     STORE_DATA,'fourcheese',DATA={x:jMag.x, $
+
+                                   y:jMag.y}
+     ;; STORE_DATA,'toppings',DATA={x:[[kappaStr.time],[kappaStr.time]], $
+     ;;                             y:[[gauss_current],[kappa_current]]}
+     STORE_DATA,'toppings',DATA={x:kappaStr.time, $
+                                 y:kappa_current}
+     STORE_DATA,'feta',DATA={x:kappaStr.time, $
+                             y:gauss_current}
+
+     
+     ;; oneCheeseBounds   = [MIN(obs_current) < MIN(gauss_current) < MIN(kappa_current) < MIN(jMag.y), $
+     ;;                      MAX(obs_current) > MAX(gauss_current) > MAX(kappa_current) < MAX(jMag.y)]
+     oneCheeseBounds   = [MIN(obs_current) < MIN(gauss_current) < MIN(kappa_current), $
+                          MAX(obs_current) > MAX(gauss_current) > MAX(kappa_current)]
+     IF oneCheeseBounds[0] LT 0 THEN BEGIN
+        showLog_oneCheese   = 0 
+        oneCheeseBounds[0] /= 1.1
+        oneCheeseBounds[1] *= 1.1
+     ENDIF ELSE BEGIN
+        showLog_oneCheese   = (ALOG10(oneCheeseBounds[1])-ALOG10(oneCheeseBounds[0])) GT 2
+        oneCheeseBounds[0] -= (oneCheeseBounds[0]*0.1)
+        oneCheeseBounds[1] += (oneCheeseBounds[1]*0.1)
+     ENDELSE
+     OPTIONS,'onecheese','colors',green
+     OPTIONS,'onecheese','tplot_routine','mplot'
+     OPTIONS,'onecheese','ytitle','Current!C('+CGGREEK('mu')+'A/m!U2!Ns)'
+     YLIM,   'onecheese',oneCheeseBounds[0],oneCheeseBounds[1],showLog_oneCheese
+     oneCheesePos = (INDGEN(4)+1)/5.
+
+     OPTIONS,'onecheese','labels',obsName
+     OPTIONS,'onecheese','labflag',3
+     OPTIONS,'onecheese','labpos',oneCheesePos[0]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
+
+     OPTIONS,'fourcheese','colors',maxwell
+     OPTIONS,'fourcheese','labels','Fluxgate mag'
+     OPTIONS,'fourcheese','labflag',3
+     OPTIONS,'fourcheese','labpos',oneCheesePos[1]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
+
+     OPTIONS,'toppings','labels' ,'Kappa model'
+     OPTIONS,'toppings','psym'   ,1
+     OPTIONS,'toppings','colors' ,kappaColor
+     OPTIONS,'toppings','labflag',3
+     OPTIONS,'toppings','labpos',oneCheesePos[3]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
+
+     OPTIONS,'feta','labels' ,'Maxwellian Model'
+     OPTIONS,'feta','psym'   ,1
+     OPTIONS,'feta','colors' ,GaussColor
+     OPTIONS,'feta','labflag',3
+     OPTIONS,'feta','labpos',oneCheesePos[2]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
+
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['onecheese'] else tPlt_vars=[tPlt_vars,'onecheese']
+
+     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+        loadct2,40
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM=NO
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings',PSYM=kappaSym
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta',PSYM=GaussSym
+        TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;PSYM=BRO
+        TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
+        TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
+
+        IF ~KEYWORD_SET(GRL) THEN BEGIN
+           TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
+        ENDIF
+
+        TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG',PSYM=GaussSym
+        IF KEYWORD_SET(add_chi2_line) THEN BEGIN
+           TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi2_critisk'
+        ENDIF
+     endif
+
   ENDIF
-
-  SETUP_POTENTIAL_AND_CURRENT,setup, $ 
-                              obs_current,obsName,obsSuff, $
-                              kappaPot,gaussPot, $
-                              potName,potTitleStr, $
-                              USE_JE_CURRENT=use_je_current, $
-                              USE_JMAG_CURRENT=use_jMag_current, $
-                              ;; /BOTH_USE_KAPPA_BULKENERGY, $
-                              ;; /BOTH_USE_MAXWELL_BULKENERGY, $
-                              BOTH_USE_KAPPA_BULKENERGY=both_use_kappa_bulkEnergy, $
-                              BOTH_USE_MAXWELL_BULKENERGY=both_use_maxwell_bulkEnergy, $
-                              NO_CHARI_FOR_POT=no_charI_for_pot
-
-  kappaDens = KAPPA__SELECT_2DFIT_DENS(kappa2D, $
-                                       USE_DATA_DENS=use_data_dens, $
-                                       CALC_FITDENS_OVER_ELECTRON_ARANGE=calc_fitDens__aRange, $
-                                       ELECTRON_ANGLERANGE=(N_ELEMENTS(calc_fitDens__aRange) EQ 2 ? calc_fitDens__aRange : eAngleChare), $
-                                       ;; ELECTRON_ANGLERANGE=eAngleChare, $
-                                       FITTYPE__STRING='Kappa')
-
-  gaussDens = KAPPA__SELECT_2DFIT_DENS(gauss2D, $
-                                       USE_DATA_DENS=use_data_dens, $
-                                       CALC_FITDENS_OVER_ELECTRON_ARANGE=calc_fitDens__aRange, $
-                                       ELECTRON_ANGLERANGE=(N_ELEMENTS(calc_fitDens__aRange) EQ 2 ? calc_fitDens__aRange : eAngleChare), $
-                                       ;; ELECTRON_ANGLERANGE=eAngleChare, $
-                                       FITTYPE__STRING='Maxwell')
-
-  CASE 1 OF
-     KEYWORD_SET(SDT_calc__no_model): BEGIN
-        GET_2DFIT_KAPPA_AND_MAXWELLIAN_CURRENT,kappa2D,gauss2D, $
-                                               kappa_current,gauss_current, $
-                                               ENERGY_ELECTRONS=energy_electrons, $
-                                               ANGLE=eAngleCharE
-     END
-     ELSE: BEGIN
-        GET_KAPPA_AND_MAXWELLIAN_CURRENT,kappa2D,gauss2D, $
-                                         kappaPot,gaussPot,R_B, $
-                                         kappa_current,gauss_current,obs_current, $
-                                         DENSITY_KAPPA2D=kappaDens, $
-                                         DENSITY_GAUSS2D=gaussDens, $
-                                         /MAKE_CURRENTS_POSITIVE, $
-                                         QUIET=quiet
-     END
-  ENDCASE
-
-  
-  STORE_DATA,'onecheese',DATA={x:kappaTime, $
-
-                               y:obs_current}
-  STORE_DATA,'fourcheese',DATA={x:jMag.x, $
-
-                                y:jMag.y}
-  ;; STORE_DATA,'toppings',DATA={x:[[kappaStr.time],[kappaStr.time]], $
-  ;;                             y:[[gauss_current],[kappa_current]]}
-  STORE_DATA,'toppings',DATA={x:kappaStr.time, $
-                              y:kappa_current}
-  STORE_DATA,'feta',DATA={x:kappaStr.time, $
-                          y:gauss_current}
-
-  
-  ;; oneCheeseBounds   = [MIN(obs_current) < MIN(gauss_current) < MIN(kappa_current) < MIN(jMag.y), $
-  ;;                      MAX(obs_current) > MAX(gauss_current) > MAX(kappa_current) < MAX(jMag.y)]
-  oneCheeseBounds   = [MIN(obs_current) < MIN(gauss_current) < MIN(kappa_current), $
-                       MAX(obs_current) > MAX(gauss_current) > MAX(kappa_current)]
-  IF oneCheeseBounds[0] LT 0 THEN BEGIN
-     showLog_oneCheese   = 0 
-     oneCheeseBounds[0] /= 1.1
-     oneCheeseBounds[1] *= 1.1
-  ENDIF ELSE BEGIN
-     showLog_oneCheese   = (ALOG10(oneCheeseBounds[1])-ALOG10(oneCheeseBounds[0])) GT 2
-     oneCheeseBounds[0] -= (oneCheeseBounds[0]*0.1)
-     oneCheeseBounds[1] += (oneCheeseBounds[1]*0.1)
-  ENDELSE
-  OPTIONS,'onecheese','colors',green
-  OPTIONS,'onecheese','tplot_routine','mplot'
-  OPTIONS,'onecheese','ytitle','Current!C('+CGGREEK('mu')+'A/m!U2!Ns)'
-  YLIM,   'onecheese',oneCheeseBounds[0],oneCheeseBounds[1],showLog_oneCheese
-  oneCheesePos = (INDGEN(4)+1)/5.
-
-  OPTIONS,'onecheese','labels',obsName
-  OPTIONS,'onecheese','labflag',3
-  OPTIONS,'onecheese','labpos',oneCheesePos[0]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
-
-  OPTIONS,'fourcheese','colors',maxwell
-  OPTIONS,'fourcheese','labels','Fluxgate mag'
-  OPTIONS,'fourcheese','labflag',3
-  OPTIONS,'fourcheese','labpos',oneCheesePos[1]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
-
-  OPTIONS,'toppings','labels' ,'Kappa model'
-  OPTIONS,'toppings','psym'   ,1
-  OPTIONS,'toppings','colors' ,kappaColor
-  OPTIONS,'toppings','labflag',3
-  OPTIONS,'toppings','labpos',oneCheesePos[3]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
-
-  OPTIONS,'feta','labels' ,'Maxwellian Model'
-  OPTIONS,'feta','psym'   ,1
-  OPTIONS,'feta','colors' ,GaussColor
-  OPTIONS,'feta','labflag',3
-  OPTIONS,'feta','labpos',oneCheesePos[2]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
-
-  if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['onecheese'] else tPlt_vars=[tPlt_vars,'onecheese']
-
-  if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-     loadct2,40
-     tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM=NO
-     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings',PSYM=kappaSym
-     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta',PSYM=GaussSym
-     TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;PSYM=BRO
-     TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
-     TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
-     TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
-     TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG',PSYM=GaussSym
-     IF KEYWORD_SET(add_chi2_line) THEN BEGIN
-        TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi2_critisk'
-     ENDIF
-  endif
 
   ;; ENDIF
 
@@ -1217,24 +1309,33 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   ;; tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle']
 
-  IF KEYWORD_SET(add_chare_panel)  THEN tPlt_vars = ['charepanel',tPlt_vars]
-
+  IF ~KEYWORD_SET(GRL) THEN BEGIN
+     IF KEYWORD_SET(add_chare_panel)  THEN tPlt_vars = ['charepanel',tPlt_vars]
+  ENDIF
+  
   IF KEYWORD_SET(add_kappa_panel)  THEN tPlt_vars = ['onecheese','kappa_fit',tPlt_vars]
 
   IF KEYWORD_SET(add_Newell_panel) THEN tPlt_vars = ['newellPanel',tPlt_vars]
 
   if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+
      loadct2,40
      tplot,tPlt_vars,var=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
 
      ;; IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
-     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM=BRO
-     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings',PSYM=kappaSym
-     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta',PSYM=GaussSym
+
      TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM=BRO
      TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
      TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
-     TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
+
+     IF ~KEYWORD_SET(GRL) THEN BEGIN
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM=BRO
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings',PSYM=kappaSym
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta',PSYM=GaussSym
+
+        TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
+     ENDIF
+
      TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG',PSYM=GaussSym
      IF KEYWORD_SET(add_chi2_line) THEN BEGIN
         TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi2_critisk'
@@ -1261,19 +1362,43 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
 
      ;; IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
-     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;PSYM=BRO
-     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings',PSYM=kappaSym
-     TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta',PSYM=GaussSym
      TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM=BRO
      TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
      TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
-     TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
+
+     IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
+        TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DD',PSYM=dataSym
+        TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DD',PSYM=dataSym
+     ENDIF
+
+     IF ~KEYWORD_SET(GRL) THEN BEGIN
+
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;PSYM=BRO
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings',PSYM=kappaSym
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta',PSYM=GaussSym
+
+        TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
+
+     ENDIF
+
      TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi22DG',PSYM=GaussSym
      IF KEYWORD_SET(add_chi2_line) THEN BEGIN
         TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi2_critisk'
      ENDIF
 
      ;; ENDIF
+
+     IF KEYWORD_SET(timeBars) THEN BEGIN
+
+        CASE NDIMEN(timeBars) OF
+           1: BEGIN
+              FOR k=0,N_ELEMENTS(timeBars)-1 DO BEGIN
+                 TIMEBAR,timeBars[k],THICK=3.0,COLOR=250
+              ENDFOR
+           END
+        ENDCASE
+
+     ENDIF
 
      CASE 1 OF
         KEYWORD_SET(save_png): BEGIN
