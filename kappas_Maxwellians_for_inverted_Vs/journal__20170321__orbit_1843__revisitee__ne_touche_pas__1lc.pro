@@ -21,7 +21,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   Elphic1998_defaults     = 1
 
   error_estimates         = 1
-  remake_masterFile       = 1
+  remake_masterFile       = 0
   map_to_100km            = 1
 
   add_oneCount_stats      = 1
@@ -58,8 +58,8 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   savePSuff               = ''
 
   ;;Which plots?
-  plot_jv_a_la_Elphic     = 1B
-  plot_j_v_potBar         = 1B
+  plot_jv_a_la_Elphic     = 0B
+  plot_j_v_potBar         = 0B
   plot_T_and_N            = 1B
   plot_j_v_and_theory     = 1B
   plot_j_v__fixed_t_and_n = 1B
@@ -94,9 +94,9 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   masterFile              = bonusPref + 'Fig2_ingredients.sav'
 
   saveCurPotFile          = bonusPref + 'Fig2__meal.sav'
-  save_diff_eFlux_file    = 0
+  save_diff_eFlux_file    = 1
   load_diff_eFlux_file    = 1
-  ;; restore_fitFile         = 0
+  restore_fitFile         = 1
 
   ;;survey window
   ;; eeb_or_eesArr            = ['ees','ies']
@@ -132,6 +132,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   upgoingArr                      = [0,1,1]
 
   use_sc_pot_for_lowerbound = 1
+  pot__from_file          = 1
   pot__save_file          = 0
   pot__all                = 0
   pot__from_fa_potential  = 1
