@@ -38,6 +38,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          CONVERT_DESPECS_TO_NEWELL_INTERP=Newell_2009_interp, $
                          SAVE_PS=save_ps, $
                          SAVE_PNG=save_png, $
+                         EPS=eps, $
                          SAVEKAPPA_BONUSPREF=bonusPref, $
                          PLOTDIR=plotDir, $
                          SAVE_FOR_OFFLINE=save_for_offline, $
@@ -257,13 +258,17 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         IF KEYWORD_SET(save_png) THEN BEGIN
            CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=0 ;,XSIZE=4,YSIZE=7
         ENDIF ELSE BEGIN
+
            IF KEYWORD_SET(save_ps) THEN BEGIN
-              POPEN,plotDir+outPlotName,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
+
+              POPEN,plotDir+outPlotName,/PORT,FONT=-1, $
+                    ENCAPSULATED=eps ;,XSIZE=4,YSIZE=7
               DEVICE,/PALATINO,FONT_SIZE=8
 
            ENDIF ELSE BEGIN
               WINDOW,0,XSIZE=600,YSIZE=800
            ENDELSE
+
         ENDELSE
 
      ENDIF

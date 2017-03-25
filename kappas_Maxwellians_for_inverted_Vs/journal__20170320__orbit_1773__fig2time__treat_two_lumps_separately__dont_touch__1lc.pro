@@ -73,8 +73,13 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   interactive_overplot    = 0
   
   savePlot                = N_ELEMENTS(savePlot) GT 0 ? savePlot : 0B
-  savePSuff               = '__lumpSep'
-  savePSuff              += STRING(FORMAT='(I0)',hvilken_tRange)
+  savePSuff = STRSPLIT(tRanges,'/',/EXTRACT)
+  savePSuff = STRSPLIT([savePSuff[0,1],savePSuff[1,1]],':',/EXTRACT)
+  savePSuff = STRJOIN(savePSuff[0,1:2],'_') + '-' + STRJOIN(savePSuff[1,1:2],'_')
+  ;; savePSuff               = STRSPLIT(tRanges,'/',/EXTRACT)
+  savePSuff               = STRING(FORMAT='("tR",I0,"__")',hvilken_tRange) + savePSuff
+  ;; savePSuff               = '__lumpSep'
+  ;; savePSuff              += STRING(FORMAT='(I0)',hvilken_tRange)
 
 
   ;;Which plots?

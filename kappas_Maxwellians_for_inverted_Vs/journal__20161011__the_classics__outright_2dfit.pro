@@ -45,6 +45,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;;PostScript options
   timeBars                 = 1
 
+  eps                      = 1
+
   show_Strangeway_summary  = 0
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
@@ -209,7 +211,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         CURANDPOT_PLOT_T_AND_N=cAP_plot_T_and_N, $
                         CURANDPOT_PLOT_J_V_AND_THEORY=cAP_plot_j_v_and_theory, $
                         CURANDPOT_PLOT_J_V__FIXED_T_AND_N=cAP_plot_j_v__fixed_t_and_n, $
-                        TIMEBARS=timeBars
+                        TIMEBARS=timeBars, $
+                        EPS=eps
   
 END
 

@@ -1,34 +1,35 @@
-pro single_rjs_summary,time1,time2, $
-                   TPLT_VARS=tPlt_vars, $
-                   EEB_OR_EES=eeb_OR_ees, $
-                   ENERGY_ELECTRONS=energy_electrons, $
-                   TLIMIT_NORTH=tlimit_north, $
-                   TLIMIT_SOUTH=tlimit_south, $
-                   TLIMIT_ALL=tlimit_all, $
-                   SCREEN_PLOT=screen_plot, $
-                   USE_FAC_V=use_fac_v, $
-                   USE_FAC_NOT_V=use_fac, $
-                   NO_BLANK_PANELS=no_blank_panels, $
-                   ADD_KAPPA_PANEL=add_kappa_panel, $
-                   ADD_CHARE_PANEL=add_chare_panel, $
-                   ADD_NEWELL_PANEL=add_Newell_panel, $
-                   NEWELL_2009_INTERP=Newell_2009_interp, $
-                   LOG_KAPPAPLOT=log_kappaPlot, $
-                   FIT2DKAPPA_INF_LIST=fit2DKappa_inf_list, $
-                   FIT2DGAUSS_INF_LIST=fit2DGauss_inf_list, $
-                   KAPPAFITS=kappaFits, $
-                   GAUSSFITS=gaussFits, $
-                   CHI2_THRESHOLD=chi2_thresh, $
-                   CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
-                   HIGHDENSITY_THRESHOLD=highDens_thresh, $
-                   LOWDENSITY_THRESHOLD=lowDens_thresh, $
-                   DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
-                   N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
-                   SAVE_PS=save_ps, $
-                   SAVE_PNG=save_png, $
-                   SAVEKAPPA_BONUSPREF=bonusPref, $
-                   GRL=GRL, $
-                   PLOTDIR=plotDir
+PRO SINGLE_RJS_SUMMARY,time1,time2, $
+                       TPLT_VARS=tPlt_vars, $
+                       EEB_OR_EES=eeb_OR_ees, $
+                       ENERGY_ELECTRONS=energy_electrons, $
+                       TLIMIT_NORTH=tlimit_north, $
+                       TLIMIT_SOUTH=tlimit_south, $
+                       TLIMIT_ALL=tlimit_all, $
+                       SCREEN_PLOT=screen_plot, $
+                       USE_FAC_V=use_fac_v, $
+                       USE_FAC_NOT_V=use_fac, $
+                       NO_BLANK_PANELS=no_blank_panels, $
+                       ADD_KAPPA_PANEL=add_kappa_panel, $
+                       ADD_CHARE_PANEL=add_chare_panel, $
+                       ADD_NEWELL_PANEL=add_Newell_panel, $
+                       NEWELL_2009_INTERP=Newell_2009_interp, $
+                       LOG_KAPPAPLOT=log_kappaPlot, $
+                       FIT2DKAPPA_INF_LIST=fit2DKappa_inf_list, $
+                       FIT2DGAUSS_INF_LIST=fit2DGauss_inf_list, $
+                       KAPPAFITS=kappaFits, $
+                       GAUSSFITS=gaussFits, $
+                       CHI2_THRESHOLD=chi2_thresh, $
+                       CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
+                       HIGHDENSITY_THRESHOLD=highDens_thresh, $
+                       LOWDENSITY_THRESHOLD=lowDens_thresh, $
+                       DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
+                       N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
+                       SAVE_PS=save_ps, $
+                       SAVE_PNG=save_png, $
+                       EPS=eps, $
+                       SAVEKAPPA_BONUSPREF=bonusPref, $
+                       GRL=GRL, $
+                       PLOTDIR=plotDir
 
 
 ; create a summary plot of:
@@ -132,15 +133,22 @@ pro single_rjs_summary,time1,time2, $
         ENDIF
 
         IF KEYWORD_SET(save_png) THEN BEGIN
+
            CGPS_OPEN, plotDir+outPlotName+'.ps',FONT=0 ;,XSIZE=4,YSIZE=7
+
         ENDIF ELSE BEGIN
+
            IF KEYWORD_SET(save_ps) THEN BEGIN
-              POPEN,plotDir+outPlotName,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
+
+              POPEN,plotDir+outPlotName,/PORT,FONT=-1, $
+                    ENCAPSULATED=eps ;,XSIZE=4,YSIZE=7
+
               DEVICE,/PALATINO,FONT_SIZE=8
 
            ENDIF ELSE BEGIN
               WINDOW,0,XSIZE=600,YSIZE=800
            ENDELSE
+
         ENDELSE
 
      ENDIF
