@@ -43,7 +43,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
                               '20:50:09'], $
                              ['20:49:26', $
                               '20:49:46']]
-  tRanges                 = tRanges[*,0]
+  tRanges                 = tRanges[*,1]
 
   plot_t1                 = STR_TO_TIME(plot_times[0])
   plot_t2                 = STR_TO_TIME(plot_times[1])
@@ -54,8 +54,8 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
 
   interactive_overplot    = 0
   
-  savePlot                = 0
-  savePSuff               = ''
+  savePlot                = 1
+  savePSuff               = 'trange2'
 
   ;;Which plots?
   plot_jv_a_la_Elphic     = 0B
@@ -103,7 +103,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   ;; spectra_average_interval = 3
 
   eeb_or_eesArr           = ['eeb','ieb']
-  spectra_average_interval = 6
+  spectra_average_interval = 4
 
 
   order                   = [0,1,2]

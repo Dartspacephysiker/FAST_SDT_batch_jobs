@@ -12,6 +12,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   save_kappa_plot      = 0
   close_kp_after_save  = 0
 
+  ;; debug__skip_to_this_time     = 
   ;; debug__skip_to_this_time  = STR_TO_TIME('97-02-01/09:26:31')
   ;; debug__break_on_this_time = STR_TO_TIME('97-02-01/09:26:31')
 
@@ -34,7 +35,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : 500
   max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
 
-  fit1D__save_plotSlices            = 0
+  fit1D__save_plotSlices            = 1
   fit2D__save_all_candidate_plots   = 0
   fit2D__show_each_candidate        = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
@@ -57,6 +58,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   kSum__add_chi2_line = 1
   kSum__add_meas_T_and_N = 1
   kSum__GRL           = 1
+  kSum__oPlot_pot     = 1
 
   kStats__save_stuff   = 1
 
@@ -72,7 +74,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; evtNum               = 2
 
   ;;2017/03/22
-  evtNum               = 2
+  evtNum               = 0
 
   ;;survey window
   eeb_or_ees           = eeb_or_ees__recommande[evtNum]
@@ -95,14 +97,14 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
-  chi2_over_dof_thresh = 25
+  chi2_over_dof_thresh = 50
   lowDens_thresh       = 0.01
-  diffEflux_thresh     = 5e7
+  diffEflux_thresh     = 1e7
   nPkAbove_dEF_thresh  = 5
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1  
-  cAP_remake_masterFile     = 0
+  cAP_remake_masterFile     = 1
   cAP_map_to_100km          = 1
   ;; cAP_use_all_currents      = 0
   cAP_use_ed_current        = 1
@@ -177,6 +179,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         KSUM__ADD_CHI2_LINE=kSum__add_chi2_line, $
                         KSUM__ADD_MEASURED_T_AND_N=kSum__add_meas_T_and_N, $
                         KSUM__GRL=kSum__GRL, $
+                        KSUM__OPLOT_POT=kSum__oPlot_pot, $
                         OUT_FIT2DK=fit2DK, $
                         OUT_FIT2DGAUSS=fit2DG, $
                         OUT_KAPPA_FIT_STRUCTS=kappaFits, $

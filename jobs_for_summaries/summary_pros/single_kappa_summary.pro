@@ -44,16 +44,22 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          LOAD_FROM_OFFLINE=load_from_offline, $
                          KAPPA_STATS__SAVE_STUFF=kStats__save_stuff, $
                          KAPPA_STATS__INCLUDE_THESE_STARTSTOPS=kStats__include_these_startstops, $
+                         INCLUDE_ELECTRON_PA_SPEC=include_electron_pa_spec, $
                          GRL=GRL, $
+                         OPLOT_POT=oPlot_pot, $
                          TIMEBARS=timeBars
 
   ;;Some defaults
   red              = 250
+  darkRed          = 235
   green            = 130
   blue             = 90
   maxwell          = 50
   black            = 10
-
+  poiple           = 40
+  violet           = 60
+  hvit             = 255
+  
   kappaColor = blue
   kappaSym   = 7                ;X
 
@@ -65,6 +71,17 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   dataSym    = 4                ;Diamond
 
   saveDir    = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
+
+  IF KEYWORD_SET(GRL) THEN BEGIN
+
+     add_meas_T_and_N         = 1
+     include_electron_pa_spec = 1
+     oPlot_pot                = 1
+
+     add_Newell_panel         = 0
+     add_charE_panel          = 0
+
+  ENDIF
 
   ;;Are we supposed to add stuff from diff_eFlux?
   ;; IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
@@ -143,19 +160,31 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   nn = n_elements(data_quants)
 
-  if (nn gt 1) then for n = nn-1L,1L,-1L do store_data,data_quants(n).name,/delete
+  if (nn gt 1) THEN for n = nn-1L,1L,-1L do STORE_DATA,data_quants(n).name,/delete
 
 ; Step 1 - DC Mag data
+  IF ~(KEYWORD_SET(load_from_offline) OR KEYWORD_SET(GRL)) THEN BEGIN
 
-  IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
      ucla_mag_despin,tw_mat=tw_mat,orbit=orbit,spin_axis=spin_axis,delta_phi=delta_phi
-  ENDIF
 
-  if (n_elements(orbit) gt 0) then begin
+  ENDIF ELSE BEGIN
+
+     IF KEYWORD_SET(time1) AND KEYWORD_SET(time2) THEN BEGIN
+  
+        GET_FA_ORBIT,[time1,time2],/TIME_ARRAY
+
+        GET_DATA,'ORBIT',DATA=orbit
+        orbit = orbit.y[0]
+
+     ENDIF
+
+  ENDELSE
+  
+  IF (N_ELEMENTS(orbit) GT 0) THEN BEGIN
 
 ;  if orbit > 9936 return (temporary fix)
 
-     ;; if (orbit gt 9936) then begin
+     ;; if (orbit gt 9936) THEN begin
 
      ;;    print,""
      ;;    print,"BATCH_SUMMARY DISABLED FOR ORBITS > 9936, SORRY"
@@ -170,7 +199,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
      outPlotName  = 'Kappa_summary'
      outPlotName += '--' + orbString + (KEYWORD_SET(bonusPref) ? bonusPref : '' )
-     IF keyword_set(save_ps) THEN BEGIN
+     IF KEYWORD_SET(save_ps) THEN BEGIN
 
         t1S = STRMID(TIME_TO_STR(time1,/MSEC),11,11)
         t2S = STRMID(TIME_TO_STR(time2,/MSEC),11,11)
@@ -194,18 +223,24 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
            PRINT,'Restoring ' + load_from_offFile + ' ...'
            RESTORE,load_from_offFile
 
-           STORE_DATA,"dB_fac_V",DATA=dB_fac_V_off
-           STORE_DATA,"Iesa_Angle",DATA=Iesa_Angle_off
-           STORE_DATA,"Iesa_Energy",DATA=Iesa_Energy_off
+           IF ~KEYWORD_SET(GRL) THEN BEGIN
+              STORE_DATA,"dB_fac_V",DATA=dB_fac_V_off
+              STORE_DATA,"Je",DATA=Je_off
+              STORE_DATA,"Jee",DATA=Jee_off
+              STORE_DATA,"Ji",DATA=Ji_off
+              STORE_DATA,"Jei",DATA=Jei_off
+              STORE_DATA,"jMag",DATA=jMag_off
+           ENDIF
+
+           IF KEYWORD_SET(include_ion_plots) THEN BEGIN
+              STORE_DATA,"Iesa_Angle",DATA=Iesa_Angle_off
+              STORE_DATA,"Iesa_Energy",DATA=Iesa_Energy_off
+           ENDIF
+           
            STORE_DATA,"Eesa_Angle",DATA=Eesa_Angle_off
            STORE_DATA,"Eesa_Energy",DATA=Eesa_Energy_off
            STORE_DATA,"LAT",DATA=LAT_off
            STORE_DATA,"ORBIT",DATA=ORBIT_off
-           STORE_DATA,"Je",DATA=Je_off
-           STORE_DATA,"Jee",DATA=Jee_off
-           STORE_DATA,"Ji",DATA=Ji_off
-           STORE_DATA,"Jei",DATA=Jei_off
-           STORE_DATA,"jMag",DATA=jMag_off
            STORE_DATA,"fa_vel",DATA=fa_vel_off
            STORE_DATA,"Eesa_LC_Energy",DATA=Eesa_LC_Energy_off
            STORE_DATA,"MLT",DATA=MLT_off
@@ -235,44 +270,44 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
 ; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
 
-     store_data,'BDATA',/delete
-     store_data,'BFIT',/delete 
-     store_data,'Bx_sp',/delete
-     store_data,'By_sp',/delete
-     store_data,'Bz_sp',/delete
-     store_data,'Bx_sc',/delete
-     store_data,'By_sc',/delete
-     store_data,'Bz_sc',/delete
-     store_data,'Bx_sp_sm',/delete
-     store_data,'By_sp_sm',/delete
-     store_data,'Bz_sp_sm',/delete
-     store_data,'B_gei',/delete
-     store_data,'B_sm',/delete
-     store_data,'dB_sc',/delete
-     store_data,'dB_gei',/delete
-     store_data,'spin_freq',/delete
-     store_data,'spin_phase',/delete
-     store_data,'TORQ_X',/delete
-     store_data,'TORQ_Y',/delete
-     store_data,'TORQ_Z',/delete
-     store_data,'BX_DEL',/delete
-     store_data,'BY_DEL',/delete
-     store_data,'BZ_DEL',/delete
-     store_data,'BFIX',/delete
-     store_data,'TW_ZX',/delete
-     store_data,'TW_ZY',/delete
-     store_data,'TW_YY',/delete
-     store_data,'TW_YX',/delete
-     store_data,'O_X',/delete
-     store_data,'O_Y',/delete
-     store_data,'B_model_old',/delete
-     store_data,'Delta_B_model',/delete
-     store_data,'despun_to_gei',/delete
-     store_data,'gei_to_sm',/delete
-     store_data,'gei_to_fac',/delete
-     store_data,'gei_to_fac_v',/delete
+     STORE_DATA,'BDATA',/delete
+     STORE_DATA,'BFIT',/delete 
+     STORE_DATA,'Bx_sp',/delete
+     STORE_DATA,'By_sp',/delete
+     STORE_DATA,'Bz_sp',/delete
+     STORE_DATA,'Bx_sc',/delete
+     STORE_DATA,'By_sc',/delete
+     STORE_DATA,'Bz_sc',/delete
+     STORE_DATA,'Bx_sp_sm',/delete
+     STORE_DATA,'By_sp_sm',/delete
+     STORE_DATA,'Bz_sp_sm',/delete
+     STORE_DATA,'B_gei',/delete
+     STORE_DATA,'B_sm',/delete
+     STORE_DATA,'dB_sc',/delete
+     STORE_DATA,'dB_gei',/delete
+     STORE_DATA,'spin_freq',/delete
+     STORE_DATA,'spin_phase',/delete
+     STORE_DATA,'TORQ_X',/delete
+     STORE_DATA,'TORQ_Y',/delete
+     STORE_DATA,'TORQ_Z',/delete
+     STORE_DATA,'BX_DEL',/delete
+     STORE_DATA,'BY_DEL',/delete
+     STORE_DATA,'BZ_DEL',/delete
+     STORE_DATA,'BFIX',/delete
+     STORE_DATA,'TW_ZX',/delete
+     STORE_DATA,'TW_ZY',/delete
+     STORE_DATA,'TW_YY',/delete
+     STORE_DATA,'TW_YX',/delete
+     STORE_DATA,'O_X',/delete
+     STORE_DATA,'O_Y',/delete
+     STORE_DATA,'B_model_old',/delete
+     STORE_DATA,'Delta_B_model',/delete
+     STORE_DATA,'despun_to_gei',/delete
+     STORE_DATA,'gei_to_sm',/delete
+     STORE_DATA,'gei_to_fac',/delete
+     STORE_DATA,'gei_to_fac_v',/delete
 
-     get_data,'dB_fac_v',data=data
+     GET_DATA,'dB_fac_v',DATA=data
      IF KEYWORD_SET(save_for_offline) THEN BEGIN
         dB_fac_V_off = data
         saveStr += 'dB_fac_V_off,'
@@ -281,18 +316,18 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L] ELSE t2 = time2
      tlimit_all = [t1,t2]
      ;; tPlt_vars = 'dB_fac_v'
-     options,'dB_fac_v','panel_size',2
-     options,'dB_fac','panel_size',2
-     options,'dB_sm','panel_size',2
+     OPTIONS,'dB_fac_v','panel_size',2
+     OPTIONS,'dB_fac','panel_size',2
+     OPTIONS,'dB_sm','panel_size',2
 
-     ;; if (keyword_set(use_fac)) then tPlt_vars = 'dB_fac'
+     ;; if (KEYWORD_SET(use_fac)) THEN tPlt_vars = 'dB_fac'
 
-     ;; if (not keyword_set(no_blank_panels)) then tPlt_vars = 'dB_fac_v'
+     ;; if (not KEYWORD_SET(no_blank_panels)) THEN tPlt_vars = 'dB_fac_v'
 
-     ;; if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     ;; if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
      ;;    wInd = 0
      ;;    WINDOW,wInd,XSIZE=700,YSIZE=900
-     ;;    ;; tplot_options,'region',[0.,0.5,1.0,1.0]
+     ;;    ;; tplot_OPTIONS,'region',[0.,0.5,1.0,1.0]
      ;;    loadct2,39
      ;;    tplot,tPlt_vars,var=['ALT','ILAT','MLT'], $
      ;;          WINDOW=wInd, $
@@ -305,87 +340,87 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 ; Step 3 - Iesa data
   sdt_idx = get_sdt_run_idx()
   prog = getenv('FASTBIN') + '/showDQIs'
-  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-     if (sdt_idx GE 10) then begin
-        sidstr = string(sdt_idx, format='(I2)')
+  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN begin
+     if (sdt_idx GE 10) THEN begin
+        sidstr = STRING(sdt_idx, FORMAT='(I2)')
      endif else begin
-        sidstr = string(sdt_idx, format='(I1)')
+        sidstr = STRING(sdt_idx, FORMAT='(I1)')
      endelse
-     spawn, [prog, sidstr], result, /noshell
+     SPAWN, [prog, sidstr], result, /noshell
   endif else begin
-     spawn, prog, result, /noshell
+     SPAWN, prog, result, /noshell
   endelse
-  b = where (strpos(result,'Iesa Survey') ge 0,nesa)
-  if (nesa gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nesa = 0
+  b = WHERE (strpos(result,'Iesa Survey') ge 0,nesa)
+  if (nesa gt 0) THEN if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 THEN nesa = 0
 
-  if (nesa gt 0) then begin
+  if (nesa gt 0) THEN begin
 
 ; ION PITCH ANGLE
 
      var_name='Iesa_Angle'
      IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-        get_pa_spec,'fa_' + ieb_or_ies + '_c',units='eflux',name=var_name,energy=[4.,30000.]
+        GET_PA_SPEC,'fa_' + ieb_or_ies + '_c',units='eflux',name=var_name,energy=[4.,30000.]
      ENDIF
-     get_data,var_name,data=data
+     GET_DATA,var_name,DATA=data
      IF KEYWORD_SET(save_for_offline) THEN BEGIN
         Iesa_Angle_off = data
         saveStr += var_name + '_off,'
      ENDIF
-     data.y = alog10(data.y)
-     store_data,var_name, data=data
-     options,var_name,'spec',1	
+     data.y = ALOG10(data.y)
+     STORE_DATA,var_name,DATA=data
+     OPTIONS,var_name,'spec',1	
      ;; zlim,var_name,4,9,0
         zlim,var_name, $
              (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
              (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
      ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
      ylim,var_name,0,360,0
-     options,var_name,'ytitle','Ions!C!CAngle (Deg.)'
-     options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-     options,var_name,'x_no_interp',1
-     options,var_name,'y_no_interp',1
-     options,var_name,'panel_size',2
+     OPTIONS,var_name,'ytitle','Ions!C!CAngle (Deg.)'
+     OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+     OPTIONS,var_name,'x_no_interp',1
+     OPTIONS,var_name,'y_no_interp',1
+     OPTIONS,var_name,'panel_size',2
 
-     get_data,var_name, data=data
-     bb = where (data.v gt 270.,nb)
-     if (nb gt 0) then data.v(bb)=data.v(bb)-360.
+     GET_DATA,var_name,DATA=data
+     bb = WHERE (data.v gt 270.,nb)
+     if (nb gt 0) THEN data.v(bb)=data.v(bb)-360.
      nn = n_elements(data.x)
      for n = 0,nn-1L do begin & $
         bs = sort (data.v(n,*)) & $
         data.v(n,*)=data.v(n,bs) & $
         data.y(n,*)=data.y(n,bs) & $
         endfor
-        store_data,var_name, data=data	
-        options,var_name,'yminor',9
-        options,var_name,'yticks',4
-        options,var_name,'ytickv',[-90,0,90,180,270]
+        STORE_DATA,var_name,DATA=data	
+        OPTIONS,var_name,'yminor',9
+        OPTIONS,var_name,'yticks',4
+        OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
         ylim,var_name,-90,270,0
 
         IF KEYWORD_SET(include_ion_plots) THEN BEGIN
-           if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
+           if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
 
 ; reset time limits if needed
 
            IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
            IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
 
-           if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
-              if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
-              if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
+           if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) THEN begin
+              if (t1 lt tlimit_all[0]) THEN tlimit_all[0] = t1
+              if (t2 gt tlimit_all[1]) THEN tlimit_all[1] = t2
               get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
               get_new_igrf,/no_store_old
            endif
 
-           if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+           if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
               wInd = 0
               WINDOW,wInd,XSIZE=700,YSIZE=900
-              ;; tplot_options,'region',[0.,0.5,1.0,1.0]
+              ;; tplot_OPTIONS,'region',[0.,0.5,1.0,1.0]
               loadct2,39
               tplot,tPlt_vars,var=['ALT','ILAT','MLT'], $
                     WINDOW=wInd, $
                     TRANGE=[t1,t2]
            endif
-           ;; if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+           ;; if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
            ;;    loadct2,40
            ;;    tplot,tPlt_vars,var=['ALT','ILAT','MLT']
            ;; endif
@@ -394,30 +429,34 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
            var_name='Iesa_Energy'
            IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-              get_en_spec,'fa_' + ieb_or_ies + '_c',name=var_name, units='eflux',/CALIB,RETRACE=1
+              GET_EN_SPEC,'fa_' + ieb_or_ies + '_c', $
+                          NAME=var_name, $
+                          UNITS='eflux', $
+                          /CALIB, $
+                          RETRACE=1
            ENDIF
-           get_data,var_name, data=data
+           GET_DATA,var_name,DATA=data
            IF KEYWORD_SET(save_for_offline) THEN BEGIN
               Iesa_Energy_off = data
               saveStr += var_name + '_off,'
            ENDIF
-           data.y = alog10(data.y)
-           store_data,var_name, data=data
-           options,var_name,'spec',1	
+           data.y = ALOG10(data.y)
+           STORE_DATA,var_name,DATA=data
+           OPTIONS,var_name,'spec',1	
            ;; zlim,var_name,4,9,0
         zlim,var_name, $
              (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
              (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
            ylim,var_name,4,30000,1
-           options,var_name,'ytitle','Ions!C!CEnergy (eV)'
-           options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-           options,var_name,'x_no_interp',1
-           options,var_name,'y_no_interp',1
-           options,var_name,'panel_size',2
+           OPTIONS,var_name,'ytitle','Ions!C!CEnergy (eV)'
+           OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+           OPTIONS,var_name,'x_no_interp',1
+           OPTIONS,var_name,'y_no_interp',1
+           OPTIONS,var_name,'panel_size',2
 
-           if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
+           if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
 
-           if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+           if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
               loadct2,40
               tplot,tPlt_vars,var=['ALT','ILAT','MLT']
            endif
@@ -429,79 +468,86 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 ; Step 4 - Eesa data
 
   prog = getenv('FASTBIN') + '/showDQIs'
-  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-     if (sdt_idx GE 10) then begin
-        sidstr = string(sdt_idx, format='(I2)')
+  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN begin
+     if (sdt_idx GE 10) THEN begin
+        sidstr = STRING(sdt_idx, FORMAT='(I2)')
      endif else begin
-        sidstr = string(sdt_idx, format='(I1)')
+        sidstr = STRING(sdt_idx, FORMAT='(I1)')
      endelse
-     spawn, [prog, sidstr], result, /noshell
+     SPAWN, [prog, sidstr], result, /noshell
   endif else begin
-     spawn, prog, result, /noshell
+     SPAWN, prog, result, /noshell
   endelse
-  b = where (strpos(result,'Eesa Survey') ge 0,nesa)
-  if (nesa gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nesa = 0
+  b = WHERE (strpos(result,'Eesa Survey') ge 0,nesa)
+  if (nesa gt 0) THEN if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 THEN nesa = 0
 
-  if (nesa gt 0) then begin
+  if (nesa gt 0) THEN begin
 
 ; ELECTRON PITCH ANGLE
 
      IF KEYWORD_SET(include_electron_pa_spec) THEN BEGIN
         var_name='Eesa_Angle'
         IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-           get_pa_spec,'fa_' + eeb_or_ees + '_c',units='eflux',name=var_name, energy=[10.,30000.]
+           GET_PA_SPEC,'fa_' + eeb_or_ees + '_c',units='eflux',name=var_name, energy=[10.,30000.]
         ENDIF
-        get_data,var_name, data=data 
+        GET_DATA,var_name,DATA=data 
         IF KEYWORD_SET(save_for_offline) THEN BEGIN
            Eesa_Angle_off = data
            saveStr       += var_name + '_off,'
         ENDIF
-        data.y = alog10(data.y)
-        store_data,var_name, data=data
-        options,var_name,'spec',1
+        data.y = ALOG10(data.y)
+        STORE_DATA,var_name,DATA=data
+        OPTIONS,var_name,'spec',1
         ;; zlim,var_name,4,9,0
         zlim,var_name, $
              (MIN(data.y[WHERE(FINITE(data.y))]) > 6 ), $
              (MAX(data.y[WHERE(FINITE(data.y))]) < 10),0
         ylim,var_name,0,360,0
-        options,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
-        options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,var_name,'x_no_interp',1
-        options,var_name,'y_no_interp',1
-        options,var_name,'panel_size',2
+        OPTIONS,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
+        OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        OPTIONS,var_name,'x_no_interp',1
+        OPTIONS,var_name,'y_no_interp',1
+        OPTIONS,var_name,'panel_size',2
 
-        get_data,var_name, data=data
-        bb = where (data.v gt 270.,nb)
-        if (nb gt 0) then data.v(bb)=data.v(bb)-360.
+        GET_DATA,var_name,DATA=data
+        bb = WHERE (data.v gt 270.,nb)
+        if (nb gt 0) THEN data.v(bb)=data.v(bb)-360.
         nn = n_elements(data.x)
         for n = 0,nn-1L do begin & $
            bs = sort (data.v(n,*)) & $
            data.v(n,*)=data.v(n,bs) & $
            data.y(n,*)=data.y(n,bs) & $
            endfor
-           store_data,var_name, data=data
-           options,var_name,'yminor',9
-           options,var_name,'yticks',4
-           options,var_name,'ytickv',[-90,0,90,180,270]
+           STORE_DATA,var_name,DATA=data
+           OPTIONS,var_name,'yminor',9
+           OPTIONS,var_name,'yticks',4
+           OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
            ylim,var_name,-90,270,0
 
-           if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
+           if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
 
 ; reset time limits if needed
 
-           IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
-           IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
+           IF N_ELEMENTS(t1) EQ 0 THEN t1 = data.x[0]
+           IF N_ELEMENTS(t2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
 
-           if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
-              if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
-              if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
-              get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-              get_new_igrf,/no_store_old
+           ;;Do we have tlimit_all?
+           this = GET_DQDS()
+           those = WHERE(STRMATCH(this,'mag*',/FOLD_CASE))
+           IF those[0] NE -1 THEN this = this[those[0]]
+           tlimit_all = GET_SDT_TIMESPAN(t1Tmp,t2Tmp,DQD=this)
+           tlimit_all = [TEMPORARY(t1Tmp),TEMPORARY(t2Tmp)]
+
+           if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) THEN begin
+              if (t1 lt tlimit_all[0]) THEN tlimit_all[0] = t1
+              if (t2 gt tlimit_all[1]) THEN tlimit_all[1] = t2
+              GET_FA_ORBIT,tlimit_all[0],tlimit_all[1],/ALL,STATUS=no_model,DELTA=1.,/DEFINITIVE,/DRAG_PROP
+              GET_NEW_IGRF,/NO_STORE_OLD
            endif
 
-           if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-              loadct2,40
-              tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+           if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
+              LOADCT2,40
+              TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
            endif
         ENDIF
 
@@ -509,33 +555,51 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
         var_name='Eesa_Energy'
         IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-           get_en_spec,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux',/CALIB,RETRACE=1
+           GET_EN_SPEC,'fa_' + eeb_or_ees + '_c', $
+                       NAME=var_name, $
+                       UNITS='eflux', $
+                       /CALIB, $
+                       RETRACE=1
         ENDIF
-        get_data,var_name, data=data
+        GET_DATA,var_name,DATA=data
         IF KEYWORD_SET(save_for_offline) THEN BEGIN
            Eesa_Energy_off = data
            saveStr        += var_name + '_off,'
         ENDIF
-        data.y = alog10(data.y)
-        store_data,var_name, data=data
-        options,var_name,'spec',1	
+        data.y = ALOG10(data.y)
+        STORE_DATA,var_name,DATA=data
+        OPTIONS,var_name,'spec',1	
         ;; zlim,var_name,4,9,0
-        zlim,var_name, $
-             (MIN(data.y[WHERE(FINITE(data.y))]) > 6 ), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < 10),0
+        ZLIM,var_name, $
+             (MIN(data.y[WHERE(FINITE(data.y))]) > 6), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
         ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-        ylim,var_name,5,30000,1
-        options,var_name,'ytitle','Electrons!C!CEnergy (eV)'
-        options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,var_name,'x_no_interp',1
-        options,var_name,'y_no_interp',1
-        options,var_name,'panel_size',2
+        YLIM,var_name,5,30000,1
+        OPTIONS,var_name,'ytitle','Electrons!C!CEnergy (eV)'
+        OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        OPTIONS,var_name,'x_no_interp',1
+        OPTIONS,var_name,'y_no_interp',1
+        OPTIONS,var_name,'panel_size',2
 
-        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
+        IF KEYWORD_SET(oPlot_pot) THEN BEGIN
 
-        if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then BEGIN 
-           loadct2,40
-           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+           ;; potLStyle = 1 ;dotted
+           potLStyle = 2 ;dashed
+           potColor  = hvit
+           ;; potLStyle = 3 ;dash dot
+           ;; potLStyle = 4 ;dash dot dot
+           STORE_DATA,'potential',DATA={x:jvPlotData.time,y:jvPlotData.pot}
+           OPTIONS,'potential','LINESTYLE',potLStyle
+           OPTIONS,'potential','colors',potColor
+           OPTIONS,'potential','thick',2.0
+
+        ENDIF
+
+        IF (N_ELEMENTS(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
+
+        if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN 
+           LOADCT2,40
+           TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
         endif
 
      endif
@@ -544,31 +608,31 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
 ; determine tlimit_north and tlimit_south also change plot title
 
-  get_data,'LAT',data=data
+  GET_DATA,'ILAT',DATA=data
   IF KEYWORD_SET(save_for_offline) THEN BEGIN
      LAT_off  = data
      saveStr  += 'LAT_off,'
   ENDIF
 
-  if (n_elements(data.y) le 0) then return
+  if (n_elements(data.y) le 0) THEN return
 
-  bb = where (data.y gt 10,nn)
-  if (nn gt 0) then tlimit_north=[data.x[bb[0]],data.x[bb[nn-1L]]]
+  bb = WHERE(data.y gt 10,nn)
+  if (nn gt 0) THEN tlimit_north=[data.x[bb[0]],data.x[bb[nn-1L]]]
 
-  bb = where (data.y lt -10,nn)
-  if (nn gt 0) then tlimit_south=[data.x[bb[0]],data.x[bb[nn-1L]]]
+  bb = WHERE(data.y lt -10,nn)
+  if (nn gt 0) THEN tlimit_south=[data.x[bb[0]],data.x[bb[nn-1L]]]
 
-  hemisph = getenv('FAST_ORBIT_HEMISPHERE')
+  hemisph = GETENV('FAST_ORBIT_HEMISPHERE')
 
-  get_data,'ORBIT',data=data
+  GET_DATA,'ORBIT',DATA=data
   IF KEYWORD_SET(save_for_offline) THEN BEGIN
      ORBIT_off  = data
      saveStr  += 'ORBIT_off,'
   ENDIF
   nn = n_elements(data.y)/2
   orbit = data.y(nn)
-  orbit_lab = strcompress(string(orbit,format="(i5.4)"),/remove_all)
-  tplot_options,'title','FAST Orbit ' + orbit_lab + ' ' + hemisph
+  orbit_lab = strcompress(string(orbit,FORMAT="(i5.4)"),/remove_all)
+  tplot_OPTIONS,'title','FAST Orbit ' + orbit_lab + ' ' + hemisph
 
   ;; IF KEYWORD_SET(add_chare_panel) OR KEYWORD_SET(add_kappa_panel) OR KEYWORD_SET(add_Newell_panel) THEN BEGIN
   eAngle       = KEYWORD_SET(electron_angleRange) ? electron_angleRange : [360.-30.,30.]
@@ -582,97 +646,100 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   t1eeb = time1 > t1eeb
   t2eeb = time2 < t2eeb
 
-  IF ~KEYWORD_SET(load_from_offline) THEN BEGIN     
+  IF ~KEYWORD_SET(load_from_offline) AND ~KEYWORD_SET(GRL) THEN BEGIN     
+
      GET_2DT,'j_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Je',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
      GET_2DT,'je_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Jee',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
      GET_2DT,'j_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Ji',T1=t1eeb,T2=t2eeb,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
      GET_2DT,'je_2d_fs','fa_' + ieb_or_ies + '_c',NAME='Jei',T1=t1eeb,T2=t2eeb,ENERGY=energy_ions,ANGLE=iAngleChari,/CALIB
-  ENDIF
-  ;;Remove_crap
-  GET_DATA,'Je',DATA=tmp
-  IF KEYWORD_SET(save_for_offline) THEN BEGIN
-     Je_off  = tmp
-     saveStr += 'Je_off,'
-  ENDIF
 
-  ;; GET_DATA,'Je',DATA=Je_originalsk
-  ;; saveStr+='Je_originalsk,'
-  keep1                          = WHERE(FINITE(tmp.y) NE 0)
-  keep2                          = WHERE(ABS(tmp.y) GT 0.0)
-  GET_DATA,'Jee',DATA=tmp
-  IF KEYWORD_SET(save_for_offline) THEN BEGIN
-     Jee_off  = tmp
-     saveStr += 'Jee_off,'
-  ENDIF
-  ;; GET_DATA,'Jee',DATA=Jee_originalsk
-  ;; saveStr+='Jee_originalsk,'
-  keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
-  keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
-  GET_DATA,'Ji',DATA=tmp
-  IF KEYWORD_SET(save_for_offline) THEN BEGIN
-     Ji_off  = tmp
-     saveStr += 'Ji_off,'
-  ENDIF
-  ;; GET_DATA,'Ji',DATA=Ji_originalsk
-  ;; saveStr+='Ji_originalsk,'
-  keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
-  keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
-  GET_DATA,'Jei',DATA=tmp
-  IF KEYWORD_SET(save_for_offline) THEN BEGIN
-     Jei_off  = tmp
-     saveStr += 'Jei_off,'
-  ENDIF
-  ;; GET_DATA,'Jei',DATA=Jei_originalsk
-  ;; saveStr+='Jei_originalsk,'
-  keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
-  keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
-  GET_DATA,'Je',DATA=tmp
-  tmp.x                          = tmp.x[keep1]
-  tmp.y                          = tmp.y[keep1]
-  je_tmp_time                    = tmp.x[keep2]
-  je_tmp_data                    = tmp.y[keep2]
-  STORE_DATA,'Je',DATA={x:je_tmp_time,y:je_tmp_data}
-  GET_DATA,'Jee',DATA=tmp
-  tmp.x                          = tmp.x[keep1]
-  tmp.y                          = tmp.y[keep1]
-  jee_tmp_time                   = tmp.x[keep2]
-  jee_tmp_data                   = tmp.y[keep2]
-  STORE_DATA,'Jee',DATA={x:jee_tmp_time,y:jee_tmp_data}
-  GET_DATA,'Ji',DATA=tmp
-  tmp.x                          = tmp.x[keep1]
-  tmp.y                          = tmp.y[keep1]
-  ji_tmp_time                    = tmp.x[keep2]
-  ji_tmp_data                    = tmp.y[keep2]
-  STORE_DATA,'Ji',DATA={x:ji_tmp_time,y:ji_tmp_data}
-  GET_DATA,'Jei',DATA=tmp
-  tmp.x                          = tmp.x[keep1]
-  tmp.y                          = tmp.y[keep1]
-  jei_tmp_time                   = tmp.x[keep2]
-  jei_tmp_data                   = tmp.y[keep2]
-  STORE_DATA,'Jei',DATA={x:jei_tmp_time,y:jei_tmp_data}
+     ;;Remove_crap
+     GET_DATA,'Je',DATA=tmp
+     IF KEYWORD_SET(save_for_offline) THEN BEGIN
+        Je_off  = tmp
+        saveStr += 'Je_off,'
+     ENDIF
 
-  GET_DATA,'Je',DATA=Je
-  GET_DATA,'Jee',DATA=Jee
-  GET_DATA,'Ji',DATA=Ji
-  GET_DATA,'Jei',DATA=Jei
-  ;; ENDIF
+     ;; GET_DATA,'Je',DATA=Je_originalsk
+     ;; saveStr+='Je_originalsk,'
+     keep1                          = WHERE(FINITE(tmp.y) NE 0)
+     keep2                          = WHERE(ABS(tmp.y) GT 0.0)
+     GET_DATA,'Jee',DATA=tmp
+     IF KEYWORD_SET(save_for_offline) THEN BEGIN
+        Jee_off  = tmp
+        saveStr += 'Jee_off,'
+     ENDIF
+     ;; GET_DATA,'Jee',DATA=Jee_originalsk
+     ;; saveStr+='Jee_originalsk,'
+     keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
+     keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
+     GET_DATA,'Ji',DATA=tmp
+     IF KEYWORD_SET(save_for_offline) THEN BEGIN
+        Ji_off  = tmp
+        saveStr += 'Ji_off,'
+     ENDIF
+     ;; GET_DATA,'Ji',DATA=Ji_originalsk
+     ;; saveStr+='Ji_originalsk,'
+     keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
+     keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
+     GET_DATA,'Jei',DATA=tmp
+     IF KEYWORD_SET(save_for_offline) THEN BEGIN
+        Jei_off  = tmp
+        saveStr += 'Jei_off,'
+     ENDIF
+     ;; GET_DATA,'Jei',DATA=Jei_originalsk
+     ;; saveStr+='Jei_originalsk,'
+     keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
+     keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
+     GET_DATA,'Je',DATA=tmp
+     tmp.x                          = tmp.x[keep1]
+     tmp.y                          = tmp.y[keep1]
+     je_tmp_time                    = tmp.x[keep2]
+     je_tmp_data                    = tmp.y[keep2]
+     STORE_DATA,'Je',DATA={x:je_tmp_time,y:je_tmp_data}
+     GET_DATA,'Jee',DATA=tmp
+     tmp.x                          = tmp.x[keep1]
+     tmp.y                          = tmp.y[keep1]
+     jee_tmp_time                   = tmp.x[keep2]
+     jee_tmp_data                   = tmp.y[keep2]
+     STORE_DATA,'Jee',DATA={x:jee_tmp_time,y:jee_tmp_data}
+     GET_DATA,'Ji',DATA=tmp
+     tmp.x                          = tmp.x[keep1]
+     tmp.y                          = tmp.y[keep1]
+     ji_tmp_time                    = tmp.x[keep2]
+     ji_tmp_data                    = tmp.y[keep2]
+     STORE_DATA,'Ji',DATA={x:ji_tmp_time,y:ji_tmp_data}
+     GET_DATA,'Jei',DATA=tmp
+     tmp.x                          = tmp.x[keep1]
+     tmp.y                          = tmp.y[keep1]
+     jei_tmp_time                   = tmp.x[keep2]
+     jei_tmp_data                   = tmp.y[keep2]
+     STORE_DATA,'Jei',DATA={x:jei_tmp_time,y:jei_tmp_data}
+
+     GET_DATA,'Je',DATA=Je
+     GET_DATA,'Jee',DATA=Jee
+     GET_DATA,'Ji',DATA=Ji
+     GET_DATA,'Jei',DATA=Jei
+     ;; ENDIF
+  ENDIF
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Chare panel
-
-  chare            = Jee.y/Je.y*6.242*1.0e11
-  chari            = Jei.y/Ji.y*6.242*1.0e11
-  chari_interp     = DATA_CUT({x:Jei.x,y:chari},Jee.x,/IGNORE_NAN,GAP_DIST=3)
-  ;; FA_FIELDS_COMBINE,{time:Jee.x,comp1:Jee.y,ncomp:1}, $
-  ;;                   {time:Jei.x,comp1:chari,ncomp:1}, $
-  ;;                   RESULT=chari_interp, $
-  ;;                   /INTERP, $
-  ;;                   DELT_T=50., $
-  ;;                   /TALK
-  ;; chari_interp  = {x:Jee.x,y:chari_interp}
-  chartot          = chare+chari_interp
-
   IF KEYWORD_SET(add_chare_panel) AND ~KEYWORD_SET(GRL) THEN BEGIN
+
+     chare            = Jee.y/Je.y*6.242*1.0e11
+     chari            = Jei.y/Ji.y*6.242*1.0e11
+     chari_interp     = DATA_CUT({x:Jei.x,y:chari},Jee.x,/IGNORE_NAN,GAP_DIST=3)
+     ;; FA_FIELDS_COMBINE,{time:Jee.x,comp1:Jee.y,ncomp:1}, $
+     ;;                   {time:Jei.x,comp1:chari,ncomp:1}, $
+     ;;                   RESULT=chari_interp, $
+     ;;                   /INTERP, $
+     ;;                   DELT_T=50., $
+     ;;                   /TALK
+     ;; chari_interp  = {x:Jee.x,y:chari_interp}
+     chartot          = chare+chari_interp
+
+
      charEBounds      = [MIN(chare[WHERE(chare GT 0)]) + MIN(chari[WHERE(chari GT 0)]), $
                          MAX(chare[WHERE(chare GT 0)]) + MAX(chari[WHERE(chari GT 0)])]
      ;; showLog_charE    = (ALOG10(MAX(chare[WHERE(chare GT 0)]))-ALOG10(MIN(chare[WHERE(chare GT 0)]))) GT 2
@@ -698,9 +765,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      ;; OPTIONS,'charepanel','ytickname',['0','5e3','1.0e4','1.5e4','2.e4'] ; set y-axis labels
      ;; OPTIONS,'charepanel','ytickv',[0.,5.e3,1.0e4,1.5e4,2.0e4]           ; set y-axis labels
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['charepanel'] else tPlt_vars=[tPlt_vars,'charepanel']
+     if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['charepanel'] else tPlt_vars=[tPlt_vars,'charepanel']
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
         loadct2,40
         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
@@ -822,9 +889,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   STORE_DATA,'kappa_critisk',DATA={x:kappaTime,y:MAKE_ARRAY(N_ELEMENTS(kappaTime),VALUE=2.5)}
   OPTIONS,'kappa_critisk','colors',red
 
-  if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['kappa_fit'] else tPlt_vars=[tPlt_vars,'kappa_fit']
+  if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['kappa_fit'] else tPlt_vars=[tPlt_vars,'kappa_fit']
 
-  if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+  if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
      loadct2,40
      tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM=BRO
@@ -864,9 +931,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
 
 
-  if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['chi22DK'] else tPlt_vars=[tPlt_vars,'chi22DK']
+  if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['chi22DK'] else tPlt_vars=[tPlt_vars,'chi22DK']
 
-  if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+  if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
      loadct2,40
      tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM=BRO
@@ -908,9 +975,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      ENDELSE
   YLIM,'Temp2DK',TempBounds[0],TempBounds[1],showLog_Temp
 
-  if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['Temp2DK'] else tPlt_vars=[tPlt_vars,'Temp2DK']
+  if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['Temp2DK'] else tPlt_vars=[tPlt_vars,'Temp2DK']
 
-  if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+  if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
      loadct2,40
      tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;PSYM=BRO
@@ -946,9 +1013,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   ENDELSE
   YLIM,'Dens2DK',DensBounds[0],DensBounds[1],showLog_Dens
 
-  if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['Dens2DK'] else tPlt_vars=[tPlt_vars,'Dens2DK']
+  if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['Dens2DK'] else tPlt_vars=[tPlt_vars,'Dens2DK']
 
-  if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+  if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
      loadct2,40
      tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;PSYM=BRO
@@ -983,9 +1050,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      ENDELSE
      YLIM,'BlkE2DK',BlkEBounds[0],BlkEBounds[1],showLog_BlkE
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['BlkE2DK'] else tPlt_vars=[tPlt_vars,'BlkE2DK']
+     if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['BlkE2DK'] else tPlt_vars=[tPlt_vars,'BlkE2DK']
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
         loadct2,40
         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;PSYM=BRO
@@ -1005,7 +1072,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   IF ~KEYWORD_SET(GRL) THEN BEGIN
 
      ;;Get mag current
-     get_data,'dB_fac_v',data=db_fac
+     GET_DATA,'dB_fac_v',DATA=db_fac
 
      IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
         jMag  = GET_CURRENT_FROM_FLUXMAG(t1,t2, $
@@ -1211,11 +1278,11 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      OPTIONS,'feta','labflag',3
      OPTIONS,'feta','labpos',oneCheesePos[2]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['onecheese'] else tPlt_vars=[tPlt_vars,'onecheese']
+     if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['onecheese'] else tPlt_vars=[tPlt_vars,'onecheese']
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-        loadct2,40
-        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+     IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
+        LOADCT2,40
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM=NO
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings',PSYM=kappaSym
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta',PSYM=GaussSym
@@ -1231,81 +1298,82 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         IF KEYWORD_SET(add_chi2_line) THEN BEGIN
            TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi2_critisk'
         ENDIF
+
+     ENDIF
+
+  ENDIF
+
+  ;; ENDIF
+
+  IF KEYWORD_SET(add_Newell_panel) THEN BEGIN
+
+     var_name='Eesa_LC_Energy'
+     ;;This already gets called above, but we need to call it again to handle angle restrictions
+     IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+        GET_EN_SPEC,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux',/CALIB,RETRACE=1,ANGLE=eAngle
+     ENDIF
+     GET_DATA,var_name,DATA=data
+     IF KEYWORD_SET(save_for_offline) THEN BEGIN
+        Eesa_LC_Energy_off  = data
+        saveStr += var_name+'_off,'
+     ENDIF
+
+     IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+        GET_FA_ORBIT,data.x,/TIME_ARRAY
+     ENDIF
+     GET_DATA,'MLT',DATA=mlt
+     IF KEYWORD_SET(save_for_offline) THEN BEGIN
+        MLT_off  = mlt
+        saveStr += 'MLT_off,'
+     ENDIF
+     mlt       = mlt.y
+
+     GET_DATA,'ILAT',DATA=ilat
+     IF KEYWORD_SET(save_for_offline) THEN BEGIN
+        ILAT_off  = ilat
+        saveStr += 'ILAT_off,'
+     ENDIF
+     ilat      = ilat.y
+
+     GET_DATA,'ALT',DATA=alt
+     IF KEYWORD_SET(save_for_offline) THEN BEGIN
+        ALT_off  = alt
+        saveStr += 'ALT_off,'
+     ENDIF
+     alt      = alt.y
+
+     GET_DATA,'ORBIT',DATA=orbit
+     IF KEYWORD_SET(save_for_offline) THEN BEGIN
+        ORBIT2_off  = orbit
+        saveStr += 'orbit2_off,'
+     ENDIF
+     orbit          = orbit.y
+     ;; sc_pot         = GET_FA_POTENTIAL(t1,t2, $
+     ;;                                   ;; /SPIN, $
+     ;;                                   /REPAIR)
+     IF KEYWORD_SET(save_for_offline) THEN BEGIN
+        sc_pot_off  = sc_pot
+        saveStr += 'sc_pot_off,'
+     ENDIF
+     sc_pot_interp  = DATA_CUT({x:sc_pot.time,y:sc_pot.comp1},data.x) 
+     this           = VALUE_CLOSEST2(data.x,jee.x) 
+     data           = {x:data.x[this],y:data.y[this,*],v:data.v[this,*]}
+     IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,data,Jee,Je,mlt,ilat,alt,orbit,events, $
+                                             SC_POT=sc_pot_interp,/QUIET
+
+     var_name = 'newellPanel'
+     PREPARE_IDENTIFIED_DIFF_EFLUXES_FOR_TPLOT,events,TPLOT_NAME=var_name, $
+                                               /NO_STRICT_TYPES, $
+                                               CONVERT_TO_NEWELL_INTERP=Newell_2009_interp
+
+     if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
+
+     if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
+        loadct2,40
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
   ENDIF
-
-  ;; ENDIF
-
-  ;; IF KEYWORD_SET(add_Newell_panel) THEN BEGIN
-
-  var_name='Eesa_LC_Energy'
-  ;;This already gets called above, but we need to call it again to handle angle restrictions
-  IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-     GET_EN_SPEC,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux',/CALIB,RETRACE=1,ANGLE=eAngle
-  ENDIF
-  GET_DATA,var_name,DATA=data
-  IF KEYWORD_SET(save_for_offline) THEN BEGIN
-     Eesa_LC_Energy_off  = data
-     saveStr += var_name+'_off,'
-  ENDIF
-
-  IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-     GET_FA_ORBIT,data.x,/TIME_ARRAY
-  ENDIF
-  GET_DATA,'MLT',DATA=mlt
-  IF KEYWORD_SET(save_for_offline) THEN BEGIN
-     MLT_off  = mlt
-     saveStr += 'MLT_off,'
-  ENDIF
-  mlt       = mlt.y
-
-  GET_DATA,'ILAT',DATA=ilat
-  IF KEYWORD_SET(save_for_offline) THEN BEGIN
-     ILAT_off  = ilat
-     saveStr += 'ILAT_off,'
-  ENDIF
-  ilat      = ilat.y
-
-  GET_DATA,'ALT',DATA=alt
-  IF KEYWORD_SET(save_for_offline) THEN BEGIN
-     ALT_off  = alt
-     saveStr += 'ALT_off,'
-  ENDIF
-  alt      = alt.y
-
-  GET_DATA,'ORBIT',DATA=orbit
-  IF KEYWORD_SET(save_for_offline) THEN BEGIN
-     ORBIT2_off  = orbit
-     saveStr += 'orbit2_off,'
-  ENDIF
-  orbit          = orbit.y
-  sc_pot         = GET_FA_POTENTIAL(t1,t2, $
-                                    ;; /SPIN, $
-                                    /REPAIR)
-  IF KEYWORD_SET(save_for_offline) THEN BEGIN
-     sc_pot_off  = sc_pot
-     saveStr += 'sc_pot_off,'
-  ENDIF
-  sc_pot_interp  = DATA_CUT({x:sc_pot.time,y:sc_pot.comp1},data.x) 
-  this           = VALUE_CLOSEST2(data.x,jee.x) 
-  data           = {x:data.x[this],y:data.y[this,*],v:data.v[this,*]}
-  IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,data,Jee,Je,mlt,ilat,alt,orbit,events, $
-                                          SC_POT=sc_pot_interp,/QUIET
-
-  var_name = 'newellPanel'
-  PREPARE_IDENTIFIED_DIFF_EFLUXES_FOR_TPLOT,events,TPLOT_NAME=var_name, $
-                                            /NO_STRICT_TYPES, $
-                                            CONVERT_TO_NEWELL_INTERP=Newell_2009_interp
-
-  if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
-
-  if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-     loadct2,40
-     tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-  endif
-
-  ;; ENDIF
 
   ;; tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle']
 
@@ -1317,10 +1385,10 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   IF KEYWORD_SET(add_Newell_panel) THEN tPlt_vars = ['newellPanel',tPlt_vars]
 
-  if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+  if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
 
-     loadct2,40
-     tplot,tPlt_vars,var=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
+     LOADCT2,40
+     TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
 
      ;; IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
 
@@ -1343,7 +1411,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      ;; ENDIF
   endif
 
-  IF keyword_set(save_ps) THEN BEGIN
+  IF KEYWORD_SET(save_ps) THEN BEGIN
 
      CASE 1 OF
         KEYWORD_SET(plot_north): BEGIN
@@ -1386,15 +1454,35 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         TPLOT_PANEL,VARIABLE='chi22DK',OPLOTVAR='chi2_critisk'
      ENDIF
 
+     IF KEYWORD_SET(oPlot_pot) THEN BEGIN
+        TPLOT_PANEL,VARIABLE='Eesa_Energy',OPLOTVAR='potential'
+     ENDIF
+
      ;; ENDIF
 
      IF KEYWORD_SET(timeBars) THEN BEGIN
 
         CASE NDIMEN(timeBars) OF
            1: BEGIN
+
               FOR k=0,N_ELEMENTS(timeBars)-1 DO BEGIN
                  TIMEBAR,timeBars[k],THICK=3.0,COLOR=250
               ENDFOR
+
+           END
+           2: BEGIN
+
+              nHjar = N_ELEMENTS(timeBars[0,*])
+              ;; colours = GENERATE_LIST_OF_RANDOM_COLORS(nHjar)
+              colours = [poiple,darkRed,green,blue]
+
+              FOR k=0,nHjar-1 DO BEGIN
+                 ;; TIMEBAR,timeBars[0,k],THICK=3.0,COLOR=(colours[k])[0]
+                 ;; TIMEBAR,timeBars[1,k],THICK=3.0,COLOR=(colours[k])[0]
+                 TIMEBAR,timeBars[0,k],THICK=3.0,COLOR=colours[k]
+                 TIMEBAR,timeBars[1,k],THICK=3.0,COLOR=colours[k]
+              ENDFOR
+              
            END
         ENDCASE
 
