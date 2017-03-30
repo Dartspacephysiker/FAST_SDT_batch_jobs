@@ -49,18 +49,25 @@ PRO PICKITUP,tvd,vdrift,IN_MOMS=moms,T1=t1,T2=t2
 
   ;;;;;;; E_ion = -(v_drift+v_sc) X b, including subtraction of sc velocity contribution
 
-  GET_FA_ORBIT,tvd,N_ELEMENTS(tvd),/TIME_ARRAY,/NO_STORE,STRUC=orb,/ALL,/DEFINITIVE
+  ;; GET_FA_ORBIT,tvd,N_ELEMENTS(tvd),/TIME_ARRAY,/NO_STORE,STRUC=orb,/ALL,/DEFINITIVE
   ;; bbbalt = SQRT(TOTAL(orb.B_model^2,2))    ;;;;; in nT
   ;; v_sc = SQRT(TOTAL(orb.fa_vel^2,2))       ;;;;; in km/s
 
   ;;;;;;; Coordinate transformation
 
-  unitB = NORMN3(orb.B_model)                                 ;;; z-axis
-  unitQ = NORMN3(CROSSN3(orb.fa_vel,orb.B_model))             ;;; y-axis 
-  unitv_fperp = NORMN3(crossn3(orb.B_model,unitQ))            ;;; x-axis
+  ;; unitB = NORMN3(orb.B_model)                                 ;;; z-axis
+  ;; unitQ = NORMN3(CROSSN3(orb.fa_vel,orb.B_model))             ;;; y-axis 
+  ;; unitv_fperp = NORMN3(crossn3(orb.B_model,unitQ))            ;;; x-axis
 
-  GET_FA_ATTITUDE,orb.time,/TIME_ARRAY,STRUCT=att
+  ;; GET_FA_ATTITUDE,orb.time,/TIME_ARRAY,STRUCT=att
 
+  GET_FA_FAC_VECTORS,tvd,t2, $
+                     ORBSTRUCT=orbStruct, $
+                     /TIME_ARRAY, $
+                     FAC=fac, $
+                     VEL_FAC=facv, $
+                     DESPUN_SAXIS_SPLANE=spin
+  
 ;;; v_drift = (v_drift dot unitQ)*unitQ + (v_drift dot unitv_fperp)*unitv_fperp
 ;;;                  (1)                           (2)
 ;;;         (1)  <== from ealongv/B,i.e.,eavmean [mV/m]  
@@ -74,53 +81,56 @@ PRO PICKITUP,tvd,vdrift,IN_MOMS=moms,T1=t1,T2=t2
 ;;; North_comp = unitN (dot) E_ion
 ;;;            = B*(v_drift dot unitQ)*(unitN dot unitv_fperp) - B*(v_drift dot unitv_fperp)*(unitN dot unitQ)
 
-  unitSpin = [[SIN(att.angles[*].spin_ra*!DTOR)], $
-              [COS(att.angles[*].spin_ra*!DTOR)], $
-              [SIN(att.angles[*].spin_dec*!DTOR)]]
+;;   unitSpin = [[SIN(att.angles[*].spin_ra*!DTOR)], $
+;;               [COS(att.angles[*].spin_ra*!DTOR)], $
+;;               [SIN(att.angles[*].spin_dec*!DTOR)]]
 
-  unitR = NORMN3(orb.fa_pos)
-  z = [0.,0.,1.]
-  unitz = MAKE_ARRAY(N_ELEMENTS(tvd),VALUE=1.0D,/DOUBLE) # TRANSPOSE(z)
-;; unitz = repvec(z,n_elements(tvd))                
-  unitE = NORMN3(CROSSN3(unitz,unitR))             ;;; East unit vector
-  unitN = NORMN3(CROSSN3(unitR,unitE))             ;;; North unit vector 
+;;   unitR = NORMN3(orb.fa_pos)
+;;   z = [0.,0.,1.]
+;;   unitz = MAKE_ARRAY(N_ELEMENTS(orb.time),VALUE=1.0D,/DOUBLE) # TRANSPOSE(z)
+;; ;; unitz = repvec(z,n_elements(orb.time))                
+;;   unitE = NORMN3(CROSSN3(unitz,unitR))             ;;; East unit vector
+;;   unitN = NORMN3(CROSSN3(unitR,unitE))             ;;; North unit vector 
 
-  fa_pos_gei = orb.fa_pos
+;;   fa_pos_gei = orb.fa_pos
 
-  b_unit = NORMN3(orb.B_model)
-  r_unit = NORMN3(fa_pos_gei)
+;;   b_unit = NORMN3(orb.B_model)
+;;   r_unit = NORMN3(fa_pos_gei)
 
-  e_unit = NORMN3(CROSSN3(b_unit,r_unit))
-  n_unit = CROSSN3(e_unit,b_unit)
+;;   e_unit = NORMN3(CROSSN3(b_unit,r_unit))
+;;   n_unit = CROSSN3(e_unit,b_unit)
 
-  ;;See how aligned the spin axis is with geographic east?
-  alignedness_GEO = TOTAL(unitE*unitSpin,2)
+;;   ;;See how aligned the spin axis is with geographic east?
+;;   alignedness_GEO = TOTAL(unitE*unitSpin,2)
 
-  ;;See how aligned the spin axis is with geographic east?
-  alignedness_MAG = TOTAL(e_unit*unitSpin,2)
+;;   ;;See how aligned the spin axis is with geographic east?
+;;   alignedness_MAG = TOTAL(e_unit*unitSpin,2)
 
 
-  unit_spinPlaneB = CROSSN3(b_unit,unitSpin)
+;;   unit_spinPlaneB = CROSSN3(b_unit,unitSpin)
 
-  unit2D_spPl_N   = TOTAL(n_unit*unitSpin,2)
-  unit2D_spPl_E   = TOTAL(e_unit*unitSpin,2)
+;;   unit2D_spPl_N   = TOTAL(n_unit*unitSpin,2)
+;;   unit2D_spPl_E   = TOTAL(e_unit*unitSpin,2)
 
-  norm_spPl       = SQRT(unit2D_spPl_N^2+unit2D_spPl_E^2)
-  unit2D_spPl_N  /= norm_spPl
-  unit2D_spPl_E  /= norm_spPl
+;;   norm_spPl       = SQRT(unit2D_spPl_N^2+unit2D_spPl_E^2)
+;;   unit2D_spPl_N  /= norm_spPl
+;;   unit2D_spPl_E  /= norm_spPl
 
-  cur_n           = unit2D_spPl_N * moms.y[*].perp.j * 1.6D-9
-  cur_e           = unit2D_spPl_E * moms.y[*].perp.j * 1.6D-9
+  ;; cur_n           = unit2D_spPl_N * moms.y[*].perp.j * 1.6D-9
+  ;; cur_e           = unit2D_spPl_E * moms.y[*].perp.j * 1.6D-9
 
 ;   Field-aligned coordinates defined as: 
 ;   z-along B, y-east (BxR), x-nominally out
 
-  tmp   = DBLARR(N_ELEMENTS(b_unit[*,0]),3,3)
-  tmp[*,*,0] = n_unit
-  tmp[*,*,1] = e_unit
-  tmp[*,*,2] = b_unit
+  ;; tmp   = DBLARR(N_ELEMENTS(b_unit[*,0]),3,3)
+  ;; tmp[*,*,0] = n_unit
+  ;; tmp[*,*,1] = e_unit
+  ;; tmp[*,*,2] = b_unit
 
-  gei_to_fac = {x:orb.time,y:tmp}
+  ;; gei_to_fac = {x:orb.time,y:tmp}
+
+  cur_n           = spin.plane.nMAG * moms.y[*].perp.j * 1.6D-9
+  cur_e           = spin.plane.eMAG * moms.y[*].perp.j * 1.6D-9
 
   eavmean = CONGRID(eavmean,N_ELEMENTS(tvd))
   viondrift = vdrift+v_sc*1000.0
@@ -237,16 +247,29 @@ PRO JOURNAL__20170329__DIFFERENT_SOLID_ANGLES_QQ
                    LOAD_DAT_FROM_FILE=loadFile, $
                    LOAD_DIR=loadDir
 
-  moms = MOMENTS_2D_NEW__FROM_DIFF_EFLUX(diff_eFlux, $
-                                         ENERGY=en, $
-                                         ERANGE=er, $
-                                         EBINS=ebins, $
-                                         ANGLE=an, $
-                                         ARANGE=ar, $
-                                         BINS=bins, $
-                                         SC_POT=sc_pot, $
-                                         EEB_OR_EES=eeb_or_ees, $
-                                         QUIET=quiet)
+  MOMENT_SUITE_2D,diff_eFlux, $
+                  ENERGY=energy, $
+                  ARANGE__MOMENTS=aRange__moments, $
+                  ARANGE__CHARE=aRange__charE, $
+                  SC_POT=sc_pot, $
+                  EEB_OR_EES=eeb_or_ees, $
+                  /ERROR_ESTIMATES, $
+                  MAP_TO_100KM=map_to_100km, $ 
+                  ORBIT=orbit, $
+                  /NEW_MOMENT_ROUTINE, $
+                  QUIET=quiet, $
+                  OUT_STRUCT=moms
+
+  ;; moms = MOMENTS_2D_NEW__FROM_DIFF_EFLUX(diff_eFlux, $
+  ;;                                        ENERGY=en, $
+  ;;                                        ERANGE=er, $
+  ;;                                        EBINS=ebins, $
+  ;;                                        ANGLE=an, $
+  ;;                                        ARANGE=ar, $
+  ;;                                        BINS=bins, $
+  ;;                                        SC_POT=sc_pot, $
+  ;;                                        EEB_OR_EES=eeb_or_ees, $
+  ;;                                        QUIET=quiet)
 
   PICKITUP,tvd,vdrift,IN_MOMS=moms,T1=t1,T2=t2
   vdrift /= 1000.
