@@ -36,7 +36,10 @@ PRO JOURNAL__20170224__ORBIT_10837__FOR_PRE8_PROCEEDINGS, $
    TPLOT_RIGHTNOW=tPlot_rightNow, $
    SAVE_B_AND_J_DATA=save_B_and_J_data, $
    ANCILLARY_PLOTS=ancillary_plots, $
-   ADD_TIMEBAR=add_timebar
+   ADD_TIMEBAR=add_timebar, $
+   TIMEBAR_THICK=timeBar_thick, $
+   SKIP_DB_EAST_PANEL=skip_dB_east_panel, $
+   LOGPLOTS=logPlots
 
   eeb_or_ees        = 'eeb'
   ieb_or_ies        = 'ieb'
@@ -91,7 +94,10 @@ PRO JOURNAL__20170224__ORBIT_10837__FOR_PRE8_PROCEEDINGS, $
      ANCILLARY_PLOTS=ancillary_plots, $
      BONUSSUFF=bonusSuff, $
      PLOTDIRSUFF=plotDirSuff, $
-     ADD_TIMEBAR=add_timebar
+     ADD_TIMEBAR=add_timebar, $
+     TIMEBAR_THICK=timeBar_thick, $
+     SKIP_DB_EAST_PANEL=skip_dB_east_panel, $
+     LOGPLOTS=logPlots
 
 
 END
