@@ -18,7 +18,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   only_1D_fits                      = 0
   fit1D__sourceCone_energy_spectrum = 1
-  fit1D__nFlux                      = 0
+  fit1D__nFlux                      = 1
   fit1D__weighting                  = 2 ;1 = lin 2 = square
   fit1D__clampTemperature           = 0
   fit1D__clampDensity               = 0
@@ -36,8 +36,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
 
   fit1D__save_plotSlices            = 1
-  fit2D__save_all_candidate_plots   = 0
-  fit2D__show_each_candidate        = 0
+  fit2D__save_all_candidate_plots   = 1
+  fit2D__show_each_candidate        = 1
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
   fit2D__clampDensity               = 0
@@ -66,7 +66,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   load_diff_eFlux_file = 1
   restore_fitFile      = 0
 
-  ;;Which classic event?
+  ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
   ;; '1 :  McFadden_et_al_1998'
   ;; '2 :  Elphic_et_al_1998'
@@ -74,11 +74,11 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; evtNum               = 2
 
   ;;2017/03/22
-  evtNum               = 0
+  evtNum               = 3
 
   ;;survey window
   eeb_or_ees           = eeb_or_ees__recommande[evtNum]
-  burstItvl            = 0
+  burstItvl            = 1
 
   ;;String setup
   orbit                = orbs      [evtNum]
@@ -90,7 +90,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
      t1Str             = (orbBurstTimes[evtNum])[0,burstItvl]
      t2Str             = (orbBurstTimes[evtNum])[1,burstItvl]
      bonusPref        += '--burstItvl_' + STRCOMPRESS(burstItvl,/REMOVE_ALL)
-     kStats__include_these_startstops = (kStats_startStops__eeb[evtNum])[burstItvl]
+     kStats__include_these_startstops = (kStats_startStops__eeb[evtNum])[0,*,burstItvl]
   ENDIF ELSE BEGIN
      kStats__include_these_startstops = kStats_startStops__ees[evtNum]
   ENDELSE
@@ -101,6 +101,18 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   lowDens_thresh       = 0.01
   diffEflux_thresh     = 1e7
   nPkAbove_dEF_thresh  = 5
+
+  IF orbit EQ 1789 THEN BEGIN
+
+     min_peak_energy   = 1000
+     energy_electrons  = [1e3,3.0e4]
+
+     chi2_over_dof_thresh = 50
+     lowDens_thresh       = 0.002
+     diffEflux_thresh     = 1e7
+     nPkAbove_dEF_thresh  = 5
+
+  ENDIF
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1  
