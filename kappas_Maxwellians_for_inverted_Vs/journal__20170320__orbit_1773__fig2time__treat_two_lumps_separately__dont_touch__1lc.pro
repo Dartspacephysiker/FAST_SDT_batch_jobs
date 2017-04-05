@@ -89,10 +89,13 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   plot_j_v_and_theory     = KEYWORD_SET(plot_j_v_and_theory    ) ? plot_j_v_and_theory     : 0B
   plot_j_v__fixed_t_and_n = KEYWORD_SET(plot_j_v__fixed_t_and_n) ? plot_j_v__fixed_t_and_n : 0B
 
-  a_la_Elphic_spName      = 'errorbarsalso_downgoing_e' + savePSuff + '.png'
-  jvpotBar_spName         = 'j_vs_potBar__downgoing_e' + savePSuff + '.png'
-  TN_spName               = 'T_and_N__downgoing_e' + savePSuff + '.png'
-  JV_theor_spName         = 'j_v_data_n_theory__downgoing_e' + savePSuff + '.png' & j_v__fixTandN__spName = 'j_v_fixTandN__' + savePSuff + '.png'
+  
+  ;; fExt                    = '.png'
+  fExt                    = '.eps'
+  a_la_Elphic_spName      = 'errorbarsalso_downgoing_e' + savePSuff + fExt
+  jvpotBar_spName         = 'j_vs_potBar__downgoing_e' + savePSuff + fExt
+  TN_spName               = 'T_and_N__downgoing_e' + savePSuff + fExt
+  JV_theor_spName         = 'j_v_data_n_theory__downgoing_e' + savePSuff + fExt & j_v__fixTandN__spName = 'j_v_fixTandN__' + savePSuff + fExt
 
   ;;Options for j_v_potBar plot
   jvpotBar__j_on_yAxis    = 1
@@ -113,6 +116,8 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   ;; jv_theor__DensLims      = [,]
   ;; jv_theor__magRatioLims  = [,]
 
+  jv_theor__R_B_init      = 1D5
+  jv_theor__kappa_init    = 10
 
   bonusPref               = '--Elphic_et_al_1998--Fig2'
 
@@ -167,7 +172,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   use_sc_pot_for_lowerbound = 1
   pot__save_file          = 0
   pot__from_fa_potential  = 1
-  energyArr               = [[100,3.0e4],[0,3.0e4],[0,2.4e4]]
+  moment_energyArr        = [[300,3.0e4],[300,3.0e4],[100,2.4e4]]
 
   ;; min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : 500
   ;; max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
@@ -205,7 +210,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
      ARANGE__CHARE_I_UP=aRange__charE_i_up, $
      WHICH_EEB__LABEL=label__which_eeb, $
      WHICH_TIMES__LABEL=label__which_times, $
-     ENERGYARR=energyArr, $
+     MOMENT_ENERGYARR=moment_energyArr, $
      USE_SC_POT_FOR_LOWERBOUND=use_sc_pot_for_lowerbound, $
      POT__FROM_FA_POTENTIAL=pot__from_fa_potential, $
      POT__CHASTON_STYLE=pot__Chaston_style, $
@@ -252,6 +257,8 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
      JV_THEOR__PLOT_J_RATIOS=plot_j_ratios, $
      JV_THEOR__PLOT_ION_ELEC_RATIOS=plot_ion_elec_ratios, $
      JV_THEOR__FIT_TIME_SERIES=jv_theor__fit_time_series, $
+     JV_THEOR__R_B_INIT=jv_theor__R_B_init, $
+     JV_THEOR__KAPPA_INIT=jv_theor__kappa_init, $
      JV_THEOR__KAPPALIMS=jv_theor__kappaLims, $   
      JV_THEOR__TEMPLIMS=jv_theor__TempLims, $    
      JV_THEOR__DENSLIMS=jv_theor__DensLims, $    

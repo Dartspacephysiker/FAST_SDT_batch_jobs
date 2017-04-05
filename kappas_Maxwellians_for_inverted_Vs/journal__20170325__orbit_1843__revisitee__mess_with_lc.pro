@@ -1,8 +1,8 @@
-PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
+PRO JOURNAL__20170325__ORBIT_1843__REVISITEE__MESS_WITH_LC
 
   COMPILE_OPT IDL2
 
-  routName                = 'JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC'
+  routName                = 'JOURNAL__20170325__ORBIT_1843__REVISITEE__MESS_WITH_LC'
 
   ;;get orbTimes here
   orbit                   = 1843
@@ -21,7 +21,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   Elphic1998_defaults     = 1
 
   error_estimates         = 1
-  remake_masterFile       = 0
+  remake_masterFile       = 1
   map_to_100km            = 1
 
   add_oneCount_stats      = 1
@@ -56,26 +56,12 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
 
   interactive_overplot    = 0
   
-  savePlot                = 1
-  savePSuff = STRSPLIT(tRanges,'/',/EXTRACT)
-  savePSuff = STRSPLIT([savePSuff[0,1],savePSuff[1,1]],':',/EXTRACT)
-  savePSuff = STRJOIN(savePSuff[0,1:2],'_') + '-' + STRJOIN(savePSuff[1,1:2],'_')
-  savePSuff               = STRING(FORMAT='("tR",I0,"__")',hvilken_tRange) + savePSuff
-
   ;;Which plots?
   plot_jv_a_la_Elphic     = 0B
   plot_j_v_potBar         = 0B
   plot_T_and_N            = 0B
   plot_j_v_and_theory     = 1B
   plot_j_v__fixed_t_and_n = 1B
-
-  ;; fExt                    = '.png'
-  fExt                    = '.eps'
-  a_la_Elphic_spName      = bonusPref + fExt
-  jvpotBar_spName         = bonusPref + 'j_vs_potBar__downgoing_e' + savePSuff + fExt
-  TN_spName               = bonusPref + 'T_and_N__downgoing_e' + savePSuff + fExt
-  JV_theor_spName         = bonusPref + 'j_v_data_n_theory__' + savePSuff + fExt
-  j_v__fixTandN__spName   = bonusPref + 'j_v_fixTandN__' + savePSuff + fExt
 
   ;;Options for j_v_potBar plot
   jvpotBar__j_on_yAxis    = 1
@@ -115,17 +101,19 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   order                   = [0,1,2]
   label                   = ['downgoing_e','upgoing_e','upgoing_i']
 
+  ;; lcFac                   = '1.5'
+  lcFac                   = '1.3'
   ;;OPTIONS! OPTIONS! OPTIONS!
   ;; aRange__moments_e_down  = [315.,45.]
-  aRange__moments_e_down  = 'lc'
+  aRange__moments_e_down  = lcFac + 'lc'
   ;; aRange__moments_i_up    = [0.,360.]
 
-  aRange__moments_i_up    = 'lc'
-  aRange__peakEn_i_up     = 'lc'
-  aRange__charE_i_up      = 'lc'
+  aRange__moments_i_up    = lcFac + 'lc'
+  aRange__peakEn_i_up     = lcFac + 'lc'
+  aRange__charE_i_up      = lcFac + 'lc'
 
   ;; blankers                = !NULL
-  blankers                = 'lc'
+  blankers                = lcFac + 'lc'
 
   label__which_eeb        = [0,0,1]
   label__which_times      = [0,1,0]
@@ -142,10 +130,25 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   pot__save_file          = 0
   pot__all                = 0
   pot__from_fa_potential  = 1
-  energyArr               = [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
+  moment_energyArr        = [[500,3.0e4],[100,3.0e4],[100,2.4e4]]
 
-  min_peak_energyArr      = [300,100,100]
+  min_peak_energyArr      = [500,100,100]
   max_peak_energyArr      = [3e4,3e4,2.4e4]
+
+  savePlot                = 1
+  savePSuff = STRSPLIT(tRanges,'/',/EXTRACT)
+  savePSuff = STRSPLIT([savePSuff[0,1],savePSuff[1,1]],':',/EXTRACT)
+  savePSuff = STRJOIN(savePSuff[0,1:2],'_') + '-' + STRJOIN(savePSuff[1,1:2],'_')
+  savePSuff = STRING(FORMAT='("tR",I0,"__")',hvilken_tRange) + savePSuff
+  savePSuff += '-' + aRange__moments_e_down.Replace('.','_')
+
+  ;; fExt                    = '.png'
+  fExt                    = '.eps'
+  a_la_Elphic_spName      = bonusPref + fExt
+  jvpotBar_spName         = bonusPref + 'j_vs_potBar__' + savePSuff + fExt
+  TN_spName               = bonusPref + 'T_and_N__' + savePSuff + fExt
+  JV_theor_spName         = bonusPref + 'j_v_data_n_theory__' + savePSuff + fExt
+  j_v__fixTandN__spName   = bonusPref + 'j_v_fixTandN__' + savePSuff + fExt
 
   CURRENT_AND_POTENTIAL_SUITE, $
      ORBIT=orbit, $
@@ -178,7 +181,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
      ARANGE__CHARE_I_UP=aRange__charE_i_up, $
      WHICH_EEB__LABEL=label__which_eeb, $
      WHICH_TIMES__LABEL=label__which_times, $
-     ENERGYARR=energyArr, $
+     MOMENT_ENERGYARR=moment_energyArr, $
      USE_SC_POT_FOR_LOWERBOUND=use_sc_pot_for_lowerbound, $
      POT__FROM_FA_POTENTIAL=pot__from_fa_potential, $
      POT__CHASTON_STYLE=pot__Chaston_style, $

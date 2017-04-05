@@ -1,4 +1,4 @@
-;;10/10/16
+;;2016/10/11
 PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   COMPILE_OPT IDL2
@@ -25,17 +25,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   add_oneCount_curve                = 1
 
-  ;;If doing upgoing electrons
-  peak_energy__start_at_highE       = 0
-  upgoing                           = 0
-
-  electron_angleRange  = 'lc'
-  energy_electrons     = [3e1,3.0e4]
-  electron_lca         = [150,-150]
-  min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : 500
-  max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
-
-  fit1D__save_plotSlices            = 1
+  fit1D__save_plotSlices            = 0
   fit2D__save_all_candidate_plots   = 0
   fit2D__show_each_candidate        = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
@@ -55,7 +45,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   sway__log_kappaPlot      = 0
 
   show_kappa_summary  = 1
-  kSum__save_ps       = 1
+  kSum__save_ps       = 0
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
   kSum__add_meas_T_and_N = 1
@@ -66,7 +56,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   ;;Which classic event?
   ;; '0 :  Ergun_et_al_1998'
@@ -76,8 +66,23 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; evtNum               = 2
 
   ;;2017/03/22
-  evtNum               = 0
+  evtNum               = 2
 
+  ;;If doing upgoing electrons
+  peak_energy__start_at_highE       = 0
+  upgoing                           = 0
+
+  electron_angleRange  = 'lc'
+  energy_electrons     = N_ELEMENTS(energy_electrons__recommande[evtNum]) GT 0 ? $
+                         energy_electrons__recommande[evtNum]          : $
+                         [3e1,3.0e4]
+  electron_lca         = [150,-150]
+  min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : $
+                         (N_ELEMENTS(min_peak_energy_recommande[evtNum]) GT 0 ? $
+                          min_peak_energy_recommande[evtNum] : 500)
+  max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
+
+                          
   ;;survey window
   eeb_or_ees           = eeb_or_ees__recommande[evtNum]
   burstItvl            = 0
@@ -106,7 +111,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1  
-  cAP_remake_masterFile     = 1
+  cAP_remake_masterFile     = 0
   cAP_map_to_100km          = 1
   ;; cAP_use_all_currents      = 0
   cAP_use_ed_current        = 1
@@ -118,6 +123,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   cAP_tRanges               = cAP_tRanges_list[evtNum]
 
+  cAP_moment_energyArr      = [[300,3.0e4],[300,3.0e4],[100,2.4e4]]
+  
   cAP_plot_j_v_potBar          = 0B
   cAP_plot_jv_a_la_Elphic      = 0B
   cAP_plot_T_and_N             = 0B
@@ -197,6 +204,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         ORIGINATING_ROUTINE=routName, $
                         CURANDPOT_ANALYSIS=curAndPot_analysis, $
                         CURANDPOT_TRANGES=cAP_tRanges, $
+                        CURANDPOT_MOMENT_ENERGYARR=cAP_moment_energyArr, $
                         CURANDPOT_REMAKE_MASTERFILE=cAP_remake_masterFile, $
                         CURANDPOT_MAP_TO_100KM=cAP_map_to_100km, $
                         CURANDPOT_USE_ALL_CURRENTS=cAP_use_all_currents, $

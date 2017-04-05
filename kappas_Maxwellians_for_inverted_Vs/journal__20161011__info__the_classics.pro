@@ -75,3 +75,5 @@ cAP_tRanges_list              = LIST('1997-02-07/' + $
 
 spectra_average_interval_list = LIST(4,!NULL,2)
 eeb_or_ees__recommande        = LIST('eeb',!NULL,'ees')
+energy_electrons__recommande  = LIST([5D1,3D4],!NULL,[2D1,3D4])
+min_peak_energy_recommande    = LIST(500,!NULL,200)
