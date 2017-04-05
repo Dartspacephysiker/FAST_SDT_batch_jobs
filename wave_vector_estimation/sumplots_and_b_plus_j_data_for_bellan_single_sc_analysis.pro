@@ -1083,10 +1083,10 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
   IF sc_pot.valid THEN BEGIN
      sc_pot  = {x:sc_pot.time, $
-                y:(-1.)*sc_pot.comp1, $ ;;Reverse sign of pot for use with GET_2DT_TS_POT
+                y:sc_pot.comp1, $ ;;Reverse sign of pot for use with GET_2DT_TS_POT
                 valid:sc_pot.valid}
 
-     STORE_DATA,sc_potName,DATA={x:sc_pot.x,y:(-1.)*sc_pot.y}
+     STORE_DATA,sc_potName,DATA={x:sc_pot.x,y:sc_pot.y}
 
   ENDIF ELSE BEGIN
      minEE = 30.
@@ -1283,14 +1283,14 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
 ; reset time limits IF needed
 
-  t1 = data.x[0]
-  t2 = data.x[-1]
+  ;; t1 = data.x[0]
+  ;; t2 = data.x[-1]
 
-  IF ((t1 LT tlimit_all[0]) or (t2 GT tlimit_all[1])) THEN BEGIN
-     IF (t1 LT tlimit_all[0]) THEN tlimit_all[0] = t1
-     IF (t2 GT tlimit_all[1]) THEN tlimit_all[1] = t2
-     get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-     get_new_igrf,/no_store_old
+  IF ((t1Zoom LT tlimit_all[0]) or (t2Zoom GT tlimit_all[1])) THEN BEGIN
+     IF (t1Zoom LT tlimit_all[0]) THEN tlimit_all[0] = t1Zoom
+     IF (t2Zoom GT tlimit_all[1]) THEN tlimit_all[1] = t2Zoom
+     GET_FA_ORBIT,tlimit_all[0],tlimit_all[1],/ALL,STATUS=no_model,DELTA=1.,/DEFINITIVE,/DRAG_PROP
+     GET_NEW_IGRF,/NO_STORE_OLD
   ENDIF
 
   IF (KEYWORD_SET(screen_plot)) THEN BEGIN
@@ -1339,89 +1339,219 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
      PRINT,"Getting Ji current density fo' yeh'"
 
-     GET_2DT_TS_POT,'j_2d_b','fa_ieb',T1=t1Zoom,T2=t2Zoom, $
-                    NAME='Ji_tot', $
-                    ENERGY=[0,energy_ions[1]], $
-                    ANGLE=ion_angle, $
-                    SC_POT=(sc_pot.valid ? sc_pot : !NULL), $
-                    CALIB=calib
+     ;; GET_2DT_TS_POT,'j_2d_b','fa_ieb',T1=t1Zoom,T2=t2Zoom, $
+     ;;                NAME='Ji_tot', $
+     ;;                ENERGY=[0,energy_ions[1]], $
+     ;;                ANGLE=ion_angle, $
+     ;;                SC_POT=(sc_pot.valid ? sc_pot : !NULL), $
+     ;;                CALIB=calib
 
-     GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=t1Zoom,T2=t2Zoom, $
-                    NAME='Ji_tot_S', $
-                    ENERGY=[0,energy_ions[1]], $
-                    ANGLE=ion_angle, $
-                    SC_POT=(sc_pot.valid ? sc_pot : !NULL), $
-                    CALIB=calib
+     ;; GET_2DT_TS_POT,'j_2d_b','fa_ies',T1=t1Zoom,T2=t2Zoom, $
+     ;;                NAME='Ji_tot_S', $
+     ;;                ENERGY=[0,energy_ions[1]], $
+     ;;                ANGLE=ion_angle, $
+     ;;                SC_POT=(sc_pot.valid ? sc_pot : !NULL), $
+     ;;                CALIB=calib
 
-     GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=t1Zoom,T2=t2Zoom, $
-                    NAME='Je_tot_S', $
-                    ENERGY=energy_electrons, $
-                    SC_POT=(sc_pot.valid ? sc_pot : !NULL), $
-                    CALIB=calib
+     ;; GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=t1Zoom,T2=t2Zoom, $
+     ;;                NAME='Je_tot_S', $
+     ;;                ENERGY=energy_electrons, $
+     ;;                SC_POT=(sc_pot.valid ? sc_pot : !NULL), $
+     ;;                CALIB=calib
 
      ;;First, burst ion data
-     GET_DATA,'Ji_tot',DATA=tmp
-     keep1          = WHERE(FINITE(tmp.y))
-     tmp.x          = tmp.x[keep1]
-     tmp.y          = tmp.y[keep1]
+     ;; GET_DATA,'Ji_tot',DATA=tmp
+     ;; keep1          = WHERE(FINITE(tmp.y))
+     ;; tmp.x          = tmp.x[keep1]
+     ;; tmp.y          = tmp.y[keep1]
 
-     ;;For output
-     jiTotTmp_time  = tmp.x
-     jiTotTmp       = tmp.y*1.6e-9*2.*(-north_south) ;;in microA/m2, times 2 since half angle range, and possibly flip sign if in SH
+     ;; ;;For output
+     ;; jiTotTmp_time  = tmp.x
+     ;; jiTotTmp       = tmp.y*1.6e-9*2.*(-north_south) ;;in microA/m2, times 2 since half angle range, and possibly flip sign if in SH
 
-     ;;For nice plots
-     tmp.y         *= -1. ;;Since we're in Southern Hemi
-     keep2          = WHERE(tmp.y GT 0.0)
-     IiTotTmp_time  = tmp.x[keep2]
-     IiTotTmp       = tmp.y[keep2]*1.6e-6*2. ;;in nanoA/m2
-     IiTotTmp      *= sphCrossSec
+     ;; ;;For nice plots
+     ;; tmp.y         *= -1. ;;Since we're in Southern Hemi
+     ;; keep2          = WHERE(tmp.y GT 0.0)
+     ;; IiTotTmp_time  = tmp.x[keep2]
+     ;; IiTotTmp       = tmp.y[keep2]*1.6e-6*2. ;;in nanoA/m2
+     ;; IiTotTmp      *= sphCrossSec
 
-     Ji_z           = {x:jiTotTmp_time,y:jiTotTmp}
-     IiTot_z        = {x:IiTotTmp_time,y:IiTotTmp}
+     ;; Ji_z           = {x:jiTotTmp_time,y:jiTotTmp}
+     ;; IiTot_z        = {x:IiTotTmp_time,y:IiTotTmp}
 
-     STORE_DATA,'Ji_tot',DATA=Ji_z
+     ;; STORE_DATA,'Ji_tot',DATA=Ji_z
 
-     ;;Now survey ESA ion data for patching the burst holes
-     GET_DATA,'Ji_tot_S',DATA=tmp
-     keep1          = WHERE(FINITE(tmp.y))
-     tmp.x          = tmp.x[keep1]
-     tmp.y          = tmp.y[keep1]
+     ;; ;;Now survey ESA ion data for patching the burst holes
+     ;; GET_DATA,'Ji_tot_S',DATA=tmp
+     ;; keep1          = WHERE(FINITE(tmp.y))
+     ;; tmp.x          = tmp.x[keep1]
+     ;; tmp.y          = tmp.y[keep1]
 
-     ;;For output
-     jiTotTmp_time  = tmp.x
-     jiTotTmp       = tmp.y*1.6e-9*2.*(-north_south) ;;in microA/m2, times 2 since half angle range, and possibly flip sign if in SH
+     ;; ;;For output
+     ;; jiTotTmp_time  = tmp.x
+     ;; jiTotTmp       = tmp.y*1.6e-9*2.*(-north_south) ;;in microA/m2, times 2 since half angle range, and possibly flip sign if in SH
 
-     ;;For nice plots
-     tmp.y         *= -1. ;;Since we're in Southern Hemi
-     keep2          = WHERE(tmp.y GT 0.0)
-     IiTotTmp_time  = tmp.x[keep2]
-     IiTotTmp       = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
-     IiTotTmp      *= sphCrossSec
+     ;; ;;For nice plots
+     ;; tmp.y         *= -1. ;;Since we're in Southern Hemi
+     ;; keep2          = WHERE(tmp.y GT 0.0)
+     ;; IiTotTmp_time  = tmp.x[keep2]
+     ;; IiTotTmp       = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
+     ;; IiTotTmp      *= sphCrossSec
 
-     Ji_z_S         = {x:jiTotTmp_time,y:jiTotTmp}
-     IiTot_z_S      = {x:IiTotTmp_time,y:IiTotTmp}
+     ;; Ji_z_S         = {x:jiTotTmp_time,y:jiTotTmp}
+     ;; IiTot_z_S      = {x:IiTotTmp_time,y:IiTotTmp}
 
-     ;;Now electron ESA survey
-     GET_DATA,'Je_tot_S',DATA=tmp
-     keep1          = WHERE(FINITE(tmp.y))
-     tmp.x          = tmp.x[keep1]
-     tmp.y          = tmp.y[keep1]
+     ;; ;;Now electron ESA survey
+     ;; GET_DATA,'Je_tot_S',DATA=tmp
+     ;; keep1          = WHERE(FINITE(tmp.y))
+     ;; tmp.x          = tmp.x[keep1]
+     ;; tmp.y          = tmp.y[keep1]
 
-     ;;For output
-     jeTotTmp_time  = tmp.x
-     ;; jeTotTmp       = tmp.y*1.6e-9*(-1.)*north_south ;in microA/m2, and flip sign once for electrons, and possibly again for SH
-     jeTotTmp       = tmp.y*1.6e-9*(north_south) ;in microA/m2; DON't flip sign for electrons (but possibly for NH)
+     ;; ;;For output
+     ;; jeTotTmp_time  = tmp.x
+     ;; ;; jeTotTmp       = tmp.y*1.6e-9*(-1.)*north_south ;in microA/m2, and flip sign once for electrons, and possibly again for SH
+     ;; jeTotTmp       = tmp.y*1.6e-9*(north_south) ;in microA/m2; DON't flip sign for electrons (but possibly for NH)
 
 
-     ;;For nice plots
-     tmp.y         *= -1. ;;Since we're in Southern Hemi
-     keep2          = WHERE(tmp.y GT 0.0)
-     IeTotTmp_time  = tmp.x[keep2]
-     IeTotTmp       = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
-     IeTotTmp      *= sphCrossSec
+     ;; ;;For nice plots
+     ;; tmp.y         *= -1. ;;Since we're in Southern Hemi
+     ;; keep2          = WHERE(tmp.y GT 0.0)
+     ;; IeTotTmp_time  = tmp.x[keep2]
+     ;; IeTotTmp       = tmp.y[keep2]*1.6e-6 ;;in nanoA/m2
+     ;; IeTotTmp      *= sphCrossSec
 
-     Je_z_S         = {x:jeTotTmp_time,y:jeTotTmp}
-     IeTot_z        = {x:IeTotTmp_time,y:IeTotTmp}
+     ;; Je_z_S         = {x:jeTotTmp_time,y:jeTotTmp}
+     ;; IeTot_z        = {x:IeTotTmp_time,y:IeTotTmp}
+
+     b_or_s_arr = ['eeb','ees', $
+                   'eeb', $
+                   'ieb','ies', $
+                   'ieb']
+     navn_arr   = ['Je_tot','Je_tot_S', $
+                   'Je_perp',           $
+                   'Ji_tot','Ji_tot_S', $
+                   'Ji_perp']
+     cNavn_arr  = navn_arr.Replace('J','cur')
+     var_arr    = ['Je_z','Je_z_S', $
+                   'Je_perp', $
+                   'Ji_z','Ji_z_S', $
+                   'Ji_perp']
+     nrg_list   = LIST(energy_electrons,energy_electrons, $
+                       energy_electrons, $
+                       [0,energy_ions[1]],[0,energy_ions[1]], $
+                       [0,energy_ions[1]])
+     angle_list  = LIST(!NULL,!NULL, $
+                        !NULL, $
+                        ion_angle,ion_angle, $
+                        !NULL)
+     isPerp_arr  = [0,0, $
+                    1, $
+                    0,0, $
+                    1]
+     isHalf_arr  = [0,0, $
+                    0, $
+                    1,1, $
+                    0]
+     ;; flipS_arr   = [(north_south),(north_south), $
+     ;;                1.D, $
+     ;;                (-north_south),(-north_south), $
+     ;;                1.D]
+
+     ;;sign flips are automatiskt handled by MOMENT_SUITE_2D
+     flipS_arr   = [1,1, $ 
+                    1, $
+                    1,1, $
+                    1]
+     flipS_arr  *= 1.6D-9  ;in microA/m2, times 2 since half angle range, and possibly flip sign if in SH
+
+     nToDo = N_ELEMENTS(navn_arr) & cur_list = LIST()
+     FOR k=0,nToDo-1 DO BEGIN
+
+        diff_eFlux = !NULL
+        
+        b_or_sTmp = b_or_s_arr[k]
+        navn      = navn_arr[k]
+        cNavn     = cNavn_arr[k]
+        var       = var_arr[k]
+        energy    = nrg_list[k]
+        angle     = angle_list[k]
+        isPerp    = isPerp_arr[k]
+        isHalf    = isHalf_arr[k]
+        flipS     = flipS_arr[k]
+        
+        GET_DIFF_EFLUX,T1=t1Zoom,T2=t2Zoom, $
+                       EEB_OR_EES=b_or_sTmp, $
+                       OUT_DIFF_EFLUX=diff_eFlux, $
+                       SC_POT=sc_pot, $
+                       /CALC_GEOM_FACTORS
+
+        MOMENT_SUITE_2D,diff_eFlux, $
+                        ENERGY=energy, $
+                        ARANGE__MOMENTS=aRange__moments, $
+                        ARANGE__CHARE=aRange__charE, $
+                        SC_POT=sc_pot, $
+                        EEB_OR_EES=eeb_or_ees, $
+                        /ERROR_ESTIMATES, $
+                        MAP_TO_100KM=map_to_100km, $ 
+                        ORBIT=orbit, $
+                        /NEW_MOMENT_ROUTINE, $
+                        QUIET=quiet, $
+                        OUT_STRUCT=moms
+
+        PRINT,"Storing " + navn + ' and ' + cNavn + ' ...'
+
+        tmpy           = (isPerp ? moms.perp.j : moms.j)
+        keep1          = WHERE(FINITE(tmpy))
+        tmpx           = moms.time[keep1]
+        tmpy           = tmpy[keep1] * 1.6D-9 ;microA/m^2
+        tmp            = {x:TEMPORARY(tmpx),y:tmpy}
+
+        ;; tmpCur         = tmpy * flipS * (isHalf ? 2.D : 1.D)
+
+        IF ~EXECUTE(var + ' = tmp') THEN STOP
+
+        ;; STORE_DATA,navn,DATA={x:moms.time,y: TEMPORARY(tmpy)}
+        STORE_DATA,navn,DATA=tmp
+        ;; STORE_DATA,cNavn,DATA={x:tmp.x,y: tmpCur}
+
+
+        ;; cur_list.Add,TEMPORARY(tmpCur)
+
+     ENDFOR
+     
+     ;; GET_DATA,'Ji_tot',DATA=tmp
+     ;; keep1          = WHERE(FINITE(tmp.y))
+     ;; tmpx           = tmp.x[keep1]
+     ;; tmpy           = tmp.y[keep1]
+     ;; tmp            = {x:tmpx,y:tmpy}
+
+     ;; Ji_z           = TEMPORARY(tmp)
+
+     ;; STORE_DATA,'Ji_tot',DATA=Ji_z
+
+     ;; ;;Now survey ESA ion data for patching the burst holes
+     ;; GET_DATA,'Ji_tot_S',DATA=tmp
+     ;; keep1          = WHERE(FINITE(tmp.y))
+     ;; tmpx           = tmp.x[keep1]
+     ;; tmpy           = tmp.y[keep1]
+     ;; tmp            = {x:tmpx,y:tmpy}
+     ;; Ji_z_S         = TEMPORARY(tmp)
+
+     ;; ;;Now electron ESA survey
+     ;; GET_DATA,'Je_tot_S',DATA=tmp
+     ;; keep1          = WHERE(FINITE(tmp.y))
+     ;; tmpx           = tmp.x[keep1]
+     ;; tmpy           = tmp.y[keep1]
+     ;; tmp            = {x:tmpx,y:tmpy}
+     ;; Je_z_S         = TEMPORARY(tmp)
+
+     ;; ;;Now perp elec
+     ;; GET_DATA,'Je_perp',DATA=tmp
+     ;; keep1          = WHERE(FINITE(tmp.y))
+     ;; tmpx           = tmp.x[keep1]
+     ;; tmpy           = tmp.y[keep1]
+     ;; tmp            = {x:tmpx,y:tmpy}
+     ;; Je_perp        = TEMPORARY(tmp)
 
 
   ENDIF
@@ -1437,9 +1567,22 @@ PRO SUMPLOTS_AND_B_PLUS_J_DATA_FOR_BELLAN_SINGLE_SC_ANALYSIS, $
 
      magCurrent = jTemp 
 
+     ploti = PLOT(ji_perp.x-ji_perp.x[0], $
+                  ji_perp.y, $
+                  NAME='Ions', $
+                  TITLE='T since ' + TIME_TO_STR(ji_perp.x[0]), $
+                  COLOR='BLUE')
+     plote = PLOT(je_perp.x-ji_perp.x[0], $
+                  je_perp.y, $
+                  NAME='Electrons', $
+                  COLOR='RED', $
+                  /OVERPLOT)
+     leg = LEGEND(TARGET=[ploti,plote])
+
      PRINT,'Saving ' + saveFile + ' ...'
      SAVE,Je_z,Ji_z, $
           Je_z_S,Ji_z_S, $
+          Je_perp,Ji_perp, $
           dB_fac_v,dB_fac, $
           orbit, $
           magCurrent, $
