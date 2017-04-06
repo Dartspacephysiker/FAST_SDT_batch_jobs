@@ -563,6 +563,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
            GET_EN_SPEC,'fa_' + eeb_or_ees + '_c', $
                        NAME=var_name, $
                        UNITS='eflux', $
+                       ANGLE=electron_angleRange, $
                        /CALIB, $
                        RETRACE=1
         ENDIF

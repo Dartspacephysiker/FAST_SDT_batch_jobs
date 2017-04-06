@@ -37,7 +37,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   eps                      = 1
 
-  show_Strangeway_summary  = 1
+  show_Strangeway_summary  = 0
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
@@ -123,7 +123,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ENDIF
 
   ;;Current and potential analysis
-  curAndPot_analysis        = 1  
+  curAndPot_analysis        = 1
   cAP_remake_masterFile     = 1
   cAP_map_to_100km          = 1
   ;; cAP_use_all_currents      = 0
