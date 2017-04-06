@@ -25,8 +25,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   add_oneCount_curve                = 1
 
-  fit1D__save_plotSlices            = 0
-  fit2D__save_all_candidate_plots   = 0
+  fit1D__save_plotSlices            = 1
+  fit2D__save_all_candidate_plots   = 1
   fit2D__show_each_candidate        = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
@@ -37,7 +37,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   eps                      = 1
 
-  show_Strangeway_summary  = 0
+  show_Strangeway_summary  = 1
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
@@ -45,7 +45,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   sway__log_kappaPlot      = 0
 
   show_kappa_summary  = 1
-  kSum__save_ps       = 0
+  kSum__save_ps       = 1
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
   kSum__add_meas_T_and_N = 1
@@ -56,7 +56,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
@@ -124,7 +124,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1  
-  cAP_remake_masterFile     = 0
+  cAP_remake_masterFile     = 1
   cAP_map_to_100km          = 1
   ;; cAP_use_all_currents      = 0
   cAP_use_ed_current        = 1

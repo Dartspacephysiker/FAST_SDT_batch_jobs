@@ -506,7 +506,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         ;; zlim,var_name,4,9,0
         zlim,var_name, $
              (MIN(data.y[WHERE(FINITE(data.y))]) > 6 ), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < 10),0
+             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
         ylim,var_name,0,360,0
         OPTIONS,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
         OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
