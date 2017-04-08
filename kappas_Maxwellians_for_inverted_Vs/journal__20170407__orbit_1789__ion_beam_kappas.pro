@@ -1,20 +1,16 @@
-;;2016/10/11
-PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
+;2017/04/07
+PRO JOURNAL__20170407__ORBIT_1789__ION_BEAM_KAPPAS
 
-  COMPILE_OPT IDL2
+  COMPILE_OPT IDL2,STRICTARRSUBS
 
-  routName = 'JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT'
-
-  ;;get orbTimes here
-  @journal__20161011__info__the_classics.pro
+  routName = 'JOURNAL__20170407__ORBIT_1789__ION_BEAM_KAPPAS'
 
   show_post_plots      = 0
   save_kappa_plot      = 0
   close_kp_after_save  = 0
 
   ;; debug__skip_to_this_time     = 
-  ;; debug__skip_to_this_time  = STR_TO_TIME('97-02-01/09:26:31')
-  ;; debug__break_on_this_time = STR_TO_TIME('97-02-01/09:26:31')
+  debug__break_on_this_time = STR_TO_TIME('1997-02-02/21:01:57.25')
 
   only_1D_fits                      = 0
   fit1D__sourceCone_energy_spectrum = 1
@@ -25,9 +21,9 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   add_oneCount_curve                = 1
 
-  fit1D__save_plotSlices            = 0
-  fit2D__save_all_candidate_plots   = 0
-  fit2D__show_each_candidate        = 0
+  fit1D__save_plotSlices            = 1
+  fit2D__save_all_candidate_plots   = 1
+  fit2D__show_each_candidate        = 1
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
   fit2D__clampDensity               = 0
@@ -55,74 +51,52 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   kStats__save_stuff   = 1
 
   save_diff_eFlux_file = 1
-  load_diff_eFlux_file = 1
-  restore_fitFile      = 1
-
-  ;;Which totally classic event?
-  ;; '0 :  Ergun_et_al_1998'
-  ;; '1 :  McFadden_et_al_1998'
-  ;; '2 :  Elphic_et_al_1998'
-  ;; '3 :  Carlson_et_al_2001'
-  ;; evtNum               = 2
-
-  ;;2017/03/22
-  ;; evtNum               = 2
-  evtNum               = 3
+  load_diff_eFlux_file = 0
+  restore_fitFile      = 0
 
   ;;If doing upgoing electrons
-  peak_energy__start_at_highE       = 0
-  upgoing                           = 0
+  peak_energy__start_at_highE       = 1
+  upgoing                           = 1
 
   ;; electron_angleRange  = 'lc'
-  electron_angleRange  = [330,30]
-  energy_electrons     = N_ELEMENTS(energy_electrons__recommande[evtNum]) GT 0 ? $
-                         energy_electrons__recommande[evtNum]          : $
-                         [3e1,3.0e4]
-  electron_lca         = [150,-150]
-  min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : $
-                         (N_ELEMENTS(min_peak_energy_recommande[evtNum]) GT 0 ? $
-                          min_peak_energy_recommande[evtNum] : 500)
-  max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
-
+  electron_angleRange  = [-20,20]
+  energy_electrons     = [3e1,3.0e4]
+  ;; electron_lca         = [150,-150]
+  min_peak_energy      = KEYWORD_SET(upgoing) ? 50    : 500
+  max_peak_energy      = KEYWORD_SET(upgoing) ? 2.4e4 : !NULL
                           
   ;;survey window
-  eeb_or_ees           = eeb_or_ees__recommande[evtNum]
-  burstItvl            = 1
+  eeb_or_ees           = 'ies'
 
   ;;String setup
-  orbit                = orbs      [evtNum]
-  t1Str                = orbTimes[0,evtNum]
-  t2Str                = orbTimes[1,evtNum]
-  bonusPref            = bonusPrefs[evtNum]
+  orbit                = 1789
+  orbTimes             = ['97-02-02/21:01:51.5','97-02-02/21:02:18'] ;Checking out the total moment thing
+  t1Str                = orbTimes[0]
+  t2Str                = orbTimes[1]
+  bonusPref            = '1789-upgoing_ion_beam'
 
-  IF (STRUPCASE(eeb_or_ees) EQ 'EEB') OR (STRUPCASE(eeb_or_ees) EQ 'IEB') THEN BEGIN
-     t1Str             = (orbBurstTimes[evtNum])[0,burstItvl]
-     t2Str             = (orbBurstTimes[evtNum])[1,burstItvl]
-     bonusPref        += '--burstItvl_' + STRCOMPRESS(burstItvl,/REMOVE_ALL)
-     kStats__include_these_startstops = (kStats_startStops__eeb[evtNum])[0,*,burstItvl]
-  ENDIF ELSE BEGIN
-     kStats__include_these_startstops = kStats_startStops__ees[evtNum]
-  ENDELSE
+
+  kStats__include_these_startstops = orbTimes
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
   chi2_over_dof_thresh = 50
   lowDens_thresh       = 0.01
-  diffEflux_thresh     = 1e7
+  diffEflux_thresh     = 1e6
   nPkAbove_dEF_thresh  = 5
 
-  IF orbit EQ 1789 THEN BEGIN
+  ;; IF orbit EQ 1789 THEN BEGIN
 
-     min_peak_energy   = 1000
-     ;; energy_electrons  = [1e3,3.0e4]
-     energy_electrons  = [0,3.0e4]
+  ;;    min_peak_energy   = 1000
+  ;;    ;; energy_electrons  = [1e3,3.0e4]
+  ;;    energy_electrons  = [0,3.0e4]
 
-     chi2_over_dof_thresh = 50
-     lowDens_thresh       = 0.002
-     diffEflux_thresh     = 1e7
-     nPkAbove_dEF_thresh  = 5
+  ;;    chi2_over_dof_thresh = 50
+  ;;    lowDens_thresh       = 0.002
+  ;;    diffEflux_thresh     = 1e7
+  ;;    nPkAbove_dEF_thresh  = 5
 
-  ENDIF
+  ;; ENDIF
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1
@@ -137,13 +111,13 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; cAP_use_peakE_for_downPot = 0
   cAP_add_iu_pot            = 1
 
-  cAP_tRanges               = cAP_tRanges_list[evtNum]
+  cAP_tRanges               = orbTimes
 
   cAP_moment_energyArr      = [[10,3.0e4],[10,3.0e4],[0,2.4e4]]
   
   cAP_plot_j_v_potBar          = 0B
   cAP_plot_jv_a_la_Elphic      = 0B
-  cAP_plot_T_and_N             = 0B
+  cAP_plot_T_and_N             = 1B
   cAP_plot_j_v_and_theory      = 1B
   cAP_plot_j_v__fixed_t_and_n  = 1B
   ;; cAP_jv_theor__R_B_init       = 3
@@ -157,7 +131,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
      timeBars                  = cAP_tRanges
   ENDIF
 
-  spectra_average_interval = spectra_average_interval_list[evtNum]
+  spectra_average_interval     = 1
 
   KAPPA_FITTER_BLACKBOX,orbit, $
                         ELECTRON_SOURCECONEANGLE=electron_angleRange, $
@@ -251,5 +225,5 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         TIMEBARS=timeBars, $
                         EPS=eps
   
-END
 
+END
