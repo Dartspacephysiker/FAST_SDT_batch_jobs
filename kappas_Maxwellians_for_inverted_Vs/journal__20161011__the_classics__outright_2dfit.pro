@@ -5,6 +5,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   routName = 'JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT'
 
+  !P.CHARSIZE = 1.5
+
   ;;get orbTimes here
   @journal__20161011__info__the_classics.pro
 
@@ -26,8 +28,9 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   add_oneCount_curve                = 1
 
   fit1D__save_plotSlices            = 0
-  fit2D__save_all_candidate_plots   = 0
+  fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
+  fit2D__show_only_data             = 1
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
   fit2D__clampDensity               = 0
@@ -67,7 +70,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;2017/03/22
   ;; evtNum               = 2
-  evtNum               = 3
+  evtNum               = 2
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
@@ -84,7 +87,6 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                           min_peak_energy_recommande[evtNum] : 500)
   max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
 
-                          
   ;;survey window
   eeb_or_ees           = eeb_or_ees__recommande[evtNum]
   burstItvl            = 1
@@ -126,7 +128,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1
-  cAP_remake_masterFile     = 1
+  cAP_remake_masterFile     = 0
   cAP_map_to_100km          = 1
   cAP_use_all_currents      = 1
   cAP_use_ed_current        = 0
@@ -144,8 +146,10 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   cAP_plot_j_v_potBar          = 0B
   cAP_plot_jv_a_la_Elphic      = 0B
   cAP_plot_T_and_N             = 0B
-  cAP_plot_j_v_and_theory      = 1B
-  cAP_plot_j_v__fixed_t_and_n  = 1B
+  cAP_plot_j_v_and_theory      = 0B
+  cAP_plot_j_v__fixed_t_and_n  = 0B
+  cAP_plot_en_specs            = 1B
+  cAP_en_specs__movie          = 1B
   ;; cAP_jv_theor__R_B_init       = 3
   ;; cAP_jv_theor__kappa_init     = [0,0]
   ;; cAP_jv_theor__kappaLims      = [0,0]
@@ -187,7 +191,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         FIT1D__CLAMPDENSITY=fit1D__clampDensity, $
                         FIT1D__SAVE_PLOTSLICES=fit1D__save_plotSlices, $
                         FIT2D__SHOW_EACH_CANDIDATE=fit2D__show_each_candidate, $
-                        FIT2D__SAVE_ALL_CANDIDATE_PLOTS=fit2D__save_all_candidate_plots, $
+                        FIT2D__SHOW_ONLY_DATA=fit2D__show_only_data, $
+                        FIT2D__SAVE_ALL_PLOTS=fit2D__save_all_plots, $
                         FIT2D__WEIGHTING=fit2D__weighting, $
                         FIT2D__CLAMPTEMPERATURE=fit2D__clampTemperature, $
                         FIT2D__CLAMPDENSITY=fit2D__clampDensity, $
@@ -242,6 +247,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         CURANDPOT_PLOT_T_AND_N=cAP_plot_T_and_N, $
                         CURANDPOT_PLOT_J_V_AND_THEORY=cAP_plot_j_v_and_theory, $
                         CURANDPOT_PLOT_J_V__FIXED_T_AND_N=cAP_plot_j_v__fixed_t_and_n, $
+                        CURANDPOT_PLOT_EN_SPECS=cAP_plot_en_specs, $
+                        CURANDPOT_EN_SPECS__MOVIE=cAP_en_specs__movie, $
                         CURANDPOT_JV_THEOR__R_B_INIT=cAP_jv_theor__R_B_init, $
                         CURANDPOT_JV_THEOR__KAPPA_INIT=cAP_jv_theor__kappa_init, $
                         CURANDPOT_JV_THEOR__KAPPALIMS=cAP_jv_theor__kappaLims, $   
