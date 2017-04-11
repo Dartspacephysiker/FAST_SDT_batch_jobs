@@ -261,9 +261,15 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
            IF KEYWORD_SET(save_ps) THEN BEGIN
 
-              POPEN,plotDir+outPlotName,/PORT,FONT=-1, $
-                    ENCAPSULATED=eps ;,XSIZE=4,YSIZE=7
-              DEVICE,/PALATINO,FONT_SIZE=8
+              ;; POPEN,plotDir+outPlotName,/PORT,FONT=-1, $
+                    ;; ENCAPSULATED=eps,XSIZE=4,YSIZE=7
+              POPEN,plotDir+outPlotName, $
+                    /LAND, $
+                    ;; /PORT, $
+                    ;; ASPECT=0.625, $
+                    FONT=-1, $
+                    ENCAPSULATED=eps;,XSIZE=8,YSIZE=7
+              DEVICE,/PALATINO,FONT_SIZE=3
 
            ENDIF ELSE BEGIN
               WINDOW,0,XSIZE=600,YSIZE=800

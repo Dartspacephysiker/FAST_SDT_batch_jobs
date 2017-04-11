@@ -118,10 +118,11 @@ cAP_tRanges_list              = LIST($
                                 ;;                ['09:26:51.0','09:27:05.4']])
                                 ;;
                                 ;;Number 3
-                                ;; '1997-02-02/'+ ['21:03:42','21:03:58']) ;[['21:01:56','21:02:14']])
-                                '1997-02-02/'+ ['21:01:42','21:03:58']) ;Checking out the total moment thing
+                                ;; '1997-02-02/'+ ['21:03:42','21:03:58'])
+                                [['21:01:56','21:02:14']])
+                                ;; '1997-02-02/'+ ['21:01:42','21:03:58']) ;Checking out the total moment thing
 
-eeb_or_ees__recommande        = LIST('eeb',!NULL,'ees','ees')
+eeb_or_ees__recommande        = LIST('eeb',!NULL,'ees','eeb')
 
 energy_electrons__recommande  = LIST([5D1,3D4],!NULL,[2D1,3D4],[8e3,3D4])
 min_peak_energy_recommande    = LIST(500,!NULL,200,MIN(energy_electrons__recommande[3]))

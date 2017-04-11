@@ -30,7 +30,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   fit1D__save_plotSlices            = 0
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
-  fit2D__show_only_data             = 1
+  fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
   fit2D__clampDensity               = 0
@@ -47,7 +47,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   sway__add_Newell_panel   = 1
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary  = 0
+  show_kappa_summary  = 1
   kSum__save_ps       = 1
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
@@ -59,7 +59,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
@@ -70,7 +70,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;2017/03/22
   ;; evtNum               = 2
-  evtNum               = 2
+  evtNum               = 3
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
@@ -108,9 +108,9 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
-  chi2_over_dof_thresh = 50
-  lowDens_thresh       = 0.01
-  diffEflux_thresh     = 1e7
+  chi2_over_dof_thresh = 25
+  lowDens_thresh       = 0.05
+  diffEflux_thresh     = 5e7
   nPkAbove_dEF_thresh  = 5
 
   IF orbit EQ 1789 THEN BEGIN
@@ -148,8 +148,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   cAP_plot_T_and_N             = 0B
   cAP_plot_j_v_and_theory      = 0B
   cAP_plot_j_v__fixed_t_and_n  = 0B
-  cAP_plot_en_specs            = 1B
-  cAP_en_specs__movie          = 1B
+  cAP_plot_en_specs            = 0B
+  cAP_en_specs__movie          = 0B
   ;; cAP_jv_theor__R_B_init       = 3
   ;; cAP_jv_theor__kappa_init     = [0,0]
   ;; cAP_jv_theor__kappaLims      = [0,0]
