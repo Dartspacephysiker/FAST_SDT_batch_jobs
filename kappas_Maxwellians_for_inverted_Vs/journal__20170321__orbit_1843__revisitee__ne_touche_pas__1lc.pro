@@ -1,4 +1,14 @@
-PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
+PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC, $
+   PLOT_JV_A_LA_ELPHIC=plot_jv_a_la_Elphic, $
+   PLOT_J_V_POTBAR=plot_j_v_potBar, $    
+   PLOT_T_AND_N=plot_T_and_N, $       
+   PLOT_J_V_AND_THEORY=plot_j_v_and_theory, $
+   PLOT_J_V__FIXED_T_AND_N=plot_j_v__fixed_t_and_n, $
+   PLOT_J_V_MAP__R_B_AND_KAPPA__FIXED_T_AND_N=plot_j_v_map__r_b_and_kappa__fixed_t_and_n, $
+   PLOT_MAGCURRENT_VS_CURRENT=plot_magCurrent_vs_current, $
+   PLOT_EN_SPECS=plot_en_specs, $
+   SAVEPLOT=savePlot, $
+   WHICH_TRANGE=which_tRange
 
   COMPILE_OPT IDL2
 
@@ -37,12 +47,14 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   ;; min_NDown               = 0.07
   ;; fracError_TDown         = 0.20
   ;; fracError_NDown         = 0.10
+  use_fracError_JDown     = 1
+  fracError_JDown         = 1.0
   useInds__twoLumps       = 1
   tRanges                 = '1997-02-07/' + $
                             [['20:49:45', $
                               '20:49:52'], $
-                             ['20:49:56', $
-                              '20:50:09']]
+                             ['20:49:55', $
+                              '20:50:10']]
 
   hvilken_tRange          = 1
   tRanges                 = tRanges[*,hvilken_tRange]
@@ -51,23 +63,24 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   plot_t2                 = STR_TO_TIME(plot_times[1])
   add_iu_pot              = 1
   use_ed_current          = 1
-  use_iu_current          = 1
+  use_iu_current          = 0
   use_all_currents        = 0
 
   interactive_overplot    = 0
   
-  savePlot                = 0
+  savePlot                = N_ELEMENTS(savePlot) GT 0 ? savePlot : 0
   savePSuff = STRSPLIT(tRanges,'/',/EXTRACT)
   savePSuff = STRSPLIT([savePSuff[0,1],savePSuff[1,1]],':',/EXTRACT)
   savePSuff = STRJOIN(savePSuff[0,1:2],'_') + '-' + STRJOIN(savePSuff[1,1:2],'_')
   savePSuff               = STRING(FORMAT='("tR",I0,"__")',hvilken_tRange) + savePSuff
 
   ;;Which plots?
-  plot_jv_a_la_Elphic     = 0B
-  plot_j_v_potBar         = 0B
-  plot_T_and_N            = 0B
-  plot_j_v_and_theory     = 1B
-  plot_j_v__fixed_t_and_n = 1B
+  plot_jv_a_la_Elphic     = KEYWORD_SET(plot_jv_a_la_Elphic    ) ? plot_jv_a_la_Elphic     : 0B
+  plot_j_v_potBar         = KEYWORD_SET(plot_j_v_potBar        ) ? plot_j_v_potBar         : 0B
+  plot_T_and_N            = KEYWORD_SET(plot_T_and_N           ) ? plot_T_and_N            : 0B
+  plot_j_v_and_theory     = KEYWORD_SET(plot_j_v_and_theory    ) ? plot_j_v_and_theory     : 0B
+  plot_j_v__fixed_t_and_n = KEYWORD_SET(plot_j_v__fixed_t_and_n) ? plot_j_v__fixed_t_and_n : 0B
+  plot_j_v_map__r_b_and_kappa__fixed_t_and_n = KEYWORD_SET(plot_j_v_map__r_b_and_kappa__fixed_t_and_n) ? plot_j_v_map__r_b_and_kappa__fixed_t_and_n : 0B
 
   ;; fExt                    = '.png'
   fExt                    = '.eps'
@@ -108,11 +121,11 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   restore_fitFile         = 1
 
   ;;survey window
-  ;; eeb_or_eesArr            = ['ees','ies']
-  ;; spectra_average_interval = 3
+  eeb_or_eesArr            = ['ees','ies']
+  spectra_average_interval = 3
 
-  eeb_or_eesArr           = ['eeb','ieb']
-  spectra_average_interval = 4
+  ;; eeb_or_eesArr           = ['eeb','ieb']
+  ;; spectra_average_interval = 12
 
 
   order                   = [0,1,2]
@@ -141,7 +154,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
   upgoingArr                      = [0,1,1]
 
   use_sc_pot_for_lowerbound = 1
-  pot__from_file          = 1
+  pot__from_file          = 0
   pot__save_file          = 0
   pot__all                = 0
   pot__from_fa_potential  = 1
@@ -210,8 +223,12 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
      USEI__TWOLUMPS=useInds__twoLumps, $
      FRACCHANGE_TDOWN=fracChange_TDown, $
      FRACCHANGE_NDOWN=fracChange_NDown, $
-     FRACERROR_TDOWN=fracError_TDown, $
      FRACERROR_NDOWN=fracError_NDown, $
+     FRACERROR_JDOWN=fracError_JDown, $
+     FRACERROR_TDOWN=fracError_TDown, $
+     USE_FRACERROR_NDOWN=use_fracError_NDown, $
+     USE_FRACERROR_JDOWN=use_fracError_JDown, $
+     USE_FRACERROR_TDOWN=use_fracError_TDown, $
      MAX_TDOWN=max_TDown, $
      MIN_TDOWN=min_TDown, $
      MAX_NDOWN=max_NDown, $
@@ -242,6 +259,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC
      PLOT_T_AND_N=plot_T_and_N, $
      PLOT_J_V_AND_THEORY=plot_j_v_and_theory, $
      PLOT_J_V__FIXED_T_AND_N=plot_j_v__fixed_t_and_n, $
+     PLOT_J_V_MAP__R_B_AND_KAPPA__FIXED_T_AND_N=plot_j_v_map__r_b_and_kappa__fixed_t_and_n, $
      A_LA_ELPHIC_SPNAME=a_la_Elphic_spName, $
      JVPOTBAR_SPNAME=jvpotBar_spName, $
      TN_SPNAME=TN_spName, $

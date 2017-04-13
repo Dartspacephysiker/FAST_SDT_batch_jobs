@@ -40,7 +40,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   eps                      = 1
 
-  show_Strangeway_summary  = 0
+  show_Strangeway_summary  = 1
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
@@ -70,7 +70,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;2017/03/22
   ;; evtNum               = 2
-  evtNum               = 3
+  evtNum               = 0
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
@@ -89,7 +89,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;survey window
   eeb_or_ees           = eeb_or_ees__recommande[evtNum]
-  burstItvl            = 1
+  burstItvl            = 0
 
   ;;String setup
   orbit                = orbs      [evtNum]
@@ -128,7 +128,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1
-  cAP_remake_masterFile     = 0
+  cAP_remake_masterFile     = 1
   cAP_map_to_100km          = 1
   cAP_use_all_currents      = 1
   cAP_use_ed_current        = 0

@@ -5,6 +5,9 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
    PLOT_T_AND_N=plot_T_and_N, $       
    PLOT_J_V_AND_THEORY=plot_j_v_and_theory, $
    PLOT_J_V__FIXED_T_AND_N=plot_j_v__fixed_t_and_n, $
+   PLOT_J_V_MAP__R_B_AND_KAPPA__FIXED_T_AND_N=plot_j_v_map__r_b_and_kappa__fixed_t_and_n, $
+   PLOT_MAGCURRENT_VS_CURRENT=plot_magCurrent_vs_current, $
+   PLOT_EN_SPECS=plot_en_specs, $
    SAVEPLOT=savePlot, $
    WHICH_TRANGE=which_tRange
 
@@ -88,6 +91,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   plot_T_and_N            = KEYWORD_SET(plot_T_and_N           ) ? plot_T_and_N            : 0B
   plot_j_v_and_theory     = KEYWORD_SET(plot_j_v_and_theory    ) ? plot_j_v_and_theory     : 0B
   plot_j_v__fixed_t_and_n = KEYWORD_SET(plot_j_v__fixed_t_and_n) ? plot_j_v__fixed_t_and_n : 0B
+  plot_j_v_map__r_b_and_kappa__fixed_t_and_n = KEYWORD_SET(plot_j_v_map__r_b_and_kappa__fixed_t_and_n) ? plot_j_v_map__r_b_and_kappa__fixed_t_and_n : 0B
 
   
   ;; fExt                    = '.png'
@@ -100,6 +104,10 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   ;;Options for j_v_potBar plot
   jvpotBar__j_on_yAxis    = 1
 
+  ;; nKappa                    = N_ELEMENTS(map__multi_kappa_array)
+  ;; nRB                       = N_ELEMENTS(map__multi_magRatio_array)
+  ;; map2D__multi_kappa_array  = map__multi_kappa_array # MAKE_ARRAY(nRB,/FLOAT,VALUE=1.0)
+
   ;;Options for TandN plot
   TN_yLog_nDown           = 0B
 
@@ -111,13 +119,16 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   jv_theor__maxPot        = 4000
   jv_theor__minCur        = 1D-6
   jv_theor__maxCur        = !NULL
-  jv_theor__kappaLims     = [1.501,100]
+  ;; jv_theor__kappaLims     = [1.501,100]
   ;; jv_theor__TempLims      = [,]
   ;; jv_theor__DensLims      = [,]
-  ;; jv_theor__magRatioLims  = [,]
+  jv_theor__magRatioLims  = [3,1E4]
 
-  jv_theor__R_B_init      = 1D5
-  jv_theor__kappa_init    = 10
+  ;; jv_theor__R_B_init      = 1E4
+  ;; jv_theor__kappa_init    = 10
+
+  jv_theor__R_B_init      = 295
+  jv_theor__kappa_init    = 1.53
 
   bonusPref               = '--Elphic_et_al_1998--Fig2'
 
@@ -138,7 +149,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
 
   ;;survey window
   eeb_or_eesArr            = ['ees','ies']
-  spectra_average_interval = 2
+  spectra_average_interval = 4
 
   ;; eeb_or_eesArr           = ['eeb','ieb']
   ;; spectra_average_interval = 10
@@ -231,6 +242,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
      USE_DOWNGOING_ELECTRON_CURRENT=use_ed_current, $
      USE_UPGOING_ION_CURRENT=use_iu_current, $
      USE_UPGOING_ELECTRON_CURRENT=use_eu_current, $
+     USE_MAGNETOMETER_CURRENT=use_mag_current, $
      USE_CHAR_EN_FOR_DOWNPOT=use_charE_for_downPot, $
      USE_PEAK_EN_FOR_DOWNPOT=use_peakE_for_downPot, $
      ADD_UPGOING_ION_POT=add_iu_pot, $
@@ -265,17 +277,25 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
      JV_THEOR__MAGRATIOLIMS=jv_theor__magRatioLims, $
      JVPOTBAR__J_ON_YAXIS=jvPotBar__j_on_yAxis, $
      JVPOTBAR__INTERACTIVE_OVERPLOT=interactive_overplot, $
+     MAP__MULTI_MAGRATIO_ARRAY=map__multi_magRatio_array, $
+     MAP__MULTI_KAPPA_ARRAY=map__multi_kappa_array, $
+     MAP__2D=map__2D, $
      TN_YLOG_NDOWN=TN_yLog_nDown, $
      PLOT_J_V_POTBAR=plot_j_v_potBar, $
      PLOT_JV_A_LA_ELPHIC=plot_jv_a_la_Elphic, $
      PLOT_T_AND_N=plot_T_and_N, $
      PLOT_J_V_AND_THEORY=plot_j_v_and_theory, $
      PLOT_J_V__FIXED_T_AND_N=plot_j_v__fixed_t_and_n, $
+     PLOT_J_V_MAP__R_B_AND_KAPPA__FIXED_T_AND_N=plot_j_v_map__r_b_and_kappa__fixed_t_and_n, $
+     PLOT_MAGCURRENT_VS_CURRENT=plot_magCurrent_vs_current, $
+     PLOT_EN_SPECS=plot_en_specs, $
+     EN_SPECS__MOVIE=en_specs__movie, $
      A_LA_ELPHIC_SPNAME=a_la_Elphic_spName, $
      JVPOTBAR_SPNAME=jvpotBar_spName, $
      TN_SPNAME=TN_spName, $
      JV_THEOR_SPNAME=JV_theor_spName, $
      J_V__FIXTANDN__SPNAME=j_v__fixTandN__spName, $
+     EN_SPEC__SPNAME=en_spec__spName, $
      ORIGINAL_PLOTIDEE=orig_plotIdee, $
      ORIGINATING_ROUTINE=routName, $
      SAVEPLOT=savePlot, $
@@ -283,6 +303,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
      OUT_CURPOTLIST=curPotList, $
      OUT_JVPLOTDATA=jvPlotData, $
      OUT_AVGS_FOR_FITTING=avgs_JVfit, $
+     OUT_SC_POT=out_sc_pot, $
      _REF_EXTRA=e
 
 END
