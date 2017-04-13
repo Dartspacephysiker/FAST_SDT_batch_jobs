@@ -31,7 +31,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC, $
   Elphic1998_defaults     = 1
 
   error_estimates         = 1
-  remake_masterFile       = 0
+  remake_masterFile       = 1
   map_to_100km            = 1
 
   add_oneCount_stats      = 1
@@ -149,6 +149,8 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC, $
   aRange__peakEn_list     = LIST(blankers,blankers,aRange__peakEn_i_up)
   aRange__charE_list      = LIST(blankers,blankers,aRange__charE_i_up)
 
+  use_msph_sourcecone_for_dens = [1,0,0]
+
   ;;If doing upgoing electrons
   peak_energy__start_at_highEArr  = [0,1,1]
   upgoingArr                      = [0,1,1]
@@ -183,6 +185,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC, $
      ORDER=order, $
      LABEL=label, $
      ADD_ONECOUNT_STATS=add_oneCount_stats, $
+     USE_MSPH_SOURCECONE_FOR_DENS=use_msph_sourcecone_for_dens, $
      ARANGE__MOMENTS_E_DOWN=aRange__moments_e_down, $
      ARANGE__MOMENTS_E_UP=aRange__moments_e_up, $
      ARANGE__MOMENTS_I_UP=aRange__moments_i_up, $
