@@ -40,7 +40,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   eps                      = 1
 
-  show_Strangeway_summary  = 1
+  show_Strangeway_summary  = 0
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
@@ -70,18 +70,19 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;2017/03/22
   ;; evtNum               = 2
-  evtNum               = 0
+  evtNum               = 2
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
   upgoing                           = 0
 
-  ;; electron_angleRange  = 'lc'
-  electron_angleRange  = [330,30]
+  electron_angleRange  = 'lc'
+  ;; electron_angleRange  = [330,30]
   energy_electrons     = N_ELEMENTS(energy_electrons__recommande[evtNum]) GT 0 ? $
                          energy_electrons__recommande[evtNum]          : $
                          [3e1,3.0e4]
-  electron_lca         = [150,-150]
+  ;; electron_lca         = [150,-150]
+  ;; electron_lca         = 'lc'
   min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : $
                          (N_ELEMENTS(min_peak_energy_recommande[evtNum]) GT 0 ? $
                           min_peak_energy_recommande[evtNum] : 500)
@@ -165,7 +166,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   KAPPA_FITTER_BLACKBOX,orbit, $
                         ELECTRON_SOURCECONEANGLE=electron_angleRange, $
-                        ELECTRON_LOSSCONEANGLE=electron_lca, $
+                        ;; ELECTRON_LOSSCONEANGLE=electron_lca, $
                         ENERGY_ELECTRONS=energy_electrons, $
                         UPGOING=upgoing, $
                         MIN_PEAK_ENERGY=min_peak_energy, $
