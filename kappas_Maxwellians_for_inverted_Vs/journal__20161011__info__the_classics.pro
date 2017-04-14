@@ -119,7 +119,7 @@ cAP_tRanges_list              = LIST($
                                 ;;
                                 ;;Number 3
                                 ;; '1997-02-02/'+ ['21:03:42','21:03:58'])
-                                [['21:01:56','21:02:14']])
+                                '1997-02-02/'+[['21:01:56','21:02:14']])
                                 ;; '1997-02-02/'+ ['21:01:42','21:03:58']) ;Checking out the total moment thing
 
 eeb_or_ees__recommande        = LIST('eeb',!NULL,'ees','eeb')

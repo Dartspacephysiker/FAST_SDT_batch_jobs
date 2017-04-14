@@ -18,6 +18,11 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; debug__skip_to_this_time  = STR_TO_TIME('97-02-01/09:26:31')
   ;; debug__break_on_this_time = STR_TO_TIME('97-02-01/09:26:31')
 
+  ;;Orbit 1773
+  ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:26:14.2')
+  ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:26:23.0')
+  
+
   only_1D_fits                      = 0
   fit1D__sourceCone_energy_spectrum = 1
   fit1D__nFlux                      = 1
@@ -28,12 +33,14 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   add_oneCount_curve                = 1
 
   fit1D__save_plotSlices            = 0
-  fit2D__save_all_plots             = 0
-  fit2D__show_each_candidate        = 0
+  fit2D__save_all_plots             = 1
+  fit2D__show_each_candidate        = 1
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
   fit2D__clampDensity               = 0
+  fit2D__estimate_sourceCone_from_dist = 0B
+  fit2D__density_angleRange         = [-175,175]
 
   ;;PostScript options
   timeBars                 = 1
@@ -59,7 +66,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
@@ -70,7 +77,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;2017/03/22
   ;; evtNum               = 2
-  evtNum               = 2
+  evtNum               = 3
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
@@ -90,7 +97,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;survey window
   eeb_or_ees           = eeb_or_ees__recommande[evtNum]
-  burstItvl            = 0
+  burstItvl            = 1
 
   ;;String setup
   orbit                = orbs      [evtNum]
@@ -116,10 +123,15 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   IF orbit EQ 1789 THEN BEGIN
 
-     min_peak_energy   = 1000
-     ;; energy_electrons  = [1e3,3.0e4]
+     min_peak_energy   = 800
      energy_electrons  = [0,3.0e4]
 
+     IF N_ELEMENTS(burstItvl) GT 0 THEN BEGIN
+        IF burstItvl EQ 1 THEN BEGIN ;Carlson et al. [1998] state that this interval is cold electron–free
+           energy_electrons  = [7e2,3.0e4]
+        ENDIF
+     ENDIF
+     
      chi2_over_dof_thresh = 50
      lowDens_thresh       = 0.002
      diffEflux_thresh     = 1e7
@@ -131,8 +143,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   curAndPot_analysis        = 1
   cAP_remake_masterFile     = 0
   cAP_map_to_100km          = 1
-  cAP_use_all_currents      = 1
-  cAP_use_ed_current        = 0
+  cAP_use_all_currents      = 0
+  cAP_use_ed_current        = 1
   cAP_use_iu_current        = 0
   cAP_use_eu_current        = 0
   cAP_use_mag_current       = 0
@@ -146,7 +158,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   
   cAP_plot_j_v_potBar          = 0B
   cAP_plot_jv_a_la_Elphic      = 0B
-  cAP_plot_T_and_N             = 1B
+  cAP_plot_T_and_N             = 0B
   cAP_plot_j_v_and_theory      = 1B
   cAP_plot_j_v__fixed_t_and_n  = 1B
   cAP_plot_en_specs            = 0B
@@ -157,6 +169,10 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; cAP_jv_theor__TempLims       = [0,0]
   ;; cAP_jv_theor__DensLims       = [0,0]
   ;; cAP_jv_theor__magRatioLims   = [2,100]
+  ;;JV theory options
+  ;; cAP_jv_theor__fit_je         = 1
+  cAP_jv_theor__fit_both       = 1
+  cAP_jv_theor__use_msph_source = 1
 
   IF KEYWORD_SET(timeBars) THEN BEGIN
      timeBars                  = cAP_tRanges
@@ -197,6 +213,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         FIT2D__WEIGHTING=fit2D__weighting, $
                         FIT2D__CLAMPTEMPERATURE=fit2D__clampTemperature, $
                         FIT2D__CLAMPDENSITY=fit2D__clampDensity, $
+                        FIT2D__DENSITY_ANGLERANGE=fit2D__density_angleRange, $
+                        FIT2D__ESTIMATE_DENS_ARANGE_FROM_DIST=fit2D__estimate_sourceCone_from_dist, $
                         ADD_ONECOUNT_CURVE=add_oneCount_curve, $
                         SAVE_KAPPA_PLOTS=save_kappa_plot, $
                         SAVEKAPPA_BONUSPREF=bonusPref, $
@@ -256,6 +274,9 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         CURANDPOT_JV_THEOR__TEMPLIMS=cAP_jv_theor__TempLims, $    
                         CURANDPOT_JV_THEOR__DENSLIMS=cAP_jv_theor__DensLims, $    
                         CURANDPOT_JV_THEOR__MAGRATIOLIMS=cAP_jv_theor__magRatioLims, $
+                        CURANDPOT_JV_THEOR__FIT_JE=cAP_jv_theor__fit_je, $
+                        CURANDPOT_JV_THEOR__FIT_BOTH=cAP_jv_theor__fit_both, $
+                        CURANDPOT_JV_THEOR__USE_MSPH_SOURCE=cAP_jv_theor__use_msph_source, $
                         TIMEBARS=timeBars, $
                         EPS=eps
   

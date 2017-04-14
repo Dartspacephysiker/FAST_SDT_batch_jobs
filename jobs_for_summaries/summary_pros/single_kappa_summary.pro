@@ -850,7 +850,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                           /USE_MPFIT1D
 
   IF ~ARRAY_EQUAL(kappaTime,GaussTime) THEN STOP
-  nFits           = N_ELEMENTS(kappa2D.fitDens)
+  nFits           = N_ELEMENTS(kappa2D.fitMoms.scDens)
   badFits_i       = WHERE(fitStatus NE 0,nBadFits)
   badGaussFits_i  = WHERE(gaussFitStatus NE 0,nBadGaussFits)
   bothBad_i       = ( (badFits_i[0] EQ -1) AND (badGaussFits_i[0] EQ -1 ) ) ? !NULL : $
