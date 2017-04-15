@@ -87,7 +87,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; electron_angleRange  = [330,30]
   energy_electrons     = N_ELEMENTS(energy_electrons__recommande[evtNum]) GT 0 ? $
                          energy_electrons__recommande[evtNum]          : $
-                         [3e1,3.0e4]
+                         [3e1,3.1e4]
   ;; electron_lca         = [150,-150]
   ;; electron_lca         = 'lc'
   min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : $
