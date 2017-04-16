@@ -119,7 +119,8 @@ cAP_tRanges_list              = LIST($
                                 ;;
                                 ;;Number 3
                                 ;; '1997-02-02/'+ ['21:03:42','21:03:58'])
-                                '1997-02-02/'+[['21:01:56','21:02:14']])
+                                ;; '1997-02-02/'+[['21:01:56','21:02:14']])
+                                '1997-02-02/'+[['21:02:01','21:02:13']])
                                 ;; '1997-02-02/'+ ['21:01:42','21:03:58']) ;Checking out the total moment thing
 
 eeb_or_ees__recommande        = LIST('eeb',!NULL,'ees','eeb')
@@ -131,4 +132,4 @@ min_peak_energy_recommande    = LIST(500,!NULL,200,MIN(energy_electrons__recomma
 spectra_average_interval_list = LIST(4, $
                                      !NULL, $
                                      2, $
-                                     eeb_or_ees__recommande[3] EQ 'eeb' ? 4 : 2)
+                                     eeb_or_ees__recommande[3] EQ 'eeb' ? 8 : 2)

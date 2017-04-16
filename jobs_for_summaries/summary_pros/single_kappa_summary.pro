@@ -84,6 +84,92 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   ENDIF
 
+  IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
+
+     can_add_meas = SIZE(jvPlotData,/TYPE) EQ 8
+     IF ~can_add_meas THEN BEGIN
+        CASE SIZE(jvPlotData,/TYPE) OF
+           0: BEGIN
+              PRINT,"No jvPlotData provided! How can I add measured temp and dens?"
+              STOP
+           END
+           ELSE: BEGIN
+              PRINT,"Huh?"
+              STOP
+           END
+        ENDCASE
+     ENDIF
+
+  ENDIF
+
+  IF N_ELEMENTS(kappaFits) NE N_ELEMENTS(gaussFits) THEN STOP
+
+  PARSE_KAPPA_FIT_STRUCTS,kappaFits, $
+                          A=a, $
+                          STRUCT_A=Astruct, $
+                          TIME=kappaTime, $
+                          MATCH_TIMES=kappa2D.SDT[*].time, $
+                          NAMES_A=A_names, $
+                          CHI2=chi2, $
+                          PVAL=pVal, $
+                          FITSTATUS=fitStatus, $
+                          /USE_MPFIT1D
+
+  PARSE_KAPPA_FIT_STRUCTS,gaussFits, $
+                          A=AGauss, $
+                          STRUCT_A=AStructGauss, $
+                          TIME=GaussTime, $
+                          MATCH_TIMES=kappa2D.SDT[*].time, $
+                          NAMES_A=AGauss_names, $
+                          CHI2=chi2Gauss, $
+                          PVAL=pValGauss, $
+                          FITSTATUS=gaussfitStatus, $
+                          /USE_MPFIT1D
+
+  CASE 1 OF
+     KEYWORD_SET(jvPlotData.use_source_avgs): BEGIN
+        Density        = jvPlotData.source.NDown
+        DensityErr     = jvPlotData.source.NDownErr
+        Temperature    = jvPlotData.source.TDown
+        TemperatureErr = jvPlotData.source.TDownErr
+     END
+     ELSE: BEGIN
+        Density        = jvPlotData.NDown
+        DensityErr     = jvPlotData.NDownErr
+        Temperature    = jvPlotData.TDown
+        TemperatureErr = jvPlotData.TDownErr
+     END
+  ENDCASE
+
+  ;;The vars we use
+  Dens2DK = {x:kappaTime,y:k2DParms.N}
+  Dens2DG = {x:GaussTime,y:g2DParms.N}
+  Dens2DD = {x:jvPlotData.time,y:Density,dy:DensityErr}
+
+  Temp2DK = {x:kappaTime,y:k2DParms.temperature*(k2DParms.kappa-1.5D)/k2DParms.kappa}
+  Temp2DG = {x:GaussTime,y:g2DParms.temperature}
+  Temp2DD = {x:jvPlotData.time,y:Temperature,dy:TemperatureErr}
+
+  chi22DK = {x:kappaTime,y:kappa2D.chi2/(kappa2D.dof+kappa2D.nFree)}
+  chi22DG = {x:GaussTime,y:gauss2D.chi2/(gauss2D.dof+gauss2D.nFree)}
+
+  BlkE2DK = {x:kappaTime,y:k2DParms.bulk_energy}
+  BlkE2DG = {x:GaussTime,y:g2DParms.bulk_energy}
+
+  IF ~ARRAY_EQUAL(kappaTime,GaussTime) THEN STOP
+  nFits           = N_ELEMENTS(kappa2D.fitMoms.scDens)
+  badFits_i       = WHERE(fitStatus NE 0,nBadFits)
+  badGaussFits_i  = WHERE(gaussFitStatus NE 0,nBadGaussFits)
+  bothBad_i       = ( (badFits_i[0] EQ -1) AND (badGaussFits_i[0] EQ -1 ) ) ? !NULL : $
+                    CGSETINTERSECTION(badFits_i,badGaussFits_i)
+  PRINT,""
+  PRINT,"****************************************"
+  PRINT,'NTotalFits    : ',nFits
+  PRINT,''
+  PRINT,"NbadFits      : ",nBadFits
+  PRINT,"NbadGaussFits : ",nBadGaussFits
+  PRINT,"NBothBad      : ",N_ELEMENTS(bothBad_i)
+
   ;;Are we supposed to add stuff from diff_eFlux?
   ;; IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
 
@@ -128,24 +214,6 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
 
   ;; ENDIF
-
-  IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
-
-     can_add_meas = SIZE(jvPlotData,/TYPE) EQ 8
-     IF ~can_add_meas THEN BEGIN
-        CASE SIZE(jvPlotData,/TYPE) OF
-           0: BEGIN
-              PRINT,"No jvPlotData provided! How can I add measured temp and dens?"
-              STOP
-           END
-           ELSE: BEGIN
-              PRINT,"Huh?"
-              STOP
-           END
-        ENDCASE
-     ENDIF
-
-  ENDIF
 
 ; Step 0 - safety measure - delete all tplot quantities if found
 
@@ -789,80 +857,6 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 ;;Include kappa panel?
   ;; IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
 
-  IF N_ELEMENTS(kappaFits) NE N_ELEMENTS(gaussFits) THEN STOP
-
-  ;;Set these to 1 to pull them out of the following routines
-  ;; k2DParms           = 1
-  ;; g2DParms           = 1
-
-  ;; kappa2D            = PARSE_KAPPA_FIT2D_INFO_LIST_V2(fit2DKappa_inf_list, $
-  ;;                                                     CHI2_THRESHOLD=chi2_thresh, $
-  ;;                                                     CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
-  ;;                                                     HIGHDENSITY_THRESHOLD=highDens_thresh, $
-  ;;                                                     LOWDENSITY_THRESHOLD=lowDens_thresh, $
-  ;;                                                     KAPPA_LOWTHRESHOLD=lKappa_thresh, $
-  ;;                                                     KAPPA_HIGHTHRESHOLD=hKappa_thresh, $
-  ;;                                                     DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
-  ;;                                                     N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
-  ;;                                                     /DESTROY_INFO_LIST, $
-  ;;                                                     OUT_FITPARAM_STRUCT=k2DParms, $
-  ;;                                                     OUT_GOOD_I=includeK_i, $
-  ;;                                                     OUT_GOOD_T=includeK_t, $
-  ;;                                                     OUT_BAD_I=excludeK_i, $
-  ;;                                                     OUT_BAD_T=excludeK_t)
-
-  ;; gauss2D            = PARSE_KAPPA_FIT2D_INFO_LIST_V2(fit2DGauss_inf_list, $
-  ;;                                                     CHI2_THRESHOLD=chi2_thresh, $
-  ;;                                                     CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
-  ;;                                                     HIGHDENSITY_THRESHOLD=highDens_thresh, $
-  ;;                                                     LOWDENSITY_THRESHOLD=lowDens_thresh, $
-  ;;                                                     KAPPA_LOWTHRESHOLD=lKappa_thresh, $
-  ;;                                                     KAPPA_HIGHTHRESHOLD=100.1, $
-  ;;                                                     DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
-  ;;                                                     N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
-  ;;                                                     /DESTROY_INFO_LIST, $
-  ;;                                                     OUT_FITPARAM_STRUCT=g2DParms, $
-  ;;                                                     OUT_GOOD_I=includeG_i, $
-  ;;                                                     OUT_GOOD_T=includeG_t, $
-  ;;                                                     OUT_BAD_I=excludeG_i, $
-  ;;                                                     OUT_BAD_T=excludeG_t)
-
-  PARSE_KAPPA_FIT_STRUCTS,kappaFits, $
-                          A=a, $
-                          STRUCT_A=Astruct, $
-                          TIME=kappaTime, $
-                          MATCH_TIMES=kappa2D.SDT[*].time, $
-                          NAMES_A=A_names, $
-                          CHI2=chi2, $
-                          PVAL=pVal, $
-                          FITSTATUS=fitStatus, $
-                          /USE_MPFIT1D
-
-  PARSE_KAPPA_FIT_STRUCTS,gaussFits, $
-                          A=AGauss, $
-                          STRUCT_A=AStructGauss, $
-                          TIME=GaussTime, $
-                          MATCH_TIMES=kappa2D.SDT[*].time, $
-                          NAMES_A=AGauss_names, $
-                          CHI2=chi2Gauss, $
-                          PVAL=pValGauss, $
-                          FITSTATUS=gaussfitStatus, $
-                          /USE_MPFIT1D
-
-  IF ~ARRAY_EQUAL(kappaTime,GaussTime) THEN STOP
-  nFits           = N_ELEMENTS(kappa2D.fitMoms.scDens)
-  badFits_i       = WHERE(fitStatus NE 0,nBadFits)
-  badGaussFits_i  = WHERE(gaussFitStatus NE 0,nBadGaussFits)
-  bothBad_i       = ( (badFits_i[0] EQ -1) AND (badGaussFits_i[0] EQ -1 ) ) ? !NULL : $
-                    CGSETINTERSECTION(badFits_i,badGaussFits_i)
-  PRINT,""
-  PRINT,"****************************************"
-  PRINT,'NTotalFits    : ',nFits
-  PRINT,''
-  PRINT,"NbadFits      : ",nBadFits
-  PRINT,"NbadGaussFits : ",nBadGaussFits
-  PRINT,"NBothBad      : ",N_ELEMENTS(bothBad_i)
-
   IF ~KEYWORD_SET(plot_1_over_kappa) THEN BEGIN
      STORE_DATA,'kappa_fit',DATA={x:kappaTime,y:Astruct.kappa}
      STORE_DATA,'kappa_fit',DATA={x:kappaTime,y:REFORM(kappa2D.fitParams[2,*])}
@@ -914,11 +908,11 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   showLog_BlkE = 1
   showLog_chi2 = 0
   ;;Now normalized Chi^2
-  STORE_DATA,'chi22DK',DATA={x:kappaTime,y:kappa2D.chi2/(kappa2D.dof+kappa2D.nFree)}
+  STORE_DATA,'chi22DK',DATA=chi22DK
   OPTIONS,'chi22DK','psym',kappaSym
   OPTIONS,'chi22DK','colors',kappaColor
 
-  STORE_DATA,'chi22DG',DATA={x:GaussTime,y:gauss2D.chi2/(gauss2D.dof+gauss2D.nFree)}
+  STORE_DATA,'chi22DG',DATA=chi22DG
   OPTIONS,'chi22DG','psym',GaussSym
   OPTIONS,'chi22DG','colors',GaussColor
 
@@ -959,25 +953,34 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   endif
 
   ;;Now temperature
-  STORE_DATA,'Temp2DK',DATA={x:kappaTime,y:k2DParms.temperature}
+  STORE_DATA,'Temp2DK',DATA=Temp2DK
   OPTIONS,'Temp2DK','psym',kappaSym
   OPTIONS,'Temp2DK','colors',kappaColor
 
-  STORE_DATA,'Temp2DG',DATA={x:GaussTime,y:g2DParms.temperature}
+  STORE_DATA,'Temp2DG',DATA=Temp2DG
   OPTIONS,'Temp2DG','psym',GaussSym
   OPTIONS,'Temp2DG','colors',GaussColor
 
   IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
      ;; STORE_DATA,'Temp2DD',DATA={x:TData.x,y:REFORM(TData.y[3,*]),dy:TErrData}
-     STORE_DATA,'Temp2DD',DATA={x:jvPlotData.time,y:jvPlotData.TDown,dy:jvPlotData.TDownErr}
+     STORE_DATA,'Temp2DD',DATA=Temp2DD
      OPTIONS,'Temp2DD','psym',dataSym
      OPTIONS,'Temp2DD','colors',dataColor
   ENDIF
 
-  OPTIONS,'Temp2DK','ytitle','Temperature!C(eV)' & candidatos = [k2DParms.temperature,g2DParms.temperature] & IF KEYWORD_SET(add_meas_T_and_N) THEN candidatos = [candidatos,jvPlotdata.TDown]
+  ;; OPTIONS,'Temp2DK','ytitle','Temperature!C(eV)'
+  ;; candidatos = [k2DParms.temperature,g2DParms.temperature]
+  ;; IF KEYWORD_SET(add_meas_T_and_N) THEN candidatos = [candidatos,jvPlotdata.TDown]
+  OPTIONS,'Temp2DK','ytitle','Temperature!C(eV)'
+  candidatos = [Temp2DK.y,Temp2DG.y]
+  ;; candidatos = [(Temp2DK.y < (MAX(Temp2DG.y)*4)),Temp2DG.y]
+  ;; candidatos = [MINMAX(CREATEBOXPLOTDATA(Temp2DK.y,OUTLIER_VALUES=out)),MINMAX(CREATEBOXPLOTDATA(Temp2DG.y,OUTLIER_VALUES=out))]
+  
+  IF KEYWORD_SET(add_meas_T_and_N) THEN candidatos = [candidatos,Temperature]
+
   TempBounds      = [MIN(candidatos), $
                      MAX(candidatos)]
-  showLog_Temp    = (ALOG10(TempBounds[1])-ALOG10(TempBounds[0])) GT 2
+  showLog_Temp    = (ALOG10(TempBounds[1])-ALOG10(TempBounds[0])) GT 1.4
      IF showLog_Temp THEN BEGIN
         TempBounds[0] -= (TempBounds[0]*0.1)
         TempBounds[1] += (TempBounds[1]*0.1)
@@ -997,22 +1000,28 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   endif
 
   ;;Now density
-  STORE_DATA,'Dens2DK',DATA={x:kappaTime,y:k2DParms.N}
+  STORE_DATA,'Dens2DK',DATA=Dens2DK
   OPTIONS,'Dens2DK','psym',kappaSym
   OPTIONS,'Dens2DK','colors',kappaColor
 
-  STORE_DATA,'Dens2DG',DATA={x:GaussTime,y:g2DParms.N}
+  STORE_DATA,'Dens2DG',DATA=Dens2DG
   OPTIONS,'Dens2DG','psym',GaussSym
   OPTIONS,'Dens2DG','colors',GaussColor
 
   IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
      ;; STORE_DATA,'Dens2DD',DATA={x:nData.x,y:nData.y,dy:nErrData}
-     STORE_DATA,'Dens2DD',DATA={x:jvPlotData.time,y:jvPlotData.NDown,dy:jvPlotData.NDownErr}
+     STORE_DATA,'Dens2DD',DATA=Dens2DD
      OPTIONS,'Dens2DD','psym',dataSym
      OPTIONS,'Dens2DD','colors',dataColor
   ENDIF
 
-  OPTIONS,'Dens2DK','ytitle','Density!C(cm!U-3!N)' & candidatos = [k2DParms.N,g2DParms.N] & IF KEYWORD_SET(add_meas_T_and_N) THEN candidatos = [candidatos,jvPlotdata.NDown]
+  ;; OPTIONS,'Dens2DK','ytitle','Density!C(cm!U-3!N)'
+  ;; candidatos = [k2DParms.N,g2DParms.N]
+  ;; IF KEYWORD_SET(add_meas_T_and_N) THEN candidatos = [candidatos,jvPlotdata.NDown]
+  OPTIONS,'Dens2DK','ytitle','Density!C(cm!U-3!N)'
+  candidatos = [Dens2DK.y,Dens2DG.y]
+  IF KEYWORD_SET(add_meas_T_and_N) THEN candidatos = [candidatos,Density]
+
   DensBounds      = [MIN(candidatos), $
                      MAX(candidatos)]
   ;; showLog_Dens    = (ALOG10(DensBounds[1])-ALOG10(DensBounds[0])) GT 2
@@ -1041,11 +1050,11 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   IF ~KEYWORD_SET(GRL) THEN BEGIN
      ;;Now Bulk energy
-     STORE_DATA,'BlkE2DK',DATA={x:kappaTime,y:k2DParms.bulk_energy}
+     STORE_DATA,'BlkE2DK',DATA=BlkE2DK
      OPTIONS,'BlkE2DK','psym',kappaSym
      OPTIONS,'BlkE2DK','colors',kappaColor
 
-     STORE_DATA,'BlkE2DG',DATA={x:GaussTime,y:g2DParms.bulk_energy}
+     STORE_DATA,'BlkE2DG',DATA=BlkE2DG
      OPTIONS,'BlkE2DG','psym',GaussSym
      OPTIONS,'BlkE2DG','colors',GaussColor
 

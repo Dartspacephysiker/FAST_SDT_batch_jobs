@@ -79,6 +79,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
   IF NOT KEYWORD_SET(energy_ions) THEN energy_ions=[4,1.e4]
 
   IF STRUPCASE(eeb_or_ees) EQ 'EEB' THEN ieb_or_ies = 'ieb' ELSE ieb_or_ies = 'ies'
+  burst = (WHERE(STRMATCH(STRUPCASE(eeb_or_ees),'*B')))[0] NE -1
 
   nn = n_elements(data_quants)
 
@@ -239,15 +240,29 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
   endelse
 
 
-  b = where (strpos(result,'V1-V4_S') ge 0,nb4)
-  if (nb4 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb4 = 0
-  b = where (strpos(result,'V1-V2_S') ge 0,nb2)
-  if (nb2 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb2 = 0
-  if (nb4 gt 0) then v12=get_fa_fields('V1-V4_S',/all) $
-  else if (nb2 gt 0) then v12=get_fa_fields('V1-V2_S',/all)
+  CASE 1 OF
+     burst: BEGIN
+        v12Str = 'V1-V2_S'
+        v14Str = 'V1-V4_S'
+        v58Str = 'V5-V8_S'
+     END
+     ELSE: BEGIN
+        v12Str = 'V1-V2_S'
+        v14Str = 'V1-V4_S'
+        v58Str = 'V5-V8_S'
+     END
+  ENDCASE
 
-  b = where (strpos(result,'V5-V8_S') ge 0,nb5)
-  if (nb5 gt 0) then v58=get_fa_fields('V5-V8_S',/all)
+
+  b = where (strpos(result,v14Str) ge 0,nb4)
+  if (nb4 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb4 = 0
+  b = where (strpos(result,v12Str) ge 0,nb2)
+  if (nb2 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb2 = 0
+  if (nb4 gt 0) then v12=get_fa_fields(v14Str,/all) $
+  else if (nb2 gt 0) then v12=get_fa_fields(v12Str,/all)
+
+  b = where (strpos(result,v58Str) ge 0,nb5)
+  if (nb5 gt 0) then v58=get_fa_fields(v58Str,/all)
 
   got_efield = (nb4 gt 0 or nb2 gt 0) and nb5 gt 0
 
@@ -292,9 +307,9 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      tst = rxv[*,0]*vxb[*,0] + rxv[*,1]*vxb[*,1] + rxv[*,2]*vxb[*,2]
 
      get_data,'EFIT_ALONG_V',data=data,dlimit=dlimit
-     y2=spl_init(pos.x-tlimit_all[0],tst,/double)
-     tst_ = spl_interp(pos.x-tlimit_all[0],tst,y2,data.x-tlimit_all[0],/double)
-     data.y = data.y*tst_/abs(tst_)
+     ;; y2=spl_init(pos.x-tlimit_all[0],tst,/double)
+     ;; tst_ = spl_interp(pos.x-tlimit_all[0],tst,y2,data.x-tlimit_all[0],/double)
+     ;; data.y = data.y*tst_/abs(tst_)
      store_data,'EFIT_ALONG_VSC',data=data,dlimit=dlimit
      options,'EFIT_ALONG_VSC','yrange',0
      options,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C(mV/m)'
@@ -307,7 +322,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
      if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['EFIT_ALONG_VSC'] else tPlt_vars=['EFIT_ALONG_VSC',tPlt_vars]
 
-     YLIM,'EFIT_ALONG_VSC',-100,100,0
+     YLIM,'EFIT_ALONG_VSC',MIN(data.y),MAX(data.y),0
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
         loadct2,40
         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
@@ -554,13 +569,6 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      data   = {x:dat.time, y:alog10(dat.comp1), v:dat.yaxis}
      store_data,'DSP_V5-V8', data=data
      ;; dlimit = {spec:1, ystyle:1, yrange:[0.1, 16.0], zrange:[-16,-6], $
-     dlimit = {spec:1, ystyle:1, yrange:[0.1, 16.0], $
-               zrange:[MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))])], $
-               ytitle:'VLF E 55m!C!C(kHz)', ylog:1, $
-               ztitle: '(V/m)!U2!N/Hz', panel_size:2}
-     store_data,'DSP_V5-V8', dlimit=dlimit
-     options,'DSP_V5-V8','x_no_interp',1
-     options,'DSP_V5-V8','y_no_interp',1
 
 ;  look for big jumps in time - blank these
 
@@ -585,6 +593,20 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         store_data,'DSP_V5-V8',data=data
      endif
      
+     ;;Plot opts
+     VLF_zRange = [MIN(data.y[WHERE(FINITE(data.y))] > (-13)), $
+                   MAX(data.y[WHERE(FINITE(data.y))]) < (-5)]
+     dlimit = {spec:1, ystyle:1, yrange:[0.1, 16.0], $
+               zrange:VLF_zRange, $
+               ytitle:'VLF E 55m!C!C(kHz)', ylog:1, $
+               ztitle: '(V/m)!U2!N/Hz', panel_size:2}
+
+     STORE_DATA,'DSP_V5-V8', dlimit=dlimit
+
+     OPTIONS,'DSP_V5-V8','x_no_interp',1
+     OPTIONS,'DSP_V5-V8','y_no_interp',1
+
+
      if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['DSP_V5-V8'] else tPlt_vars=['DSP_V5-V8',tPlt_vars]
 
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
@@ -619,13 +641,6 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         data   = {x:dat.time, y:alog10(dat.comp1), v:dat.yaxis}
         store_data,'SFA_V5-V8', data=data
         ;; dlimit = {spec:1, ystyle:1, yrange:[10., 1000.0], zrange:[-16,-10], $
-        dlimit = {spec:1, ystyle:1, yrange:[10., 1000.0], $
-                  zrange:[MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))])], $
-                  ytitle:'AKR E 55m!C!C(kHz)', ylog:1, $
-                  ztitle: '(V/m)!U2!N/Hz', panel_size:2}
-        store_data,'SFA_V5-V8', dlimit=dlimit
-        options,'SFA_V5-V8','x_no_interp',1
-        options,'SFA_V5-V8','y_no_interp',1
 
 ;  look for big jumps in time - blank these
 
@@ -649,6 +664,28 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
            data={x:new_tag[tsort],y:new_dat,v:data.v}
            store_data,'SFA_V5-V8',data=data
         endif
+
+        ;;Plot opts
+        GET_DATA,'DSP_V5-V8',DLIMIT=VLF_dlimit
+
+        ;;Put AKR and VLF data on same scale in z direction
+        ;; AKR_zRange = [MIN([data.y[WHERE(FINITE(data.y))],VLF_dLimit.zRange[0]]) > (-15), $
+        ;;               MAX([data.y[WHERE(FINITE(data.y))],VLF_dLimit.zRange[1]]) < (-6)]
+        AKR_zRange = [MIN(data.y[WHERE(FINITE(data.y))]) > (-14), $
+                      MAX(data.y[WHERE(FINITE(data.y))]) < (-6)]
+        ;; VLF_dlimit.zRange = AKR_zRange
+        ;; STORE_DATA,'DSP_V5-V8',DLIMIT=VLF_dlimit
+
+        dlimit = {spec:1, ystyle:1, yrange:[10., 1000.0], $
+                  zrange:AKR_zRange, $
+                  ytitle:'AKR E 55m!C!C(kHz)', ylog:1, $
+                  ztitle: '(V/m)!U2!N/Hz', panel_size:2}
+        store_data,'SFA_V5-V8', dlimit=dlimit
+        options,'SFA_V5-V8','x_no_interp',1
+        options,'SFA_V5-V8','y_no_interp',1
+
+
+
 
         if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['SFA_V5-V8'] else tPlt_vars=['SFA_V5-V8',tPlt_vars]
 
@@ -760,7 +797,8 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      charEBounds      = [MIN(chare[WHERE(chare GT 0)]) + MIN(chari[WHERE(chari GT 0)]), $
                          MAX(chare[WHERE(chare GT 0)]) + MAX(chari[WHERE(chari GT 0)])]
      ;; showLog_charE    = (ALOG10(MAX(chare[WHERE(chare GT 0)]))-ALOG10(MIN(chare[WHERE(chare GT 0)]))) GT 2
-     showLog_charE    = (ALOG10(charEBounds[1])-ALOG10(charEBounds[0])) GT 2
+     ;; showLog_charE    = (ALOG10(charEBounds[1])-ALOG10(charEBounds[0])) GT 2
+     showLog_charE    = 1B
      IF showLog_charE THEN BEGIN
         charEBounds[0] -= (charEBounds[0]*0.1)
         charEBounds[1] += (charEBounds[1]*0.1)

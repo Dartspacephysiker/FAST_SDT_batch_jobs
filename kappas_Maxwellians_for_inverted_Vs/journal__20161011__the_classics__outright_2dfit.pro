@@ -33,8 +33,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   add_oneCount_curve                = 1
 
   fit1D__save_plotSlices            = 0
-  fit2D__save_all_plots             = 1
-  fit2D__show_each_candidate        = 1
+  fit2D__save_all_plots             = 0
+  fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
@@ -66,7 +66,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
@@ -154,13 +154,13 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   cAP_tRanges               = cAP_tRanges_list[evtNum]
 
-  cAP_moment_energyArr      = [[10,3.0e4],[10,3.0e4],[0,2.4e4]]
+  cAP_moment_energyArr      = [[100,3.0e4],[100,3.0e4],[0,2.4e4]]
   
   cAP_plot_j_v_potBar          = 0B
   cAP_plot_jv_a_la_Elphic      = 0B
   cAP_plot_T_and_N             = 0B
-  cAP_plot_j_v_and_theory      = 1B
-  cAP_plot_j_v__fixed_t_and_n  = 1B
+  cAP_plot_j_v_and_theory      = 0B
+  cAP_plot_j_v__fixed_t_and_n  = 0B
   cAP_plot_en_specs            = 0B
   cAP_en_specs__movie          = 0B
   cAP_jv_theor__R_B_init       = 2
@@ -171,8 +171,9 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; cAP_jv_theor__magRatioLims   = [2,100]
   ;;JV theory options
   ;; cAP_jv_theor__fit_je         = 1
-  cAP_jv_theor__fit_both       = 1
+  cAP_jv_theor__fit_both        = 1
   cAP_jv_theor__use_msph_source = 1
+  cAP_jv_theor__iterative_game  = 1
 
   IF KEYWORD_SET(timeBars) THEN BEGIN
      timeBars                  = cAP_tRanges
@@ -277,6 +278,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         CURANDPOT_JV_THEOR__FIT_JE=cAP_jv_theor__fit_je, $
                         CURANDPOT_JV_THEOR__FIT_BOTH=cAP_jv_theor__fit_both, $
                         CURANDPOT_JV_THEOR__USE_MSPH_SOURCE=cAP_jv_theor__use_msph_source, $
+                        CURANDPOT_JV_THEOR__ITERATIVE_DENSITY_AND_R_B_GAME=cAP_jv_theor__iterative_game, $
                         TIMEBARS=timeBars, $
                         EPS=eps
   
