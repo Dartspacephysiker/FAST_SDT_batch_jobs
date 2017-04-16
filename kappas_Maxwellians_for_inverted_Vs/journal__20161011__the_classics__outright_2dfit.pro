@@ -156,9 +156,9 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   cAP_moment_energyArr      = [[100,3.0e4],[100,3.0e4],[0,2.4e4]]
   
-  cAP_plot_j_v_potBar          = 0B
-  cAP_plot_jv_a_la_Elphic      = 0B
-  cAP_plot_T_and_N             = 0B
+  cAP_plot_j_v_potBar          = 1B
+  cAP_plot_jv_a_la_Elphic      = 1B
+  cAP_plot_T_and_N             = 1B
   cAP_plot_j_v_and_theory      = 0B
   cAP_plot_j_v__fixed_t_and_n  = 0B
   cAP_plot_en_specs            = 0B
@@ -173,7 +173,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; cAP_jv_theor__fit_je         = 1
   cAP_jv_theor__fit_both        = 1
   cAP_jv_theor__use_msph_source = 1
-  cAP_jv_theor__iterative_game  = 1
+  cAP_jv_theor__iterative_game  = 0
 
   IF KEYWORD_SET(timeBars) THEN BEGIN
      timeBars                  = cAP_tRanges
