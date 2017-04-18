@@ -21,6 +21,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;;Orbit 1773
   ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:26:14.2')
   ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:26:23.0')
+  ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:27:01.2')
   
 
   only_1D_fits                      = 0
@@ -54,8 +55,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   sway__add_Newell_panel   = 1
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary  = 0
-  kSum__save_ps       = 0
+  show_kappa_summary  = 1
+  kSum__save_ps       = 1
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
   kSum__add_meas_T_and_N = 1
@@ -176,7 +177,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; cAP_jv_theor__initial_source_R_E = 5.0D
   ;; cAP_jv_theor__initial_source__Polar = 1
   cAP_jv_theor__initial_source__equator = 1
-  cAP_jv_theor__iterative_game  = 1
+  cAP_jv_theor__iterative_game  = 0
   cAP_jv_theor__itergame_NFac   = 3.0
 
   IF KEYWORD_SET(timeBars) THEN BEGIN

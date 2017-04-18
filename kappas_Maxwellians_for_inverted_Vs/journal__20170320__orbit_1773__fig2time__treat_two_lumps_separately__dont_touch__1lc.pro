@@ -30,7 +30,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   Elphic1998_defaults     = 1
 
   error_estimates         = 1
-  remake_masterFile       = 1
+  remake_masterFile       = 0
   map_to_100km            = 1
 
   add_oneCount_stats      = 1
@@ -119,16 +119,16 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   jv_theor__maxPot        = 4000
   jv_theor__minCur        = 1D-6
   jv_theor__maxCur        = !NULL
-  ;; jv_theor__kappaLims     = [1.501,100]
+  jv_theor__kappaLims     = [1.54,2.0]
   ;; jv_theor__TempLims      = [,]
   ;; jv_theor__DensLims      = [,]
-  jv_theor__magRatioLims  = [3,1E4]
+  jv_theor__magRatioLims  = [3,500]
 
   ;; jv_theor__R_B_init      = 1E4
   ;; jv_theor__kappa_init    = 10
 
-  jv_theor__R_B_init      = 295
-  jv_theor__kappa_init    = 1.53
+  jv_theor__R_B_init      = 30
+  jv_theor__kappa_init    = 1.75
 
   bonusPref               = '--Elphic_et_al_1998--Fig2'
 
@@ -149,7 +149,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
 
   ;;survey window
   eeb_or_eesArr            = ['ees','ies']
-  spectra_average_interval = 4
+  spectra_average_interval = 2
 
   ;; eeb_or_eesArr           = ['eeb','ieb']
   ;; spectra_average_interval = 10
@@ -176,7 +176,8 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   aRange__peakEn_list     = LIST(blankers,blankers,aRange__peakEn_i_up)
   aRange__charE_list      = LIST(blankers,blankers,aRange__charE_i_up)
 
-  use_msph_sourcecone_for_dens = [1,0,0]
+  ;; use_msph_sourcecone_for_dens = [1,0,0]
+  ;; use_msph_sourcecone_for_temp = [1,0,0]
   
   ;;If doing upgoing electrons
   peak_energy__start_at_highEArr  = [0,1,1]
@@ -212,7 +213,8 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
      ORDER=order, $
      LABEL=label, $
      ADD_ONECOUNT_STATS=add_oneCount_stats, $
-     USE_MSPH_SOURCECONE_FOR_DENS=use_msph_sourcecone_for_dens, $
+     ;; USE_MSPH_SOURCECONE_FOR_DENS=use_msph_sourcecone_for_dens, $
+     ;; USE_MSPH_SOURCECONE_FOR_TEMP=use_msph_sourcecone_for_temp, $
      ARANGE__MOMENTS_E_DOWN=aRange__moments_e_down, $
      ARANGE__MOMENTS_E_UP=aRange__moments_e_up, $
      ARANGE__MOMENTS_I_UP=aRange__moments_i_up, $
