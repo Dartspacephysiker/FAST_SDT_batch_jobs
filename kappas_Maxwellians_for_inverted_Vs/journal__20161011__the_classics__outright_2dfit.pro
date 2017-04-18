@@ -33,8 +33,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   add_oneCount_curve                = 1
 
   fit1D__save_plotSlices            = 0
-  fit2D__save_all_plots             = 0
-  fit2D__show_each_candidate        = 0
+  fit2D__save_all_plots             = 1
+  fit2D__show_each_candidate        = 1
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
@@ -54,8 +54,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   sway__add_Newell_panel   = 1
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary  = 1
-  kSum__save_ps       = 1
+  show_kappa_summary  = 0
+  kSum__save_ps       = 0
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
   kSum__add_meas_T_and_N = 1
@@ -73,11 +73,10 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; '1 :  McFadden_et_al_1998'
   ;; '2 :  Elphic_et_al_1998'
   ;; '3 :  Carlson_et_al_2001'
-  ;; evtNum               = 2
+  evtNum               = 2
 
   ;;2017/03/22
-  ;; evtNum               = 2
-  evtNum               = 3
+  ;; evtNum               = 3
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
@@ -128,11 +127,11 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
      IF N_ELEMENTS(burstItvl) GT 0 THEN BEGIN
         IF burstItvl EQ 1 THEN BEGIN ;Carlson et al. [1998] state that this interval is cold electron–free
-           energy_electrons  = [7e2,3.0e4]
+           energy_electrons  = [6e2,3.0e4]
         ENDIF
      ENDIF
      
-     chi2_over_dof_thresh = 50
+     chi2_over_dof_thresh = 20
      lowDens_thresh       = 0.002
      diffEflux_thresh     = 1e7
      nPkAbove_dEF_thresh  = 5
@@ -154,26 +153,31 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   cAP_tRanges               = cAP_tRanges_list[evtNum]
 
-  cAP_moment_energyArr      = [[100,3.0e4],[100,3.0e4],[0,2.4e4]]
+  ;; cAP_moment_energyArr      = [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
+  cAP_moment_energyArr      = [[energy_electrons],[energy_electrons],[100,2.4e4]]
   
   cAP_plot_j_v_potBar          = 1B
   cAP_plot_jv_a_la_Elphic      = 1B
-  cAP_plot_T_and_N             = 1B
+  cAP_plot_T_and_N             = 0B
   cAP_plot_j_v_and_theory      = 0B
-  cAP_plot_j_v__fixed_t_and_n  = 0B
+  cAP_plot_j_v__fixed_t_and_n  = 1B
   cAP_plot_en_specs            = 0B
   cAP_en_specs__movie          = 0B
-  cAP_jv_theor__R_B_init       = 2
-  cAP_jv_theor__kappa_init     = 2.0
+  cAP_jv_theor__R_B_init       = 30
+  cAP_jv_theor__kappa_init     = 10.0
   ;; cAP_jv_theor__kappaLims      = [0,0]
   ;; cAP_jv_theor__TempLims       = [0,0]
   ;; cAP_jv_theor__DensLims       = [0,0]
   ;; cAP_jv_theor__magRatioLims   = [2,100]
   ;;JV theory options
   ;; cAP_jv_theor__fit_je         = 1
-  cAP_jv_theor__fit_both        = 1
+  cAP_jv_theor__fit_both        = 0
   cAP_jv_theor__use_msph_source = 1
-  cAP_jv_theor__iterative_game  = 0
+  ;; cAP_jv_theor__initial_source_R_E = 5.0D
+  ;; cAP_jv_theor__initial_source__Polar = 1
+  cAP_jv_theor__initial_source__equator = 1
+  cAP_jv_theor__iterative_game  = 1
+  cAP_jv_theor__itergame_NFac   = 3.0
 
   IF KEYWORD_SET(timeBars) THEN BEGIN
      timeBars                  = cAP_tRanges
@@ -278,7 +282,11 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         CURANDPOT_JV_THEOR__FIT_JE=cAP_jv_theor__fit_je, $
                         CURANDPOT_JV_THEOR__FIT_BOTH=cAP_jv_theor__fit_both, $
                         CURANDPOT_JV_THEOR__USE_MSPH_SOURCE=cAP_jv_theor__use_msph_source, $
+                        CURANDPOT_JV_THEOR__INITIAL_SOURCE_R_E=cAP_jv_theor__initial_source_R_E, $
+                        CURANDPOT_JV_THEOR__INITIAL_SOURCE__POLARSAT=cAP_jv_theor__initial_source__Polar, $
+                        CURANDPOT_JV_THEOR__INITIAL_SOURCE__EQUATOR=cAP_jv_theor__initial_source__equator, $
                         CURANDPOT_JV_THEOR__ITERATIVE_DENSITY_AND_R_B_GAME=cAP_jv_theor__iterative_game, $
+                        CURAND_POT_JV_THEOR__ITERATIVE_GAME__DENSITY_INCREASE=cAP_jv_theor__itergame_NFac, $
                         TIMEBARS=timeBars, $
                         EPS=eps
   
