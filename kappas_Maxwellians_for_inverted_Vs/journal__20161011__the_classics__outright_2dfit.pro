@@ -67,14 +67,14 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
   ;; '1 :  McFadden_et_al_1998'
   ;; '2 :  Elphic_et_al_1998'
   ;; '3 :  Carlson_et_al_2001'
-  evtNum               = 2
+  evtNum               = 1
 
   ;;2017/03/22
   ;; evtNum               = 3
@@ -97,7 +97,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;survey window
   eeb_or_ees           = eeb_or_ees__recommande[evtNum]
-  burstItvl            = 0
+  burstItvl            = 1
 
   ;;String setup
   orbit                = orbs      [evtNum]
@@ -162,6 +162,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   cAP_plot_T_and_N             = 0B
   cAP_plot_j_v_and_theory      = 0B
   cAP_plot_j_v__fixed_t_and_n  = 1B
+  cAP_plot_j_v_map__r_b_and_kappa__fixed_t_and_n = 0B
   cAP_plot_en_specs            = 0B
   cAP_en_specs__movie          = 0B
   cAP_jv_theor__R_B_init       = 300
@@ -272,6 +273,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         CURANDPOT_PLOT_T_AND_N=cAP_plot_T_and_N, $
                         CURANDPOT_PLOT_J_V_AND_THEORY=cAP_plot_j_v_and_theory, $
                         CURANDPOT_PLOT_J_V__FIXED_T_AND_N=cAP_plot_j_v__fixed_t_and_n, $
+                        CURANDPOT_PLOT_J_V_MAP__R_B_AND_KAPPA__FIXED_T_AND_N=cAP_plot_j_v_map__r_b_and_kappa__fixed_t_and_n, $
                         CURANDPOT_PLOT_EN_SPECS=cAP_plot_en_specs, $
                         CURANDPOT_EN_SPECS__MOVIE=cAP_en_specs__movie, $
                         CURANDPOT_JV_THEOR__R_B_INIT=cAP_jv_theor__R_B_init, $
@@ -287,7 +289,10 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         CURANDPOT_JV_THEOR__INITIAL_SOURCE__POLARSAT=cAP_jv_theor__initial_source__Polar, $
                         CURANDPOT_JV_THEOR__INITIAL_SOURCE__EQUATOR=cAP_jv_theor__initial_source__equator, $
                         CURANDPOT_JV_THEOR__ITERATIVE_DENSITY_AND_R_B_GAME=cAP_jv_theor__iterative_game, $
-                        CURAND_POT_JV_THEOR__ITERATIVE_GAME__DENSITY_INCREASE=cAP_jv_theor__itergame_NFac, $
+                        CURANDPOT_JV_THEOR__ITERATIVE_GAME__DENSITY_INCREASE=cAP_jv_theor__itergame_NFac, $
+                        CURANDPOT__MAP__MULTI_MAGRATIO_ARRAY=cAP_map__multi_magRatio_array, $
+                        CURANDPOT__MAP__MULTI_KAPPA_ARRAY=cAP_map__multi_kappa_array, $
+                        CURANDPOT__MAP__2D=cAP_map__2D, $
                         TIMEBARS=timeBars, $
                         EPS=eps
   

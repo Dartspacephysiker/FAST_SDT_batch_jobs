@@ -5,6 +5,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
    PLOT_T_AND_N=plot_T_and_N, $       
    PLOT_J_V_AND_THEORY=plot_j_v_and_theory, $
    PLOT_J_V__FIXED_T_AND_N=plot_j_v__fixed_t_and_n, $
+   JV_THEOR__ITERATIVE_DENSITY_AND_R_B_GAME=jv_theor__iterative_game, $
    PLOT_J_V_MAP__R_B_AND_KAPPA__FIXED_T_AND_N=plot_j_v_map__r_b_and_kappa__fixed_t_and_n, $
    PLOT_MAGCURRENT_VS_CURRENT=plot_magCurrent_vs_current, $
    PLOT_EN_SPECS=plot_en_specs, $
@@ -54,8 +55,8 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   ;;                             '09:27:05.0']]
   ;; tRanges                 = tRanges[*,1]
   tRanges                 = '1997-02-01/' + $
-                            [['09:26:14.2', $
-                              '09:26:23.0'], $
+                            [['09:26:14.0', $
+                              '09:26:20.0'], $
                              ['09:26:55.0', $
                               '09:27:05.0'], $
                              ['09:26:28.5', $
@@ -107,6 +108,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   ;; nKappa                    = N_ELEMENTS(map__multi_kappa_array)
   ;; nRB                       = N_ELEMENTS(map__multi_magRatio_array)
   ;; map2D__multi_kappa_array  = map__multi_kappa_array # MAKE_ARRAY(nRB,/FLOAT,VALUE=1.0)
+  map__2D                 = 1
 
   ;;Options for TandN plot
   TN_yLog_nDown           = 0B
@@ -119,16 +121,16 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   jv_theor__maxPot        = 4000
   jv_theor__minCur        = 1D-6
   jv_theor__maxCur        = !NULL
-  jv_theor__kappaLims     = [1.54,2.0]
+  jv_theor__kappaLims     = [1.501,11]
   ;; jv_theor__TempLims      = [,]
   ;; jv_theor__DensLims      = [,]
-  jv_theor__magRatioLims  = [3,500]
+  jv_theor__magRatioLims  = [3,1D3]
 
   ;; jv_theor__R_B_init      = 1E4
   ;; jv_theor__kappa_init    = 10
 
   jv_theor__R_B_init      = 30
-  jv_theor__kappa_init    = 1.75
+  jv_theor__kappa_init    = 10
 
   bonusPref               = '--Elphic_et_al_1998--Fig2'
 
@@ -176,8 +178,8 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   aRange__peakEn_list     = LIST(blankers,blankers,aRange__peakEn_i_up)
   aRange__charE_list      = LIST(blankers,blankers,aRange__charE_i_up)
 
-  ;; use_msph_sourcecone_for_dens = [1,0,0]
-  ;; use_msph_sourcecone_for_temp = [1,0,0]
+  use_msph_sourcecone_for_dens = [1,0,0]
+  use_msph_sourcecone_for_temp = [0,0,0]
   
   ;;If doing upgoing electrons
   peak_energy__start_at_highEArr  = [0,1,1]
@@ -213,8 +215,8 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
      ORDER=order, $
      LABEL=label, $
      ADD_ONECOUNT_STATS=add_oneCount_stats, $
-     ;; USE_MSPH_SOURCECONE_FOR_DENS=use_msph_sourcecone_for_dens, $
-     ;; USE_MSPH_SOURCECONE_FOR_TEMP=use_msph_sourcecone_for_temp, $
+     USE_MSPH_SOURCECONE_FOR_DENS=use_msph_sourcecone_for_dens, $
+     USE_MSPH_SOURCECONE_FOR_TEMP=use_msph_sourcecone_for_temp, $
      ARANGE__MOMENTS_E_DOWN=aRange__moments_e_down, $
      ARANGE__MOMENTS_E_UP=aRange__moments_e_up, $
      ARANGE__MOMENTS_I_UP=aRange__moments_i_up, $
@@ -280,6 +282,15 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
      JV_THEOR__TEMPLIMS=jv_theor__TempLims, $    
      JV_THEOR__DENSLIMS=jv_theor__DensLims, $    
      JV_THEOR__MAGRATIOLIMS=jv_theor__magRatioLims, $
+     JV_THEOR__FIT_JE=jv_theor__fit_je, $
+     JV_THEOR__FIT_BOTH=jv_theor__fit_both, $
+     ;; JV_THEOR__USE_MSPH_SOURCE=jv_theor__use_msph_source, $
+     JV_THEOR__INITIAL_SOURCE_R_E=jv_theor__initial_source_R_E, $
+     JV_THEOR__INITIAL_SOURCE__POLARSAT=jv_theor__initial_source__Polar, $
+     JV_THEOR__INITIAL_SOURCE__EQUATOR=jv_theor__initial_source__equator, $
+     JV_THEOR__ITERATIVE_DENSITY_AND_R_B_GAME=jv_theor__iterative_game, $
+     JV_THEOR__ITERATIVE_GAME__DENSITY_INCREASE=jv_theor__itergame_NFac, $
+     ;; JV_THEOR__ADD_DENTON_ET_AL_2006_MODEL_COEFFS=add_Denton2006, $
      JVPOTBAR__J_ON_YAXIS=jvPotBar__j_on_yAxis, $
      JVPOTBAR__INTERACTIVE_OVERPLOT=interactive_overplot, $
      MAP__MULTI_MAGRATIO_ARRAY=map__multi_magRatio_array, $
