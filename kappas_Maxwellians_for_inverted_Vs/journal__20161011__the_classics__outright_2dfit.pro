@@ -34,8 +34,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   add_oneCount_curve                = 1
 
   fit1D__save_plotSlices            = 0
-  fit2D__save_all_plots             = 1
-  fit2D__show_each_candidate        = 1
+  fit2D__save_all_plots             = 0
+  fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
@@ -55,7 +55,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   sway__add_Newell_panel   = 1
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary  = 1
+  show_kappa_summary  = 0
   kSum__save_ps       = 1
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
@@ -97,7 +97,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;survey window
   eeb_or_ees           = eeb_or_ees__recommande[evtNum]
-  burstItvl            = 1
+  burstItvl            = 0
 
   ;;String setup
   orbit                = orbs      [evtNum]
@@ -157,16 +157,16 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; cAP_moment_energyArr      = [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
   cAP_moment_energyArr      = [[energy_electrons],[energy_electrons],[100,2.4e4]]
   
-  cAP_plot_j_v_potBar          = 1B
-  cAP_plot_jv_a_la_Elphic      = 1B
+  cAP_plot_j_v_potBar          = 0B
+  cAP_plot_jv_a_la_Elphic      = 0B
   cAP_plot_T_and_N             = 0B
   cAP_plot_j_v_and_theory      = 0B
   cAP_plot_j_v__fixed_t_and_n  = 1B
   cAP_plot_en_specs            = 0B
   cAP_en_specs__movie          = 0B
-  cAP_jv_theor__R_B_init       = 30
-  cAP_jv_theor__kappa_init     = 10.0
-  ;; cAP_jv_theor__kappaLims      = [0,0]
+  cAP_jv_theor__R_B_init       = 300
+  cAP_jv_theor__kappa_init     = 10
+  cAP_jv_theor__kappaLims      = [1.540,11]
   ;; cAP_jv_theor__TempLims       = [0,0]
   ;; cAP_jv_theor__DensLims       = [0,0]
   ;; cAP_jv_theor__magRatioLims   = [2,100]
@@ -175,10 +175,10 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   cAP_jv_theor__fit_both        = 0
   cAP_jv_theor__use_msph_source = 1
   ;; cAP_jv_theor__initial_source_R_E = 5.0D
-  ;; cAP_jv_theor__initial_source__Polar = 1
-  cAP_jv_theor__initial_source__equator = 1
-  cAP_jv_theor__iterative_game  = 0
-  cAP_jv_theor__itergame_NFac   = 3.0
+  cAP_jv_theor__initial_source__Polar = 1
+  ;; cAP_jv_theor__initial_source__equator = 0
+  cAP_jv_theor__iterative_game  = 1
+  ;; cAP_jv_theor__itergame_NFac   = 3.0
 
   IF KEYWORD_SET(timeBars) THEN BEGIN
      timeBars                  = cAP_tRanges
