@@ -55,7 +55,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   sway__add_Newell_panel   = 1
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary  = 0
+  show_kappa_summary  = 1
   kSum__save_ps       = 1
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
@@ -129,6 +129,10 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
      IF N_ELEMENTS(burstItvl) GT 0 THEN BEGIN
         IF burstItvl EQ 1 THEN BEGIN ;Carlson et al. [1998] state that this interval is cold electron–free
            energy_electrons  = [6e2,3.0e4]
+
+           t1Str = '97-02-02/21:01:55'
+           t2Str = '97-02-02/21:02:20'
+
         ENDIF
      ENDIF
      
@@ -141,7 +145,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1
-  cAP_remake_masterFile     = 1
+  cAP_remake_masterFile     = 0
   cAP_map_to_100km          = 1
   cAP_use_all_currents      = 0
   cAP_use_ed_current        = 1
@@ -161,7 +165,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   cAP_plot_jv_a_la_Elphic      = 0B
   cAP_plot_T_and_N             = 0B
   cAP_plot_j_v_and_theory      = 0B
-  cAP_plot_j_v__fixed_t_and_n  = 0B
+  cAP_plot_j_v__fixed_t_and_n  = 1B
   cAP_plot_j_v_map__r_b_and_kappa__fixed_t_and_n = 0B
   cAP_plot_en_specs            = 0B
   cAP_en_specs__movie          = 0B
@@ -180,7 +184,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; cAP_jv_theor__initial_source_R_E = 5.0D
   cAP_jv_theor__initial_source__Polar = 1
   ;; cAP_jv_theor__initial_source__equator = 0
-  cAP_jv_theor__iterative_game  = 1
+  cAP_jv_theor__iterative_game  = 0
   ;; cAP_jv_theor__itergame_NFac   = 3.0
 
   IF KEYWORD_SET(timeBars) THEN BEGIN

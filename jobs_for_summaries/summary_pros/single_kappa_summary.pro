@@ -126,27 +126,38 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                           FITSTATUS=gaussfitStatus, $
                           /USE_MPFIT1D
 
-  CASE 1 OF
-     KEYWORD_SET(jvPlotData.use_source_avgs): BEGIN
-        Density        = jvPlotData.source.NDown
-        DensityErr     = jvPlotData.source.NDownErr
-        Temperature    = jvPlotData.source.TDown
-        TemperatureErr = jvPlotData.source.TDownErr
-     END
-     ELSE: BEGIN
-        Density        = jvPlotData.NDown
-        DensityErr     = jvPlotData.NDownErr
-        Temperature    = jvPlotData.TDown
-        TemperatureErr = jvPlotData.TDownErr
-     END
-  ENDCASE
+  ;; CASE 1 OF
+  ;;    KEYWORD_SET(jvPlotData.use_source_avgs): BEGIN
+  ;;       Density        = jvPlotData.source.NDown
+  ;;       DensityErr     = jvPlotData.source.NDownErr
+  ;;       Temperature    = jvPlotData.source.TDown
+  ;;       TemperatureErr = jvPlotData.source.TDownErr
+  ;;    END
+  ;;    ELSE: BEGIN
+  ;;       Density        = jvPlotData.NDown
+  ;;       DensityErr     = jvPlotData.NDownErr
+  ;;       Temperature    = jvPlotData.TDown
+  ;;       TemperatureErr = jvPlotData.TDownErr
+  ;;    END
+  ;; ENDCASE
+
+  CURANDPOT__SELECT_T_AND_N,jvPlotData,avgs_JVfit, $
+                            TEMPERATURE=Temperature, $
+                            DENSITY=Density, $
+                            ERR_TEMPERATURE=TemperatureErr, $
+                            ERR_DENSITY=DensityErr, $
+                            /DONT_MAP_SOURCEDENS, $
+                            THESE_USEINDS=these_useInds, $
+                            SKIP_USEINDS=skip_useInds, $
+                            /ARRAYS  
 
   ;;The vars we use
   Dens2DK = {x:kappaTime,y:k2DParms.N}
   Dens2DG = {x:GaussTime,y:g2DParms.N}
   Dens2DD = {x:jvPlotData.time,y:Density,dy:DensityErr}
 
-  Temp2DK = {x:kappaTime,y:k2DParms.temperature*(k2DParms.kappa-1.5D)/k2DParms.kappa}
+  ;; Temp2DK = {x:kappaTime,y:k2DParms.temperature*(k2DParms.kappa-1.5D)/k2DParms.kappa}
+  Temp2DK = {x:kappaTime,y:k2DParms.temperature}
   Temp2DG = {x:GaussTime,y:g2DParms.temperature}
   Temp2DD = {x:jvPlotData.time,y:Temperature,dy:TemperatureErr}
 
