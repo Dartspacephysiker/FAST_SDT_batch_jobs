@@ -942,7 +942,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   ;;And a line to show where the awesome chi2 vals are, if desired
   IF KEYWORD_SET(add_chi2_line) THEN BEGIN
-     STORE_DATA,'chi2_critisk',DATA={x:kappaTime,y:MAKE_ARRAY(N_ELEMENTS(kappaTime),VALUE=5.0)}
+     STORE_DATA,'chi2_critisk',DATA={x:kappaTime,y:MAKE_ARRAY(N_ELEMENTS(kappaTime),VALUE=add_chi2_line GT 1 ? add_chi2_line : 5.0)}
      ;; OPTIONS,'chi2_critisk','colors',red
   ENDIF
 

@@ -13,7 +13,8 @@ orbTimes = [ $
            ['97-02-01/09:25:50','97-02-01/09:27:30'], $
            ;; ['97-02-02/20:59:30','97-02-02/21:07:30'] $ 
            ;; ['97-02-02/21:03:42.5','97-02-02/21:03:58.5'] $
-           ['97-02-02/21:01:45','97-02-02/21:04:40'] $ ;Checking out the total moment thing
+           ;; ['97-02-02/21:01:45','97-02-02/21:04:40'] $ ;Checking out the total moment thing
+           ['97-02-02/21:01:56','97-02-02/21:02:14'] $ ;Checking out the total moment thing
            ]
 
 orbBurstTimes = LIST( $
@@ -27,7 +28,7 @@ orbBurstTimes = LIST( $
 
                 [ $ ;4
                 ['97-02-02/21:01:22','97-02-02/21:01:38.8'], $ 
-                ['97-02-02/21:01:55','97-02-02/21:02:28'], $ 
+                ['97-02-02/21:01:56','97-02-02/21:02:28'], $ 
                 ['97-02-02/21:03:42.5','97-02-02/21:03:58.5'], $
                 ['97-02-02/21:04:49.5','97-02-02/21:05:06.5'], $
                 ['97-02-02/21:05:25','97-02-02/21:05:55'] $
@@ -54,7 +55,8 @@ kStats_startStops__ees = LIST( $
                          LIST('1997-02-02/' + [ $;; ['21:01:50','21:02:15'], $ ;These are for the downward current regions
                                                ;; ['21:27:05','09:27:15'], $
                          ;; ['21:03:42','21:03:58']]), $
-                         ['21:03:42','21:03:58']]), $ ;checking out the total moment thing
+                         ;; ['21:03:42','21:03:58']]), $ ;checking out the total moment thing
+                         ['21:01:59','21:02:15']]), $ ;checking out the total moment thing
                          [0], $
                          [0],[0],[0],[0],[0], $
                          [0],[0],[0],[0],[0], $
@@ -125,17 +127,17 @@ cAP_tRanges_list              = LIST($
                                 ;;
                                 ;;Number 3
                                 ;; '1997-02-02/'+ ['21:03:42','21:03:58'])
-                                ;; '1997-02-02/'+[['21:01:56','21:02:14']])
-                                '1997-02-02/'+[['21:02:01','21:02:10']])
+                                '1997-02-02/'+[['21:02:02.0','21:02:14']])
+                                ;; '1997-02-02/'+[['21:02:01','21:02:10']])
                                 ;; '1997-02-02/'+ ['21:01:42','21:03:58']) ;Checking out the total moment thing
 
-eeb_or_ees__recommande        = LIST('eeb',!NULL,'ees','eeb')
+eeb_or_ees__recommande        = LIST('eeb',!NULL,'ees','ees')
 
-energy_electrons__recommande  = LIST([5D2,3D4],!NULL,[2D2,3D4],[8e3,3D4])
+energy_electrons__recommande  = LIST([5D2,3.15D4],!NULL,[2D2,3.15D4],[8D2,3.15D4])
 min_peak_energy_recommande    = LIST(500,!NULL,200,MIN(energy_electrons__recommande[3]))
 
 ;; spectra_average_interval_list = LIST(4,!NULL,2)
 spectra_average_interval_list = LIST(4, $
                                      !NULL, $
                                      2, $
-                                     eeb_or_ees__recommande[3] EQ 'eeb' ? 8 : 2)
+                                     eeb_or_ees__recommande[3] EQ 'eeb' ? 24 : 3)
