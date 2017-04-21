@@ -133,7 +133,7 @@ cAP_tRanges_list              = LIST($
 
 eeb_or_ees__recommande        = LIST('eeb',!NULL,'ees','ees')
 
-energy_electrons__recommande  = LIST([5D2,3.15D4],!NULL,[2D2,3.15D4],[8D2,3.15D4])
+energy_electrons__recommande  = LIST([5D2,3.15D4],!NULL,[3D2,3.15D4],[8D2,3.15D4])
 min_peak_energy_recommande    = LIST(500,!NULL,200,MIN(energy_electrons__recommande[3]))
 
 ;; spectra_average_interval_list = LIST(4,!NULL,2)

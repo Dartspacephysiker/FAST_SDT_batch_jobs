@@ -10,20 +10,6 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;;get orbTimes here
   @journal__20161011__info__the_classics.pro
 
-  show_post_plots      = 0
-  save_kappa_plot      = 0
-  close_kp_after_save  = 0
-
-  ;; debug__skip_to_this_time     = 
-  ;; debug__skip_to_this_time  = STR_TO_TIME('97-02-01/09:26:31')
-  ;; debug__break_on_this_time = STR_TO_TIME('97-02-01/09:26:31')
-
-  ;;Orbit 1773
-  ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:26:14.2')
-  ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:26:23.0')
-  ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:27:01.2')
-  
-
   only_1D_fits                      = 0
   fit1D__sourceCone_energy_spectrum = 1
   fit1D__nFlux                      = 1
@@ -33,9 +19,9 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   add_oneCount_curve                = 1
 
-  fit1D__save_plotSlices            = 1
-  fit2D__save_all_plots             = 1
-  fit2D__show_each_candidate        = 1
+  fit1D__save_plotSlices            = 0
+  fit2D__save_all_plots             = 0
+  fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
@@ -67,14 +53,14 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
   ;; '1 :  McFadden_et_al_1998'
   ;; '2 :  Elphic_et_al_1998'
   ;; '3 :  Carlson_et_al_2001'
-  evtNum               = 3
+  evtNum               = 0
 
   ;;2017/03/22
   ;; evtNum               = 3
@@ -152,7 +138,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1
-  cAP_remake_masterFile     = 1
+  cAP_remake_masterFile     = 0
   cAP_map_to_100km          = 1
   cAP_use_all_currents      = 0
   cAP_use_ed_current        = 1
@@ -193,6 +179,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; cAP_jv_theor__initial_source__equator = 0
   cAP_jv_theor__iterative_game  = 1
   ;; cAP_jv_theor__itergame_NFac   = 3.0
+  cAP_jv_theor__itergame_tie_R_B_and_dens = 1
 
   IF KEYWORD_SET(timeBars) THEN BEGIN
      timeBars                  = cAP_tRanges
@@ -200,6 +187,19 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   spectra_average_interval = spectra_average_interval_list[evtNum]
 
+  show_post_plots      = 0
+  save_postKappa_plots = 0
+  close_kp_after_save  = 0
+
+  ;; debug__skip_to_this_time     = 
+  ;; debug__skip_to_this_time  = STR_TO_TIME('97-02-01/09:26:31')
+  ;; debug__break_on_this_time = STR_TO_TIME('97-02-01/09:26:31')
+
+  ;;Orbit 1773
+  ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:26:14.2')
+  ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:26:23.0')
+  ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:27:01.2')
+  
   KAPPA_FITTER_BLACKBOX,orbit, $
                         ELECTRON_SOURCECONEANGLE=electron_angleRange, $
                         ;; ELECTRON_LOSSCONEANGLE=electron_lca, $
@@ -237,7 +237,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         FIT2D__DENSITY_ANGLERANGE=fit2D__density_angleRange, $
                         FIT2D__ESTIMATE_DENS_ARANGE_FROM_DIST=fit2D__estimate_sourceCone_from_dist, $
                         ADD_ONECOUNT_CURVE=add_oneCount_curve, $
-                        SAVE_KAPPA_PLOTS=save_kappa_plot, $
+                        SAVE_POSTKAPPA_PLOTS=save_postKappa_plots, $
                         SAVEKAPPA_BONUSPREF=bonusPref, $
                         CLOSE_KAPPAPLOTS_AFTER_SAVE=close_kp_after_save, $
                         PLOTDIR=plotDir, $
@@ -305,6 +305,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         CURANDPOT_JV_THEOR__INITIAL_SOURCE__EQUATOR=cAP_jv_theor__initial_source__equator, $
                         CURANDPOT_JV_THEOR__ITERATIVE_DENSITY_AND_R_B_GAME=cAP_jv_theor__iterative_game, $
                         CURANDPOT_JV_THEOR__ITERATIVE_GAME__DENSITY_INCREASE=cAP_jv_theor__itergame_NFac, $
+                        CURANDPOT_JV_THEOR__ITERATIVE_GAME__TIE_RB_AND_DENS=cAP_jv_theor__itergame_tie_R_B_and_dens, $
                         CURANDPOT__MAP__MULTI_MAGRATIO_ARRAY=cAP_map__multi_magRatio_array, $
                         CURANDPOT__MAP__MULTI_KAPPA_ARRAY=cAP_map__multi_kappa_array, $
                         CURANDPOT__MAP__2D=cAP_map__2D, $
