@@ -132,6 +132,8 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   jv_theor__R_B_init      = 30
   jv_theor__kappa_init    = 10
 
+  jv_theor__itergame_tie_R_B_and_dens = 1
+
   bonusPref               = '--Elphic_et_al_1998--Fig2'
 
   units                   = 'eFlux'
@@ -179,7 +181,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   aRange__charE_list      = LIST(blankers,blankers,aRange__charE_i_up)
 
   use_msph_sourcecone_for_dens = [1,0,0]
-  use_msph_sourcecone_for_temp = [0,0,0]
+  use_msph_sourcecone_for_temp = [1,0,0]
   
   ;;If doing upgoing electrons
   peak_energy__start_at_highEArr  = [0,1,1]
@@ -188,12 +190,10 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   use_sc_pot_for_lowerbound = 1
   pot__save_file          = 0
   pot__from_fa_potential  = 1
-  moment_energyArr        = [[300,3.0e4],[300,3.0e4],[100,2.4e4]]
+  moment_energyArr        = [[300,3.15D4],[400,3.15D4],[100,2.45D4]]
 
-  ;; min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : 500
-  ;; max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
-  min_peak_energyArr      = [300,100,100]
-  max_peak_energyArr      = [3e4,3e4,2.4e4]
+  min_peak_energyArr      = [500,100,100]
+  max_peak_energyArr      = [3.15D4,3.15D4,2.45e4]
 
   CURRENT_AND_POTENTIAL_SUITE, $
      ORBIT=orbit, $
@@ -289,6 +289,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
      JV_THEOR__INITIAL_SOURCE__POLARSAT=jv_theor__initial_source__Polar, $
      JV_THEOR__INITIAL_SOURCE__EQUATOR=jv_theor__initial_source__equator, $
      JV_THEOR__ITERATIVE_DENSITY_AND_R_B_GAME=jv_theor__iterative_game, $
+     JV_THEOR__ITERATIVE_GAME__TIE_RB_AND_DENS=jv_theor__itergame_tie_R_B_and_dens, $
      JV_THEOR__ITERATIVE_GAME__DENSITY_INCREASE=jv_theor__itergame_NFac, $
      ;; JV_THEOR__ADD_DENTON_ET_AL_2006_MODEL_COEFFS=add_Denton2006, $
      JVPOTBAR__J_ON_YAXIS=jvPotBar__j_on_yAxis, $

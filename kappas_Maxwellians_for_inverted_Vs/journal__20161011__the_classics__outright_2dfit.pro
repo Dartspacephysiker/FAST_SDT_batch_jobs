@@ -41,7 +41,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   sway__add_Newell_panel   = 1
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary  = 1
+  show_kappa_summary  = 0
   kSum__save_ps       = 1
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
@@ -60,7 +60,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; '1 :  McFadden_et_al_1998'
   ;; '2 :  Elphic_et_al_1998'
   ;; '3 :  Carlson_et_al_2001'
-  evtNum               = 0
+  evtNum               = 3
 
   ;;2017/03/22
   ;; evtNum               = 3
@@ -159,7 +159,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   cAP_plot_T_and_N             = 0B
   cAP_plot_j_v_and_theory      = 0B
   cAP_plot_j_v__fixed_t_and_n  = 0B
-  cAP_plot_j_v_map__r_b_and_kappa__fixed_t_and_n = 0B
+  cAP_plot_j_v_map__r_b_and_kappa__fixed_t_and_n = 1B
   cAP_plot_en_specs            = 0B
   cAP_en_specs__movie          = 0B
   cAP_jv_theor__R_B_init       = 300
@@ -177,7 +177,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; cAP_jv_theor__initial_source_R_E = 5.0D
   cAP_jv_theor__initial_source__Polar = 1
   ;; cAP_jv_theor__initial_source__equator = 0
-  cAP_jv_theor__iterative_game  = 1
+  cAP_jv_theor__iterative_game  = 0
   ;; cAP_jv_theor__itergame_NFac   = 3.0
   cAP_jv_theor__itergame_tie_R_B_and_dens = 1
 

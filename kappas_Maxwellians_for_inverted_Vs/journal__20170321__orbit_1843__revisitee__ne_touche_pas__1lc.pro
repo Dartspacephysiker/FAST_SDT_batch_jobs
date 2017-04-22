@@ -271,7 +271,7 @@ PRO JOURNAL__20170321__ORBIT_1843__REVISITEE__NE_TOUCHE_PAS__1LC, $
      JV_THEOR__MAXCUR=jv_theor__maxCur, $
      JV_THEOR__PLOT_J_RATIOS=plot_j_ratios, $
      JV_THEOR__PLOT_ION_ELEC_RATIOS=plot_ion_elec_ratios, $
-     JV_THEOR__FIT_TIME_SERIES=JV_theor__fit_time_series, $
+     JV_THEOR__FIT_TIME_SERIES=jv_theor__fit_time_series, $
      JV_THEOR__R_B_INIT=jv_theor__R_B_init, $
      JV_THEOR__KAPPA_INIT=jv_theor__kappa_init, $
      JV_THEOR__KAPPALIMS=jv_theor__kappaLims, $   
