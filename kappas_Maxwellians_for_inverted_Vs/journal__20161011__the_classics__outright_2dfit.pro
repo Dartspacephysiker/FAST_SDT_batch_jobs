@@ -19,9 +19,9 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   add_oneCount_curve                = 1
 
-  fit1D__save_plotSlices            = 1
-  fit2D__save_all_plots             = 1
-  fit2D__show_each_candidate        = 1
+  fit1D__save_plotSlices            = 0
+  fit2D__save_all_plots             = 0
+  fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
@@ -34,7 +34,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   eps                      = 1
 
-  show_Strangeway_summary  = 1
+  show_Strangeway_summary  = 0
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
@@ -53,14 +53,14 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
   ;; '1 :  McFadden_et_al_1998'
   ;; '2 :  Elphic_et_al_1998'
   ;; '3 :  Carlson_et_al_2001'
-  evtNum               = 1
+  evtNum               = 2
 
   ;;2017/03/22
   ;; evtNum               = 3
@@ -83,7 +83,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;survey window
   eeb_or_ees           = eeb_or_ees__recommande[evtNum]
-  burstItvl            = 1
+  burstItvl            = 0
 
   ;;String setup
   orbit                = orbs      [evtNum]
@@ -107,6 +107,12 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   diffEflux_thresh     = 5e7
   nPkAbove_dEF_thresh  = 5
 
+  IF orbit EQ 1773 THEN BEGIN
+
+     fit2D__density_angleRange = [-150,150]
+
+  ENDIF
+
   IF orbit EQ 1789 THEN BEGIN
 
      kSum__add_chi2_line  = 10
@@ -129,10 +135,18 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
      t1Str = '97-02-02/21:01:55'
      t2Str = '97-02-02/21:02:20'
 
-     chi2_over_dof_thresh = 20
+     chi2_over_dof_thresh = 50
      lowDens_thresh       = 0.002
      diffEflux_thresh     = 1e7
      nPkAbove_dEF_thresh  = 5
+
+  ENDIF
+
+  IF orbit EQ 1843 THEN BEGIN
+
+     fit2D__density_angleRange         = [-150,150]
+
+     chi2_over_dof_thresh = 50
 
   ENDIF
 
@@ -151,7 +165,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1
-  cAP_remake_masterFile     = 1
+  cAP_remake_masterFile     = 0
   cAP_map_to_100km          = 1
   cAP_use_all_currents      = 0
   cAP_use_ed_current        = 1

@@ -55,7 +55,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
   ;;                             '09:27:05.0']]
   ;; tRanges                 = tRanges[*,1]
   tRanges                 = '1997-02-01/' + $
-                            [['09:26:14.0', $
+                            [['09:26:14.3', $
                               '09:26:20.0'], $
                              ['09:26:55.0', $
                               '09:27:05.0'], $
@@ -153,7 +153,7 @@ PRO JOURNAL__20170320__ORBIT_1773__FIG2TIME__TREAT_TWO_LUMPS_SEPARATELY__DONT_TO
 
   ;;survey window
   eeb_or_eesArr            = ['ees','ies']
-  spectra_average_interval = 2
+  spectra_average_interval = 1
 
   ;; eeb_or_eesArr           = ['eeb','ieb']
   ;; spectra_average_interval = 10

@@ -7,7 +7,7 @@ orbs     = [1843, $
             0000]
 
 orbTimes = [ $
-           ['97-02-07/20:49:30','97-02-07/20:50:10'], $
+           ['97-02-07/20:49:30','97-02-07/20:50:12'], $
            ['97-02-08/10:11:22','97-02-08/10:11:52'], $
            ;; ['97-02-01/09:25:50','97-02-01/09:27:30'], $
            ['97-02-01/09:25:50','97-02-01/09:27:30'], $
@@ -53,7 +53,7 @@ kStats_startStops__ees = LIST( $
                          ;;
                          ;;Number 2
                          LIST('1997-02-01/' + [['09:25:50','09:26:10'], $ ;These are for the downward current regions
-                                               ['09:27:05','09:27:15']]), $
+                                               ['09:26:55','09:27:05']]), $
                          ;;
                          ;;Number 3
                          LIST('1997-02-02/' + [ $;; ['21:01:50','21:02:15'], $ ;These are for the downward current regions
@@ -109,10 +109,12 @@ cAP_tRanges_list              = LIST($
                                 ;;
                                 ;;Number 0
                                 '1997-02-07/' + $
-                                [['20:49:56', $
-                                  '20:50:09'], $
-                                 ['20:49:26', $
-                                  '20:49:46']], $
+                                ['20:49:48', $
+                                  '20:50:11'], $
+                                ;; [['20:49:56', $
+                                ;;   '20:50:09'], $
+                                 ;; ['20:49:26', $
+                                 ;;  '20:49:46']], $
                                 ;; '1997-02-07/'+['20:49:41','20:50:10'], $ 
                                 ;;
                                 ;;Number 1
@@ -140,13 +142,13 @@ cAP_tRanges_list              = LIST($
                                 ;; '1997-02-02/'+[['21:02:01','21:02:10']])
                                 ;; '1997-02-02/'+ ['21:01:42','21:03:58']) ;Checking out the total moment thing
 
-eeb_or_ees__recommande        = LIST('eeb','eeb','ees','ees')
+eeb_or_ees__recommande        = LIST('ees','eeb','ees','ees')
 
-energy_electrons__recommande  = LIST([5D2,3.15D4],[5D2,3.15D4],[3D2,3.15D4],[3D2,3.15D4])
+energy_electrons__recommande  = LIST([3D2,3.15D4],[5D2,3.15D4],[3D2,3.15D4],[3D2,3.15D4])
 min_peak_energy_recommande    = LIST(500,1D3,200,MIN(energy_electrons__recommande[3]))
 
 ;; spectra_average_interval_list = LIST(4,!NULL,2)
-spectra_average_interval_list = LIST(4, $
+spectra_average_interval_list = LIST(2, $
                                      eeb_or_ees__recommande[1] EQ 'eeb' ? 2 : 2, $
                                      2, $
                                      eeb_or_ees__recommande[3] EQ 'eeb' ? 24 : 2)
