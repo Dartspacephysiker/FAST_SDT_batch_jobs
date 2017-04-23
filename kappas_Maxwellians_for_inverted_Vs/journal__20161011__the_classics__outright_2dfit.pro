@@ -19,9 +19,9 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   add_oneCount_curve                = 1
 
-  fit1D__save_plotSlices            = 0
-  fit2D__save_all_plots             = 0
-  fit2D__show_each_candidate        = 0
+  fit1D__save_plotSlices            = 1
+  fit2D__save_all_plots             = 1
+  fit2D__show_each_candidate        = 1
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
@@ -34,14 +34,14 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   eps                      = 1
 
-  show_Strangeway_summary  = 0
+  show_Strangeway_summary  = 1
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
   sway__add_Newell_panel   = 1
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary  = 0
+  show_kappa_summary  = 1
   kSum__save_ps       = 1
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
@@ -53,14 +53,14 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
   ;; '1 :  McFadden_et_al_1998'
   ;; '2 :  Elphic_et_al_1998'
   ;; '3 :  Carlson_et_al_2001'
-  evtNum               = 3
+  evtNum               = 1
 
   ;;2017/03/22
   ;; evtNum               = 3
@@ -136,9 +136,22 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ENDIF
 
+  IF orbit EQ 1849 THEN BEGIN
+
+     kSum__add_chi2_line  = 10
+     
+     fit2D__density_angleRange = [-45,45]
+
+     chi2_over_dof_thresh = 20
+     lowDens_thresh       = 0.002
+     diffEflux_thresh     = 1e7
+     nPkAbove_dEF_thresh  = 5
+
+  ENDIF
+
   ;;Current and potential analysis
   curAndPot_analysis        = 1
-  cAP_remake_masterFile     = 0
+  cAP_remake_masterFile     = 1
   cAP_map_to_100km          = 1
   cAP_use_all_currents      = 0
   cAP_use_ed_current        = 1
@@ -172,7 +185,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; cAP_jv_theor__fit_je         = 1
   cAP_jv_theor__fit_both        = 0
   cAP_use_msph_sourcecone_for_dens = [1,0,0]
-  cAP_use_msph_sourcecone_for_temp = [1,0,0]
+  cAP_use_msph_sourcecone_for_temp = [0,0,0]
 
   ;; cAP_jv_theor__initial_source_R_E = 5.0D
   cAP_jv_theor__initial_source__Polar = 1
