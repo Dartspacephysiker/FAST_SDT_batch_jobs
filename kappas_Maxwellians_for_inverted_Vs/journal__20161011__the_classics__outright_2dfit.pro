@@ -5,8 +5,6 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   routName = 'JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT'
 
-  !P.CHARSIZE = 1.5
-
   ;;get orbTimes here
   @journal__20161011__info__the_classics.pro
 
@@ -60,7 +58,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; '1 :  McFadden_et_al_1998'
   ;; '2 :  Elphic_et_al_1998'
   ;; '3 :  Carlson_et_al_2001'
-  evtNum               = 2
+  evtNum               = 0
 
   ;;2017/03/22
   ;; evtNum               = 3

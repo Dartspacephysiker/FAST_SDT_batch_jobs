@@ -50,6 +50,12 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          OPLOT_POT=oPlot_pot, $
                          TIMEBARS=timeBars
 
+  oldSize = !P.CHARSIZE
+  oldSymSize = !P.SYMSIZE
+
+  !P.CHARSIZE = 3.4
+  !P.SYMSIZE  = 2.0
+
   ;;Some defaults
   red              = 250
   darkRed          = 235
@@ -901,6 +907,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   OPTIONS,'kappa_fit','ytitle',"Kappa"
   OPTIONS,'kappa_fit','psym',kappaSym  
   OPTIONS,'kappa_fit','colors',kappaColor
+  OPTIONS,'kappa_fit','symsize',!P.SYMSIZE
 
   ;;And a line to show where the awesome kappa vals are
   STORE_DATA,'kappa_critisk',DATA={x:kappaTime,y:MAKE_ARRAY(N_ELEMENTS(kappaTime),VALUE=2.5)}
@@ -922,10 +929,12 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   STORE_DATA,'chi22DK',DATA=chi22DK
   OPTIONS,'chi22DK','psym',kappaSym
   OPTIONS,'chi22DK','colors',kappaColor
+  OPTIONS,'chi22DK','symsize',!P.SYMSIZE
 
   STORE_DATA,'chi22DG',DATA=chi22DG
   OPTIONS,'chi22DG','psym',GaussSym
   OPTIONS,'chi22DG','colors',GaussColor
+  OPTIONS,'chi22DG','symsize',!P.SYMSIZE
 
   OPTIONS,'chi22DK','ytitle',CGGREEK('chi',PS=KEYWORD_SET(save_ps))+'!X!U2!N!Dred!N'
   chi2Bounds      = [MIN([kappa2D.chi2/(kappa2D.dof+kappa2D.nFree),gauss2D.chi2/(gauss2D.dof+gauss2D.nFree)]), $
@@ -967,16 +976,19 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   STORE_DATA,'Temp2DK',DATA=Temp2DK
   OPTIONS,'Temp2DK','psym',kappaSym
   OPTIONS,'Temp2DK','colors',kappaColor
+  OPTIONS,'Temp2DK','symsize',!P.SYMSIZE
 
   STORE_DATA,'Temp2DG',DATA=Temp2DG
   OPTIONS,'Temp2DG','psym',GaussSym
   OPTIONS,'Temp2DG','colors',GaussColor
+  OPTIONS,'Temp2DG','symsize',!P.SYMSIZE
 
   IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
      ;; STORE_DATA,'Temp2DD',DATA={x:TData.x,y:REFORM(TData.y[3,*]),dy:TErrData}
      STORE_DATA,'Temp2DD',DATA=Temp2DD
      OPTIONS,'Temp2DD','psym',dataSym
      OPTIONS,'Temp2DD','colors',dataColor
+     OPTIONS,'Temp2DD','symsize',!P.SYMSIZE
   ENDIF
 
   ;; OPTIONS,'Temp2DK','ytitle','Temperature!C(eV)'
@@ -1014,16 +1026,19 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   STORE_DATA,'Dens2DK',DATA=Dens2DK
   OPTIONS,'Dens2DK','psym',kappaSym
   OPTIONS,'Dens2DK','colors',kappaColor
+  OPTIONS,'Dens2DK','symsize',!P.SYMSIZE
 
   STORE_DATA,'Dens2DG',DATA=Dens2DG
   OPTIONS,'Dens2DG','psym',GaussSym
   OPTIONS,'Dens2DG','colors',GaussColor
+  OPTIONS,'Dens2DG','symsize',!P.SYMSIZE
 
   IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
      ;; STORE_DATA,'Dens2DD',DATA={x:nData.x,y:nData.y,dy:nErrData}
      STORE_DATA,'Dens2DD',DATA=Dens2DD
      OPTIONS,'Dens2DD','psym',dataSym
      OPTIONS,'Dens2DD','colors',dataColor
+     OPTIONS,'Dens2DD','symsize',!P.SYMSIZE
   ENDIF
 
   ;; OPTIONS,'Dens2DK','ytitle','Density!C(cm!U-3!N)'
@@ -1064,10 +1079,12 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      STORE_DATA,'BlkE2DK',DATA=BlkE2DK
      OPTIONS,'BlkE2DK','psym',kappaSym
      OPTIONS,'BlkE2DK','colors',kappaColor
+     OPTIONS,'BlkE2DK','symsize',!P.SYMSIZE
 
      STORE_DATA,'BlkE2DG',DATA=BlkE2DG
      OPTIONS,'BlkE2DG','psym',GaussSym
      OPTIONS,'BlkE2DG','colors',GaussColor
+     OPTIONS,'BlkE2DG','symsize',!P.SYMSIZE
 
      OPTIONS,'BlkE2DK','ytitle','Bulk energy!C(eV)'
      BlkEBounds      = [MIN([k2DParms.bulk_energy,g2DParms.bulk_energy]), $
@@ -1538,6 +1555,10 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      this = EXECUTE(saveStr)
      PRINT,"Done!"
   ENDIF
+
+  !P.CHARSIZE = TEMPORARY(oldSize)
+  !P.SYMSIZE  = TEMPORARY(oldSymSize)
+
 
   RETURN
 END
