@@ -1,12 +1,12 @@
 ;;2016/10/11
-PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
+PRO JOURNAL__20170510__THE_CLASSICS__AT_ALTITUDE__FULL_CURRENT
 
   COMPILE_OPT IDL2
 
-  routName = 'JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT'
+  routName = 'JOURNAL__20170510__THE_CLASSICS__AT_ALTITUDE__FULL_CURRENT'
 
   ;;get orbTimes here
-  @journal__20161011__info__the_classics.pro
+  @journal__20170509__info__the_classics.pro
 
   only_1D_fits                      = 0
   fit1D__sourceCone_energy_spectrum = 1
@@ -40,6 +40,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   sway__log_kappaPlot      = 0
 
   show_kappa_summary  = 1
+  kSum__eAngle        = [-180,180]
   kSum__save_ps       = 1
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
@@ -51,14 +52,14 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
   ;; '1 :  McFadden_et_al_1998'
   ;; '2 :  Elphic_et_al_1998'
   ;; '3 :  Carlson_et_al_2001'
-  evtNum               = 0
+  evtNum               = 2
 
   ;;2017/03/22
   ;; evtNum               = 3
@@ -164,7 +165,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;;Current and potential analysis
   curAndPot_analysis        = 1
   cAP_remake_masterFile     = 1
-  cAP_map_to_100km          = 1
+  cAP_map_to_100km          = 0
   cAP_use_all_currents      = 0
   cAP_use_ed_current        = 1
   cAP_use_iu_current        = 0
@@ -172,7 +173,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   cAP_use_mag_current       = 0
   cAP_use_charE_for_downPot = 1
   ;; cAP_use_peakE_for_downPot = 0
-  cAP_add_iu_pot            = 1
+  cAP_add_iu_pot            = 0
 
   cAP_tRanges               = cAP_tRanges_list[evtNum]
 
@@ -274,6 +275,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         SWAY__ADD_NEWELL_PANEL=sway__add_Newell_panel, $
                         SWAY__LOG_KAPPAPLOT=sway__log_kappaPlot, $
                         SHOW_KAPPA_SUMMARY=show_kappa_summary, $
+                        KSUM__EANGLE=kSum__eAngle, $
                         KSUM__SAVE_PS=kSum__save_ps, $
                         KSUM__SAVE_PNG=kSum__save_png, $
                         KSUM__CONV_DESPECS_TO_NEWELL_INTERP=kSum__convert_to_Newell_interp, $
@@ -338,4 +340,5 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         EPS=eps
   
 END
+
 

@@ -2,6 +2,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          TPLT_VARS=tPlt_vars, $
                          EEB_OR_EES=eeb_OR_ees, $
                          ENERGY_ELECTRONS=energy_electrons, $
+                         ELECTRON_ANGLERANGE=electron_angleRange, $
                          TLIMIT_NORTH=tlimit_north, $
                          TLIMIT_SOUTH=tlimit_south, $
                          TLIMIT_ALL=tlimit_all, $
@@ -27,7 +28,6 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          CURPOTLIST=curPotList, $
                          JVPLOTDATA=jvPlotData, $
                          SC_POT=sc_pot, $
-                         ELECTRON_ANGLERANGE=electron_angleRange, $
                          ADD_MEASURED_T_AND_N=add_meas_T_and_N, $
                          CHI2_THRESHOLD=chi2_thresh, $
                          CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
