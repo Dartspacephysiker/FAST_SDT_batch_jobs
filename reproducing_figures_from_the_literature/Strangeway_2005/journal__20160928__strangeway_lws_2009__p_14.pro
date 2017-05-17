@@ -1,7 +1,7 @@
 ;;09/28/16
 ;;Trying to reproduce Strangeway's AC Poynting flux
 PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
-   TPLOT_VARS=tplot_vars, $
+   TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $
    PLOT_SOUTH=plot_south, $
    TLIMIT_NORTH=tlimit_north, $
@@ -24,20 +24,20 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
 ; dB_fac_v (dB_fac and dB_SM also stored)
 
 ; Returns:
-; tplot_vars  - array of tplot variables
+; tPlt_vars  - array of tplot variables
 ; tlimit_north - tlimits for northern hemisphere
 ; tlimit_south - tlimits for southern hemisphere
 ; tlimit_all -  tlimits for all the data
 
 ; procedure for making summary plots
-; batch_summary,tplot_vars=tplot_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
+; batch_summary,tPlt_vars=tPlt_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
 ; loadct2,40  ; load color table
-; if (n_elements(tplot_vars) gt 0) then tplot,tplot_vars,var=['ALT','ILAT','MLT']
+; if (n_elements(tPlt_vars) gt 0) then tplot,tPlt_vars,var=['ALT','ILAT','MLT']
 ; if (n_elements(tlimit_north) gt 0) then tlimit,tlimit_north  ; northern hemisphere
 ; if (n_elements(tlimit_south) gt 0) then tlimit,tlimit_south  ; southern hemisphere
 
 ; if running interactively
-; batch_summary,tplot_vars=tplot_vars,/screen_plot,/no_blank_panels
+; batch_summary,tPlt_vars=tPlt_vars,/screen_plot,/no_blank_panels
 
 ; Input needed on:
 ; (a) Northern/southern hemisphere limits
@@ -143,7 +143,7 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
 
      endif
 
-; got mag data, set time limits, delete unused tplot variables, set tplot_vars
+; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
 
      store_data,'BDATA',/delete
      store_data,'BFIT',/delete 
@@ -186,7 +186,7 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
      ;; t1 = data.x[0]
      ;; t2 = data.x[n_elements(data.x)-1L]
      tlimit_all = [t1,t2]
-     tplot_vars = 'dB_fac_v'
+     tPlt_vars = 'dB_fac_v'
      options,'dB_fac_v','panel_size',2
      options,'dB_fac','panel_size',2
      options,'dB_sm','panel_size',2
@@ -194,16 +194,16 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
      ;;Interp time series
      tS_1s = DOUBLE(LINDGEN(CEIL(t2-t1))+ROUND(t1))
 
-     tplot_vars = 'dB_fac_v'
+     tPlt_vars = 'dB_fac_v'
 
      if (keyword_set(screen_plot)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
      ;;Smooth to 4-s resolution
      ;; PRINT,'SMOOTHmag'
-     ;; var_name = tplot_vars
+     ;; var_name = tPlt_vars
      ;; GET_DATA,var_name,DATA=data
      ;; FA_FIELDS_BUFS,{time:data.x},BUF_STARTS=strt_i,BUF_ENDS=stop_i
      ;; IF (strt_i[0] EQ 0) AND (stop_i[0] EQ 0) THEN STOP
@@ -306,7 +306,6 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
 
      FA_FIELDS_DESPIN,v58,v12,/SHADOW_NOTCH,/SINTERP
 
-     ;; OPTIONS,'EFIT_ALONG_V','yrange',0
      ;; OPTIONS,'EFIT_ALONG_V','ytitle','E along V!C!C[DC] (mV/m)'
      ;; OPTIONS,'EFIT_ALONG_V','colors',[normColorI,normColorI]
      ;; OPTIONS,'EFIT_ALONG_V','panel_size',2
@@ -403,7 +402,6 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
   ;;    tst_ = spl_interp(pos.x-tlimit_all[0],tst,y2,data.x-tlimit_all[0],/double)
   ;;    data.y = data.y*tst_/abs(tst_)
   ;;    store_data,'EFIT_ALONG_VSC',data=data,dlimit=dlimit
-  ;;    options,'EFIT_ALONG_VSC','yrange',0
   ;;    options,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C[DC] (mV/m)'
   ;;    OPTIONS,'EFIT_ALONG_VSC','colors',[normColorI,normColorI]
   ;;    options,'EFIT_ALONG_VSC','panel_size',2
@@ -413,18 +411,18 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
   ;;    store_data,'EFIT_NEAR_B',/delete
   ;;    store_data,'EFIT_ALONG_V',/delete
 
-  ;;    if (n_elements(tplot_vars) eq 0) then tplot_vars=['EFIT_ALONG_VSC'] else tplot_vars=['EFIT_ALONG_VSC',tplot_vars]
+  ;;    if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['EFIT_ALONG_VSC'] else tPlt_vars=['EFIT_ALONG_VSC',tPlt_vars]
 
   ;;    if (keyword_set(screen_plot)) then begin
   ;;       loadct2,40
-  ;;       tplot,tplot_vars,var=['ALT','ILAT','MLT']
+  ;;       tplot,tPlt_vars,var=['ALT','ILAT','MLT']
   ;;    endif
 
-  ;; endif else if (n_elements(tplot_vars) ne 0) then begin
+  ;; endif else if (n_elements(tPlt_vars) ne 0) then begin
 
-  ;;    tplot_vars = 'dB_fac'
-  ;;    if (keyword_set(use_fac_v)) then tplot_vars = 'dB_fac_v'
-  ;;    if ~KEYWORD_SET(no_blank_panels) then tplot_vars = 'dB_fac'
+  ;;    tPlt_vars = 'dB_fac'
+  ;;    if (keyword_set(use_fac_v)) then tPlt_vars = 'dB_fac_v'
+  ;;    if ~KEYWORD_SET(no_blank_panels) then tPlt_vars = 'dB_fac'
 
   endif
 
@@ -869,12 +867,12 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
             panel_size:3}
   STORE_DATA,'pFluxHigh',DLIMITS=dLimit
 
-  IF (n_elements(tplot_vars) EQ 0) THEN tplot_vars=['pFluxHigh'] $
-  ELSE tplot_vars=['pFluxHigh',tplot_vars]
+  IF (n_elements(tPlt_vars) EQ 0) THEN tPlt_vars=['pFluxHigh'] $
+  ELSE tPlt_vars=['pFluxHigh',tPlt_vars]
 
   IF (KEYWORD_SET(screen_plot)) THEN BEGIN
      LOADCT2,40
-     TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT']
+     TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
   ENDIF
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -928,12 +926,12 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
             panel_size:3}
   STORE_DATA,'pFluxLow',DLIMITS=dLimit
 
-  IF (n_elements(tplot_vars) EQ 0) THEN tplot_vars=['pFluxLow'] $
-  ELSE tplot_vars=['pFluxLow',tplot_vars]
+  IF (n_elements(tPlt_vars) EQ 0) THEN tPlt_vars=['pFluxLow'] $
+  ELSE tPlt_vars=['pFluxLow',tPlt_vars]
 
   IF (KEYWORD_SET(screen_plot)) THEN BEGIN
      LOADCT2,40
-     TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT']
+     TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
   ENDIF
 
 
@@ -1032,7 +1030,7 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
   orbit_lab = strcompress(string(orbit,format="(i5.4)"),/remove_all)
   tplot_options,'title','FAST Orbit ' + orbit_lab + ' ' + hemisph
 
-  tplot_vars=['dB_fac_v','pFluxHigh','pFluxLow','JEe','Ji']
+  tPlt_vars=['dB_fac_v','pFluxHigh','pFluxLow','JEe','Ji']
 
   IF KEYWORD_SET(screen_plot) OR KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
 
@@ -1074,7 +1072,7 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
      ENDCASE
 
      LOADCT2,40
-     TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
+     TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
 
 
      IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN

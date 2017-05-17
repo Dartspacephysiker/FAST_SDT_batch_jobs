@@ -410,7 +410,6 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
                          /SHADOW_NOTCH, $
                          /SINTERP
 
-        OPTIONS,'EFIT_ALONG_V','yrange',0
         OPTIONS,'EFIT_ALONG_V','ytitle','E along V!C[DC] (mV/m)'
         OPTIONS,'EFIT_ALONG_V','colors',[normColorI,normColorI]
         OPTIONS,'EFIT_ALONG_V','panel_size',2
@@ -526,7 +525,6 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
                       [data.y]]}
 
            STORE_DATA,'EFIT_ALONG_VSC',DATA=data,dlimit=dlimit
-           OPTIONS,'EFIT_ALONG_VSC','yrange',0
            OPTIONS,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C[DC] (mV/m)'
            OPTIONS,'EFIT_ALONG_VSC','colors',[normColorI,normColorI]
            OPTIONS,'EFIT_ALONG_VSC','panel_size',2

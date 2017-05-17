@@ -220,7 +220,6 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
 
      fa_fields_despin,v58,v12,/shadow_notch,/sinterp
 
-     options,'EFIT_ALONG_V','yrange',0
      options,'EFIT_ALONG_V','ytitle','E along V!C!C(mV/m)'
      options,'EFIT_ALONG_V','panel_size',2
 
@@ -259,7 +258,6 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
      tst_ = spl_interp(pos.x-tlimit_all[0],tst,y2,data.x-tlimit_all[0],/double)
      data.y = data.y*tst_/abs(tst_)
      store_data,'EFIT_ALONG_VSC',data=data,dlimit=dlimit
-     options,'EFIT_ALONG_VSC','yrange',0
      options,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C(mV/m)'
      options,'EFIT_ALONG_VSC','panel_size',2
 

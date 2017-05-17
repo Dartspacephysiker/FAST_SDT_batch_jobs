@@ -1,0 +1,7 @@
+;2017/05/17
+;Les orbites qui nous pouvons utiliser sont 1436–5382 pour l'annee 1997
+PRO JOURNAL__20170517__TINKER_BEFORE_TRYING_TO_MAKE_1997_PLOT
+
+  COMPILE_OPT IDL2,STRICTARRSUBS
+
+END

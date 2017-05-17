@@ -32,7 +32,7 @@ PRO JOURNAL__20170510__THE_CLASSICS__AT_ALTITUDE__FULL_CURRENT
 
   eps                      = 1
 
-  show_Strangeway_summary  = 0
+  show_Strangeway_summary  = 1
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
@@ -59,7 +59,7 @@ PRO JOURNAL__20170510__THE_CLASSICS__AT_ALTITUDE__FULL_CURRENT
   ;; '1 :  McFadden_et_al_1998'
   ;; '2 :  Elphic_et_al_1998'
   ;; '3 :  Carlson_et_al_2001'
-  evtNum               = 2
+  evtNum               = 0
 
   ;;2017/03/22
   ;; evtNum               = 3
@@ -164,7 +164,7 @@ PRO JOURNAL__20170510__THE_CLASSICS__AT_ALTITUDE__FULL_CURRENT
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1
-  cAP_remake_masterFile     = 1
+  cAP_remake_masterFile     = 0
   cAP_map_to_100km          = 0
   cAP_use_all_currents      = 0
   cAP_use_ed_current        = 1
@@ -185,7 +185,7 @@ PRO JOURNAL__20170510__THE_CLASSICS__AT_ALTITUDE__FULL_CURRENT
   cAP_plot_T_and_N             = 0B
   cAP_plot_j_v_and_theory      = 0B
   cAP_plot_j_v__fixed_t_and_n  = 0B
-  cAP_plot_j_v_map__r_b_and_kappa__fixed_t_and_n = 1B
+  cAP_plot_j_v_map__r_b_and_kappa__fixed_t_and_n = 0B
   cAP_plot_en_specs            = 0B
   cAP_en_specs__movie          = 0B
   cAP_jv_theor__R_B_init       = 300

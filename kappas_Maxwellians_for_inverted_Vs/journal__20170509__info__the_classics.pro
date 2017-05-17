@@ -44,7 +44,7 @@ bonusPrefs = [ $
              '-classics-2-McFadden_et_al_1998', $
              '-classics-3-Elphic_et_al_1998', $
              '-classics-4-Carlson_et_al_2001' $
-             ]
+             ] + '-lc_excl_atm-'
 
 
 kStats_startStops__ees = LIST( $
