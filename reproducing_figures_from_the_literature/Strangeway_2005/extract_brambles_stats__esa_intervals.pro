@@ -23,7 +23,10 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
   ;; bonusSuff    = '--absVals--also_E_near_B--full_pFlux--eFieldFit'
   
   ;; bonusSuff    = '--absVals'
-  bonusSuff    = '--absVals__handchecked_ionEnergies'
+  ;; bonusSuff    = '--absVals__handchecked_ionEnergies'
+
+  ;; bonusSuff    = '--absVals--also_E_near_B--full_pFlux--eFieldFit'
+  bonusSuff    = '--absVals__handchecked_ionEnergies--also_E_near_B--full_pFlux--eFieldFit'
 
   hashFile    += bonusSuff
 

@@ -1,6 +1,6 @@
 *
 Header :this is the 'strangeway_2005__Fig_1__orb_8276' configuration file
-Header :created on Sat Sep 24 06:03:23 2016
+Header :created on Thu May 18 11:15:42 2017
 *
 *
 Description :plot of summary data quantities
@@ -18,19 +18,29 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 	PlotWinStandard
 	{
 	PlotWin Name:		'strangeway_2005__Fig_1__orb_8276:0 - DA'
-	PlotWin Position:	358, -22
+	PlotWin Position:	355, -22
 	PlotWin Size:		728, 768
 	PlotWin PlotsPage:	12
 	PlotWin TopPlotOfPage:	'Eesa Survey:  Energy'
-	PlotWin DefaultDataBaseResponse:	2451081 84680.6 2451082 6242.86 'FNMLine 8'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit8276_r'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit8277_r'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit8279_r'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-76_orbit8278_r'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit8279_t'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit8280_t'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit8282_t'
-   '/SPENCEdata/fast/NetworkData/lzp/fast_lzp_DSS-29_orbit8283_t'
+	PlotWin DefaultDataBaseResponse:	2451081 84680.6 2451082 6242.86 'FNMLine 18'
+   '/FASTdata_1/FAST_JB_7/FAST1699_ORBIT8275/lzp/fast_lzp_DSS-29_orbit8276_r'
+   '/FASTdata_1/FAST_JB_7/FAST1699_ORBIT8275/lzp/fast_lzp_DSS-29_orbit8276_r'
+   '/FASTdata_1/FAST_JB_7/FAST1699_ORBIT8275/lzp/fast_lzp_DSS-29_orbit8277_r'
+   '/FASTdata_1/FAST_JB_7/FAST1699_ORBIT8275/lzp/fast_lzp_DSS-29_orbit8277_r'
+   '/FASTdata_1/FAST_JB_7/FAST1700_ORBIT8277/lzp/fast_lzp_DSS-29_orbit8277_r'
+   '/FASTdata_1/FAST_JB_7/FAST1700_ORBIT8277/lzp/fast_lzp_DSS-29_orbit8277_r'
+   '/FASTdata_1/FAST_JB_7/FAST1700_ORBIT8277/lzp/fast_lzp_DSS-29_orbit8279_r'
+   '/FASTdata_1/FAST_JB_7/FAST1700_ORBIT8277/lzp/fast_lzp_DSS-29_orbit8279_r'
+   '/FASTdata_1/FAST_JB_7/FAST1700_ORBIT8277/lzp/fast_lzp_DSS-76_orbit8278_r'
+   '/FASTdata_1/FAST_JB_7/FAST1700_ORBIT8277/lzp/fast_lzp_DSS-76_orbit8278_r'
+   '/FASTdata_2/FAST_JB_8/FAST1803_ORBIT8279/lzp/fast_lzp_DSS-29_orbit8279_t'
+   '/FASTdata_2/FAST_JB_8/FAST1803_ORBIT8279/lzp/fast_lzp_DSS-29_orbit8279_t'
+   '/FASTdata_2/FAST_JB_8/FAST1804_ORBIT8280/lzp/fast_lzp_DSS-29_orbit8280_t'
+   '/FASTdata_2/FAST_JB_8/FAST1804_ORBIT8280/lzp/fast_lzp_DSS-29_orbit8280_t'
+   '/FASTdata_2/FAST_JB_8/FAST1804_ORBIT8280/lzp/fast_lzp_DSS-29_orbit8282_t'
+   '/FASTdata_2/FAST_JB_8/FAST1804_ORBIT8280/lzp/fast_lzp_DSS-29_orbit8282_t'
+   '/FASTdata_2/FAST_JB_8/FAST1812_ORBIT8283/lzp/fast_lzp_DSS-29_orbit8283_t'
+   '/FASTdata_2/FAST_JB_8/FAST1812_ORBIT8283/lzp/fast_lzp_DSS-29_orbit8283_t'
 
 		PlotType
 		{
@@ -52,8 +62,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 40000, 1e+06, 1, 1, 1
-		Plot2 MinLimits:	86159.2, 4, 2, 0, 0, 0
+		Plot2 MaxLimits:	92642.9, 40000, 1e+06, 1, 1, 1
+		Plot2 MinLimits:	84680.6, 4, 2, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -91,8 +101,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 360, 100000, 1, 1, 1
-		Plot2 MinLimits:	86159.2, 0, 2, 0, 0, 0
+		Plot2 MaxLimits:	92642.9, 360, 100000, 1, 1, 1
+		Plot2 MinLimits:	84680.6, 0, 2, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -130,8 +140,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 40000, 1e+06, 1, 1, 1
-		Plot2 MinLimits:	86159.2, 4, 2, 0, 0, 0
+		Plot2 MaxLimits:	92642.9, 40000, 1e+06, 1, 1, 1
+		Plot2 MinLimits:	84680.6, 4, 2, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -169,8 +179,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 360, 100000, 1, 1, 1
-		Plot2 MinLimits:	86159.2, 0, 2, 0, 0, 0
+		Plot2 MaxLimits:	92642.9, 360, 100000, 1, 1, 1
+		Plot2 MinLimits:	84680.6, 0, 2, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -206,8 +216,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 32768, 0, 0
-		Plot2 MinLimits:	86159.2, -32768, 0, 0
+		Plot2 MaxLimits:	92642.9, 32768, 0, 0
+		Plot2 MinLimits:	84680.6, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -242,8 +252,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 32768, 0, 0
-		Plot2 MinLimits:	86159.2, -32768, 0, 0
+		Plot2 MaxLimits:	92642.9, 32768, 0, 0
+		Plot2 MinLimits:	84680.6, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -278,8 +288,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 32768, 0, 0
-		Plot2 MinLimits:	86159.2, -32768, 0, 0
+		Plot2 MaxLimits:	92642.9, 32768, 0, 0
+		Plot2 MinLimits:	84680.6, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -314,8 +324,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 100, 0, 0
-		Plot2 MinLimits:	86159.2, -100, 0, 0
+		Plot2 MaxLimits:	92642.9, 100, 0, 0
+		Plot2 MinLimits:	84680.6, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -351,8 +361,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 100, 0, 0
-		Plot2 MinLimits:	86159.2, -100, 0, 0
+		Plot2 MaxLimits:	92642.9, 100, 0, 0
+		Plot2 MinLimits:	84680.6, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -388,8 +398,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 100, 0, 0
-		Plot2 MinLimits:	86159.2, -100, 0, 0
+		Plot2 MaxLimits:	92642.9, 100, 0, 0
+		Plot2 MinLimits:	84680.6, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -427,8 +437,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 512, 0.001, 1, 1, 1
-		Plot2 MinLimits:	86159.2, 0, 1e-13, 0, 0, 0
+		Plot2 MaxLimits:	92642.9, 512, 0.001, 1, 1, 1
+		Plot2 MinLimits:	84680.6, 0, 1e-13, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -465,8 +475,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 1000, 1e-07, 1, 1, 1
-		Plot2 MinLimits:	86159.2, 0, 1e-15, 0, 0, 0
+		Plot2 MaxLimits:	92642.9, 1000, 1e-07, 1, 1, 1
+		Plot2 MinLimits:	84680.6, 0, 1e-15, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -501,8 +511,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 1024, 0, 0
-		Plot2 MinLimits:	86159.2, 0, 0, 0
+		Plot2 MaxLimits:	92642.9, 1024, 0, 0
+		Plot2 MinLimits:	84680.6, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -537,8 +547,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 256, 0, 0
-		Plot2 MinLimits:	86159.2, 0, 0, 0
+		Plot2 MaxLimits:	92642.9, 256, 0, 0
+		Plot2 MinLimits:	84680.6, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -575,8 +585,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 512, 0.001, 1, 1, 1
-		Plot2 MinLimits:	86159.2, 0, 1e-13, 0, 0, 0
+		Plot2 MaxLimits:	92642.9, 512, 0.001, 1, 1, 1
+		Plot2 MinLimits:	84680.6, 0, 1e-13, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -611,8 +621,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 15.77, 0, 0
-		Plot2 MinLimits:	86159.2, -0.75, 0, 0
+		Plot2 MaxLimits:	92642.9, 15.77, 0, 0
+		Plot2 MinLimits:	84680.6, -0.75, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -647,8 +657,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	88756.3, 164.23, 0, 0
-		Plot2 MinLimits:	86159.2, -170.77, 0, 0
+		Plot2 MaxLimits:	92642.9, 164.23, 0, 0
+		Plot2 MinLimits:	84680.6, -170.77, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0

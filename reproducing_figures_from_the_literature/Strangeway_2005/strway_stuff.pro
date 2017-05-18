@@ -4,7 +4,7 @@
   minILAT           = 50 
 
   energy_ions       = [4,120.]
-  energy_electrons  = [50,30000.]
+  energy_electrons  = [50,31000.]
 
   strWay_orbs       = INDGEN(33)+8260
   upper_ion_e       = HASH(strWay_orbs,MAKE_ARRAY(33,VALUE=120.,/FLOAT))

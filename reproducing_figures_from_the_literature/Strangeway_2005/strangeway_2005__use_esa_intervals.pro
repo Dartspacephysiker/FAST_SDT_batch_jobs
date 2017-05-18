@@ -56,8 +56,10 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
 
   ;;Outputs
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/'
-  hashFile     = 'Strangeway_et_al_2005__DC_params--ESA_intervals.sav'
-  outPlotName  = 'Strangeway_et_al_2005__ion_outflow--ESA_intervals--Fig_3'
+  ;; hashFile     = 'Strangeway_et_al_2005__DC_params--ESA_intervals.sav'
+  ;; outPlotName  = 'Strangeway_et_al_2005__ion_outflow--ESA_intervals--Fig_3'
+  hashFile     = 'Strangeway_et_al_2005__DC_params--ESA_intervals.sav--absVals__handchecked_ionEnergies'
+  outPlotName  = 'Strangeway_et_al_2005__ion_outflow--ESA_intervals--Fig_3--absVals__handchecked_ionEnergies'
 
   IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
   IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
@@ -702,7 +704,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
            tmpDat     = {x:[0,0],y:[0,0]}
         ENDELSE
 
-        IF KEYWORD_SET(ngsgn_2dt[ll]) THEN tmpDat *= (-1.)
+        IF KEYWORD_SET(ngsgn_2dt[ll]) THEN tmpDat.y *= (-1.)
 
         STORE_DATA,tmpName,DATA=tmpDat
 
