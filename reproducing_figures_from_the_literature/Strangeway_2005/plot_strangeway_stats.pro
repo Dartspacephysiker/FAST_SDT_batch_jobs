@@ -51,9 +51,22 @@ PRO PLOT_STRANGEWAY_STATS, $
    xRange   = plotInfo.xRange
 
    yTitle   = plotInfo.yTitle
-   yData    = plotInfo.yData
+   yData    = plotInfo.yData * (-1.D)
    yRange   = plotInfo.yRange
 
+   nNegY    = N_ELEMENTS(WHERE(yData LT 0))
+   nYData   = N_ELEMENTS(yData)
+   IF nNeGy GE nYData/2 THEN BEGIN
+      PRINT,FORMAT='(A0,A0,A0,F0.2,A0)', $
+            "Have you got the sign wrong? Your quantity is ", $
+            yTitle, $
+            ', and ', $
+            FLOAT(nNegY)/nYData*100., $
+            "% of them are neg."
+      STOP
+      yData *= -1.D
+
+   ENDIF
 
    plotSN = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '--' + plotInfo.canonPref + $
             plotInfo.plots_prefix + plotInfo.plotNames
@@ -62,7 +75,9 @@ PRO PLOT_STRANGEWAY_STATS, $
    windowArr = MAKE_ARRAY(N_ELEMENTS(xQuants),/OBJ)
    ;; ENDIF
 
+   PRINT,'xQuant',' ','Title'
    FOR k=0,nPlots-1,2 DO BEGIN
+
       datI   = xQuants[k/2]
 
       xDat   = stats.(datI)
@@ -72,8 +87,12 @@ PRO PLOT_STRANGEWAY_STATS, $
 
       inds   = WHERE((xDat GT 0) AND (yDat GT 0),nInds)
 
+      PRINT,k,' ',(TAG_NAMES(stats))[datI]
+
       IF nInds LE 1 THEN BEGIN
          PRINT,'No good data for these plots! Outta sight!'
+         IF (WHERE(xDat GT 0))[0] EQ -1 THEN PRINT,'(xData is yunk)'
+         IF (WHERE(yDat GT 0))[0] EQ -1 THEN PRINT,'(yData is yunk)'
          CONTINUE
       ENDIF
 

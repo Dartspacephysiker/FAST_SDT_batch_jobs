@@ -54,12 +54,7 @@ PRO STRANGEWAY_2005__USE_ESA_INTERVALS, $
 
   tBuf         = 10. ;Allowable difference between t{1,2} and nearest fields data
 
-  ;;Outputs
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/'
-  ;; hashFile     = 'Strangeway_et_al_2005__DC_params--ESA_intervals.sav'
-  ;; outPlotName  = 'Strangeway_et_al_2005__ion_outflow--ESA_intervals--Fig_3'
-  hashFile     = 'Strangeway_et_al_2005__DC_params--ESA_intervals.sav--absVals__handchecked_ionEnergies'
-  outPlotName  = 'Strangeway_et_al_2005__ion_outflow--ESA_intervals--Fig_3--absVals__handchecked_ionEnergies'
+  @strangeway_2005__defaults__esa_intervals.pro
 
   IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
   IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'

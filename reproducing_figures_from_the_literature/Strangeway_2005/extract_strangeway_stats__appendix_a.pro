@@ -1,4 +1,338 @@
 ;;09/24/16
+FUNCTION SETUP_TAGNAMES_AND_INDICES,tmpStruct, $
+                                    Bind,Eind,Hind, $
+                                    Btags,Etags,Htags,Ptags, $
+                                    nBTags,nETags,nHTags,nPTags, $
+                                    BPind,BVind,BBind, $
+                                    EAVind,ENBind,EDSPind,EIENBind, $
+                                    HJEeInd,HJeInd,HJiInd
+
+  strucTags    = TAG_NAMES(tmpStruct)
+
+  Bind         = WHERE(STRUPCASE(strucTags) EQ 'DB')
+  Eind         = WHERE(STRUPCASE(strucTags) EQ 'E')
+  Hind         = WHERE(STRUPCASE(strucTags) EQ 'PTCL')
+
+  IF (Bind[0] EQ -1) THEN BEGIN
+     PRINT,"Couldn't find B-field member in this struct! Gotta return ..."
+     RETURN,-1
+  ENDIF
+
+  IF (Eind[0] EQ -1) THEN BEGIN
+     PRINT,"Couldn't find E-field member in this struct! Gotta return ..."
+     RETURN,-1
+  ENDIF
+
+  IF (Hind[0] EQ -1) THEN BEGIN
+     PRINT,"Couldn't find particle member in this struct! Gotta return ..."
+     RETURN,-1
+  ENDIF
+
+  Btags        = TAG_NAMES(tmpStruct.(Bind))
+  Etags        = TAG_NAMES(tmpStruct.(Eind))
+  Htags        = TAG_NAMES(tmpStruct.(Hind))
+  ;; Ptags        = TAG_NAMES(tmpStruct.pFlux)
+  Ptags        = ['p','v','b']
+  ;; IF KEYWORD_SET(full_pFlux) THEN Ptags = [Ptags,'v']
+  
+  ;;Specifics for each type
+  BPind        = (WHERE(STRUPCASE(Btags) EQ 'P'                ))[0]
+  BVind        = (WHERE(STRUPCASE(Btags) EQ 'V'                ))[0]
+  BBind        = (WHERE(STRUPCASE(Btags) EQ 'B'                ))[0]
+
+  EAVind       = (WHERE(STRUPCASE(Etags) EQ 'ALONGV'           ))[0]
+  ENBind       = (WHERE(STRUPCASE(Etags) EQ 'NEARB'            ))[0]
+  EDSPind      = (WHERE(STRUPCASE(Etags) EQ 'DSP'              ))[0]
+  EIENBind     = (WHERE(STRUPCASE(Etags) EQ 'INCLUDE_E_NEAR_B' ))[0]
+
+  HJEeInd      = (WHERE(STRUPCASE(Htags) EQ 'JEE'              ))[0]
+  HJeInd       = (WHERE(STRUPCASE(Htags) EQ 'JE'               ))[0]
+  HJiInd       = (WHERE(STRUPCASE(Htags) EQ 'JI'               ))[0]
+
+  ;;How many of each type?
+  ;; nBTags       = N_ELEMENTS(Btags)
+  ;; nETags       = N_ELEMENTS(Etags)
+  ;; nHTags       = N_ELEMENTS(Htags)
+  ;; nPTags       = N_ELEMENTS(Ptags)
+
+  nBTags       = ( BPind   GE 0 ? 1 : 0 ) + ( BVind   GE 0 ? 1 : 0 ) + ( BBind    GE 0 ? 1 : 0 )
+  nETags       = ( EAVind  GE 0 ? 1 : 0 ) + ( ENBInd  GE 0 ? 1 : 0 ) + ( EDSPind  GE 0 ? 1 : 0 ) 
+  nHTags       = ( HJEeind GE 0 ? 1 : 0 ) + ( HJeInd  GE 0 ? 1 : 0 ) + ( HJiInd   GE 0 ? 1 : 0 )
+  nPTags       = N_ELEMENTS(Ptags)
+
+
+
+  RETURN,0
+
+END
+
+PRO DECLARE_ARRAYS,nOrbs,nBTags,nETags,nPTags,nHTags, $
+                   orbArr,itvlArr,noENBArr, $
+                   BDCArr,EDCArr,PDCArr, $
+                   BACArr,EACArr,PACArr, $
+                   HArr, $
+                   BPTSArr,EPTSArr, HPTSArr, $
+                   BDCAvg,BDCAbsAvg,BDCPosAvg,BDCNegAvg, $
+                   EDCAvg,EDCAbsAvg,EDCPosAvg,EDCNegAvg, $
+                   PDCAvg,PDCAbsAvg,PDCPosAvg,PDCNegAvg, $
+                   BACAvg,BACAbsAvg,BACPosAvg,BACNegAvg, $
+                   EACAvg,EACAbsAvg,EACPosAvg,EACNegAvg, $
+                   PACAvg,PACAbsAvg,PACPosAvg,PACNegAvg, $
+                   HAvg
+
+  maxNElems    = 1e6
+
+  ;;Pointers to time arrays
+  BPTSArr      = PTRARR(nBTags)
+  EPTSArr      = PTRARR(nETags)
+  HPTSArr      = PTRARR(nETags)
+
+  ;;Bro
+  orbArr       = MAKE_ARRAY(maxNElems       ,/LONG ,VALUE=0) 
+  itvlArr      = MAKE_ARRAY(maxNElems       ,/INTEG,VALUE=0) 
+  noENBArr     = MAKE_ARRAY(2,maxNElems     ,/INTEG,VALUE=0) 
+
+
+  ;;Arrays to store all outflow points
+  BDCArr       = MAKE_ARRAY(maxNElems,nBTags,/FLOAT,VALUE=0.) 
+  EDCArr       = MAKE_ARRAY(maxNElems,nETags,/FLOAT,VALUE=0.) 
+  PDCArr       = MAKE_ARRAY(maxNElems,nPTags,/FLOAT,VALUE=0.) 
+
+  BACArr       = MAKE_ARRAY(maxNElems,nBTags,/FLOAT,VALUE=0.) 
+  EACArr       = MAKE_ARRAY(maxNElems,nETags,/FLOAT,VALUE=0.) 
+  PACArr       = MAKE_ARRAY(maxNElems,nPTags,/FLOAT,VALUE=0.) 
+
+  HArr         = MAKE_ARRAY(maxNElems,nHTags,/FLOAT,VALUE=0.) 
+
+
+
+  BDCAvg       = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
+  BDCAbsAvg    = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
+  BDCPosAvg    = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
+  BDCNegAvg    = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
+
+  EDCAvg       = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
+  EDCAbsAvg    = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
+  EDCPosAvg    = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
+  EDCNegAvg    = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
+
+  PDCAvg       = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
+  PDCAbsAvg    = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
+  PDCPosAvg    = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
+  PDCNegAvg    = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
+
+  BACAvg       = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
+  BACAbsAvg    = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
+  BACPosAvg    = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
+  BACNegAvg    = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
+
+  EACAvg       = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
+  EACAbsAvg    = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
+  EACPosAvg    = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
+  EACNegAvg    = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
+
+  PACAvg       = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
+  PACAbsAvg    = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
+  PACPosAvg    = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
+  PACNegAvg    = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
+
+  HAvg         = MAKE_ARRAY(nOrbs,nHTags,/FLOAT,VALUE=0.) 
+
+END
+
+PRO LOCALE_ADJUSTMENTS,times, $
+                       oflow_i,nOutflow, $
+                       NORTH=north, $
+                       SOUTH=south, $
+                       DAY=day, $
+                       NIGHT=night, $
+                       MINILAT=minILAT
+
+
+  IF ~(KEYWORD_SET(north) OR KEYWORD_SET(south) OR KEYWORD_SET(day) OR KEYWORD_SET(night)) THEN RETURN
+
+  GET_FA_ORBIT,times,/TIME_ARRAY,/DEFINITIVE
+
+  IF KEYWORD_SET(north) OR KEYWORD_SET(south) THEN BEGIN
+     haveHemi = 1
+     GET_DATA,'ILAT',DATA=ilat
+     ilat = ilat.y
+     
+  ENDIF
+
+  IF KEYWORD_SET(day) OR KEYWORD_SET(night) THEN BEGIN
+     haveSide = 1
+     GET_DATA,'MLT',DATA=mlt
+     mlt = mlt.y
+  ENDIF
+
+  IF KEYWORD_SET(north) THEN BEGIN
+
+     hemi_i  = WHERE(ilat GE minILAT,nHemi)
+     
+  ENDIF ELSE BEGIN
+
+     IF KEYWORD_SET(south) THEN BEGIN
+
+        hemi_i  = WHERE(ilat LE -1.*minILAT,nHemi)
+
+     ENDIF ELSE BEGIN
+
+        hemi_i  = WHERE(ABS(ilat) GE minILAT,nHemi)
+
+     ENDELSE
+
+  ENDELSE
+
+  IF KEYWORD_SET(day) THEN BEGIN
+
+     side_i    = WHERE(mlt GE 6.0 AND mlt LT 18.0 AND (ABS(ilat) GE minILAT),nSide)
+     
+  ENDIF ELSE BEGIN
+
+     IF KEYWORD_SET(night) THEN BEGIN
+
+        side_i    = WHERE(mlt GE 18.0 OR mlt LT 6.0 AND (ABS(ilat) GE minILAT),nSide)
+
+     ENDIF
+
+  ENDELSE
+
+  IF (nSide GT 0) AND (nHemi GT 0) THEN BEGIN
+     comb_i = CGSETINTERSECTION(hemi_i,side_i,COUNT=nComb)
+  ENDIF ELSE BEGIN
+     oflow_i = -1
+     RETURN
+  ENDELSE
+
+  IF nComb EQ 0 THEN BEGIN
+     oflow_i = -1
+     RETURN
+  ENDIF
+
+  oflow_i = CGSETINTERSECTION(comb_i,oflow_i,COUNT=nOutflow)
+
+  IF nOutflow EQ 0 THEN BEGIN
+     oflow_i = -1
+     RETURN
+  ENDIF
+
+END
+
+PRO EXTRACT_STRANGEWAY__FIELDS_N_COMPANY,nTags, $
+                                       DCArr,ACArr, $
+                                       oFloOrbDCArr, $
+                                       DCAvg, $
+                                       DCPosAvg, $
+                                       DCNegAvg, $
+                                       DCAbsAvg, $
+                                       oFloOrbACArr, $
+                                       ACAvg, $
+                                       ACPosAvg, $
+                                       ACNegAvg, $
+                                       ACAbsAvg, $
+                                       totInds,orbCnt
+
+  FOR l=0,nTags-1 DO BEGIN
+
+     DCArr[totInds,l]  = ofloOrbDCArr[*,l]
+     ACArr[totInds,l]  = ofloOrbACArr[*,l]
+
+     safeDC  = WHERE(FINITE(ofloOrbDCArr[*,l]),nSafeDC)
+     safeAC  = WHERE(FINITE(ofloOrbACArr[*,l]),nSafeAC)
+
+     posDC   = CGSETINTERSECTION(safeDC,WHERE(ofloOrbDCArr[*,l] GT 0),COUNT=nPosDC)
+     posAC   = CGSETINTERSECTION(safeAC,WHERE(ofloOrbACArr[*,l] GT 0),COUNT=nPosAC)
+
+     negDC   = CGSETINTERSECTION(safeDC,WHERE(ofloOrbDCArr[*,l] LT 0),COUNT=nNegDC)
+     negAC   = CGSETINTERSECTION(safeAC,WHERE(ofloOrbACArr[*,l] LT 0),COUNT=nNegAC)
+
+     IF safeDC[0] NE -1 THEN BEGIN
+        DCAvg   [orbCnt,l]  = MEAN(     (ofloOrbDCArr[*,l])[safeDC]  )
+        DCABSAvg[orbCnt,l]  = MEAN( ABS((ofloOrbDCArr[*,l])[safeDC]) )
+     ENDIF ELSE BEGIN
+        DCAvg   [orbCnt,l]  = !VALUES.F_NaN
+        DCABSAvg[orbCnt,l]  = !VALUES.F_NaN
+     ENDELSE
+
+     IF posDC[0] NE -1 THEN BEGIN
+        DCPosAvg[orbCnt,l]  = MEAN( (ofloOrbDCArr[*,l])[posDC ] )
+     ENDIF ELSE BEGIN
+        DCPosAvg[orbCnt,l]  = !VALUES.F_NaN
+     ENDELSE
+
+     IF negDC[0] NE -1 THEN BEGIN
+        DCNegAvg[orbCnt,l]  = MEAN( (ofloOrbDCArr[*,l])[negDC ] )
+     ENDIF ELSE BEGIN
+        DCNegAvg[orbCnt,l]  = !VALUES.F_NaN
+     ENDELSE
+
+     IF safeAC[0] NE -1 THEN BEGIN
+        ACAvg[orbCnt,l]     = MEAN( (ofloOrbACArr[*,l])[safeAC] )
+        ACABSAvg[orbCnt,l]  = MEAN( ABS((ofloOrbACArr[*,l])[safeAC]) )
+     ENDIF ELSE BEGIN
+        ACAvg[orbCnt,l]     = !VALUES.F_NaN
+        ACABSAvg[orbCnt,l]  = !VALUES.F_NaN
+     ENDELSE
+
+     IF posAC[0] NE -1 THEN BEGIN
+        ACPosAvg[orbCnt,l] = MEAN( (ofloOrbACArr[*,l])[posAC ] )
+     ENDIF ELSE BEGIN
+        ACPosAvg[orbCnt,l] = !VALUES.F_NaN
+     ENDELSE
+
+     IF negAC[0] NE -1 THEN BEGIN
+        ACNegAvg[orbCnt,l] = MEAN( (ofloOrbACArr[*,l])[negAC ] )
+     ENDIF ELSE BEGIN
+        ACNegAvg[orbCnt,l] = !VALUES.F_NaN
+     ENDELSE
+
+  ENDFOR
+
+END
+
+PRO KILL_AVG_ARRAYS,BDCAvg,BDCAbsAvg,BDCPosAvg,BDCNegAvg, $
+                    EDCAvg,EDCAbsAvg,EDCPosAvg,EDCNegAvg, $
+                    PDCAvg,PDCAbsAvg,PDCPosAvg,PDCNegAvg, $
+                    BACAvg,BACAbsAvg,BACPosAvg,BACNegAvg, $
+                    EACAvg,EACAbsAvg,EACPosAvg,EACNegAvg, $
+                    PACAvg,PACAbsAvg,PACPosAvg,PACNegAvg, $
+                    HAvg
+
+  BDCAvg       = !NULL
+  BDCAbsAvg    = !NULL
+  BDCPosAvg    = !NULL
+  BDCNegAvg    = !NULL
+
+  EDCAvg       = !NULL
+  EDCAbsAvg    = !NULL
+  EDCPosAvg    = !NULL
+  EDCNegAvg    = !NULL
+
+  PDCAvg       = !NULL
+  PDCAbsAvg    = !NULL
+  PDCPosAvg    = !NULL
+  PDCNegAvg    = !NULL
+
+  BACAvg       = !NULL
+  BACAbsAvg    = !NULL
+  BACPosAvg    = !NULL
+  BACNegAvg    = !NULL
+
+  EACAvg       = !NULL
+  EACAbsAvg    = !NULL
+  EACPosAvg    = !NULL
+  EACNegAvg    = !NULL
+
+  PACAvg       = !NULL
+  PACAbsAvg    = !NULL
+  PACPosAvg    = !NULL
+  PACNegAvg    = !NULL
+
+  HAvg         = !NULL
+
+END
+
 FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
    AVERAGES=averages, $
    INTEGRALS=integrals, $
@@ -21,33 +355,36 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
   ptsMinOutflow   = 2
   allowableGap    = 2 ;seconds
   min_streakLen_t = 30 ;;At least 30, right?
+
   @strway_stuff
 
-  ;;Outputs
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/Appendix_A/'
-  hashFile     = 'Strangeway_et_al_2005__real_thing--outflow_intervals.sav'
+  @strangeway_2005__defaults__appendix_a.pro
 
-  IF KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
-     hashFile    +='--eFieldFits'
-  ENDIF
+  ;; ;;Outputs
+  ;; outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/Appendix_A/'
+  ;; hashFile     = 'Strangeway_et_al_2005__real_thing--outflow_intervals.sav'
 
-  bonusSuff    = ''
+  ;; IF KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
+  ;;    hashFile    +='--eFieldFits'
+  ;; ENDIF
 
-  IF ( ABS(energy_ions[0] - 4.)   LT 0.01 ) THEN bonusSuff += '--4eV_lower'
-  IF ( ABS(energy_ions[1] - 500.) LT 0.01 ) THEN bonusSuff += '--500eV_upper'
+  ;; bonusSuff    = ''
 
-  hashFile    += bonusSuff
+  ;; IF ( ABS(energy_ions[0] - 4.)   LT 0.01 ) THEN bonusSuff += '--4eV_lower'
+  ;; IF ( ABS(energy_ions[1] - 500.) LT 0.01 ) THEN bonusSuff += '--500eV_upper'
+
+  ;; hashFile    += bonusSuff
 
   ;;Update hashfile name and outPlotName
-  plotPref = SETUP_STRANGEWAY_BRAMBLES_PLOTPREF($
-             USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
-             ONLY_FASTSRVY_DATA=only_128Ss_data, $
-             INCLUDE_E_NEAR_B=include_E_near_B, $
-             FULL_PFLUX_CALC=full_pFlux, $
-             FIELDS_INTERP=do_fields_interp, $
-             FIELDS_SPLINE=do_fields_spline)
+  ;; plotPref = SETUP_STRANGEWAY_BRAMBLES_PLOTPREF($
+  ;;            USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
+  ;;            ONLY_FASTSRVY_DATA=only_128Ss_data, $
+  ;;            INCLUDE_E_NEAR_B=include_E_near_B, $
+  ;;            FULL_PFLUX_CALC=full_pFlux, $
+  ;;            FIELDS_INTERP=do_fields_interp, $
+  ;;            FIELDS_SPLINE=do_fields_spline)
   
-  hashFile    += plotPref
+  ;; hashFile    += plotPref
 
   defs = SETUP_STRANGEWAY_STATS__DEFAULTS($
          AVERAGES=averages, $
@@ -284,7 +621,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
            ;;Get outflow intervals
            GET_DOUBLE_STREAKS__NTH_DECIMAL_PLACE, $
               (*HPTSArr[HJiInd])[oflow_i],0, $
-              N=ptsMinOutflow, $
+              NPTS=ptsMinOutflow, $
               MIN_T_STREAKLEN=min_streakLen_t, $
               GAP_TIME=allowableGap, $
               START_I=start_i, $
@@ -629,11 +966,12 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
          PFLUX:TEMPORARY(PArr), $
          PTCL:TEMPORARY(HArr)}
 
-  avgInd = 0 ;;Just plain old
+  avgInd        = 0 ;;Just plain old
   avgTypeString = ''
 
-  posVal = 1
+  ;; posVal = 1
   ;; absVal = 1
+  negVal = 1
   IF KEYWORD_SET(posVal) THEN BEGIN
      avgInd = 1
      avgTypeString = 'POS'
@@ -725,339 +1063,5 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
   ENDIF
 
   RETURN,finStruct
-
-END
-
-FUNCTION SETUP_TAGNAMES_AND_INDICES,tmpStruct, $
-                                    Bind,Eind,Hind, $
-                                    Btags,Etags,Htags,Ptags, $
-                                    nBTags,nETags,nHTags,nPTags, $
-                                    BPind,BVind,BBind, $
-                                    EAVind,ENBind,EDSPind,EIENBind, $
-                                    HJEeInd,HJeInd,HJiInd
-
-  strucTags    = TAG_NAMES(tmpStruct)
-
-  Bind         = WHERE(STRUPCASE(strucTags) EQ 'DB')
-  Eind         = WHERE(STRUPCASE(strucTags) EQ 'E')
-  Hind         = WHERE(STRUPCASE(strucTags) EQ 'PTCL')
-
-  IF (Bind[0] EQ -1) THEN BEGIN
-     PRINT,"Couldn't find B-field member in this struct! Gotta return ..."
-     RETURN,-1
-  ENDIF
-
-  IF (Eind[0] EQ -1) THEN BEGIN
-     PRINT,"Couldn't find E-field member in this struct! Gotta return ..."
-     RETURN,-1
-  ENDIF
-
-  IF (Hind[0] EQ -1) THEN BEGIN
-     PRINT,"Couldn't find particle member in this struct! Gotta return ..."
-     RETURN,-1
-  ENDIF
-
-  Btags        = TAG_NAMES(tmpStruct.(Bind))
-  Etags        = TAG_NAMES(tmpStruct.(Eind))
-  Htags        = TAG_NAMES(tmpStruct.(Hind))
-  ;; Ptags        = TAG_NAMES(tmpStruct.pFlux)
-  Ptags        = ['p','v','b']
-  ;; IF KEYWORD_SET(full_pFlux) THEN Ptags = [Ptags,'v']
-  
-  ;;Specifics for each type
-  BPind        = (WHERE(STRUPCASE(Btags) EQ 'P'                ))[0]
-  BVind        = (WHERE(STRUPCASE(Btags) EQ 'V'                ))[0]
-  BBind        = (WHERE(STRUPCASE(Btags) EQ 'B'                ))[0]
-
-  EAVind       = (WHERE(STRUPCASE(Etags) EQ 'ALONGV'           ))[0]
-  ENBind       = (WHERE(STRUPCASE(Etags) EQ 'NEARB'            ))[0]
-  EDSPind      = (WHERE(STRUPCASE(Etags) EQ 'DSP'              ))[0]
-  EIENBind     = (WHERE(STRUPCASE(Etags) EQ 'INCLUDE_E_NEAR_B' ))[0]
-
-  HJEeInd      = (WHERE(STRUPCASE(Htags) EQ 'JEE'              ))[0]
-  HJeInd       = (WHERE(STRUPCASE(Htags) EQ 'JE'               ))[0]
-  HJiInd       = (WHERE(STRUPCASE(Htags) EQ 'JI'               ))[0]
-
-  ;;How many of each type?
-  ;; nBTags       = N_ELEMENTS(Btags)
-  ;; nETags       = N_ELEMENTS(Etags)
-  ;; nHTags       = N_ELEMENTS(Htags)
-  ;; nPTags       = N_ELEMENTS(Ptags)
-
-  nBTags       = ( BPind   GE 0 ? 1 : 0 ) + ( BVind   GE 0 ? 1 : 0 ) + ( BBind    GE 0 ? 1 : 0 )
-  nETags       = ( EAVind  GE 0 ? 1 : 0 ) + ( ENBInd  GE 0 ? 1 : 0 ) + ( EDSPind  GE 0 ? 1 : 0 ) 
-  nHTags       = ( HJEeind GE 0 ? 1 : 0 ) + ( HJeInd  GE 0 ? 1 : 0 ) + ( HJiInd   GE 0 ? 1 : 0 )
-  nPTags       = N_ELEMENTS(Ptags)
-
-
-
-  RETURN,0
-
-END
-
-PRO DECLARE_ARRAYS,nOrbs,nBTags,nETags,nPTags,nHTags, $
-                   orbArr,itvlArr,noENBArr, $
-                   BDCArr,EDCArr,PDCArr, $
-                   BACArr,EACArr,PACArr, $
-                   HArr, $
-                   BPTSArr,EPTSArr, HPTSArr, $
-                   BDCAvg,BDCAbsAvg,BDCPosAvg,BDCNegAvg, $
-                   EDCAvg,EDCAbsAvg,EDCPosAvg,EDCNegAvg, $
-                   PDCAvg,PDCAbsAvg,PDCPosAvg,PDCNegAvg, $
-                   BACAvg,BACAbsAvg,BACPosAvg,BACNegAvg, $
-                   EACAvg,EACAbsAvg,EACPosAvg,EACNegAvg, $
-                   PACAvg,PACAbsAvg,PACPosAvg,PACNegAvg, $
-                   HAvg
-
-  maxNElems    = 1e6
-
-  ;;Pointers to time arrays
-  BPTSArr      = PTRARR(nBTags)
-  EPTSArr      = PTRARR(nETags)
-  HPTSArr      = PTRARR(nETags)
-
-  ;;Bro
-  orbArr       = MAKE_ARRAY(maxNElems       ,/LONG ,VALUE=0) 
-  itvlArr      = MAKE_ARRAY(maxNElems       ,/INTEG,VALUE=0) 
-  noENBArr     = MAKE_ARRAY(2,maxNElems     ,/INTEG,VALUE=0) 
-
-
-  ;;Arrays to store all outflow points
-  BDCArr       = MAKE_ARRAY(maxNElems,nBTags,/FLOAT,VALUE=0.) 
-  EDCArr       = MAKE_ARRAY(maxNElems,nETags,/FLOAT,VALUE=0.) 
-  PDCArr       = MAKE_ARRAY(maxNElems,nPTags,/FLOAT,VALUE=0.) 
-
-  BACArr       = MAKE_ARRAY(maxNElems,nBTags,/FLOAT,VALUE=0.) 
-  EACArr       = MAKE_ARRAY(maxNElems,nETags,/FLOAT,VALUE=0.) 
-  PACArr       = MAKE_ARRAY(maxNElems,nPTags,/FLOAT,VALUE=0.) 
-
-  HArr         = MAKE_ARRAY(maxNElems,nHTags,/FLOAT,VALUE=0.) 
-
-
-
-  BDCAvg       = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
-  BDCAbsAvg    = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
-  BDCPosAvg    = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
-  BDCNegAvg    = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
-
-  EDCAvg       = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
-  EDCAbsAvg    = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
-  EDCPosAvg    = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
-  EDCNegAvg    = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
-
-  PDCAvg       = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
-  PDCAbsAvg    = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
-  PDCPosAvg    = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
-  PDCNegAvg    = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
-
-  BACAvg       = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
-  BACAbsAvg    = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
-  BACPosAvg    = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
-  BACNegAvg    = MAKE_ARRAY(nOrbs,nBTags,/FLOAT,VALUE=0.) 
-
-  EACAvg       = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
-  EACAbsAvg    = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
-  EACPosAvg    = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
-  EACNegAvg    = MAKE_ARRAY(nOrbs,nETags,/FLOAT,VALUE=0.) 
-
-  PACAvg       = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
-  PACAbsAvg    = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
-  PACPosAvg    = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
-  PACNegAvg    = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
-
-  HAvg         = MAKE_ARRAY(nOrbs,nHTags,/FLOAT,VALUE=0.) 
-
-END
-
-PRO LOCALE_ADJUSTMENTS,times, $
-                       oflow_i,nOutflow, $
-                       NORTH=north, $
-                       SOUTH=south, $
-                       DAY=day, $
-                       NIGHT=night, $
-                       MINILAT=minILAT
-
-
-  IF ~(KEYWORD_SET(north) OR KEYWORD_SET(south) OR KEYWORD_SET(day) OR KEYWORD_SET(night)) THEN RETURN
-
-  GET_FA_ORBIT,times,/TIME_ARRAY,/DEFINITIVE
-
-  IF KEYWORD_SET(north) OR KEYWORD_SET(south) THEN BEGIN
-     haveHemi = 1
-     GET_DATA,'ILAT',DATA=ilat
-     ilat = ilat.y
-     
-  ENDIF
-
-  IF KEYWORD_SET(day) OR KEYWORD_SET(night) THEN BEGIN
-     haveSide = 1
-     GET_DATA,'MLT',DATA=mlt
-     mlt = mlt.y
-  ENDIF
-
-  IF KEYWORD_SET(north) THEN BEGIN
-
-     hemi_i  = WHERE(ilat GE minILAT,nHemi)
-     
-  ENDIF ELSE BEGIN
-
-     IF KEYWORD_SET(south) THEN BEGIN
-
-        hemi_i  = WHERE(ilat LE -1.*minILAT,nHemi)
-
-     ENDIF ELSE BEGIN
-
-        hemi_i  = WHERE(ABS(ilat) GE minILAT,nHemi)
-
-     ENDELSE
-
-  ENDELSE
-
-  IF KEYWORD_SET(day) THEN BEGIN
-
-     side_i    = WHERE(mlt GE 6.0 AND mlt LT 18.0 AND (ABS(ilat) GE minILAT),nSide)
-     
-  ENDIF ELSE BEGIN
-
-     IF KEYWORD_SET(night) THEN BEGIN
-
-        side_i    = WHERE(mlt GE 18.0 OR mlt LT 6.0 AND (ABS(ilat) GE minILAT),nSide)
-
-     ENDIF
-
-  ENDELSE
-
-  IF (nSide GT 0) AND (nHemi GT 0) THEN BEGIN
-     comb_i = CGSETINTERSECTION(hemi_i,side_i,COUNT=nComb)
-  ENDIF ELSE BEGIN
-     oflow_i = -1
-     RETURN
-  ENDELSE
-
-  IF nComb EQ 0 THEN BEGIN
-     oflow_i = -1
-     RETURN
-  ENDIF
-
-  oflow_i = CGSETINTERSECTION(comb_i,oflow_i,COUNT=nOutflow)
-
-  IF nOutflow EQ 0 THEN BEGIN
-     oflow_i = -1
-     RETURN
-  ENDIF
-
-END
-
-PRO EXTRACT_STRANGEWAY__FIELDS_N_COMPANY,nTags, $
-                                       DCArr,ACArr, $
-                                       oFloOrbDCArr, $
-                                       DCAvg, $
-                                       DCPosAvg, $
-                                       DCNegAvg, $
-                                       DCAbsAvg, $
-                                       oFloOrbACArr, $
-                                       ACAvg, $
-                                       ACPosAvg, $
-                                       ACNegAvg, $
-                                       ACAbsAvg, $
-                                       totInds,orbCnt
-
-  FOR l=0,nTags-1 DO BEGIN
-
-     DCArr[totInds,l]  = ofloOrbDCArr[*,l]
-     ACArr[totInds,l]  = ofloOrbACArr[*,l]
-
-     safeDC  = WHERE(FINITE(ofloOrbDCArr[*,l]),nSafeDC)
-     safeAC  = WHERE(FINITE(ofloOrbACArr[*,l]),nSafeAC)
-
-     posDC   = CGSETINTERSECTION(safeDC,WHERE(ofloOrbDCArr[*,l] GT 0),COUNT=nPosDC)
-     posAC   = CGSETINTERSECTION(safeAC,WHERE(ofloOrbACArr[*,l] GT 0),COUNT=nPosAC)
-
-     negDC   = CGSETINTERSECTION(safeDC,WHERE(ofloOrbDCArr[*,l] LT 0),COUNT=nNegDC)
-     negAC   = CGSETINTERSECTION(safeAC,WHERE(ofloOrbACArr[*,l] LT 0),COUNT=nNegAC)
-
-     IF safeDC[0] NE -1 THEN BEGIN
-        DCAvg   [orbCnt,l]  = MEAN(     (ofloOrbDCArr[*,l])[safeDC]  )
-        DCABSAvg[orbCnt,l]  = MEAN( ABS((ofloOrbDCArr[*,l])[safeDC]) )
-     ENDIF ELSE BEGIN
-        DCAvg   [orbCnt,l]  = !VALUES.F_NaN
-        DCABSAvg[orbCnt,l]  = !VALUES.F_NaN
-     ENDELSE
-
-     IF posDC[0] NE -1 THEN BEGIN
-        DCPosAvg[orbCnt,l]  = MEAN( (ofloOrbDCArr[*,l])[posDC ] )
-     ENDIF ELSE BEGIN
-        DCPosAvg[orbCnt,l]  = !VALUES.F_NaN
-     ENDELSE
-
-     IF negDC[0] NE -1 THEN BEGIN
-        DCNegAvg[orbCnt,l]  = MEAN( (ofloOrbDCArr[*,l])[negDC ] )
-     ENDIF ELSE BEGIN
-        DCNegAvg[orbCnt,l]  = !VALUES.F_NaN
-     ENDELSE
-
-     IF safeAC[0] NE -1 THEN BEGIN
-        ACAvg[orbCnt,l]     = MEAN( (ofloOrbACArr[*,l])[safeAC] )
-        ACABSAvg[orbCnt,l]  = MEAN( ABS((ofloOrbACArr[*,l])[safeAC]) )
-     ENDIF ELSE BEGIN
-        ACAvg[orbCnt,l]     = !VALUES.F_NaN
-        ACABSAvg[orbCnt,l]  = !VALUES.F_NaN
-     ENDELSE
-
-     IF posAC[0] NE -1 THEN BEGIN
-        ACPosAvg[orbCnt,l] = MEAN( (ofloOrbACArr[*,l])[posAC ] )
-     ENDIF ELSE BEGIN
-        ACPosAvg[orbCnt,l] = !VALUES.F_NaN
-     ENDELSE
-
-     IF negAC[0] NE -1 THEN BEGIN
-        ACNegAvg[orbCnt,l] = MEAN( (ofloOrbACArr[*,l])[negAC ] )
-     ENDIF ELSE BEGIN
-        ACNegAvg[orbCnt,l] = !VALUES.F_NaN
-     ENDELSE
-
-  ENDFOR
-
-END
-
-PRO KILL_AVG_ARRAYS,BDCAvg,BDCAbsAvg,BDCPosAvg,BDCNegAvg, $
-                    EDCAvg,EDCAbsAvg,EDCPosAvg,EDCNegAvg, $
-                    PDCAvg,PDCAbsAvg,PDCPosAvg,PDCNegAvg, $
-                    BACAvg,BACAbsAvg,BACPosAvg,BACNegAvg, $
-                    EACAvg,EACAbsAvg,EACPosAvg,EACNegAvg, $
-                    PACAvg,PACAbsAvg,PACPosAvg,PACNegAvg, $
-                    HAvg
-
-  BDCAvg       = !NULL
-  BDCAbsAvg    = !NULL
-  BDCPosAvg    = !NULL
-  BDCNegAvg    = !NULL
-
-  EDCAvg       = !NULL
-  EDCAbsAvg    = !NULL
-  EDCPosAvg    = !NULL
-  EDCNegAvg    = !NULL
-
-  PDCAvg       = !NULL
-  PDCAbsAvg    = !NULL
-  PDCPosAvg    = !NULL
-  PDCNegAvg    = !NULL
-
-  BACAvg       = !NULL
-  BACAbsAvg    = !NULL
-  BACPosAvg    = !NULL
-  BACNegAvg    = !NULL
-
-  EACAvg       = !NULL
-  EACAbsAvg    = !NULL
-  EACPosAvg    = !NULL
-  EACNegAvg    = !NULL
-
-  PACAvg       = !NULL
-  PACAbsAvg    = !NULL
-  PACPosAvg    = !NULL
-  PACNegAvg    = !NULL
-
-  HAvg         = !NULL
 
 END

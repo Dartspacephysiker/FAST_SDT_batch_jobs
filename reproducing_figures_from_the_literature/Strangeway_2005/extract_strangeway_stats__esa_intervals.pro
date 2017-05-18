@@ -15,6 +15,35 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
 
   COMPILE_OPT IDL2
 
+  ;; outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/'
+  ;; hashFile     = 'Strangeway_et_al_2005__DC_params--ESA_intervals.sav'
+
+  ;; bonusSuff    = ''
+  ;; bonusSuff    = '--500eV_upper'
+  ;; bonusSuff    = '--4eV_lower'
+  ;; bonusSuff    = '--absVals__handchecked_ionEnergies--4eV_lower'
+
+  ;; hashFile    += bonusSuff
+
+  @strangeway_2005__defaults__esa_intervals.pro
+
+  bonusSuff    = (STRSPLIT(hashFile,'\.sav',/REGEX,/EXTRACT))[1]
+
+  maxNElems    = 1e6
+  maxNItvls    = 30S
+
+  orbArr       = MAKE_ARRAY(maxNElems          ,/LONG ,VALUE=0.) 
+  itvlArr      = MAKE_ARRAY(maxNElems          ,/INTEG,VALUE=0.) 
+  eAlongVArr   = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.) 
+  dB_perpArr   = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.) 
+  pFAlongBArr  = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
+  jeArr        = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)      
+  jeeArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)     
+  jiArr        = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)      
+  dspArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
+  lenArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
+  nPtArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
+
   defs = SETUP_STRANGEWAY_STATS__DEFAULTS($
          AVERAGES=averages, $
          INTEGRALS=integrals, $
@@ -22,15 +51,6 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
          SOUTH=south, $
          DAY=day, $
          NIGHT=night)
-
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/'
-  hashFile     = 'Strangeway_et_al_2005__DC_params--ESA_intervals.sav'
-
-  bonusSuff    = ''
-  ;; bonusSuff    = '--500eV_upper'
-  bonusSuff    = '--4eV_lower'
-
-  hashFile    += bonusSuff
 
   IF FILE_TEST(outDir+hashFile) THEN BEGIN
      PRINT,"Restoring hash file ..."
@@ -47,21 +67,6 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS, $
      PRINT,'Nothing here! Returning ...'
      RETURN,-1
   ENDELSE
-
-  maxNElems    = 1e6
-  maxNItvls    = 30S
-
-  orbArr       = MAKE_ARRAY(maxNElems          ,/LONG ,VALUE=0.) 
-  itvlArr      = MAKE_ARRAY(maxNElems          ,/INTEG,VALUE=0.) 
-  eAlongVArr   = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.) 
-  dB_perpArr   = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.) 
-  pFAlongBArr  = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
-  jeArr        = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)      
-  jeeArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)     
-  jiArr        = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)      
-  dspArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
-  lenArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
-  nPtArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
 
   nCount       = 0
   orbCnt       = 0

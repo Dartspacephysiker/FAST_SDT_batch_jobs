@@ -1,0 +1,24 @@
+2017/05/18
+
+You've come here seeking my precious pearls of wisdom, this I have divined. Today's your day, son:
+
+Want to reproduce some Strangeway et al. [2005] figures?
+
+FIGURE 1
+========
+Just run JOURNAL__20160924__STRANGEWAY_2005__FIGURE_2__ORB_8276, vanilla (or castoreum)
+
+FIGURE 3
+========
+Just run the next guy, JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276 (definitely castoreum)
+
+FIGURES 5–8
+===========
+Much more involved. To make the necessary files, either run the SDT batch job "strangeway_2005__esa_intervals" or "strangeway_2005__appendix_a." The latter does a proper decimation and smoothing, á la Strangeway et al. [2005] Appendix A.
+
+To get some plots out, run the unobviously named EXTRACT_STRANGEWAY_STATS__ESA_INTERVALS or EXTRACT_STRANGEWAY_STATS__APPENDIX_A.
+
+Want to do the AC Poynting flux version? Run the batch job "brambles_2011." Then run EXTRACT_BRAMBLES_STATS__ESA_INTERVALS (which requires the existence of one of the hashes produced by SDT batch jobs "strangeway_2005__esa_intervals" or "strangeway_2005__appendix_a.")
+
+
+OH, and you probably need to change the name of the hash file in the appropriate strangeway_2005__defaults* file

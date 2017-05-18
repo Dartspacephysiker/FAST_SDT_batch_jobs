@@ -13,8 +13,10 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
 
   COMPILE_OPT IDL2
 
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Brambles_et_al_2011/'
-  hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav'
+  @brambles_2011__defaults__esa_intervals.pro
+
+  ;; outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Brambles_et_al_2011/'
+  ;; hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav'
 
   ;; bonusSuff    = '--full_pFlux--interp'
   ;; bonusSuff    = '--full_pFlux--interp--128Ss'
@@ -26,9 +28,9 @@ FUNCTION EXTRACT_BRAMBLES_STATS__ESA_INTERVALS, $
   ;; bonusSuff    = '--absVals__handchecked_ionEnergies'
 
   ;; bonusSuff    = '--absVals--also_E_near_B--full_pFlux--eFieldFit'
-  bonusSuff    = '--absVals__handchecked_ionEnergies--also_E_near_B--full_pFlux--eFieldFit'
+  ;; bonusSuff    = '--absVals__handchecked_ionEnergies--also_E_near_B--full_pFlux--eFieldFit'
 
-  hashFile    += bonusSuff
+  ;; hashFile    += bonusSuff
 
   IF FILE_TEST(outDir+hashFile) THEN BEGIN
      PRINT,"Restoring hash file ..."

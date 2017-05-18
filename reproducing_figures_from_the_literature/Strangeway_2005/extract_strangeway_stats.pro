@@ -9,7 +9,20 @@ FUNCTION EXTRACT_STRANGEWAY_STATS, $
 
   COMPILE_OPT IDL2
 
-  defStat = 2 ;average
+  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/'
+  hashFile     = 'Strangeway_et_al_2005__DC_params.sav'
+
+  defStat      = 2 ;average
+
+  maxNElems    = 1e6
+
+  orbArr       = MAKE_ARRAY(N_ELEMENTS(swHash) ,/FLOAT,VALUE=0.) 
+  eAlongVArr   = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.) 
+  dB_perpArr   = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.) 
+  pFAlongBArr  = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
+  jeArr        = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)      
+  jeeArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)     
+  jiArr        = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)      
 
   CASE 1 OF
      KEYWORD_SET(averages): BEGIN
@@ -47,11 +60,6 @@ FUNCTION EXTRACT_STRANGEWAY_STATS, $
      END
   ENDCASE
 
-
-
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/'
-  hashFile     = 'Strangeway_et_al_2005__DC_params.sav'
-
   IF FILE_TEST(outDir+hashFile) THEN BEGIN
      PRINT,"Restoring hash file ..."
      RESTORE,outDir+hashFile
@@ -67,16 +75,6 @@ FUNCTION EXTRACT_STRANGEWAY_STATS, $
      PRINT,'Nothing here! Returning ...'
      RETURN,-1
   ENDELSE
-
-  maxNElems    = 1e6
-
-  orbArr       = MAKE_ARRAY(N_ELEMENTS(swHash) ,/FLOAT,VALUE=0.) 
-  eAlongVArr   = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.) 
-  dB_perpArr   = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.) 
-  pFAlongBArr  = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)
-  jeArr        = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)      
-  jeeArr       = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)     
-  jiArr        = MAKE_ARRAY(maxNElems          ,/FLOAT,VALUE=0.)      
 
   nCount       = 0
   orbCnt       = 0
