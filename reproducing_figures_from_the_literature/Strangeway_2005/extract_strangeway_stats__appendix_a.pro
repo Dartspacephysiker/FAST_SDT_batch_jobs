@@ -807,110 +807,110 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
 
   ;;Final shrink
   dBAvg = CREATE_STRUCT('P',{DC:{avg:BDCAvg[*,0], $
-                               pos:BDCPosAvg[*,0], $
-                               neg:BDCNegAvg[*,0], $
-                               abs:BDCAbsAvg[*,0]}, $
-                           AC:{avg:BACAvg[*,0], $
-                               pos:BACPosAvg[*,0], $
-                               neg:BACNegAvg[*,0], $
-                               abs:BACAbsAvg[*,0]}}, $
-                      'V',{DC:{avg:BDCAvg[*,1], $
-                               pos:BDCPosAvg[*,1], $
-                               neg:BDCNegAvg[*,1], $
-                               abs:BDCAbsAvg[*,1]}, $
-                           AC:{avg:BACAvg[*,1], $
-                               pos:BACPosAvg[*,1], $
-                               neg:BACNegAvg[*,1], $
-                               abs:BACAbsAvg[*,1]}}, $
-                      'B',{DC:{avg:BDCAvg[*,2], $
-                               pos:BDCPosAvg[*,2], $
-                               neg:BDCNegAvg[*,2], $
-                               abs:BDCAbsAvg[*,2]}, $
-                           AC:{avg:BACAvg[*,2], $
-                               pos:BACPosAvg[*,2], $
-                               neg:BACNegAvg[*,2], $
-                               abs:BACAbsAvg[*,2]}})
+                                 pos:BDCPosAvg[*,0], $
+                                 neg:BDCNegAvg[*,0], $
+                                 abs:BDCAbsAvg[*,0]}, $
+                             AC:{avg:BACAvg[*,0], $
+                                 pos:BACPosAvg[*,0], $
+                                 neg:BACNegAvg[*,0], $
+                                 abs:BACAbsAvg[*,0]}}, $
+                        'V',{DC:{avg:BDCAvg[*,1], $
+                                 pos:BDCPosAvg[*,1], $
+                                 neg:BDCNegAvg[*,1], $
+                                 abs:BDCAbsAvg[*,1]}, $
+                             AC:{avg:BACAvg[*,1], $
+                                 pos:BACPosAvg[*,1], $
+                                 neg:BACNegAvg[*,1], $
+                                 abs:BACAbsAvg[*,1]}}, $
+                        'B',{DC:{avg:BDCAvg[*,2], $
+                                 pos:BDCPosAvg[*,2], $
+                                 neg:BDCNegAvg[*,2], $
+                                 abs:BDCAbsAvg[*,2]}, $
+                             AC:{avg:BACAvg[*,2], $
+                                 pos:BACPosAvg[*,2], $
+                                 neg:BACNegAvg[*,2], $
+                                 abs:BACAbsAvg[*,2]}})
 
   EAvg = CREATE_STRUCT('AlongV',{DC:{avg:EDCAvg[*,0], $
-                               pos:EDCPosAvg[*,0], $
-                               neg:EDCNegAvg[*,0], $
-                               abs:EDCAbsAvg[*,0]}, $
-                           AC:{avg:EACAvg[*,0], $
-                               pos:EACPosAvg[*,0], $
-                               neg:EACNegAvg[*,0], $
-                               abs:EACAbsAvg[*,0]}}, $
-                      'NearB',{DC:{avg:EDCAvg[*,1], $
-                               pos:EDCPosAvg[*,1], $
-                               neg:EDCNegAvg[*,1], $
-                               abs:EDCAbsAvg[*,1]}, $
-                           AC:{avg:EACAvg[*,1], $
-                               pos:EACPosAvg[*,1], $
-                               neg:EACNegAvg[*,1], $
-                               abs:EACAbsAvg[*,1]}}, $
-                      'DSP',{DC:{avg:EDCAvg[*,2], $
-                               pos:EDCPosAvg[*,2], $
-                               neg:EDCNegAvg[*,2], $
-                               abs:EDCAbsAvg[*,2]}, $
-                           AC:{avg:EACAvg[*,2], $
-                               pos:EACPosAvg[*,2], $
-                               neg:EACNegAvg[*,2], $
-                               abs:EACAbsAvg[*,2]}})
+                                     pos:EDCPosAvg[*,0], $
+                                     neg:EDCNegAvg[*,0], $
+                                     abs:EDCAbsAvg[*,0]}, $
+                                 AC:{avg:EACAvg[*,0], $
+                                     pos:EACPosAvg[*,0], $
+                                     neg:EACNegAvg[*,0], $
+                                     abs:EACAbsAvg[*,0]}}, $
+                       'NearB',{DC:{avg:EDCAvg[*,1], $
+                                    pos:EDCPosAvg[*,1], $
+                                    neg:EDCNegAvg[*,1], $
+                                    abs:EDCAbsAvg[*,1]}, $
+                                AC:{avg:EACAvg[*,1], $
+                                    pos:EACPosAvg[*,1], $
+                                    neg:EACNegAvg[*,1], $
+                                    abs:EACAbsAvg[*,1]}}, $
+                       'DSP',{DC:{avg:EDCAvg[*,2], $
+                                  pos:EDCPosAvg[*,2], $
+                                  neg:EDCNegAvg[*,2], $
+                                  abs:EDCAbsAvg[*,2]}, $
+                              AC:{avg:EACAvg[*,2], $
+                                  pos:EACPosAvg[*,2], $
+                                  neg:EACNegAvg[*,2], $
+                                  abs:EACAbsAvg[*,2]}})
 
   PAvg = CREATE_STRUCT('P',{DC:{avg:PDCAvg[*,0], $
-                              pos:PDCPosAvg[*,0], $
-                              neg:PDCNegAvg[*,0], $
-                              abs:PDCAbsAvg[*,0]}, $
-                          AC:{avg:PACAvg[*,0], $
-                              pos:PACPosAvg[*,0], $
-                              neg:PACNegAvg[*,0], $
-                              abs:PACAbsAvg[*,0]}}, $
-                     'V',{DC:{avg:PDCAvg[*,1], $
-                              pos:PDCPosAvg[*,1], $
-                              neg:PDCNegAvg[*,1], $
-                              abs:PDCAbsAvg[*,1]}, $
-                          AC:{avg:PACAvg[*,1], $
-                              pos:PACPosAvg[*,1], $
-                              neg:PACNegAvg[*,1], $
-                              abs:PACAbsAvg[*,1]}}, $
-                     'B',{DC:{avg:PDCAvg[*,2], $
-                              pos:PDCPosAvg[*,2], $
-                              neg:PDCNegAvg[*,2], $
-                              abs:PDCAbsAvg[*,2]}, $
-                          AC:{avg:PACAvg[*,2], $
-                              pos:PACPosAvg[*,2], $
-                              neg:PACNegAvg[*,2], $
-                              abs:PACAbsAvg[*,2]}})
+                                pos:PDCPosAvg[*,0], $
+                                neg:PDCNegAvg[*,0], $
+                                abs:PDCAbsAvg[*,0]}, $
+                            AC:{avg:PACAvg[*,0], $
+                                pos:PACPosAvg[*,0], $
+                                neg:PACNegAvg[*,0], $
+                                abs:PACAbsAvg[*,0]}}, $
+                       'V',{DC:{avg:PDCAvg[*,1], $
+                                pos:PDCPosAvg[*,1], $
+                                neg:PDCNegAvg[*,1], $
+                                abs:PDCAbsAvg[*,1]}, $
+                            AC:{avg:PACAvg[*,1], $
+                                pos:PACPosAvg[*,1], $
+                                neg:PACNegAvg[*,1], $
+                                abs:PACAbsAvg[*,1]}}, $
+                       'B',{DC:{avg:PDCAvg[*,2], $
+                                pos:PDCPosAvg[*,2], $
+                                neg:PDCNegAvg[*,2], $
+                                abs:PDCAbsAvg[*,2]}, $
+                            AC:{avg:PACAvg[*,2], $
+                                pos:PACPosAvg[*,2], $
+                                neg:PACNegAvg[*,2], $
+                                abs:PACAbsAvg[*,2]}})
 
   HAvg = CREATE_STRUCT('JEe',{y:{avg:HAvg[*,0]}}, $
-                              ;; pos:HPosAvg[*,0], $
-                              ;; neg:HNegAvg[*,0], $
-                              ;; abs:HAbsAvg[*,0]}, $
-                          ;; AC:{avg:HACAvg[*,0], $
-                              ;; pos:HACPosAvg[*,0], $
-                              ;; neg:HACNegAvg[*,0], $
-                              ;; abs:HACAbsAvg[*,0]}}, $
-                     'Je',{y:{avg:HAvg[*,1]}}, $
-                              ;; pos:HPosAvg[*,1], $
-                              ;; neg:HNegAvg[*,1], $
-                              ;; abs:HAbsAvg[*,1]}, $
-                          ;; AC:{avg:HACAvg[*,1], $
-                              ;; pos:HACPosAvg[*,1], $
-                              ;; neg:HACNegAvg[*,1], $
-                              ;; abs:HACAbsAvg[*,1]}}, $
-                     'Ji',{y:{avg:HAvg[*,2]}})
-                              ;; pos:HPosAvg[*,2], $
-                              ;; neg:HNegAvg[*,2], $
-                              ;; abs:HAbsAvg[*,2]}, $
-                          ;; AC:{avg:HACAvg[*,2], $
-                              ;; pos:HACPosAvg[*,2], $
-                              ;; neg:HACNegAvg[*,2], $
-                              ;; abs:HACAbsAvg[*,2]}})
+                       ;; pos:HPosAvg[*,0], $
+                       ;; neg:HNegAvg[*,0], $
+                       ;; abs:HAbsAvg[*,0]}, $
+                       ;; AC:{avg:HACAvg[*,0], $
+                       ;; pos:HACPosAvg[*,0], $
+                       ;; neg:HACNegAvg[*,0], $
+                       ;; abs:HACAbsAvg[*,0]}}, $
+                       'Je',{y:{avg:HAvg[*,1]}}, $
+                       ;; pos:HPosAvg[*,1], $
+                       ;; neg:HNegAvg[*,1], $
+                       ;; abs:HAbsAvg[*,1]}, $
+                       ;; AC:{avg:HACAvg[*,1], $
+                       ;; pos:HACPosAvg[*,1], $
+                       ;; neg:HACNegAvg[*,1], $
+                       ;; abs:HACAbsAvg[*,1]}}, $
+                       'Ji',{y:{avg:HAvg[*,2]}})
+  ;; pos:HPosAvg[*,2], $
+  ;; neg:HNegAvg[*,2], $
+  ;; abs:HAbsAvg[*,2]}, $
+  ;; AC:{avg:HACAvg[*,2], $
+  ;; pos:HACPosAvg[*,2], $
+  ;; neg:HACNegAvg[*,2], $
+  ;; abs:HACAbsAvg[*,2]}})
 
-  avgStruct = {orbit:(swHash.Keys()).ToArray(), $
-               dB:TEMPORARY(dBAvg), $
-               E:TEMPORARY(EAvg), $
-               PFLUX:TEMPORARY(PAvg), $
-               PTCL:TEMPORARY(HAvg)}
+  avgStruct = {orbit  : (swHash.Keys()).ToArray(), $
+               dB     : TEMPORARY(dBAvg), $
+               E      : TEMPORARY(EAvg), $
+               PFLUX  : TEMPORARY(PAvg), $
+               PTCL   : TEMPORARY(HAvg)}
 
   KILL_AVG_ARRAYS,BDCAvg,BDCAbsAvg,BDCPosAvg,BDCNegAvg, $
                   EDCAvg,EDCAbsAvg,EDCPosAvg,EDCNegAvg, $

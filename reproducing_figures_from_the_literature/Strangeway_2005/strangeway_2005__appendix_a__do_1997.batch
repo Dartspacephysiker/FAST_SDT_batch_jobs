@@ -1,0 +1,10 @@
+BatchJob: "strangeway_et_al_2005__appendix_a__do_1997"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005__appendix_a__do_1997_wrapper.pro
+
+DataBaseRequest:
+    Orbits 1436-5382
+
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005
+PlotConfigurationFile: rjs_clean

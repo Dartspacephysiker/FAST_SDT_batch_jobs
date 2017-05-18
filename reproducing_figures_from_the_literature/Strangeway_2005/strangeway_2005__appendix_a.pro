@@ -16,6 +16,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
    SCREEN_PLOT=screen_plot, $
    USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
+   SAVE_INDIVIDUAL_ORBIT=save_individual_orbit, $
    NO_BLANK_PANELS=no_blank_panels, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps
@@ -111,6 +112,10 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
      orbString           = STRING(FORMAT='(I0)',orbit)
      outPlotName        += '--' + orbString
+
+     IF KEYWORD_SET(save_individual_orbit) THEN BEGIN
+        indiv_orbFile = indivOrbPref + orbString + '.sav'
+     ENDIF
 
      ;;Get time and Je info
      check =  LOAD_JE_AND_JE_TIMES_FOR_ORB(orbit, $
@@ -312,9 +317,6 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
   ;; temp        = GET_FA_EES(t2Ptcl,INDEX=DOUBLE(last_index))
 
   ;; PRINT,FORMAT='(A0,T35,A0,", ",A0)',"Particle beginning/end : ",TIME_TO_STR(,/MSEC),TIME_TO_STR(t2ptcl,/MSEC)
-
-
-     
 
   types_2dt = ['je_2d_fs','j_2d_fs','j_2d_fs']
   routs_2dt = ['fa_ees_c','fa_ees_c','fa_ies_c']
@@ -1146,30 +1148,50 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
   ENDFOR
 
-  IF ~KEYWORD_SET(no_hash_update) THEN BEGIN
-     IF FILE_TEST(outDir+hashFile) THEN BEGIN
-        PRINT,"Restoring hash file " + hashFile + " ..."
-        RESTORE,outDir+hashFile
+  CASE 1 OF
+     KEYWORD_SET(save_individual_orbit): BEGIN
 
-        CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
-           -1: BEGIN
-              PRINT,'Adding stuff from orbit ' + orbString + ' ...'
-              swHash  = swHash + ORDEREDHASH(orbit,structList)
-           END
-           ELSE: BEGIN
-              PRINT,'Replacing hash entry for orbit ' + orbString + ' ...'
-              swHash[orbit] = structList
-           END
-        ENDCASE
+        PRINT,"Saving " + indiv_orbFile + ' ...' 
+        SAVE,structList,FILENAME=indiv_orbFile
 
-        PRINT,'Saving Strangeway statistics hash ...'
-        SAVE,swHash,FILENAME=outDir+hashFile
-     ENDIF ELSE BEGIN
-        PRINT,'Creating Strangeway statistics hash for orbit ' + orbString + ' ...'
-        swHash = ORDEREDHASH(orbit,structList)
-        SAVE,swHash,FILENAME=outDir+hashFile
-     ENDELSE
-  ENDIF
+     END
+     ELSE: BEGIN
+
+        IF ~KEYWORD_SET(no_hash_update) THEN BEGIN
+
+           IF FILE_TEST(outDir+hashFile) THEN BEGIN
+              PRINT,"Restoring hash file " + hashFile + " ..."
+              RESTORE,outDir+hashFile
+
+              CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
+                 -1: BEGIN
+                    PRINT,'Adding stuff from orbit ' + orbString + ' ...'
+                    swHash  = swHash + ORDEREDHASH(orbit,structList)
+                 END
+                 ELSE: BEGIN
+                    PRINT,'Replacing hash entry for orbit ' + orbString + ' ...'
+                    swHash[orbit] = structList
+                 END
+              ENDCASE
+
+              PRINT,'Saving Strangeway statistics hash ...'
+
+              SAVE,swHash,FILENAME=outDir+hashFile
+
+           ENDIF ELSE BEGIN
+
+              PRINT,'Creating Strangeway statistics hash for orbit ' + orbString + ' ...'
+
+              swHash = ORDEREDHASH(orbit,structList)
+
+              SAVE,swHash,FILENAME=outDir+hashFile
+
+           ENDELSE
+
+        ENDIF
+
+     END
+  ENDCASE
 
   RETURN
 
