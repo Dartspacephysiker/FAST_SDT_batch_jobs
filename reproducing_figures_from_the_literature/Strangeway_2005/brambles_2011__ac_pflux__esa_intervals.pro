@@ -1,7 +1,7 @@
 ;;2016/09/26
 ;;It's better to use the ESA intervals, methinks
 PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
-   TPLOT_VARS=tplot_vars, $
+   TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $
    PLOT_SOUTH=plot_south, $
    TLIMIT_NORTH=tlimit_north, $
@@ -189,7 +189,7 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
 
      endif
 
-     ;; got mag data, set time limits, delete unused tplot variables, set tplot_vars
+     ;; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
 
      STORE_DATA,'BDATA',/delete
      STORE_DATA,'BFIT',/delete
@@ -767,11 +767,11 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
      tmpDatStruct = CREATE_STRUCT("mag",mag)
      tmp1sStruct  = CREATE_STRUCT("mag",mag1s)
 
-     tplot_vars   = 'dB_ac_interp'
+     tPlt_vars   = 'dB_ac_interp'
 
      IF (KEYWORD_SET(screen_plot)) THEN BEGIN
         LOADCT2,40
-        TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT']
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
      endif
 
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -801,22 +801,21 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
                 [data.y]]}
 
      STORE_DATA,'E_ALONG_V_AC',DATA=data,dlimit=dlimit
-     OPTIONS,'E_ALONG_V_AC','yrange',0
      OPTIONS,'E_ALONG_V_AC','ytitle','E along V!Dsc!N!C!C[AC] (mV/m)'
      OPTIONS,'E_ALONG_V_AC','colors',[normColorI,normColorI]
      OPTIONS,'E_ALONG_V_AC','panel_size',2
      OPTIONS,'E_ALONG_V_AC','x_no_interp',1
      OPTIONS,'E_ALONG_V_AC','y_no_interp',1
 
-     IF (N_ELEMENTS(tplot_vars) EQ 0) THEN BEGIN
-        tplot_vars=['E_ALONG_V_AC']
+     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN BEGIN
+        tPlt_vars=['E_ALONG_V_AC']
      ENDIF ELSE BEGIN
-        tplot_vars=['E_ALONG_V_AC',tplot_vars]
+        tPlt_vars=['E_ALONG_V_AC',tPlt_vars]
      ENDELSE
 
      IF (KEYWORD_SET(screen_plot)) THEN BEGIN
         LOADCT2,40
-        TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT']
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
      ENDIF
 
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -847,12 +846,12 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
      OPTIONS,'pFlux_ac','x_no_interp',1
      OPTIONS,'pFlux_ac','y_no_interp',1
 
-     IF (N_ELEMENTS(tplot_vars) EQ 0) THEN tplot_vars=['pFlux_ac'] $
-     ELSE tplot_vars=['pFlux_ac',tplot_vars]
+     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=['pFlux_ac'] $
+     ELSE tPlt_vars=['pFlux_ac',tPlt_vars]
 
      IF (KEYWORD_SET(screen_plot)) THEN BEGIN
         LOADCT2,40
-        TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT']
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
      ENDIF
      tmpDatStruct = CREATE_STRUCT(tmpDatStruct,"pFluxB",pFluxB)
      tmp1sStruct  = CREATE_STRUCT(tmp1sStruct,"pFluxB",pFluxB1s)
@@ -886,12 +885,12 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
      OPTIONS,'pFluxP_ac','x_no_interp',1
      OPTIONS,'pFluxP_ac','y_no_interp',1
 
-     IF (N_ELEMENTS(tplot_vars) EQ 0) THEN tplot_vars=['pFluxP_ac'] $
-     ELSE tplot_vars=['pFluxP_ac',tplot_vars]
+     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=['pFluxP_ac'] $
+     ELSE tPlt_vars=['pFluxP_ac',tPlt_vars]
 
      IF (KEYWORD_SET(screen_plot)) THEN BEGIN
         LOADCT2,40
-        TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT']
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
      ENDIF
      tmpDatStruct = CREATE_STRUCT(tmpDatStruct,"pFluxP",pFluxP)
      tmp1sStruct  = CREATE_STRUCT(tmp1sStruct,"pFluxP",pFluxP1s)
@@ -920,7 +919,7 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
      orbit_lab = strcompress(string(orbit,format="(i5.4)"),/remove_all)
      tplot_OPTIONS,'title','FAST Orbit ' + orbit_lab + ' ' + hemisph
 
-     ;; force tplot_vars to be all the panels unless no_blank_panels is set
+     ;; force tPlt_vars to be all the panels unless no_blank_panels is set
 
 
      IF KEYWORD_SET(screen_plot) OR KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
@@ -958,7 +957,7 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
         ENDCASE
 
         LOADCT2,40
-        TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
 
 
         IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN

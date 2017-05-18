@@ -1,12 +1,18 @@
-;;09/28/16
-;;Trying to reproduce Strangeway's AC Poynting flux
+;09/28/16
+;Trying to reproduce Strangeway's AC Poynting flux
+;"But really, Spence—what's going on in this routine?"
+;You want to know? Like … for real what's going on? 'Cause I'm serious.
+;"No, I know. So am I."
+;Don't mess with me, now.
+;"I'm serious! Just a summary or a few words, that's all. It's not like a Trump/Russia sort of thing and I'm Trump and you're
+;Comey, all right? Cool down, and tell me what's up!"
+;All right, check it.
+;
+;SUMM'R DAT ROUTEEN
+;==================
+;The idea is to use ESA intervals to pick up
 PRO STRANGEWAY_2005__APPENDIX_A, $
-   TPLOT_VARS=tplot_vars, $
-   ;; PLOT_NORTH=plot_north, $
-   ;; PLOT_SOUTH=plot_south, $
-   ;; TLIMIT_NORTH=tlimit_north, $
-   ;; TLIMIT_SOUTH=tlimit_south, $
-   ;; TLIMIT_ALL=tlimit_all, $
+   TPLT_VARS=tPlt_vars, $
    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
    SCREEN_PLOT=screen_plot, $
    USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
@@ -25,20 +31,20 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 ; dB_fac_v (dB_fac and dB_SM also stored)
 
 ; Returns:
-; tplot_vars  - array of tplot variables
+; tPlt_vars  - array of tplot variables
 ; tlimit_north - tlimits for northern hemisphere
 ; tlimit_south - tlimits for southern hemisphere
 ; tlimit_all -  tlimits for all the data
 
 ; procedure for making summary plots
-; batch_summary,tplot_vars=tplot_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
+; batch_summary,tPlt_vars=tPlt_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
 ; loadct2,40  ; load color table
-; if (n_elements(tplot_vars) gt 0) then tplot,tplot_vars,var=['ALT','ILAT','MLT']
+; if (n_elements(tPlt_vars) gt 0) then tplot,tPlt_vars,var=['ALT','ILAT','MLT']
 ; if (n_elements(tlimit_north) gt 0) then tlimit,tlimit_north  ; northern hemisphere
 ; if (n_elements(tlimit_south) gt 0) then tlimit,tlimit_south  ; southern hemisphere
 
 ; if running interactively
-; batch_summary,tplot_vars=tplot_vars,/screen_plot,/no_blank_panels
+; batch_summary,tPlt_vars=tPlt_vars,/screen_plot,/no_blank_panels
 
 ; Input needed on:
 ; (a) Northern/southern hemisphere limits
@@ -207,7 +213,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
      endif
 
-; got mag data, set time limits, delete unused tplot variables, set tplot_vars
+; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
 
      STORE_DATA,'BDATA',/delete
      STORE_DATA,'BFIT',/delete 
@@ -250,7 +256,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      t1 = data.x[0]
      t2 = data.x[n_elements(data.x)-1L]
      magz_tBounds = [t1,t2]
-     tplot_vars = 'dB_fac_v'
+     tPlt_vars = 'dB_fac_v'
      OPTIONS,'dB_fac_v','panel_size',2
      OPTIONS,'dB_fac','panel_size',2
      OPTIONS,'dB_sm','panel_size',2
@@ -261,11 +267,11 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      ;;Interp time series
      tS_1s = DOUBLE(LINDGEN(CEIL(t2-t1))+ROUND(t1))
 
-     tplot_vars = 'dB_fac_v'
+     tPlt_vars = 'dB_fac_v'
 
      if (keyword_set(screen_plot)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT'],TRANGE=je_tBounds
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT'],TRANGE=je_tBounds
      endif
 
 
@@ -472,11 +478,11 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
         STORE_DATA,'DSP_V5-V8',DATA=data
      endif
 
-     if (N_ELEMENTS(tplot_vars) eq 0) THEN tplot_vars=['DSP_V5-V8'] else tplot_vars=['DSP_V5-V8',tplot_vars]
+     if (N_ELEMENTS(tPlt_vars) eq 0) THEN tPlt_vars=['DSP_V5-V8'] else tPlt_vars=['DSP_V5-V8',tPlt_vars]
 
      if (keyword_set(screen_plot)) THEN BEGIN
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT'],TRANGE=je_tBounds
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT'],TRANGE=je_tBounds
      endif
 
      ;;Now integrate
@@ -775,12 +781,12 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      OPTIONS,'pFluxHigh','x_no_interp',1
      OPTIONS,'pFluxHigh','y_no_interp',1
 
-     IF (n_elements(tplot_vars) EQ 0) THEN tplot_vars=['pFluxHigh'] $
-     ELSE tplot_vars=['pFluxHigh',tplot_vars]
+     IF (n_elements(tPlt_vars) EQ 0) THEN tPlt_vars=['pFluxHigh'] $
+     ELSE tPlt_vars=['pFluxHigh',tPlt_vars]
 
      IF (KEYWORD_SET(screen_plot)) THEN BEGIN
         LOADCT2,40
-        TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT'],TRANGE=je_tBounds
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=je_tBounds
      ENDIF
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -825,12 +831,12 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      OPTIONS,'pFluxLow','x_no_interp',1
      OPTIONS,'pFluxLow','y_no_interp',1
 
-     IF (n_elements(tplot_vars) EQ 0) THEN tplot_vars=['pFluxLow'] $
-     ELSE tplot_vars=['pFluxLow',tplot_vars]
+     IF (n_elements(tPlt_vars) EQ 0) THEN tPlt_vars=['pFluxLow'] $
+     ELSE tPlt_vars=['pFluxLow',tPlt_vars]
 
      IF (KEYWORD_SET(screen_plot)) THEN BEGIN
         LOADCT2,40
-        TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT'],TRANGE=je_tBounds
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=je_tBounds
      ENDIF
 
 
@@ -985,7 +991,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      orbit_lab = STRCOMPRESS(STRING(orbit,FORMAT="(i5.4)"),/REMOVE_ALL)
      tplot_OPTIONS,'title','FAST Orbit ' + orbit_lab + ' ' + hemisph
 
-     tplot_vars=['dB_fac_v','pFluxHigh','pFluxLow','JEe_tmp','Je_tmp','Ji_tmp']
+     tPlt_vars=['dB_fac_v','pFluxHigh','pFluxLow','JEe_tmp','Je_tmp','Ji_tmp']
 
      IF KEYWORD_SET(screen_plot) OR KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
 
@@ -1021,7 +1027,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
         ;; ENDCASE
 
         LOADCT2,40
-        TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT'],TRANGE=je_tmp_tBounds
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=je_tmp_tBounds
 
 
         IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN

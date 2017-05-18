@@ -1,6 +1,6 @@
 ;;09/24/16
 PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
-   TPLOT_VARS=tplot_vars, $
+   TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $
    PLOT_SOUTH=plot_south, $
    TLIMIT_NORTH=tlimit_north, $
@@ -82,7 +82,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
 
      endif
 
-; got mag data, set time limits, delete unused tplot variables, set tplot_vars
+; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
 
      store_data,'BDATA',/delete
      store_data,'BFIT',/delete
@@ -125,7 +125,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
      t1 = data.x[0]
      t2 = data.x[n_elements(data.x)-1L]
      tlimit_all = [t1,t2]
-     tplot_vars = 'dB_fac_v'
+     tPlt_vars = 'dB_fac_v'
      options,'dB_fac_v','panel_size',2
      options,'dB_fac','panel_size',2
      options,'dB_sm','panel_size',2
@@ -133,18 +133,18 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
      ;;Interp time series
      tS_1s = DOUBLE(LINDGEN(CEIL(t2-t1))+ROUND(t1))
 
-     if (keyword_set(use_fac)) then tplot_vars = 'dB_fac'
+     if (keyword_set(use_fac)) then tPlt_vars = 'dB_fac'
 
-     if ~KEYWORD_SET(no_blank_panels) AND ~KEYWORD_SET(use_fac) then tplot_vars = 'dB_fac_v'
+     if ~KEYWORD_SET(no_blank_panels) AND ~KEYWORD_SET(use_fac) then tPlt_vars = 'dB_fac_v'
 
      if (keyword_set(screen_plot)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
      ;;Smooth to 4-s resolution
      PRINT,'SMOOTHmag'
-     var_name = tplot_vars
+     var_name = tPlt_vars
      GET_DATA,var_name,DATA=data
      FA_FIELDS_BUFS,{time:data.x},BUF_STARTS=strt_i,BUF_ENDS=stop_i
      IF (strt_i[0] EQ 0) AND (stop_i[0] EQ 0) THEN STOP
@@ -362,18 +362,18 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
      store_data,'EFIT_NEAR_B',/delete
      store_data,'EFIT_ALONG_V',/delete
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=['EFIT_ALONG_VSC'] else tplot_vars=['EFIT_ALONG_VSC',tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['EFIT_ALONG_VSC'] else tPlt_vars=['EFIT_ALONG_VSC',tPlt_vars]
 
      if (keyword_set(screen_plot)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
-  endif else if (n_elements(tplot_vars) ne 0) then begin
+  endif else if (n_elements(tPlt_vars) ne 0) then begin
 
-     tplot_vars = 'dB_fac'
-     if (keyword_set(use_fac_v)) then tplot_vars = 'dB_fac_v'
-     if ~KEYWORD_SET(no_blank_panels) then tplot_vars = 'dB_fac'
+     tPlt_vars = 'dB_fac'
+     if (keyword_set(use_fac_v)) then tPlt_vars = 'dB_fac_v'
+     if ~KEYWORD_SET(no_blank_panels) then tPlt_vars = 'dB_fac'
 
   endif
 
@@ -399,12 +399,12 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   options,'pFlux','x_no_interp',1
   options,'pFlux','y_no_interp',1
 
-  IF (n_elements(tplot_vars) EQ 0) THEN tplot_vars=['pFlux'] $
-  ELSE tplot_vars=['pFlux',tplot_vars]
+  IF (n_elements(tPlt_vars) EQ 0) THEN tPlt_vars=['pFlux'] $
+  ELSE tPlt_vars=['pFlux',tPlt_vars]
 
   IF (KEYWORD_SET(screen_plot)) THEN BEGIN
      LOADCT2,40
-     TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT']
+     TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
   ENDIF
 
 ; Step 4 - Electron junk
@@ -601,11 +601,11 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
         store_data,'DSP_V5-V8',data=data
      endif
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=['DSP_V5-V8'] else tplot_vars=['DSP_V5-V8',tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['DSP_V5-V8'] else tPlt_vars=['DSP_V5-V8',tPlt_vars]
 
      if (keyword_set(screen_plot)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
      ;;Now integrate
@@ -707,14 +707,14 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
   orbit_lab = strcompress(string(orbit,format="(i5.4)"),/remove_all)
   tplot_options,'title','FAST Orbit ' + orbit_lab + ' ' + hemisph
 
-; force tplot_vars to be all the panels unless no_blank_panels is set
+; force tPlt_vars to be all the panels unless no_blank_panels is set
 
   if ~KEYWORD_SET(no_blank_panels) then begin
 
 
 ; DSP
 
-     bdat = where(tplot_vars eq 'DSP_V5-V8',ndat)
+     bdat = where(tPlt_vars eq 'DSP_V5-V8',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -731,7 +731,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
 
 ; EFIT_ALONG_VSC
 
-     bdat = where(tplot_vars eq 'EFIT_ALONG_VSC',ndat)
+     bdat = where(tPlt_vars eq 'EFIT_ALONG_VSC',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = [!values.f_nan,!values.f_nan]
@@ -747,7 +747,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
 
 ; dB_fac_v
 ;CHANGED to dB_fac
-     bdat = where(tplot_vars eq 'dB_fac',ndat)
+     bdat = where(tPlt_vars eq 'dB_fac',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = dblarr(2,3)
@@ -761,9 +761,9 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
         options,'dB_fac','labels',['o','e','b']
      endif
 
-     ;; tplot_vars=['SFA_V5-V8','DSP_V5-V8','Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','EFIT_ALONG_VSC','dB_fac_v']
+     ;; tPlt_vars=['SFA_V5-V8','DSP_V5-V8','Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','EFIT_ALONG_VSC','dB_fac_v']
 
-     tplot_vars=['EFIT_ALONG_VSC','dB_fac_interp','pFlux','Je','JEe','DSP_integ','Ji']
+     tPlt_vars=['EFIT_ALONG_VSC','dB_fac_interp','pFlux','Je','JEe','DSP_integ','Ji']
   endif
 
   IF KEYWORD_SET(screen_plot) OR KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
@@ -807,7 +807,7 @@ PRO STRANGEWAY_2005__DAYSIDE_AVERAGES, $
      ENDCASE
 
      LOADCT2,40
-     TPLOT,tplot_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
+     TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tLims
 
 
      IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN

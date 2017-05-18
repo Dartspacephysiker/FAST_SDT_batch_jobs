@@ -1,4 +1,4 @@
-;;09/28/16
+;;2016/09/28
 ;;Trying to reproduce Strangeway's AC Poynting flux
 PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
    TPLT_VARS=tPlt_vars, $

@@ -1,7 +1,7 @@
 ;;09/24/16
 ;;This is entirely ripped off from Strangeway's batch_summary.pro, gifted to me by that beautiful human, Jack Vernetti
 PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
-   TPLOT_VARS=tplot_vars, $
+   TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $
    PLOT_SOUTH=plot_south, $
    TLIMIT_NORTH=tlimit_north, $
@@ -25,20 +25,20 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
 ; dB_fac_v (dB_fac and dB_SM also stored)
 
 ; Returns:
-; tplot_vars  - array of tplot variables
+; tPlt_vars  - array of tplot variables
 ; tlimit_north - tlimits for northern hemisphere
 ; tlimit_south - tlimits for southern hemisphere
 ; tlimit_all -  tlimits for all the data
 
 ; procedure for making summary plots
-; batch_summary,tplot_vars=tplot_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
+; batch_summary,tPlt_vars=tPlt_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
 ; loadct2,40  ; load color table
-; if (n_elements(tplot_vars) gt 0) then tplot,tplot_vars,var=['ALT','ILAT','MLT']
+; if (n_elements(tPlt_vars) gt 0) then tplot,tPlt_vars,var=['ALT','ILAT','MLT']
 ; if (n_elements(tlimit_north) gt 0) then tlimit,tlimit_north  ; northern hemisphere
 ; if (n_elements(tlimit_south) gt 0) then tlimit,tlimit_south  ; southern hemisphere
 
 ; if running interactively
-; batch_summary,tplot_vars=tplot_vars,/screen_plot,/no_blank_panels
+; batch_summary,tPlt_vars=tPlt_vars,/screen_plot,/no_blank_panels
 
 ; Input needed on:
 ; (a) Northern/southern hemisphere limits
@@ -121,7 +121,7 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
      ENDIF
 
 
-; got mag data, set time limits, delete unused tplot variables, set tplot_vars
+; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
 
      store_data,'BDATA',/delete
      store_data,'BFIT',/delete 
@@ -164,18 +164,18 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
      t1 = data.x[0]
      t2 = data.x[n_elements(data.x)-1L]
      tlimit_all = [t1,t2]
-     tplot_vars = 'dB_fac_v'
+     tPlt_vars = 'dB_fac_v'
      options,'dB_fac_v','panel_size',2
      options,'dB_fac','panel_size',2
      options,'dB_sm','panel_size',2
 
-     if (keyword_set(use_fac)) then tplot_vars = 'dB_fac'
+     if (keyword_set(use_fac)) then tPlt_vars = 'dB_fac'
 
-     if ~KEYWORD_SET(no_blank_panels) AND ~KEYWORD_SET(use_fac) then tplot_vars = 'dB_fac_v'
+     if ~KEYWORD_SET(no_blank_panels) AND ~KEYWORD_SET(use_fac) then tPlt_vars = 'dB_fac_v'
 
      if (keyword_set(screen_plot)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
   endif
@@ -266,18 +266,18 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
      store_data,'EFIT_NEAR_B',/delete
      store_data,'EFIT_ALONG_V',/delete
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=['EFIT_ALONG_VSC'] else tplot_vars=['EFIT_ALONG_VSC',tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['EFIT_ALONG_VSC'] else tPlt_vars=['EFIT_ALONG_VSC',tPlt_vars]
 
      if (keyword_set(screen_plot)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
-  endif else if (n_elements(tplot_vars) ne 0) then begin
+  endif else if (n_elements(tPlt_vars) ne 0) then begin
 
-     tplot_vars = 'dB_fac'
-     if (keyword_set(use_fac_v)) then tplot_vars = 'dB_fac_v'
-     if ~KEYWORD_SET(no_blank_panels) then tplot_vars = 'dB_fac'
+     tPlt_vars = 'dB_fac'
+     if (keyword_set(use_fac_v)) then tPlt_vars = 'dB_fac_v'
+     if ~KEYWORD_SET(no_blank_panels) then tPlt_vars = 'dB_fac'
 
   endif
 
@@ -331,7 +331,7 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
         options,var_name,'ytickv',[-90,0,90,180,270]
         ylim,var_name,-90,270,0
 
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
 ; reset time limits if needed
 
@@ -347,7 +347,7 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
 
         if (keyword_set(screen_plot)) then begin
            loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
+           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         endif
 
 ; ION ENERGY 
@@ -366,11 +366,11 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
         options,var_name,'y_no_interp',1
         options,var_name,'panel_size',2
 
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
         if (keyword_set(screen_plot)) then begin
            loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
+           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         endif
 
      endif
@@ -426,7 +426,7 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
         options,var_name,'ytickv',[-90,0,90,180,270]
         ylim,var_name,-90,270,0
 
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
 ; reset time limits if needed
 
@@ -442,7 +442,7 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
 
         if (keyword_set(screen_plot)) then begin
            loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
+           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         endif
 
 ; ELECTRON ENERGY
@@ -461,11 +461,11 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
         options,var_name,'y_no_interp',1
         options,var_name,'panel_size',2
 
-        if (n_elements(tplot_vars) eq 0) then tplot_vars=[var_name] else tplot_vars=[var_name,tplot_vars]
+        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
         if (keyword_set(screen_plot)) then begin
            loadct2,40
-           tplot,tplot_vars,var=['ALT','ILAT','MLT']
+           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         endif
 
      endif
@@ -528,11 +528,11 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
         store_data,'DSP_V5-V8',data=data
      endif
      
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=['DSP_V5-V8'] else tplot_vars=['DSP_V5-V8',tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['DSP_V5-V8'] else tPlt_vars=['DSP_V5-V8',tPlt_vars]
 
      if (keyword_set(screen_plot)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
   endif else begin
@@ -590,11 +590,11 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
         store_data,'SFA_V5-V8',data=data
      endif
 
-     if (n_elements(tplot_vars) eq 0) then tplot_vars=['SFA_V5-V8'] else tplot_vars=['SFA_V5-V8',tplot_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['SFA_V5-V8'] else tPlt_vars=['SFA_V5-V8',tPlt_vars]
 
      if (keyword_set(screen_plot)) then begin
         loadct2,40
-        tplot,tplot_vars,var=['ALT','ILAT','MLT']
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
   endif
@@ -621,14 +621,14 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
   orbit_lab = strcompress(string(orbit,format="(i5.4)"),/remove_all)
   tplot_options,'title','FAST Orbit ' + orbit_lab + ' ' + hemisph
 
-; force tplot_vars to be all the panels unless no_blank_panels is set
+; force tPlt_vars to be all the panels unless no_blank_panels is set
 
   if ~KEYWORD_SET(no_blank_panels) then begin
 
 
 ; SFA
 
-     bdat = where(tplot_vars eq 'SFA_V5-V8',ndat)
+     bdat = where(tPlt_vars eq 'SFA_V5-V8',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -645,7 +645,7 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
 
 ; DSP
 
-     bdat = where(tplot_vars eq 'DSP_V5-V8',ndat)
+     bdat = where(tPlt_vars eq 'DSP_V5-V8',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -662,7 +662,7 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
 
 ; Eesa_Energy
 
-     bdat = where(tplot_vars eq 'Eesa_Energy',ndat)
+     bdat = where(tPlt_vars eq 'Eesa_Energy',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -682,7 +682,7 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
 
 ; Eesa_Angle
 
-     bdat = where(tplot_vars eq 'Eesa_Angle',ndat)
+     bdat = where(tPlt_vars eq 'Eesa_Angle',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -705,7 +705,7 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
 
 ; Iesa_Energy
 
-     bdat = where(tplot_vars eq 'Iesa_Energy',ndat)
+     bdat = where(tPlt_vars eq 'Iesa_Energy',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -725,7 +725,7 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
 
 ; Iesa_Angle
 
-     bdat = where(tplot_vars eq 'Iesa_Angle',ndat)
+     bdat = where(tPlt_vars eq 'Iesa_Angle',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
@@ -748,7 +748,7 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
 
 ; EFIT_ALONG_VSC
 
-     bdat = where(tplot_vars eq 'EFIT_ALONG_VSC',ndat)
+     bdat = where(tPlt_vars eq 'EFIT_ALONG_VSC',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = [!values.f_nan,!values.f_nan]
@@ -764,7 +764,7 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
 
 ; dB_fac_v
 ;CHANGED to dB_fac
-     bdat = where(tplot_vars eq 'dB_fac',ndat)
+     bdat = where(tPlt_vars eq 'dB_fac',ndat)
      if (ndat eq 0) then begin
         t_arr = tlimit_all
         y_arr = dblarr(2,3)
@@ -778,9 +778,9 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
         options,'dB_fac','labels',['o','e','b']
      endif
 
-     ;; tplot_vars=['SFA_V5-V8','DSP_V5-V8','Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','EFIT_ALONG_VSC','dB_fac_v']
+     ;; tPlt_vars=['SFA_V5-V8','DSP_V5-V8','Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','EFIT_ALONG_VSC','dB_fac_v']
 
-     tplot_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','DSP_V5-V8','EFIT_ALONG_VSC','dB_fac']
+     tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','DSP_V5-V8','EFIT_ALONG_VSC','dB_fac']
   endif
 
   ;;Now loop over intervals
@@ -850,7 +850,7 @@ PRO STRANGEWAY_2005__FIGURE_2_MAKER__ESA_INTERVALS, $
         LOADCT2,40
 
         TPLOT, $
-           tplot_vars, $
+           tPlt_vars, $
            VAR=['ALT','ILAT','MLT'], $
            TRANGE=tLims, $
            WINDOW=( KEYWORD_SET(screen_plot) ? -1 : !NULL )
