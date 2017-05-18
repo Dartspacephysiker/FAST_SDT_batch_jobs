@@ -14,7 +14,10 @@
 ;*****************************
 ;Put code here:
 
-STRANGEWAY_2005__APPENDIX_A,/SAVE_PS,/INTERP_4HZ_RES_TO_1S_TIMESERIES,/SAVE_INDIVIDUAL_ORBIT
+STRANGEWAY_2005__APPENDIX_A,/SAVE_PS, $
+                            /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
+                            /SAVE_INDIVIDUAL_ORBIT, $
+                            /BATCH_MODE
 
 ;*****************************
 ;End routine:

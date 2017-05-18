@@ -19,7 +19,8 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
    SAVE_INDIVIDUAL_ORBIT=save_individual_orbit, $
    NO_BLANK_PANELS=no_blank_panels, $
    SAVE_PNG=save_png, $
-   SAVE_PS=save_ps
+   SAVE_PS=save_ps, $
+   BATCH_MODE=batch_mode
 
 ; create a summary plot of:
 ; SFA (AKR)
@@ -84,7 +85,9 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
   @strway_stuff
 
-  ON_ERROR,0
+  IF ~KEYWORD_SET(batch_mode) THEN BEGIN
+     ON_ERROR,0
+  ENDIF
 
   ;;From UCLA_MAG_DESPIN:
   ;;"   Field-aligned coordinates defined as: 
