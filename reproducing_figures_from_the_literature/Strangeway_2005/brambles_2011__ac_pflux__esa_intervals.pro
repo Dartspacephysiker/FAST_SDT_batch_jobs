@@ -40,8 +40,11 @@ PRO BRAMBLES_2011__AC_PFLUX__ESA_INTERVALS, $
   ;; hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--absVals'
   ;; outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals--absvals'
 
-  hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--absVals'
-  outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals--absvals'
+  ;; hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--absVals'
+  ;; outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals--absvals'
+
+  hashFile     = 'Brambles_et_al_2011__AC_params--ESA_intervals.sav--absVals__handchecked_ionEnergies'
+  outPlotName  = 'Brambles_et_al_2011__AC_ion_outflow--ESA_intervals--absvals__handchecked_ionEnergies'
 
   IF KEYWORD_SET(plot_north)     THEN outPlotName += '--' + 'NORTH'
   IF KEYWORD_SET(plot_south)     THEN outPlotName += '--' + 'SOUTH'
