@@ -1155,7 +1155,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      KEYWORD_SET(save_individual_orbit): BEGIN
 
         PRINT,"Saving " + indiv_orbFile + ' ...' 
-        SAVE,structList,FILENAME=indiv_orbFile
+        SAVE,structList,FILENAME=outDir+indiv_orbFile
 
      END
      ELSE: BEGIN
