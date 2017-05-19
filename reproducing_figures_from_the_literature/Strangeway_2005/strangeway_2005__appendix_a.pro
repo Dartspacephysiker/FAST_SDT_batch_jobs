@@ -278,9 +278,9 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
   ;;Find out if we have various eField things
   b = WHERE(STRPOS(result,'V1-V4_S') GE 0,nb4)
-  IF (nb4 GT 0) THEN IF STRPOS(RESULT(b[0]+1),'Points (cur/aloc): 0       /') GE 0 THEN nb4 = 0
+  IF (nb4 GT 0) THEN IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN nb4 = 0
   b = WHERE(STRPOS(result,'V1-V2_S') GE 0,nb2)
-  IF (nb2 GT 0) THEN IF STRPOS(RESULT(b[0]+1),'Points (cur/aloc): 0       /') GE 0 THEN nb2 = 0
+  IF (nb2 GT 0) THEN IF STRPOS(RESULT[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN nb2 = 0
   IF (nb4 GT 0) THEN v12 = GET_FA_FIELDS('V1-V4_S',/ALL) $
   ELSE IF (nb2 GT 0) THEN v12 = GET_FA_FIELDS('V1-V2_S',/ALL)
 
@@ -388,12 +388,12 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
   ENDELSE
   b = WHERE(STRPOS(result,'DspADC_V5-V8HG') GE 0,ndsphg)
   IF (ndsphg GT 0) THEN BEGIN
-     IF STRPOS(result(b(0)+1),'Points (cur/aloc): 0       /') GE 0 THEN ndsphg = 0
+     IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN ndsphg = 0
   ENDIF
   b = WHERE((STRPOS(result,'DspADC_V5-V8') GE 0) AND $
             (STRPOS(result,'DspADC_V5-V8HG') LT 0),ndsp)
   IF (ndsp GT 0) THEN BEGIN
-     IF STRPOS(result(b(0)+1),'Points (cur/aloc): 0       /') GE 0 THEN ndsp = 0
+     IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN ndsp = 0
   ENDIF
 
   if (ndsphg GT 0) THEN BEGIN
@@ -581,11 +581,11 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      ;;   "z (ind 2)-along B, 
      ;;    y (ind 1)-cross track (BxV), 
      ;;    x (ind 0)-along track ((BxV)xB)." (I added "ind" marks)
-     magx = {x:magData.x[ind1:ind2], $
+     magv = {x:magData.x[ind1:ind2], $
              y:magData.y[ind1:ind2,0]} 
-     magy = {x:magData.x[ind1:ind2], $
+     magB = {x:magData.x[ind1:ind2], $
              y:magData.y[ind1:ind2,2]} 
-     magz = {x:magData.x[ind1:ind2], $
+     magp = {x:magData.x[ind1:ind2], $
              y:magData.y[ind1:ind2,1]}
 
      ;;E-field trim
@@ -627,15 +627,15 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
 
      dBv = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
-           magx, $
+           magv, $
            INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
            ONESEC_TS=tS_1s)
      dBB = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
-           magy, $
+           magB, $
            INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
            ONESEC_TS=tS_1s)
      dBp = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
-           magz, $
+           magp, $
            INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
            ONESEC_TS=tS_1s)
 
@@ -672,50 +672,155 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;;Poynting fluxes!
 
-     IF KEYWORD_SET(full_pFlux) THEN BEGIN
+     ;; IF KEYWORD_SET(full_pFlux) THEN BEGIN
 
 
-        pFBHigh = dBp.AC*eAV.AC/mu_0 ;Poynting flux along B
-        pFPHigh = (eNB.AC*dBv.AC - $
-                   1.*dBB.AC*eAV.AC)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
+     ;;    pFBHigh = dBp.AC*eAV.AC/mu_0 ;Poynting flux along B
+     ;;    pFPHigh = (eNB.AC*dBv.AC - $
+     ;;               1.*dBB.AC*eAV.AC)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
 
-        ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
-        pFVHigh = (-1.)*eNB.AC*dBp.AC/mu_0
+     ;;    ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+     ;;    pFVHigh = (-1.)*eNB.AC*dBp.AC/mu_0
 
-        pFBLow = dBp.DC*eAV.DC/mu_0 ;Poynting flux along B
-        pFPLow = (eNB.DC*dBv.DC - $
-                  1.*dBB.DC*eAV.DC)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
+     ;;    pFBLow = dBp.DC*eAV.DC/mu_0 ;Poynting flux along B
+     ;;    pFPLow = (eNB.DC*dBv.DC - $
+     ;;              1.*dBB.DC*eAV.DC)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
 
-        ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
-        pFVLow = (-1.)*eNB.DC*dBp.DC/mu_0
+     ;;    ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+     ;;    pFVLow = (-1.)*eNB.DC*dBp.DC/mu_0
 
-        pFVHigh *= 1e-9
-        pFVLow  *= 1e-9
+     ;;    pFVHigh *= 1e-9
+     ;;    pFVLow  *= 1e-9
+
+     ;; ENDIF ELSE BEGIN
+
+     ;;    pFBHigh =       dBp.AC *eAV.AC/mu_0 ;Poynting flux along B
+     ;;    pFPHigh = (-1.)*dBB.AC*eAV.AC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
+     ;;    ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+
+     ;;    pFBLow =       dBp.DC *eAV.DC/mu_0 ;Poynting flux along B
+     ;;    pFPLow = (-1.)*dBB.DC*eAV.DC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
+     ;;    ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+
+     ;; ENDELSE
+
+     ;; pFBHigh *= 1e-9            ;Junk that nano prefix in nT
+     ;; pFPHigh *= 1e-9
+
+     ;; pFBLow *= 1e-9             ;Junk that nano prefix in nT
+     ;; pFPLow *= 1e-9
+
+     IF KEYWORD_SET(decimate_eb_calc_pFlux) THEN BEGIN
+
+        ;;In this case, use decimated E and B to calc pFlux
+
+        IF KEYWORD_SET(full_pFlux) THEN BEGIN
+
+           pFBHigh = dBp.AC*eAV.AC/mu_0 ;Poynting flux along B
+           pFPHigh = (eNB.AC*dBv.AC - $
+                      1.*dBB.AC*eAV.AC)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
+
+           ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+           pFVHigh = (-1.)*eNB.AC*dBp.AC/mu_0
+
+           pFBLow  = dBp.DC*eAV.DC/mu_0 ;Poynting flux along B
+           pFPLow  = (eNB.DC*dBv.DC - $
+                      1.*dBB.DC*eAV.DC)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
+
+           ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+           pFVLow  = (-1.)*eNB.DC*dBp.DC/mu_0
+
+        ENDIF ELSE BEGIN
+
+           pFBHigh =       dBp.AC *eAV.AC/mu_0 ;Poynting flux along B
+           pFPHigh = (-1.)*dBB.AC*eAV.AC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
+           ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+
+           pFBLow =       dBp.DC *eAV.DC/mu_0 ;Poynting flux along B
+           pFPLow = (-1.)*dBB.DC*eAV.DC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
+           ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+
+        ENDELSE
+
+        pFB       = {AC: TEMPORARY(pFBHigh), $
+                     DC: TEMPORARY(pFBLow)}
+        pFP       = {AC: TEMPORARY(pFPHigh), $
+                     DC: TEMPORARY(pFPLow)}
+
+        IF KEYWORD_SET(full_pFlux) THEN BEGIN
+           pFV    = {AC: TEMPORARY(pFVHigh), $
+                     DC: TEMPORARY(pFVLow)}
+        ENDIF
 
      ENDIF ELSE BEGIN
 
-        pFBHigh =       dBp.AC *eAV.AC/mu_0 ;Poynting flux along B
-        pFPHigh = (-1.)*dBB.AC*eAV.AC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
-        ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+        ;;In this case calc pFlux from E and B field before decimation, and THEN decimate
 
-        pFBLow =       dBp.DC *eAV.DC/mu_0 ;Poynting flux along B
-        pFPLow = (-1.)*dBB.DC*eAV.DC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
-        ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+        ;;But yes, we must align time series
+        eAlongVtoMag = DATA_CUT(eAlongV,magp.x)
+
+        IF KEYWORD_SET(full_pFlux) THEN BEGIN
+
+           eNearBtoMag = DATA_CUT(eNearB,magp.x)
+
+           pFluxB = {x:magp.x, $
+                     y:magp.y*eAlongVtoMag/mu_0} ;Poynting flux along B
+           pFluxP = {x:magp.x, $
+                     y:(eNearBtoMag*magv.y - $
+                        1.*magB.y*eAlongVtoMag)/mu_0} ;Poynting flux perp to B and to (Bxv)xB
+
+           ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+           pFluxV = {x:magp.x, $
+                     y:(-1.)*eNearBtoMag*magp.y/mu_0}
+
+        ENDIF ELSE BEGIN
+
+           pFluxB = {x:magp.x, $
+                     y:      magp.y*eAlongVtoMag/mu_0}      ;Poynting flux along B
+           pFluxP = {x:magp.x, $
+                     y:(-1.)*magB.y*eAlongVtoMag/mu_0} ;Poynting flux perp to B and to (Bxv)xB
+           ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+
+        ENDELSE
+
+        ;;Now separate into low and high frequencies
+        pFB       = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
+                    pFluxB, $
+                    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+                    ONESEC_TS=tS_1s)
+        pFP       = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
+                    pFluxP, $
+                    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+                    ONESEC_TS=tS_1s)
+
+        IF KEYWORD_SET(full_pFlux) THEN BEGIN
+           pFV    = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
+                    pFluxV, $
+                    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+                    ONESEC_TS=tS_1s)
+        ENDIF        
 
      ENDELSE
 
-     pFBHigh *= 1e-9            ;Junk that nano prefix in nT
-     pFPHigh *= 1e-9
+     pFB.AC *= 1e-9            ;Junk that nano prefix in nT
+     pFP.AC *= 1e-9
 
-     pFBLow *= 1e-9             ;Junk that nano prefix in nT
-     pFPLow *= 1e-9
+     pFB.DC *= 1e-9             ;Junk that nano prefix in nT
+     pFP.DC *= 1e-9
 
+     IF KEYWORD_SET(full_pFlux) THEN BEGIN
+
+        pFV.AC *= 1e-9
+        pFV.DC  *= 1e-9
+
+     ENDIF
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;;AC Poynting flux
 
      tField = dBp.x
-     doDat  = pFBHigh
+     ;; doDat  = pFBHigh
+     doDat  = pFB.AC
      ;; IF KEYWORD_SET(smooth_fields) THEN BEGIN
      ;;    tField = tS_1s
      ;; ENDIF
@@ -751,8 +856,8 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      OPTIONS,'pFluxHigh','x_no_interp',1
      OPTIONS,'pFluxHigh','y_no_interp',1
 
-     IF (n_elements(tPlt_vars) EQ 0) THEN tPlt_vars=['pFluxHigh'] $
-     ELSE tPlt_vars=['pFluxHigh',tPlt_vars]
+     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars = ['pFluxHigh'] $
+     ELSE tPlt_vars = ['pFluxHigh',tPlt_vars]
 
      IF (KEYWORD_SET(screen_plot)) THEN BEGIN
         LOADCT2,40
@@ -763,7 +868,8 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      ;;DC Poynting flux
 
      tField = dBp.x
-     doDat  = pFBLow
+     ;; doDat  = pFBLow
+     doDat  = pFB.DC
      ;; IF KEYWORD_SET(smooth_fields) THEN BEGIN
      ;;    tField = tS_1s
      ;; ENDIF
@@ -1141,10 +1247,15 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
                   ;;        p:{x:eAV.x,DC:pFPLow,AC:pFPHigh}, $
                   ;;        v:{x:eAV.x,DC:pFVLow,AC:pFVHigh}, $
                   ;;        full_pflux:KEYWORD_SET(full_pflux)}, $
+                  pFlux : CREATE_STRUCT('p',pFP, $
+                                        'v',(KEYWORD_SET(full_pFlux) ? pFV : 0B), $
+                                        'b',pFB, $
+                                        'info',{full_pFlux             : KEYWORD_SET(full_pFlux), $
+                                                decimate_eb_calc_pFlux : KEYWORD_SET(decimate_eb_calc_pFlux)}), $
                   ptcl:{jEe:tmpJEe, $
                         je:tmpJe, $
-                        ji:tmpJi}};, $
-                  ;; outflow_i:[[start_i],[stop_i]]}
+                        ji:tmpJi}} ;, $
+     ;; outflow_i:[[start_i],[stop_i]]}
      
      PRINT,"Adding struct for interval " + itvlString + " in orbit " + orbString + ' ...'
      structList.Add,tmpStruct

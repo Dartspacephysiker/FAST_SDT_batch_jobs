@@ -1,6 +1,6 @@
 ;2017/05/19
 ;The goal
-;E-field, B-field, and Poynting flux in 5 ways
+;E field, B field, and Poynting flux in 5 ways
 ;=============================================
 ;--> Strangewayian smoothing and decimation to yield DC (0–0.125 Hz) and AC (0.125–0.5 Hz) components
 ;--> Digital filtering to yield DC (0–0.125 Hz), AC (0.125–0.5 Hz), and Chastonian (0.5–10 Hz) components
@@ -15,7 +15,8 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
    SCREEN_PLOT=screen_plot, $
    USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
    USE_JE_TBOUNDS=use_Je_tBounds, $
-   include_particles=include_particles, $
+   INCLUDE_PARTICLES=include_particles, $
+   DECIMATE_E_AND_B__THEN_CALC_PFLUX=decimate_eb_calc_pFlux, $
    SAVE_INDIVIDUAL_ORBIT=save_individual_orbit, $
    NO_BLANK_PANELS=no_blank_panels, $
    SAVE_PNG=save_png, $
@@ -194,7 +195,7 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
 
      ENDIF ELSE BEGIN
 
-        GET_MAG_TIME_INTERVALS_AND_SAVE,tx, $
+        GET_MAG_TIME_INTERVALS_AND_SAVE,data.x, $
                                         TIME_RANGES_OUT=time_ranges, $
                                         TIME_RANGE_INDICES_OUT=time_range_indices, $
                                         NINTERVALS_OUT=number_of_intervals
@@ -261,9 +262,9 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
 
   ;;Find out if we have various eField things
   b = WHERE(STRPOS(result,'V1-V4_S') GE 0,nb4)
-  IF (nb4 GT 0) THEN IF STRPOS(RESULT(b[0]+1),'Points (cur/aloc): 0       /') GE 0 THEN nb4 = 0
+  IF (nb4 GT 0) THEN IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN nb4 = 0
   b = WHERE(STRPOS(result,'V1-V2_S') GE 0,nb2)
-  IF (nb2 GT 0) THEN IF STRPOS(RESULT(b[0]+1),'Points (cur/aloc): 0       /') GE 0 THEN nb2 = 0
+  IF (nb2 GT 0) THEN IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN nb2 = 0
   IF (nb4 GT 0) THEN v12 = GET_FA_FIELDS('V1-V4_S',/ALL) $
   ELSE IF (nb2 GT 0) THEN v12 = GET_FA_FIELDS('V1-V2_S',/ALL)
 
@@ -299,12 +300,12 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
   ENDELSE
   b = WHERE(STRPOS(result,'DspADC_V5-V8HG') GE 0,ndsphg)
   IF (ndsphg GT 0) THEN BEGIN
-     IF STRPOS(result(b[0]+1),'Points (cur/aloc): 0       /') GE 0 THEN ndsphg = 0
+     IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN ndsphg = 0
   ENDIF
   b = WHERE((STRPOS(result,'DspADC_V5-V8') GE 0) AND $
             (STRPOS(result,'DspADC_V5-V8HG') LT 0),ndsp)
   IF (ndsp GT 0) THEN BEGIN
-     IF STRPOS(result(b[0]+1),'Points (cur/aloc): 0       /') GE 0 THEN ndsp = 0
+     IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN ndsp = 0
   ENDIF
 
   if (ndsphg GT 0) THEN BEGIN
@@ -496,11 +497,11 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
      ;;   "z (ind 2)-along B, 
      ;;    y (ind 1)-cross track (BxV), 
      ;;    x (ind 0)-along track ((BxV)xB)." (I added "ind" marks)
-     magx = {x:magData.x[ind1:ind2], $
+     magv = {x:magData.x[ind1:ind2], $
              y:magData.y[ind1:ind2,0]} 
-     magy = {x:magData.x[ind1:ind2], $
+     magB = {x:magData.x[ind1:ind2], $
              y:magData.y[ind1:ind2,2]} 
-     magz = {x:magData.x[ind1:ind2], $
+     magP = {x:magData.x[ind1:ind2], $
              y:magData.y[ind1:ind2,1]}
 
      ;;E-field trim
@@ -534,26 +535,32 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
 
      ENDIF
      
-     ;; magx = {x:magData.x, $
+     ;; I repeat, from UCLA_MAG_DESPIN:
+     ;;"   Field-aligned coordinates defined as: 
+     ;;"   z-along B, y-east (BxR), x-nominally out"
+     ;;    (ind 2)    (ind 1)       (ind 0)
+
+
+     ;; magv = {x:magData.x, $
      ;;         y:REFORM(magData.y[*,0])}
 
-     ;; magy = {x:magData.x, $
+     ;; magB = {x:magData.x, $
      ;;         y:REFORM(magData.y[*,2])}
 
-     ;; magz = {x:magData.x, $
+     ;; magP = {x:magData.x, $
      ;;         y:REFORM(magData.y[*,magInd])}
 
 
      dBv = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
-           magx, $
+           magv, $
            INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
            ONESEC_TS=tS_1s)
      dBB = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
-           magy, $
+           magB, $
            INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
            ONESEC_TS=tS_1s)
      dBp = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
-           magz, $
+           magP, $
            INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
            ONESEC_TS=tS_1s)
 
@@ -575,13 +582,13 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
            full_pFlux       = 0
         ENDIF ELSE BEGIN
 
-           eNearB ={x:eNearB.x[ind1:ind2], $
+           eNearB = {x:eNearB.x[ind1:ind2], $
                     y:eNearB.y[ind1:ind2]}
 
-           eNB = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
-                 eNearB, $
-                 INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
-                 ONESEC_TS=tS_1s)
+           eNB    = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
+                    eNearB, $
+                    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+                    ONESEC_TS=tS_1s)
 
         ENDELSE
 
@@ -589,51 +596,116 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;;Poynting fluxes!
+     IF KEYWORD_SET(decimate_eb_calc_pFlux) THEN BEGIN
 
-     IF KEYWORD_SET(full_pFlux) THEN BEGIN
+        ;;In this case, use decimated E and B to calc pFlux
 
+        IF KEYWORD_SET(full_pFlux) THEN BEGIN
 
-        pFBHigh = dBp.AC*eAV.AC/mu_0 ;Poynting flux along B
-        pFPHigh = (eNB.AC*dBv.AC - $
-                   1.*dBB.AC*eAV.AC)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
+           pFBHigh = dBp.AC*eAV.AC/mu_0 ;Poynting flux along B
+           pFPHigh = (eNB.AC*dBv.AC - $
+                      1.*dBB.AC*eAV.AC)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
 
-        ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
-        pFVHigh = (-1.)*eNB.AC*dBp.AC/mu_0
+           ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+           pFVHigh = (-1.)*eNB.AC*dBp.AC/mu_0
 
-        pFBLow = dBp.DC*eAV.DC/mu_0 ;Poynting flux along B
-        pFPLow = (eNB.DC*dBv.DC - $
-                  1.*dBB.DC*eAV.DC)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
+           pFBLow  = dBp.DC*eAV.DC/mu_0 ;Poynting flux along B
+           pFPLow  = (eNB.DC*dBv.DC - $
+                      1.*dBB.DC*eAV.DC)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
 
-        ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
-        pFVLow = (-1.)*eNB.DC*dBp.DC/mu_0
+           ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+           pFVLow  = (-1.)*eNB.DC*dBp.DC/mu_0
 
-        pFVHigh *= 1e-9
-        pFVLow  *= 1e-9
+        ENDIF ELSE BEGIN
+
+           pFBHigh =       dBp.AC *eAV.AC/mu_0 ;Poynting flux along B
+           pFPHigh = (-1.)*dBB.AC*eAV.AC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
+           ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+
+           pFBLow =       dBp.DC *eAV.DC/mu_0 ;Poynting flux along B
+           pFPLow = (-1.)*dBB.DC*eAV.DC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
+           ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+
+        ENDELSE
+
+        pFB       = {AC: TEMPORARY(pFBHigh), $
+                     DC: TEMPORARY(pFBLow)}
+        pFP       = {AC: TEMPORARY(pFPHigh), $
+                     DC: TEMPORARY(pFPLow)}
+
+        IF KEYWORD_SET(full_pFlux) THEN BEGIN
+           pFV    = {AC: TEMPORARY(pFVHigh), $
+                     DC: TEMPORARY(pFVLow)}
+        ENDIF
 
      ENDIF ELSE BEGIN
 
-        pFBHigh =       dBp.AC *eAV.AC/mu_0 ;Poynting flux along B
-        pFPHigh = (-1.)*dBB.AC*eAV.AC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
-        ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+        ;;In this case calc pFlux from E and B field before decimation, and THEN decimate
 
-        pFBLow =       dBp.DC *eAV.DC/mu_0 ;Poynting flux along B
-        pFPLow = (-1.)*dBB.DC*eAV.DC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
-        ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+        ;;But yes, we must align time series
+        eAlongVtoMag = DATA_CUT(eAlongV,magp.x)
+
+        IF KEYWORD_SET(full_pFlux) THEN BEGIN
+
+           eNearBtoMag = DATA_CUT(eNearB,magp.x)
+
+           pFluxB = {x:magp.x, $
+                     y:magp.y*eAlongVtoMag/mu_0} ;Poynting flux along B
+           pFluxP = {x:magp.x, $
+                     y:(eNearBtoMag*magv.y - $
+                        1.*magB.y*eAlongVtoMag)/mu_0} ;Poynting flux perp to B and to (Bxv)xB
+
+           ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+           pFluxV = {x:magp.x, $
+                     y:(-1.)*eNearBtoMag*magp.y/mu_0}
+
+        ENDIF ELSE BEGIN
+
+           pFluxB = {x:magp.x, $
+                     y:      magp.y*eAlongVtoMag/mu_0}      ;Poynting flux along B
+           pFluxP = {x:magp.x, $
+                     y:(-1.)*magB.y*eAlongVtoMag/mu_0} ;Poynting flux perp to B and to (Bxv)xB
+           ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+
+        ENDELSE
+
+        ;;Now separate into low and high frequencies
+        pFB       = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
+                    pFluxB, $
+                    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+                    ONESEC_TS=tS_1s)
+        pFP       = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
+                    pFluxP, $
+                    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+                    ONESEC_TS=tS_1s)
+
+        IF KEYWORD_SET(full_pFlux) THEN BEGIN
+           pFV    = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
+                    pFluxV, $
+                    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+                    ONESEC_TS=tS_1s)
+        ENDIF        
 
      ENDELSE
 
-     pFBHigh *= 1e-9            ;Junk that nano prefix in nT
-     pFPHigh *= 1e-9
+     pFB.AC *= 1e-9            ;Junk that nano prefix in nT
+     pFP.AC *= 1e-9
 
-     pFBLow *= 1e-9             ;Junk that nano prefix in nT
-     pFPLow *= 1e-9
+     pFB.DC *= 1e-9             ;Junk that nano prefix in nT
+     pFP.DC *= 1e-9
 
+     IF KEYWORD_SET(full_pFlux) THEN BEGIN
+
+        pFV.AC *= 1e-9
+        pFV.DC  *= 1e-9
+
+     ENDIF
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;;AC Poynting flux
 
      tField = dBp.x
-     doDat  = pFBHigh
+     doDat  = pFB.AC
      ;; IF KEYWORD_SET(smooth_fields) THEN BEGIN
      ;;    tField = tS_1s
      ;; ENDIF
@@ -681,7 +753,7 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
      ;;DC Poynting flux
 
      tField = dBp.x
-     doDat  = pFBLow
+     doDat  = pFB.DC
      ;; IF KEYWORD_SET(smooth_fields) THEN BEGIN
      ;;    tField = tS_1s
      ;; ENDIF
@@ -871,7 +943,7 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
 
      GET_DATA,'ORBIT',data=data
      nn = N_ELEMENTS(data.y)/2
-     orbit = data.y(nn)
+     orbit = data.y[nn]
      orbit_lab = STRCOMPRESS(STRING(orbit,FORMAT="(i5.4)"),/REMOVE_ALL)
      tplot_OPTIONS,'title','FAST Orbit ' + orbit_lab + ' ' + hemisph
 
@@ -923,11 +995,11 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
      ENDIF
 
      ;; IF ~KEYWORD_SET(full_pFlux) THEN BEGIN
-     ;;    pFVLow  = MAKE_ARRAY(N_ELEMENTS(pFBLow),/FLOAT)
-     ;;    pFVHigh = MAKE_ARRAY(N_ELEMENTS(pFBHigh),/FLOAT)
+     ;;    pFV.DC  = MAKE_ARRAY(N_ELEMENTS(pFB.DC),/FLOAT)
+     ;;    pFV.AC = MAKE_ARRAY(N_ELEMENTS(pFB.AC),/FLOAT)
      ;; ENDIF ELSE BEGIN
      ;;    pFLuxStruct = CREATE_STRUCT(pFluxStruct, $
-     ;;                                'v',{x:eAV.x,DC:pFVLow,AC:pFVHigh}, $
+     ;;                                'v',{x:eAV.x,DC:pFV.DC,AC:pFV.AC}, $
      ;;                                'full_pFlux',KEYWORD_SET(full_pFlux))
      ;; ENDELSE
 
@@ -1014,26 +1086,30 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
 
      ENDELSE
 
-     ptcl_has_common_TS = ARRAY_EQUAL(tmpJEe.x,tmpJe.x) AND ARRAY_EQUAL(tmpJEe.x,tmpJi.x) AND ARRAY_EQUAL(tmpJe.x,tmpJi.x)
+     IF KEYWORD_SET(include_particles) THEN BEGIN
 
-     IF ptcl_has_common_TS THEN BEGIN
+        ptcl_has_common_TS = ARRAY_EQUAL(tmpJEe.x,tmpJe.x) AND ARRAY_EQUAL(tmpJEe.x,tmpJi.x) AND ARRAY_EQUAL(tmpJe.x,tmpJi.x)
 
-        tmpJEe  = {x:tmpJEe.x, $
-                   y:tmpJEe.y, $
-                   ;; DC:tmpJEe.DC, $
-                   ;; AC:tmpJEe.AC, $
-                   common_ts:1B}
+        IF ptcl_has_common_TS THEN BEGIN
 
-        tmpJe   = {y:tmpJe.y} ;; DC:tmpJe.DC, $
-        ;; AC:tmpJe.AC}
+           tmpJEe  = {x:tmpJEe.x, $
+                      y:tmpJEe.y, $
+                      ;; DC:tmpJEe.DC, $
+                      ;; AC:tmpJEe.AC, $
+                      common_ts:1B}
 
-        tmpJi   = {y:tmpJi.y} ;;DC:tmpDSP.DC, $
-        ;; AC:tmpDSP.AC}
+           tmpJe   = {y:tmpJe.y} ;; DC:tmpJe.DC, $
+           ;; AC:tmpJe.AC}
+
+           tmpJi   = {y:tmpJi.y} ;;DC:tmpDSP.DC, $
+           ;; AC:tmpDSP.AC}
+
+        ENDIF
 
      ENDIF
 
      ;;...And if they ALL have the same time series, we're only keeping one
-     IF B_has_common_TS AND E_has_common_TS AND ptcl_has_common_TS THEN BEGIN
+     IF B_has_common_TS AND E_has_common_TS AND (KEYWORD_SET(include_particles) ? ptcl_has_common_TS : 1) THEN BEGIN
 
         dBp     = {x:dBp.x, $
                    DC:dBp.DC, $
@@ -1045,24 +1121,38 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
                    AC:eAV.AC, $
                    common_ts:1B}
 
-        tmpJEe  = {y:tmpJEe.y, $
-                   ;; DC:tmpJEe.DC, $
-                   ;; AC:tmpJEe.AC, $
-                   common_ts:1B}
+        IF KEYWORD_SET(include_particles) THEN BEGIN
+
+           tmpJEe  = {y:tmpJEe.y, $
+                      ;; DC:tmpJEe.DC, $
+                      ;; AC:tmpJEe.AC, $
+                      common_ts:1B}
+
+        ENDIF
+
      ENDIF
 
-     tmpStruct = {dB:{p:dBp, $
-                      v:dBv, $
-                      B:dBB}, $
-                  e:{AlongV:eAV, $
-                     NearB:eNB, $
-                     dsp:canDSP ? tmpDSP : 0B, $
-                     include_E_near_B:BYTE(KEYWORD_SET(include_E_near_B)), $
-                     eField_fit_variables:BYTE(KEYWORD_SET(use_eField_fit_variables))}, $
-                  ptcl: ( KEYWORD_SET(include_particles) ? {jEe:tmpJEe,je:tmpJe,ji:tmpJi} : 0B )}
-                  ;; pFlux:{b:{x:eAV.x,DC:pFBLow,AC:pFBHigh}, $
-                  ;;        p:{x:eAV.x,DC:pFPLow,AC:pFPHigh}, $
-                  ;;        v:{x:eAV.x,DC:pFVLow,AC:pFVHigh}, $
+     tmpStruct = {dB    : {p                    : TEMPORARY(dBp), $
+                           v                    : TEMPORARY(dBv), $
+                           B                    : TEMPORARY(dBB)}, $
+                  e     : {AlongV               : TEMPORARY(eAV), $
+                           NearB                : TEMPORARY(eNB), $
+                           dsp                  : canDSP ? TEMPORARY(tmpDSP) : 0B, $
+                           include_E_near_B     : BYTE(KEYWORD_SET(include_E_near_B)), $
+                           eField_fit_variables : BYTE(KEYWORD_SET(use_eField_fit_variables))}, $
+                  ptcl  : ( KEYWORD_SET(include_particles) ? {jEe:tmpJEe,je:tmpJe,ji:tmpJi} : 0B ), $
+                  ;; pFlux : {b          : {x:eAV.x,DC:pFB.DC,AC:pFB.AC}, $
+                  ;;          p          : {x:eAV.x,DC:pFP.DC,AC:pFP.AC}, $
+                  ;;          v          : {x:eAV.x,DC:pFV.DC,AC:pFV.AC}, $
+                  pFlux : CREATE_STRUCT('p',pFP, $
+                                        'v',(KEYWORD_SET(full_pFlux) ? pFV : 0B), $
+                                        'b',pFB, $
+                                        'info',{full_pFlux             : KEYWORD_SET(full_pFlux), $
+                                                decimate_eb_calc_pFlux : KEYWORD_SET(decimate_eb_calc_pFlux)})}
+     ;; full_pflux : KEYWORD_SET(full_pflux)}, $
+                  ;; pFlux:{b:{x:eAV.x,DC:pFB.DC,AC:pFB.AC}, $
+                  ;;        p:{x:eAV.x,DC:pFP.DC,AC:pFP.AC}, $
+                  ;;        v:{x:eAV.x,DC:pFV.DC,AC:pFV.AC}, $
                   ;;        full_pflux:KEYWORD_SET(full_pflux)}, $
                   ;; outflow_i:[[start_i],[stop_i]]}
      
@@ -1071,6 +1161,6 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
 
   ENDFOR
 
-
+  STOP
 
 END

@@ -1,17 +1,19 @@
 ;;09/24/16
 FUNCTION SETUP_TAGNAMES_AND_INDICES,tmpStruct, $
-                                    Bind,Eind,Hind, $
+                                    Bind,Eind,Hind,Pind, $
                                     Btags,Etags,Htags,Ptags, $
                                     nBTags,nETags,nHTags,nPTags, $
                                     BPind,BVind,BBind, $
                                     EAVind,ENBind,EDSPind,EIENBind, $
-                                    HJEeInd,HJeInd,HJiInd
+                                    HJEeInd,HJeInd,HJiInd, $
+                                    PPind,PVind,PBind,have_included_pFlux
 
   strucTags    = TAG_NAMES(tmpStruct)
 
   Bind         = WHERE(STRUPCASE(strucTags) EQ 'DB')
   Eind         = WHERE(STRUPCASE(strucTags) EQ 'E')
   Hind         = WHERE(STRUPCASE(strucTags) EQ 'PTCL')
+  Pind         = WHERE(STRUPCASE(strucTags) EQ 'PFLUX')
 
   IF (Bind[0] EQ -1) THEN BEGIN
      PRINT,"Couldn't find B-field member in this struct! Gotta return ..."
@@ -26,6 +28,11 @@ FUNCTION SETUP_TAGNAMES_AND_INDICES,tmpStruct, $
   IF (Hind[0] EQ -1) THEN BEGIN
      PRINT,"Couldn't find particle member in this struct! Gotta return ..."
      RETURN,-1
+  ENDIF
+
+  have_included_pFlux = (Pind[0] NE -1)
+  IF ~have_included_pFlux THEN BEGIN
+     PRINT,"Couldn't find pFlux in this struct! Telling mom ..."
   ENDIF
 
   Btags        = TAG_NAMES(tmpStruct.(Bind))
@@ -49,6 +56,16 @@ FUNCTION SETUP_TAGNAMES_AND_INDICES,tmpStruct, $
   HJeInd       = (WHERE(STRUPCASE(Htags) EQ 'JE'               ))[0]
   HJiInd       = (WHERE(STRUPCASE(Htags) EQ 'JI'               ))[0]
 
+  IF have_included_pFlux THEN BEGIN
+     PPind     = (WHERE(STRUPCASE(Ptags) EQ 'P'                ))[0]
+     PVind     = (WHERE(STRUPCASE(Ptags) EQ 'V'                ))[0]
+     PBind     = (WHERE(STRUPCASE(Ptags) EQ 'B'                ))[0]
+  ENDIF ELSE BEGIN
+     PPind     = -1
+     PVind     = -1
+     PBind     = -1
+  ENDELSE
+
   ;;How many of each type?
   ;; nBTags       = N_ELEMENTS(Btags)
   ;; nETags       = N_ELEMENTS(Etags)
@@ -58,9 +75,8 @@ FUNCTION SETUP_TAGNAMES_AND_INDICES,tmpStruct, $
   nBTags       = ( BPind   GE 0 ? 1 : 0 ) + ( BVind   GE 0 ? 1 : 0 ) + ( BBind    GE 0 ? 1 : 0 )
   nETags       = ( EAVind  GE 0 ? 1 : 0 ) + ( ENBInd  GE 0 ? 1 : 0 ) + ( EDSPind  GE 0 ? 1 : 0 ) 
   nHTags       = ( HJEeind GE 0 ? 1 : 0 ) + ( HJeInd  GE 0 ? 1 : 0 ) + ( HJiInd   GE 0 ? 1 : 0 )
-  nPTags       = N_ELEMENTS(Ptags)
-
-
+  ;; nPTags       = N_ELEMENTS(Ptags)
+  nPTags       = ( PPind   GE 0 ? 1 : 0 ) + ( PVind   GE 0 ? 1 : 0 ) + ( PBind    GE 0 ? 1 : 0 )
 
   RETURN,0
 
@@ -342,6 +358,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
    DAY=day, $
    NIGHT=night, $
    FOLD_INTERVALS=fold_intervals, $
+   USE_INCLUDED_PFLUX=use_included_pFlux, $
    SAVE_PLOTS=save_plots, $
    PLOTDIR=plotDir, $
    PLOTS_PREFIX=plots_prefix, $
@@ -406,14 +423,23 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
   tmpKey       = (swHash.Keys())[0]
   tmpStruct    = swHash[tmpKey,0]
 
-  OK           = SETUP_TAGNAMES_AND_INDICES( $
-                 swHash[tmpKey,0], $
-                 Bind,Eind,Hind, $
-                 Btags,Etags,Htags,Ptags, $
-                 nBTags,nETags,nHTags,nPTags, $
-                 BPind,BVind,BBind, $
-                 EAVind,ENBind,EDSPind,EIENBind, $
-                 HJEeInd,HJeInd,HJiInd)
+  OK           = SETUP_TAGNAMES_AND_INDICES(swHash[tmpKey,0], $
+                                            Bind,Eind,Hind,Pind, $
+                                            Btags,Etags,Htags,Ptags, $
+                                            nBTags,nETags,nHTags,nPTags, $
+                                            BPind,BVind,BBind, $
+                                            EAVind,ENBind,EDSPind,EIENBind, $
+                                            HJEeInd,HJeInd,HJiInd, $
+                                            PPind,PVind,PBind,have_included_pFlux)
+
+;; SETUP_TAGNAMES_AND_INDICES( $
+;;                  swHash[tmpKey,0], $
+;;                  Bind,Eind,Hind, $
+;;                  Btags,Etags,Htags,Ptags, $
+;;                  nBTags,nETags,nHTags,nPTags, $
+;;                  BPind,BVind,BBind, $
+;;                  EAVind,ENBind,EDSPind,EIENBind, $
+;;                  HJEeInd,HJeInd,HJiInd)
                                    
 
   IF (OK EQ -1) THEN RETURN,-1
@@ -439,19 +465,19 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
   totPtCnt     = 0 ;master counter
   orbCnt       = 0 ;orbit counter
   notUnivCnt   = 0 ;Number of intervals for which there is no universal time series
-  FOREACH value, swHash, key DO BEGIN
+  FOREACH swayStruct, swHash, key DO BEGIN
 
      ;;Anything here?
-     IF N_ELEMENTS(value[0]) EQ 0 THEN CONTINUE
+     IF N_ELEMENTS(swayStruct[0]) EQ 0 THEN CONTINUE
 
      ;;How many?
-     nItvls    = N_ELEMENTS(value)
+     nItvls    = N_ELEMENTS(swayStruct)
 
      IF nItvls EQ 0 THEN CONTINUE
 
      nThisItvl     = MAKE_ARRAY(nItvls,/LONG)
 
-     FOR k=0,nItvls-1 DO nThisItvl[k] = N_ELEMENTS(value[k].(0).(0).x)
+     FOR k=0,nItvls-1 DO nThisItvl[k] = N_ELEMENTS(swayStruct[k].(0).(0).x)
 
      nThisOrb  = FIX(TOTAL(nThisItvl))
 
@@ -476,13 +502,13 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
 
            PRINT,FORMAT='(A0,T25,I5,", ",I2)',"Orbit, Interval :",key,k
 
-           have_univ_TS  = BYTE(TAG_EXIST(value[k].(0).(0),'COMMONEST_TS'))
+           have_univ_TS  = BYTE(TAG_EXIST(swayStruct[k].(0).(0),'COMMONEST_TS'))
 
            IF have_univ_TS THEN BEGIN
 
               ;; PRINT,"UNIVERSAL"
 
-              Puniv_TS   = PTR_NEW(value[k].(0).(0).(0))
+              Puniv_TS   = PTR_NEW(swayStruct[k].(0).(0).(0))
 
               have_B_TS  = 1B
               have_E_TS  = 1B
@@ -503,34 +529,34 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
               notUnivCnt++
               ;; PRINT,"NOT UNIVERSAL"
 
-              have_B_TS  = BYTE(TAG_EXIST(value[k].(BInd).(0),'COMMON_TS'))
-              have_E_TS  = BYTE(TAG_EXIST(value[k].(EInd).(0),'COMMON_TS'))
-              have_H_TS  = BYTE(TAG_EXIST(value[k].(HInd).(0),'COMMON_TS'))
+              have_B_TS  = BYTE(TAG_EXIST(swayStruct[k].(BInd).(0),'COMMON_TS'))
+              have_E_TS  = BYTE(TAG_EXIST(swayStruct[k].(EInd).(0),'COMMON_TS'))
+              have_H_TS  = BYTE(TAG_EXIST(swayStruct[k].(HInd).(0),'COMMON_TS'))
 
               IF have_B_TS THEN BEGIN
-                 PB_TS          = PTR_NEW(value[k].(BInd).(0).(0))
+                 PB_TS          = PTR_NEW(swayStruct[k].(BInd).(0).(0))
                  BPTSArr[*]     = PB_TS
               ENDIF ELSE BEGIN
                  FOR p=0,nBTags-1 DO BEGIN
-                    BPTSArr[p]  = PTR_NEW(value[k].(BInd).(p).(0))
+                    BPTSArr[p]  = PTR_NEW(swayStruct[k].(BInd).(p).(0))
                  ENDFOR
               ENDELSE
 
               IF have_E_TS THEN BEGIN
-                 PE_TS          = PTR_NEW(value[k].(EInd).(0).(0))
+                 PE_TS          = PTR_NEW(swayStruct[k].(EInd).(0).(0))
                  BPTSArr[*]     = PB_TS
               ENDIF ELSE BEGIN
                  FOR p=0,nETags-1 DO BEGIN
-                    EPTSArr[p]  = PTR_NEW(value[k].(EInd).(p).(0))
+                    EPTSArr[p]  = PTR_NEW(swayStruct[k].(EInd).(p).(0))
                  ENDFOR
               ENDELSE
 
               IF have_H_TS THEN BEGIN
-                 PH_TS          = PTR_NEW(value[k].(HInd).(0).(0))
+                 PH_TS          = PTR_NEW(swayStruct[k].(HInd).(0).(0))
                  BPTSArr[*]     = PB_TS
               ENDIF ELSE BEGIN
                  FOR p=0,nETags-1 DO BEGIN
-                    HPTSArr[p]  = PTR_NEW(value[k].(HInd).(p).(0))
+                    HPTSArr[p]  = PTR_NEW(swayStruct[k].(HInd).(p).(0))
                  ENDFOR
               ENDELSE
 
@@ -540,13 +566,13 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
 
 
            ;;Pick up fields, align time series
-           dBp           = PTR_NEW(value[k].(Bind).(BPind))
-           dBv           = PTR_NEW(value[k].(Bind).(BVind))
-           dBB           = PTR_NEW(value[k].(Bind).(BBind))
+           dBp           = PTR_NEW(swayStruct[k].(Bind).(BPind))
+           dBv           = PTR_NEW(swayStruct[k].(Bind).(BVind))
+           dBB           = PTR_NEW(swayStruct[k].(Bind).(BBind))
 
-           eAV           = PTR_NEW(value[k].(Eind).(EAVind))
-           eNB           = PTR_NEW(value[k].(Eind).(ENBind))
-           eDSP          = PTR_NEW(value[k].(Eind).(EDSPind))
+           eAV           = PTR_NEW(swayStruct[k].(Eind).(EAVind))
+           eNB           = PTR_NEW(swayStruct[k].(Eind).(ENBind))
+           eDSP          = PTR_NEW(swayStruct[k].(Eind).(EDSPind))
 
            CASE 1 OF
               have_univ_TS: BEGIN ;;Already sammen
@@ -572,39 +598,60 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
            ENDIF ELSE BEGIN
               ;;Keep some stats if we're going to attempt the full pFlux sitiation
               ;;As always, I do mean sitiation
-              IF ~value[k].(Eind).(EIENBind) THEN noENBArr[*,orbCnt+k] = [key,k]
+              IF ~swayStruct[k].(Eind).(EIENBind) THEN noENBArr[*,orbCnt+k] = [key,k]
            ENDELSE
 
-           ;;Calc Poynting flux
 
-           ;;Poynting flux along B
-           pFB    = PTR_NEW({DC:(*dBp).DC[BclosE_i]*(*eAV).DC[EclosB_i]/mu_0, $
-                             AC:(*dBp).AC[BclosE_i]*(*eAV).AC[EclosB_i]/mu_0})
-                     
+           IF KEYWORD_SET(use_included_pFlux) THEN BEGIN
 
-           ;;Poynting flux perp to B and to (Bxv)xB
-           pFP    = PTR_NEW({DC:((*dBv).DC[BclosE_i]*(*eNB).DC[EclosB_i] - $
-                                 (*dBB).DC[BclosE_i]*(*eAV).DC[EclosB_i])/mu_0, $
-                             AC:((*dBv).AC[BclosE_i]*(*eNB).AC[EclosB_i] - $
-                                 (*dBB).AC[BclosE_i]*(*eAV).AC[EclosB_i])/mu_0})
+              pFB = PTR_NEW(swayStruct[k].(Pind).(PBind))
+              pFP = PTR_NEW(swayStruct[k].(Pind).(PPind))
 
-           ;;Negative sign comes out of S EQ 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
-           pFV    = PTR_NEW({DC:(-1.)*(*eNB)[EclosB_i].DC*(*dBp)[BclosE_i].DC/mu_0, $
-                             AC:(-1.)*(*eNB)[EclosB_i].AC*(*dBp)[BclosE_i].AC/mu_0})
-                     
-           ;;Junk that nano prefix in nT
-           (*pFB).DC *= 1e-9
-           (*pFP).DC *= 1e-9
-           (*pFV).DC *= 1e-9
+              IF SIZE(swayStruct[k].(Pind).(PVind),/TYPE) EQ 8 THEN BEGIN
 
-           (*pFB).AC *= 1e-9
-           (*pFP).AC *= 1e-9
-           (*pFV).AC *= 1e-9
+                 pFV = PTR_NEW(swayStruct[k].(Pind).(PVind))
+
+              ENDIF ELSE BEGIN
+
+                 pFV = PTR_NEW(*pFB)
+                 (*pFV).DC = 0.D
+                 (*pFV).AC = 0.D
+
+              ENDELSE
+
+           ENDIF ELSE BEGIN
+              ;;Calc Poynting flux
+
+              ;;Poynting flux along B
+              pFB    = PTR_NEW({DC:(*dBp).DC[BclosE_i]*(*eAV).DC[EclosB_i]/mu_0, $
+                                AC:(*dBp).AC[BclosE_i]*(*eAV).AC[EclosB_i]/mu_0})
+              
+
+              ;;Poynting flux perp to B and to (Bxv)xB
+              pFP    = PTR_NEW({DC:((*dBv).DC[BclosE_i]*(*eNB).DC[EclosB_i] - $
+                                    (*dBB).DC[BclosE_i]*(*eAV).DC[EclosB_i])/mu_0, $
+                                AC:((*dBv).AC[BclosE_i]*(*eNB).AC[EclosB_i] - $
+                                    (*dBB).AC[BclosE_i]*(*eAV).AC[EclosB_i])/mu_0})
+
+              ;;Negative sign comes out of S EQ 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
+              pFV    = PTR_NEW({DC:(-1.)*(*eNB)[EclosB_i].DC*(*dBp)[BclosE_i].DC/mu_0, $
+                                AC:(-1.)*(*eNB)[EclosB_i].AC*(*dBp)[BclosE_i].AC/mu_0})
+              
+              ;;Junk that nano prefix in nT
+              (*pFB).DC *= 1e-9
+              (*pFP).DC *= 1e-9
+              (*pFV).DC *= 1e-9
+
+              (*pFB).AC *= 1e-9
+              (*pFP).AC *= 1e-9
+              (*pFV).AC *= 1e-9
+
+           ENDELSE
 
            ;;Outflow indices
-           oflow_i = WHERE((ALOG10(ABS(value[k].(Hind).(HJiInd).y)) GE outflowMinLog10) AND $
-                           (FINITE(value[k].(Hind).(HJiInd).y))                         AND $
-                           (value[k].(Hind).(HJiInd).y GT 0),nOutflow)
+           oflow_i = WHERE((ALOG10(ABS(swayStruct[k].(Hind).(HJiInd).y)) GE outflowMinLog10) AND $
+                           (FINITE(swayStruct[k].(Hind).(HJiInd).y))                         AND $
+                           (swayStruct[k].(Hind).(HJiInd).y GT 0),nOutflow)
 
            IF nOutflow LT ptsMinOutflow THEN CONTINUE
 
@@ -651,7 +698,9 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
            ofloItvlHArr   = MAKE_ARRAY(nOfloPts,nHTags,/FLOAT,VALUE=0.) 
 
            ofloItvlPtCnt  = 0
+
            FOR l=0,nStreaks-1 DO BEGIN
+
               ;; curInds  = [orbPtCnt:orbPtCnt+nThisItvl[k]-1]
               arrInds  = [ofloItvlPtCnt:ofloItvlPtCnt+lens[l]]
               strkInds  = [start_i[l]:stop_i[l]]
@@ -682,12 +731,12 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
                                            [(*pFB).AC[strkInds]]]
 
               ;;Particles
-              ofloItvlHArr[arrInds,*]   = [[value[k].(Hind).(HJEeInd).y[strkInds]], $
-                                           [value[k].(Hind).(HJeInd).y[strkInds]], $
-                                           [value[k].(Hind).(HJiInd).y[strkInds]]]
+              ofloItvlHArr[arrInds,*]   = [[swayStruct[k].(Hind).(HJEeInd).y[strkInds]], $
+                                           [swayStruct[k].(Hind).(HJeInd).y[strkInds]], $
+                                           [swayStruct[k].(Hind).(HJiInd).y[strkInds]]]
               ofloItvlPtCnt += lens[l] + 1
-           ENDFOR
 
+           ENDFOR
 
            tmpItvlInds = [orbPtCnt:orbPtCnt+ofloItvlPtCnt-1]
            tmpOfloInds = [0:(ofloItvlPtCnt-1)]
