@@ -1,6 +1,15 @@
 ;;09/24/16
 ;;All this stuff should be according to Strangeway et al. [2005]
 
+  ;;Smooth windows
+  DSP_smoothWindow_halfLength    = 2.0
+  fields_smoothWindow_halfLength = 2.0
+
+  mu_0              = DOUBLE(4.0D*!PI*1e-7)
+
+  ;;Allowable difference between t{1,2} and nearest fields data
+  tBuf              = 10.
+
   minILAT           = 50 
 
   energy_ions       = [4,120.]
@@ -41,15 +50,6 @@
   upper_ion_e[8290] = 30
   upper_ion_e[8291] = 30
   upper_ion_e[8292] = 40
-
-  ;;Smooth windows
-  DSP_smoothWindow_halfLength    = 2.0
-  fields_smoothWindow_halfLength = 2.0
-
-  mu_0         = DOUBLE(4.0D*!PI*1e-7)
-
-  ;;Allowable difference between t{1,2} and nearest fields data
-  tBuf         = 10.
 
   ;; energy_ions       = [0,500.]
   ;; upper_ion_e       = HASH(strWay_orbs,MAKE_ARRAY(33,VALUE=500.,/FLOAT))
