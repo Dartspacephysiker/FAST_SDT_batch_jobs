@@ -101,7 +101,7 @@ PRO DECLARE_ARRAYS,nOrbs,nBTags,nETags,nPTags,nHTags, $
   ;;Pointers to time arrays
   BPTSArr      = PTRARR(nBTags)
   EPTSArr      = PTRARR(nETags)
-  HPTSArr      = PTRARR(nETags)
+  HPTSArr      = PTRARR(nHTags)
 
   ;;Bro
   orbArr       = MAKE_ARRAY(maxNElems       ,/LONG ,VALUE=0) 
@@ -351,7 +351,7 @@ END
 
 FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
    AVERAGES=averages, $
-   INTEGRALS=integrals, $
+   ;; INTEGRALS=integrals, $ ;meaningless
    PTS_STRUCT=pts, $
    NORTH=north, $
    SOUTH=south, $
@@ -359,6 +359,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
    NIGHT=night, $
    FOLD_INTERVALS=fold_intervals, $
    USE_INCLUDED_PFLUX=use_included_pFlux, $
+   INTERP_E_B_TSERIES_TO_MAKE_PFLUX=interp_E_B_tSeries, $
    SAVE_PLOTS=save_plots, $
    PLOTDIR=plotDir, $
    PLOTS_PREFIX=plots_prefix, $
@@ -368,10 +369,16 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
   COMPILE_OPT IDL2
 
   ;;Some outflow defaults
-  outflowMinLog10 = 5
+  ;;The originals are here. I started experimenting 2017/05/20
+  ;; outflowMinLog10 = 5
+  ;; ptsMinOutflow   = 2
+  ;; allowableGap    = 2 ;seconds
+  ;; min_streakLen_t = 30 ;;At least 30, right?
+
+  outflowMinLog10 = 5.0
   ptsMinOutflow   = 2
-  allowableGap    = 2 ;seconds
-  min_streakLen_t = 30 ;;At least 30, right?
+  ;; allowableGap    = 2 ;seconds
+  min_streakLen_t = 2 ;;At least 30, right?
 
   @strway_stuff
 
@@ -465,19 +472,19 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
   totPtCnt     = 0 ;master counter
   orbCnt       = 0 ;orbit counter
   notUnivCnt   = 0 ;Number of intervals for which there is no universal time series
-  FOREACH swayStruct, swHash, key DO BEGIN
+  FOREACH tmpStruct, swHash, key DO BEGIN
 
      ;;Anything here?
-     IF N_ELEMENTS(swayStruct[0]) EQ 0 THEN CONTINUE
+     IF N_ELEMENTS(tmpStruct[0]) EQ 0 THEN CONTINUE
 
      ;;How many?
-     nItvls    = N_ELEMENTS(swayStruct)
+     nItvls    = N_ELEMENTS(tmpStruct)
 
      IF nItvls EQ 0 THEN CONTINUE
 
      nThisItvl     = MAKE_ARRAY(nItvls,/LONG)
 
-     FOR k=0,nItvls-1 DO nThisItvl[k] = N_ELEMENTS(swayStruct[k].(0).(0).x)
+     FOR k=0,nItvls-1 DO nThisItvl[k] = N_ELEMENTS(tmpStruct[k].(0).(0).x)
 
      nThisOrb  = FIX(TOTAL(nThisItvl))
 
@@ -496,83 +503,278 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
 
      IF nThisOrb NE 0 THEN BEGIN
 
+
         ;;Now loop over intervals within this orbit
         orbPtCnt   = 0 ;;Keep track of how many we've gone over in this orbit
         FOR k=0,nItvls-1 DO BEGIN
 
+           ;;Pick up fields, align time series
+           dBp        = PTR_NEW(tmpStruct[k].(Bind).(BPind))
+           dBv        = PTR_NEW(tmpStruct[k].(Bind).(BVind))
+           dBB        = PTR_NEW(tmpStruct[k].(Bind).(BBind))
+
+           eAV        = PTR_NEW(tmpStruct[k].(Eind).(EAVind))
+           eNB        = PTR_NEW(tmpStruct[k].(Eind).(ENBind))
+           eDSP       = PTR_NEW(tmpStruct[k].(Eind).(EDSPind))
+
+
+           ;;Particles for hjar
+           tmpJi      = tmpStruct[k].(Hind).(HJiInd)
+           tmpJEe     = tmpStruct[k].(Hind).(HJEeInd)
+           tmpJe      = tmpStruct[k].(Hind).(HJeInd)
+
            PRINT,FORMAT='(A0,T25,I5,", ",I2)',"Orbit, Interval :",key,k
 
-           have_univ_TS  = BYTE(TAG_EXIST(swayStruct[k].(0).(0),'COMMONEST_TS'))
+           have_univ_TS  = BYTE(TAG_EXIST(tmpStruct[k].(0).(0),'COMMONEST_TS'))
 
-           IF have_univ_TS THEN BEGIN
+           CASE 1 OF
+              have_univ_TS: BEGIN
 
-              ;; PRINT,"UNIVERSAL"
+                 PRINT,"UNIVERSAL"
 
-              Puniv_TS   = PTR_NEW(swayStruct[k].(0).(0).(0))
+                 Puniv_TS   = PTR_NEW(tmpStruct[k].(0).(0).(0))
 
-              have_B_TS  = 1B
-              have_E_TS  = 1B
-              have_H_TS  = 1B
+                 have_B_TS  = 1B
+                 have_E_TS  = 1B
+                 have_H_TS  = 1B
 
-              PB_TS      = Puniv_TS
-              PE_TS      = Puniv_TS
-              PH_TS      = Puniv_TS
+                 PB_TS      = Puniv_TS
+                 PE_TS      = Puniv_TS
+                 PH_TS      = Puniv_TS
 
-              BPTSArr[*] = Puniv_TS
-              EPTSArr[*] = Puniv_TS
-              HPTSArr[*] = Puniv_TS
+                 BPTSArr[*] = Puniv_TS
+                 EPTSArr[*] = Puniv_TS
+                 HPTSArr[*] = Puniv_TS
 
-              nHere      = N_ELEMENTS(*Puniv_TS)
+                 nHere      = N_ELEMENTS(*Puniv_TS)
 
-           ENDIF ELSE BEGIN
-              
-              notUnivCnt++
-              ;; PRINT,"NOT UNIVERSAL"
+              END
+              KEYWORD_SET(interp_E_B_tSeries): BEGIN
 
-              have_B_TS  = BYTE(TAG_EXIST(swayStruct[k].(BInd).(0),'COMMON_TS'))
-              have_E_TS  = BYTE(TAG_EXIST(swayStruct[k].(EInd).(0),'COMMON_TS'))
-              have_H_TS  = BYTE(TAG_EXIST(swayStruct[k].(HInd).(0),'COMMON_TS'))
+                 have_B_TS  = BYTE(TAG_EXIST(tmpStruct[k].(BInd).(0),'COMMON_TS'))
+                 have_E_TS  = BYTE(TAG_EXIST(tmpStruct[k].(EInd).(0),'COMMON_TS'))
+                 have_H_TS  = BYTE(TAG_EXIST(tmpStruct[k].(HInd).(0),'COMMON_TS'))
+                 ;; IF Pind NE -1 THEN BEGIN
+                 ;;    have_P_TS  = BYTE(TAG_EXIST(tmpStruct[k].(PInd).(0),'COMMON_TS'))
+                 ;; ENDIF
 
-              IF have_B_TS THEN BEGIN
-                 PB_TS          = PTR_NEW(swayStruct[k].(BInd).(0).(0))
-                 BPTSArr[*]     = PB_TS
-              ENDIF ELSE BEGIN
-                 FOR p=0,nBTags-1 DO BEGIN
-                    BPTSArr[p]  = PTR_NEW(swayStruct[k].(BInd).(p).(0))
-                 ENDFOR
-              ENDELSE
+                 IF ~have_E_TS THEN BEGIN
+                    have_E_TS = ARRAY_EQUAL(tmpStruct[k].(EInd).alongV.x,tmpStruct[k].(EInd).nearB.x)
+                 ENDIF
 
-              IF have_E_TS THEN BEGIN
-                 PE_TS          = PTR_NEW(swayStruct[k].(EInd).(0).(0))
-                 BPTSArr[*]     = PB_TS
-              ENDIF ELSE BEGIN
-                 FOR p=0,nETags-1 DO BEGIN
-                    EPTSArr[p]  = PTR_NEW(swayStruct[k].(EInd).(p).(0))
-                 ENDFOR
-              ENDELSE
+                 IF have_B_TS THEN BEGIN
+                    
+                    ;;Interp time series
+                    t1          = tmpStruct[k].(BInd).(0).x[0]
+                    t2          = tmpStruct[k].(BInd).(0).x[-1]
+                    Puniv_TS    = PTR_NEW(DOUBLE(LINDGEN(CEIL(t2-t1))+ROUND(t1)))
 
-              IF have_H_TS THEN BEGIN
-                 PH_TS          = PTR_NEW(swayStruct[k].(HInd).(0).(0))
-                 BPTSArr[*]     = PB_TS
-              ENDIF ELSE BEGIN
-                 FOR p=0,nETags-1 DO BEGIN
-                    HPTSArr[p]  = PTR_NEW(swayStruct[k].(HInd).(p).(0))
-                 ENDFOR
-              ENDELSE
+                    ;; have_B_TS   = 1B
+                    ;; have_E_TS   = 1B
+                    ;; have_H_TS   = 1B
 
-           ENDELSE
+                    PB_TS       = Puniv_TS
+                    PE_TS       = Puniv_TS
+                    PH_TS       = Puniv_TS
+
+                    BPTSArr[*]  = Puniv_TS
+                    EPTSArr[*]  = Puniv_TS
+                    HPTSArr[*]  = Puniv_TS
+
+                    nHere       = N_ELEMENTS(*Puniv_TS)
+
+                 ENDIF ELSE BEGIN
+                    STOP
+                 ENDELSE
+
+                 ;;Now that we have a universal time array, everyone gets interped to death
+
+                 ;;Pick up fields, align time series
+                 ;; dBp        = tmpStruct[k].(Bind).(BPind)
+                 ;; dBv        = tmpStruct[k].(Bind).(BVind)
+                 ;; dBB        = tmpStruct[k].(Bind).(BBind)
+
+                 dBp        = PTR_NEW({x  : (*pUniv_ts), $
+                                       DC : DATA_CUT({x:(*dBp).x,y:(*dBp).DC},(*pUniv_ts), $
+                                                     COUNT=count, $
+                                                     GAP_THRESH=gap_thresh, $
+                                                     INTERP_GAP=interp_gap, $
+                                                     GAP_DIST=gap_dist, $
+                                                     MISSING=missing, $
+                                                     IGNORE_NAN=ignore_nan), $
+                                       AC : DATA_CUT({x:(*dBp).x,y:(*dBp).AC},(*pUniv_ts), $
+                                                     COUNT=count, $
+                                                     GAP_THRESH=gap_thresh, $
+                                                     INTERP_GAP=interp_gap, $
+                                                     GAP_DIST=gap_dist, $
+                                                     MISSING=missing, $
+                                                     IGNORE_NAN=ignore_nan), $
+                                       COMMON_TS    : 1, $
+                                       COMMONEST_TS : 1})
+
+                 dBv        = PTR_NEW({DC : DATA_CUT({x:(*dBp).x,y:(*dBv).DC},(*pUniv_ts), $
+                                             COUNT=count, $
+                                             GAP_THRESH=gap_thresh, $
+                                             INTERP_GAP=interp_gap, $
+                                             GAP_DIST=gap_dist, $
+                                             MISSING=missing, $
+                                             IGNORE_NAN=ignore_nan), $
+                               AC : DATA_CUT({x:(*dBp).x,y:(*dBv).AC},(*pUniv_ts), $
+                                             COUNT=count, $
+                                             GAP_THRESH=gap_thresh, $
+                                             INTERP_GAP=interp_gap, $
+                                             GAP_DIST=gap_dist, $
+                                             MISSING=missing, $
+                                             IGNORE_NAN=ignore_nan)})
+
+                 dBB        = PTR_NEW({DC : DATA_CUT({x:(*dBp).x,y:(*dBB).DC},(*pUniv_ts), $
+                                                     COUNT=count, $
+                                                     GAP_THRESH=gap_thresh, $
+                                                     INTERP_GAP=interp_gap, $
+                                                     GAP_DIST=gap_dist, $
+                                                     MISSING=missing, $
+                                                     IGNORE_NAN=ignore_nan), $
+                                       AC : DATA_CUT({x:(*dBp).x,y:(*dBB).AC},(*pUniv_ts), $
+                                                     COUNT=count, $
+                                                     GAP_THRESH=gap_thresh, $
+                                                     INTERP_GAP=interp_gap, $
+                                                     GAP_DIST=gap_dist, $
+                                                     MISSING=missing, $
+                                                     IGNORE_NAN=ignore_nan)})
+
+                 IF have_E_TS THEN BEGIN
+
+                    ;; eAV        = tmpStruct[k].(Eind).(EAVind)
+                    ;; eNB        = tmpStruct[k].(Eind).(ENBind)
+
+                    tmpETS     = (*eAV).x
+
+                    eAV        = PTR_NEW({DC : DATA_CUT({x:tmpETS,y:(*eAV).DC},(*pUniv_ts), $
+                                                        COUNT=count, $
+                                                        GAP_THRESH=gap_thresh, $
+                                                        INTERP_GAP=interp_gap, $
+                                                        GAP_DIST=gap_dist, $
+                                                        MISSING=missing, $
+                                                        IGNORE_NAN=ignore_nan), $
+                                          AC : DATA_CUT({x:tmpETS,y:(*eAV).AC},(*pUniv_ts), $
+                                                        COUNT=count, $
+                                                        GAP_THRESH=gap_thresh, $
+                                                        INTERP_GAP=interp_gap, $
+                                                        GAP_DIST=gap_dist, $
+                                                        MISSING=missing, $
+                                                        IGNORE_NAN=ignore_nan), $
+                                          COMMON_TS : 1})
+
+                    eNB        = PTR_NEW({DC : DATA_CUT({x:tmpETS,y:(*eNB).DC},(*pUniv_ts), $
+                                                        COUNT=count, $
+                                                        GAP_THRESH=gap_thresh, $
+                                                        INTERP_GAP=interp_gap, $
+                                                        GAP_DIST=gap_dist, $
+                                                        MISSING=missing, $
+                                                        IGNORE_NAN=ignore_nan), $
+                                          AC : DATA_CUT({x:tmpETS,y:(*eNB).AC},(*pUniv_ts), $
+                                                        COUNT=count, $
+                                                        GAP_THRESH=gap_thresh, $
+                                                        INTERP_GAP=interp_gap, $
+                                                        GAP_DIST=gap_dist, $
+                                                        MISSING=missing, $
+                                                        IGNORE_NAN=ignore_nan)})
+
+                    tmpETS = !NULL
+                    
+                 ENDIF ELSE BEGIN
+                    STOP
+                 ENDELSE
+
+                 eDSP    = PTR_NEW({DC : DATA_CUT({x:(*eDSP).x,y:(*eDSP).DC},(*pUniv_ts), $
+                                                  COUNT=count, $
+                                                  GAP_THRESH=gap_thresh, $
+                                                  INTERP_GAP=interp_gap, $
+                                                  GAP_DIST=gap_dist, $
+                                                  MISSING=missing, $
+                                                  IGNORE_NAN=ignore_nan), $
+                                    AC : DATA_CUT({x:(*eDSP).x,y:(*eDSP).AC},(*pUniv_ts), $
+                                                  COUNT=count, $
+                                                  GAP_THRESH=gap_thresh, $
+                                                  INTERP_GAP=interp_gap, $
+                                                  GAP_DIST=gap_dist, $
+                                                  MISSING=missing, $
+                                                  IGNORE_NAN=ignore_nan)})
+                 
+
+                 
+
+                 ;;Now interp particles
+                 tmpJe    = {y : DATA_CUT(tmpJe,(*pUniv_ts), $
+                                          COUNT=count, $
+                                          GAP_THRESH=gap_thresh, $
+                                          INTERP_GAP=interp_gap, $
+                                          GAP_DIST=gap_dist, $
+                                          MISSING=missing, $
+                                          IGNORE_NAN=ignore_nan)}
+                 
+                 tmpJEe   = {y : DATA_CUT(tmpJEe,(*pUniv_ts), $
+                                          COUNT=count, $
+                                          GAP_THRESH=gap_thresh, $
+                                          INTERP_GAP=interp_gap, $
+                                          GAP_DIST=gap_dist, $
+                                          MISSING=missing, $
+                                          IGNORE_NAN=ignore_nan)}
+
+                 tmpJi    = {y : DATA_CUT(tmpJi,(*pUniv_ts), $
+                                          COUNT=count, $
+                                          GAP_THRESH=gap_thresh, $
+                                          INTERP_GAP=interp_gap, $
+                                          GAP_DIST=gap_dist, $
+                                          MISSING=missing, $
+                                          IGNORE_NAN=ignore_nan)}
+
+
+                 ;;Now tell the world the joy
+                 have_univ_TS = 1
+
+              END
+              ELSE: BEGIN
+
+                 notUnivCnt++
+                 ;; PRINT,"NOT UNIVERSAL"
+
+                 have_B_TS  = BYTE(TAG_EXIST(tmpStruct[k].(BInd).(0),'COMMON_TS'))
+                 have_E_TS  = BYTE(TAG_EXIST(tmpStruct[k].(EInd).(0),'COMMON_TS'))
+                 have_H_TS  = BYTE(TAG_EXIST(tmpStruct[k].(HInd).(0),'COMMON_TS'))
+
+                 IF have_B_TS THEN BEGIN
+                    PB_TS          = PTR_NEW(tmpStruct[k].(BInd).(0).(0))
+                    BPTSArr[*]     = PB_TS
+                 ENDIF ELSE BEGIN
+                    FOR p=0,nBTags-1 DO BEGIN
+                       BPTSArr[p]  = PTR_NEW(tmpStruct[k].(BInd).(p).(0))
+                    ENDFOR
+                 ENDELSE
+
+                 IF have_E_TS THEN BEGIN
+                    PE_TS          = PTR_NEW(tmpStruct[k].(EInd).(0).(0))
+                    BPTSArr[*]     = PB_TS
+                 ENDIF ELSE BEGIN
+                    FOR p=0,nETags-1 DO BEGIN
+                       EPTSArr[p]  = PTR_NEW(tmpStruct[k].(EInd).(p).(0))
+                    ENDFOR
+                 ENDELSE
+
+                 IF have_H_TS THEN BEGIN
+                    PH_TS          = PTR_NEW(tmpStruct[k].(HInd).(0).(0))
+                    BPTSArr[*]     = PB_TS
+                 ENDIF ELSE BEGIN
+                    FOR p=0,nETags-1 DO BEGIN
+                       HPTSArr[p]  = PTR_NEW(tmpStruct[k].(HInd).(p).(0))
+                    ENDFOR
+                 ENDELSE
+
+              END
+           ENDCASE
 
         ;; ENDFOR
 
-
-           ;;Pick up fields, align time series
-           dBp           = PTR_NEW(swayStruct[k].(Bind).(BPind))
-           dBv           = PTR_NEW(swayStruct[k].(Bind).(BVind))
-           dBB           = PTR_NEW(swayStruct[k].(Bind).(BBind))
-
-           eAV           = PTR_NEW(swayStruct[k].(Eind).(EAVind))
-           eNB           = PTR_NEW(swayStruct[k].(Eind).(ENBind))
-           eDSP          = PTR_NEW(swayStruct[k].(Eind).(EDSPind))
 
            CASE 1 OF
               have_univ_TS: BEGIN ;;Already sammen
@@ -598,18 +800,18 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
            ENDIF ELSE BEGIN
               ;;Keep some stats if we're going to attempt the full pFlux sitiation
               ;;As always, I do mean sitiation
-              IF ~swayStruct[k].(Eind).(EIENBind) THEN noENBArr[*,orbCnt+k] = [key,k]
+              IF ~tmpStruct[k].(Eind).(EIENBind) THEN noENBArr[*,orbCnt+k] = [key,k]
            ENDELSE
 
 
            IF KEYWORD_SET(use_included_pFlux) THEN BEGIN
 
-              pFB = PTR_NEW(swayStruct[k].(Pind).(PBind))
-              pFP = PTR_NEW(swayStruct[k].(Pind).(PPind))
+              pFB = PTR_NEW(tmpStruct[k].(Pind).(PBind))
+              pFP = PTR_NEW(tmpStruct[k].(Pind).(PPind))
 
-              IF SIZE(swayStruct[k].(Pind).(PVind),/TYPE) EQ 8 THEN BEGIN
+              IF SIZE(tmpStruct[k].(Pind).(PVind),/TYPE) EQ 8 THEN BEGIN
 
-                 pFV = PTR_NEW(swayStruct[k].(Pind).(PVind))
+                 pFV = PTR_NEW(tmpStruct[k].(Pind).(PVind))
 
               ENDIF ELSE BEGIN
 
@@ -649,9 +851,9 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
            ENDELSE
 
            ;;Outflow indices
-           oflow_i = WHERE((ALOG10(ABS(swayStruct[k].(Hind).(HJiInd).y)) GE outflowMinLog10) AND $
-                           (FINITE(swayStruct[k].(Hind).(HJiInd).y))                         AND $
-                           (swayStruct[k].(Hind).(HJiInd).y GT 0),nOutflow)
+           oflow_i = WHERE((ALOG10(ABS(tmpJi.y)) GE outflowMinLog10) AND $
+                           (FINITE(tmpJi.y))                         AND $
+                           (tmpJi.y GT 0),nOutflow)
 
            IF nOutflow LT ptsMinOutflow THEN CONTINUE
 
@@ -731,9 +933,9 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
                                            [(*pFB).AC[strkInds]]]
 
               ;;Particles
-              ofloItvlHArr[arrInds,*]   = [[swayStruct[k].(Hind).(HJEeInd).y[strkInds]], $
-                                           [swayStruct[k].(Hind).(HJeInd).y[strkInds]], $
-                                           [swayStruct[k].(Hind).(HJiInd).y[strkInds]]]
+              ofloItvlHArr[arrInds,*]   = [[tmpStruct[k].(Hind).(HJEeInd).y[strkInds]], $
+                                           [tmpStruct[k].(Hind).(HJeInd).y[strkInds]], $
+                                           [tmpJi.y[strkInds]]]
               ofloItvlPtCnt += lens[l] + 1
 
            ENDFOR
@@ -1015,101 +1217,170 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
          PFLUX:TEMPORARY(PArr), $
          PTCL:TEMPORARY(HArr)}
 
-  avgInd        = 0 ;;Just plain old
-  avgTypeString = ''
 
-  posVal = 1
-  ;; absVal = 1
-  ;; negVal = 1
-  IF KEYWORD_SET(posVal) THEN BEGIN
-     avgInd = 1
-     avgTypeString = 'POS'
-  ENDIF
-  IF KEYWORD_SET(negVal) THEN BEGIN
-     avgInd = 2
-     avgTypeString = 'NEG'
-  ENDIF
-  IF KEYWORD_SET(absVal) THEN BEGIN
-     avgInd = 3
-     avgTypeString = 'ABS'
-  ENDIF
+  quit = 0
+  WHILE ~quit DO BEGIN
 
-  sw_i = SORT(avgStruct.orbit)
+     validr1 = 0
+     WHILE ~validr1 DO BEGIN
+        PRINT,'What type of avg?'
+        PRINT,'0: reguree'
+        PRINT,'1: posVals'
+        PRINT,'2: negVals'
+        PRINT,'3: absVals'
+        READ,avgInd
 
-  finStruct   = {orbit     : avgStruct.orbit    [sw_i], $
-                 ;; interval  : avgStruct.interval [sw_i], $   
-                 ;; eAlongV   : avgStruct.eAlongV  [sw_i], $   
-                 ;; dB_perp   : avgStruct.dB_perp  [sw_i], $   
-                 pFAlongBDC: avgStruct.pFlux.B.DC.(avgInd) [sw_i], $
-                 pFAlongPDC: avgStruct.pFlux.P.DC.(avgInd) [sw_i], $
-                 pFAlongBAC: avgStruct.pFlux.B.AC.(avgInd) [sw_i], $
-                 pFAlongPAC: avgStruct.pFlux.P.AC.(avgInd) [sw_i], $
-                 DSPDC     : avgStruct.E.DSP.DC.(avgInd)   [sw_i], $
-                 DSPAC     : avgStruct.E.DSP.AC.(avgInd)   [sw_i], $
-                 je        : avgStruct.ptcl.je.y.avg   [sw_i], $
-                 jee       : avgStruct.ptcl.jee.y.avg  [sw_i], $
-                 ji        : avgStruct.ptcl.ji.y.avg   [sw_i]}
+        CASE avgInd OF
+           0: BEGIN
+              validr1 = 1
+           END
+           1: BEGIN
+              validr1 = 1
+              
+              posVal = 1
+              negVal = 0
+              absVal = 0
+           END
+           2: BEGIN
+              validr1 = 1
+              
+              posVal = 0
+              negVal = 1
+              absVal = 0
+           END
+           3: BEGIN
+              validr1 = 1
+              
+              posVal = 0
+              negVal = 0
+              absVal = 1
+           END
+           ELSE: BEGIN
+              PRINT,"WRONG!"
+           END
+        ENDCASE
+     ENDWHILE
 
+     ;; avgInd        = 0 ;;Just plain old
+     ;; avgTypeString = ''
 
-
-  IF ~KEYWORD_SET(no_plots) THEN BEGIN
-
-     IF N_ELEMENTS(xQuants) EQ 0 THEN BEGIN
-        xQuants = [1,2,3,4,5,6,7,8]
+     ;; posVal = 1
+     ;; absVal = 1
+     ;; negVal = 1
+     IF KEYWORD_SET(posVal) THEN BEGIN
+        ;; avgInd = 1
+        avgTypeString = 'POS'
+     ENDIF
+     IF KEYWORD_SET(negVal) THEN BEGIN
+        ;; avgInd = 2
+        avgTypeString = 'NEG'
+     ENDIF
+     IF KEYWORD_SET(absVal) THEN BEGIN
+        ;; avgInd = 3
+        avgTypeString = 'ABS'
      ENDIF
 
-     plotInfo  = {xQuants       : xQuants, $
-                  xTitle        : ["", $
-                                   "Poynting FluxB [DC] (mW/m^2)", $
-                                   "Poynting FluxP [DC] (mW/m^2)", $
-                                   "Poynting FluxB [AC] (mW/m^2)", $
-                                   "Poynting FluxP [AC] (mW/m^2)", $
-                                   "Average ELF amplitude [DC] (V/m)", $
-                                   "Average ELF amplitude [AC] (V/m)", $
-                                   "Average Electron Flux (#/cm$^2$/s)", $
-                                   "Average Electron Energy Flux (mW/m$^2$)", $
-                                   "Ion Flux (#/cm!U2!N/s)"] + avgTypeString, $
-                  xRange        : [[0.,0.], $
-                                   [1e-1,1e2], $
-                                   [1e-1,1e2], $
-                                   [1e-4,1e0], $
-                                   [1e-4,1e0], $
-                                   [1e-3,1e-1], $
-                                   [1e-5,1e-2], $
-                                   [1e7,1e10], $
-                                   [1e-2,1e0], $                                    
-                                   [1e6,1e10]], $
-                  yTitle        : "Ion Flux (#/cm!U2!N/s)", $
-                  yData         : finStruct.ji, $
-                  yRange        : [1e6,1e10], $
-                  plotNames     : ["", $
-                                   "DC_Poynting_fluxB__vs__ionNumFlux", $
-                                   "AC_Poynting_fluxB__vs__ionNumFlux", $
-                                   "DC_Poynting_fluxP__vs__ionNumFlux", $
-                                   "AC_Poynting_fluxP__vs__ionNumFlux", $
-                                   "ELF_amplitudeDC__vs__ionNumFlux", $
-                                   "ELF_amplitudeAC__vs__ionNumFlux", $
-                                   "eNumFlux__vs__ionNumFlux", $
-                                   "eFlux__vs__ionNumFlux", $
-                                   "Ion Flux (#/cm!U2!N/s)"], $
-                  canonPref     : 'Strangeway_2005_Appendix_A--', $
-                  plotDirSuff   : '/Strangeway_et_al_2005--Appendix_A', $
-                  plots_prefix  : (KEYWORD_SET(bonusSuff) ? bonusSuff : '') + $ 
-                                  defs.statStr+'--'+defs.sideStr+'--'+defs.hemStr+'--' + $
-                                  avgTypeString, $
-                  verboten      : [0], $
-                  navn_verboten : ["Orbit    (ind 0)"]}
+     PRINT,avgTypeString
+
+     sw_i = SORT(avgStruct.orbit)
+
+     finStruct   = {orbit     : avgStruct.orbit    [sw_i], $
+                    ;; interval  : avgStruct.interval [sw_i], $   
+                    ;; eAlongV   : avgStruct.eAlongV  [sw_i], $   
+                    ;; dB_perp   : avgStruct.dB_perp  [sw_i], $   
+                    pFAlongBDC: avgStruct.pFlux.B.DC.(avgInd) [sw_i], $
+                    pFAlongPDC: avgStruct.pFlux.P.DC.(avgInd) [sw_i], $
+                    pFAlongBAC: avgStruct.pFlux.B.AC.(avgInd) [sw_i], $
+                    pFAlongPAC: avgStruct.pFlux.P.AC.(avgInd) [sw_i], $
+                    DSPDC     : avgStruct.E.DSP.DC.(avgInd)   [sw_i], $
+                    DSPAC     : avgStruct.E.DSP.AC.(avgInd)   [sw_i], $
+                    je        : avgStruct.ptcl.je.y.avg   [sw_i], $
+                    jee       : avgStruct.ptcl.jee.y.avg  [sw_i], $
+                    ji        : avgStruct.ptcl.ji.y.avg   [sw_i]}
 
 
-     PLOT_STRANGEWAY_STATS, $
-        finStruct, $
-        PLOTINFO=plotInfo, $
-        OUT_PLOTARR=plotArr, $
-        SQUARE_WINDOW=square_window, $
-        SAVE_PLOTS=save_plots, $
-        PLOTDIR=plotDir
 
-  ENDIF
+     IF ~KEYWORD_SET(no_plots) THEN BEGIN
+
+        IF N_ELEMENTS(xQuants) EQ 0 THEN BEGIN
+           xQuants = [1,2,3,4,5,6,7,8]
+        ENDIF
+
+        plotInfo  = {xQuants       : xQuants, $
+                     xTitle        : ["", $
+                                      "Poynting FluxB [DC] (mW/m^2)", $
+                                      "Poynting FluxP [DC] (mW/m^2)", $
+                                      "Poynting FluxB [AC] (mW/m^2)", $
+                                      "Poynting FluxP [AC] (mW/m^2)", $
+                                      "Average ELF amplitude [DC] (V/m)", $
+                                      "Average ELF amplitude [AC] (V/m)", $
+                                      "Average Electron Flux (#/cm$^2$/s)", $
+                                      "Average Electron Energy Flux (mW/m$^2$)", $
+                                      "Ion Flux (#/cm!U2!N/s)"] + avgTypeString, $
+                     xRange        : [[0.,0.], $
+                                      [1e-1,1e2], $
+                                      [1e-1,1e2], $
+                                      [1e-4,1e0], $
+                                      [1e-4,1e0], $
+                                      [1e-3,1e-1], $
+                                      [1e-5,1e-2], $
+                                      [1e7,1e10], $
+                                      [1e-2,1e0], $                                    
+                                      [1e6,1e10]], $
+                     yTitle        : "Ion Flux (#/cm!U2!N/s)", $
+                     yData         : finStruct.ji, $
+                     yRange        : [1e6,1e10], $
+                     plotNames     : ["", $
+                                      "DC_Poynting_fluxB__vs__ionNumFlux", $
+                                      "AC_Poynting_fluxB__vs__ionNumFlux", $
+                                      "DC_Poynting_fluxP__vs__ionNumFlux", $
+                                      "AC_Poynting_fluxP__vs__ionNumFlux", $
+                                      "ELF_amplitudeDC__vs__ionNumFlux", $
+                                      "ELF_amplitudeAC__vs__ionNumFlux", $
+                                      "eNumFlux__vs__ionNumFlux", $
+                                      "eFlux__vs__ionNumFlux", $
+                                      "Ion Flux (#/cm!U2!N/s)"], $
+                     canonPref     : 'Strangeway_2005_Appendix_A--', $
+                     plotDirSuff   : '/Strangeway_et_al_2005--Appendix_A', $
+                     plots_prefix  : (KEYWORD_SET(bonusSuff) ? bonusSuff : '') + $ 
+                     defs.statStr+'--'+defs.sideStr+'--'+defs.hemStr+'--' + $
+                     avgTypeString, $
+                     verboten      : [0], $
+                     navn_verboten : ["Orbit    (ind 0)"]}
+
+
+        PLOT_STRANGEWAY_STATS, $
+           finStruct, $
+           PLOTINFO=plotInfo, $
+           OUT_PLOTARR=plotArr, $
+           SQUARE_WINDOW=square_window, $
+           SAVE_PLOTS=save_plots, $
+           PLOTDIR=plotDir
+
+     ENDIF
+
+     validr1 = 0
+     WHILE ~validr1 DO BEGIN
+        PRINT,"Do another? (y/n)"
+        response = ''
+        READ,response
+        CASE STRMID(STRUPCASE(response),0,1) OF
+           'Y': BEGIN
+              validr1 = 1
+           END
+           'N': BEGIN
+              PRINT,'Quitting ...'
+              quit    = 1
+              validr1 = 1
+           END
+           ELSE: BEGIN
+              PRINT,'Say yes or no, son!'
+           END
+        ENDCASE
+     ENDWHILE
+
+  ENDWHILE
+
 
   RETURN,finStruct
 

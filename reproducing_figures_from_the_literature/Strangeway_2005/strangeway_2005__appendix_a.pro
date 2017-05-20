@@ -15,12 +15,14 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
    TPLT_VARS=tPlt_vars, $
    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
    SCREEN_PLOT=screen_plot, $
+   DECIMATE_EB_CALC_PFLUX=decimate_eb_calc_pFlux, $
    USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
    SAVE_INDIVIDUAL_ORBIT=save_individual_orbit, $
    NO_BLANK_PANELS=no_blank_panels, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps, $
-   BATCH_MODE=batch_mode
+   BATCH_MODE=batch_mode, $
+   SKIP_EXISTING_IN_HASH=skip_existing_in_hash
 
 ; create a summary plot of:
 ; SFA (AKR)
@@ -102,6 +104,8 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
   @strangeway_2005__defaults__appendix_a.pro
   
+  psym_ptcl    = 3              ;period
+  symsize_ptcl = 5.0
   nn           = N_ELEMENTS(data_quants)
 
   if (nn GT 1) THEN for n = nn-1L,1L,-1L do STORE_DATA,data_quants(n).name,/delete
@@ -118,6 +122,26 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
      IF KEYWORD_SET(save_individual_orbit) THEN BEGIN
         indiv_orbFile = indivOrbPref + orbString + '.sav'
+     ENDIF
+
+     IF KEYWORD_SET(skip_existing_in_hash) THEN BEGIN
+
+        IF FILE_TEST(outDir+hashFile) THEN BEGIN
+           PRINT,"Checking for orbit " + orbString + " in hash file " + hashFile + " ..."
+           RESTORE,outDir+hashFile
+
+           CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
+              -1: BEGIN
+                 PRINT,'Getting stuff from orbit ' + orbString + ' ...'
+              END
+              ELSE: BEGIN
+                 PRINT,"Already got this orbit! Out ..."
+                 RETURN
+              END
+           ENDCASE
+
+        ENDIF
+
      ENDIF
 
      ;;Get time and Je info
@@ -281,11 +305,11 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
   IF (nb4 GT 0) THEN IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN nb4 = 0
   b = WHERE(STRPOS(result,'V1-V2_S') GE 0,nb2)
   IF (nb2 GT 0) THEN IF STRPOS(RESULT[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN nb2 = 0
-  IF (nb4 GT 0) THEN v12 = GET_FA_FIELDS('V1-V4_S',/ALL) $
-  ELSE IF (nb2 GT 0) THEN v12 = GET_FA_FIELDS('V1-V2_S',/ALL)
+  IF (nb4 GT 0) THEN v12 = GET_FA_FIELDS('V1-V4_S',/DEFAULT) $
+  ELSE IF (nb2 GT 0) THEN v12 = GET_FA_FIELDS('V1-V2_S',/DEFAULT)
 
   b = WHERE(STRPOS(result,'V5-V8_S') GE 0,nb5)
-  IF (nb5 GT 0) THEN v58 = GET_FA_FIELDS('V5-V8_S',/ALL)
+  IF (nb5 GT 0) THEN v58 = GET_FA_FIELDS('V5-V8_S',/DEFAULT)
 
   got_efield = (nb4 GT 0 OR nb2 GT 0) AND nb5 GT 0
 
@@ -397,10 +421,10 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
   ENDIF
 
   if (ndsphg GT 0) THEN BEGIN
-     data = GET_FA_FIELDS('DspADC_V5-V8HG',/all) 
+     data = GET_FA_FIELDS('DspADC_V5-V8HG',/DEFAULT) 
   ENDIF else BEGIN
      IF (ndsp GT 0) THEN BEGIN
-        data = GET_FA_FIELDS('DspADC_V5-V8',/all)
+        data = GET_FA_FIELDS('DspADC_V5-V8',/DEFAULT)
      ENDIF
   ENDELSE
   ndsp = (ndsp GT 0) or (ndsphg GT 0)
@@ -581,12 +605,12 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      ;;   "z (ind 2)-along B, 
      ;;    y (ind 1)-cross track (BxV), 
      ;;    x (ind 0)-along track ((BxV)xB)." (I added "ind" marks)
-     magv = {x:magData.x[ind1:ind2], $
-             y:magData.y[ind1:ind2,0]} 
      magB = {x:magData.x[ind1:ind2], $
              y:magData.y[ind1:ind2,2]} 
      magp = {x:magData.x[ind1:ind2], $
              y:magData.y[ind1:ind2,1]}
+     magv = {x:magData.x[ind1:ind2], $
+             y:magData.y[ind1:ind2,0]} 
      nMag = N_ELEMENTS(magp.x)
 
      ;;E-field trim
@@ -674,44 +698,6 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;;Poynting fluxes!
-
-     ;; IF KEYWORD_SET(full_pFlux) THEN BEGIN
-
-
-     ;;    pFBHigh = dBp.AC*eAV.AC/mu_0 ;Poynting flux along B
-     ;;    pFPHigh = (eNB.AC*dBv.AC - $
-     ;;               1.*dBB.AC*eAV.AC)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
-
-     ;;    ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
-     ;;    pFVHigh = (-1.)*eNB.AC*dBp.AC/mu_0
-
-     ;;    pFBLow = dBp.DC*eAV.DC/mu_0 ;Poynting flux along B
-     ;;    pFPLow = (eNB.DC*dBv.DC - $
-     ;;              1.*dBB.DC*eAV.DC)/mu_0 ;Poynting flux perp to B and to (Bxv)xB
-
-     ;;    ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
-     ;;    pFVLow = (-1.)*eNB.DC*dBp.DC/mu_0
-
-     ;;    pFVHigh *= 1e-9
-     ;;    pFVLow  *= 1e-9
-
-     ;; ENDIF ELSE BEGIN
-
-     ;;    pFBHigh =       dBp.AC *eAV.AC/mu_0 ;Poynting flux along B
-     ;;    pFPHigh = (-1.)*dBB.AC*eAV.AC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
-     ;;    ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
-
-     ;;    pFBLow =       dBp.DC *eAV.DC/mu_0 ;Poynting flux along B
-     ;;    pFPLow = (-1.)*dBB.DC*eAV.DC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
-     ;;    ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
-
-     ;; ENDELSE
-
-     ;; pFBHigh *= 1e-9            ;Junk that nano prefix in nT
-     ;; pFPHigh *= 1e-9
-
-     ;; pFBLow *= 1e-9             ;Junk that nano prefix in nT
-     ;; pFPLow *= 1e-9
 
      IF KEYWORD_SET(decimate_eb_calc_pFlux) THEN BEGIN
 
@@ -813,7 +799,6 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
         ;;WASTE SPENCE'S TIME END
 
-
         ;;But yes, we must align time series
         eAlongVtoMag = DATA_CUT(eAlongV,magp.x)
 
@@ -851,11 +836,20 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
                     INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
                     ONESEC_TS=tS_1s)
 
+        pFB  = {DC:pFB.DC, $
+                AC:pFB.AC}
+        pFP  = {DC:pFP.DC, $
+                AC:pFP.AC}
+
         IF KEYWORD_SET(full_pFlux) THEN BEGIN
-           pFV    = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
+
+           pFV  = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
                     pFluxV, $
                     INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
                     ONESEC_TS=tS_1s)
+           pFV  = {DC:pFV.DC, $
+                   AC:pFV.AC}
+
         ENDIF        
 
      ENDELSE
@@ -1004,11 +998,26 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      YLIM,'Je_tmp',6,12,0                                                  ; set y limits
      OPTIONS,'Je_tmp','ytitle','Downgoing Elec.!CFlux!C#/cm!U2!N-s)' ; set y title
      OPTIONS,'Je_tmp','panel_size',3                                       ; set panel size
-     OPTIONS,'Je_tmp','yticks',7                                           ; set y-axis labels
+     OPTIONS,'Je_tmp','yticks',6                                           ; set y-axis labels
      OPTIONS,'Je_tmp','ytickv',[6,7,8,9,10,11,12]                         ; set y-axis labels
      OPTIONS,'Je_tmp','ytickname',['10!U6!N','10!U7!N','10!U8!N','10!U9!N','10!U10!N', $
                                    '10!U11!N','10!U12!N'] ; set y-axis labels
      OPTIONS,'Je_tmp','ynozero',1
+     OPTIONS,'Je_tmp','ystyle',1
+     ;; dLimit = {spec:0, $
+     ;;           ystyle:1, $
+     ;;           ytitle:'Downgoing Elec.!CFlux!C#/cm!U2!N-s)', $
+     ;;           yticks:6, $      
+     ;;           ylog:0, $
+     ;;           yrange:[6,12], $
+     ;;           ytickv:[6,7,8,9,10,11,12], $ ; set y-axis labels
+     ;;           ytickname:['10!U6!N','10!U7!N','10!U8!N','10!U9!N','10!U10!N', $
+     ;;                      '10!U11!N','10!U12!N'], $
+     ;;           colors:normColorI,$
+     ;;           panel_size:3}
+     ;; STORE_DATA,'Je_tmp',DLIMITS=dLimit
+     OPTIONS,'Je_tmp','psym',psym_ptcl ;period symbol
+     OPTIONS,'Je_tmp','symsize',symsize_ptcl ;period symbol
 
 ; Electron energy flux
 
@@ -1054,12 +1063,15 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      YLIM,'JEe_tmp',-5,1,0                                                  ; set y limits
      OPTIONS,'JEe_tmp','ytitle','Downgoing Elec.!CEnergy Flux!CmW/(m!U2!N)' ; set y title
      OPTIONS,'JEe_tmp','panel_size',3                                       ; set panel size
-     OPTIONS,'JEe_tmp','yticks',7                                           ; set y-axis labels
+     OPTIONS,'JEe_tmp','yticks',6                                           ; set y-axis labels
      OPTIONS,'JEe_tmp','ytickv',[-5,-4,-3,-2,-1,0,1]                        ; set y-axis labels
      OPTIONS,'JEe_tmp','ytickname',['10!U-5!N','10!U-4!N','10!U-3!N', $
                                 '10!U-2!N','10!U-1!N','10!U0!N','10!U1!N'] ; set y-axis labels
      OPTIONS,'JEe_tmp','x_no_interp',1
      OPTIONS,'JEe_tmp','y_no_interp',1
+     OPTIONS,'JEe_tmp','ystyle',1
+     OPTIONS,'JEe_tmp','psym',psym_ptcl ;period symbol
+     OPTIONS,'JEe_tmp','symsize',symsize_ptcl ;period symbol
 
 ; Step 5 - Ion flux
 
@@ -1097,11 +1109,13 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      YLIM,'Ji_tmp',4,10,0                                               ; set y limits
      OPTIONS,'Ji_tmp','ytitle','Upward Ion!CNumber Flux!C(#/cm!U2!N-s)' ; set y title
      OPTIONS,'Ji_tmp','panel_size',3                                    ; set panel size
-     OPTIONS,'Ji_tmp','yticks',7                                        ; set y-axis labels
+     OPTIONS,'Ji_tmp','yticks',6                                        ; set y-axis labels
      OPTIONS,'Ji_tmp','ytickv',[4,5,6,7,8,9,10]                         ; set y-axis labels
      OPTIONS,'Ji_tmp','ytickname',['10!U4!N','10!U5!N','10!U6!N', $
                                    '10!U7!N','10!U8!N','10!U9!N','10!U10!N'] ; set y-axis labels
      OPTIONS,'Ji_tmp','ynozero',1
+     OPTIONS,'Ji_tmp','psym',psym_ptcl ;period symbol
+     OPTIONS,'Ji_tmp','symsize',symsize_ptcl ;period symbol
 
 ; STEP 6 - Clean up and return
 
@@ -1188,8 +1202,8 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      ENDIF
 
      ;;If the B structs have a common time series, only dBp keeps the x member of its struct
-     B_has_common_TS = ARRAY_EQUAL(dBp.x,dBv.x) AND ARRAY_EQUAL(dBp.x,dBB.x) AND ARRAY_EQUAL(dBv.x,dBB.x)
-
+     ;; B_has_common_TS = ARRAY_EQUAL(dBp.x,dBv.x) AND ARRAY_EQUAL(dBp.x,dBB.x) AND ARRAY_EQUAL(dBv.x,dBB.x)
+     B_has_common_TS = 1 ;Of COURSE B has a common TS!
      IF B_has_common_TS THEN BEGIN
 
         dBp  = {x:dBp.x, $
@@ -1206,8 +1220,8 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      ENDIF
 
      ;;If the E structs have a common time series, only dBp keeps the x member of its struct
+     ;; E_has_common_TS = ARRAY_EQUAL(eAV.x,eNB.x) AND ARRAY_EQUAL(eAV.x,tmpDSP.x) AND ARRAY_EQUAL(eNB.x,tmpDSP.x)
      E_has_common_TS = ARRAY_EQUAL(eAV.x,eNB.x) AND ARRAY_EQUAL(eAV.x,tmpDSP.x) AND ARRAY_EQUAL(eNB.x,tmpDSP.x)
-
      IF E_has_common_TS THEN BEGIN
 
         eAV     = {x:eAV.x, $
@@ -1298,21 +1312,22 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
                       B:dBB}, $
                   e:{AlongV:eAV, $
                      NearB:eNB, $
-                     dsp:tmpDSP, $
-                     include_E_near_B:BYTE(KEYWORD_SET(include_E_near_B)), $
-                     eField_fit_variables:BYTE(KEYWORD_SET(use_eField_fit_variables))}, $
+                     dsp:tmpDSP}, $
                   ;; pFlux:{b:{x:eAV.x,DC:pFBLow,AC:pFBHigh}, $
                   ;;        p:{x:eAV.x,DC:pFPLow,AC:pFPHigh}, $
                   ;;        v:{x:eAV.x,DC:pFVLow,AC:pFVHigh}, $
                   ;;        full_pflux:KEYWORD_SET(full_pflux)}, $
                   pFlux : CREATE_STRUCT('p',pFP, $
                                         'v',(KEYWORD_SET(full_pFlux) ? pFV : 0B), $
-                                        'b',pFB, $
-                                        'info',{full_pFlux             : KEYWORD_SET(full_pFlux), $
-                                                decimate_eb_calc_pFlux : KEYWORD_SET(decimate_eb_calc_pFlux)}), $
-                  ptcl:{jEe:tmpJEe, $
-                        je:tmpJe, $
-                        ji:tmpJi}} ;, $
+                                        'b',pFB), $
+                  ptcl:{jEe:TEMPORARY(tmpJEe), $
+                        je :TEMPORARY(tmpJe), $
+                        ji :TEMPORARY(tmpJi)}, $
+                  info:{full_pFlux             : KEYWORD_SET(full_pFlux), $
+                        decimate_eb_calc_pFlux : KEYWORD_SET(decimate_eb_calc_pFlux), $
+                        interp_4Hz_to_1s       : KEYWORD_SET(interp_4Hz_to_1s      ), $
+                        include_E_near_B       : BYTE(KEYWORD_SET(include_E_near_B)), $
+                        eField_fit_variables   : BYTE(KEYWORD_SET(use_eField_fit_variables))}}
      ;; outflow_i:[[start_i],[stop_i]]}
      
      PRINT,"Adding struct for interval " + itvlString + " in orbit " + orbString + ' ...'

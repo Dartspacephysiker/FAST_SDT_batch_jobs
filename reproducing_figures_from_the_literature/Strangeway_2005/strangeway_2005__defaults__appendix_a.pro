@@ -4,7 +4,7 @@
   indivOrbPref = 'Strangeway_et_al_2005__real_thing--'
 
   outPlotName  = 'Strangeway_2005_Appendix_A'
-  plotDirSuff  = '/Strangeway_et_al_2005--Appendix_A'
+  plotDirSuff  = '/Strangeway_et_al_2005/Appendix_A'
 
   IF KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
      hashFile    +='--eFieldFits'
@@ -15,7 +15,7 @@
   IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
 
   ;; bonusSuff    = ''
-  bonusSuff    = '_decimate_later'
+  bonusSuff    = '_decimate_NOW'
 
   IF ( ABS(energy_ions[0] - 4.)   LT 0.01 ) THEN bonusSuff += '--4eV_lower'
   IF ( ABS(energy_ions[1] - 500.) LT 0.01 ) THEN bonusSuff += '--500eV_upper'

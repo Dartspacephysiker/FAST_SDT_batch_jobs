@@ -63,7 +63,7 @@ PRO PLOT_STRANGEWAY_STATS, $
             ', and ', $
             FLOAT(nNegY)/nYData*100., $
             "% of them are neg."
-      STOP
+      ;; STOP
       yData *= -1.D
 
    ENDIF

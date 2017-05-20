@@ -371,11 +371,11 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
   if (nb4 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb4 = 0
   b = where (strpos(result,'V1-V2_S') ge 0,nb2)
   if (nb2 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb2 = 0
-  if (nb4 gt 0) then v12=get_fa_fields('V1-V4_S',/all) $
-  else if (nb2 gt 0) then v12=get_fa_fields('V1-V2_S',/all)
+  if (nb4 gt 0) then v12=get_fa_fields('V1-V4_S',/DEFAULT) $
+  else if (nb2 gt 0) then v12=get_fa_fields('V1-V2_S',/DEFAULT)
 
   b = where (strpos(result,'V5-V8_S') ge 0,nb5)
-  if (nb5 gt 0) then v58=get_fa_fields('V5-V8_S',/all)
+  if (nb5 gt 0) then v58=get_fa_fields('V5-V8_S',/DEFAULT)
 
   got_efield = (nb4 gt 0 or nb2 gt 0) and nb5 gt 0
 
