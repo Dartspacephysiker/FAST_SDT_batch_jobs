@@ -357,6 +357,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
    SOUTH=south, $
    DAY=day, $
    NIGHT=night, $
+   MINILAT=minILAT, $
    FOLD_INTERVALS=fold_intervals, $
    USE_INCLUDED_PFLUX=use_included_pFlux, $
    INTERP_E_B_TSERIES_TO_MAKE_PFLUX=interp_E_B_tSeries, $
@@ -370,15 +371,15 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
 
   ;;Some outflow defaults
   ;;The originals are here. I started experimenting 2017/05/20
-  ;; outflowMinLog10 = 5
-  ;; ptsMinOutflow   = 2
-  ;; allowableGap    = 2 ;seconds
-  ;; min_streakLen_t = 30 ;;At least 30, right?
-
-  outflowMinLog10 = 5.0
+  outflowMinLog10 = 5
   ptsMinOutflow   = 2
-  ;; allowableGap    = 2 ;seconds
-  min_streakLen_t = 2 ;;At least 30, right?
+  allowableGap    = 2 ;seconds
+  min_streakLen_t = 30 ;;At least 30, right?
+
+  ;; outflowMinLog10 = 6.0
+  ;; ptsMinOutflow   = 5
+  ;; ;; allowableGap    = 2 ;seconds
+  ;; min_streakLen_t = 5 ;;At least 30, right?
 
   @strway_stuff
 
@@ -884,10 +885,12 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
 
            ;;OK, now we know that there's going to be action. 
            ;;If we're this far, we're going to average all outflow points
+           nPts      = N_ELEMENTS((*PUniv_TS))
            nStreaks  = N_ELEMENTS(start_i)
            nOfloPts  = FIX(TOTAL(lens) + nStreaks)
 
-           PRINT,"n Outflow: " + STRCOMPRESS(nOfloPts,/REMOVE_ALL)
+           PRINT,"n Outflow/not: " + STRCOMPRESS(nOfloPts,/REMOVE_ALL) + '/' + STRCOMPRESS(nPts,/REMOVE_ALL) + ' (' + $
+                 STRCOMPRESS(FLOAT(nOfloPts)/nPts*100.,/REMOVE_ALL) + '%)'
 
            ofloItvlBDCArr = MAKE_ARRAY(nOfloPts,nBTags,/FLOAT,VALUE=0.) 
            ofloItvlEDCArr = MAKE_ARRAY(nOfloPts,nETags,/FLOAT,VALUE=0.) 
@@ -1233,10 +1236,14 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
         CASE avgInd OF
            0: BEGIN
               validr1 = 1
+
+              avgTypeString = ''
            END
            1: BEGIN
               validr1 = 1
               
+              avgTypeString = 'POS'
+
               posVal = 1
               negVal = 0
               absVal = 0
@@ -1244,6 +1251,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
            2: BEGIN
               validr1 = 1
               
+              avgTypeString = 'NEG'
+
               posVal = 0
               negVal = 1
               absVal = 0
@@ -1251,6 +1260,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
            3: BEGIN
               validr1 = 1
               
+              avgTypeString = 'ABS'
+
               posVal = 0
               negVal = 0
               absVal = 1
@@ -1267,18 +1278,15 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
      ;; posVal = 1
      ;; absVal = 1
      ;; negVal = 1
-     IF KEYWORD_SET(posVal) THEN BEGIN
-        ;; avgInd = 1
-        avgTypeString = 'POS'
-     ENDIF
-     IF KEYWORD_SET(negVal) THEN BEGIN
-        ;; avgInd = 2
-        avgTypeString = 'NEG'
-     ENDIF
-     IF KEYWORD_SET(absVal) THEN BEGIN
-        ;; avgInd = 3
-        avgTypeString = 'ABS'
-     ENDIF
+     ;; IF KEYWORD_SET(posVal) THEN BEGIN
+     ;;    ;; avgInd = 1
+     ;; ENDIF
+     ;; IF KEYWORD_SET(negVal) THEN BEGIN
+     ;;    ;; avgInd = 2
+     ;; ENDIF
+     ;; IF KEYWORD_SET(absVal) THEN BEGIN
+     ;;    ;; avgInd = 3
+     ;; ENDIF
 
      PRINT,avgTypeString
 
