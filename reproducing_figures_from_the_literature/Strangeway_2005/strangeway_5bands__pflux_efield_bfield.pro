@@ -9,6 +9,77 @@
 ;-->Data products from which to form pFlux: E-field, B-field
 ;-->Despun mag start/stop time
 
+PRO FA_FILTERER,data, $
+                POLES=poles, $
+                FREQBOUNDS=freqBounds, $
+                DB=FFTdB, $
+                DATA_NAME=data_name, $
+                SUFFS__DATA_NAME=suffs, $
+                UNITS_NAME=units_name
+
+  COMPILE_OPT IDL2,STRICTARRSUBS
+
+  CASE SIZE(data,/TYPE) OF
+     0: BEGIN
+        MESSAGE,"Yeah, right!"
+        STOP
+     END
+     8:
+     7: BEGIN
+        STOP
+     END
+  ENDCASE
+
+  nPoles      = N_ELEMENTS(poles)
+  nFreqBounds = N_ELEMENTS(freqBounds[0,*])
+  nSuffs      = N_ELEMENTS(suffs)
+
+  IF ( (nPoles NE nFreqBounds) AND (nPoles NE 0) ) OR ( (nPoles NE nSuffs) AND (nPoles NE 0) ) THEN BEGIN
+     MESSAGE,"Lennie … You're free! (Unequal # freqBounds and poles!)",/CONTINUE
+     STOP
+  ENDIF
+
+  tmplt  = {  $                 ;TIME         : magz.x[tmpI]          , $
+           ;; COMP1        : magx.y[tmpI]          , $
+           ;; COMP2        : magy.y[tmpI]          , $
+           ;; COMP3        : magz.y[tmpI]          , $
+           ;; TIME         : magz.x[tmpI]          , $
+           ;; COMP1        : eAlongVInterp[tmpI]   , $
+           TIME         : data.x          , $
+           COMP1        : data.y   , $
+           NCOMP        : 1               , $
+           DATA_NAME    : data_name, $
+           VALID        : 1               , $
+           PROJECT_NAME : 'FAST'          , $
+           UNITS_NAME   : units_name      , $
+           CALIBRATED   : 1}
+
+  filtereds         = !NULL
+  FOR k=0,nPoles-1 DO BEGIN
+
+     tmp            = tmplt
+     tmp.data_name += suffs[k]
+
+     PRINT,tmp.data_name + ' ...'
+     
+     tmpFreqBounds  = freqBounds[*,k]
+
+     IF twoPole THEN BEGIN
+        tmpPole     = poles[*,k]
+     ENDIF ELSE BEGIN
+        tmpPole     = poles[k]
+     ENDELSE
+     
+     FA_FIELDS_FILTER,tmp,tmpFreqBounds, $
+                      DB=FFTdb, $
+                      POLES=tmpPole
+
+     filtereds = [filtereds,TEMPORARY(tmp)]
+
+  ENDFOR
+
+END
+
 PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
    TPLT_VARS=tPlt_vars, $
    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
@@ -25,9 +96,15 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
+  lowFreqBounds   = [0,0.125]
+  highFreqBounds  = [0.125,0.5]
+  chastFreqBounds = [0.5,10]
 
-  highFreqBounds = [0.125,0.5]
-  lowFreqBounds  = [0,0.125]
+  freqBounds        = [[lowFreqBounds],[highFreqBounds],[chastFreqBounds]]
+  freqSuffs         = '_' + ['LOW','HIGH','INERTIAL'] 
+
+  ;; highFreqPoles  = [8,8]
+  ;; lowFreqPoles   = [8,8]
 
   CASE 1 OF
      KEYWORD_SET(use_eField_fit_variables): BEGIN

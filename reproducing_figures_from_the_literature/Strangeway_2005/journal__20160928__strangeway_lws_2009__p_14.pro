@@ -1,5 +1,77 @@
 ;;2016/09/28
 ;;Trying to reproduce Strangeway's AC Poynting flux
+  ;;magStuff
+PRO FA_FILTERER,data, $
+                POLES=poles, $
+                FREQBOUNDS=freqBounds, $
+                DB=FFTdB, $
+                DATA_NAME=data_name, $
+                SUFFS__DATA_NAME=suffs, $
+                UNITS_NAME=units_name
+
+  COMPILE_OPT IDL2,STRICTARRSUBS
+
+  CASE SIZE(data,/TYPE) OF
+     0: BEGIN
+        MESSAGE,"Yeah, right!"
+        STOP
+     END
+     8:
+     7: BEGIN
+        STOP
+     END
+  ENDCASE
+
+  nPoles      = N_ELEMENTS(poles)
+  nFreqBounds = N_ELEMENTS(freqBounds[0,*])
+  nSuffs      = N_ELEMENTS(suffs)
+
+  IF ( (nPoles NE nFreqBounds) AND (nPoles NE 0) ) OR ( (nPoles NE nSuffs) AND (nPoles NE 0) ) THEN BEGIN
+     MESSAGE,"Lennie … You're free! (Unequal # freqBounds and poles!)",/CONTINUE
+     STOP
+  ENDIF
+
+  tmplt  = {  $                 ;TIME         : magz.x[tmpI]          , $
+           ;; COMP1        : magx.y[tmpI]          , $
+           ;; COMP2        : magy.y[tmpI]          , $
+           ;; COMP3        : magz.y[tmpI]          , $
+           ;; TIME         : magz.x[tmpI]          , $
+           ;; COMP1        : eAlongVInterp[tmpI]   , $
+           TIME         : data.x          , $
+           COMP1        : data.y   , $
+           NCOMP        : 1               , $
+           DATA_NAME    : data_name, $
+           VALID        : 1               , $
+           PROJECT_NAME : 'FAST'          , $
+           UNITS_NAME   : units_name      , $
+           CALIBRATED   : 1}
+
+  filtereds         = !NULL
+  FOR k=0,nPoles-1 DO BEGIN
+
+     tmp            = tmplt
+     tmp.data_name += suffs[k]
+
+     PRINT,tmp.data_name + ' ...'
+     
+     tmpFreqBounds  = freqBounds[*,k]
+
+     IF twoPole THEN BEGIN
+        tmpPole     = poles[*,k]
+     ENDIF ELSE BEGIN
+        tmpPole     = poles[k]
+     ENDELSE
+     
+     FA_FIELDS_FILTER,tmp,tmpFreqBounds, $
+                      DB=FFTdb, $
+                      POLES=tmpPole
+
+     filtereds = [filtereds,TEMPORARY(tmp)]
+
+  ENDFOR
+
+END
+
 PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
    TPLT_VARS=tPlt_vars, $
    PLOT_NORTH=plot_north, $
@@ -69,14 +141,13 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
 
 
   ;;smoothing options
-  magSmSeconds = 2 ;Up to 0.5 Hz
-  eFSmSeconds  = 2 ;Up to 0.5 Hz
+  magSmSeconds       = 2 ;Up to 0.5 Hz
+  eFSmSeconds        = 2 ;Up to 0.5 Hz
   pFluxLowSmSeconds  = 2
   pFluxHighSmSeconds = 2
 
 
   zero_unsmoothables = 0
-
 
   IF N_ELEMENTS(smooth_fluxes) EQ 0 THEN BEGIN
      smooth_fluxes  = 0
@@ -86,8 +157,12 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
      smooth_fields  = 1
   ENDIF
 
-  highFreqBounds = [0.125,0.5]
-  lowFreqBounds  = [0,0.125]
+  chastFreqBounds   = [0.5,10]
+  highFreqBounds    = [0.125,0.5]
+  lowFreqBounds     = [0,0.125]
+
+  freqBounds        = [[lowFreqBounds],[highFreqBounds],[chastFreqBounds]]
+  freqSuffs         = '_' + ['LOW','HIGH','INERTIAL'] 
 
   ;; highFreqPoles  = [8,8]
   ;; lowFreqPoles   = [8,8]
@@ -105,12 +180,9 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
   ;;"   z-along B, y-east (BxR), x-nominally out"
   ;;    (ind 2)    (ind 1)       (ind 0)
 
-  magInd = 1
-
+  magInd       = 1
   normColorI   = (KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) ? 0 : 255
-
   mu_0         = DOUBLE(4.0D*!PI*1e-7)
-
   outPlotName  = 'Strangeway_LWS_2009--page_14'
 
   IF KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
@@ -197,14 +269,16 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
      options,'dB_sm','panel_size',2
 
      ;;Interp time series
-     tS_1s = DOUBLE(LINDGEN(CEIL(t2-t1))+ROUND(t1))
+     IF KEYWORD_SET(smooth_fluxes) OR KEYWORD_SET(smooth_fields) THEN BEGIN
+        tS_1s  = DOUBLE(LINDGEN(CEIL(t2-t1))+ROUND(t1))
+     ENDIF
 
      tPlt_vars = 'dB_fac_v'
 
-     if (keyword_set(screen_plot)) then begin
-        loadct2,40
-        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-     endif
+     IF (KEYWORD_SET(screen_plot)) THEN BEGIN
+        LOADCT2,40
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+     ENDIF
 
      ;;Smooth to 4-s resolution
      ;; PRINT,'SMOOTHmag'
@@ -309,7 +383,7 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
 
 ; despin e field data
 
-     FA_FIELDS_DESPIN,v58,v12,/SHADOW_NOTCH,/SINTERP,/SLOW
+     FA_FIELDS_DESPIN,v58,v12,/SHADOW_NOTCH,/MAG_NOTCH,/SINTERP,/BINTERP
 
      ;; OPTIONS,'EFIT_ALONG_V','ytitle','E along V!C!C[DC] (mV/m)'
      ;; OPTIONS,'EFIT_ALONG_V','colors',[normColorI,normColorI]
@@ -536,6 +610,19 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
 
   dBpHigh.data_name += '_HIGH'
   dBpLow.data_name  += '_LOW'
+
+  ;; poles = 
+
+  ;; units_name = 'mV/m'
+  ;; data_name  = 'dB_perp'
+
+  ;; FA_FILTERER,data, $
+  ;;             POLES=poles, $
+  ;;             FREQBOUNDS=freqBounds, $
+  ;;             DB=FFTdB, $
+  ;;             DATA_NAME=data_name, $
+  ;;             SUFFS__DATA_NAME=freqSuff, $
+  ;;             UNITS_NAME=units_name
 
   FA_FIELDS_FILTER,dBpHigh,highFreqBounds, $
                    ;; DB=FFTdb, $
