@@ -587,6 +587,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
              y:magData.y[ind1:ind2,2]} 
      magp = {x:magData.x[ind1:ind2], $
              y:magData.y[ind1:ind2,1]}
+     nMag = N_ELEMENTS(magp.x)
 
      ;;E-field trim
      mintime = MIN(ABS(je_tmp_tBounds[0]-eAlongV.x),ind1)
@@ -597,9 +598,9 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
         CONTINUE
      ENDIF
 
-     eAlongV ={x:eAlongV.x[ind1:ind2], $
-               y:eAlongV.y[ind1:ind2]}
-
+     eAlongV  = {x:eAlongV.x[ind1:ind2], $
+                 y:eAlongV.y[ind1:ind2]}
+     nEAlongV = N_ELEMENTS(eAlongV.x)
 
      ;;DSP trim
      ;;And DSP
@@ -612,9 +613,10 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
         CONTINUE
      ENDIF
 
-     tmpDSP ={x:DSP.x[ind1:ind2], $
-              DC:DSP.DC[ind1:ind2], $
-              AC:DSP.AC[ind1:ind2]}
+     tmpDSP = {x:DSP.x[ind1:ind2], $
+               DC:DSP.DC[ind1:ind2], $
+               AC:DSP.AC[ind1:ind2]}
+     nDSP   = N_ELEMENTS(tmpDSP.x)
 
      ;; magx = {x:magData.x, $
      ;;         y:REFORM(magData.y[*,0])}
@@ -657,13 +659,14 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
            full_pFlux       = 0
         ENDIF ELSE BEGIN
 
-           eNearB ={x:eNearB.x[ind1:ind2], $
-                    y:eNearB.y[ind1:ind2]}
+           eNearB  = {x:eNearB.x[ind1:ind2], $
+                      y:eNearB.y[ind1:ind2]}
+           nENearB = N_ELEMENTS(eNearB.x)
 
-           eNB = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
-                 eNearB, $
-                 INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
-                 ONESEC_TS=tS_1s)
+           eNB     = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
+                     eNearB, $
+                     INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+                     ONESEC_TS=tS_1s)
 
         ENDELSE
 
@@ -755,6 +758,61 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      ENDIF ELSE BEGIN
 
         ;;In this case calc pFlux from E and B field before decimation, and THEN decimate
+
+        ;;Want to waste tons of time? Keep going on this code
+        ;;Time series are already trimmed, each var is prefixed by 'n'
+
+        ;;WASTE SPENCE'S TIME BEGIN
+
+        ;; nE_to_nB = FIX(FLOAT(nEAlongV)/nMag)
+        ;; gjordet  = 1
+        ;; CASE 1 OF
+        ;;    (nE_to_nB LT 1): BEGIN
+        ;;       mag_is_big = 1
+        ;;       ;; bigVar   = nMag
+        ;;       ;; lilVar   = nEAlongV
+        ;;       ;; bigTInds = VALUE_CLOSEST2(magv.x,eAlongV.x,/CONSTRAINED)
+        ;;       bigT     = magv.x
+        ;;       lilT     = eAlongV.x
+        ;;       bigV     = magv.y
+        ;;       lilV     = eAlongV.y
+        ;;    END
+        ;;    (nE_to_nB EQ 1): BEGIN
+        ;;       gjordet = 0
+        ;;    END
+        ;;    (nE_to_nB GT 1): BEGIN
+        ;;       mag_is_big = 0
+        ;;       ;; bigVar   = nEAlongV
+        ;;       ;; lilVar   = nMag
+        ;;       ;; bigTInds = VALUE_CLOSEST2(eAlongV.x,magv.x,/CONSTRAINED)
+        ;;       bigT     = eAlongV.x
+        ;;       lilT     = magv.x
+        ;;       bigV     = eAlongV.y
+        ;;       lilV     = magv.y
+        ;;    END
+        ;; ENDCASE
+
+        ;; IF gjordet THEN BEGIN
+           
+        ;;    nBigT = N_ELEMENTS(bigT)
+        ;;    nLilT = N_ELEMENTS(lilT)
+
+        ;;    WHILE FIX(FLOAT(nBigT)/nLilT) GE 2 THEN BEGIN
+
+              
+              
+
+        ;;       bigTInds = VALUE_CLOSEST2(bigT,lilT,/CONSTRAINED)
+
+        ;;       nBigT = N_ELEMENTS(bigT)
+        ;;       nLilT = N_ELEMENTS(lilT)
+
+        ;;    ENDWHILE
+
+        ;; ENDIF
+
+        ;;WASTE SPENCE'S TIME END
+
 
         ;;But yes, we must align time series
         eAlongVtoMag = DATA_CUT(eAlongV,magp.x)

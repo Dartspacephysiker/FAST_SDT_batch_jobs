@@ -14,7 +14,7 @@
 ;*****************************
 ;Put code here:
 
-STRANGEWAY_2005__APPENDIX_A,/SAVE_PS,/INTERP_4HZ_RES_TO_1S_TIMESERIES
+STRANGEWAY_2005__APPENDIX_A,/SAVE_PS,/INTERP_4HZ_RES_TO_1S_TIMESERIES,/USE_EFIELD_FIT_VARIABLES
 
 ;*****************************
 ;End routine:

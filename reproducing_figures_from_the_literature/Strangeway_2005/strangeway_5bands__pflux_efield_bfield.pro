@@ -26,6 +26,9 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
   COMPILE_OPT IDL2,STRICTARRSUBS
 
 
+  highFreqBounds = [0.125,0.5]
+  lowFreqBounds  = [0,0.125]
+
   CASE 1 OF
      KEYWORD_SET(use_eField_fit_variables): BEGIN
         eAV_variable = 'EFIT_ALONG_V'
@@ -497,12 +500,12 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
      ;;   "z (ind 2)-along B, 
      ;;    y (ind 1)-cross track (BxV), 
      ;;    x (ind 0)-along track ((BxV)xB)." (I added "ind" marks)
-     magv = {x:magData.x[ind1:ind2], $
-             y:magData.y[ind1:ind2,0]} 
      magB = {x:magData.x[ind1:ind2], $
              y:magData.y[ind1:ind2,2]} 
      magP = {x:magData.x[ind1:ind2], $
              y:magData.y[ind1:ind2,1]}
+     magv = {x:magData.x[ind1:ind2], $
+             y:magData.y[ind1:ind2,0]} 
 
      ;;E-field trim
      mintime = MIN(ABS(tmp_tBounds[0]-eAlongV.x),ind1)

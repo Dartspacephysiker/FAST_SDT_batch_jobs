@@ -1018,9 +1018,9 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
   avgInd        = 0 ;;Just plain old
   avgTypeString = ''
 
-  ;; posVal = 1
+  posVal = 1
   ;; absVal = 1
-  negVal = 1
+  ;; negVal = 1
   IF KEYWORD_SET(posVal) THEN BEGIN
      avgInd = 1
      avgTypeString = 'POS'

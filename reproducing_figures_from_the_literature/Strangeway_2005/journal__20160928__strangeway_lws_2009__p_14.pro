@@ -9,6 +9,7 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
    TLIMIT_ALL=tlimit_all, $
    SCREEN_PLOT=screen_plot, $
    USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
+   DONT_SMOOTH_TSERIES=dont_smooth_tseries, $
    NO_BLANK_PANELS=no_blank_panels, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps
@@ -113,9 +114,13 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
   outPlotName  = 'Strangeway_LWS_2009--page_14'
 
   IF KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
-     outPlotName += '--eFieldFits'
+     outPlotName += '-eFieldFits'
   ENDIF
 
+  IF KEYWORD_SET(dont_smooth_tseries) THEN BEGIN
+     outPlotName += '-unsmoothed_ts'
+  ENDIF
+  
   t1           = STR_TO_TIME('1998-09-24/23:59:30')
   t2           = STR_TO_TIME('1998-09-25/00:38:00')
 
@@ -304,7 +309,7 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
 
 ; despin e field data
 
-     FA_FIELDS_DESPIN,v58,v12,/SHADOW_NOTCH,/SINTERP
+     FA_FIELDS_DESPIN,v58,v12,/SHADOW_NOTCH,/SINTERP,/SLOW
 
      ;; OPTIONS,'EFIT_ALONG_V','ytitle','E along V!C!C[DC] (mV/m)'
      ;; OPTIONS,'EFIT_ALONG_V','colors',[normColorI,normColorI]
@@ -446,29 +451,33 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
           y:REFORM(magData.y[*,magInd])}
 
   ;;Smooth 'em all (think Metallica)
-  PRINT,'SMOOTHMAGX'
-  SMOOTH_TSERIES,magx, $
-                 magSmSeconds, $
-                 ZERO_UNSMOOTHABLES=zero_unsmoothables, $
-                 NRECURSE=nRecurse
-  PRINT,'SMOOTHMAGY'
-  SMOOTH_TSERIES,magy, $
-                 magSmSeconds, $
-                 ZERO_UNSMOOTHABLES=zero_unsmoothables, $
-                 NRECURSE=nRecurse
-  PRINT,'SMOOTHMAGZ'
-  SMOOTH_TSERIES,magz, $
-                 magSmSeconds, $
-                 ZERO_UNSMOOTHABLES=zero_unsmoothables, $
-                 NRECURSE=nRecurse
+  IF ~KEYWORD_SET(dont_smooth_tseries) THEN BEGIN
 
-  
-  IF ~KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
-     PRINT,'SMOOTHEALONGV'
-     SMOOTH_TSERIES,eAlongV, $
-                    eFSmSeconds, $
+     PRINT,'SMOOTHMAGX'
+     SMOOTH_TSERIES,magx, $
+                    magSmSeconds, $
                     ZERO_UNSMOOTHABLES=zero_unsmoothables, $
                     NRECURSE=nRecurse
+     PRINT,'SMOOTHMAGY'
+     SMOOTH_TSERIES,magy, $
+                    magSmSeconds, $
+                    ZERO_UNSMOOTHABLES=zero_unsmoothables, $
+                    NRECURSE=nRecurse
+     PRINT,'SMOOTHMAGZ'
+     SMOOTH_TSERIES,magz, $
+                    magSmSeconds, $
+                    ZERO_UNSMOOTHABLES=zero_unsmoothables, $
+                    NRECURSE=nRecurse
+
+     
+     IF ~KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
+        PRINT,'SMOOTHEALONGV'
+        SMOOTH_TSERIES,eAlongV, $
+                       eFSmSeconds, $
+                       ZERO_UNSMOOTHABLES=zero_unsmoothables, $
+                       NRECURSE=nRecurse
+     ENDIF
+
   ENDIF
 
   IF KEYWORD_SET(include_E_near_B) THEN BEGIN
@@ -843,10 +852,14 @@ PRO JOURNAL__20160928__STRANGEWAY_LWS_2009__P_14, $
   tmp    = {x:tField, $
             y:doDat}
 
-  SMOOTH_TSERIES,tmp, $
-                 pFluxHighSmSeconds, $
-                 ZERO_UNSMOOTHABLES=zero_unsmoothables, $
-                 NRECURSE=nRecurse
+  IF ~KEYWORD_SET(dont_smooth_tseries) THEN BEGIN
+
+     SMOOTH_TSERIES,tmp, $
+                    pFluxHighSmSeconds, $
+                    ZERO_UNSMOOTHABLES=zero_unsmoothables, $
+                    NRECURSE=nRecurse
+
+  ENDIF
 
   STORE_DATA,'pFluxHigh',DATA=tmp
   dLimit = {spec:0, $
