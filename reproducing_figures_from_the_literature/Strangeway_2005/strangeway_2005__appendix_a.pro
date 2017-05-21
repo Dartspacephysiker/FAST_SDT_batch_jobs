@@ -316,7 +316,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
   IF (got_efield) THEN BEGIN
 
      ;; despin e field data
-     FA_FIELDS_DESPIN,v58,v12,/SHADOW_NOTCH,/SINTERP
+     FA_FIELDS_DESPIN,v58,v12,/SHADOW_NOTCH,/MAG_NOTCH,/SINTERP
 
   ENDIF ELSE BEGIN
      PRINT,"Couldn't get E-field data! Out ..."
