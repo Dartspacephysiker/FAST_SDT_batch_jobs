@@ -35,7 +35,7 @@ PRO FA_FILTERER,data, $
   nSuffs      = N_ELEMENTS(suffs)
 
   IF ( (nPoles NE nFreqBounds) AND (nPoles NE 0) ) OR ( (nPoles NE nSuffs) AND (nPoles NE 0) ) THEN BEGIN
-     MESSAGE,"Lennie … You're free! (Unequal # freqBounds and poles!)",/CONTINUE
+     MESSAGE,"Leroy … you're free! (Unequal # freqBounds and poles!)",/CONTINUE
      STOP
   ENDIF
 
@@ -655,18 +655,18 @@ PRO STRANGEWAY_5BANDS__PFLUX_EFIELD_BFIELD, $
      ;;Just get that ephem!
      tmpEphem     = {time            : ephem.time   [tmpEphemInds], $
                      orbit           : ephem.orbit  [tmpEphemInds], $  
-                     fa_pos          : ephem.fa_pos [tmpEphemInds], $
+                     fa_pos          : ephem.fa_pos [tmpEphemInds,*], $
                      alt             : ephem.alt    [tmpEphemInds], $
                      ilat            : ephem.ilat   [tmpEphemInds], $
                      ilng            : ephem.ilng   [tmpEphemInds], $
                      mlt             : ephem.mlt    [tmpEphemInds], $
-                     fa_vel          : ephem.fa_vel [tmpEphemInds], $
-                     bfoot           : ephem.bfoot  [tmpEphemInds], $
+                     fa_vel          : ephem.fa_vel [tmpEphemInds,*], $
+                     bfoot           : ephem.bfoot  [tmpEphemInds,*], $
                      lat             : ephem.lat    [tmpEphemInds], $
                      lng             : ephem.lng    [tmpEphemInds], $
                      flat            : ephem.flat   [tmpEphemInds], $
                      flng            : ephem.flng   [tmpEphemInds], $
-                     b_model         : ephem.b_model[tmpEphemInds]}
+                     b_model         : ephem.b_model[tmpEphemInds,*]}
 
 
      ;;Clean up based on ILAT
