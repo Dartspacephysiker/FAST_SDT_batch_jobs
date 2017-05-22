@@ -3,7 +3,7 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_5bands__pflux_efield_bfield_wrapper.pro
 
 DataBaseRequest:
-    Orbits 1436-5382
+    Orbits 5383-9000
 
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005

@@ -11,8 +11,8 @@
      outPlotName += '--eFieldFits'
   ENDIF
 
-  IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
-  IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
+  ;; IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
+  ;; IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
 
   bonusSuff    = ''
 
