@@ -4,9 +4,17 @@ PRO STRANGEWAY_5BANDS__CHUNK_OFF_EPHEM_AND_EPHEM_EXTENDED
   COMPILE_OPT IDL2,STRICTARRSUBS
 
   DBDir             = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Strangeway_5bands/'
-  DBFile            = 'Strangeway_5bands__orbs_1436-5382_EESAItvl.sav'
-  DBEphemFile       = 'Strangeway_5bands__orbs_1436-5382_EESAItvl__ephem.sav'
-  DBEphemExtFile    = 'Strangeway_5bands__orbs_1436-5382_EESAItvl__ephem_extended.sav'
+  ;; DBFile            = 'Strangeway_5bands__orbs_1436-5382_EESAItvl.sav'
+  ;; DBEphemFile       = 'Strangeway_5bands__orbs_1436-5382_EESAItvl__ephem.sav'
+  ;; DBEphemExtFile    = 'Strangeway_5bands__orbs_1436-5382_EESAItvl__ephem_extended.sav'
+
+  ;; orbRangeStr       = '1436-5382'
+  orbRangeStr       = '1000-9936'
+
+  DBFile            = 'Strangeway_5bands__orbs_' + orbRangeStr + '_EESAItvl.sav'
+  DBEphemFile       = 'Strangeway_5bands__orbs_' + orbRangeStr + '_EESAItvl__ephem.sav'
+  DBEphemExtFile    = 'Strangeway_5bands__orbs_' + orbRangeStr + '_EESAItvl__ephem_extended.sav'
+
 
   RESTORE,DBDir + DBFile
 

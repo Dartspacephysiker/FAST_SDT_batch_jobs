@@ -15,9 +15,12 @@ PRO STRANGEWAY_5BANDS__STITCH_FILES, $
   originating_routine  = 'STRANGEWAY_5BANDS__STITCH_FILES'
 
   ;;1997
-  startOrb             = 1436
-  stopOrb              = 5382
+  ;; startOrb             = 1436
+  ;; stopOrb              = 5382
   
+  startOrb             = 1000
+  stopOrb              = 9936
+
   itvlTypeName         = 'magItvl'
   IF KEYWORD_SET(use_Je_tBounds) THEN BEGIN
      itvlTypeName      = 'EESAItvl'
