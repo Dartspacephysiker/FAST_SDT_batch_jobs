@@ -1,5 +1,5 @@
 ;2017/05/22
-PRO STRANGEWAY_2BANDS__STITCH_FILES, $
+PRO STRANGEWAY_3BANDS__STITCH_FILES, $
    USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
    USE_JE_TBOUNDS=use_Je_tBounds, $
    INCLUDE_PARTICLES=include_particles, $
@@ -8,11 +8,11 @@ PRO STRANGEWAY_2BANDS__STITCH_FILES, $
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
-  @strangeway_2bands__defaults__pflux_efield_bfield.pro
+  @strangeway_3bands__defaults__8hz.pro
 
   interp_4Hz_to_1s     = 1
 
-  originating_routine  = 'STRANGEWAY_2BANDS__STITCH_FILES'
+  originating_routine  = 'STRANGEWAY_3BANDS__STITCH_FILES'
 
   ;;1997
   ;; startOrb             = 1436
@@ -44,20 +44,22 @@ PRO STRANGEWAY_2BANDS__STITCH_FILES, $
                           pFlux : CREATE_STRUCT('p',{DC:typisk,AC:typisk}, $
                                                 'v',(KEYWORD_SET(full_pFlux) ? {DC:typisk,AC:typisk} : 0B), $
                                                 'b',{DC:typisk,AC:typisk}), $
+                          magFlags : {x                    : MAKE_ARRAY(maxNPts/5,/DOUBLE), $
+                                      y                    : MAKE_ARRAY(maxNPts/5,/UINT)}, $
                           ephem : {time                    : MAKE_ARRAY(maxNPts,/DOUBLE), $
                                    orbit                   : MAKE_ARRAY(maxNPts,/LONG), $  
                                    fa_pos                  : MAKE_ARRAY(maxNPts,3,/FLOAT), $
                                    alt                     : typisk, $
                                    ilat                    : typisk, $
-                                   ilng                    : typisk, $
+                                   ;; ilng                    : typisk, $
                                    mlt                     : typisk, $
                                    fa_vel                  : MAKE_ARRAY(maxNPts,3,/FLOAT), $
                                    ;; bfoot                   : MAKE_ARRAY(maxNPts,3,/FLOAT), $
                                    magRatio                : typisk, $
                                    lat                     : typisk, $
                                    lng                     : typisk, $
-                                   flat                    : typisk, $
-                                   flng                    : typisk, $
+                                   ;; flat                    : typisk, $
+                                   ;; flng                    : typisk, $
                                    b_model                 : MAKE_ARRAY(maxNPts,3,/FLOAT)}, $
                           info   : {full_pFlux             : BYTE(KEYWORD_SET(full_pFlux)), $
                                     decimate_eb_calc_pFlux : BYTE(KEYWORD_SET(decimate_eb_calc_pFlux)), $
@@ -68,7 +70,8 @@ PRO STRANGEWAY_2BANDS__STITCH_FILES, $
                                     originating_routine    : originating_routine, $
                                     date                   : GET_TODAY_STRING(/DO_YYYYMMDD_FMT)}}
 
-  datInd = 0L
+  datInd     = 0L
+  magFlagInd = 0L
 
   PRINT,"Creating " + maitreFil
   FOR orb=startOrb,stopOrb DO BEGIN
@@ -88,7 +91,8 @@ PRO STRANGEWAY_2BANDS__STITCH_FILES, $
 
         RESTORE,outDir+tmpFile
 
-        nPtsHere = N_ELEMENTS(tmpStruct.ephem.time)
+        nPtsHere     = N_ELEMENTS(tmpStruct.ephem.time)
+        nMagFlagHere = N_ELEMENTS(tmpStruct.magFlags.x)
 
         IF nPtsHere LE 1 THEN STOP
 
@@ -110,6 +114,7 @@ PRO STRANGEWAY_2BANDS__STITCH_FILES, $
         ENDIF
 
         inds                             = [datInd:(datInd+nPtsHere-1)]
+        MFInds                           = [magFlagInd:(magFlagInd+nMagFlagHere-1)]
 
         leMaitre.dB.p.DC[inds]           = tmpStruct.dB.p.DC
         leMaitre.dB.p.AC[inds]           = tmpStruct.dB.p.AC
@@ -123,6 +128,8 @@ PRO STRANGEWAY_2BANDS__STITCH_FILES, $
         leMaitre.pFlux.p.AC[inds]        = tmpStruct.pFlux.p.AC
         leMaitre.pFlux.B.DC[inds]        = tmpStruct.pFlux.B.DC
         leMaitre.pFlux.B.AC[inds]        = tmpStruct.pFlux.B.AC
+        leMaitre.magFlags.x[MFInds]      = tmpStruct.magFlags.x
+        leMaitre.magFlags.y[MFInds]      = tmpStruct.magFlags.y
 
         ;;Calc mag ratio
         mag1                             = (tmpStruct.ephem.b_model[*,0]*tmpStruct.ephem.b_model[*,0]+ $
@@ -139,14 +146,14 @@ PRO STRANGEWAY_2BANDS__STITCH_FILES, $
         leMaitre.ephem.fa_pos[inds,*]    = tmpStruct.ephem.fa_pos 
         leMaitre.ephem.alt[inds]         = tmpStruct.ephem.alt    
         leMaitre.ephem.ilat[inds]        = tmpStruct.ephem.ilat   
-        leMaitre.ephem.ilng[inds]        = tmpStruct.ephem.ilng   
+        ;; leMaitre.ephem.ilng[inds]        = tmpStruct.ephem.ilng   
         leMaitre.ephem.mlt[inds]         = tmpStruct.ephem.mlt    
         leMaitre.ephem.fa_vel[inds,*]    = tmpStruct.ephem.fa_vel 
         ;; leMaitre.ephem.bfoot[inds,*]  = tmpStruct.ephem.bfoot  
         leMaitre.ephem.lat[inds]         = tmpStruct.ephem.lat    
         leMaitre.ephem.lng[inds]         = tmpStruct.ephem.lng    
-        leMaitre.ephem.flat[inds]        = tmpStruct.ephem.flat   
-        leMaitre.ephem.flng[inds]        = tmpStruct.ephem.flng   
+        ;; leMaitre.ephem.flat[inds]        = tmpStruct.ephem.flat   
+        ;; leMaitre.ephem.flng[inds]        = tmpStruct.ephem.flng   
         leMaitre.ephem.b_model[inds,*]   = tmpStruct.ephem.b_model
         leMaitre.ephem.magRatio[inds]    = TEMPORARY(ratio)
 
@@ -156,36 +163,39 @@ PRO STRANGEWAY_2BANDS__STITCH_FILES, $
 
   ENDFOR
 
-  finalInds = [0:(datInd-1)]
+  finalInds   = [0:(datInd-1)]
+  finalMFInds = [0:(magFlagInd-1)]
 
-  leMaitre             = {dB    : {p                       : {DC:leMaitre.dB.p.DC[finalInds],AC:leMaitre.dB.p.AC[finalInds]}, $
-                                   v                       : {DC:leMaitre.dB.v.DC[finalInds],AC:leMaitre.dB.v.AC[finalInds]}, $
-                                   B                       : {DC:leMaitre.dB.B.DC[finalInds],AC:leMaitre.dB.B.AC[finalInds]}}, $
-                          e     : {AlongV                  : {DC:leMaitre.e.alongV.DC[finalInds],AC:leMaitre.e.alongV.AC[finalInds]}, $
-                                   ;; NearB                   : TEMPORARY(eNB), $
-                                   dsp                     : KEYWORD_SET(skipDSP) ?  0B : {DC:typisk,AC:typisk}}, $
-                          ptcl  : ( KEYWORD_SET(include_particles) ? {jEe:leMaitre.ptcl.jEe[finalInds], $
-                                                                      je:leMaitre.ptcl.je[finalInds], $
-                                                                      ji:leMaitre.ptcl.ji[finalInds]} : 0B ), $
-                          pFlux : {p                       : {DC:leMaitre.pFlux.p.DC[finalInds],AC:leMaitre.pFlux.p.AC[finalInds]}, $
-                                   v                       : KEYWORD_SET(full_pFlux) ? {DC:leMaitre.pFlux.v.DC[finalInds],AC:leMaitre.pFlux.v.AC[finalInds]} : 0B, $
-                                   B                       : {DC:leMaitre.pFlux.B.DC[finalInds],AC:leMaitre.pFlux.B.AC[finalInds]}}, $
-                          ephem : {time                    : leMaitre.ephem.time[finalInds], $
-                                   orbit                   : leMaitre.ephem.orbit[finalInds], $  
-                                   fa_pos                  : leMaitre.ephem.fa_pos[finalInds,*], $
-                                   alt                     : leMaitre.ephem.alt [finalInds], $
-                                   ilat                    : leMaitre.ephem.ilat[finalInds], $
-                                   ilng                    : leMaitre.ephem.ilng[finalInds], $
-                                   mlt                     : leMaitre.ephem.mlt [finalInds], $
-                                   fa_vel                  : leMaitre.ephem.fa_vel[finalInds,*], $
-                                   ;; bfoot                   : MAKE_ARRAY(maxNPts,3,/FLOAT), $
-                                   magRatio                : leMaitre.ephem.magRatio[finalInds], $
-                                   lat                     : leMaitre.ephem.lat     [finalInds], $
-                                   lng                     : leMaitre.ephem.lng     [finalInds], $
-                                   flat                    : leMaitre.ephem.flat    [finalInds], $
-                                   flng                    : leMaitre.ephem.flng    [finalInds], $
-                                   b_model                 : leMaitre.ephem.b_model [finalInds,*]}, $
-                          info   : leMaitre.info}
+  leMaitre    = {dB       : {p                    : {DC:leMaitre.dB.p.DC[finalInds],AC:leMaitre.dB.p.AC[finalInds]}, $
+                             v                    : {DC:leMaitre.dB.v.DC[finalInds],AC:leMaitre.dB.v.AC[finalInds]}, $
+                             B                    : {DC:leMaitre.dB.B.DC[finalInds],AC:leMaitre.dB.B.AC[finalInds]}}, $
+                 e        : {AlongV               : {DC:leMaitre.e.alongV.DC[finalInds],AC:leMaitre.e.alongV.AC[finalInds]}, $
+                             ;; NearB                   : TEMPORARY(eNB), $
+                             dsp                  : KEYWORD_SET(skipDSP) ?  0B : {DC:typisk,AC:typisk}}, $
+                 ptcl     : ( KEYWORD_SET(include_particles) ? {jEe:leMaitre.ptcl.jEe[finalInds], $
+                                                                je:leMaitre.ptcl.je[finalInds], $
+                                                                ji:leMaitre.ptcl.ji[finalInds]} : 0B ), $
+                 pFlux    : {p                    : {DC:leMaitre.pFlux.p.DC[finalInds],AC:leMaitre.pFlux.p.AC[finalInds]}, $
+                             v                    : KEYWORD_SET(full_pFlux) ? {DC:leMaitre.pFlux.v.DC[finalInds],AC:leMaitre.pFlux.v.AC[finalInds]} : 0B, $
+                             B                    : {DC:leMaitre.pFlux.B.DC[finalInds],AC:leMaitre.pFlux.B.AC[finalInds]}}, $
+                 magFlags : {x                    : leMaitre.magFlags.x[finalMFInds], $
+                             y                    : leMaitre.magFlags.y[finalMFInds]}, $
+                 ephem    : {time                 : leMaitre.ephem.time[finalInds], $
+                             orbit                : leMaitre.ephem.orbit[finalInds], $  
+                             fa_pos               : leMaitre.ephem.fa_pos[finalInds,*], $
+                             alt                  : leMaitre.ephem.alt [finalInds], $
+                             ilat                 : leMaitre.ephem.ilat[finalInds], $
+                             ;; ilng                 : leMaitre.ephem.ilng[finalInds], $
+                             mlt                  : leMaitre.ephem.mlt [finalInds], $
+                             fa_vel               : leMaitre.ephem.fa_vel[finalInds,*], $
+                             ;; bfoot                : MAKE_ARRAY(maxNPts,3,/FLOAT), $
+                             magRatio             : leMaitre.ephem.magRatio[finalInds], $
+                             lat                  : leMaitre.ephem.lat     [finalInds], $
+                             lng                  : leMaitre.ephem.lng     [finalInds], $
+                             ;; flat                 : leMaitre.ephem.flat    [finalInds], $
+                             ;; flng                 : leMaitre.ephem.flng    [finalInds], $
+                             b_model              : leMaitre.ephem.b_model [finalInds,*]}, $
+                 info     : leMaitre.info}
 
 
   SAVE,leMaitre,FILENAME=outDir+maitreFil

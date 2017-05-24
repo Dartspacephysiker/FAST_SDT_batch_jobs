@@ -1,19 +1,16 @@
-;2017/05/22
-PRO STRANGEWAY_2BANDS__CHUNK_OFF_EPHEM_AND_EPHEM_EXTENDED
+;2017/05/24
+PRO STRANGEWAY_3BANDS__CHUNK_OFF_EPHEM_AND_EPHEM_EXTENDED
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
-  DBDir             = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Strangeway_2bands/'
-  ;; DBFile            = 'Strangeway_2bands__orbs_1436-5382_EESAItvl.sav'
-  ;; DBEphemFile       = 'Strangeway_2bands__orbs_1436-5382_EESAItvl__ephem.sav'
-  ;; DBEphemExtFile    = 'Strangeway_2bands__orbs_1436-5382_EESAItvl__ephem_extended.sav'
+  DBDir             = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Strangeway_3bands/'
 
   ;; orbRangeStr       = '1436-5382'
   orbRangeStr       = '1000-9936'
 
-  DBFile            = 'Strangeway_2bands__orbs_' + orbRangeStr + '_EESAItvl.sav'
-  DBEphemFile       = 'Strangeway_2bands__orbs_' + orbRangeStr + '_EESAItvl__ephem.sav'
-  DBEphemExtFile    = 'Strangeway_2bands__orbs_' + orbRangeStr + '_EESAItvl__ephem_extended.sav'
+  DBFile            = 'Strangeway_3bands__orbs_' + orbRangeStr + '_EESAItvl.sav'
+  DBEphemFile       = 'Strangeway_3bands__orbs_' + orbRangeStr + '_EESAItvl__ephem.sav'
+  DBEphemExtFile    = 'Strangeway_3bands__orbs_' + orbRangeStr + '_EESAItvl__ephem_extended.sav'
 
 
   RESTORE,DBDir + DBFile
@@ -28,11 +25,11 @@ PRO STRANGEWAY_2BANDS__CHUNK_OFF_EPHEM_AND_EPHEM_EXTENDED
 
   ephemExt = {fa_pos : leMaitre.ephem.fa_pos, $
               fa_vel : leMaitre.ephem.fa_vel, $
-              ilng   : leMaitre.ephem.ilng  , $
+              ;; ilng   : leMaitre.ephem.ilng  , $
               lat    : leMaitre.ephem.lat   , $
               lng    : leMaitre.ephem.lng   , $
-              flat   : leMaitre.ephem.flat  , $
-              flng   : leMaitre.ephem.flng  , $
+              ;; flat   : leMaitre.ephem.flat  , $
+              ;; flng   : leMaitre.ephem.flng  , $
               b_model: leMaitre.ephem.b_model}
 
   IF (N_ELEMENTS(TAG_NAMES(ephem)) + N_ELEMENTS(TAG_NAMES(ephemExt))) NE N_ELEMENTS(TAG_NAMES(leMaitre.ephem)) THEN BEGIN

@@ -1,10 +1,10 @@
   ;;Outputs
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_5bands/'
-  hashFile     = 'Strangeway_5bands.sav'
-  indivOrbPref = 'Strangeway_5bands--'
+  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_2bands/'
+  hashFile     = 'Strangeway_2bands.sav'
+  indivOrbPref = 'Strangeway_2bands--'
 
-  outPlotName  = 'Strangeway_5bands'
-  plotDirSuff  = '/Strangeway_5bands'
+  outPlotName  = 'Strangeway_2bands'
+  plotDirSuff  = '/Strangeway_2bands'
 
   IF KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
      hashFile    +='--eFieldFits'

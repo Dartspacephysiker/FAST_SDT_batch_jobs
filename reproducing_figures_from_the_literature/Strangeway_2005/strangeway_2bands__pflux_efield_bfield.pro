@@ -145,7 +145,7 @@ PRO STRANGEWAY_2BANDS__PFLUX_EFIELD_BFIELD, $
 
 ; Step 1 - DC Mag data
 
-  @strangeway_5bands__defaults__pflux_efield_bfield.pro
+  @strangeway_2bands__defaults__pflux_efield_bfield.pro
   
   psym_ptcl    = 3              ;period
   symsize_ptcl = 5.0
