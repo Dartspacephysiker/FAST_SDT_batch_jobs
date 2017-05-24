@@ -3,6 +3,8 @@
   hashFile     = 'Strangeway_3bands.sav'
   indivOrbPref = 'Strangeway_3bands--'
 
+  errFile      = 'Strangeway_3bands_hater.txt'
+
   outPlotName  = 'Strangeway_3bands'
   plotDirSuff  = '/Strangeway_3bands'
 

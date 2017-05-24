@@ -110,6 +110,10 @@ PRO STRANGEWAY_3BANDS__8HZ, $
   ;; highFreqPoles  = [8,8]
   ;; lowFreqPoles   = [8,8]
 
+  ;;Gap dist is NOT A TIME
+  ;;Rather, it is the number of allowable average dt's for interpolation of a time series within STRANGEWAY_DECIMATE__8_HZ_THREE_BANDS
+  gap_dist = 2.5
+
   IF KEYWORD_SET(include_particles) THEN BEGIN
      PRINT,"Can't include particles!"
      include_particles = 0
@@ -241,6 +245,10 @@ PRO STRANGEWAY_3BANDS__8HZ, $
         LOADCT2,40
         TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=tBounds
      ENDIF
+
+     ;;Also want mag flags for later—because how else will we know if the data are worth a hang?
+     GET_DATA,'MAG_FLAGS',DATA=magFlags
+     nMagFlagsm1 = N_ELEMENTS(magFlags.x)-1
 
   ENDIF ELSE BEGIN
 
@@ -655,11 +663,6 @@ PRO STRANGEWAY_3BANDS__8HZ, $
                 skipDSP                : BYTE(KEYWORD_SET(skipDSP))}
 
   ;;Now loop over stuff
-  ;; structList      = LIST()
-
-  ;;Gap dist is NOT A TIME
-  ;;Rather, it is the number of allowable average dt's for interpolation of a time series
-  gap_dist = 2.5
   FOR jj=0,number_of_intervals-1 DO BEGIN
 
      itvlString   = STRCOMPRESS(jj,/REMOVE_ALL)
@@ -670,7 +673,6 @@ PRO STRANGEWAY_3BANDS__8HZ, $
      itvlT1       = time_ranges[jj,0]
      itvlT2       = time_ranges[jj,1]
 
-     ;; tmpEphemInds = [time_range_indices[jj,0]:time_range_indices[jj,1]]
      tmpEphemInds = WHERE(ephem.time GE itvlT1 AND ephem.time LE itvlT2,nTmpEphem)
      IF nTmpEphem EQ 0 THEN BEGIN
         PRINT,"AYYAHHHT"
@@ -693,52 +695,6 @@ PRO STRANGEWAY_3BANDS__8HZ, $
                      ;; flng            : ephem.flng   [tmpEphemInds], $
                      b_model         : ephem.b_model[tmpEphemInds,*]}
 
-
-     ;;Clean up based on ILAT
-     ;; GET_FA_ORBIT,je_pristine.x,/TIME_ARRAY,/DEFINITIVE,/ALL
-     ;; GET_DATA,'ILAT',DATA=ilat
-     ;; IF SIZE(ilat,/TYPE) NE 8 THEN BEGIN
-     ;;    PRINT,'Invalid ephemeris data for interval ' + itvlString + '. Skipping ...'
-     ;;    CONTINUE
-     ;; ENDIF
-     ;; IF N_ELEMENTS(ilat.y) LE 1 THEN BEGIN
-     ;;    PRINT,'Invalid ephemeris data for interval ' + itvlString + '. Skipping ...'
-     ;;    CONTINUE
-     ;; ENDIF
-
-     ;;Make sure we have data where we want it.
-     ;; keep  = WHERE(ABS(ilat.y) GE minILAT,nKeep)
-     ;; IF nKeep LE 1 THEN BEGIN
-     ;;    ;; PRINT,'No data above min ILAT. Out!'
-     ;;    ;; RETURN
-     ;;    PRINT,'No data above min ILAT. Skipping this interval ...'
-     ;;    CONTINUE
-     ;; ENDIF
-     
-     ;;Trim time series, if necessary
-     ;; IF nKeep LT N_ELEMENTS(ephem_tSeries) THEN BEGIN
-
-     ;;    closest1 = MIN(ABS(itvlT1-ephem_tSeries[keep]),tmpII_t1)
-     ;;    closest2 = MIN(ABS(itvlT2-ephem_tSeries[keep]),tmpII_t2)
-
-     ;;    ;;If more than 30 s from previous mark, we're in doubt
-     ;;    IF (closest1 GT 600) OR (closest2 GT 600) THEN BEGIN
-     ;;       PRINT,'Either itvlT1 or itvlT2 is more than 10 minutes from the previous mark ...'
-     ;;       PRINT,'Questionable, indeed. Skipping this interval ...'
-     ;;       CONTINUE
-     ;;    ENDIF
-
-     ;;    IF tmpII_t1 EQ tmpII_t2 THEN BEGIN 
-     ;;       PRINT,'itvlT1 and itvlT2 are the same!' 
-     ;;       PRINT,'Questionable, indeed. Skipping this interval ...' 
-     ;;       CONTINUE 
-     ;;    ENDIF
-
-     ;;    itvlT1   = ephem_tSeries[keep[tmpII_t1]]
-     ;;    itvlT2   = ephem_tSeries[keep[tmpII_t2]]
-     ;;    ;; tmp_indices    = [keep[tmpII_t1],keep[tmpII_t2]]
-
-     ;; ENDIF
 
      tmp_tBounds = [itvlT1,itvlT2]
 
@@ -763,6 +719,23 @@ PRO STRANGEWAY_3BANDS__8HZ, $
      ENDIF ELSE BEGIN
         STOP
      ENDELSE
+
+     ;; Mag flags are nice
+     ;; mintime = MIN(ABS(tmp_tBounds[0]-magFlags.x),ind1)
+     ;; mintime = MIN(ABS(tmp_tBounds[1]-magFlags.x),ind2)
+     mintime = MIN(ABS(tmpTS_1s[0]-magFlags.x),ind1)
+     mintime = MIN(ABS(tmpTS_1s[-1]-magFlags.x),ind2)
+
+     ;;Grab one before, if that's not what we have
+     IF (magFlags.x[ind1] GT tmp_tBounds[0]) AND (ind1 GT 0) THEN BEGIN
+        ind1--
+     ENDIF
+     ;;Grab one after, if that's not what we have
+     IF (magFlags.x[ind2] GT tmp_tBounds[0]) AND (ind2 LT nMagFlagsm1) THEN BEGIN
+        ind2++
+     ENDIF
+     tmpMagFlags = {x  : magFlags.x[ind1:ind2], $
+                    y  : magFlags.y[ind1:ind2]}
 
      ;; Step 3 - Poynting flux
      mintime = MIN(ABS(tmp_tBounds[0]-magData.x),ind1)
@@ -804,40 +777,73 @@ PRO STRANGEWAY_3BANDS__8HZ, $
      ;;    (ind 2)    (ind 1)       (ind 0)
 
 
-     ;; magv = {x:magData.x, $
-     ;;         y:REFORM(magData.y[*,0])}
-
-     ;; magB = {x:magData.x, $
-     ;;         y:REFORM(magData.y[*,2])}
-
-     ;; magP = {x:magData.x, $
-     ;;         y:REFORM(magData.y[*,magInd])}
-
      dBv = STRANGEWAY_DECIMATE__8_HZ_THREE_BANDS( $
            magv, $
            INTERP_8HZ_RES_TO_0_125S_TIMESERIES=interp_8Hz_to_0_125s, $
            GAP_DIST=gap_dist, $
            EIGHTHZ_TS=tmpTS_0_125s, $
-           SIXTEENHZ_TS=tmpTS_0_0625s)
+           SIXTEENHZ_TS=tmpTS_0_0625s, $
+           ERRFILE=errFile, $
+           ORBSTRING=orbString)
+     IF SIZE(dBv,/TYPE) EQ 7 THEN BEGIN
+        RETURN
+        ;; err = dBv
+        ;; OPENW,thisLun,errFile,/GET_LUN,/APPEND
+        ;; PRINTF,thisLun,FORMAT='("Orbit ",A0," err: ",A0)',orbString,err
+        ;; CLOSE,thisLun
+        ;; FREE_LUN,thisLun
+     ENDIF
+
      dBB = STRANGEWAY_DECIMATE__8_HZ_THREE_BANDS( $
            magB, $
            INTERP_8HZ_RES_TO_0_125S_TIMESERIES=interp_8Hz_to_0_125s, $
            GAP_DIST=gap_dist, $
            EIGHTHZ_TS=tmpTS_0_125s, $
-           SIXTEENHZ_TS=tmpTS_0_0625s)
+           SIXTEENHZ_TS=tmpTS_0_0625s, $
+           ERRFILE=errFile, $
+           ORBSTRING=orbString)
+     IF SIZE(dBB,/TYPE) EQ 7 THEN BEGIN
+        RETURN
+        ;; err = dBB
+        ;; OPENW,thisLun,errFile,/GET_LUN,/APPEND
+        ;; PRINTF,thisLun,FORMAT='("Orbit ",A0," err: ",A0)',orbString,err
+        ;; CLOSE,thisLun
+        ;; FREE_LUN,thisLun
+     ENDIF
+
      dBp = STRANGEWAY_DECIMATE__8_HZ_THREE_BANDS( $
            magP, $
            INTERP_8HZ_RES_TO_0_125S_TIMESERIES=interp_8Hz_to_0_125s, $
            GAP_DIST=gap_dist, $
            EIGHTHZ_TS=tmpTS_0_125s, $
-           SIXTEENHZ_TS=tmpTS_0_0625s)
+           SIXTEENHZ_TS=tmpTS_0_0625s, $
+           ERRFILE=errFile, $
+           ORBSTRING=orbString)
+     IF SIZE(dBp,/TYPE) EQ 7 THEN BEGIN
+        RETURN
+        ;; err = dBp
+        ;; OPENW,thisLun,errFile,/GET_LUN,/APPEND
+        ;; PRINTF,thisLun,FORMAT='("Orbit ",A0," err: ",A0)',orbString,err
+        ;; CLOSE,thisLun
+        ;; FREE_LUN,thisLun
+     ENDIF
 
      eAV = STRANGEWAY_DECIMATE__8_HZ_THREE_BANDS( $
            eAVTmp, $
            INTERP_8HZ_RES_TO_0_125S_TIMESERIES=interp_8Hz_to_0_125s, $
            GAP_DIST=gap_dist, $
            EIGHTHZ_TS=tmpTS_0_125s, $
-           SIXTEENHZ_TS=tmpTS_0_0625s)
+           SIXTEENHZ_TS=tmpTS_0_0625s, $
+           ERRFILE=errFile, $
+           ORBSTRING=orbString)
+     IF SIZE(eAV,/TYPE) EQ 7 THEN BEGIN
+        RETURN
+        ;; err = eAV
+        ;; OPENW,thisLun,errFile,/GET_LUN,/APPEND
+        ;; PRINTF,thisLun,FORMAT='("Orbit ",A0," err: ",A0)',orbString,err
+        ;; CLOSE,thisLun
+        ;; FREE_LUN,thisLun
+     ENDIF
 
      IF KEYWORD_SET(include_E_near_B) THEN BEGIN
 
@@ -860,8 +866,17 @@ PRO STRANGEWAY_3BANDS__8HZ, $
                     INTERP_8HZ_RES_TO_0_125S_TIMESERIES=interp_8Hz_to_0_125s, $
                     GAP_DIST=gap_dist, $
                     EIGHTHZ_TS=tmpTS_0_125s, $
-                    SIXTEENHZ_TS=tmpTS_0_0625s)
-
+                    SIXTEENHZ_TS=tmpTS_0_0625s, $
+                    ERRFILE=errFile, $
+                    ORBSTRING=orbString)
+           IF SIZE(eNB,/TYPE) EQ 7 THEN BEGIN
+              RETURN
+              ;; err = eNB
+              ;; OPENW,thisLun,errFile,/GET_LUN,/APPEND
+              ;; PRINTF,thisLun,FORMAT='("Orbit ",A0," err: ",A0)',orbString,err
+              ;; CLOSE,thisLun
+              ;; FREE_LUN,thisLun
+           ENDIF
         ENDELSE
 
      ENDIF
@@ -961,13 +976,34 @@ PRO STRANGEWAY_3BANDS__8HZ, $
                     INTERP_8HZ_RES_TO_0_125S_TIMESERIES=interp_8Hz_to_0_125s, $
                     GAP_DIST=gap_dist, $
                     EIGHTHZ_TS=tmpTS_0_125s, $
-                    SIXTEENHZ_TS=tmpTS_0_0625s)
+                    SIXTEENHZ_TS=tmpTS_0_0625s, $
+                    ERRFILE=errFile, $
+                    ORBSTRING=orbString)
+        IF SIZE(pFB,/TYPE) EQ 7 THEN BEGIN
+           RETURN
+           ;; err = pFB
+           ;; OPENW,thisLun,errFile,/GET_LUN,/APPEND
+           ;; PRINTF,thisLun,FORMAT='("Orbit ",A0," err: ",A0)',orbString,err
+           ;; CLOSE,thisLun
+           ;; FREE_LUN,thisLun
+        ENDIF
+
         pFP       = STRANGEWAY_DECIMATE__8_HZ_THREE_BANDS( $
                     pFluxP, $
                     INTERP_8HZ_RES_TO_0_125S_TIMESERIES=interp_8Hz_to_0_125s, $
                     GAP_DIST=gap_dist, $
                     EIGHTHZ_TS=tmpTS_0_125s, $
-                    SIXTEENHZ_TS=tmpTS_0_0625s)
+                    SIXTEENHZ_TS=tmpTS_0_0625s, $
+                    ERRFILE=errFile, $
+                    ORBSTRING=orbString)
+        IF SIZE(pFP,/TYPE) EQ 7 THEN BEGIN
+           RETURN
+           ;; err = pFP
+           ;; OPENW,thisLun,errFile,/GET_LUN,/APPEND
+           ;; PRINTF,thisLun,FORMAT='("Orbit ",A0," err: ",A0)',orbString,err
+           ;; CLOSE,thisLun
+           ;; FREE_LUN,thisLun
+        ENDIF
 
         IF KEYWORD_SET(full_pFlux) THEN BEGIN
            pFV    = STRANGEWAY_DECIMATE__8_HZ_THREE_BANDS( $
@@ -975,18 +1011,29 @@ PRO STRANGEWAY_3BANDS__8HZ, $
                     INTERP_8HZ_RES_TO_0_125S_TIMESERIES=interp_8Hz_to_0_125s, $
                     GAP_DIST=gap_dist, $
                     EIGHTHZ_TS=tmpTS_0_125s, $
-                    SIXTEENHZ_TS=tmpTS_0_0625s)
+                    SIXTEENHZ_TS=tmpTS_0_0625s, $
+                    ERRFILE=errFile, $
+                    ORBSTRING=orbString)
+           IF SIZE(pFV,/TYPE) EQ 7 THEN BEGIN
+              RETURN
+              ;; err = pFV
+              ;; OPENW,thisLun,errFile,/GET_LUN,/APPEND
+              ;; PRINTF,thisLun,FORMAT='("Orbit ",A0," err: ",A0)',orbString,err
+              ;; CLOSE,thisLun
+              ;; FREE_LUN,thisLun
+           ENDIF
+
         ENDIF        
 
      ENDELSE
 
-     pFB.DC        *= 1e-9             ;Junk that nano prefix in nT
+     pFB.DC        *= 1e-9      ;Junk that nano prefix in nT
      pFP.DC        *= 1e-9
 
-     pFB.AC        *= 1e-9             ;Junk that nano prefix in nT
+     pFB.AC        *= 1e-9      ;Junk that nano prefix in nT
      pFP.AC        *= 1e-9
 
-     pFB.ACHigh    *= 1e-9             ;Junk that nano prefix in nT
+     pFB.ACHigh    *= 1e-9      ;Junk that nano prefix in nT
      pFP.ACHigh    *= 1e-9
 
      IF KEYWORD_SET(full_pFlux) THEN BEGIN
@@ -1008,7 +1055,6 @@ PRO STRANGEWAY_3BANDS__8HZ, $
                     COMPLEMENT=bad_i,NCOMPLEMENT=nBad)
 
      tField = tField[good_i]
-     ;; doDat  = ABS(doDat[good_i])
      doDat  = ALOG10(ABS(doDat[good_i]))
 
      tmp    = {x:tField, $
@@ -1028,9 +1074,6 @@ PRO STRANGEWAY_3BANDS__8HZ, $
 
      tField = tmpTS_0_125s
      doDat  = REFORM(pFB.AC,N_ELEMENTS(pFB.AC))
-     ;; IF KEYWORD_SET(smooth_fields) THEN BEGIN
-     ;;    tField = tmpTS_1s
-     ;; ENDIF
 
      ;;Make all downgoing, pre-log
      good_i = WHERE(FINITE(doDat) AND ABS(doDat) GT 0.0,nGood, $
@@ -1055,9 +1098,6 @@ PRO STRANGEWAY_3BANDS__8HZ, $
 
      tField = tmpTS_0_125s
      doDat  = REFORM(pFB.ACHigh,N_ELEMENTS(pFB.ACHigh))
-     ;; IF KEYWORD_SET(smooth_fields) THEN BEGIN
-     ;;    tField = tmpTS_1s
-     ;; ENDIF
 
      ;;Make all downgoing, pre-log
      good_i = WHERE(FINITE(doDat) AND ABS(doDat) GT 0.0,nGood, $
@@ -1091,26 +1131,25 @@ PRO STRANGEWAY_3BANDS__8HZ, $
            CONTINUE
         ENDIF
 
-        ;; tmpDSP ={x:DSP.x[ind1:ind2], $
-        ;;          DC:DSP.DC[ind1:ind2], $
-        ;;          AC:DSP.AC[ind1:ind2]}
-
-        ;; STORE_DATA,'DSP_integ',DATA={x:data.x,y:data.y}
-        ;; STORE_DATA,'DSP_integ',DATA={x:dsp.x,y:dsp.DC+dsp.AC}
         STORE_DATA,'DSP_integ',DATA=dsp
 
-        DSP    = STRANGEWAY_DECIMATE__8_HZ_THREE_BANDS( $
+        tmpDSP = STRANGEWAY_DECIMATE__8_HZ_THREE_BANDS( $
                  dsp, $
                  INTERP_8HZ_RES_TO_0_125S_TIMESERIES=interp_8Hz_to_0_125s, $
                  GAP_DIST=gap_dist, $
                  /USE_DOUBLE_STREAKER, $
                  EIGHTHZ_TS=tmpTS_0_125s, $
-                 SIXTEENHZ_TS=tmpTS_0_0625s)
-        
-        ;; tmpDSP = {x     : DSP.x[ind1:ind2], $
-        ;;           DC    : DSP.DC[*,ind1:ind2], $
-        ;;           AC    : DSP.AC[*,ind1:ind2], $
-        ;;           ACHigh: DSP.ACHigh[*,ind1:ind2]}
+                 SIXTEENHZ_TS=tmpTS_0_0625s, $
+                 ERRFILE=errFile, $
+                 ORBSTRING=orbString)
+        IF SIZE(tmpDSP,/TYPE) EQ 7 THEN BEGIN
+           RETURN
+           ;; err = tmpDSP
+           ;; OPENW,thisLun,errFile,/GET_LUN,/APPEND
+           ;; PRINTF,thisLun,FORMAT='("Orbit ",A0," err: ",A0)',orbString,err
+           ;; CLOSE,thisLun
+           ;; FREE_LUN,thisLun
+        ENDIF
 
      ENDIF
 
@@ -1120,28 +1159,17 @@ PRO STRANGEWAY_3BANDS__8HZ, $
 
         GET_DATA,'Je',DATA=tmp
 
-        ;; tFlux    = tmp.x
-        ;; doDat    = tmp.y
-        ;; IF KEYWORD_SET(smooth_fluxes) THEN BEGIN
         tmpJe = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
                 tmp, $
                 INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
                 /NO_SEPARATE_DC_AC, $
                 /USE_DOUBLE_STREAKER, $
                 ONESEC_TS=tmpTS_1s)
-        ;; tmp.y = SMOOTH(tmp.y,5)
-        ;; doDat = INTERPOL(tmp.y,tmp.x,tmpTS_1s)
-        ;; tFlux = tmpTS_1s
-        ;; ENDIF
         
         ;;Make all downgoing, pre-log
         good_i   = WHERE(FINITE(tmpJe.y) AND tmpJe.y GT 0.00,nGood, $
                          COMPLEMENT=bad_i,NCOMPLEMENT=nBad)
-        ;; tmpJe    = {x:tmpJe.x[good_i],y:ALOG10(tmpJe.y[good_i])}
-        ;; tFlux    = tFlux[good_i]
-        ;; doDat    = ALOG10(doDat[good_i])
 
-        ;; STORE_DATA,'Je_tmp',DATA={x:tFlux,y:doDat}
         STORE_DATA,'Je_tmp',DATA={x:tmpJe.x[good_i],y:ALOG10(tmpJe.y[good_i])}
 
 ; Electron energy flux
@@ -1162,28 +1190,17 @@ PRO STRANGEWAY_3BANDS__8HZ, $
         ;; GET_2DT,'je_2d_fs','fa_ees_c',name='JEe',t1=itvlT1,t2=itvlT2,energy=energy_electrons
         GET_DATA,'JEe',DATA=tmp
 
-        ;; tFlux    = tmp.x
-        ;; doDat    = tmp.y
-        ;; IF KEYWORD_SET(smooth_fluxes) THEN BEGIN
         tmpJEe = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
                  tmp, $
                  INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
                  /NO_SEPARATE_DC_AC, $
                  /USE_DOUBLE_STREAKER, $
                  ONESEC_TS=tmpTS_1s)
-        ;; tmp.y = SMOOTH(tmp.y,5)
-        ;; doDat = INTERPOL(tmp.y,tmp.x,tmpTS_1s)
-        ;; tFlux = tmpTS_1s
-        ;; ENDIF
         
         ;;Make all downgoing, pre-log
         good_i   = WHERE(FINITE(tmpJEe.y) AND tmpJEe.y GT 0.00,nGood, $
                          COMPLEMENT=bad_i,NCOMPLEMENT=nBad)
-        ;; tmpJEe    = {x:tmpJEe.x[good_i],y:ALOG10(tmpJEe.y[good_i])}
-        ;; tFlux    = tFlux[good_i]
-        ;; doDat    = ALOG10(doDat[good_i])
 
-        ;; STORE_DATA,'JEe_tmp',DATA={x:tFlux,y:doDat}
         STORE_DATA,'JEe_tmp',DATA={x:tmpJEe.x[good_i],y:ALOG10(tmpJEe.y[good_i])}
 
 ; Step 5 - Ion flux
@@ -1201,15 +1218,9 @@ PRO STRANGEWAY_3BANDS__8HZ, $
                 ONESEC_TS=tmpTS_1s)
 
         ;;Make all upgoing, pre-log
-        ;; good_i   = WHERE(FINITE(doDat) AND doDat GT 0.00,nGood, $
-        ;;                  COMPLEMENT=bad_i,NCOMPLEMENT=nBad)
         good_i   = WHERE(FINITE(tmpJi.y) AND tmpJi.y GT 0.0,nGood, $
                          COMPLEMENT=bad_i,NCOMPLEMENT=nBad)
-        ;; tmpJi    = {x:tmpJi.x[good_i],y:ALOG10(tmpJi.y[good_i])}
-        ;; tFlux    = tFlux[good_i]
-        ;; doDat    = ALOG10(doDat[good_i])
 
-        ;; STORE_DATA,'Ji_tmp',DATA={x:tFlux,y:doDat}
         STORE_DATA,'Ji_tmp',DATA={x:tmpJi.x[good_i],y:ALOG10(tmpJi.y[good_i])}
 
      ENDIF
@@ -1229,11 +1240,11 @@ PRO STRANGEWAY_3BANDS__8HZ, $
         ENDIF
 
         IF KEYWORD_SET(save_png) THEN BEGIN
-           CGPS_OPEN, plotDir+tmpPlotName+'.ps',FONT=0 ;,XSIZE=4,YSIZE=7
+           CGPS_OPEN, plotDir+tmpPlotName+'.ps',FONT=0 
         ENDIF ELSE BEGIN
            IF KEYWORD_SET(save_ps) THEN BEGIN
 
-              POPEN,plotDir+tmpPlotName,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
+              POPEN,plotDir+tmpPlotName,/PORT,FONT=-1
               DEVICE,/PALATINO,FONT_SIZE=8
 
 
@@ -1254,15 +1265,6 @@ PRO STRANGEWAY_3BANDS__8HZ, $
 
      ENDIF
 
-     ;; IF ~KEYWORD_SET(full_pFlux) THEN BEGIN
-     ;;    pFV.DC  = MAKE_ARRAY(N_ELEMENTS(pFB.DC),/FLOAT)
-     ;;    pFV.AC = MAKE_ARRAY(N_ELEMENTS(pFB.AC),/FLOAT)
-     ;; ENDIF ELSE BEGIN
-     ;;    pFLuxStruct = CREATE_STRUCT(pFluxStruct, $
-     ;;                                'v',{x:eAV.x,DC:pFV.DC,AC:pFV.AC}, $
-     ;;                                'full_pFlux',KEYWORD_SET(full_pFlux))
-     ;; ENDELSE
-
      IF ~KEYWORD_SET(include_E_near_B) THEN BEGIN
         eNB           = eAV
         eNB.DC[*]     = 0.
@@ -1270,156 +1272,77 @@ PRO STRANGEWAY_3BANDS__8HZ, $
         eNB.ACHigh[*] = 0.
      ENDIF
 
-     ;;If the B structs have a common time series, only dBp keeps the x member of its struct
-     ;; B_has_common_TS = ARRAY_EQUAL(dBp.x,dBv.x) AND ARRAY_EQUAL(dBp.x,dBB.x) AND ARRAY_EQUAL(dBv.x,dBB.x)
+     dBp  = {DC        :dBp.DC, $
+             AC        :dBp.AC, $
+             ACHigh    :dBp.ACHigh, $
+             common_ts :1B}
 
-     ;; IF B_has_common_TS THEN BEGIN
+     dBv  = {DC        :dBv.DC, $
+             AC        :dBv.AC, $
+             ACHigh    :dBv.ACHigh}
 
-        ;; dBp  = {x:dBp.x, $
-        ;;         DC:dBp.DC, $
-        dBp  = {DC        :dBp.DC, $
-                AC        :dBp.AC, $
-                ACHigh    :dBp.ACHigh, $
-                common_ts :1B}
+     dBB  = {DC        :dBB.DC, $
+             AC        :dBB.AC, $
+             ACHigh    :dBB.ACHigh}
 
-        dBv  = {DC        :dBv.DC, $
-                AC        :dBv.AC, $
-                ACHigh    :dBv.ACHigh}
+     eAV     = {DC:eAV.DC, $
+                AC:eAV.AC, $
+                common_ts:1B}
 
-        dBB  = {DC        :dBB.DC, $
-                AC        :dBB.AC, $
-                ACHigh    :dBB.ACHigh}
+     eNB     = {DC:eNB.DC, $
+                AC:eNB.AC}
 
-     ;; ENDIF
-
-     ;;If the E structs have a common time series, only dBp keeps the x member of its struct
-     ;; IF canDSP THEN BEGIN
-     ;;    E_has_common_TS = ARRAY_EQUAL(eAV.x,eNB.x) AND ARRAY_EQUAL(eAV.x,tmpDSP.x) AND ARRAY_EQUAL(eNB.x,tmpDSP.x)
-     ;; ENDIF ELSE BEGIN
-     ;;    E_has_common_TS = ARRAY_EQUAL(eAV.x,eNB.x)
-     ;; ENDELSE
-
-     ;; IF E_has_common_TS THEN BEGIN
-
-        ;; eAV     = {x:eAV.x, $
-        ;;            DC:eAV.DC, $
-        eAV     = {DC:eAV.DC, $
-                   AC:eAV.AC, $
-                   common_ts:1B}
-
-        eNB     = {DC:eNB.DC, $
-                   AC:eNB.AC}
-
-        IF canDSP THEN BEGIN
-           tmpDSP  = {DC    :tmpDSP.DC, $
-                      AC    :tmpDSP.AC, $
-                      ACHigh:tmpDSP.ACHigh}
-        ENDIF
-
-     ;; ENDIF ELSE BEGIN
-
-     ;;    ;;See if DSP is messing things up
-     ;;    IF canDSP THEN BEGIN
-     ;;       IF ( N_ELEMENTS(tmpDSP.x) EQ ( N_ELEMENTS(eAV.x) + 1 ) ) AND $
-     ;;          ARRAY_EQUAL(eAV.x,eNB.x) THEN BEGIN
-              
-     ;;          IF ARRAY_EQUAL(eAV.x,tmpDSP.x[0:-2]) THEN BEGIN
-     ;;             E_has_common_TS     = 1
-     ;;             tmpDSP              = {DC:tmpDSP.DC[0:-2], $
-     ;;                                    AC:tmpDSP.AC[0:-2]}
-     ;;          ENDIF ELSE BEGIN
-
-     ;;             IF ARRAY_EQUAL(eAV.x,tmpDSP.x[1:-1]) THEN BEGIN
-     ;;                E_has_common_TS  = 1
-     ;;                tmpDSP           = {DC:tmpDSP.DC[1:-1], $
-     ;;                                    AC:tmpDSP.AC[1:-1]}
-     ;;             ENDIF
-
-     ;;          ENDELSE
-
-     ;;       ENDIF
-     ;;    ENDIF
-        
-     ;;    IF E_has_common_TS THEN BEGIN
-     ;;       eAV  = {x:eAV.x, $
-     ;;               DC:eAV.DC, $
-     ;;               AC:eAV.AC, $
-     ;;               common_ts:1B}
-
-     ;;       eNB  = {DC:eNB.DC, $
-     ;;               AC:eNB.AC}
-
-     ;;    ENDIF
-
-     ;; ENDELSE
+     IF canDSP THEN BEGIN
+        tmpDSP  = {DC    :tmpDSP.DC, $
+                   AC    :tmpDSP.AC, $
+                   ACHigh:tmpDSP.ACHigh}
+     ENDIF
 
      IF KEYWORD_SET(include_particles) THEN BEGIN
 
-        ;; ptcl_has_common_TS = ARRAY_EQUAL(tmpJEe.x,tmpJe.x) AND ARRAY_EQUAL(tmpJEe.x,tmpJi.x) AND ARRAY_EQUAL(tmpJe.x,tmpJi.x)
+        tmpJEe  = {x:tmpJEe.x, $
+                   y:tmpJEe.y, $
+                   common_ts:1B}
 
-        ;; IF ptcl_has_common_TS THEN BEGIN
+        tmpJe   = {y:tmpJe.y}
 
-           tmpJEe  = {x:tmpJEe.x, $
-                      y:tmpJEe.y, $
-                      ;; DC:tmpJEe.DC, $
-                      ;; AC:tmpJEe.AC, $
-                      common_ts:1B}
+        tmpJi   = {y:tmpJi.y}
 
-           tmpJe   = {y:tmpJe.y} ;; DC:tmpJe.DC, $
-           ;; AC:tmpJe.AC}
-
-           tmpJi   = {y:tmpJi.y}
-
-        ;; ENDIF
 
      ENDIF
 
-     ;;...And if they ALL have the same time series, we're only keeping one
-     ;; IF B_has_common_TS AND E_has_common_TS AND (KEYWORD_SET(include_particles) ? ptcl_has_common_TS : 1) THEN BEGIN
+     dBp     = {DC:dBp.DC, $
+                AC:dBp.AC, $
+                common_ts:1B, $
+                commonest_ts:1B}
 
-        ;; dBp     = {x:dBp.x, $
-        ;;            DC:dBp.DC, $
-        dBp     = {DC:dBp.DC, $
-                   AC:dBp.AC, $
-                   common_ts:1B, $
-                   commonest_ts:1B}
+     eAV     = {DC:eAV.DC, $
+                AC:eAV.AC, $
+                common_ts:1B}
 
-        eAV     = {DC:eAV.DC, $
-                   AC:eAV.AC, $
+     IF KEYWORD_SET(include_particles) THEN BEGIN
+
+        tmpJEe  = {y:tmpJEe.y, $
                    common_ts:1B}
 
-        IF KEYWORD_SET(include_particles) THEN BEGIN
+     ENDIF
 
-           tmpJEe  = {y:tmpJEe.y, $
-                      ;; DC:tmpJEe.DC, $
-                      ;; AC:tmpJEe.AC, $
-                      common_ts:1B}
-
-        ENDIF
-
-     ;; ENDIF
-
-     tmpStruct = {dB    : {p                    : TEMPORARY(dBp), $
-                           v                    : TEMPORARY(dBv), $
-                           B                    : TEMPORARY(dBB)}, $
-                  e     : {AlongV               : TEMPORARY(eAV), $
-                           NearB                : TEMPORARY(eNB), $
-                           dsp                  : canDSP ? TEMPORARY(tmpDSP) : 0B}, $
-                  ptcl  : ( KEYWORD_SET(include_particles) ? {jEe:tmpJEe,je:tmpJe,ji:tmpJi} : 0B ), $
+     tmpStruct = {dB       : {p                    : TEMPORARY(dBp), $
+                              v                    : TEMPORARY(dBv), $
+                              B                    : TEMPORARY(dBB)}, $
+                  e        : {AlongV               : TEMPORARY(eAV), $
+                              NearB                : TEMPORARY(eNB), $
+                              dsp                  : canDSP ? TEMPORARY(tmpDSP) : 0B}, $
+                  ptcl     : ( KEYWORD_SET(include_particles) ? {jEe:tmpJEe,je:tmpJe,ji:tmpJi} : 0B ), $
                   ;; pFlux : {b          : {x:eAV.x,DC:pFB.DC,AC:pFB.AC}, $
                   ;;          p          : {x:eAV.x,DC:pFP.DC,AC:pFP.AC}, $
                   ;;          v          : {x:eAV.x,DC:pFV.DC,AC:pFV.AC}, $
-                  pFlux : CREATE_STRUCT('p',pFP, $
-                                        'v',(KEYWORD_SET(full_pFlux) ? pFV : 0B), $
-                                        'b',pFB)}
+                  pFlux    : CREATE_STRUCT('p',pFP, $
+                                           'v',(KEYWORD_SET(full_pFlux) ? pFV : 0B), $
+                                           'b',pFB), $
+                  magFlags : TEMPORARY(tmpMagFlags)}
 
      tmpStruct = CREATE_STRUCT(tmpStruct,'ephem',TEMPORARY(tmpEphem),'info',infoStruct)
-     ;; full_pflux : KEYWORD_SET(full_pflux)}, $
-                  ;; pFlux:{b:{x:eAV.x,DC:pFB.DC,AC:pFB.AC}, $
-                  ;;        p:{x:eAV.x,DC:pFP.DC,AC:pFP.AC}, $
-                  ;;        v:{x:eAV.x,DC:pFV.DC,AC:pFV.AC}, $
-                  ;;        full_pflux:KEYWORD_SET(full_pflux)}, $
-                  ;; outflow_i:[[start_i],[stop_i]]}
      
      ;; PRINT,"Adding struct for interval " + itvlString + " in orbit " + orbString + ' ...'
      ;; structList.Add,tmpStruct
