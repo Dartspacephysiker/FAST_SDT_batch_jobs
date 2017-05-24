@@ -1,5 +1,5 @@
 ;2017/05/22
-PRO STRANGEWAY_5BANDS__STITCH_FILES, $
+PRO STRANGEWAY_2BANDS__STITCH_FILES, $
    USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
    USE_JE_TBOUNDS=use_Je_tBounds, $
    INCLUDE_PARTICLES=include_particles, $
@@ -12,7 +12,7 @@ PRO STRANGEWAY_5BANDS__STITCH_FILES, $
 
   interp_4Hz_to_1s     = 1
 
-  originating_routine  = 'STRANGEWAY_5BANDS__STITCH_FILES'
+  originating_routine  = 'STRANGEWAY_2BANDS__STITCH_FILES'
 
   ;;1997
   ;; startOrb             = 1436
