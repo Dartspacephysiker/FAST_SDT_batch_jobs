@@ -86,6 +86,7 @@ PRO STRANGEWAY_3BANDS__8HZ, $
    SCREEN_PLOT=screen_plot, $
    USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
    USE_JE_TBOUNDS=use_Je_tBounds, $
+   INCLUDE_E_NEAR_B=include_E_near_B, $
    INCLUDE_PARTICLES=include_particles, $
    DECIMATE_E_AND_B__THEN_CALC_PFLUX=decimate_eb_calc_pFlux, $
    SKIPDSP=skipDSP, $
@@ -1272,25 +1273,25 @@ PRO STRANGEWAY_3BANDS__8HZ, $
         eNB.ACHigh[*] = 0.
      ENDIF
 
-     dBp  = {DC        :dBp.DC, $
-             AC        :dBp.AC, $
-             ACHigh    :dBp.ACHigh, $
-             common_ts :1B}
+     ;; dBp  = {DC        :dBp.DC, $
+     ;;         AC        :dBp.AC, $
+     ;;         ACHigh    :dBp.ACHigh, $
+     ;;         common_ts :1B}
 
-     dBv  = {DC        :dBv.DC, $
-             AC        :dBv.AC, $
-             ACHigh    :dBv.ACHigh}
+     ;; dBv  = {DC        :dBv.DC, $
+     ;;         AC        :dBv.AC, $
+     ;;         ACHigh    :dBv.ACHigh}
 
-     dBB  = {DC        :dBB.DC, $
-             AC        :dBB.AC, $
-             ACHigh    :dBB.ACHigh}
+     ;; dBB  = {DC        :dBB.DC, $
+     ;;         AC        :dBB.AC, $
+     ;;         ACHigh    :dBB.ACHigh}
 
-     eAV     = {DC:eAV.DC, $
-                AC:eAV.AC, $
-                common_ts:1B}
+     ;; eAV     = {DC:eAV.DC, $
+     ;;            AC:eAV.AC, $
+     ;;            common_ts:1B}
 
-     eNB     = {DC:eNB.DC, $
-                AC:eNB.AC}
+     ;; eNB     = {DC:eNB.DC, $
+     ;;            AC:eNB.AC}
 
      IF canDSP THEN BEGIN
         tmpDSP  = {DC    :tmpDSP.DC, $
@@ -1311,14 +1312,12 @@ PRO STRANGEWAY_3BANDS__8HZ, $
 
      ENDIF
 
-     dBp     = {DC:dBp.DC, $
-                AC:dBp.AC, $
-                common_ts:1B, $
-                commonest_ts:1B}
+     ;; dBp     = {DC:dBp.DC, $
+     ;;            AC:dBp.AC, $
+     ;;            ACHigh:dBp.ACHigh}
 
-     eAV     = {DC:eAV.DC, $
-                AC:eAV.AC, $
-                common_ts:1B}
+     ;; eAV     = {DC:eAV.DC, $
+     ;;            AC:eAV.AC, }
 
      IF KEYWORD_SET(include_particles) THEN BEGIN
 
