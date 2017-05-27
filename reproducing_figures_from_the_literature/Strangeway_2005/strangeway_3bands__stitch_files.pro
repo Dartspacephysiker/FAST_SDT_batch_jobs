@@ -11,7 +11,8 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
    MAKE_PFLUX=make_pFlux, $
    MAKE_MAGFLAGS=make_magFlags, $
    MAKE_PTCL=make_ptcl, $
-   MAKE_EPHEM=make_ephem
+   MAKE_EPHEM=make_ephem, $
+   CHECK_FILES_FOR_ACHIGH=checkForACHigh
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -70,9 +71,13 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
      IF KEYWORD_SET(make_dB) THEN BEGIN
 
         PRINT,'Making dBTmplt ...'
-        dBTmplt        = {p      : {DC:typisk8,AC:typisk8,ACHigh:typisk8}, $
-                          v      : {DC:typisk8,AC:typisk8,ACHigh:typisk8}, $
-                          B      : {DC:typisk8,AC:typisk8,ACHigh:typisk8}}
+        ;; dBTmplt        = {p      : {DC:typisk8,AC:typisk8,ACHigh:typisk8}, $
+        ;;                   v      : {DC:typisk8,AC:typisk8,ACHigh:typisk8}, $
+        ;;                   B      : {DC:typisk8,AC:typisk8,ACHigh:typisk8}}
+
+        dBTmplt        = {p      : {DC:typisk,AC:typisk8,ACHigh:typisk8}, $
+                          v      : {DC:typisk,AC:typisk8,ACHigh:typisk8}, $
+                          B      : {DC:typisk,AC:typisk8,ACHigh:typisk8}}
 
         sMemNames      = [sMemNames,'dB']
         tmpltNames     = [tmpltNames,'dBTmplt']
@@ -82,8 +87,8 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
      IF KEYWORD_SET(make_eField) THEN BEGIN
 
         PRINT,'Making eTmplt ...'
-        eTmplt         = {AlongV : {DC:typisk8,AC:typisk8,ACHigh:typisk8}, $
-                          NearB  : {DC:typisk8,AC:typisk8,ACHigh:typisk8}, $
+        eTmplt         = {AlongV : {DC:typisk,AC:typisk8,ACHigh:typisk8}, $
+                          NearB  : {DC:typisk,AC:typisk8,ACHigh:typisk8}, $
                           dsp    : KEYWORD_SET(skipDSP) ?  0B : {DC:typisk,AC:typisk}}
 
         sMemNames      = [sMemNames,'e']
@@ -94,9 +99,13 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
      IF KEYWORD_SET(make_pFlux) THEN BEGIN
 
         PRINT,'Making pFluxTmplt ...'
-        pFluxTmplt        = CREATE_STRUCT('p',{DC:typisk8,AC:typisk8,ACHigh:typisk8}, $
-                                          'v',(KEYWORD_SET(full_pFlux) ? {DC:typisk8,AC:typisk8,ACHigh:typisk8} : 0B), $
-                                          'b',{DC:typisk8,AC:typisk8,ACHigh:typisk8})
+        ;; pFluxTmplt        = CREATE_STRUCT('p',{DC:typisk8,AC:typisk8,ACHigh:typisk8}, $
+        ;;                                   'v',(KEYWORD_SET(full_pFlux) ? {DC:typisk8,AC:typisk8,ACHigh:typisk8} : 0B), $
+        ;;                                   'b',{DC:typisk8,AC:typisk8,ACHigh:typisk8})
+
+        pFluxTmplt        = CREATE_STRUCT('p',{DC:typisk,AC:typisk8,ACHigh:typisk8}, $
+                                          'v',(KEYWORD_SET(full_pFlux) ? {DC:typisk,AC:typisk8,ACHigh:typisk8} : 0B), $
+                                          'b',{DC:typisk,AC:typisk8,ACHigh:typisk8})
 
         sMemNames      = [sMemNames,'pFlux']
         tmpltNames     = [tmpltNames,'pFluxTmplt']
@@ -111,9 +120,13 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
      IF KEYWORD_SET(make_dB) THEN BEGIN
 
         PRINT,'Making dBTmplt ...'
-        dBTmplt           = {p      : {DC:typisk8,AC:typisk8}, $
-                             v      : {DC:typisk8,AC:typisk8}, $
-                             B      : {DC:typisk8,AC:typisk8}}
+        ;; dBTmplt           = {p      : {DC:typisk8,AC:typisk8}, $
+        ;;                      v      : {DC:typisk8,AC:typisk8}, $
+        ;;                      B      : {DC:typisk8,AC:typisk8}}
+
+        dBTmplt           = {p      : {DC:typisk,AC:typisk8}, $
+                             v      : {DC:typisk,AC:typisk8}, $
+                             B      : {DC:typisk,AC:typisk8}}
 
         sMemNames      = [sMemNames,'dB']
         tmpltNames     = [tmpltNames,'dBTmplt']
@@ -123,8 +136,12 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
      IF KEYWORD_SET(make_eField) THEN BEGIN
 
         PRINT,'Making eTmplt ...'
-        eTmplt            = {AlongV : {DC:typisk8,AC:typisk8}, $
-                             NearB  : {DC:typisk8,AC:typisk8}, $
+        ;; eTmplt            = {AlongV : {DC:typisk8,AC:typisk8}, $
+        ;;                      NearB  : {DC:typisk8,AC:typisk8}, $
+        ;;                      dsp    : KEYWORD_SET(skipDSP) ?  0B : {DC:typisk,AC:typisk}}
+
+        eTmplt            = {AlongV : {DC:typisk,AC:typisk8}, $
+                             NearB  : {DC:typisk,AC:typisk8}, $
                              dsp    : KEYWORD_SET(skipDSP) ?  0B : {DC:typisk,AC:typisk}}
 
         sMemNames      = [sMemNames,'e']
@@ -135,9 +152,13 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
      IF KEYWORD_SET(make_pFlux) THEN BEGIN
 
         PRINT,'Making pFluxTmplt ...'
-        pFluxTmplt     = CREATE_STRUCT('p',{DC:typisk8,AC:typisk8}, $
-                                       'v',(KEYWORD_SET(full_pFlux) ? {DC:typisk8,AC:typisk8} : 0B), $
-                                       'b',{DC:typisk8,AC:typisk8})
+        ;; pFluxTmplt     = CREATE_STRUCT('p',{DC:typisk8,AC:typisk8}, $
+        ;;                                'v',(KEYWORD_SET(full_pFlux) ? {DC:typisk8,AC:typisk8} : 0B), $
+        ;;                                'b',{DC:typisk8,AC:typisk8})
+
+        pFluxTmplt     = CREATE_STRUCT('p',{DC:typisk,AC:typisk8}, $
+                                       'v',(KEYWORD_SET(full_pFlux) ? {DC:typisk,AC:typisk8} : 0B), $
+                                       'b',{DC:typisk,AC:typisk8})
 
         sMemNames      = [sMemNames,'pFlux']
         tmpltNames     = [tmpltNames,'pFluxTmplt']
@@ -217,6 +238,11 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
   datInd     = 0L
   magFlagInd = 0L
 
+  IF KEYWORD_SET(checkForACHigh) THEN BEGIN
+     noHaveACHighOrb   = !NULL
+     noHaveACHighItvl  = !NULL
+  ENDIF
+
   PRINT,"Creating " + maitreFil
   FOR orb=startOrb,stopOrb DO BEGIN
 
@@ -260,13 +286,28 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
         inds                                = [datInd:(datInd+nPtsHere-1)]
         MFInds                              = [magFlagInd:(magFlagInd+nMagFlagHere-1)]
 
+        IF KEYWORD_SET(checkForACHigh) THEN BEGIN
+
+           IF ~TAG_EXIST(tmpStruct.dB.p,'ACHIGH') THEN BEGIN
+              PRINT,FORMAT='("No have ACHigh for orbit/intervals ",I0,"/",I0,"!")',orb,jj
+              noHaveACHighOrb               = [noHaveACHighOrb,orb]
+              noHaveACHighItvl              = [noHaveACHighItvl,jj]
+           ENDIF
+
+        ENDIF
+
         IF KEYWORD_SET(make_dB) THEN BEGIN
 
-           dB.p.DC[*,inds]         = tmpStruct.dB.p.DC
+           ;; dB.p.DC[*,inds]         = tmpStruct.dB.p.DC
+           ;; dB.v.DC[*,inds]         = tmpStruct.dB.v.DC
+           ;; dB.B.DC[*,inds]         = tmpStruct.dB.B.DC
+
+           dB.p.DC[inds]           = MEAN(tmpStruct.dB.p.DC,DIMENSION=1,/NAN)
+           dB.v.DC[inds]           = MEAN(tmpStruct.dB.v.DC,DIMENSION=1,/NAN)
+           dB.B.DC[inds]           = MEAN(tmpStruct.dB.B.DC,DIMENSION=1,/NAN)
+
            dB.p.AC[*,inds]         = tmpStruct.dB.p.AC
-           dB.v.DC[*,inds]         = tmpStruct.dB.v.DC
            dB.v.AC[*,inds]         = tmpStruct.dB.v.AC
-           dB.B.DC[*,inds]         = tmpStruct.dB.B.DC
            dB.B.AC[*,inds]         = tmpStruct.dB.B.AC
 
            IF haveACHigh THEN BEGIN
@@ -281,10 +322,13 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
 
         IF KEYWORD_SET(make_eField) THEN BEGIN
 
-           e.AlongV.DC[*,inds]     = tmpStruct.e.AlongV.DC
+           e.AlongV.DC[inds]       = MEAN(tmpStruct.e.AlongV.DC,DIMENSION=1,/NAN)
+           IF KEYWORD_SET(include_E_near_B) THEN BEGIN
+              e.NearB.DC[inds]     = MEAN(tmpStruct.e.NearB.DC,DIMENSION=1,/NAN)
+           ENDIF
+
            e.AlongV.AC[*,inds]     = tmpStruct.e.AlongV.AC
            IF KEYWORD_SET(include_E_near_B) THEN BEGIN
-              e.NearB.DC[*,inds]   = tmpStruct.e.NearB.DC
               e.NearB.AC[*,inds]   = tmpStruct.e.NearB.AC
            ENDIF
 
@@ -301,9 +345,13 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
         
         IF KEYWORD_SET(make_pFlux) THEN BEGIN
 
-           pFlux.p.DC[*,inds]      = tmpStruct.pFlux.p.DC
+           ;; pFlux.p.DC[*,inds]      = tmpStruct.pFlux.p.DC
+           ;; pFlux.B.DC[*,inds]      = tmpStruct.pFlux.B.DC
+
+           pFlux.p.DC[inds]      = MEAN(tmpStruct.pFlux.p.DC,DIMENSION=1,/NAN)
+           pFlux.B.DC[inds]      = MEAN(tmpStruct.pFlux.B.DC,DIMENSION=1,/NAN)
+
            pFlux.p.AC[*,inds]      = tmpStruct.pFlux.p.AC
-           pFlux.B.DC[*,inds]      = tmpStruct.pFlux.B.DC
            pFlux.B.AC[*,inds]      = tmpStruct.pFlux.B.AC
 
            IF haveACHigh THEN BEGIN
@@ -367,13 +415,16 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
 
      IF KEYWORD_SET(make_dB) THEN BEGIN
 
-        dB       = {p : {DC:dB.p.DC[*,finalInds], $
+        ;; dB       = {p : {DC:dB.p.DC[*,finalInds], $
+        dB       = {p : {DC:dB.p.DC[finalInds], $
                          AC:dB.p.AC[*,finalInds], $
                          ACHigh:dB.p.ACHigh[*,finalInds]}, $
-                    v : {DC:dB.v.DC[*,finalInds], $
+                    ;; v : {DC:dB.v.DC[*,finalInds], $
+                    v : {DC:dB.v.DC[finalInds], $
                          AC:dB.v.AC[*,finalInds], $
                          ACHigh:dB.v.ACHigh[*,finalInds]}, $
-                    B : {DC:dB.B.DC[*,finalInds], $
+                    ;; B : {DC:dB.B.DC[*,finalInds], $
+                    B : {DC:dB.B.DC[finalInds], $
                          AC:dB.B.AC[*,finalInds], $
                          ACHigh:dB.B.ACHigh[*,finalInds]}}
 
@@ -382,36 +433,42 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
 
      IF KEYWORD_SET(make_eField) THEN BEGIN
 
-        eAlongV  = {DC:e.alongV.DC[*,finalInds], $
+        ;; eAlongV  = {DC:e.alongV.DC[*,finalInds], $
+        eAlongV  = {DC:e.alongV.DC[finalInds], $
                     AC:e.alongV.AC[*,finalInds], $
                     ACHigh:e.alongV.ACHigh[*,finalInds]}
 
         eNearB   = KEYWORD_SET(include_E_near_B)        ? $
-                   {DC:e.nearB.DC[*,finalInds], $
+                   ;; {DC:e.nearB.DC[*,finalInds], $
+                   {DC:e.nearB.DC[finalInds], $
                     AC:e.nearB.AC[*,finalInds], $
                     ACHigh:e.nearB.ACHigh[*,finalInds]} : $
                    0B
 
         dsp      = KEYWORD_SET(skipDSP) ? $
                    0B                   : $
-                   {DC:e.dsp.DC[*,finalInds], $
-                    AC:e.dsp.AC[*,finalInds], $
-                    ACHigh:e.dsp.ACHigh[*,finalInds]}
+                   ;; {DC:e.dsp.DC[*,finalInds], $
+                   {DC:e.dsp.DC[finalInds], $
+                    AC:e.dsp.AC[finalInds], $
+                    ACHigh:e.dsp.ACHigh[finalInds]}
 
      ENDIF
 
      IF KEYWORD_SET(make_pFlux) THEN BEGIN
 
-        pFP         = {DC:pFlux.p.DC[*,finalInds], $
+        ;; pFP         = {DC:pFlux.p.DC[*,finalInds], $
+        pFP         = {DC:pFlux.p.DC[finalInds], $
                        AC:pFlux.p.AC[*,finalInds], $
                        ACHigh:pFlux.p.ACHigh[*,finalInds]}
         
-        pFB         = {DC:pFlux.B.DC[*,finalInds], $
+        ;; pFB         = {DC:pFlux.B.DC[*,finalInds], $
+        pFB         = {DC:pFlux.B.DC[finalInds], $
                        AC:pFlux.B.AC[*,finalInds], $
                        ACHigh:pFlux.B.ACHigh[*,finalInds]}
         
         pFV         = KEYWORD_SET(full_pFlux)              ? $
-                      {DC:pFlux.v.DC[*,finalInds], $
+                      ;; {DC:pFlux.v.DC[*,finalInds], $
+                      {DC:pFlux.v.DC[finalInds], $
                        AC:pFlux.v.AC[*,finalInds], $
                        ACHigh:pFlux.v.ACHigh[*,finalInds]} : $
                       0B
@@ -422,42 +479,51 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
 
      IF KEYWORD_SET(make_dB) THEN BEGIN
 
-        dBStruct    = {p : {DC:dB.p.DC[*,finalInds], $
+        ;; dBStruct    = {p : {DC:dB.p.DC[*,finalInds], $
+        dBStruct    = {p : {DC:dB.p.DC[finalInds], $
                             AC:dB.p.AC[*,finalInds]}, $
-                       v : {DC:dB.v.DC[*,finalInds], $
+                       ;; v : {DC:dB.v.DC[*,finalInds], $
+                       v : {DC:dB.v.DC[finalInds], $
                             AC:dB.v.AC[*,finalInds]}, $
-                       B : {DC:dB.B.DC[*,finalInds], $
+                       ;; B : {DC:dB.B.DC[*,finalInds], $
+                       B : {DC:dB.B.DC[finalInds], $
                             AC:dB.B.AC[*,finalInds]}}
 
      ENDIF
 
      IF KEYWORD_SET(make_eField) THEN BEGIN
 
-        eAlongV     = {DC : e.alongV.DC[*,finalInds], $
+        ;; eAlongV     = {DC : e.alongV.DC[*,finalInds], $
+        eAlongV     = {DC : e.alongV.DC[finalInds], $
                        AC : e.alongV.AC[*,finalInds]}
 
         eNearB      = KEYWORD_SET(include_E_near_B)    ? $
-                      {DC : e.nearB.DC[*,finalInds], $
+                      ;; {DC : e.nearB.DC[*,finalInds], $
+                      {DC : e.nearB.DC[finalInds], $
                        AC : e.nearB.AC[*,finalInds]}   : $
                       0B
 
         dsp         = KEYWORD_SET(skipDSP) ? $
                       0B                   : $
-                      {DC : e.dsp.DC[*,finalInds], $
+                      ;; {DC : e.dsp.DC[*,finalInds], $
+                      {DC : e.dsp.DC[finalInds], $
                        AC : e.dsp.AC[*,finalInds]}
 
      ENDIF
 
      IF KEYWORD_SET(make_pFlux) THEN BEGIN
 
-        pFP         = {DC : pFlux.p.DC[*,finalInds], $
+        ;; pFP         = {DC : pFlux.p.DC[*,finalInds], $
+        pFP         = {DC : pFlux.p.DC[finalInds], $
                        AC : pFlux.p.AC[*,finalInds]}
         
-        pFB         = {DC : pFlux.B.DC[*,finalInds], $
+        ;; pFB         = {DC : pFlux.B.DC[*,finalInds], $
+        pFB         = {DC : pFlux.B.DC[finalInds], $
                        AC : pFlux.B.AC[*,finalInds]}
         
         pFV         = KEYWORD_SET(full_pFlux)        ? $
-                      {DC : pFlux.v.DC[*,finalInds], $
+                      ;; {DC : pFlux.v.DC[*,finalInds], $
+                      {DC : pFlux.v.DC[finalInds], $
                        AC : pFlux.v.AC[*,finalInds]} : $
                       0B
 
@@ -585,6 +651,13 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
      SAVE,ephem,FILENAME=outDir+thisFile
 
   ENDIF
+
+  IF KEYWORD_SET(checkForACHigh) THEN BEGIN
+     PRINT,"Orbs/itvls without ACHigh: "
+     FOR k=0,N_ELEMENTS(noHaveACHighOrb)-1 DO PRINT,FORMAT='(I0,", ",I0)',noHaveACHighOrb[k],noHaveACHighItvl[k]
+  ENDIF
+
+  STOP
 
   ;; leMaitre    = {dB       : TEMPORARY(dBStruct), $
   ;;                e        : TEMPORARY(eStruct), $
