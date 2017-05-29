@@ -430,7 +430,6 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
 
      ENDIF
 
-
      IF KEYWORD_SET(make_eField) THEN BEGIN
 
         ;; eAlongV  = {DC:e.alongV.DC[*,finalInds], $
@@ -553,9 +552,9 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
 
   IF KEYWORD_SET(make_eField) THEN BEGIN
 
-     eStruct     = {alongV : TEMPORARY(eAlongV), $
-                    nearB  : TEMPORARY(eNearB), $
-                    dsp    : TEMPORARY(dsp)}
+     e     = {alongV : TEMPORARY(eAlongV), $
+              nearB  : TEMPORARY(eNearB), $
+              dsp    : TEMPORARY(dsp)}
 
   ENDIF
 
@@ -571,16 +570,20 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
 
   IF KEYWORD_SET(make_pFlux) THEN BEGIN
 
-     pFluxStruct    = {p : TEMPORARY(pFP), $
-                       v : TEMPORARY(pFV), $
-                       B : TEMPORARY(pFB)}
+     ;; pFluxStruct    = {p : TEMPORARY(pFP), $
+     ;;                   v : TEMPORARY(pFV), $
+     ;;                   B : TEMPORARY(pFB)}
+
+     pFlux    = {p : TEMPORARY(pFP), $
+                 v : TEMPORARY(pFV), $
+                 B : TEMPORARY(pFB)}
 
   ENDIF
   
   IF KEYWORD_SET(make_magFlags) THEN BEGIN
 
-     magFlags       = {x : magFlags.x[finalMFInds], $
-                       y : magFlags.y[finalMFInds]}
+     magFlags = {x : magFlags.x[finalMFInds], $
+                 y : magFlags.y[finalMFInds]}
 
   ENDIF
 
@@ -597,7 +600,8 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
                        ;; bfoot     : MAKE_ARRAY(maxNPts,3,/FLOAT), $
                        magRatio  : ephem.magRatio[finalInds], $
                        lat       : ephem.lat     [finalInds], $
-                       lng       : ephem.lng     [finalInds]}
+                       lng       : ephem.lng     [finalInds], $
+                       info      : TEMPORARY(info)}
      ;; flat      : ephem.flat    [finalInds], $
      ;; flng      : ephem.flng    [finalInds], $
      ;; b_model   : ephem.b_model [finalInds,*]}, $
