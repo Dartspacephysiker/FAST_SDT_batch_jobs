@@ -28,7 +28,8 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
   ;; stopOrb              = 5382
   
   startOrb          = 1000
-  stopOrb           = 7705
+  stopOrb           = 9936
+  versionNum        = '0'
 
   ;; make_dB              = 1
   ;; make_eField          = 1
@@ -48,7 +49,7 @@ PRO STRANGEWAY_3BANDS__STITCH_FILES, $
      itvlTypeName      = 'EESAItvl'
   ENDIF
 
-  maitreFilSuff        = STRING(FORMAT='("__orbs_",I0,"-",I0,"_",A0)',startOrb,stopOrb,itvlTypeName)
+  maitreFilSuff        = STRING(FORMAT='("__orbs_",I0,"-",I0,"_",A0,"-v",I0)',startOrb,stopOrb,itvlTypeName,versionNum)
   maitreFil            = STRSPLIT(hashFile,'.sav',/REGEX,/EXTRACT) 
   IF N_ELEMENTS(maitreFil) GT 1 THEN BEGIN
      maitreFil         = STRJOIN(maitreFil)
