@@ -51,14 +51,14 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
   ;; '1 :  McFadden_et_al_1998'
   ;; '2 :  Elphic_et_al_1998'
   ;; '3 :  Carlson_et_al_2001'
-  evtNum               = 0
+  evtNum               = 2
 
   ;;2017/03/22
   ;; evtNum               = 3
@@ -142,6 +142,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   IF orbit EQ 1843 THEN BEGIN
 
+     kSum__add_chi2_line  = 15
+     
      fit2D__density_angleRange         = [-150,150]
 
      chi2_over_dof_thresh = 50
@@ -163,7 +165,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1
-  cAP_remake_masterFile     = 0
+  cAP_remake_masterFile     = 1
   cAP_map_to_100km          = 1
   cAP_use_all_currents      = 0
   cAP_use_ed_current        = 1
