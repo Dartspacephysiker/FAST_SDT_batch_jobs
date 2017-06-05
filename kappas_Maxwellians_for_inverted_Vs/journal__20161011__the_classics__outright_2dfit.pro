@@ -51,7 +51,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
@@ -163,7 +163,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1
-  cAP_remake_masterFile     = 1
+  cAP_remake_masterFile     = 0
   cAP_map_to_100km          = 1
   cAP_use_all_currents      = 0
   cAP_use_ed_current        = 1
@@ -183,7 +183,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   cAP_plot_jv_a_la_Elphic      = 0B
   cAP_plot_T_and_N             = 0B
   cAP_plot_j_v_and_theory      = 0B
-  cAP_plot_j_v__fixed_t_and_n  = 0B
+  cAP_plot_j_v__fixed_t_and_n  = 1B
   cAP_plot_j_v_map__r_b_and_kappa__fixed_t_and_n = 1B
   cAP_plot_en_specs            = 0B
   cAP_en_specs__movie          = 0B
@@ -198,6 +198,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   cAP_jv_theor__fit_both        = 0
   cAP_use_msph_sourcecone_for_dens = [1,0,0]
   cAP_use_msph_sourcecone_for_temp = [0,0,0]
+  cAP_all_pitchAngles              = 0
+  cAP_allPitch_except_atm_lc       = 0
 
   ;; cAP_jv_theor__initial_source_R_E = 5.0D
   cAP_jv_theor__initial_source__Polar = 1
@@ -325,6 +327,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         CURANDPOT_JV_THEOR__FIT_BOTH=cAP_jv_theor__fit_both, $
                         CURANDPOT_USE_MSPH_SOURCECONE_FOR_DENS=cAP_use_msph_sourcecone_for_dens, $
                         CURANDPOT_USE_MSPH_SOURCECONE_FOR_TEMP=cAP_use_msph_sourcecone_for_temp, $
+                        CURANDPOT_ALL_PITCHANGLES=cAP_all_pitchAngles, $
+                        CURANDPOT_ALLPITCH_EXCEPT_ATM_LC=cAP_allPitch_except_atm_lc, $
                         CURANDPOT_JV_THEOR__INITIAL_SOURCE_R_E=cAP_jv_theor__initial_source_R_E, $
                         CURANDPOT_JV_THEOR__INITIAL_SOURCE__POLARSAT=cAP_jv_theor__initial_source__Polar, $
                         CURANDPOT_JV_THEOR__INITIAL_SOURCE__EQUATOR=cAP_jv_theor__initial_source__equator, $
