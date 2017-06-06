@@ -40,6 +40,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   sway__log_kappaPlot      = 0
 
   show_kappa_summary  = 1
+  ;; kSum__eAngle        = [-180,180]
   kSum__save_ps       = 1
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
@@ -278,6 +279,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         SWAY__ADD_NEWELL_PANEL=sway__add_Newell_panel, $
                         SWAY__LOG_KAPPAPLOT=sway__log_kappaPlot, $
                         SHOW_KAPPA_SUMMARY=show_kappa_summary, $
+                        KSUM__EANGLE=kSum__eAngle, $
                         KSUM__SAVE_PS=kSum__save_ps, $
                         KSUM__SAVE_PNG=kSum__save_png, $
                         KSUM__CONV_DESPECS_TO_NEWELL_INTERP=kSum__convert_to_Newell_interp, $
