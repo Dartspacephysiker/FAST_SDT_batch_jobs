@@ -109,7 +109,7 @@ cAP_tRanges_list              = LIST($
                                 ;;
                                 ;;Number 0
                                 '1997-02-07/' + $
-                                ['20:49:48', $
+                                ['20:49:50', $
                                   '20:50:11'], $
                                 ;; [['20:49:56', $
                                 ;;   '20:50:09'], $
@@ -144,11 +144,11 @@ cAP_tRanges_list              = LIST($
 
 eeb_or_ees__recommande        = LIST('ees','eeb','ees','ees')
 
-energy_electrons__recommande  = LIST([2D2,3.15D4],[5D2,3.15D4],[2D2,3.15D4],[3D2,3.15D4])
+energy_electrons__recommande  = LIST([5D2,3.15D4],[5D2,3.15D4],[2D2,3.15D4],[3D2,3.15D4])
 min_peak_energy_recommande    = LIST(500,1D3,200,MIN(energy_electrons__recommande[3]))
 
 ;; spectra_average_interval_list = LIST(4,!NULL,2)
 spectra_average_interval_list = LIST(3, $
                                      eeb_or_ees__recommande[1] EQ 'eeb' ? 2 : 2, $
-                                     3, $
+                                     4, $
                                      eeb_or_ees__recommande[3] EQ 'eeb' ? 24 : 2)

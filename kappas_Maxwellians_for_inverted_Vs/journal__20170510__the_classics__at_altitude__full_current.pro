@@ -108,7 +108,8 @@ PRO JOURNAL__20170510__THE_CLASSICS__AT_ALTITUDE__FULL_CURRENT
 
   IF orbit EQ 1773 THEN BEGIN
 
-     fit2D__density_angleRange = [-150,150]
+     ;; fit2D__density_angleRange = [-150,150]
+     fit2D__density_angleRange = 'ALL__EXCL_ATM'
 
   ENDIF
 
@@ -145,7 +146,8 @@ PRO JOURNAL__20170510__THE_CLASSICS__AT_ALTITUDE__FULL_CURRENT
 
      kSum__add_chi2_line  = 15
      
-     fit2D__density_angleRange         = [-150,150]
+     ;; fit2D__density_angleRange         = [-150,150]
+     fit2D__density_angleRange = 'ALL__EXCL_ATM'
 
      chi2_over_dof_thresh = 50
 
