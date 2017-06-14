@@ -24,7 +24,7 @@ orbBurstTimes = LIST( $
 
                 ;; ['97-02-08/10:11:22','97-02-08/10:11:52'], $ ;2
                 '1997-02-08/' + [ $
-                ['10:11:n26.5','10:11:27.2'], $
+                ['10:11:26.5','10:11:27.2'], $
                 ['10:11:31','10:11:35'] $
                                 ], $
    
@@ -148,7 +148,7 @@ energy_electrons__recommande  = LIST([5D2,3.15D4],[5D2,3.15D4],[2D2,3.15D4],[3D2
 min_peak_energy_recommande    = LIST(500,1D3,500,MIN(energy_electrons__recommande[3]))
 
 ;; spectra_average_interval_list = LIST(4,!NULL,2)
-spectra_average_interval_list = LIST(3, $
+spectra_average_interval_list = LIST(2, $
                                      eeb_or_ees__recommande[1] EQ 'eeb' ? 2 : 2, $
                                      2, $
                                      eeb_or_ees__recommande[3] EQ 'eeb' ? 24 : 2)

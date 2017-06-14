@@ -51,7 +51,7 @@ PRO JOURNAL__20170510__THE_CLASSICS__AT_ALTITUDE__FULL_CURRENT
   kStats__save_stuff   = 1
 
   save_diff_eFlux_file = 1
-  load_diff_eFlux_file = 1
+  load_diff_eFlux_file = 0
   restore_fitFile      = 0
 
   ;;Which totally classic event?

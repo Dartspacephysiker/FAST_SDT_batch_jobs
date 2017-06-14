@@ -10,7 +10,7 @@ orbTimes = [ $
            ['97-02-07/20:49:30','97-02-07/20:50:12'], $
            ['97-02-08/10:11:22','97-02-08/10:11:52'], $
            ;; ['97-02-01/09:25:50','97-02-01/09:27:30'], $
-           ['97-02-01/09:25:50','97-02-01/09:27:30'], $
+           ['97-02-01/09:26:10','97-02-01/09:27:15'], $
            ;; ['97-02-02/20:59:30','97-02-02/21:07:30'] $ 
            ;; ['97-02-02/21:03:42.5','97-02-02/21:03:58.5'] $
            ;; ['97-02-02/21:01:45','97-02-02/21:04:40'] $ ;Checking out the total moment thing
@@ -129,7 +129,7 @@ cAP_tRanges_list              = LIST($
 
                                 ;; '1997-02-01/'+[['09:26:14.2','09:26:23.0']], $
 
-                                '1997-02-01/'+[['09:26:55.0','09:27:05.0']], $
+                                '1997-02-01/'+[['09:26:55.5','09:27:03.5']], $
                                 ;; '1997-02-01/'+[['09:27:01.2','09:27:05.0']], $
                                 ;; '1997-02-01/'+[['09:26:14.0','09:26:44.0'], $
                                 ;;                ['09:26:51.0','09:27:05.4']])
@@ -145,10 +145,10 @@ cAP_tRanges_list              = LIST($
 eeb_or_ees__recommande        = LIST('ees','eeb','ees','ees')
 
 energy_electrons__recommande  = LIST([5D2,3.15D4],[5D2,3.15D4],[2D2,3.15D4],[3D2,3.15D4])
-min_peak_energy_recommande    = LIST(500,1D3,200,MIN(energy_electrons__recommande[3]))
+min_peak_energy_recommande    = LIST(500,1D3,500,MIN(energy_electrons__recommande[3]))
 
 ;; spectra_average_interval_list = LIST(4,!NULL,2)
-spectra_average_interval_list = LIST(3, $
+spectra_average_interval_list = LIST(2, $
                                      eeb_or_ees__recommande[1] EQ 'eeb' ? 2 : 2, $
-                                     4, $
+                                     2, $
                                      eeb_or_ees__recommande[3] EQ 'eeb' ? 24 : 2)
