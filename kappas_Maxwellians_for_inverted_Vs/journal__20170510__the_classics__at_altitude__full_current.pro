@@ -51,8 +51,8 @@ PRO JOURNAL__20170510__THE_CLASSICS__AT_ALTITUDE__FULL_CURRENT
   kStats__save_stuff   = 1
 
   save_diff_eFlux_file = 1
-  load_diff_eFlux_file = 0
-  restore_fitFile      = 0
+  load_diff_eFlux_file = 1
+  restore_fitFile      = 1
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
@@ -168,7 +168,7 @@ PRO JOURNAL__20170510__THE_CLASSICS__AT_ALTITUDE__FULL_CURRENT
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1
-  cAP_remake_masterFile     = 1
+  cAP_remake_masterFile     = 0
   cAP_map_to_100km          = 0
   cAP_use_all_currents      = 0
   cAP_use_ed_current        = 1
