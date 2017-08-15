@@ -52,7 +52,7 @@ PRO JOURNAL__20170814__THE_CLASSICS_PLUSMINUS_CHARE__JIM_IDEA
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
@@ -181,8 +181,10 @@ PRO JOURNAL__20170814__THE_CLASSICS_PLUSMINUS_CHARE__JIM_IDEA
                j_v__fixTandN__savePlotData                 : 1, $
                ;; T_plusMinusFac_for_pot                      : 0L, $
                ;; j_v__fixTandN__dataFilename                 : 'fixTandN__regDat', $
-               T_plusMinusFac_for_pot                      : -1L, $
-               j_v__fixTandN__dataFilename                 : 'fixTandN__minusDat', $
+               ;; T_plusMinusFac_for_pot                      : -1L, $
+               ;; j_v__fixTandN__dataFilename                 : 'fixTandN__minusDat', $
+               T_plusMinusFac_for_pot                      : 1L, $
+               j_v__fixTandN__dataFilename                 : 'fixTandN__plusDat', $
                use_peakE_for_downPot                       : 0B, $
                add_iu_pot                                  : 1, $
                tRanges                                     : cAP_tRanges_list[evtNum], $
@@ -215,7 +217,7 @@ PRO JOURNAL__20170814__THE_CLASSICS_PLUSMINUS_CHARE__JIM_IDEA
                jv_theor__initial_source__Polar             : 1, $
                ;; jv_theor__initial_source__equator        : 0, $
                ;; jv_theor__iterative_game                 : 0, $
-               jv_theor__iterative_RBDens_game             : 1, $
+               ;; jv_theor__iterative_RBDens_game             : 1, $
                ;; jv_theor__itergame_densFac                  : 3.0, $
                jv_theor__itergame_tie_R_B_and_dens         : 1}
 
@@ -347,7 +349,7 @@ PRO JOURNAL__20170814__THE_CLASSICS_PLUSMINUS_CHARE__JIM_IDEA
                         ;; CURANDPOT_JV_THEOR__INITIAL_SOURCE__EQUATOR=cAP_jv_theor__initial_source__equator, $
                         ;; CURANDPOT_JV_THEOR__ITERATIVE_DENSITY_AND_R_B_GAME=cAP_jv_theor__iterative_game, $
                         ;; CURANDPOT_JV_THEOR__ITERATIVE_GAME__DENSITY_INCREASE=cAP_jv_theor__itergame_NFac, $
-                        ;; CURANDPOT_JV_THEOR__ITERATIVE_GAME__TIE_RB_AND_DENS=cAP_jv_theor__itergame_tie_R_B_and_dens, $
+                        ;; CURANDPOT_JV_THEOR__ITERATIVE_GAME__TIE_R_B_AND_DENS=cAP_jv_theor__itergame_tie_R_B_and_dens, $
                         ;; CURANDPOT__MAP__MULTI_MAGRATIO_ARRAY=cAP_map__multi_magRatio_array, $
                         ;; CURANDPOT__MAP__MULTI_KAPPA_ARRAY=cAP_map__multi_kappa_array, $
                         ;; CURANDPOT__MAP__2D=cAP_map__2D, $
