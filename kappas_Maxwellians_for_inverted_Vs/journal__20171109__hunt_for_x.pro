@@ -1,25 +1,21 @@
-;;2017/08/14
-PRO JOURNAL__20170814__THE_CLASSICS_PLUSMINUS_CHARE__JIM_IDEA
+;;2016/10/11
+PRO JOURNAL__20171109__HUNT_FOR_X
 
   COMPILE_OPT IDL2
 
-  routName = 'JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT'
+  routName = 'JOURNAL__20171109__HUNT_FOR_X'
 
   ;;get orbTimes here
-  @journal__20161011__info__the_classics.pro
+  @journal__20171109__info__hunt_for_x.pro
 
-  ;;Temporary 2017/09/22
-  debug__skip_to_this_time  = '1997-02-01/09:27:01.57'  
-  debug__break_on_this_time = debug__skip_to_this_time
-
-  only_1D_fits                      = 1
+  only_1D_fits                      = 0
   fit1D__sourceCone_energy_spectrum = 1
   fit1D__nFlux                      = 1
   fit1D__weighting                  = 2 ;1 = lin 2 = square
   fit1D__clampTemperature           = 0
   fit1D__clampDensity               = 0
 
-  add_oneCount_curve                = 0
+  add_oneCount_curve                = 1
 
   fit1D__save_plotSlices            = 0
   fit2D__save_all_plots             = 0
@@ -36,7 +32,7 @@ PRO JOURNAL__20170814__THE_CLASSICS_PLUSMINUS_CHARE__JIM_IDEA
 
   eps                      = 1
 
-  show_Strangeway_summary  = 0
+  show_Strangeway_summary  = 1
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
@@ -55,30 +51,23 @@ PRO JOURNAL__20170814__THE_CLASSICS_PLUSMINUS_CHARE__JIM_IDEA
   kStats__save_stuff   = 1
 
   save_diff_eFlux_file = 1
-  load_diff_eFlux_file = 1
+  load_diff_eFlux_file = 0
   restore_fitFile      = 0
 
   ;;Which totally classic event?
-  ;; '0 :  Ergun_et_al_1998'
-  ;; '1 :  McFadden_et_al_1998'
-  ;; '2 :  Elphic_et_al_1998'
-  ;; '3 :  Carlson_et_al_2001'
+  ;; '0 :  orbit 1767' Dud? Maybe picked minE too high? (500eV)
+  ;; '1 :  orbit 1764'
+  ;; '2 :  orbit 1757'
   evtNum               = 2
-
-  ;;2017/03/22
-  ;; evtNum               = 3
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
   upgoing                           = 0
 
   electron_angleRange  = 'lc'
-  ;; electron_angleRange  = [330,30]
   energy_electrons     = N_ELEMENTS(energy_electrons__recommande[evtNum]) GT 0 ? $
                          energy_electrons__recommande[evtNum]          : $
                          [3e1,3.1e4]
-  ;; electron_lca         = [150,-150]
-  ;; electron_lca         = 'lc'
   min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : $
                          (N_ELEMENTS(min_peak_energy_recommande[evtNum]) GT 0 ? $
                           min_peak_energy_recommande[evtNum] : 500)
@@ -110,136 +99,172 @@ PRO JOURNAL__20170814__THE_CLASSICS_PLUSMINUS_CHARE__JIM_IDEA
   diffEflux_thresh     = 5e7
   nPkAbove_dEF_thresh  = 5
 
-  IF orbit EQ 1773 THEN BEGIN
+  ;; IF orbit EQ 1773 THEN BEGIN
 
-     ;; fit2D__density_angleRange = [-150,150]
      fit2D__density_angleRange = 'ALL__EXCL_ATM'
 
-  ENDIF
+  ;; ENDIF
 
-  IF orbit EQ 1789 THEN BEGIN
+  ;; IF orbit EQ 1789 THEN BEGIN
 
-     kSum__add_chi2_line  = 10
+  ;;    kSum__add_chi2_line  = 10
      
-     min_peak_energy   = 800
-     ;; energy_electrons  = [0,3.0e4]
+  ;;    min_peak_energy   = 800
+  ;;    ;; energy_electrons  = [0,3.0e4]
 
-     fit2D__density_angleRange = [-145,145]
+  ;;    fit2D__density_angleRange = [-145,145]
 
-     energy_electrons          = [7e2,3.15e4]
+  ;;    energy_electrons          = [7e2,3.15e4]
 
-     IF N_ELEMENTS(burstItvl) GT 0 AND (STRUPCASE(eeb_or_ees) EQ 'EEB') THEN BEGIN
-        IF burstItvl EQ 1 THEN BEGIN ;Carlson et al. [1998] state that this interval is cold electron–free
+  ;;    IF N_ELEMENTS(burstItvl) GT 0 AND (STRUPCASE(eeb_or_ees) EQ 'EEB') THEN BEGIN
+  ;;       IF burstItvl EQ 1 THEN BEGIN ;Carlson et al. [1998] state that this interval is cold electron–free
 
-           manual_angle_correction = -15
+  ;;          manual_angle_correction = -15
 
-        ENDIF
-     ENDIF
+  ;;       ENDIF
+  ;;    ENDIF
      
-     t1Str = '97-02-02/21:01:55'
-     t2Str = '97-02-02/21:02:20'
+  ;;    t1Str = '97-02-02/21:01:55'
+  ;;    t2Str = '97-02-02/21:02:20'
 
-     chi2_over_dof_thresh = 50
-     lowDens_thresh       = 0.002
-     diffEflux_thresh     = 1e7
-     nPkAbove_dEF_thresh  = 5
+  ;;    chi2_over_dof_thresh = 50
+  ;;    lowDens_thresh       = 0.002
+  ;;    diffEflux_thresh     = 1e7
+  ;;    nPkAbove_dEF_thresh  = 5
 
-  ENDIF
+  ;; ENDIF
 
-  IF orbit EQ 1843 THEN BEGIN
+  ;; IF orbit EQ 1843 THEN BEGIN
 
-     kSum__add_chi2_line  = 15
+  ;;    kSum__add_chi2_line  = 15
      
-     ;; fit2D__density_angleRange         = [-150,150]
-     fit2D__density_angleRange = 'ALL__EXCL_ATM'
+  ;;    ;; fit2D__density_angleRange         = [-150,150]
+  ;;    fit2D__density_angleRange = 'ALL__EXCL_ATM'
 
-     chi2_over_dof_thresh = 50
+  ;;    chi2_over_dof_thresh = 50
 
-  ENDIF
+  ;; ENDIF
 
-  IF orbit EQ 1849 THEN BEGIN
+  ;; IF orbit EQ 1849 THEN BEGIN
 
-     kSum__add_chi2_line  = 10
+  ;;    kSum__add_chi2_line  = 10
      
-     fit2D__density_angleRange = [-45,45]
+  ;;    fit2D__density_angleRange = [-45,45]
 
-     chi2_over_dof_thresh = 20
-     lowDens_thresh       = 0.002
-     diffEflux_thresh     = 1e7
-     nPkAbove_dEF_thresh  = 5
+  ;;    chi2_over_dof_thresh = 20
+  ;;    lowDens_thresh       = 0.002
+  ;;    diffEflux_thresh     = 1e7
+  ;;    nPkAbove_dEF_thresh  = 5
 
-  ENDIF
+  ;; ENDIF
 
   ;;Current and potential analysis
-  curAndPot_analysis  = 0
+  curAndPot_analysis        = 1
+  ;; cAP_remake_masterFile     = 0
+  ;; cAP_map_to_100km          = 1
+  ;; cAP_use_all_currents      = 0
+  ;; cAP_use_ed_current        = 1
+  ;; cAP_use_iu_current        = 0
+  ;; cAP_use_eu_current        = 0
+  ;; cAP_use_mag_current       = 0
+  ;; cAP_use_charE_for_downPot = 1
+  ;; ;; cAP_use_peakE_for_downPot = 0
+  ;; cAP_add_iu_pot            = 1
+
+  ;; cAP_tRanges               = cAP_tRanges_list[evtNum]
+
+  ;; ;; cAP_moment_energyArr      = [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
+  ;; cAP_moment_energyArr      = [[energy_electrons],[energy_electrons],[100,2.4e4]]
+  
+  ;; cAP_plot_j_v_potBar          = 0B
+  ;; cAP_plot_jv_a_la_Elphic      = 0B
+  ;; cAP_plot_T_and_N             = 0B
+  ;; cAP_plot_j_v_and_theory      = 0B
+  ;; cAP_plot_j_v__fixed_t_and_n  = 0B
+  ;; cAP_plot_j_v_map__r_b_and_kappa__fixed_t_and_n = 1B
+  ;; cAP_plot_en_specs            = 0B
+  ;; cAP_en_specs__movie          = 0B
+  ;; cAP_jv_theor__R_B_init       = 300
+  ;; cAP_jv_theor__kappa_init     = 10
+  ;; cAP_jv_theor__kappaLims      = [1.540,11]
+  ;; ;; cAP_jv_theor__TempLims       = [0,0]
+  ;; ;; cAP_jv_theor__DensLims       = [0,0]
+  ;; ;; cAP_jv_theor__magRatioLims   = [2,100]
+  ;; ;;JV theory options
+  ;; ;; cAP_jv_theor__fit_je         = 1
+  ;; cAP_jv_theor__fit_both        = 0
+  ;; cAP_use_msph_sourcecone_for_dens = [1,0,0]
+  ;; cAP_use_msph_sourcecone_for_temp = [1,0,0]
+  ;; cAP_all_pitchAngles              = 0
+  ;; cAP_allPitch_except_atm_lc       = 0
+
+  ;; ;; cAP_jv_theor__initial_source_R_E = 5.0D
+  ;; cAP_jv_theor__initial_source__Polar = 1
+  ;; ;; cAP_jv_theor__initial_source__equator = 0
+  ;; cAP_jv_theor__iterative_game  = 0
+  ;; ;; cAP_jv_theor__itergame_NFac   = 3.0
+  ;; cAP_jv_theor__itergame_tie_R_B_and_dens = 1
 
   cAP_struct = { $
-               remake_masterFile                           : 0B, $
-               map_to_100km                                : 1, $
-               use_all_currents                            : 0, $
-               use_ed_current                              : 1, $
-               use_iu_current                              : 0, $
-               use_eu_current                              : 0, $
-               use_mag_current                             : 0, $
-               use_charE_for_downPot                       : 1, $
-               j_v__fixTandN__savePlotData                 : 1, $
-               T_plusMinusFac_for_pot                      : 0L, $
-               j_v__fixTandN__dataFilename                 : 'fixTandN__regDat', $
-               ;; T_plusMinusFac_for_pot                      : -1L, $
-               ;; j_v__fixTandN__dataFilename                 : 'fixTandN__minusDat', $
-               ;; T_plusMinusFac_for_pot                      : 1L, $
-               ;; j_v__fixTandN__dataFilename                 : 'fixTandN__plusDat', $
-               use_peakE_for_downPot                       : 0B, $
-               add_iu_pot                                  : 1, $
-               tRanges                                     : cAP_tRanges_list[evtNum], $
-               ;; moment_energyArr                         : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
-               moment_energyArr                            : [[energy_electrons],[energy_electrons],[100,2.4e4]], $
-               plot_j_v_potBar                             : 0B, $
-               plot_jv_a_la_Elphic                         : 0B, $
-               plot_T_and_N                                : 0B, $
-               plot_j_v_and_theory                         : 0B, $
-               plot_j_v__fixed_t_and_n                     : 0B, $
-               plot_j_v_map__r_b_and_kappa__fixed_t_and_n  : 1B, $
-               plot_en_specs                               : 0B, $
-               en_specs__movie                             : 0B, $
-               jv_theor__R_B_init                          : 300, $
-               jv_theor__kappa_init                        : 10, $
-               jv_theor__kappaLims                         : [1.540,11], $
-               ;; jv_theor__TempLims                       : [0,0], $
-               ;; jv_theor__DensLims                       : [0,0], $
-               ;; jv_theor__magRatioLims                   : [2,100], $
-               ;;
+               remake_masterFile : 1B, $
+               map_to_100km : 1, $
+               use_all_currents : 0, $
+               use_ed_current : 1, $
+               use_iu_current : 0, $
+               use_eu_current : 0, $
+               use_mag_current : 0, $
+               use_charE_for_downPot : 1, $
+               T_plusMinusFac_for_pot : -1L, $
+               use_peakE_for_downPot : 0B, $
+               add_iu_pot : 1, $
+               tRanges : cAP_tRanges_list[evtNum], $
+               ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
+               moment_energyArr : [[energy_electrons],[energy_electrons],[100,2.4e4]], $
+               plot_j_v_potBar : 0B, $
+               plot_jv_a_la_Elphic : 0B, $
+               plot_T_and_N : 0B, $
+               plot_j_v_and_theory : 0B, $
+               plot_j_v__fixed_t_and_n : 0B, $
+               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : 1B, $
+               plot_en_specs : 0B, $
+               en_specs__movie : 0B, $
+               jv_theor__R_B_init : 300, $
+               jv_theor__kappa_init : 10, $
+               jv_theor__kappaLims  : [1.540,11], $
+               ;; jv_theor__TempLims       : [0,0], $
+               ;; jv_theor__DensLims      : [0,0], $
+               ;; jv_theor__magRatioLims  : [2,100], $
+
                ;;JV theory options
-               ;;
-               ;; jv_theor__fit_je                         : 1, $
-               jv_theor__fit_both                          : 0, $
-               use_msph_sourcecone_for_dens                : [1,0,0], $
-               use_msph_sourcecone_for_temp                : [1,0,0], $
-               all_pitchAngles                             : 0, $
-               allPitch_except_atm_lc                      : 0, $
-               ;; jv_theor__initial_source_R_E             : 5.0D, $
-               jv_theor__initial_source__Polar             : 1, $
-               ;; jv_theor__initial_source__equator        : 0, $
-               ;; jv_theor__iterative_game                 : 0, $
-               ;; jv_theor__iterative_RBDens_game             : 1, $
-               ;; jv_theor__itergame_densFac                  : 3.0, $
-               jv_theor__itergame_tie_R_B_and_dens         : 1}
+
+               ;; jv_theor__fit_je         : 1, $
+               jv_theor__fit_both : 0, $
+               use_msph_sourcecone_for_dens : [1,0,0], $
+               use_msph_sourcecone_for_temp : [1,0,0], $
+               all_pitchAngles : 0, $
+               allPitch_except_atm_lc : 0, $
+               ;; jv_theor__initial_source_R_E : 5.0D, $
+               jv_theor__initial_source__Polar : 1, $
+               ;; jv_theor__initial_source__equator : 0, $
+               ;; jv_theor__iterative_game : 0, $
+               ;; jv_theor__itergame_NFac   : 3.0, $
+               jv_theor__itergame_tie_R_B_and_dens : 1}
 
   IF KEYWORD_SET(timeBars) AND KEYWORD_SET(cAP_struct) THEN IF (WHERE(TAG_NAMES(cAP_struct) EQ 'TRANGES'))[0] NE -1 THEN BEGIN
-     timeBars               = cAP_struct.tRanges
+     timeBars                  = cAP_struct.tRanges
   ENDIF
 
-  spectra_average_interval  = spectra_average_interval_list[evtNum]
+  spectra_average_interval = spectra_average_interval_list[evtNum]
 
-  show_post_plots           = 0
-  save_postKappa_plots      = 0
-  close_kp_after_save       = 0
+  show_post_plots      = 0
+  save_postKappa_plots = 0
+  close_kp_after_save  = 0
 
   ;; debug__skip_to_this_time     = 
   ;; debug__skip_to_this_time  = STR_TO_TIME('97-02-01/09:26:31')
   ;; debug__break_on_this_time = STR_TO_TIME('97-02-01/09:26:31')
 
-  ;;Orbit 1773
+  ;;Orbit 1764
   ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:26:14.2')
   ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:26:23.0')
   ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:27:01.2')
@@ -353,7 +378,7 @@ PRO JOURNAL__20170814__THE_CLASSICS_PLUSMINUS_CHARE__JIM_IDEA
                         ;; CURANDPOT_JV_THEOR__INITIAL_SOURCE__EQUATOR=cAP_jv_theor__initial_source__equator, $
                         ;; CURANDPOT_JV_THEOR__ITERATIVE_DENSITY_AND_R_B_GAME=cAP_jv_theor__iterative_game, $
                         ;; CURANDPOT_JV_THEOR__ITERATIVE_GAME__DENSITY_INCREASE=cAP_jv_theor__itergame_NFac, $
-                        ;; CURANDPOT_JV_THEOR__ITERATIVE_GAME__TIE_R_B_AND_DENS=cAP_jv_theor__itergame_tie_R_B_and_dens, $
+                        ;; CURANDPOT_JV_THEOR__ITERATIVE_GAME__TIE_RB_AND_DENS=cAP_jv_theor__itergame_tie_R_B_and_dens, $
                         ;; CURANDPOT__MAP__MULTI_MAGRATIO_ARRAY=cAP_map__multi_magRatio_array, $
                         ;; CURANDPOT__MAP__MULTI_KAPPA_ARRAY=cAP_map__multi_kappa_array, $
                         ;; CURANDPOT__MAP__2D=cAP_map__2D, $
@@ -361,4 +386,5 @@ PRO JOURNAL__20170814__THE_CLASSICS_PLUSMINUS_CHARE__JIM_IDEA
                         EPS=eps
   
 END
+
 
