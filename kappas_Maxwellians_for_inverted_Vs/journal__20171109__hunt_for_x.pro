@@ -18,14 +18,15 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   add_oneCount_curve                = 1
 
   fit1D__save_plotSlices            = 0
-  fit2D__save_all_plots             = 0
+  fit2D__save_all_plots             = 1
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
   fit2D__clampDensity               = 0
   fit2D__estimate_sourceCone_from_dist = 0B
-  fit2D__density_angleRange         = [-175,175]
+  fit2D__density_angleRange         = 'ALL__EXCL_ATM'
+  ;; fit2D__density_angleRange         = [-175,175]
 
   ;;PostScript options
   timeBars                 = 1
@@ -58,7 +59,7 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   ;; '0 :  orbit 1767' Dud? Maybe picked minE too high? (500eV)
   ;; '1 :  orbit 1764'
   ;; '2 :  orbit 1757'
-  evtNum               = 2
+  evtNum               = 3
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
@@ -98,12 +99,6 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   lowDens_thresh       = 0.05
   diffEflux_thresh     = 5e7
   nPkAbove_dEF_thresh  = 5
-
-  ;; IF orbit EQ 1773 THEN BEGIN
-
-     fit2D__density_angleRange = 'ALL__EXCL_ATM'
-
-  ;; ENDIF
 
   ;; IF orbit EQ 1789 THEN BEGIN
 
@@ -214,9 +209,9 @@ PRO JOURNAL__20171109__HUNT_FOR_X
                use_eu_current : 0, $
                use_mag_current : 0, $
                use_charE_for_downPot : 1, $
-               T_plusMinusFac_for_pot : -1L, $
+               T_plusMinusFac_for_pot : 0L, $
                use_peakE_for_downPot : 0B, $
-               add_iu_pot : 1, $
+               add_iu_pot : N_ELEMENTS(cAP__add_iu_pot) GT 0 ? (N_ELEMENTS(cAP__add_iu_pot[evtNum]) GT 0 ? cAP__add_iu_pot[evtNum] : 1) : 1, $
                tRanges : cAP_tRanges_list[evtNum], $
                ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
                moment_energyArr : [[energy_electrons],[energy_electrons],[100,2.4e4]], $
@@ -230,7 +225,7 @@ PRO JOURNAL__20171109__HUNT_FOR_X
                en_specs__movie : 0B, $
                jv_theor__R_B_init : 300, $
                jv_theor__kappa_init : 10, $
-               jv_theor__kappaLims  : [1.540,11], $
+               jv_theor__kappaLims  : [1.530,11], $
                ;; jv_theor__TempLims       : [0,0], $
                ;; jv_theor__DensLims      : [0,0], $
                ;; jv_theor__magRatioLims  : [2,100], $
