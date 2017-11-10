@@ -57,9 +57,13 @@ PRO JOURNAL__20171109__HUNT_FOR_X
 
   ;;Which totally classic event?
   ;; '0 :  orbit 1767' Dud? Maybe picked minE too high? (500eV)
-  ;; '1 :  orbit 1764'
-  ;; '2 :  orbit 1757'
-  evtNum               = 3
+  ;; '1 :  orbit 1764'   kappa >sim 2, so not amazing
+  ;; '2 :  orbit 1757'   Bonus!
+  ;; '3 :  orbit 1756'   Bonus!
+  ;; '4 :  orbit 1753'   Bonus!
+  ;; '5 :  orbit 3000SH' Looks like there's a bunch of EM-field nonsense happening during the period I thought was baller
+  ;; '6 :  orbit 3001'
+  evtNum               = 6
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
