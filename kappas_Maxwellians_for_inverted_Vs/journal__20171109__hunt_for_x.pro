@@ -17,8 +17,9 @@ PRO JOURNAL__20171109__HUNT_FOR_X
 
   add_oneCount_curve                = 1
 
-  fit1D__save_plotSlices            = 0
-  fit2D__save_all_plots             = 1
+  daPlots_cAP                       = 0
+  fit1D__save_plotSlices            = 1
+  fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
@@ -64,8 +65,11 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   ;; '5 :  orbit 3000SH' Looks like there's a bunch of EM-field nonsense happening during the period I thought was baller
   ;; '6 :  orbit 3001' Lower altitudes, like 1000 km
   ;; '7 :  orbit 8002' Bonus! (Back to high altitudes on nightside!)
-  ;; '8 :  orbit 8003' 
-  evtNum               = 8
+  ;; '8 :  orbit 8003' Bonus!
+  ;; '9 :  orbit 8004' Bonus!
+  ;; '10:  orbit 7998' Bonus!
+  ;; '11:  orbit 7995' Bonus!
+  evtNum               = 11
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
@@ -226,7 +230,7 @@ PRO JOURNAL__20171109__HUNT_FOR_X
                plot_T_and_N : 0B, $
                plot_j_v_and_theory : 0B, $
                plot_j_v__fixed_t_and_n : 0B, $
-               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : 1B, $
+               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : daPlots_cAP, $
                plot_en_specs : 0B, $
                en_specs__movie : 0B, $
                jv_theor__R_B_init : 300, $
