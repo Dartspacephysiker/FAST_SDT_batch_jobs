@@ -53,7 +53,7 @@ PRO JOURNAL__20171109__HUNT_FOR_X
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 0
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   ;;Which totally classic event?
   ;; '0 :  orbit 1767' Dud? Maybe picked minE too high? (500eV)
@@ -63,8 +63,9 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   ;; '4 :  orbit 1753'   Bonus!
   ;; '5 :  orbit 3000SH' Looks like there's a bunch of EM-field nonsense happening during the period I thought was baller
   ;; '6 :  orbit 3001' Lower altitudes, like 1000 km
-  ;; '7 :  orbit 8002' back to high altitudes on nightside!
-  evtNum               = 7
+  ;; '7 :  orbit 8002' Bonus! (Back to high altitudes on nightside!)
+  ;; '8 :  orbit 8003' 
+  evtNum               = 8
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
