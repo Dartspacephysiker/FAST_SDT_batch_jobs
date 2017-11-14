@@ -69,7 +69,7 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   ;; '9 :  orbit 8004' Bonus!
   ;; '10:  orbit 7998' Bonus!
   ;; '11:  orbit 7995' Bonus!
-  evtNum               = 0
+  evtNum               = 7
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0

@@ -584,7 +584,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      IF KEYWORD_SET(include_electron_pa_spec) THEN BEGIN
         var_name='Eesa_Angle'
         IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-           GET_PA_SPEC,'fa_' + eeb_or_ees + '_c',units='eflux',name=var_name, energy=[10.,30000.]
+           GET_PA_SPEC,'fa_' + eeb_or_ees + '_c',units='eflux',name=var_name, energy=[energy_electrons[0],30000.]
         ENDIF
         GET_DATA,var_name,DATA=data 
         IF KEYWORD_SET(save_for_offline) THEN BEGIN
@@ -599,7 +599,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
              (MIN(data.y[WHERE(FINITE(data.y))]) > 6 ), $
              (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
         ylim,var_name,0,360,0
-        OPTIONS,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
+        OPTIONS,var_name,'ytitle','Electrons > ' + STRING(FORMAT='F0.2',energy_electrons[0]/1000.) + ' eV!C!CAngle (Deg.)'
         OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
         OPTIONS,var_name,'x_no_interp',1
         OPTIONS,var_name,'y_no_interp',1

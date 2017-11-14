@@ -130,7 +130,7 @@ energy_electrons__recommande  = LIST([8D2,3.0D4], $
                                      [8D2,3.0D4], $
                                      [7D2,3.0D4], $
                                      [5D2,3.0D4], $
-                                     [4D2,3.0D4], $
+                                     [9D2,3.0D4], $ ;Orbit 8002
                                      [8D2,3.0D4], $
                                      [8D2,3.0D4], $
                                      [6D2,3.0D4], $
@@ -142,7 +142,7 @@ min_peak_energy_recommande    = LIST(800, $
                                      900, $
                                      800, $
                                      800, $
-                                     400, $
+                                     1000, $ ;Orbit 8002
                                      900, $
                                      900, $
                                      600, $
@@ -155,7 +155,8 @@ spectra_average_interval_list = LIST(eeb_or_ees__recommande[0] EQ 'eeb' ? 2 : 1,
                                      eeb_or_ees__recommande[4] EQ 'eeb' ? 5 : 3, $
                                      eeb_or_ees__recommande[5] EQ 'eeb' ? 5 : 2, $
                                      eeb_or_ees__recommande[6] EQ 'eeb' ? 5 : 2, $
-                                     eeb_or_ees__recommande[7] EQ 'eeb' ? 5 : 2, $
+                                     ;; eeb_or_ees__recommande[7] EQ 'eeb' ? 5 : 2, $
+                                     eeb_or_ees__recommande[7] EQ 'eeb' ? 10 : 2, $
                                      eeb_or_ees__recommande[8] EQ 'eeb' ? 5 : 2, $
                                      eeb_or_ees__recommande[9] EQ 'eeb' ? 5 : 2, $
                                      eeb_or_ees__recommande[10] EQ 'eeb' ? 12 : 2, $
