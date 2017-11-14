@@ -69,7 +69,7 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   ;; '9 :  orbit 8004' Bonus!
   ;; '10:  orbit 7998' Bonus!
   ;; '11:  orbit 7995' Bonus!
-  evtNum               = 11
+  evtNum               = 0
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
@@ -165,6 +165,51 @@ PRO JOURNAL__20171109__HUNT_FOR_X
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1
+  cAP_struct = { $
+               remake_masterFile : 1B, $
+               map_to_100km : 1, $
+               use_all_currents : 0, $
+               use_ed_current : 1, $
+               use_iu_current : 0, $
+               use_eu_current : 0, $
+               use_mag_current : 0, $
+               use_charE_for_downPot : 1, $
+               T_plusMinusFac_for_pot : 0L, $
+               use_peakE_for_downPot : 0B, $
+               add_iu_pot : N_ELEMENTS(cAP__add_iu_pot) GT 0 ? (N_ELEMENTS(cAP__add_iu_pot[evtNum]) GT 0 ? cAP__add_iu_pot[evtNum] : 1) : 1, $
+               tRanges : cAP_tRanges_list[evtNum], $
+               ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
+               moment_energyArr : [[energy_electrons],[energy_electrons],[100,2.4e4]], $
+               plot_j_v_potBar : 0B, $
+               plot_jv_a_la_Elphic : 0B, $
+               plot_T_and_N : 0B, $
+               plot_j_v_and_theory : 0B, $
+               plot_j_v__fixed_t_and_n : 0B, $
+               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : daPlots_cAP, $
+               plot_en_specs : 0B, $
+               en_specs__movie : 0B, $
+               jv_theor__R_B_init : 300, $
+               jv_theor__kappa_init : 10, $
+               jv_theor__kappaLims  : [1.530,11], $
+               ;; jv_theor__TempLims       : [0,0], $
+               ;; jv_theor__DensLims      : [0,0], $
+               ;; jv_theor__magRatioLims  : [2,100], $
+
+               ;;JV theory options
+
+               ;; jv_theor__fit_je         : 1, $
+               jv_theor__fit_both : 0, $
+               use_msph_sourcecone_for_dens : [1,0,0], $
+               use_msph_sourcecone_for_temp : [1,0,0], $
+               all_pitchAngles : 0, $
+               allPitch_except_atm_lc : 0, $
+               ;; jv_theor__initial_source_R_E : 5.0D, $
+               jv_theor__initial_source__Polar : 1, $
+               ;; jv_theor__initial_source__equator : 0, $
+               ;; jv_theor__iterative_game : 0, $
+               ;; jv_theor__itergame_NFac   : 3.0, $
+               jv_theor__itergame_tie_R_B_and_dens : 1}
+
   ;; cAP_remake_masterFile     = 0
   ;; cAP_map_to_100km          = 1
   ;; cAP_use_all_currents      = 0
@@ -210,50 +255,6 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   ;; ;; cAP_jv_theor__itergame_NFac   = 3.0
   ;; cAP_jv_theor__itergame_tie_R_B_and_dens = 1
 
-  cAP_struct = { $
-               remake_masterFile : 1B, $
-               map_to_100km : 1, $
-               use_all_currents : 0, $
-               use_ed_current : 1, $
-               use_iu_current : 0, $
-               use_eu_current : 0, $
-               use_mag_current : 0, $
-               use_charE_for_downPot : 1, $
-               T_plusMinusFac_for_pot : 0L, $
-               use_peakE_for_downPot : 0B, $
-               add_iu_pot : N_ELEMENTS(cAP__add_iu_pot) GT 0 ? (N_ELEMENTS(cAP__add_iu_pot[evtNum]) GT 0 ? cAP__add_iu_pot[evtNum] : 1) : 1, $
-               tRanges : cAP_tRanges_list[evtNum], $
-               ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
-               moment_energyArr : [[energy_electrons],[energy_electrons],[100,2.4e4]], $
-               plot_j_v_potBar : 0B, $
-               plot_jv_a_la_Elphic : 0B, $
-               plot_T_and_N : 0B, $
-               plot_j_v_and_theory : 0B, $
-               plot_j_v__fixed_t_and_n : 0B, $
-               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : daPlots_cAP, $
-               plot_en_specs : 0B, $
-               en_specs__movie : 0B, $
-               jv_theor__R_B_init : 300, $
-               jv_theor__kappa_init : 10, $
-               jv_theor__kappaLims  : [1.530,11], $
-               ;; jv_theor__TempLims       : [0,0], $
-               ;; jv_theor__DensLims      : [0,0], $
-               ;; jv_theor__magRatioLims  : [2,100], $
-
-               ;;JV theory options
-
-               ;; jv_theor__fit_je         : 1, $
-               jv_theor__fit_both : 0, $
-               use_msph_sourcecone_for_dens : [1,0,0], $
-               use_msph_sourcecone_for_temp : [1,0,0], $
-               all_pitchAngles : 0, $
-               allPitch_except_atm_lc : 0, $
-               ;; jv_theor__initial_source_R_E : 5.0D, $
-               jv_theor__initial_source__Polar : 1, $
-               ;; jv_theor__initial_source__equator : 0, $
-               ;; jv_theor__iterative_game : 0, $
-               ;; jv_theor__itergame_NFac   : 3.0, $
-               jv_theor__itergame_tie_R_B_and_dens : 1}
 
   IF KEYWORD_SET(timeBars) AND KEYWORD_SET(cAP_struct) THEN IF (WHERE(TAG_NAMES(cAP_struct) EQ 'TRANGES'))[0] NE -1 THEN BEGIN
      timeBars                  = cAP_struct.tRanges

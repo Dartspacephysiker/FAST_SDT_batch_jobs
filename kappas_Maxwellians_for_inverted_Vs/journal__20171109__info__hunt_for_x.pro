@@ -96,8 +96,8 @@ cAP_tRanges_list              = LIST($
                                 ;;
                                 ;;Number 0
                                 '1997-01-31/' + $
-                                ['20:49:50', $
-                                 '20:50:11'], $
+                                ['20:08:30', $
+                                 '20:10:10'], $
                                 '1997-01-31/' + ['13:30:43','13:31:10'], $
                                 '1997-01-30/' + ['21:56:05','21:56:21'], $
                                 '1997-01-30/' + ['19:57:22','19:57:28'], $
@@ -123,7 +123,7 @@ eeb_or_ees__recommande        = LIST('ees', $
                                      'eeb', $
                                      'eeb')
 
-energy_electrons__recommande  = LIST([5D2,3.0D4], $
+energy_electrons__recommande  = LIST([8D2,3.0D4], $
                                      [6D2,3.0D4], $
                                      [9D2,3.0D4], $
                                      [5D2,3.0D4], $
@@ -135,7 +135,7 @@ energy_electrons__recommande  = LIST([5D2,3.0D4], $
                                      [8D2,3.0D4], $
                                      [6D2,3.0D4], $
                                      [1D3,3.0D4])
-min_peak_energy_recommande    = LIST(500, $
+min_peak_energy_recommande    = LIST(800, $
                                      700, $
                                      1D3, $
                                      700, $
@@ -148,7 +148,7 @@ min_peak_energy_recommande    = LIST(500, $
                                      600, $
                                      1000)
 
-spectra_average_interval_list = LIST(eeb_or_ees__recommande[0] EQ 'eeb' ? 2 : 2, $
+spectra_average_interval_list = LIST(eeb_or_ees__recommande[0] EQ 'eeb' ? 2 : 1, $
                                      eeb_or_ees__recommande[1] EQ 'eeb' ? 5 : 2, $
                                      eeb_or_ees__recommande[2] EQ 'eeb' ? 5 : 2, $
                                      eeb_or_ees__recommande[3] EQ 'eeb' ? 5 : 3, $
