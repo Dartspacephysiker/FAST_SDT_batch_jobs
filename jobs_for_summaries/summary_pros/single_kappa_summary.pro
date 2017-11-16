@@ -360,6 +360,13 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
               WINDOW,0,XSIZE=600,YSIZE=800
            ENDELSE
 
+           ;; some starteruppers
+           IF KEYWORD_SET(screen_plot) AND ~(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) THEN BEGIN
+              DEVICE,PSEUDO_COLOR=8 ;fixes color table problem for machines with 24-bit color
+              LOADCT2,39
+           ENDIF ELSE LOADCT2,39 ; rainbow color map
+
+
         ENDELSE
 
      ENDIF
@@ -553,7 +560,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
            if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
 
            if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-              loadct2,40
+              ;; loadct2,40
               tplot,tPlt_vars,var=['ALT','ILAT','MLT']
            endif
 
@@ -595,11 +602,14 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         STORE_DATA,var_name,DATA=data
         OPTIONS,var_name,'spec',1
         ;; zlim,var_name,4,9,0
+        ;; zlim,var_name, $
+        ;;      (MIN(data.y[WHERE(FINITE(data.y))]) > 1.D6 ), $
+        ;;      (MAX(data.y[WHERE(FINITE(data.y))]) < 1.D9),1
         zlim,var_name, $
-             (MIN(data.y[WHERE(FINITE(data.y))]) > 6 ), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
+             (MIN(data.y[WHERE(FINITE(data.y))]) > 6. ), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < 9.),0
         ylim,var_name,0,360,0
-        OPTIONS,var_name,'ytitle','Electrons > ' + STRING(FORMAT='(F0.2)',energy_electrons[0]/1000.) + ' keV!C!CAngle (Deg.)'
+        OPTIONS,var_name,'ytitle','Electrons > ' + STRING(FORMAT='(F0.1)',energy_electrons[0]/1000.) + ' keV!C!CAngle (Deg.)'
         OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
         OPTIONS,var_name,'x_no_interp',1
         OPTIONS,var_name,'y_no_interp',1
@@ -642,7 +652,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
            endif
 
            if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-              LOADCT2,40
+              ;; LOADCT2,40
               TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
            endif
         ENDIF
@@ -665,13 +675,13 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         ENDIF
         data.y = ALOG10(data.y)
         STORE_DATA,var_name,DATA=data
-        OPTIONS,var_name,'spec',1	
+        OPTIONS,var_name,'spec',1
         ;; zlim,var_name,4,9,0
         ZLIM,var_name, $
-             (MIN(data.y[WHERE(FINITE(data.y))]) > 6), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
+             (MIN(data.y[WHERE(FINITE(data.y))]) > 6.), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < 9.),0
         ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-        YLIM,var_name,5,30000,1
+        YLIM,var_name,5.,30000.,1
         OPTIONS,var_name,'ytitle','Electrons!C!CEnergy (eV)'
         OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
         OPTIONS,var_name,'x_no_interp',1
@@ -695,7 +705,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         IF (N_ELEMENTS(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
 
         if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN 
-           LOADCT2,40
+           ;; LOADCT2,40
            TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
         endif
 
@@ -865,7 +875,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['charepanel'] else tPlt_vars=[tPlt_vars,'charepanel']
 
      if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-        loadct2,40
+        ;; loadct2,40
         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
@@ -916,7 +926,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['kappa_fit'] else tPlt_vars=[tPlt_vars,'kappa_fit']
 
   if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-     loadct2,40
+     ;; loadct2,40
      tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM=BRO
   endif
@@ -960,7 +970,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['chi22DK'] else tPlt_vars=[tPlt_vars,'chi22DK']
 
   if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-     loadct2,40
+     ;; loadct2,40
      tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;,PSYM=BRO
      TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
@@ -1016,7 +1026,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['Temp2DK'] else tPlt_vars=[tPlt_vars,'Temp2DK']
 
   if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-     loadct2,40
+     ;; loadct2,40
      tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;PSYM=BRO
      TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
@@ -1063,7 +1073,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['Dens2DK'] else tPlt_vars=[tPlt_vars,'Dens2DK']
 
   if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-     loadct2,40
+     ;; loadct2,40
      tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;PSYM=BRO
      TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
@@ -1102,7 +1112,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['BlkE2DK'] else tPlt_vars=[tPlt_vars,'BlkE2DK']
 
      if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-        loadct2,40
+        ;; loadct2,40
         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         TPLOT_PANEL,VARIABLE='kappa_fit',OPLOTVAR='kappa_critisk' ;PSYM=BRO
         TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
@@ -1330,7 +1340,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['onecheese'] else tPlt_vars=[tPlt_vars,'onecheese']
 
      IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
-        LOADCT2,40
+        ;; LOADCT2,40
         TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM=NO
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings',PSYM=kappaSym
@@ -1418,7 +1428,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
 
      if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-        loadct2,40
+        ;; loadct2,40
         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
@@ -1436,7 +1446,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
 
-     LOADCT2,40
+     ;; LOADCT2,40
      TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
 
      ;; IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
@@ -1475,7 +1485,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         END
      ENDCASE
 
-     LOADCT2,40
+     ;; LOADCT2,40
      TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
 
      ;; IF KEYWORD_SET(add_kappa_panel) THEN BEGIN

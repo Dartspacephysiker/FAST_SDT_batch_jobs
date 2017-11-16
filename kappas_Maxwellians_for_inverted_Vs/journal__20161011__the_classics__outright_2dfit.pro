@@ -17,9 +17,9 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   add_oneCount_curve                = 1
 
-  fit1D__save_plotSlices            = 0
-  fit2D__save_all_plots             = 0
-  fit2D__show_each_candidate        = 0
+  fit1D__save_plotSlices            = 1
+  fit2D__save_all_plots             = 1
+  fit2D__show_each_candidate        = 1
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
@@ -51,8 +51,8 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   kStats__save_stuff   = 1
 
   save_diff_eFlux_file = 1
-  load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  load_diff_eFlux_file = 0
+  restore_fitFile      = 0
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998'
@@ -214,7 +214,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; cAP_jv_theor__itergame_tie_R_B_and_dens = 1
 
   cAP_struct = { $
-               remake_masterFile : 0B, $
+               remake_masterFile : 1B, $
                map_to_100km : 1, $
                use_all_currents : 0, $
                use_ed_current : 1, $
@@ -222,7 +222,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                use_eu_current : 0, $
                use_mag_current : 0, $
                use_charE_for_downPot : 1, $
-               T_plusMinusFac_for_pot : -1L, $
+               T_plusMinusFac_for_pot : 0L, $
                use_peakE_for_downPot : 0B, $
                add_iu_pot : 1, $
                tRanges : cAP_tRanges_list[evtNum], $
@@ -248,7 +248,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                ;; jv_theor__fit_je         : 1, $
                jv_theor__fit_both : 0, $
                use_msph_sourcecone_for_dens : [1,0,0], $
-               use_msph_sourcecone_for_temp : [1,0,0], $
+               use_msph_sourcecone_for_temp : [0,0,0], $
                all_pitchAngles : 0, $
                allPitch_except_atm_lc : 0, $
                ;; jv_theor__initial_source_R_E : 5.0D, $

@@ -144,8 +144,8 @@ cAP_tRanges_list              = LIST($
 
 eeb_or_ees__recommande        = LIST('ees','eeb','ees','ees')
 
-energy_electrons__recommande  = LIST([5D2,3.15D4],[5D2,3.15D4],[2D2,3.15D4],[3D2,3.15D4])
-min_peak_energy_recommande    = LIST(500,1D3,500,MIN(energy_electrons__recommande[3]))
+energy_electrons__recommande  = LIST([5D2,3.01D4],[5D2,3.01D4],[3D2,3.01D4],[3D2,3.01D4])
+min_peak_energy_recommande    = LIST(500,1D3,600,MIN(energy_electrons__recommande[3]))
 
 ;; spectra_average_interval_list = LIST(4,!NULL,2)
 spectra_average_interval_list = LIST(2, $
