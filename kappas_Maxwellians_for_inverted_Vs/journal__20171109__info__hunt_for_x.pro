@@ -123,18 +123,18 @@ eeb_or_ees__recommande        = LIST('ees', $
                                      'eeb', $
                                      'eeb')
 
-energy_electrons__recommande  = LIST([8D2,3.0D4], $
-                                     [6D2,3.0D4], $
-                                     [9D2,3.0D4], $
-                                     [5D2,3.0D4], $
-                                     [8D2,3.0D4], $
-                                     [7D2,3.0D4], $
-                                     [5D2,3.0D4], $
-                                     [9D2,3.0D4], $ ;Orbit 8002
-                                     [8D2,3.0D4], $
-                                     [8D2,3.0D4], $
-                                     [6D2,3.0D4], $
-                                     [1D3,3.0D4])
+energy_electrons__recommande  = LIST([8D2,3.01D4], $
+                                     [6D2,3.01D4], $
+                                     [9D2,3.01D4], $
+                                     [5D2,3.01D4], $
+                                     [8D2,3.01D4], $
+                                     [7D2,3.01D4], $
+                                     [5D2,3.01D4], $
+                                     [9D2,3.01D4], $ ;Orbit 8002
+                                     [8D2,3.01D4], $
+                                     [8D2,3.01D4], $
+                                     [6D2,3.01D4], $
+                                     [1D3,3.01D4])
 min_peak_energy_recommande    = LIST(800, $
                                      700, $
                                      1D3, $
@@ -150,7 +150,7 @@ min_peak_energy_recommande    = LIST(800, $
 
 spectra_average_interval_list = LIST(eeb_or_ees__recommande[0] EQ 'eeb' ? 2 : 1, $
                                      eeb_or_ees__recommande[1] EQ 'eeb' ? 5 : 2, $
-                                     eeb_or_ees__recommande[2] EQ 'eeb' ? 5 : 2, $
+                                     eeb_or_ees__recommande[2] EQ 'eeb' ? 3 : 2, $
                                      eeb_or_ees__recommande[3] EQ 'eeb' ? 5 : 3, $
                                      eeb_or_ees__recommande[4] EQ 'eeb' ? 5 : 3, $
                                      eeb_or_ees__recommande[5] EQ 'eeb' ? 5 : 2, $

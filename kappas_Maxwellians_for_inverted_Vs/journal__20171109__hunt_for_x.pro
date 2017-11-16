@@ -69,7 +69,7 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   ;; '9 :  orbit 8004' Bonus!
   ;; '10:  orbit 7998' Bonus!
   ;; '11:  orbit 7995' Bonus!
-  evtNum               = 7
+  evtNum               = 2
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
@@ -78,7 +78,7 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   electron_angleRange  = 'lc'
   energy_electrons     = N_ELEMENTS(energy_electrons__recommande[evtNum]) GT 0 ? $
                          energy_electrons__recommande[evtNum]          : $
-                         [3e1,3.1e4]
+                         [3e1,3.01e4]
   min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : $
                          (N_ELEMENTS(min_peak_energy_recommande[evtNum]) GT 0 ? $
                           min_peak_energy_recommande[evtNum] : 500)
@@ -107,7 +107,7 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   ;; chi2_thresh          = 1.5e4
   chi2_over_dof_thresh = 25
   lowDens_thresh       = 0.05
-  diffEflux_thresh     = 5e7
+  diffEflux_thresh     = 3e7
   nPkAbove_dEF_thresh  = 5
 
   ;; IF orbit EQ 1789 THEN BEGIN
@@ -200,7 +200,7 @@ PRO JOURNAL__20171109__HUNT_FOR_X
                ;; jv_theor__fit_je         : 1, $
                jv_theor__fit_both : 0, $
                use_msph_sourcecone_for_dens : [1,0,0], $
-               use_msph_sourcecone_for_temp : [1,0,0], $
+               use_msph_sourcecone_for_temp : [0,0,0], $
                all_pitchAngles : 0, $
                allPitch_except_atm_lc : 0, $
                ;; jv_theor__initial_source_R_E : 5.0D, $
