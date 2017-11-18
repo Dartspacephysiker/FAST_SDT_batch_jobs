@@ -18,7 +18,7 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   add_oneCount_curve                = 1
 
   daPlots_cAP                       = 0
-  fit1D__save_plotSlices            = 1
+  fit1D__save_plotSlices            = 0
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
@@ -69,7 +69,10 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   ;; '9 :  orbit 8004' Bonus!
   ;; '10:  orbit 7998' Bonus!
   ;; '11:  orbit 7995' Bonus!
-  evtNum               = 2
+  ;; '12:  orbit 7994' Not bonus …
+  ;; '13:  orbit 7991' 
+  ;; '14:  orbit 7990' 
+  evtNum               = 12
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
