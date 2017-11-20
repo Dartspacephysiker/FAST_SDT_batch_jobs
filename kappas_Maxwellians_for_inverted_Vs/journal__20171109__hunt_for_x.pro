@@ -70,9 +70,9 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   ;; '10:  orbit 7998' Bonus!
   ;; '11:  orbit 7995' Bonus!
   ;; '12:  orbit 7994' Not bonus …
-  ;; '13:  orbit 7991' 
-  ;; '14:  orbit 7990' 
-  evtNum               = 13
+  ;; '13:  orbit 7991' Semi-bonus; marginal at best on arc edges, but meets criteria
+  ;; '14:  orbit 7990' Bonus!
+  evtNum               = 12
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
@@ -212,6 +212,11 @@ PRO JOURNAL__20171109__HUNT_FOR_X
                ;; jv_theor__iterative_game : 0, $
                ;; jv_theor__itergame_NFac   : 3.0, $
                jv_theor__itergame_tie_R_B_and_dens : 1}
+
+  IF orbit EQ 7990 THEN BEGIN
+     cAP_struct.use_msph_sourcecone_for_temp[0] = 1B
+     chi2_over_dof_thresh = 40
+  ENDIF
 
   ;; cAP_remake_masterFile     = 0
   ;; cAP_map_to_100km          = 1
