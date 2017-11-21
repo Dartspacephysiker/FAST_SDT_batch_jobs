@@ -278,11 +278,6 @@ PRO JOURNAL__20171109__HUNT_FOR_X
   ;; debug__skip_to_this_time  = STR_TO_TIME('97-02-01/09:26:31')
   ;; debug__break_on_this_time = STR_TO_TIME('97-02-01/09:26:31')
 
-  ;;Orbit 1764
-  ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:26:14.2')
-  ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:26:23.0')
-  ;; debug__skip_to_this_time = STR_TO_TIME('1997-02-01/09:27:01.2')
-  
   KAPPA_FITTER_BLACKBOX,orbit, $
                         ELECTRON_SOURCECONEANGLE=electron_angleRange, $
                         ;; ELECTRON_LOSSCONEANGLE=electron_lca, $
@@ -355,47 +350,6 @@ PRO JOURNAL__20171109__HUNT_FOR_X
                         ORIGINATING_ROUTINE=routName, $
                         CURANDPOT_ANALYSIS=curAndPot_analysis, $
                         CAP_STRUCT=cAP_struct, $
-                        ;; CURANDPOT_TRANGES=cAP_tRanges, $
-                        ;; CURANDPOT_MOMENT_ENERGYARR=cAP_moment_energyArr, $
-                        ;; CURANDPOT_REMAKE_MASTERFILE=cAP_remake_masterFile, $
-                        ;; CURANDPOT_MAP_TO_100KM=cAP_map_to_100km, $
-                        ;; CURANDPOT_USE_ALL_CURRENTS=cAP_use_all_currents, $
-                        ;; CURANDPOT_USE_DOWNGOING_ELECTRON_CURRENT=cAP_use_ed_current, $
-                        ;; CURANDPOT_USE_UPGOING_ION_CURRENT=cAP_use_iu_current, $
-                        ;; CURANDPOT_USE_UPGOING_ELECTRON_CURRENT=cAP_use_eu_current, $
-                        ;; CURANDPOT_USE_MAGNETOMETER_CURRENT=cAP_use_mag_current, $
-                        ;; CURANDPOT_USE_CHAR_EN_FOR_DOWNPOT=cAP_use_charE_for_downPot, $
-                        ;; CURANDPOT_USE_PEAK_EN_FOR_DOWNPOT=cAP_use_peakE_for_downPot, $
-                        ;; CURANDPOT_ADD_UPGOING_ION_POT=cAP_add_iu_pot, $
-                        ;; CURANDPOT_PLOT_J_V_POTBAR=cAP_plot_j_v_potBar, $
-                        ;; CURANDPOT_PLOT_JV_A_LA_ELPHIC=cAP_plot_jv_a_la_Elphic, $
-                        ;; CURANDPOT_PLOT_T_AND_N=cAP_plot_T_and_N, $
-                        ;; CURANDPOT_PLOT_J_V_AND_THEORY=cAP_plot_j_v_and_theory, $
-                        ;; CURANDPOT_PLOT_J_V__FIXED_T_AND_N=cAP_plot_j_v__fixed_t_and_n, $
-                        ;; CURANDPOT_PLOT_J_V_MAP__R_B_AND_KAPPA__FIXED_T_AND_N=cAP_plot_j_v_map__r_b_and_kappa__fixed_t_and_n, $
-                        ;; CURANDPOT_PLOT_EN_SPECS=cAP_plot_en_specs, $
-                        ;; CURANDPOT_EN_SPECS__MOVIE=cAP_en_specs__movie, $
-                        ;; CURANDPOT_JV_THEOR__R_B_INIT=cAP_jv_theor__R_B_init, $
-                        ;; CURANDPOT_JV_THEOR__KAPPA_INIT=cAP_jv_theor__kappa_init, $
-                        ;; CURANDPOT_JV_THEOR__KAPPALIMS=cAP_jv_theor__kappaLims, $   
-                        ;; CURANDPOT_JV_THEOR__TEMPLIMS=cAP_jv_theor__TempLims, $    
-                        ;; CURANDPOT_JV_THEOR__DENSLIMS=cAP_jv_theor__DensLims, $    
-                        ;; CURANDPOT_JV_THEOR__MAGRATIOLIMS=cAP_jv_theor__magRatioLims, $
-                        ;; CURANDPOT_JV_THEOR__FIT_JE=cAP_jv_theor__fit_je, $
-                        ;; CURANDPOT_JV_THEOR__FIT_BOTH=cAP_jv_theor__fit_both, $
-                        ;; CURANDPOT_USE_MSPH_SOURCECONE_FOR_DENS=cAP_use_msph_sourcecone_for_dens, $
-                        ;; CURANDPOT_USE_MSPH_SOURCECONE_FOR_TEMP=cAP_use_msph_sourcecone_for_temp, $
-                        ;; CURANDPOT_ALL_PITCHANGLES=cAP_all_pitchAngles, $
-                        ;; CURANDPOT_ALLPITCH_EXCEPT_ATM_LC=cAP_allPitch_except_atm_lc, $
-                        ;; CURANDPOT_JV_THEOR__INITIAL_SOURCE_R_E=cAP_jv_theor__initial_source_R_E, $
-                        ;; CURANDPOT_JV_THEOR__INITIAL_SOURCE__POLARSAT=cAP_jv_theor__initial_source__Polar, $
-                        ;; CURANDPOT_JV_THEOR__INITIAL_SOURCE__EQUATOR=cAP_jv_theor__initial_source__equator, $
-                        ;; CURANDPOT_JV_THEOR__ITERATIVE_DENSITY_AND_R_B_GAME=cAP_jv_theor__iterative_game, $
-                        ;; CURANDPOT_JV_THEOR__ITERATIVE_GAME__DENSITY_INCREASE=cAP_jv_theor__itergame_NFac, $
-                        ;; CURANDPOT_JV_THEOR__ITERATIVE_GAME__TIE_RB_AND_DENS=cAP_jv_theor__itergame_tie_R_B_and_dens, $
-                        ;; CURANDPOT__MAP__MULTI_MAGRATIO_ARRAY=cAP_map__multi_magRatio_array, $
-                        ;; CURANDPOT__MAP__MULTI_KAPPA_ARRAY=cAP_map__multi_kappa_array, $
-                        ;; CURANDPOT__MAP__2D=cAP_map__2D, $
                         TIMEBARS=timeBars, $
                         EPS=eps
   

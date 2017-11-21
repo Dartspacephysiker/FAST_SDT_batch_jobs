@@ -17,22 +17,24 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   add_oneCount_curve                = 1
 
+  daPlots_cAP                       = 0
   fit1D__save_plotSlices            = 1
-  fit2D__save_all_plots             = 1
-  fit2D__show_each_candidate        = 1
+  fit2D__save_all_plots             = 0
+  fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
   fit2D__clampDensity               = 0
   fit2D__estimate_sourceCone_from_dist = 0B
-  fit2D__density_angleRange         = [-175,175]
+  fit2D__density_angleRange         = 'ALL__EXCL_ATM'
+  ;; fit2D__density_angleRange         = [-175,175]
 
   ;;PostScript options
   timeBars                 = 1
 
   eps                      = 1
 
-  show_Strangeway_summary  = 0
+  show_Strangeway_summary  = 1
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
@@ -55,11 +57,11 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   restore_fitFile      = 0
 
   ;;Which totally classic event?
-  ;; '0 :  Ergun_et_al_1998'
-  ;; '1 :  McFadden_et_al_1998'
-  ;; '2 :  Elphic_et_al_1998'
-  ;; '3 :  Carlson_et_al_2001'
-  evtNum               = 2
+  ;; '0 :  Ergun_et_al_1998' --- 1843
+  ;; '1 :  McFadden_et_al_1998' --- 1849
+  ;; '2 :  Elphic_et_al_1998' --- 1773
+  ;; '3 :  Carlson_et_al_2001' --- 1789
+  evtNum               = 3
 
   ;;2017/03/22
   ;; evtNum               = 3
@@ -103,7 +105,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; chi2_thresh          = 1.5e4
   chi2_over_dof_thresh = 25
   lowDens_thresh       = 0.05
-  diffEflux_thresh     = 5e7
+  diffEflux_thresh     = 3e7
   nPkAbove_dEF_thresh  = 5
 
   IF orbit EQ 1773 THEN BEGIN
@@ -120,9 +122,9 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
      min_peak_energy   = 800
      ;; energy_electrons  = [0,3.0e4]
 
-     fit2D__density_angleRange = [-145,145]
+     ;; fit2D__density_angleRange = [-145,145]
 
-     energy_electrons          = [7e2,3.15e4]
+     ;; energy_electrons          = [7e2,3.15e4]
 
      IF N_ELEMENTS(burstItvl) GT 0 AND (STRUPCASE(eeb_or_ees) EQ 'EEB') THEN BEGIN
         IF burstItvl EQ 1 THEN BEGIN ;Carlson et al. [1998] state that this interval is cold electron–free
@@ -132,13 +134,13 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
         ENDIF
      ENDIF
      
-     t1Str = '97-02-02/21:01:55'
-     t2Str = '97-02-02/21:02:20'
+     ;; t1Str = '97-02-02/21:01:55'
+     ;; t2Str = '97-02-02/21:02:20'
 
-     chi2_over_dof_thresh = 50
-     lowDens_thresh       = 0.002
-     diffEflux_thresh     = 1e7
-     nPkAbove_dEF_thresh  = 5
+     ;; chi2_over_dof_thresh = 50
+     ;; lowDens_thresh       = 0.002
+     ;; diffEflux_thresh     = 1e7
+     ;; nPkAbove_dEF_thresh  = 5
 
   ENDIF
 
@@ -168,6 +170,52 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1
+
+  cAP_struct = { $
+               remake_masterFile : 1B, $
+               map_to_100km : 1, $
+               use_all_currents : 0, $
+               use_ed_current : 1, $
+               use_iu_current : 0, $
+               use_eu_current : 0, $
+               use_mag_current : 0, $
+               use_charE_for_downPot : 1, $
+               T_plusMinusFac_for_pot : 0L, $
+               use_peakE_for_downPot : 0B, $
+               add_iu_pot : N_ELEMENTS(cAP__add_iu_pot) GT 0 ? (N_ELEMENTS(cAP__add_iu_pot[evtNum]) GT 0 ? cAP__add_iu_pot[evtNum] : 1) :1, $
+               tRanges : cAP_tRanges_list[evtNum], $
+               ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
+               moment_energyArr : [[energy_electrons],[energy_electrons],[100,2.4e4]], $
+               plot_j_v_potBar : 0B, $
+               plot_jv_a_la_Elphic : 0B, $
+               plot_T_and_N : 0B, $
+               plot_j_v_and_theory : 0B, $
+               plot_j_v__fixed_t_and_n : 0B, $
+               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : daPlots_cAP, $
+               plot_en_specs : 0B, $
+               en_specs__movie : 0B, $
+               jv_theor__R_B_init : 300, $
+               jv_theor__kappa_init : 10, $
+               jv_theor__kappaLims  : [1.530,11], $
+               ;; jv_theor__TempLims       : [0,0], $
+               ;; jv_theor__DensLims      : [0,0], $
+               ;; jv_theor__magRatioLims  : [2,100], $
+
+               ;;JV theory options
+
+               ;; jv_theor__fit_je         : 1, $
+               jv_theor__fit_both : 0, $
+               use_msph_sourcecone_for_dens : [1,0,0], $
+               use_msph_sourcecone_for_temp : [0,0,0], $
+               all_pitchAngles : 0, $
+               allPitch_except_atm_lc : 0, $
+               ;; jv_theor__initial_source_R_E : 5.0D, $
+               jv_theor__initial_source__Polar : 1, $
+               ;; jv_theor__initial_source__equator : 0, $
+               ;; jv_theor__iterative_game : 0, $
+               ;; jv_theor__itergame_NFac   : 3.0, $
+               jv_theor__itergame_tie_R_B_and_dens : 1}
+
   ;; cAP_remake_masterFile     = 0
   ;; cAP_map_to_100km          = 1
   ;; cAP_use_all_currents      = 0
@@ -213,50 +261,6 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
   ;; ;; cAP_jv_theor__itergame_NFac   = 3.0
   ;; cAP_jv_theor__itergame_tie_R_B_and_dens = 1
 
-  cAP_struct = { $
-               remake_masterFile : 1B, $
-               map_to_100km : 1, $
-               use_all_currents : 0, $
-               use_ed_current : 1, $
-               use_iu_current : 0, $
-               use_eu_current : 0, $
-               use_mag_current : 0, $
-               use_charE_for_downPot : 1, $
-               T_plusMinusFac_for_pot : 0L, $
-               use_peakE_for_downPot : 0B, $
-               add_iu_pot : 1, $
-               tRanges : cAP_tRanges_list[evtNum], $
-               ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
-               moment_energyArr : [[energy_electrons],[energy_electrons],[100,2.4e4]], $
-               plot_j_v_potBar : 0B, $
-               plot_jv_a_la_Elphic : 0B, $
-               plot_T_and_N : 0B, $
-               plot_j_v_and_theory : 0B, $
-               plot_j_v__fixed_t_and_n : 0B, $
-               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : 1B, $
-               plot_en_specs : 0B, $
-               en_specs__movie : 0B, $
-               jv_theor__R_B_init : 300, $
-               jv_theor__kappa_init : 10, $
-               jv_theor__kappaLims  : [1.540,11], $
-               ;; jv_theor__TempLims       : [0,0], $
-               ;; jv_theor__DensLims      : [0,0], $
-               ;; jv_theor__magRatioLims  : [2,100], $
-
-               ;;JV theory options
-
-               ;; jv_theor__fit_je         : 1, $
-               jv_theor__fit_both : 0, $
-               use_msph_sourcecone_for_dens : [1,0,0], $
-               use_msph_sourcecone_for_temp : [0,0,0], $
-               all_pitchAngles : 0, $
-               allPitch_except_atm_lc : 0, $
-               ;; jv_theor__initial_source_R_E : 5.0D, $
-               jv_theor__initial_source__Polar : 1, $
-               ;; jv_theor__initial_source__equator : 0, $
-               ;; jv_theor__iterative_game : 0, $
-               ;; jv_theor__itergame_NFac   : 3.0, $
-               jv_theor__itergame_tie_R_B_and_dens : 1}
 
   IF KEYWORD_SET(timeBars) AND KEYWORD_SET(cAP_struct) THEN IF (WHERE(TAG_NAMES(cAP_struct) EQ 'TRANGES'))[0] NE -1 THEN BEGIN
      timeBars                  = cAP_struct.tRanges
@@ -349,47 +353,6 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
                         ORIGINATING_ROUTINE=routName, $
                         CURANDPOT_ANALYSIS=curAndPot_analysis, $
                         CAP_STRUCT=cAP_struct, $
-                        ;; CURANDPOT_TRANGES=cAP_tRanges, $
-                        ;; CURANDPOT_MOMENT_ENERGYARR=cAP_moment_energyArr, $
-                        ;; CURANDPOT_REMAKE_MASTERFILE=cAP_remake_masterFile, $
-                        ;; CURANDPOT_MAP_TO_100KM=cAP_map_to_100km, $
-                        ;; CURANDPOT_USE_ALL_CURRENTS=cAP_use_all_currents, $
-                        ;; CURANDPOT_USE_DOWNGOING_ELECTRON_CURRENT=cAP_use_ed_current, $
-                        ;; CURANDPOT_USE_UPGOING_ION_CURRENT=cAP_use_iu_current, $
-                        ;; CURANDPOT_USE_UPGOING_ELECTRON_CURRENT=cAP_use_eu_current, $
-                        ;; CURANDPOT_USE_MAGNETOMETER_CURRENT=cAP_use_mag_current, $
-                        ;; CURANDPOT_USE_CHAR_EN_FOR_DOWNPOT=cAP_use_charE_for_downPot, $
-                        ;; CURANDPOT_USE_PEAK_EN_FOR_DOWNPOT=cAP_use_peakE_for_downPot, $
-                        ;; CURANDPOT_ADD_UPGOING_ION_POT=cAP_add_iu_pot, $
-                        ;; CURANDPOT_PLOT_J_V_POTBAR=cAP_plot_j_v_potBar, $
-                        ;; CURANDPOT_PLOT_JV_A_LA_ELPHIC=cAP_plot_jv_a_la_Elphic, $
-                        ;; CURANDPOT_PLOT_T_AND_N=cAP_plot_T_and_N, $
-                        ;; CURANDPOT_PLOT_J_V_AND_THEORY=cAP_plot_j_v_and_theory, $
-                        ;; CURANDPOT_PLOT_J_V__FIXED_T_AND_N=cAP_plot_j_v__fixed_t_and_n, $
-                        ;; CURANDPOT_PLOT_J_V_MAP__R_B_AND_KAPPA__FIXED_T_AND_N=cAP_plot_j_v_map__r_b_and_kappa__fixed_t_and_n, $
-                        ;; CURANDPOT_PLOT_EN_SPECS=cAP_plot_en_specs, $
-                        ;; CURANDPOT_EN_SPECS__MOVIE=cAP_en_specs__movie, $
-                        ;; CURANDPOT_JV_THEOR__R_B_INIT=cAP_jv_theor__R_B_init, $
-                        ;; CURANDPOT_JV_THEOR__KAPPA_INIT=cAP_jv_theor__kappa_init, $
-                        ;; CURANDPOT_JV_THEOR__KAPPALIMS=cAP_jv_theor__kappaLims, $   
-                        ;; CURANDPOT_JV_THEOR__TEMPLIMS=cAP_jv_theor__TempLims, $    
-                        ;; CURANDPOT_JV_THEOR__DENSLIMS=cAP_jv_theor__DensLims, $    
-                        ;; CURANDPOT_JV_THEOR__MAGRATIOLIMS=cAP_jv_theor__magRatioLims, $
-                        ;; CURANDPOT_JV_THEOR__FIT_JE=cAP_jv_theor__fit_je, $
-                        ;; CURANDPOT_JV_THEOR__FIT_BOTH=cAP_jv_theor__fit_both, $
-                        ;; CURANDPOT_USE_MSPH_SOURCECONE_FOR_DENS=cAP_use_msph_sourcecone_for_dens, $
-                        ;; CURANDPOT_USE_MSPH_SOURCECONE_FOR_TEMP=cAP_use_msph_sourcecone_for_temp, $
-                        ;; CURANDPOT_ALL_PITCHANGLES=cAP_all_pitchAngles, $
-                        ;; CURANDPOT_ALLPITCH_EXCEPT_ATM_LC=cAP_allPitch_except_atm_lc, $
-                        ;; CURANDPOT_JV_THEOR__INITIAL_SOURCE_R_E=cAP_jv_theor__initial_source_R_E, $
-                        ;; CURANDPOT_JV_THEOR__INITIAL_SOURCE__POLARSAT=cAP_jv_theor__initial_source__Polar, $
-                        ;; CURANDPOT_JV_THEOR__INITIAL_SOURCE__EQUATOR=cAP_jv_theor__initial_source__equator, $
-                        ;; CURANDPOT_JV_THEOR__ITERATIVE_DENSITY_AND_R_B_GAME=cAP_jv_theor__iterative_game, $
-                        ;; CURANDPOT_JV_THEOR__ITERATIVE_GAME__DENSITY_INCREASE=cAP_jv_theor__itergame_NFac, $
-                        ;; CURANDPOT_JV_THEOR__ITERATIVE_GAME__TIE_RB_AND_DENS=cAP_jv_theor__itergame_tie_R_B_and_dens, $
-                        ;; CURANDPOT__MAP__MULTI_MAGRATIO_ARRAY=cAP_map__multi_magRatio_array, $
-                        ;; CURANDPOT__MAP__MULTI_KAPPA_ARRAY=cAP_map__multi_kappa_array, $
-                        ;; CURANDPOT__MAP__2D=cAP_map__2D, $
                         TIMEBARS=timeBars, $
                         EPS=eps
   
