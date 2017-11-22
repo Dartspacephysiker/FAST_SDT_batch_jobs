@@ -216,3 +216,27 @@ cAP__add_iu_pot               = LIST( $
                                 0, $ ;7994
                                 0, $ ;7991
                                 0)   ;7990
+
+  ;; Any necessary mods to kappa_mpfit_paramInfo?
+  @common__kappa_mpfit_paraminfo.pro
+
+  kFit__DEFSINITIALIZED = 0
+  @kappa_mpfit_param_defaults.pro
+
+  kFit__unlimited_temp = LIST( $
+                         !NULL, $
+                         !NULL, $
+                         0, $
+                         !NULL, $
+                         0, $
+                         0, $
+                         0, $
+                         0, $
+                         0, $
+                         0, $
+                         0, $
+                         0, $
+                         1, $        ;7994
+                         1, $        ;7991
+                         1)          ;7990
+                         

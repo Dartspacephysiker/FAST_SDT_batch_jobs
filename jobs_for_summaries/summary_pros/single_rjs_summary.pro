@@ -76,6 +76,13 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
 @tplot_com
 
+  ctNum = 39
+  ctNum = 43                    ;Better; not oceans of green
+  IF KEYWORD_SET(screen_plot) AND ~(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) THEN BEGIN
+     DEVICE,PSEUDO_COLOR=8      ;fixes color table problem for machines with 24-bit color
+     LOADCT2,ctNum
+  ENDIF ELSE LOADCT2,ctNum         ; rainbow color map
+
   IF NOT KEYWORD_SET(energy_ions) THEN energy_ions=[4,1.e4]
 
   IF STRUPCASE(eeb_or_ees) EQ 'EEB' THEN ieb_or_ies = 'ieb' ELSE ieb_or_ies = 'ies'
@@ -210,7 +217,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         wInd = 0
         WINDOW,wInd,XSIZE=700,YSIZE=900
         ;; tplot_options,'region',[0.,0.5,1.0,1.0]
-        loadct2,39
+        ;; loadct2,39
         tplot,tPlt_vars,var=['ALT','ILAT','MLT'], $
               WINDOW=wInd, $
               TRANGE=[t1,t2]
@@ -324,7 +331,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
      YLIM,'EFIT_ALONG_VSC',MIN(data.y),MAX(data.y),0
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-        loadct2,40
+        ;; loadct2,40
         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
@@ -405,7 +412,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         endif
 
         if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-           loadct2,40
+           ;; loadct2,40
            tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         endif
 
@@ -432,7 +439,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
         if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-           loadct2,40
+           ;; loadct2,40
            tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         endif
 
@@ -507,7 +514,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         endif
 
         if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-           loadct2,40
+           ;; loadct2,40
            tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         endif
 
@@ -534,7 +541,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
         if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then BEGIN 
-           loadct2,40
+           ;; loadct2,40
            tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         endif
 
@@ -610,7 +617,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['DSP_V5-V8'] else tPlt_vars=['DSP_V5-V8',tPlt_vars]
 
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-        loadct2,40
+        ;; loadct2,40
         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
@@ -690,7 +697,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['SFA_V5-V8'] else tPlt_vars=['SFA_V5-V8',tPlt_vars]
 
         if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-           loadct2,40
+           ;; loadct2,40
            tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         endif
 
@@ -817,7 +824,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      chartot          = chare+chari_interp
      STORE_DATA,'charepanel',DATA={x:[[Jee.x],[Jee.x],[Jee.x]],y:[[chari_interp],[chare],[chartot]]}
 
-     red              = 250
+     red              = (ctNum EQ 43) ? 235 : 250
      green            = 130
      blue             = 90
      maxwell          = 50
@@ -836,7 +843,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['charepanel'] else tPlt_vars=['charepanel',tPlt_vars]
 
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-        loadct2,40
+        ;; loadct2,40
         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
@@ -1128,7 +1135,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['onecheese','kappa_fit'] else tPlt_vars=['onecheese','kappa_fit',tPlt_vars]
 
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-        loadct2,40
+        ;; loadct2,40
         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
@@ -1172,7 +1179,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
      if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-        loadct2,40
+        ;; loadct2,40
         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
 
@@ -1351,7 +1358,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
   STORE_DATA,'dB_fac_v',DATA=dat
 
   if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-     loadct2,40
+     ;; loadct2,40
      tplot,tPlt_vars,var=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
 
      IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
@@ -1376,7 +1383,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         END
      ENDCASE
 
-     LOADCT2,40
+     ;; LOADCT2,40
      TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
 
      IF KEYWORD_SET(add_kappa_panel) THEN BEGIN

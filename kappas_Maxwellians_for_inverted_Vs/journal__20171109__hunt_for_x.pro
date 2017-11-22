@@ -218,6 +218,12 @@ PRO JOURNAL__20171109__HUNT_FOR_X
      chi2_over_dof_thresh = 40
   ENDIF
 
+  ;;make sure temperature is limited
+  IF KEYWORD_SET(kFit__unlimited_temp[evtNum]) THEN BEGIN
+     kFit__limited[1,1] = 0
+     kFit__limits[1,1]  = 2D5
+  ENDIF
+
   ;; cAP_remake_masterFile     = 0
   ;; cAP_map_to_100km          = 1
   ;; cAP_use_all_currents      = 0

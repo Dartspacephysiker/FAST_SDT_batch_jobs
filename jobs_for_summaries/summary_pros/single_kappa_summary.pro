@@ -57,8 +57,11 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   !P.SYMSIZE  = 2.0
 
   ;;Some defaults
-  red              = 250
-  darkRed          = 235
+  ;; ctNum            = 39
+  ctNum            = 43         ;better. no oceans of green
+
+  red              = (ctNum EQ 43) ? 235 : 250
+  darkRed          = 250
   green            = 130
   blue             = 90
   maxwell          = 50
@@ -363,8 +366,8 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
            ;; some starteruppers
            IF KEYWORD_SET(screen_plot) AND ~(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) THEN BEGIN
               DEVICE,PSEUDO_COLOR=8 ;fixes color table problem for machines with 24-bit color
-              LOADCT2,39
-           ENDIF ELSE LOADCT2,39 ; rainbow color map
+              LOADCT2,ctNum
+           ENDIF ELSE LOADCT2,ctNum ; rainbow color map
 
 
         ENDELSE
@@ -1525,7 +1528,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
            1: BEGIN
 
               FOR k=0,N_ELEMENTS(timeBars)-1 DO BEGIN
-                 TIMEBAR,timeBars[k],THICK=3.0,COLOR=250
+                 TIMEBAR,timeBars[k],THICK=3.0,COLOR=red
               ENDFOR
 
            END
