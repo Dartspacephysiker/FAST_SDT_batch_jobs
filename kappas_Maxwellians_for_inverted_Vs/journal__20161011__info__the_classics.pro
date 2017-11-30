@@ -135,7 +135,9 @@ cAP_tRanges_list              = LIST($
 
                                 ;; '1997-02-01/'+[['09:26:14.2','09:26:23.0']], $
 
-                                '1997-02-01/'+[['09:26:55.5','09:27:03.5']], $
+                                '1997-02-01/'+[['09:26:55.5','09:27:03.5']], $ ;GRL interval
+                                ;; '1997-02-01/'+[['09:26:56.5','09:27:05']], $ ;2017/11/24 Very temporary quite contrary
+                                ;; '1997-02-01/'+[['09:26:55.2','09:27:05.5']], $ ;2017/11/24 Very temporary quite contrary2
                                 ;; '1997-02-01/'+[['09:27:01.2','09:27:05.0']], $
                                 ;; '1997-02-01/'+[['09:26:14.0','09:26:44.0'], $
                                 ;;                ['09:26:51.0','09:27:05.4']])
@@ -159,7 +161,9 @@ min_peak_energy_recommande    = LIST(500,1D3,600,600)
 ;; spectra_average_interval_list = LIST(4,!NULL,2)
 spectra_average_interval_list = LIST(2, $
                                      eeb_or_ees__recommande[1] EQ 'eeb' ? 2 : 2, $
-                                     2, $
+                                     2, $ ;1773 GRL
+                                     ;; 3, $ ;1773 Quite contrary
+                                     ;; 4, $ ;1773 Quite contrary 2
                                      eeb_or_ees__recommande[3] EQ 'eeb' ? 24 : 1)
 
 cAP__add_iu_pot               = LIST( $

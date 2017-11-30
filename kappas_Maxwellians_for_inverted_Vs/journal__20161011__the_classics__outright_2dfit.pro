@@ -17,7 +17,7 @@ PRO JOURNAL__20161011__THE_CLASSICS__OUTRIGHT_2DFIT
 
   add_oneCount_curve                = 1
 
-  daPlots_cAP                       = 0
+  daPlots_cAP                       = 1
   fit1D__save_plotSlices            = 0
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
