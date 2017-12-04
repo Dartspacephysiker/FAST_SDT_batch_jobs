@@ -93,7 +93,8 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS_V2, $
                     ;; SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
                     /CALC_GEOM_FACTORS, $
                     NAME__DIFF_EFLUX=name__diff_eFlux, $
-                    ANGLE=e_angle, $
+                    /CLEAN_THE_MCFADDEN_WAY, $
+                    ;; ANGLE=e_angle, $
                     /FIT_EACH_ANGLE ;, $
      ;; /FIT_EACH_ANGLE=fit_each_angle ;, $
      ;; ONLY_FIT_FIELDALIGNED_ANGLE=only_fit_fieldaligned_angle, $

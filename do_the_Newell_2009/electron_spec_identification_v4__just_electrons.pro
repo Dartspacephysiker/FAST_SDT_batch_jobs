@@ -22,9 +22,10 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
 
 
   IF NOT KEYWORD_SET(energy_electrons) THEN BEGIN
-     energy_electrons                    = [0.,35000.] ;use 0.0 for lower bound since the sc_pot is used to set this
+     energy_electrons                    = [0.,35000.] ;Can set bounds later
   ENDIF
-  e_angle                                = [-180,180]
+  ;; No need for specifying angle
+  ;; e_angle                                = [-180,180]
 
   ;; If no data exists, return to main
   ;; t=0
@@ -103,8 +104,9 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS, $
                     EEB_OR_EES=eeb_or_ees, $
                     ;; SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
                     /CALC_GEOM_FACTORS, $
+                    CLEAN_THE_MCFADDEN_WAY=clean_the_McFadden_way, $
                     NAME__DIFF_EFLUX=name__diff_eFlux, $
-                    ANGLE=e_angle, $
+                    ;; ANGLE=e_angle, $
                     /FIT_EACH_ANGLE ;, $
      ;; /FIT_EACH_ANGLE=fit_each_angle ;, $
      ;; ONLY_FIT_FIELDALIGNED_ANGLE=only_fit_fieldaligned_angle, $
