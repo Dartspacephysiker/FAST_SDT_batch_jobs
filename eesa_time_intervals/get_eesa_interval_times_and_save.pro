@@ -3,7 +3,8 @@ PRO GET_EESA_INTERVAL_TIMES_AND_SAVE, $
    T1=t1,T2=t2, $
    ALTERNATIVE_OUTDIR=altOutDir, $
    ALTERNATIVE_FILEPREFIX=altPrefix, $
-   DUPEREPORTDIR=dupeReportDir
+   DUPEREPORTDIR=dupeReportDir, $
+   GET_DIFF_EFLUX_TOO=get_diff_eFlux_too
 
   COMPILE_OPT idl2
 
@@ -35,7 +36,8 @@ PRO GET_EESA_INTERVAL_TIMES_AND_SAVE, $
 
   ;;energy ranges
   IF NOT KEYWORD_SET(energy_electrons) THEN BEGIN
-     energy_electrons  = [0.,30000.]                           ;use 0.0 for lower bound since the sc_pot is used to set this
+     energy_electrons  = [0.,35000.] ;use 0.0 for lower bound since the sc_pot is used to set this
+     je_energy         = [100.,30000.]
   ENDIF
 
   ;; If no data exists, return to main
@@ -57,7 +59,7 @@ PRO GET_EESA_INTERVAL_TIMES_AND_SAVE, $
   t2                                     = 0.0D
   temp                                   = GET_FA_EES(t1,INDEX=0.0D)
   temp                                   = GET_FA_EES(t2,INDEX=DOUBLE(last_index))
-  GET_2DT_TS,'j_2d_b','fa_ees',T1=t1,T2=t2,NAME='Je',ENERGY=energy_electrons
+  GET_2DT_TS,'j_2d_b','fa_ees',T1=t1,T2=t2,NAME='Je',ENERGY=je_energy
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Welp, here we go!
@@ -150,6 +152,22 @@ PRO GET_EESA_INTERVAL_TIMES_AND_SAVE, $
   PRINT,'Saving ' + outFile + ' ...'
   SAVE,je,orbit_num,time_range_indices,number_of_intervals,time_ranges, $
        FILENAME=outDir+outFile
+
+  IF KEYWORD_SET(get_diff_eFlux_too) THEN BEGIN
+
+     ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS_V2, $
+        SKIP_IF_FILE_EXISTS=skip_if_file_exists, $
+        ENERGY_ELECTRONS=energy_electrons, $
+        EEB_OR_EES='ees', $
+        T1=t1,T2=t2, $
+        /PROVIDING_JE_TIMES, $
+        ORBIT_NUM=orbit_num, $
+        JE=je, $
+        TIME_RANGES=time_ranges, $
+        TIME_RANGE_INDICES=time_range_indices, $
+        NINTERVALS=number_of_intervals
+
+  ENDIF
 
   ;;...and if there were dupes, report that too
   IF nDupes GT 0 THEN BEGIN
