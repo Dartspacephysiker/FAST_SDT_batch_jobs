@@ -1,6 +1,6 @@
 BatchJob: "katus_electrons"
 NoPlots:
-IDL: /home/spencerh/~/software/sdt/batch_jobs/eesa_time_intervals/get_eesa_time_intervals_and_save_wrapper.pro
+IDL: /home/spencerh/software/sdt/batch_jobs/eesa_time_intervals/get_eesa_interval_times_and_save_wrapper.pro
 
 DataBaseRequest:
     Orbits 1531

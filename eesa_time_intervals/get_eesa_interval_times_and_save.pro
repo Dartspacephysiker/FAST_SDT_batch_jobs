@@ -4,7 +4,9 @@ PRO GET_EESA_INTERVAL_TIMES_AND_SAVE, $
    ALTERNATIVE_OUTDIR=altOutDir, $
    ALTERNATIVE_FILEPREFIX=altPrefix, $
    DUPEREPORTDIR=dupeReportDir, $
-   GET_DIFF_EFLUX_TOO=get_diff_eFlux_too
+   GET_DIFF_EFLUX_TOO=get_diff_eFlux_too, $
+   OVERWRITE_EXISTING=overwrite_existing
+   
 
   COMPILE_OPT idl2
 
@@ -160,6 +162,8 @@ PRO GET_EESA_INTERVAL_TIMES_AND_SAVE, $
         ENERGY_ELECTRONS=energy_electrons, $
         EEB_OR_EES='ees', $
         T1=t1,T2=t2, $
+        /CLEAN_THE_MCFADDEN_WAY, $
+        OVERWRITE_EXISTING=overwrite_existing, $
         /PROVIDING_JE_TIMES, $
         ORBIT_NUM=orbit_num, $
         JE=je, $

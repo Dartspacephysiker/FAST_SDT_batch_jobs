@@ -5,6 +5,8 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS_V2, $
    ENERGY_ELECTRONS=energy_electrons, $
    EEB_OR_EES=eeb_or_ees, $
    T1=t1,T2=t2, $
+   OVERWRITE_EXISTING=overwrite_existing, $
+   CLEAN_THE_MCFADDEN_WAY=clean_the_McFadden_way, $
    PROVIDING_JE_TIMES=providing_je_times, $
    ORBIT_NUM=orbit_num, $
    JE=je, $
@@ -83,7 +85,7 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS_V2, $
      ;;We're going to make output in any case. We're already here, after all!
      out_newell_file  = outFile_pref + orbStr + '_' + STRCOMPRESS(jjj,/REMOVE_ALL) + '.sav'
 
-     IF FILE_TEST(outNewellDir+out_newell_file) THEN BEGIN
+     IF FILE_TEST(outNewellDir+out_newell_file) AND ~KEYWORD_SET(overwrite_existing) THEN BEGIN
         PRINT,'Skipping ' + out_newell_file + '...'
         CONTINUE
      ENDIF
@@ -102,61 +104,68 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS_V2, $
                     /CALC_GEOM_FACTORS, $
                     NAME__DIFF_EFLUX=name__diff_eFlux, $
                     OUT_DIFF_EFLUX=diff_eflux, $
-                    /CLEAN_THE_MCFADDEN_WAY, $
-                    /FIT_EACH_ANGLE
+                    CLEAN_THE_MCFADDEN_WAY=clean_the_McFadden_way, $
+                    OVERWRITE_EXISTING=overwrite_existing, $
+                    /FIT_EACH_ANGLE, $
+                    LOAD_DIR=outNewellDir, $
+                    DIFF_EFLUX_FILE=out_newell_file, $
+                    /SAVE_DIFF_EFLUX_TO_FILE
 
      ;; GET_DATA,name__diff_eFlux,DATA=diff_eFlux
 
+     IF ~KEYWORD_SET(clean_the_McFadden_way) THEN BEGIN
      ;;get_orbit data
-     GET_FA_ORBIT,diff_eFlux.time,/TIME_ARRAY,/ALL
-     
-     ;;define loss cone angle
-     GET_DATA,'ALT',DATA=alt
+        GET_FA_ORBIT,diff_eFlux.time,/TIME_ARRAY,/ALL
+        
+        ;;define loss cone angle
+        GET_DATA,'ALT',DATA=alt
 
-     loss_cone_alt    = alt.y*1000.0
-     lcw              = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
+        loss_cone_alt    = alt.y*1000.0
+        lcw              = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
 
-     GET_DATA,'ILAT',DATA=ilat
-     GET_DATA,'MLT',DATA=mlt
-     ;; north_south                                 = ABS(ilat.y[0])/ilat.y[0]
-     GET_DATA,'LAT',DATA=lat
-     GET_DATA,'LNG',DATA=lng
-     GET_DATA,'FLAT',DATA=flat
-     GET_DATA,'FLNG',DATA=flng
-     GET_DATA,'fa_pos',DATA=fa_pos
+        GET_DATA,'ILAT',DATA=ilat
+        GET_DATA,'MLT',DATA=mlt
+        ;; north_south                                 = ABS(ilat.y[0])/ilat.y[0]
+        GET_DATA,'LAT',DATA=lat
+        GET_DATA,'LNG',DATA=lng
+        GET_DATA,'FLAT',DATA=flat
+        GET_DATA,'FLNG',DATA=flng
+        GET_DATA,'fa_pos',DATA=fa_pos
 
-     GET_DATA,'B_model',DATA=bMod
-     GET_DATA,'BFOOT',DATA=bFoot
+        GET_DATA,'B_model',DATA=bMod
+        GET_DATA,'BFOOT',DATA=bFoot
 
-     mag1      = (bMod.y[*,0]*bMod.y[*,0]+ $
-                  bMod.y[*,1]*bMod.y[*,1]+ $
-                  bMod.y[*,2]*bMod.y[*,2])^0.5
-     mag2      = (bFoot.y[*,0]*bFoot.y[*,0]+ $
-                  bFoot.y[*,1]*bFoot.y[*,1]+ $
-                  bFoot.y[*,2]*bFoot.y[*,2])^0.5
-     ratio     = mag2/mag1
+        mag1      = (bMod.y[*,0]*bMod.y[*,0]+ $
+                     bMod.y[*,1]*bMod.y[*,1]+ $
+                     bMod.y[*,2]*bMod.y[*,2])^0.5
+        mag2      = (bFoot.y[*,0]*bFoot.y[*,0]+ $
+                     bFoot.y[*,1]*bFoot.y[*,1]+ $
+                     bFoot.y[*,2]*bFoot.y[*,2])^0.5
+        ratio     = mag2/mag1
 
 
-     ephemInfo = {x:alt.x, $
-                  alt:alt.y, $
-                  ilat:ilat.y, $
-                  mlt:mlt.y, $
-                  lc_width:lcw, $
-                  lat:lat.y, $
-                  lng:lng.y, $
-                  flat:flat.y, $
-                  flng:flng.y, $
-                  fa_pos:fa_pos.y, $
-                  mag1: TEMPORARY(mag1), $
-                  mag2: TEMPORARY(mag2), $
-                  mapratio: TEMPORARY(ratio)}
+        ephemInfo = {x:alt.x, $
+                     alt:alt.y, $
+                     ilat:ilat.y, $
+                     mlt:mlt.y, $
+                     lc_width:lcw, $
+                     lat:lat.y, $
+                     Lng:lng.y, $
+                     flat:flat.y, $
+                     flng:flng.y, $
+                     fa_pos:fa_pos.y, $
+                     mag1: TEMPORARY(mag1), $
+                     mag2: TEMPORARY(mag2), $
+                     mapratio: TEMPORARY(ratio)}
 
-     ;;Save the electron stuff
-     PRINT,'Saving Newell file: ' + out_newell_file
-     SAVE,diff_eFlux, $
-          ephemInfo, $
-          nSpecRemoved_thisorbit, $
-          FILENAME=outNewellDir+out_newell_file
+        ;;Save the electron stuff
+        PRINT,'Saving Newell file: ' + out_newell_file
+        SAVE,diff_eFlux, $
+             ephemInfo, $
+             nSpecRemoved_thisorbit, $
+             FILENAME=outNewellDir+out_newell_file
+
+     ENDIF
 
   ENDFOR
 
