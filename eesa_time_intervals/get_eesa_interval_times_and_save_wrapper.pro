@@ -20,7 +20,10 @@
 ;Put code here:
 
 ;; ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2,/BATCH_MODE,/INCLUDE_IONS
-GET_EESA_INTERVAL_TIMES_AND_SAVE,/GET_DIFF_EFLUX_TOO,/OVERWRITE_EXISTING
+;; 2017/12/05
+;; Currently set up for electron_spec_identification_v4__just_electrons__katusstorms.batch
+;; We've already got the updated (dupeless) eesa intervals; now we need the diff efluxes
+GET_EESA_INTERVAL_TIMES_AND_SAVE,/GET_DIFF_EFLUX_TOO,/OVERWRITE_EXISTING_DIFF_EFLUX
 
 ;*****************************
 ;End routine:

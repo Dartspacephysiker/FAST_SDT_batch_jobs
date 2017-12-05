@@ -20,7 +20,8 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS_V2, $
 
   todayStr             = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
   outNewellDir         = outDir + 'do_the_Newell_2009/batch_output__just_electrons_v2/'
-  outFile_pref         = 'Dartdb--e-_spectra__all_angles_energies_v4__justElec_v2--' + eeb_or_ees + '--Orbit_'
+  ;; outFile_pref         = 'Dartdb--e-_spectra__all_angles_energies_v4__justElec_v2--' + eeb_or_ees + '--Orbit_'
+  outFile_pref         = 'Dartdb--e-_spectra__all_angles_energies_v4__justElec_v2-newTry-' + eeb_or_ees + '--Orbit_'
 
 
   IF NOT KEYWORD_SET(energy_electrons) THEN BEGIN
@@ -120,8 +121,8 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS_V2, $
         ;;define loss cone angle
         GET_DATA,'ALT',DATA=alt
 
-        loss_cone_alt    = alt.y*1000.0
-        lcw              = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
+        ;; loss_cone_alt    = alt.y*1000.0
+        ;; lcw              = LOSS_CONE_WIDTH(loss_cone_alt)*180.0/!DPI
 
         GET_DATA,'ILAT',DATA=ilat
         GET_DATA,'MLT',DATA=mlt
@@ -143,20 +144,27 @@ PRO ELECTRON_SPEC_IDENTIFICATION_V4__JUST_ELECTRONS_V2, $
                      bFoot.y[*,2]*bFoot.y[*,2])^0.5
         ratio     = mag2/mag1
 
+           ;; mag1      = (diff_eFlux[*].B_model[0]*diff_eFlux[*].B_model[0]+ $
+           ;;              diff_eFlux[*].B_model[1]*diff_eFlux[*].B_model[1]+ $
+           ;;              diff_eFlux[*].B_model[2]*diff_eFlux[*].B_model[2])^0.5
+           ;; mag2      = (diff_eFlux[*].B_foot[0]*diff_eFlux[*].B_foot[0]+ $
+           ;;              diff_eFlux[*].B_foot[1]*diff_eFlux[*].B_foot[1]+ $
+           ;;              diff_eFlux[*].B_foot[2]*diff_eFlux[*].B_foot[2])^0.5
+        lcw       = ATAN(SQRT(1.D/(mapRatio-1.D)))*180./!PI
 
-        ephemInfo = {x:alt.x, $
-                     alt:alt.y, $
-                     ilat:ilat.y, $
-                     mlt:mlt.y, $
-                     lc_width:lcw, $
-                     lat:lat.y, $
-                     Lng:lng.y, $
-                     flat:flat.y, $
-                     flng:flng.y, $
-                     fa_pos:fa_pos.y, $
-                     mag1: TEMPORARY(mag1), $
-                     mag2: TEMPORARY(mag2), $
-                     mapratio: TEMPORARY(ratio)}
+        ephemInfo = {x        :(TEMPORARY(alt   )).x, $
+                     alt      :(TEMPORARY(alt   )).y, $
+                     ilat     :(TEMPORARY(ilat  )).y, $
+                     mlt      :(TEMPORARY(mlt   )).y, $
+                     lc_width : TEMPORARY(lcw   )   , $
+                     lat      :(TEMPORARY(lat   )).y, $
+                     Lng      :(TEMPORARY(lng   )).y, $
+                     flat     :(TEMPORARY(flat  )).y, $
+                     flng     :(TEMPORARY(flng  )).y, $
+                     fa_pos   :(TEMPORARY(fa_pos)).y, $
+                     mag1     : TEMPORARY(mag1  )   , $
+                     mag2     : TEMPORARY(mag2  )   , $
+                     mapratio : TEMPORARY(ratio )   }
 
         ;;Save the electron stuff
         PRINT,'Saving Newell file: ' + out_newell_file
