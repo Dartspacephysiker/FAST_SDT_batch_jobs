@@ -1,4 +1,6 @@
 ;;2017/11/09
+;; 'x' is the number of orbits that we wish to say that we have examined in the GRL that we're about to submit. The final number
+;; ends up being 40 or 44, I remember ikke
 PRO JOURNAL__20171109__HUNT_FOR_X
 
   COMPILE_OPT IDL2
