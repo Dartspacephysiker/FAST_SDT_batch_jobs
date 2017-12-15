@@ -1,6 +1,4 @@
-;;2017/11/09
-;; 'x' is the number of orbits that we wish to say that we have examined in the GRL that we're about to submit. The final number
-;; ends up being 40 or 44, I remember ikke
+;;2017/12/15
 PRO JOURNAL__20171215__ACTUALLY_ALFVEN_WAVES_ON_DAYSIDE
 
   COMPILE_OPT IDL2
@@ -22,8 +20,8 @@ PRO JOURNAL__20171215__ACTUALLY_ALFVEN_WAVES_ON_DAYSIDE
   daPlots_cAP                       = 0
   fit1D__save_plotSlices            = 1
   fit2D__save_all_plots             = 1
-  fit2D__show_each_candidate        = 1
-  fit2D__show_only_data             = 1
+  fit2D__show_each_candidate        = 0
+  fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
   fit2D__clampDensity               = 0
