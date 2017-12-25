@@ -9,7 +9,24 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   @journal__20161011__info__the_classics.pro
 
   ;;bonus bonus?
-  bonusBonusPref                    = '-noFitBelowPeak'
+  ;; bonusBonusPref                    = '-noFitBelowPeak'
+
+  ;; bonusBonusPref                    = '-noFitBelowPeak-shiftT-3avg'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.5','09:27:05']] ;Adjust a bit
+  ;; spectra_average_interval_list[2] = 3 ;try three avgs
+
+  bonusBonusPref                    = '-noFitBelowPeak-shiftTagain-1avg'
+  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:57.5','09:27:05.5']] ;Adjust a bit
+  spectra_average_interval_list[2] = 1 ;try one avg
+
+  bonusBonusPref                    = '-noFitBelowPeak-shiftT3-1avg'
+  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:58.5','09:27:05']] ;Adjust a bit
+  spectra_average_interval_list[2] = 1
+
+  bonusBonusPref                    = '-noFitBelowPeak-shiftT3-2avg'
+  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:58.5','09:27:05']] ;Adjust a bit
+  spectra_average_interval_list[2] = 2 ;try two avgs
+
 
   only_1D_fits                      = 0
   fit1D__sourceCone_energy_spectrum = 1
@@ -57,7 +74,10 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  restore_fitFile      = 0
+
+  jv_theor__also_eFlux = 0
+  jv_theor__only_eFlux = 0
 
   ;;Which totally classic event?
   ;; '0 :  Ergun_et_al_1998' --- 1843
@@ -211,6 +231,9 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                jv_theor__R_B_init : 300, $
                jv_theor__kappa_init : 10, $
                jv_theor__kappaLims  : [1.530,11], $
+               jv_theor__also_eFlux : KEYWORD_SET(jv_theor__also_eFlux), $
+               jv_theor__only_eFlux : KEYWORD_SET(jv_theor__only_eFlux), $
+
                ;; jv_theor__TempLims       : [0,0], $
                ;; jv_theor__DensLims      : [0,0], $
                ;; jv_theor__magRatioLims  : [2,100], $

@@ -949,7 +949,13 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   OPTIONS,'chi22DG','colors',GaussColor
   OPTIONS,'chi22DG','symsize',!P.SYMSIZE
 
-  OPTIONS,'chi22DK','ytitle',CGGREEK('chi',PS=KEYWORD_SET(save_ps))+'!X!U2!N!Dred!N'
+  ;; greekChi = '166'o
+  chi = 'chi'
+  ;; device = 
+  greekChi = GREEK_FONT( chi, 'X')
+  ;; OPTIONS,'chi22DK','ytitle',CGGREEK('chi',PS=KEYWORD_SET(save_ps))+'!X!U2!N!Dred!N'
+  ;; OPTIONS,'chi22DK','ytitle','!4'+STRING(greekChi)+'!X!U2!N!Dred!N'
+  OPTIONS,'chi22DK','ytitle',greekChi+'!U2!N!Dred!N'
   chi2Bounds      = [MIN([kappa2D.chi2/(kappa2D.dof+kappa2D.nFree),gauss2D.chi2/(gauss2D.dof+gauss2D.nFree)]), $
                      MAX([kappa2D.chi2/(kappa2D.dof+kappa2D.nFree),gauss2D.chi2/(gauss2D.dof+gauss2D.nFree)])]
   ;; showLog_chi2    = (ALOG10(chi2Bounds[1])-ALOG10(chi2Bounds[0])) GT 2
