@@ -27,6 +27,7 @@ PRO JOURNAL__20171215__ACTUALLY_ALFVEN_WAVES_ON_DAYSIDE
   fit2D__clampDensity               = 0
   fit2D__estimate_sourceCone_from_dist = 0B
   fit2D__density_angleRange         = 'ALL__EXCL_ATM'
+  fit2D__extend_fitStruct_eRange    = 1 ;to 50 keV, je crois?
   ;; fit2D__density_angleRange         = [-175,175]
 
   ;;PostScript options
@@ -306,6 +307,7 @@ PRO JOURNAL__20171215__ACTUALLY_ALFVEN_WAVES_ON_DAYSIDE
                         FIT2D__CLAMPDENSITY=fit2D__clampDensity, $
                         FIT2D__DENSITY_ANGLERANGE=fit2D__density_angleRange, $
                         FIT2D__ESTIMATE_DENS_ARANGE_FROM_DIST=fit2D__estimate_sourceCone_from_dist, $
+                        FIT2D__EXTEND_FITSTRUCT_ERANGE=fit2D__extend_fitStruct_eRange, $
                         ADD_ONECOUNT_CURVE=add_oneCount_curve, $
                         SAVE_POSTKAPPA_PLOTS=save_postKappa_plots, $
                         SAVEKAPPA_BONUSPREF=bonusPref, $
