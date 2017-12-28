@@ -15,16 +15,20 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.5','09:27:05']] ;Adjust a bit
   ;; spectra_average_interval_list[2] = 3 ;try three avgs
 
-  bonusBonusPref                    = '-noFitBelowPeak-shiftTagain-1avg'
-  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:57.5','09:27:05.5']] ;Adjust a bit
-  spectra_average_interval_list[2] = 1 ;try one avg
+  ;; bonusBonusPref                    = '-noFitBelowPeak-shiftTagain-1avg'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:57.5','09:27:05.5']] ;Adjust a bit
+  ;; spectra_average_interval_list[2] = 1 ;try one avg
 
-  bonusBonusPref                    = '-noFitBelowPeak-shiftT3-1avg'
-  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:58.5','09:27:05']] ;Adjust a bit
-  spectra_average_interval_list[2] = 1
+  ;; bonusBonusPref                    = '-noFitBelowPeak-shiftT3-1avg'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:58.5','09:27:05']] ;Adjust a bit
+  ;; spectra_average_interval_list[2] = 1
 
-  bonusBonusPref                    = '-noFitBelowPeak-shiftT3-2avg'
-  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:58.5','09:27:05']] ;Adjust a bit
+  ;; bonusBonusPref                    = '-noFitBelowPeak-shiftT3-2avg'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:58.5','09:27:05']] ;Adjust a bit
+  ;; spectra_average_interval_list[2] = 2 ;try two avgs
+
+  bonusBonusPref                    = '-noBelowPk-shiftT4-2avg'
+  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:57.5','09:27:04.5']] ;Adjust a bit
   spectra_average_interval_list[2] = 2 ;try two avgs
 
   only_1D_fits                      = 0
@@ -32,7 +36,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   fit1D__sourceCone_energy_spectrum = 1
 
   fit1D__nFlux                      = 1
-  fit2D__nFlux                      = 1
+  fit2D__nFlux                      = 0
 
   fit1D__weighting                  = 2 ;1 = lin 2 = square
   fit1D__clampTemperature           = 0
@@ -50,7 +54,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   fit2D__clampDensity               = 0
   fit2D__estimate_sourceCone_from_dist = 0B
   ;; fit2D__density_angleRange         = 'ALL__EXCL_ATM'
-  fit2D__density_angleRange         = [-90,90]
+  ;; fit2D__density_angleRange         = [-90,90]
   fit2D__extend_fitStruct_eRange    = 0 ;to 50 keV, je crois?
   ;; fit2D__density_angleRange         = [-175,175]
 
@@ -81,7 +85,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   load_diff_eFlux_file = 1
   restore_fitFile      = 0
 
-  jv_theor__also_eFlux = 0
+  jv_theor__also_eFlux = 1
   jv_theor__only_eFlux = 0
 
   ;;Which totally classic event?
@@ -138,10 +142,11 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
 
   IF orbit EQ 1773 THEN BEGIN
 
-     ;; fit2D__density_angleRange = [-150,150]
      fit2D__density_angleRange = 'ALL__EXCL_ATM'
+     ;; fit2D__density_angleRange = [-150,150]
+     ;; fit2D__density_angleRange = [-90,90]
 
-
+     ;; aRange__dens_e_down = [-90,90]
      ;; ;;make sure temperature is limited
      ;; kFit__limited[1,1] = 1
      ;; kFit__limits[1,1]  = 2D4
@@ -238,7 +243,6 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                jv_theor__kappaLims  : [1.530,11], $
                jv_theor__also_eFlux : KEYWORD_SET(jv_theor__also_eFlux), $
                jv_theor__only_eFlux : KEYWORD_SET(jv_theor__only_eFlux), $
-
                ;; jv_theor__TempLims       : [0,0], $
                ;; jv_theor__DensLims      : [0,0], $
                ;; jv_theor__magRatioLims  : [2,100], $
@@ -256,7 +260,13 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                ;; jv_theor__initial_source__equator : 0, $
                ;; jv_theor__iterative_game : 0, $
                ;; jv_theor__itergame_NFac   : 3.0, $
-               jv_theor__itergame_tie_R_B_and_dens : 1}
+               jv_theor__itergame_tie_R_B_and_dens : 1, $
+               in_bonusPref                        : bonusPref, $
+               plots_in_buffer                     : 1}
+
+  IF KEYWORD_SET(aRange__dens_e_down) THEN BEGIN
+     STR_ELEMENT,cAP_struct,'aRange__dens_e_down',aRange__dens_e_down,/ADD_REPLACE
+  ENDIF
 
   IF KEYWORD_SET(timeBars) AND KEYWORD_SET(cAP_struct) THEN IF (WHERE(TAG_NAMES(cAP_struct) EQ 'TRANGES'))[0] NE -1 THEN BEGIN
      timeBars                  = cAP_struct.tRanges
