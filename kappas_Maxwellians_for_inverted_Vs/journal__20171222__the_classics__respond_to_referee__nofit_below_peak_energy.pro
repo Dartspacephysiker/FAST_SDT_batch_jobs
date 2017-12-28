@@ -27,7 +27,6 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:58.5','09:27:05']] ;Adjust a bit
   spectra_average_interval_list[2] = 2 ;try two avgs
 
-
   only_1D_fits                      = 0
 
   fit1D__sourceCone_energy_spectrum = 1
@@ -50,8 +49,9 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   fit2D__clampTemperature           = 0
   fit2D__clampDensity               = 0
   fit2D__estimate_sourceCone_from_dist = 0B
-  fit2D__density_angleRange         = 'ALL__EXCL_ATM'
-  fit2D__extend_fitStruct_eRange    = 1 ;to 50 keV, je crois?
+  ;; fit2D__density_angleRange         = 'ALL__EXCL_ATM'
+  fit2D__density_angleRange         = [-90,90]
+  fit2D__extend_fitStruct_eRange    = 0 ;to 50 keV, je crois?
   ;; fit2D__density_angleRange         = [-175,175]
 
   ;;PostScript options
