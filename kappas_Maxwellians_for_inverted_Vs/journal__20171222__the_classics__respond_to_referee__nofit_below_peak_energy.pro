@@ -27,9 +27,48 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:58.5','09:27:05']] ;Adjust a bit
   ;; spectra_average_interval_list[2] = 2 ;try two avgs
 
-  bonusBonusPref                    = '-noBelowPk-shiftT4-2avg'
-  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:57.5','09:27:04.5']] ;Adjust a bit
-  spectra_average_interval_list[2] = 2 ;try two avgs
+  ;; bonusBonusPref                    = '-noBelowPk-shiftT4-2avg'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:57.5','09:27:04.5']] ;Adjust a bit
+  ;; spectra_average_interval_list[2] = 2 ;try two avgs
+
+  ;; bonusBonusPref                    = '-noBelowPk-shiftT4-3avg'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:57.5','09:27:04.5']] ;Adjust a bit
+  ;; spectra_average_interval_list[2] = 3
+
+  ;; bonusBonusPref                    = '-noBelowPk-shiftT5-3avg'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55.0','09:27:04.5']] ;Adjust a bit
+  ;; spectra_average_interval_list[2] = 3
+
+  ;; bonusBonusPref                    = '-noBelowPk-shiftT5-1avg'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55.0','09:27:04.5']] ;Adjust a bit
+  ;; spectra_average_interval_list[2] = 1
+
+  ;; bonusBonusPref                    = '-noBelowPk-shiftT5-2avg'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55.0','09:27:04.5']] ;Adjust a bit
+  ;; spectra_average_interval_list[2] = 2
+
+  ;; bonusBonusPref                    = '-noBelowPk-shiftT6-2avg'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:15.0','09:26:25']] ;Adjust a bit
+  ;; spectra_average_interval_list[2] = 2
+
+  ;; bonusBonusPref                    = '-noBelowPk-shiftT7-2avg'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:15.5','09:26:22.5']] ;Adjust a bit
+  ;; spectra_average_interval_list[2] = 2
+
+  ;; bonusBonusPref                    = '-noBelowPk-shiftT8-1avg'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:59.0','09:27:04.5']] ;Adjust a bit
+  ;; spectra_average_interval_list[2] = 1
+
+  ;; bonusBonusPref                    = '-noBelowPk-shiftT8-2avg'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:59.0','09:27:04.5']] ;Adjust a bit
+  ;; spectra_average_interval_list[2] = 2
+
+  ;; bonusBonusPref                    = '-noBelowPk-toChris'
+
+  bonusBonusPref                    = '-noBelowPk-toChris'
+  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.5','09:27:04.5']] ;Adjust a bit
+  ;; Don't alter cAP_tRanges_list[2]
+  ;; spectra_average_interval_list[2] = 2
 
   only_1D_fits                      = 0
 
@@ -83,9 +122,9 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
-  jv_theor__also_eFlux = 1
+  jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
 
   ;;Which totally classic event?
@@ -113,6 +152,8 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                          (N_ELEMENTS(min_peak_energy_recommande[evtNum]) GT 0 ? $
                           min_peak_energy_recommande[evtNum] : 500)
   max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
+
+  ;; msph_sourcecone_halfWidth 90
 
   ;;survey window
   eeb_or_ees           = eeb_or_ees__recommande[evtNum]
@@ -218,14 +259,14 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   cAP_struct = { $
                remake_masterFile : 1B, $
                map_to_100km : 1, $
-               use_all_currents : 0, $
-               use_ed_current : 1, $
-               use_iu_current : 0, $
-               use_eu_current : 0, $
-               use_mag_current : 0, $
-               use_charE_for_downPot : 1, $
-               T_plusMinusFac_for_pot : 0L, $
-               use_peakE_for_downPot : 0B, $
+               use_all_currents : 0B, $
+               use_ed_current : 1B, $
+               use_iu_current : 0B, $
+               use_eu_current : 0B, $
+               use_mag_current : 0B, $
+               use_char_en_for_downPot : 1B, $
+               T_plusMinusFac_for_pot  : 0L, $
+               use_peak_en_for_downPot : 0B, $
                add_iu_pot : N_ELEMENTS(cAP__add_iu_pot) GT 0 ? (N_ELEMENTS(cAP__add_iu_pot[evtNum]) GT 0 ? cAP__add_iu_pot[evtNum] : 1) :1, $
                tRanges : cAP_tRanges_list[evtNum], $
                ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
@@ -253,6 +294,8 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                jv_theor__fit_both : 0, $
                use_msph_sourcecone_for_dens : [1,0,0], $
                use_msph_sourcecone_for_temp : [0,0,0], $
+               ;; msph_sourcecone_halfWidth : 150, $
+               ;; msph_sourcecone_halfWidth : msph_sourcecone_halfWidth, $
                all_pitchAngles : 0, $
                allPitch_except_atm_lc : 0, $
                ;; jv_theor__initial_source_R_E : 5.0D, $
@@ -367,4 +410,3 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                         EPS=eps
   
 END
-
