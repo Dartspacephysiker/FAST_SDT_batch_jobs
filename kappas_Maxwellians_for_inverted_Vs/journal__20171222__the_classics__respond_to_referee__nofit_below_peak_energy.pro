@@ -69,6 +69,8 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.5','09:27:04.5']] ;Adjust a bit
   ;; Don't alter cAP_tRanges_list[2]
   ;; spectra_average_interval_list[2] = 2
+  ;; debug__skip_to_this_time          = '1997-02-01/09:27:01.57'
+  ;; debug__break_on_this_time         = '1997-02-01/09:27:01.57'
 
   only_1D_fits                      = 0
 
@@ -122,7 +124,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -142,6 +144,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   upgoing                           = 0
 
   electron_angleRange  = 'lc'
+
   ;; electron_angleRange  = [330,30]
   energy_electrons     = N_ELEMENTS(energy_electrons__recommande[evtNum]) GT 0 ? $
                          energy_electrons__recommande[evtNum]          : $
@@ -184,6 +187,8 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   IF orbit EQ 1773 THEN BEGIN
 
      fit2D__density_angleRange = 'ALL__EXCL_ATM'
+     fit2D__temperature_angleRange = 'LC'
+     fit2D__faConductance_angleRange = 'LC'
      ;; fit2D__density_angleRange = [-150,150]
      ;; fit2D__density_angleRange = [-90,90]
 
@@ -367,6 +372,8 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                         FIT2D__CLAMPTEMPERATURE=fit2D__clampTemperature, $
                         FIT2D__CLAMPDENSITY=fit2D__clampDensity, $
                         FIT2D__DENSITY_ANGLERANGE=fit2D__density_angleRange, $
+                        FIT2D__TEMPERATURE_ANGLERANGE=fit2D__temperature_angleRange, $
+                        FIT2D__FACONDUCTANCE_ANGLERANGE=fit2D__faConductance_angleRange, $
                         FIT2D__ESTIMATE_DENS_ARANGE_FROM_DIST=fit2D__estimate_sourceCone_from_dist, $
                         FIT2D__EXTEND_FITSTRUCT_ERANGE=fit2D__extend_fitStruct_eRange, $
                         FIT2D__NFLUX=fit2D__nFlux, $
