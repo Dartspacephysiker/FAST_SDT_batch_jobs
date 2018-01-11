@@ -65,12 +65,14 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
 
   ;; bonusBonusPref                    = '-noBelowPk-toChris'
 
-  bonusBonusPref                    = '-noBelowPk-toChris'
-  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.5','09:27:04.5']] ;Adjust a bit
+  ;; bonusBonusPref                    = '-noBelowPk-toChris'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.5','09:27:04.5']] ;Adjust a bit
   ;; Don't alter cAP_tRanges_list[2]
   ;; spectra_average_interval_list[2] = 2
   ;; debug__skip_to_this_time          = '1997-02-01/09:27:01.57'
   ;; debug__break_on_this_time         = '1997-02-01/09:27:01.57'
+
+  bonusBonusPref                    = '-noBelowPk-butNowWho'
 
   only_1D_fits                      = 0
 
@@ -99,6 +101,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   fit2D__extend_fitStruct_eRange    = 0 ;to 50 keV, je crois?
   ;; fit2D__density_angleRange         = [-175,175]
 
+  fit2D__temperature_type  = 'PAR' ;or 'AVG'
   ;;PostScript options
   timeBars                 = 1
 
@@ -299,6 +302,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                jv_theor__fit_both : 0, $
                use_msph_sourcecone_for_dens : [1,0,0], $
                use_msph_sourcecone_for_temp : [0,0,0], $
+               temperature_type             : fit2D__temperature_type, $
                ;; msph_sourcecone_halfWidth : 150, $
                ;; msph_sourcecone_halfWidth : msph_sourcecone_halfWidth, $
                all_pitchAngles : 0, $
@@ -375,6 +379,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                         FIT2D__TEMPERATURE_ANGLERANGE=fit2D__temperature_angleRange, $
                         FIT2D__FACONDUCTANCE_ANGLERANGE=fit2D__faConductance_angleRange, $
                         FIT2D__ESTIMATE_DENS_ARANGE_FROM_DIST=fit2D__estimate_sourceCone_from_dist, $
+                        FIT2D__TEMPERATURE_TYPE=fit2D__temperature_type, $
                         FIT2D__EXTEND_FITSTRUCT_ERANGE=fit2D__extend_fitStruct_eRange, $
                         FIT2D__NFLUX=fit2D__nFlux, $
                         ADD_ONECOUNT_CURVE=add_oneCount_curve, $
