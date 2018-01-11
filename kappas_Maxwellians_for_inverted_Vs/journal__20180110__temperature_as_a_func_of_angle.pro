@@ -11,26 +11,33 @@ PRO JOURNAL__20180110__TEMPERATURE_AS_A_FUNC_OF_ANGLE
 
   RESTORE,dir+diff_eFlux_file
 
+  eRange = [600,30100]
+
   tidStr = '1997-02-01/09:27:01.57'
-  tid    = S2T(tidStr)
+
+  ;; Plot opts
+  TRange = [0,1000]
 
   ;; Plot strings
+  tid    = S2T(tidStr)
   fTidStr = STRJOIN(STRSPLIT( $
             (plotPref + '-' + (STRSPLIT(tidStr,'/',/EXTRACT))[1]), $
             ':',/EXTRACT), $
                     '_')
   fTidStr = STRJOIN(STRSPLIT(fTidStr,'.',/EXTRACT),'__')
-  densStr = fTidStr + '-dens.png'
-  jStr    = fTidStr + '-j.png'
-  jeStr   = fTidStr + '-je.png'
-  tempStr = fTidStr + '-temp.png'
+
+  eRStr   = (STRING(FORMAT='("-",F3.1,"-",I2,"keV")',eRange/1000.)).Replace('.','_')
+
+  densStr = fTidStr + eRStr + '-dens.png'
+  jStr    = fTidStr + eRStr + '-j.png'
+  curStr  = fTidStr + eRStr + '-current.png'
+  jeStr   = fTidStr + eRStr + '-je.png'
+  tempStr = fTidStr + eRStr + '-temp.png'
 
   this   = VALUE_CLOSEST2(diff_eFlux.time,tid,/CONSTRAINED)
   PRINT,T2S(diff_eFlux.time[this],/MS)
 
   dat   = MAKE_SDT_STRUCT_FROM_PREPPED_EFLUX(diff_eFlux,this)
-
-  eRange = [300,30100]
 
   ;; aRange = [350,10]
   ;; step   = 10
@@ -144,6 +151,20 @@ PRO JOURNAL__20180110__TEMPERATURE_AS_A_FUNC_OF_ANGLE
   jWin.Close
   jWin = !NULL
 
+  ;; Now curPar
+  curWin  = WINDOW(DIMENSIONS=[800,800],/BUFFER)
+  curPlot = ERRORPLOT(halfAngle,jArr*(-1.6D-9),jErrArr*(-1.6D-9), $
+                      XTITLE='Half-angle (deg)', $
+                      YTITLE='Current density ($\mu$A/m$^2$)', $
+                      TITLE=tidStr, $
+                      /BUFFER, $
+                      /CURRENT)
+
+  PRINT,"Saving jPlot: " + curStr
+  curWin.Save,plotDir+curStr
+  curWin.Close
+  curWin = !NULL
+  
   ;; Now jePar
   jeWin  = WINDOW(DIMENSIONS=[800,800],/BUFFER)
   jePlot = ERRORPLOT(halfAngle,jeArr,jeErrArr, $
@@ -164,19 +185,21 @@ PRO JOURNAL__20180110__TEMPERATURE_AS_A_FUNC_OF_ANGLE
                   XTITLE='Half-angle (deg)', $
                   YTITLE='Temperature (eV)', $
                   TITLE=tidStr, $
+                   YRANGE=TRange, $
                    NAME='T$_{perp}$', $
                   /BUFFER, $
                   /CURRENT)
   TempPlot2 = PLOT(halfAngle,TArr[2,*], $
                    COLOR='Red', $
                    NAME='T$_{par}$', $
+                   YRANGE=TRange, $
                   /BUFFER, $
                    /CURRENT, $
                    /OVERPLOT)
   TempPlot3 = ERRORPLOT(halfAngle,TArr[3,*],TErrArr, $
                         COLOR='Blue', $
                         NAME='T$_{avg}$', $
-                        TITLE=tidStr, $
+                        YRANGE=TRange, $
                         /BUFFER, $
                         /CURRENT, $
                         /OVERPLOT)
