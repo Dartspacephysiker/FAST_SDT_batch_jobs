@@ -69,10 +69,10 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.5','09:27:04.5']] ;Adjust a bit
   ;; Don't alter cAP_tRanges_list[2]
   ;; spectra_average_interval_list[2] = 2
-  ;; debug__skip_to_this_time          = '1997-02-01/09:27:01.57'
-  ;; debug__break_on_this_time         = '1997-02-01/09:27:01.57'
+  debug__skip_to_this_time          = '1997-02-01/09:27:01.57'
+  debug__break_on_this_time         = '1997-02-01/09:27:01.57'
 
-  bonusBonusPref                    = '-noBelowPk-butNowWho'
+  bonusBonusPref                    = '-noBelowPk-fixedTQQ'
 
   only_1D_fits                      = 0
 
@@ -88,7 +88,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   add_oneCount_curve                = 1
 
   daPlots_cAP                       = 1
-  fit1D__save_plotSlices            = 0
+  fit1D__save_plotSlices            = 1
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
@@ -303,6 +303,9 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                use_msph_sourcecone_for_dens : [1,0,0], $
                use_msph_sourcecone_for_temp : [0,0,0], $
                temperature_type             : fit2D__temperature_type, $
+               aRange__temp_e_down         : fit2D__temperature_angleRange, $
+               ;; eRange__temp_list         :, $
+               use_energies_above_peak_for_temp : [1,0,0], $
                ;; msph_sourcecone_halfWidth : 150, $
                ;; msph_sourcecone_halfWidth : msph_sourcecone_halfWidth, $
                all_pitchAngles : 0, $
