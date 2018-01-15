@@ -8,6 +8,8 @@ PRO JOURNAL__20180115__EXPLORE_J_V_RELATION__DENS_TEMP, $
    TEMPERATURE=temperature, $
    DENSITY=density, $
    TREAT_DENS_AS_FAST_DENS_AND_MAP_W_BARBOSA=treat_dens_as_being_at_FAST, $
+   FACTOR_BY_WHICH_TO_REDUCE_BARBOSA_POT=factor_by_which_to_reduce_Barbosa_pot, $
+   TREAT_DENS_AS_MAPPING_WITH_RB=treat_dens_as_mapping_with_RB, $
    SET_FOR_MAXWELLIAN=set_for_Maxwellian, $
    KAPPAVAL=kappaVal, $
    SAVE_PNG=save_png, $
@@ -100,7 +102,7 @@ PRO JOURNAL__20180115__EXPLORE_J_V_RELATION__DENS_TEMP, $
                             30, $
                            100, $
                            300, $
-                           1D3]
+                          1000]
 
   potBar_bars           = [1,10,100,1000]
 
@@ -145,9 +147,27 @@ PRO JOURNAL__20180115__EXPLORE_J_V_RELATION__DENS_TEMP, $
 
      IF KEYWORD_SET(treat_dens_as_being_at_FAST) THEN BEGIN
 
-        tmpDens     = DENSITY_FACTOR__BARBOSA_1977(pot,T_m,!NULL,dens_m,RTemp)
+        ;;This is present because sometimes at FAST (say, during orbit 1773) the
+        ;;spacecraft observes the density of a precipitating distribution before
+        ;;that distribution drops through the potential BELOW FAST. In this
+        ;;case, we only want to use the potential through which the electrons
+        ;;have dropped by the time they arrive at FAST.
+        IF N_ELEMENTS(factor_by_which_to_reduce_Barbosa_pot) EQ 0 THEN BEGIN
+           factor_by_which_to_reduce_Barbosa_pot = 2.D
+        ENDIF
+        tmpDens      = DENSITY_FACTOR__BARBOSA_1977(pot/factor_by_which_to_reduce_Barbosa_pot, $
+                                                    T_m, $
+                                                    !NULL, $
+                                                    dens_m, $
+                                                    RTemp)
 
         IF N_ELEMENTS(WHERE(FINITE(tmpDens))) NE N_ELEMENTS(pot) THEN STOP
+
+     ENDIF
+
+     IF KEYWORD_SET(treat_dens_as_mapping_with_RB) THEN BEGIN
+
+        tmpDens     = dens_m / RTemp
 
      ENDIF
 
