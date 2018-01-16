@@ -69,10 +69,13 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.5','09:27:04.5']] ;Adjust a bit
   ;; Don't alter cAP_tRanges_list[2]
   ;; spectra_average_interval_list[2] = 2
-  debug__skip_to_this_time          = '1997-02-01/09:27:01.57'
-  debug__break_on_this_time         = '1997-02-01/09:27:01.57'
+  ;; debug__skip_to_this_time          = '1997-02-01/09:27:01.57'
+  ;; debug__break_on_this_time         = '1997-02-01/09:27:01.57'
 
   bonusBonusPref                    = '-noBelowPk-fixedTQQ'
+  bonusBonusPref                    = '-1BelowPk-fixedTQQ'
+  bonusBonusPref                    = '-0BelowPk-fixedTQQ'
+  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55','09:27:05']] ;Adjust a bit
 
   only_1D_fits                      = 0
 
@@ -88,7 +91,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   add_oneCount_curve                = 1
 
   daPlots_cAP                       = 1
-  fit1D__save_plotSlices            = 1
+  fit1D__save_plotSlices            = 0
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
@@ -127,7 +130,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -159,7 +162,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                           min_peak_energy_recommande[evtNum] : 500)
   max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
 
-  ;; msph_sourcecone_halfWidth 90
+  msph_sourcecone_halfWidth = 90
 
   ;;survey window
   eeb_or_ees           = eeb_or_ees__recommande[evtNum]
@@ -287,9 +290,9 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                plot_j_v_map__r_b_and_kappa__fixed_t_and_n : daPlots_cAP, $
                plot_en_specs : 0B, $
                en_specs__movie : 0B, $
-               jv_theor__R_B_init : 300, $
+               jv_theor__R_B_init : 30, $
                jv_theor__kappa_init : 10, $
-               jv_theor__kappaLims  : [1.530,11], $
+               jv_theor__kappaLims  : [1.520,11], $
                jv_theor__also_eFlux : KEYWORD_SET(jv_theor__also_eFlux), $
                jv_theor__only_eFlux : KEYWORD_SET(jv_theor__only_eFlux), $
                ;; jv_theor__TempLims       : [0,0], $
@@ -307,7 +310,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                ;; eRange__temp_list         :, $
                use_energies_above_peak_for_temp : [1,0,0], $
                ;; msph_sourcecone_halfWidth : 150, $
-               ;; msph_sourcecone_halfWidth : msph_sourcecone_halfWidth, $
+               msph_sourcecone_halfWidth : msph_sourcecone_halfWidth, $
                all_pitchAngles : 0, $
                allPitch_except_atm_lc : 0, $
                ;; jv_theor__initial_source_R_E : 5.0D, $
@@ -317,7 +320,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                ;; jv_theor__itergame_NFac   : 3.0, $
                jv_theor__itergame_tie_R_B_and_dens : 1, $
                in_bonusPref                        : bonusPref, $
-               plots_in_buffer                     : 1}
+               plots_in_buffer                     : 0}
 
   IF KEYWORD_SET(aRange__dens_e_down) THEN BEGIN
      STR_ELEMENT,cAP_struct,'aRange__dens_e_down',aRange__dens_e_down,/ADD_REPLACE
@@ -334,9 +337,9 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   close_kp_after_save  = 0
 
   n_below_peak1D       = 0
-  n_above_peak1D       = 20
+  n_above_peak1D       = 30
   n_below_peak2D       = 0
-  n_above_peak2D       = 20
+  n_above_peak2D       = 30
   phi__use_energy_before_peak = 1 ;the Kaeppler et al. [2014] thing (see bottom of second par, page 10,170)
   
   KAPPA_FITTER_BLACKBOX,orbit, $
