@@ -75,14 +75,11 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   ;; bonusBonusPref                    = '-noBelowPk-fixedTQQ'
   ;; bonusBonusPref                    = '-1BelowPk-fixedTQQ'
   ;; bonusBonusPref                    = '-0BelowPk-fixedTQQ'
-  bonusBonusPref                    = '-0BelowPk-neue'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55','09:27:05']] ;Adjust a bit
+  ;; bonusBonusPref                    = '-0BelowPk-neue'
+  ;; ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55','09:27:05']] ;Adjust a bit
 
-  bonusBonusPref                    = '-0BelowPk-done'
-  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55','09:27:05']] ;Adjust a bit
-
-  ;; bonusBonusPref                    = 'ANDRE'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:13','09:26:21']] ;Adjust a bit
+  bonusBonusPref                    = '-0BelowPk-GRLRESPONSEFINAL2'
+  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
 
   only_1D_fits                      = 0
 
@@ -98,9 +95,9 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   add_oneCount_curve                = 1
 
   daPlots_cAP                       = 1
-  fit1D__save_plotSlices            = 1
-  fit2D__save_all_plots             = 1
-  fit2D__show_each_candidate        = 1
+  fit1D__save_plotSlices            = 0
+  fit2D__save_all_plots             = 0
+  fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
@@ -327,7 +324,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                ;; jv_theor__itergame_NFac   : 3.0, $
                jv_theor__itergame_tie_R_B_and_dens : 1, $
                in_bonusPref                        : bonusPref, $
-               plots_in_buffer                     : 1}
+               plots_in_buffer                     : 0}
 
   IF KEYWORD_SET(aRange__dens_e_down) THEN BEGIN
      STR_ELEMENT,cAP_struct,'aRange__dens_e_down',aRange__dens_e_down,/ADD_REPLACE
