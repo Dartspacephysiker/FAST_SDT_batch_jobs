@@ -1,4 +1,57 @@
-;;07/05/16
+;;2018/01/15
+;;Based on JOURNAL__20180115__REPRODUCE_FIGURE_3_9__ISSI_AURORAL_PHYS_CHP_3
+
+;;The option TREAT_DENS_AS_FAST_DENS_AND_MAP_W_BARBOSA is present because (as I
+;;state below) sometimes at FAST--say, during orbit 1773--the spacecraft
+;;observes the density of a precipitating distribution before that distribution
+;;drops through the potential BELOW FAST. In this case, we only want to use the
+;;potential through which the electrons have dropped by the time they arrive at
+;;FAST.
+FUNCTION SELECT_DENS,dens_m,T_m,RTemp,pot, $
+                     TREAT_DENS_AS_FAST_DENS_AND_MAP_W_BARBOSA=treat_dens_as_being_at_FAST, $
+                     FACTOR_BY_WHICH_TO_REDUCE_BARBOSA_POT=factor_by_which_to_reduce_Barbosa_pot, $
+                     TREAT_DENS_AS_MAPPING_WITH_RB=treat_dens_as_mapping_with_RB
+
+  COMPILE_OPT IDL2
+
+  nPot = N_ELEMENTS(pot)
+
+  CASE 1 OF
+     KEYWORD_SET(treat_dens_as_being_at_FAST): BEGIN
+
+        ;;This is present because sometimes at FAST (say, during orbit 1773) the
+        ;;spacecraft observes the density of a precipitating distribution before
+        ;;that distribution drops through the potential BELOW FAST. In this
+        ;;case, we only want to use the potential through which the electrons
+        ;;have dropped by the time they arrive at FAST.
+        IF N_ELEMENTS(factor_by_which_to_reduce_Barbosa_pot) EQ 0 THEN BEGIN
+           factor_by_which_to_reduce_Barbosa_pot = 2.D
+        ENDIF
+        tmpDens      = DENSITY_FACTOR__BARBOSA_1977(pot/factor_by_which_to_reduce_Barbosa_pot, $
+                                                    T_m, $
+                                                    !NULL, $
+                                                    dens_m, $
+                                                    RTemp)
+
+        IF N_ELEMENTS(WHERE(FINITE(tmpDens))) NE N_ELEMENTS(pot) THEN STOP
+
+     END
+     KEYWORD_SET(treat_dens_as_mapping_with_RB): BEGIN
+
+        tmpDens     = REPLICATE(dens_m / RTemp,nPot)
+
+     END
+     ELSE: BEGIN
+
+        tmpDens     = REPLICATE(dens_m,nPot)
+     END
+  ENDCASE
+
+  RETURN,tmpDens
+
+END
+
+
 PRO JOURNAL__20180115__EXPLORE_J_V_RELATION__DENS_TEMP, $
    MAXPOT=maxPot, $
    MINPOT=minPot, $
@@ -10,6 +63,7 @@ PRO JOURNAL__20180115__EXPLORE_J_V_RELATION__DENS_TEMP, $
    TREAT_DENS_AS_FAST_DENS_AND_MAP_W_BARBOSA=treat_dens_as_being_at_FAST, $
    FACTOR_BY_WHICH_TO_REDUCE_BARBOSA_POT=factor_by_which_to_reduce_Barbosa_pot, $
    TREAT_DENS_AS_MAPPING_WITH_RB=treat_dens_as_mapping_with_RB, $
+   ADD_RH_BARBOSA_DENSITY_AXIS=add_Barbosa_axis, $
    SET_FOR_MAXWELLIAN=set_for_Maxwellian, $
    KAPPAVAL=kappaVal, $
    SAVE_PNG=save_png, $
@@ -78,14 +132,15 @@ PRO JOURNAL__20180115__EXPLORE_J_V_RELATION__DENS_TEMP, $
 
   CASE 1 OF
      (ALOG10(maxPot) - ALOG10(minPot)) LT 2: BEGIN
-        pot             = [minPot:maxPot:10.^(FLOOR(ALOG10(minPot))-2)]
+        pot             = [minPot:maxPot:10.^(FLOOR(ALOG10(minPot))-2)] ;Linear scaling
         xLog            = N_ELEMENTS(xLog) GT 0 ? xLog : 0
      END
      ELSE: BEGIN
-        pot             = POWGEN(minPot,maxPot,1.15)
+        pot             = POWGEN(minPot,maxPot,1.15) ;Log scaling
         xLog            = N_ELEMENTS(xLog) GT 0 ? xLog : 1
      END
   ENDCASE
+  nPts                  = N_ELEMENTS(pot)
   
   T_m                   = KEYWORD_SET(temperature) ? temperature : 1000.D ;eV
   dens_m                = KEYWORD_SET(density    ) ? density     : 0.3D   ; cm^-3
@@ -102,19 +157,24 @@ PRO JOURNAL__20180115__EXPLORE_J_V_RELATION__DENS_TEMP, $
                             30, $
                            100, $
                            300, $
-                          1000]
+                          1000, $
+                          3000, $
+                         10000]
 
   potBar_bars           = [1,10,100,1000]
 
   lineStyle       = ['-',"-:","--","-.",'__',":",'-']
 
-  color           = ['orange','red','green','blue','black','purple','pink']
+  color           = ['orange','red','green','blue','black','purple','brown','yellow']
 
   ;; in_potBar    = 10.D^(DOUBLE(INDGEN(25)/4.-2))
 
-  n_RB_texts      = 7
+  IF KEYWORD_SET(add_Barbosa_axis) THEN barbosa_RBs = [1.5,3,100]
+
+  n_RB_texts      = N_ELEMENTS(R_B)
 
   lineThick       = 2.0
+  margin          = [0.1, 0.1, 0.1, 0.1]
 
   xRange          = [MIN(pot),MAX(pot)]
 
@@ -143,33 +203,10 @@ PRO JOURNAL__20180115__EXPLORE_J_V_RELATION__DENS_TEMP, $
      RTemp           = R_B[iPlot]
      PRINT,"R_B  : ",RTemp
 
-     tmpDens         = dens_m
-
-     IF KEYWORD_SET(treat_dens_as_being_at_FAST) THEN BEGIN
-
-        ;;This is present because sometimes at FAST (say, during orbit 1773) the
-        ;;spacecraft observes the density of a precipitating distribution before
-        ;;that distribution drops through the potential BELOW FAST. In this
-        ;;case, we only want to use the potential through which the electrons
-        ;;have dropped by the time they arrive at FAST.
-        IF N_ELEMENTS(factor_by_which_to_reduce_Barbosa_pot) EQ 0 THEN BEGIN
-           factor_by_which_to_reduce_Barbosa_pot = 2.D
-        ENDIF
-        tmpDens      = DENSITY_FACTOR__BARBOSA_1977(pot/factor_by_which_to_reduce_Barbosa_pot, $
-                                                    T_m, $
-                                                    !NULL, $
-                                                    dens_m, $
-                                                    RTemp)
-
-        IF N_ELEMENTS(WHERE(FINITE(tmpDens))) NE N_ELEMENTS(pot) THEN STOP
-
-     ENDIF
-
-     IF KEYWORD_SET(treat_dens_as_mapping_with_RB) THEN BEGIN
-
-        tmpDens     = dens_m / RTemp
-
-     ENDIF
+     tmpDens         = SELECT_DENS(dens_m,T_m,RTemp,pot, $
+                                   TREAT_DENS_AS_FAST_DENS_AND_MAP_W_BARBOSA=treat_dens_as_being_at_FAST, $
+                                   FACTOR_BY_WHICH_TO_REDUCE_BARBOSA_POT=factor_by_which_to_reduce_Barbosa_pot, $
+                                   TREAT_DENS_AS_MAPPING_WITH_RB=treat_dens_as_mapping_with_RB)
 
      IF ~KEYWORD_SET(onlyMaxwellian) THEN BEGIN
 
@@ -194,11 +231,13 @@ PRO JOURNAL__20180115__EXPLORE_J_V_RELATION__DENS_TEMP, $
                                ;; YTICKFORMAT='exponentlabel', $
                                ;; YTICKVALUES=yTickValues, $
                                ;; YTICKNAME=yTickName, $
-                               LINESTYLE=lineStyle[iPlot], $
-                               COLOR=color[iPlot], $
+                               AXIS_STYLE=1, $
+                               LINESTYLE=lineStyle[iPlot MOD (N_ELEMENTS(lineStyle)-1)], $
+                               COLOR=color[iPlot MOD (N_ELEMENTS(color)-1)], $
                                FONT_SIZE=fontSize, $
                                THICK=lineThick, $
                                OVERPLOT=iPlot GT 0, $
+                               MARGIN=margin, $
                                CURRENT=window)
 
      ENDIF
@@ -232,6 +271,7 @@ PRO JOURNAL__20180115__EXPLORE_J_V_RELATION__DENS_TEMP, $
                                COLOR=color[iPlot], $
                                THICK=lineThick, $
                                FONT_SIZE=fontSize, $
+                               MARGIN=margin, $
                                OVERPLOT=KEYWORD_SET(onlyMaxwellian) ? (iPlot GT 0) : 1, $
                                CURRENT=window)
 
@@ -308,6 +348,76 @@ PRO JOURNAL__20180115__EXPLORE_J_V_RELATION__DENS_TEMP, $
   ENDIF
 
   
+  IF KEYWORD_SET(add_Barbosa_axis) THEN BEGIN
+
+     nHere        = N_ELEMENTS(barbosa_RBs)
+     barbPArr     = MAKE_ARRAY(nHere,/OBJ)
+     barbDensArr  = MAKE_ARRAY(nPts,nHere,/DOUBLE)
+
+     textArr      = 'R!DB!N = ' + STRING(FORMAT='(I0)',barbosa_RBs)
+     textObjArr   = MAKE_ARRAY(nHere,/OBJ)
+     xText        = 300000
+     textMin      = MIN(ABS(pot-xText),textInd)
+
+     color        = 'BLUE'
+
+     ;; First get all densities so we can get plot bounds
+     FOR k=0,NHere-1 DO BEGIN
+
+        RTemp            = barbosa_RBs[k]
+
+        barbDensArr[*,k] = SELECT_DENS(dens_m,T_m,RTemp,pot, $
+                                       TREAT_DENS_AS_FAST_DENS_AND_MAP_W_BARBOSA=treat_dens_as_being_at_FAST, $
+                                       FACTOR_BY_WHICH_TO_REDUCE_BARBOSA_POT=factor_by_which_to_reduce_Barbosa_pot, $
+                                       TREAT_DENS_AS_MAPPING_WITH_RB=treat_dens_as_mapping_with_RB)
+
+     ENDFOR
+
+     ;; now min and max
+     dRange = MINMAX(barbDensArr)
+
+     FOR k=0,NHere-1 DO BEGIN
+
+        RTemp            = barbosa_RBs[k]
+
+        barbPArr[k]  = PLOT(pot,barbDensArr[*,k], $
+                            NAME=textArr[k], $
+                            TITLE=plotTitle, $
+                            XTITLE=xTitle, $
+                            YTITLE=yTitle, $
+                            XRANGE=xRange, $
+                            YRANGE=dRange, $
+                            XLOG=xLog, $
+                            YLOG=yLog, $
+                            COLOR=color, $
+                            AXIS_STYLE=0, $
+                            ;; XTICKFORMAT='exponentlabel', $
+                            ;; YTICKFORMAT='exponentlabel', $
+                            ;; LINESTYLE=lineStyle[iPlot], $
+                            ;; COLOR=color[], $
+                            THICK=lineThick, $
+                            FONT_SIZE=fontSize, $
+                            MARGIN=margin, $
+                            TRANSPARENCY=80, $
+                            ;; OVERPLOT=k GT 0, $
+                            CURRENT=window)
+
+     ENDFOR
+
+     barbosaAxis = AXIS('y', $
+                        TARGET=barbPArr[0], $
+                        ;; major=5, $ ; [0, 90, 180, 270, 360]
+                        ;; minor=2, $
+                        LOCATION=[MAX(xRange),0,0], $ ; right axis, data coordinates
+                        TEXTPOS=1, $                              ; text faces outward
+                        TICKDIR=1, $                              ; ticks face inward
+                        TICKFONT_SIZE=fontSize, $
+                        COLOR=color, $
+                        TITLE='Density (cm!U-3!N)')
+
+  ENDIF
+
+
   IF KEYWORD_SET(save_png) THEN BEGIN
      SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/ISSI_AurPhys_Fig_3_9/'
 

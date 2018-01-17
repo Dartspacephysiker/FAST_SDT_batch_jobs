@@ -72,10 +72,14 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   ;; debug__skip_to_this_time          = '1997-02-01/09:27:01.57'
   ;; debug__break_on_this_time         = '1997-02-01/09:27:01.57'
 
-  bonusBonusPref                    = '-noBelowPk-fixedTQQ'
-  bonusBonusPref                    = '-1BelowPk-fixedTQQ'
-  bonusBonusPref                    = '-0BelowPk-fixedTQQ'
-  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55','09:27:05']] ;Adjust a bit
+  ;; bonusBonusPref                    = '-noBelowPk-fixedTQQ'
+  ;; bonusBonusPref                    = '-1BelowPk-fixedTQQ'
+  ;; bonusBonusPref                    = '-0BelowPk-fixedTQQ'
+  bonusBonusPref                    = '-0BelowPk-neue'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55','09:27:05']] ;Adjust a bit
+
+  bonusBonusPref                    = '-0BelowPk-done'
+  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56','09:27:05']] ;Adjust a bit
 
   only_1D_fits                      = 0
 
@@ -162,7 +166,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                           min_peak_energy_recommande[evtNum] : 500)
   max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
 
-  msph_sourcecone_halfWidth = 90
+  ;; msph_sourcecone_halfWidth = 90
 
   ;;survey window
   eeb_or_ees           = eeb_or_ees__recommande[evtNum]
@@ -310,7 +314,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                ;; eRange__temp_list         :, $
                use_energies_above_peak_for_temp : [1,0,0], $
                ;; msph_sourcecone_halfWidth : 150, $
-               msph_sourcecone_halfWidth : msph_sourcecone_halfWidth, $
+               ;; msph_sourcecone_halfWidth : msph_sourcecone_halfWidth, $
                all_pitchAngles : 0, $
                allPitch_except_atm_lc : 0, $
                ;; jv_theor__initial_source_R_E : 5.0D, $
@@ -320,7 +324,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                ;; jv_theor__itergame_NFac   : 3.0, $
                jv_theor__itergame_tie_R_B_and_dens : 1, $
                in_bonusPref                        : bonusPref, $
-               plots_in_buffer                     : 0}
+               plots_in_buffer                     : 1}
 
   IF KEYWORD_SET(aRange__dens_e_down) THEN BEGIN
      STR_ELEMENT,cAP_struct,'aRange__dens_e_down',aRange__dens_e_down,/ADD_REPLACE
