@@ -16,8 +16,8 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                        LOG_KAPPAPLOT=log_kappaPlot, $
                        FIT2DKAPPA_INF_LIST=fit2DKappa_inf_list, $
                        FIT2DGAUSS_INF_LIST=fit2DGauss_inf_list, $
-                       KAPPAFITS=kappaFits, $
-                       GAUSSFITS=gaussFits, $
+                       KAPPAFIT1DS=kappaFit1Ds, $
+                       GAUSSFIT1DS=gaussFit1Ds, $
                        CHI2_THRESHOLD=chi2_thresh, $
                        CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
                        HIGHDENSITY_THRESHOLD=highDens_thresh, $
@@ -852,7 +852,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 ;;Include kappa panel?
   IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
 
-     IF N_ELEMENTS(kappaFits) NE N_ELEMENTS(gaussFits) THEN STOP
+     IF N_ELEMENTS(kappaFit1Ds) NE N_ELEMENTS(gaussFit1Ds) THEN STOP
 
      kappa2D            = PARSE_KAPPA_FIT2D_INFO_LIST_V2(fit2DKappa_inf_list, $
                                                          CHI2_THRESHOLD=chi2_thresh, $
@@ -884,41 +884,44 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                                                          OUT_BAD_I=excludeG_i, $
                                                          OUT_BAD_T=excludeG_t)
 
-     PARSE_KAPPA_FIT_STRUCTS,kappaFits, $
-                             A=a, $
-                             STRUCT_A=Astruct, $
-                             TIME=kappaTime, $
-                             MATCH_TIMES=kappa2D.SDT[*].time, $
-                             NAMES_A=A_names, $
-                             CHI2=chi2, $
-                             PVAL=pVal, $
-                             FITSTATUS=fitStatus, $
-                             /USE_MPFIT1D
+     PRINT,"This has not been update to use 2D fit parameters (e.g., search for Astruct and see what turns up in this pro)!"
+     PRINT,"Gotta fix it"
+     STOP
+     ;; PARSE_KAPPA_FIT_STRUCTS,kappaFit1Ds, $
+     ;;                         A=a, $
+     ;;                         STRUCT_A=Astruct, $
+     ;;                         TIME=kappaTime, $
+     ;;                         MATCH_TIMES=kappa2D.SDT[*].time, $
+     ;;                         NAMES_A=A_names, $
+     ;;                         CHI2=chi2, $
+     ;;                         PVAL=pVal, $
+     ;;                         FITSTATUS=kappaFitStatus, $
+     ;;                         /USE_MPFIT1D
 
-     PARSE_KAPPA_FIT_STRUCTS,gaussFits, $
-                             A=AGauss, $
-                             STRUCT_A=AStructGauss, $
-                             TIME=GaussTime, $
-                             MATCH_TIMES=kappa2D.SDT[*].time, $
-                             NAMES_A=AGauss_names, $
-                             CHI2=chi2Gauss, $
-                             PVAL=pValGauss, $
-                             FITSTATUS=gaussfitStatus, $
-                             /USE_MPFIT1D
+     ;; PARSE_KAPPA_FIT_STRUCTS,gaussFit1Ds, $
+     ;;                         A=AGauss, $
+     ;;                         STRUCT_A=AStructGauss, $
+     ;;                         TIME=GaussTime, $
+     ;;                         MATCH_TIMES=kappa2D.SDT[*].time, $
+     ;;                         NAMES_A=AGauss_names, $
+     ;;                         CHI2=chi2Gauss, $
+     ;;                         PVAL=pValGauss, $
+     ;;                         FITSTATUS=gaussFit1DStatus, $
+     ;;                         /USE_MPFIT1D
 
-     IF ~ARRAY_EQUAL(kappaTime,GaussTime) THEN STOP
-     nFits           = N_ELEMENTS(kappa2D.fitDens)
-     badFits_i       = WHERE(fitStatus NE 0,nBadFits)
-     badGaussFits_i  = WHERE(gaussFitStatus NE 0,nBadGaussFits)
-     bothBad_i       = ( (badFits_i[0] EQ -1) AND (badGaussFits_i[0] EQ -1 ) ) ? !NULL : $
-                       CGSETINTERSECTION(badFits_i,badGaussFits_i)
-     PRINT,""
-     PRINT,"****************************************"
-     PRINT,'NTotalFits    : ',nFits
-     PRINT,''
-     PRINT,"NbadFits      : ",nBadFits
-     PRINT,"NbadGaussFits : ",nBadGaussFits
-     PRINT,"NBothBad      : ",N_ELEMENTS(bothBad_i)
+     ;; IF ~ARRAY_EQUAL(kappaTime,GaussTime) THEN STOP
+     ;; nFits           = N_ELEMENTS(kappa2D.fitMoms.scDens)
+     ;; badFits_i       = WHERE(kappaFitStatus NE 0,nBadFits)
+     ;; badGaussFit1Ds_i  = WHERE(gaussFit1DStatus NE 0,nBadGaussFit1Ds)
+     ;; bothBad_i       = ( (badFits_i[0] EQ -1) AND (badGaussFit1Ds_i[0] EQ -1 ) ) ? !NULL : $
+     ;;                   CGSETINTERSECTION(badFits_i,badGaussFit1Ds_i)
+     ;; PRINT,""
+     ;; PRINT,"****************************************"
+     ;; PRINT,'NTotalFits    : ',nFits
+     ;; PRINT,''
+     ;; PRINT,"NbadFits      : ",nBadFits
+     ;; PRINT,"NbadGaussFit1Ds : ",nBadGaussFit1Ds
+     ;; PRINT,"NBothBad      : ",N_ELEMENTS(bothBad_i)
 
      ;; STORE_DATA,'kappa_fit',DATA={x:kappaTime,y:Astruct.kappa}
      STORE_DATA,'kappa_fit',DATA={x:kappaTime,y:REFORM(kappa2D.fitParams[2,*])}

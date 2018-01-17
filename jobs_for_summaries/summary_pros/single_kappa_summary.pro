@@ -22,8 +22,8 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          GAUSS2D=gauss2D, $
                          KAPPA_FITPARAM_STRUCT=k2DParms, $
                          GAUSS_FITPARAM_STRUCT=g2DParms, $
-                         KAPPAFITS=kappaFits, $
-                         GAUSSFITS=gaussFits, $
+                         KAPPAFIT1DS=kappaFit1Ds, $
+                         GAUSSFIT1DS=gaussFit1Ds, $
                          DIFF_EFLUX=diff_eFlux, $
                          CURPOTLIST=curPotList, $
                          JVPLOTDATA=jvPlotData, $
@@ -111,21 +111,21 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   ENDIF
 
-  IF N_ELEMENTS(kappaFits) NE N_ELEMENTS(gaussFits) THEN STOP
+  IF N_ELEMENTS(kappaFit1Ds) NE N_ELEMENTS(gaussFit1Ds) THEN STOP
 
-  STR_ELEMENT_FROM_LIST_OF_STRUCTS,kappaFits,'fitStatus',VALUE=kappaFitStatus
-  STR_ELEMENT_FROM_LIST_OF_STRUCTS,gaussFits,'fitStatus',VALUE=gaussFitStatus
+  STR_ELEMENT_FROM_LIST_OF_STRUCTS,kappaFit1Ds,'fitStatus',VALUE=kappaFit1DStatus
+  STR_ELEMENT_FROM_LIST_OF_STRUCTS,gaussFit1Ds,'fitStatus',VALUE=gaussFit1DStatus
 
   nHereK    = N_ELEMENTS(fit2DKappa_inf_list)
   nHereG    = N_ELEMENTS(fit2DGauss_inf_list)
-  kappaTime = MAKE_ARRAY(nHereK,/DOUBLE,VALUE=0.0D)
-  gaussTime = MAKE_ARRAY(nHereG,/DOUBLE,VALUE=0.0D)
+  kappa2DTime = MAKE_ARRAY(nHereK,/DOUBLE,VALUE=0.0D)
+  gauss2DTime = MAKE_ARRAY(nHereG,/DOUBLE,VALUE=0.0D)
 
   FOR k=0,nHereK-1 DO $
-     kappaTime[k] = fit2DKappa_inf_list[k].sdt.time 
+     kappa2DTime[k] = fit2DKappa_inf_list[k].sdt.time 
 
   FOR k=0,nHereG-1 DO $
-     gaussTime[k] = fit2DGauss_inf_list[k].sdt.time
+     gauss2DTime[k] = fit2DGauss_inf_list[k].sdt.time
 
   ;; CASE 1 OF
   ;;    KEYWORD_SET(jvPlotData.use_source_avgs): BEGIN
@@ -152,35 +152,48 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                             SKIP_USEINDS=skip_useInds, $
                             /ARRAYS  
 
+  ;; 2018/01/17
+  ;; Checking out how calculated moments in jvPlotData and fit2DKappa_inf_list differ (and they do!!)
+  
+  ;; STR_ELEMENT_FROM_LIST_OF_STRUCTS,fit2DKappa_inf_list,'sdt',value=sdters
+  ;; STR_ELEMENT_FROM_LIST_OF_STRUCTS,fit2DKappa_inf_list,'obsmoms',value=obsmoms
+  ;; matchie = VALUE_CLOSEST2(jvplotdata.time,sdters.time,/CONSTRAINED)
+
+  ;; FOR k=0,76 DO PRINT,(jvplotdata.source.ndown[matchie])[k],', ',obsmoms[k].scdens,', ', $
+  ;; (jvplotdata.source.ndown[matchie])[k]-obsmoms[k].scdens
+
+  ;; FOR k=0,76 DO PRINT,(jvplotdata.tdown[matchie])[k],', ',obsmoms[k].sctemp,', ', $
+  ;; (jvplotdata.tdown[matchie])[k]-obsmoms[k].sctemp
+
   ;;The vars we use
-  Dens2DK = {x:kappaTime,y:k2DParms.N}
-  Dens2DG = {x:GaussTime,y:g2DParms.N}
+  Dens2DK = {x:kappa2DTime,y:k2DParms.N}
+  Dens2DG = {x:Gauss2DTime,y:g2DParms.N}
   Dens2DD = {x:jvPlotData.time,y:Density,dy:DensityErr}
 
-  ;; Temp2DK = {x:kappaTime,y:k2DParms.temperature*(k2DParms.kappa-1.5D)/k2DParms.kappa}
-  Temp2DK = {x:kappaTime,y:k2DParms.temperature}
-  Temp2DG = {x:GaussTime,y:g2DParms.temperature}
+  ;; Temp2DK = {x:kappa2DTime,y:k2DParms.temperature*(k2DParms.kappa-1.5D)/k2DParms.kappa}
+  Temp2DK = {x:kappa2DTime,y:k2DParms.temperature}
+  Temp2DG = {x:Gauss2DTime,y:g2DParms.temperature}
   Temp2DD = {x:jvPlotData.time,y:Temperature,dy:TemperatureErr}
 
-  chi22DK = {x:kappaTime,y:kappa2D.chi2/(kappa2D.dof-kappa2D.nFree)}
-  chi22DG = {x:GaussTime,y:gauss2D.chi2/(gauss2D.dof-gauss2D.nFree)}
+  chi22DK = {x:kappa2DTime,y:kappa2D.chi2/(kappa2D.dof-kappa2D.nFree)}
+  chi22DG = {x:Gauss2DTime,y:gauss2D.chi2/(gauss2D.dof-gauss2D.nFree)}
 
-  BlkE2DK = {x:kappaTime,y:k2DParms.bulk_energy}
-  BlkE2DG = {x:GaussTime,y:g2DParms.bulk_energy}
+  BlkE2DK = {x:kappa2DTime,y:k2DParms.bulk_energy}
+  BlkE2DG = {x:Gauss2DTime,y:g2DParms.bulk_energy}
 
-  IF ~ARRAY_EQUAL(kappaTime,GaussTime) THEN STOP
-  nFits           = N_ELEMENTS(kappa2D.fitMoms.scDens)
-  badFits_i       = WHERE(kappaFitStatus NE 0,nBadFits)
-  badGaussFits_i  = WHERE(gaussFitStatus NE 0,nBadGaussFits)
-  bothBad_i       = ( (badFits_i[0] EQ -1) AND (badGaussFits_i[0] EQ -1 ) ) ? !NULL : $
-                    CGSETINTERSECTION(badFits_i,badGaussFits_i)
-  PRINT,""
-  PRINT,"****************************************"
-  PRINT,'NTotalFits    : ',nFits
-  PRINT,''
-  PRINT,"NbadFits      : ",nBadFits
-  PRINT,"NbadGaussFits : ",nBadGaussFits
-  PRINT,"NBothBad      : ",N_ELEMENTS(bothBad_i)
+  ;; IF ~ARRAY_EQUAL(kappa2DTime,Gauss2DTime) THEN STOP
+  ;; nKappaFits        = N_ELEMENTS(kappa2D.fitMoms.scDens)
+  ;; badKappaFits_i    = WHERE(kappaFit1DStatus NE 0,nBadKappaFits)
+  ;; badGaussFit1Ds_i  = WHERE(gaussFit1DStatus NE 0,nBadGaussFit1Ds)
+  ;; bothBad_i         = ( (badKappaFits_i[0] EQ -1) AND (badGaussFit1Ds_i[0] EQ -1 ) ) ? !NULL : $
+  ;;                   CGSETINTERSECTION(badKappaFits_i,badGaussFit1Ds_i)
+  ;; PRINT,""
+  ;; PRINT,"****************************************"
+  ;; PRINT,'NTotal1DFits    : ',nKappaFits
+  ;; PRINT,''
+  ;; PRINT,"NbadKappaFits   : ",nBadFits
+  ;; PRINT,"NbadGaussFit1Ds : ",nBadGaussFit1Ds
+  ;; PRINT,"NBothBad        : ",N_ELEMENTS(bothBad_i)
 
   ;;Are we supposed to add stuff from diff_eFlux?
   ;; IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
@@ -880,8 +893,8 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   ;; IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
 
   IF ~KEYWORD_SET(plot_1_over_kappa) THEN BEGIN
-     ;; STORE_DATA,'kappa_fit',DATA={x:kappaTime,y:Astruct.kappa}
-     STORE_DATA,'kappa_fit',DATA={x:kappaTime,y:REFORM(kappa2D.fitParams[2,*])}
+     ;; STORE_DATA,'kappa_fit',DATA={x:kappa2DTime,y:Astruct.kappa}
+     STORE_DATA,'kappa_fit',DATA={x:kappa2DTime,y:REFORM(kappa2D.fitParams[2,*])}
      kappaBounds      = [MIN(k2DParms.kappa), $
                          MAX(k2DParms.kappa)]
      CASE 1 OF
@@ -894,7 +907,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      ENDCASE
 
   ENDIF ELSE BEGIN
-     STORE_DATA,'kappa_fit',DATA={x:kappaTime,y:REFORM(1./kappa2D.fitParams[2,*])}
+     STORE_DATA,'kappa_fit',DATA={x:kappa2DTime,y:REFORM(1./kappa2D.fitParams[2,*])}
      kappaBounds      = [MIN(1./k2DParms.kappa), $
                          MAX(1./k2DParms.kappa)]
      showLog_kappa    = (ALOG10(1./kappaBounds[1])-ALOG10(1./kappaBounds[0])) GT 1.5
@@ -915,7 +928,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   OPTIONS,'kappa_fit','symsize',!P.SYMSIZE
 
   ;;And a line to show where the awesome kappa vals are
-  STORE_DATA,'kappa_critisk',DATA={x:kappaTime,y:MAKE_ARRAY(N_ELEMENTS(kappaTime),VALUE=2.45)}
+  STORE_DATA,'kappa_critisk',DATA={x:kappa2DTime,y:MAKE_ARRAY(N_ELEMENTS(kappa2DTime),VALUE=2.45)}
   OPTIONS,'kappa_critisk','colors',red
 
   if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['kappa_fit'] else tPlt_vars=[tPlt_vars,'kappa_fit']
@@ -962,7 +975,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   ;;And a line to show where the awesome chi2 vals are, if desired
   IF KEYWORD_SET(add_chi2_line) THEN BEGIN
-     STORE_DATA,'chi2_critisk',DATA={x:kappaTime,y:MAKE_ARRAY(N_ELEMENTS(kappaTime),VALUE=add_chi2_line GT 1 ? add_chi2_line : 5.0)}
+     STORE_DATA,'chi2_critisk',DATA={x:kappa2DTime,y:MAKE_ARRAY(N_ELEMENTS(kappa2DTime),VALUE=add_chi2_line GT 1 ? add_chi2_line : 5.0)}
      ;; OPTIONS,'chi2_critisk','colors',red
   ENDIF
 
@@ -1155,7 +1168,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      Ji_current                   =       Ji.y*1.6e-9    ;;in microA/m2
 
      ;;Get Kappa-predicted current
-     kappaStr                       = {time:kappaTime,comp1:aStruct.kappa,ncomp:1}
+     kappaStr                       = {time:kappa2DTime,comp1:aStruct.kappa,ncomp:1}
      
      ;;Align to kappa fits
      Je_kappa_interp       = DATA_CUT({x:Je.x,y:Je_current}, $
@@ -1284,7 +1297,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      ENDCASE
 
      
-     STORE_DATA,'onecheese',DATA={x:kappaTime, $
+     STORE_DATA,'onecheese',DATA={x:kappa2DTime, $
 
                                   y:obs_current}
      STORE_DATA,'fourcheese',DATA={x:jMag.x, $

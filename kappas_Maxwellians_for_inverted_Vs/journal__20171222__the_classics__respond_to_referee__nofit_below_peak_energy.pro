@@ -79,7 +79,10 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55','09:27:05']] ;Adjust a bit
 
   bonusBonusPref                    = '-0BelowPk-done'
-  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56','09:27:05']] ;Adjust a bit
+  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55','09:27:05']] ;Adjust a bit
+
+  ;; bonusBonusPref                    = 'ANDRE'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:13','09:26:21']] ;Adjust a bit
 
   only_1D_fits                      = 0
 
@@ -95,9 +98,9 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   add_oneCount_curve                = 1
 
   daPlots_cAP                       = 1
-  fit1D__save_plotSlices            = 0
-  fit2D__save_all_plots             = 0
-  fit2D__show_each_candidate        = 0
+  fit1D__save_plotSlices            = 1
+  fit2D__save_all_plots             = 1
+  fit2D__show_each_candidate        = 1
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
@@ -108,13 +111,13 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   fit2D__extend_fitStruct_eRange    = 0 ;to 50 keV, je crois?
   ;; fit2D__density_angleRange         = [-175,175]
 
-  fit2D__temperature_type  = 'PAR' ;or 'AVG'
+  fit2D__temperature_type  = 'AVG' ;or 'AVG'
   ;;PostScript options
   timeBars                 = 1
 
   eps                      = 1
 
-  show_Strangeway_summary  = 1
+  show_Strangeway_summary  = 0
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
@@ -134,7 +137,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -415,8 +418,8 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                         KSUM__OPLOT_POT=kSum__oPlot_pot, $
                         OUT_FIT2DK=fit2DK, $
                         OUT_FIT2DGAUSS=fit2DG, $
-                        OUT_KAPPA_FIT_STRUCTS=kappaFits, $
-                        OUT_GAUSS_FIT_STRUCTS=gaussFits, $
+                        OUT_KAPPAFIT1DSTRUCTS=kappaFit1Ds, $
+                        OUT_GAUSSFIT1DSTRUCTS=gaussFit1Ds, $
                         FIT2D_KAPPA_INF_LIST=fit2DKappa_inf_list, $
                         FIT2D_GAUSS_INF_LIST=fit2DGauss_inf_list, $
                         SAVE_DIFF_EFLUX_FILE=save_diff_eFlux_file, $
