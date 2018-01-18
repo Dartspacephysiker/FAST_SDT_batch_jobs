@@ -124,6 +124,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   show_kappa_summary  = 1
   ;; kSum__eAngle        = [-180,180]
   kSum__save_ps       = 1
+  kSum__add_parm_errors_from_file = 1
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
   kSum__add_meas_T_and_N = 1
@@ -134,7 +135,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -413,6 +414,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                         KSUM__ADD_MEASURED_T_AND_N=kSum__add_meas_T_and_N, $
                         KSUM__GRL=kSum__GRL, $
                         KSUM__OPLOT_POT=kSum__oPlot_pot, $
+                        KSUM__ADD_PARM_ERRORS_FROM_FILE=kSum__add_parm_errors_from_file, $
                         OUT_FIT2DK=fit2DK, $
                         OUT_FIT2DGAUSS=fit2DG, $
                         OUT_KAPPAFIT1DSTRUCTS=kappaFit1Ds, $

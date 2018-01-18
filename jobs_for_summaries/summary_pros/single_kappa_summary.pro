@@ -48,6 +48,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          INCLUDE_ELECTRON_PA_SPEC=include_electron_pa_spec, $
                          GRL=GRL, $
                          OPLOT_POT=oPlot_pot, $
+                         ADD_PARM_ERRORS_FROM_FILE=add_parm_errors_from_file, $
+                         FIT2DPARMERRFILE=fit2DParmErrFile, $
+                         FIT2DPARMERRDIR=fit2DParmErrDir, $
                          TIMEBARS=timeBars
 
   oldSize = !P.CHARSIZE
@@ -74,8 +77,12 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   kappaSym   = 7                ;X
 
   GaussColor = red
-  GaussSym   = 1                ;Plus sign
+  GaussSym   = KEYWORD_SET(add_parm_errors_from_file) ? 7 : 1 ;x if adding parm errors, plus sign if not
   ;; GaussSym   = 1                ;Asterisk
+
+  ;; try
+  kappaSym   = 5                ;X
+  GaussSym   = 6
 
   dataColor  = black
   dataSym    = 4                ;Diamond
@@ -166,20 +173,106 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   ;; (jvplotdata.tdown[matchie])[k]-obsmoms[k].sctemp
 
   ;;The vars we use
-  Dens2DK = {x:kappa2DTime,y:k2DParms.N}
-  Dens2DG = {x:Gauss2DTime,y:g2DParms.N}
   Dens2DD = {x:jvPlotData.time,y:Density,dy:DensityErr}
-
-  ;; Temp2DK = {x:kappa2DTime,y:k2DParms.temperature*(k2DParms.kappa-1.5D)/k2DParms.kappa}
-  Temp2DK = {x:kappa2DTime,y:k2DParms.temperature}
-  Temp2DG = {x:Gauss2DTime,y:g2DParms.temperature}
   Temp2DD = {x:jvPlotData.time,y:Temperature,dy:TemperatureErr}
 
-  chi22DK = {x:kappa2DTime,y:kappa2D.chi2/(kappa2D.dof-kappa2D.nFree)}
-  chi22DG = {x:Gauss2DTime,y:gauss2D.chi2/(gauss2D.dof-gauss2D.nFree)}
+  IF KEYWORD_SET(add_parm_errors_from_file) THEN BEGIN
 
-  BlkE2DK = {x:kappa2DTime,y:k2DParms.bulk_energy}
-  BlkE2DG = {x:Gauss2DTime,y:g2DParms.bulk_energy}
+     RESTORE,fit2DParmErrDir+fit2DParmErrFile
+
+     matchieKinit = VALUE_CLOSEST2(k2DParmErr.time,kappa2DTime,/CONSTRAINED)
+     matchieGinit = VALUE_CLOSEST2(g2DParmErr.time,Gauss2DTime,/CONSTRAINED)
+
+     matchieK     = WHERE(ABS(k2DParmErr.time[matchieKinit]-kappa2DTime) LT 0.05,nMatchieK)
+     matchieG     = WHERE(ABS(g2DParmErr.time[matchieKinit]-gauss2DTime) LT 0.05,nMatchieG)
+
+     IF nMatchieK EQ 0 OR nMatchieG EQ 0 THEN STOP
+
+     ;; Shift times of fitVals so we can see error bars
+     kappa2DTime += 0.1D 
+     gauss2DTime -= 0.1D
+
+     ;; VERSION FOR UPPER AND LOWER ERROR BARS
+
+     IF KEYWORD_SET(ParmUncertainty_2D) THEN BEGIN
+
+        ;; Error arrays
+        kappa2DErr   = MAKE_ARRAY(2,nHereK,/FLOAT)
+        BlkE2DKErr   = MAKE_ARRAY(2,nHereK,/FLOAT)
+        BlkE2DGErr   = MAKE_ARRAY(2,nHereK,/FLOAT)
+
+        Temp2DKErr   = MAKE_ARRAY(2,nHereK,/FLOAT)
+        Temp2DGErr   = MAKE_ARRAY(2,nHereK,/FLOAT)
+
+        Dens2DKErr   = MAKE_ARRAY(2,nHereK,/FLOAT)
+        Dens2DGErr   = MAKE_ARRAY(2,nHereK,/FLOAT)
+
+        ;; Load 'em up
+        kappa2DErr[*,matchieK]   = k2DParmErr.kappa[*,matchieK]
+
+        BlkE2DKErr[*,matchieK]   = k2DParmErr.bulk_energy[*,matchieK]
+        BlkE2DGErr[*,matchieG]   = g2DParmErr.bulk_energy[*,matchieG]
+
+        Temp2DKErr[*,matchieK]   = k2DParmErr.temperature[*,matchieK]
+        Temp2DGErr[*,matchieG]   = g2DParmErr.temperature[*,matchieG]
+
+        Dens2DKErr[*,matchieK]   = k2DParmErr.N[*,matchieK]
+        Dens2DGErr[*,matchieG]   = g2DParmErr.N[*,matchieG]
+
+     ENDIF ELSE BEGIN
+
+        ;; Error arrays
+        kappa2DErr   = MAKE_ARRAY(nHereK,/FLOAT)
+
+        BlkE2DKErr   = MAKE_ARRAY(nHereK,/FLOAT)
+        BlkE2DGErr   = MAKE_ARRAY(nHereK,/FLOAT)
+
+        Temp2DKErr   = MAKE_ARRAY(nHereK,/FLOAT)
+        Temp2DGErr   = MAKE_ARRAY(nHereK,/FLOAT)
+
+        Dens2DKErr   = MAKE_ARRAY(nHereK,/FLOAT)
+        Dens2DGErr   = MAKE_ARRAY(nHereK,/FLOAT)
+
+        ;; Load 'em up
+        kappa2DErr[matchieK]   = k2DParmErr.kappa[matchieK]
+
+        BlkE2DKErr[matchieK]   = k2DParmErr.bulk_energy[matchieK]
+        BlkE2DGErr[matchieG]   = g2DParmErr.bulk_energy[matchieG]
+
+        Temp2DKErr[matchieK]   = k2DParmErr.temperature[matchieK]
+        Temp2DGErr[matchieG]   = g2DParmErr.temperature[matchieG]
+
+        Dens2DKErr[matchieK]   = k2DParmErr.N[matchieK]
+        Dens2DGErr[matchieG]   = g2DParmErr.N[matchieG]
+
+     ENDELSE
+
+     BlkE2DK = {x:kappa2DTime,y:k2DParms.bulk_energy,dy:BlkE2DKErr}
+     BlkE2DG = {x:Gauss2DTime,y:g2DParms.bulk_energy,dy:BlkE2DGErr}
+
+     ;; Temp2DK = {x:kappa2DTime,y:k2DParms.temperature*(k2DParms.kappa-1.5D)/k2DParms.kappa}
+     Temp2DK = {x:kappa2DTime,y:k2DParms.temperature,dy:Temp2DKErr}
+     Temp2DG = {x:Gauss2DTime,y:g2DParms.temperature,dy:Temp2DGErr}
+
+     Dens2DK = {x:kappa2DTime,y:k2DParms.N,dy:Dens2DKErr}
+     Dens2DG = {x:Gauss2DTime,y:g2DParms.N,dy:Dens2DGErr}
+
+     chi22DK = {x:kappa2DTime,y:kappa2D.chi2/(kappa2D.dof-kappa2D.nFree)}
+     chi22DG = {x:Gauss2DTime,y:gauss2D.chi2/(gauss2D.dof-gauss2D.nFree)}
+
+  ENDIF ELSE BEGIN
+
+     BlkE2DK = {x:kappa2DTime,y:k2DParms.bulk_energy}
+     BlkE2DG = {x:Gauss2DTime,y:g2DParms.bulk_energy}
+
+     ;; Temp2DK = {x:kappa2DTime,y:k2DParms.temperature*(k2DParms.kappa-1.5D)/k2DParms.kappa}
+     Temp2DK = {x:kappa2DTime,y:k2DParms.temperature}
+     Temp2DG = {x:Gauss2DTime,y:g2DParms.temperature}
+
+     Dens2DK = {x:kappa2DTime,y:k2DParms.N}
+     Dens2DG = {x:Gauss2DTime,y:g2DParms.N}
+
+  ENDELSE
 
   ;; IF ~ARRAY_EQUAL(kappa2DTime,Gauss2DTime) THEN STOP
   ;; nKappaFits        = N_ELEMENTS(kappa2D.fitMoms.scDens)
@@ -264,7 +357,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   ENDIF ELSE BEGIN
 
      IF KEYWORD_SET(time1) AND KEYWORD_SET(time2) THEN BEGIN
-  
+        
         GET_FA_ORBIT,[time1,time2],/TIME_ARRAY
 
         GET_DATA,'ORBIT',DATA=orbit
@@ -355,13 +448,13 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
            IF KEYWORD_SET(save_ps) THEN BEGIN
 
               ;; POPEN,plotDir+outPlotName,/PORT,FONT=-1, $
-                    ;; ENCAPSULATED=eps,XSIZE=4,YSIZE=7
+              ;; ENCAPSULATED=eps,XSIZE=4,YSIZE=7
               POPEN,plotDir+outPlotName, $
                     ;; /LAND, $
                     /PORT, $
                     ;; ASPECT=0.625, $
                     FONT=-1, $
-                    ENCAPSULATED=eps;,XSIZE=8,YSIZE=7
+                    ENCAPSULATED=eps ;,XSIZE=8,YSIZE=7
               DEVICE,/PALATINO,FONT_SIZE=3
 
            ENDIF ELSE BEGIN
@@ -481,9 +574,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      STORE_DATA,var_name,DATA=data
      OPTIONS,var_name,'spec',1	
      ;; zlim,var_name,4,9,0
-        zlim,var_name, $
-             (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
+     zlim,var_name, $
+          (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
+          (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
      ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
      ylim,var_name,0,360,0
      OPTIONS,var_name,'ytitle','Ions!C!CAngle (Deg.)'
@@ -496,84 +589,84 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      bb = WHERE (data.v gt 270.,nb)
      if (nb gt 0) THEN data.v(bb)=data.v(bb)-360.
      nn = n_elements(data.x)
-     for n = 0,nn-1L do begin & $
-        bs = sort (data.v(n,*)) & $
-        data.v(n,*)=data.v(n,bs) & $
-        data.y(n,*)=data.y(n,bs) & $
-        endfor
-        STORE_DATA,var_name,DATA=data	
-        OPTIONS,var_name,'yminor',9
-        OPTIONS,var_name,'yticks',4
-        OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
-        ylim,var_name,-90,270,0
+     for n = 0,nn-1L do begin
+        bs = sort (data.v(n,*))
+        data.v(n,*)=data.v(n,bs)
+        data.y(n,*)=data.y(n,bs)
+     endfor
+     STORE_DATA,var_name,DATA=data	
+     OPTIONS,var_name,'yminor',9
+     OPTIONS,var_name,'yticks',4
+     OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
+     ylim,var_name,-90,270,0
 
-        IF KEYWORD_SET(include_ion_plots) THEN BEGIN
-           if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
+     IF KEYWORD_SET(include_ion_plots) THEN BEGIN
+        if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
 
 ; reset time limits if needed
 
-           IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
-           IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
+        IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
+        IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
 
-           if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) THEN begin
-              if (t1 lt tlimit_all[0]) THEN tlimit_all[0] = t1
-              if (t2 gt tlimit_all[1]) THEN tlimit_all[1] = t2
-              get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-              get_new_igrf,/no_store_old
-           endif
+        if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) THEN begin
+           if (t1 lt tlimit_all[0]) THEN tlimit_all[0] = t1
+           if (t2 gt tlimit_all[1]) THEN tlimit_all[1] = t2
+           get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
+           get_new_igrf,/no_store_old
+        endif
 
-           if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-              wInd = 0
-              WINDOW,wInd,XSIZE=700,YSIZE=900
-              ;; tplot_OPTIONS,'region',[0.,0.5,1.0,1.0]
-              loadct2,39
-              tplot,tPlt_vars,var=['ALT','ILAT','MLT'], $
-                    WINDOW=wInd, $
-                    TRANGE=[t1,t2]
-           endif
-           ;; if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-           ;;    loadct2,40
-           ;;    tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-           ;; endif
+        if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
+           wInd = 0
+           WINDOW,wInd,XSIZE=700,YSIZE=900
+           ;; tplot_OPTIONS,'region',[0.,0.5,1.0,1.0]
+           loadct2,39
+           tplot,tPlt_vars,var=['ALT','ILAT','MLT'], $
+                 WINDOW=wInd, $
+                 TRANGE=[t1,t2]
+        endif
+        ;; if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
+        ;;    loadct2,40
+        ;;    tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+        ;; endif
 
 ; ION ENERGY 
 
-           var_name='Iesa_Energy'
-           IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-              GET_EN_SPEC,'fa_' + ieb_or_ies + '_c', $
-                          NAME=var_name, $
-                          UNITS='eflux', $
-                          /CALIB, $
-                          RETRACE=1
-           ENDIF
-           GET_DATA,var_name,DATA=data
-           IF KEYWORD_SET(save_for_offline) THEN BEGIN
-              Iesa_Energy_off = data
-              saveStr += var_name + '_off,'
-           ENDIF
-           data.y = ALOG10(data.y)
-           STORE_DATA,var_name,DATA=data
-           OPTIONS,var_name,'spec',1	
-           ;; zlim,var_name,4,9,0
+        var_name='Iesa_Energy'
+        IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+           GET_EN_SPEC,'fa_' + ieb_or_ies + '_c', $
+                       NAME=var_name, $
+                       UNITS='eflux', $
+                       /CALIB, $
+                       RETRACE=1
+        ENDIF
+        GET_DATA,var_name,DATA=data
+        IF KEYWORD_SET(save_for_offline) THEN BEGIN
+           Iesa_Energy_off = data
+           saveStr += var_name + '_off,'
+        ENDIF
+        data.y = ALOG10(data.y)
+        STORE_DATA,var_name,DATA=data
+        OPTIONS,var_name,'spec',1	
+        ;; zlim,var_name,4,9,0
         zlim,var_name, $
              (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
              (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
-           ylim,var_name,4,30000,1
-           OPTIONS,var_name,'ytitle','Ions!C!CEnergy (eV)'
-           OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-           OPTIONS,var_name,'x_no_interp',1
-           OPTIONS,var_name,'y_no_interp',1
-           OPTIONS,var_name,'panel_size',2
+        ylim,var_name,4,30000,1
+        OPTIONS,var_name,'ytitle','Ions!C!CEnergy (eV)'
+        OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        OPTIONS,var_name,'x_no_interp',1
+        OPTIONS,var_name,'y_no_interp',1
+        OPTIONS,var_name,'panel_size',2
 
-           if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
+        if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
 
-           if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-              ;; loadct2,40
-              tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-           endif
+        if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
+           ;; loadct2,40
+           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+        endif
 
-        ENDIF
-     endif
+     ENDIF
+  endif
 
 
 ; Step 4 - Eesa data
@@ -627,97 +720,97 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         bb = WHERE (data.v gt 270.,nb)
         if (nb gt 0) THEN data.v(bb)=data.v(bb)-360.
         nn = n_elements(data.x)
-        for n = 0,nn-1L do begin & $
-           bs = sort (data.v(n,*)) & $
-           data.v(n,*)=data.v(n,bs) & $
-           data.y(n,*)=data.y(n,bs) & $
-           endfor
-           STORE_DATA,var_name,DATA=data
-           OPTIONS,var_name,'yminor',9
-           OPTIONS,var_name,'yticks',4
-           OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
-           ylim,var_name,-90,270,0
+        for n = 0,nn-1L do begin
+           bs = sort (data.v(n,*))
+           data.v(n,*)=data.v(n,bs)
+           data.y(n,*)=data.y(n,bs)
+        endfor
+        STORE_DATA,var_name,DATA=data
+        OPTIONS,var_name,'yminor',9
+        OPTIONS,var_name,'yticks',4
+        OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
+        ylim,var_name,-90,270,0
 
-           if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
+        if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
 
 ; reset time limits if needed
 
-           IF N_ELEMENTS(t1) EQ 0 THEN t1 = data.x[0]
-           IF N_ELEMENTS(t2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
+        IF N_ELEMENTS(t1) EQ 0 THEN t1 = data.x[0]
+        IF N_ELEMENTS(t2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
 
-           ;;Do we have tlimit_all?
-           this = GET_DQDS()
-           those = WHERE(STRMATCH(this,'mag*',/FOLD_CASE))
-           IF those[0] NE -1 THEN this = this[those[0]]
-           tlimit_all = GET_SDT_TIMESPAN(t1Tmp,t2Tmp,DQD=this)
-           tlimit_all = [TEMPORARY(t1Tmp),TEMPORARY(t2Tmp)]
+        ;;Do we have tlimit_all?
+        this = GET_DQDS()
+        those = WHERE(STRMATCH(this,'mag*',/FOLD_CASE))
+        IF those[0] NE -1 THEN this = this[those[0]]
+        tlimit_all = GET_SDT_TIMESPAN(t1Tmp,t2Tmp,DQD=this)
+        tlimit_all = [TEMPORARY(t1Tmp),TEMPORARY(t2Tmp)]
 
-           if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) THEN begin
-              if (t1 lt tlimit_all[0]) THEN tlimit_all[0] = t1
-              if (t2 gt tlimit_all[1]) THEN tlimit_all[1] = t2
-              GET_FA_ORBIT,tlimit_all[0],tlimit_all[1],/ALL,STATUS=no_model,DELTA=1.,/DEFINITIVE,/DRAG_PROP
-              GET_NEW_IGRF,/NO_STORE_OLD
-           endif
+        if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) THEN begin
+           if (t1 lt tlimit_all[0]) THEN tlimit_all[0] = t1
+           if (t2 gt tlimit_all[1]) THEN tlimit_all[1] = t2
+           GET_FA_ORBIT,tlimit_all[0],tlimit_all[1],/ALL,STATUS=no_model,DELTA=1.,/DEFINITIVE,/DRAG_PROP
+           GET_NEW_IGRF,/NO_STORE_OLD
+        endif
 
-           if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-              ;; LOADCT2,40
-              TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
-           endif
-        ENDIF
-
-; ELECTRON ENERGY
-
-        var_name='Eesa_Energy'
-        IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-           GET_EN_SPEC,'fa_' + eeb_or_ees + '_c', $
-                       NAME=var_name, $
-                       UNITS='eflux', $
-                       ANGLE=electron_angleRange, $
-                       /CALIB, $
-                       RETRACE=1
-        ENDIF
-        GET_DATA,var_name,DATA=data
-        IF KEYWORD_SET(save_for_offline) THEN BEGIN
-           Eesa_Energy_off = data
-           saveStr        += var_name + '_off,'
-        ENDIF
-        data.y = ALOG10(data.y)
-        STORE_DATA,var_name,DATA=data
-        OPTIONS,var_name,'spec',1
-        ;; zlim,var_name,4,9,0
-        ZLIM,var_name, $
-             (MIN(data.y[WHERE(FINITE(data.y))]) > 6.), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < 9.),0
-        ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-        YLIM,var_name,5.,30000.,1
-        OPTIONS,var_name,'ytitle','Electrons!C!CEnergy (eV)'
-        OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        OPTIONS,var_name,'x_no_interp',1
-        OPTIONS,var_name,'y_no_interp',1
-        OPTIONS,var_name,'panel_size',2
-
-        IF KEYWORD_SET(oPlot_pot) THEN BEGIN
-
-           ;; potLStyle = 1 ;dotted
-           potLStyle = 2 ;dashed
-           potColor  = hvit
-           ;; potLStyle = 3 ;dash dot
-           ;; potLStyle = 4 ;dash dot dot
-           STORE_DATA,'potential',DATA={x:jvPlotData.time,y:jvPlotData.pot}
-           OPTIONS,'potential','LINESTYLE',potLStyle
-           OPTIONS,'potential','colors',potColor
-           OPTIONS,'potential','thick',2.0
-
-        ENDIF
-
-        IF (N_ELEMENTS(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
-
-        if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN 
+        if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
            ;; LOADCT2,40
            TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
         endif
+     ENDIF
 
+; ELECTRON ENERGY
+
+     var_name='Eesa_Energy'
+     IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+        GET_EN_SPEC,'fa_' + eeb_or_ees + '_c', $
+                    NAME=var_name, $
+                    UNITS='eflux', $
+                    ANGLE=electron_angleRange, $
+                    /CALIB, $
+                    RETRACE=1
+     ENDIF
+     GET_DATA,var_name,DATA=data
+     IF KEYWORD_SET(save_for_offline) THEN BEGIN
+        Eesa_Energy_off = data
+        saveStr        += var_name + '_off,'
+     ENDIF
+     data.y = ALOG10(data.y)
+     STORE_DATA,var_name,DATA=data
+     OPTIONS,var_name,'spec',1
+     ;; zlim,var_name,4,9,0
+     ZLIM,var_name, $
+          (MIN(data.y[WHERE(FINITE(data.y))]) > 6.), $
+          (MAX(data.y[WHERE(FINITE(data.y))]) < 9.),0
+     ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+     YLIM,var_name,5.,30000.,1
+     OPTIONS,var_name,'ytitle','Electrons!C!CEnergy (eV)'
+     OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+     OPTIONS,var_name,'x_no_interp',1
+     OPTIONS,var_name,'y_no_interp',1
+     OPTIONS,var_name,'panel_size',2
+
+     IF KEYWORD_SET(oPlot_pot) THEN BEGIN
+
+        ;; potLStyle = 1 ;dotted
+        potLStyle = 2           ;dashed
+        potColor  = hvit
+        ;; potLStyle = 3 ;dash dot
+        ;; potLStyle = 4 ;dash dot dot
+        STORE_DATA,'potential',DATA={x:jvPlotData.time,y:jvPlotData.pot}
+        OPTIONS,'potential','LINESTYLE',potLStyle
+        OPTIONS,'potential','colors',potColor
+        OPTIONS,'potential','thick',2.0
+
+     ENDIF
+
+     IF (N_ELEMENTS(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
+
+     if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN 
+        ;; LOADCT2,40
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
      endif
+
+  endif
 
 ; STEP 6 - Clean up and return
 
@@ -894,7 +987,16 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   IF ~KEYWORD_SET(plot_1_over_kappa) THEN BEGIN
      ;; STORE_DATA,'kappa_fit',DATA={x:kappa2DTime,y:Astruct.kappa}
-     STORE_DATA,'kappa_fit',DATA={x:kappa2DTime,y:REFORM(kappa2D.fitParams[2,*])}
+
+     CASE 1 OF
+        KEYWORD_SET(add_parm_errors_from_file): BEGIN
+           STORE_DATA,'kappa_fit',DATA={x:kappa2DTime,y:REFORM(kappa2D.fitParams[2,*]),dy:kappa2DErr}
+        END
+        ELSE: BEGIN
+           STORE_DATA,'kappa_fit',DATA={x:kappa2DTime,y:REFORM(kappa2D.fitParams[2,*])}
+        END
+     ENDCASE
+
      kappaBounds      = [MIN(k2DParms.kappa), $
                          MAX(k2DParms.kappa)]
      CASE 1 OF
@@ -1028,13 +1130,13 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   TempBounds      = [MIN(candidatos), $
                      MAX(candidatos)]
   showLog_Temp    = (ALOG10(TempBounds[1])-ALOG10(TempBounds[0])) GT 1.4
-     IF showLog_Temp THEN BEGIN
-        TempBounds[0] -= (TempBounds[0]*0.1)
-        TempBounds[1] += (TempBounds[1]*0.1)
-     ENDIF ELSE BEGIN
-        TempBounds[0] /= 1.1
-        TempBounds[1] *= 1.1
-     ENDELSE
+  IF showLog_Temp THEN BEGIN
+     TempBounds[0] -= (TempBounds[0]*0.1)
+     TempBounds[1] += (TempBounds[1]*0.1)
+  ENDIF ELSE BEGIN
+     TempBounds[0] /= 1.1
+     TempBounds[1] *= 1.1
+  ENDELSE
   YLIM,'Temp2DK',TempBounds[0],TempBounds[1],showLog_Temp
 
   if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=['Temp2DK'] else tPlt_vars=[tPlt_vars,'Temp2DK']
