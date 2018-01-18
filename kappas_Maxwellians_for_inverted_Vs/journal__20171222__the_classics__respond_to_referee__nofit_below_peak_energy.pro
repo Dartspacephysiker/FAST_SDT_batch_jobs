@@ -94,7 +94,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
 
   add_oneCount_curve                = 1
 
-  daPlots_cAP                       = 1
+  daPlots_cAP                       = 0
   fit1D__save_plotSlices            = 0
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0

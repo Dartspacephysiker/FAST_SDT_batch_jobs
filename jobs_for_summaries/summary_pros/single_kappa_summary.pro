@@ -178,6 +178,14 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   IF KEYWORD_SET(add_parm_errors_from_file) THEN BEGIN
 
+     ParmUncertainty_2D = 1
+     ParmUncert_2D__useMostProbK = 1
+     ParmUncert_2D__useMostProbG = 0
+     fit2DParmErrFile = fit2DParmErrFile.Replace('20180118','20180117')
+     
+     IF KEYWORD_SET(ParmUncertainty_2D) THEN BEGIN
+           fit2DParmErrFile = fit2DParmErrFile.Replace('-2DPARMERRORS','-2DPARMERRORS_TWOSIDED')
+        ENDIF
      RESTORE,fit2DParmErrDir+fit2DParmErrFile
 
      matchieKinit = VALUE_CLOSEST2(k2DParmErr.time,kappa2DTime,/CONSTRAINED)
@@ -197,27 +205,28 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      IF KEYWORD_SET(ParmUncertainty_2D) THEN BEGIN
 
         ;; Error arrays
-        kappa2DErr   = MAKE_ARRAY(2,nHereK,/FLOAT)
-        BlkE2DKErr   = MAKE_ARRAY(2,nHereK,/FLOAT)
-        BlkE2DGErr   = MAKE_ARRAY(2,nHereK,/FLOAT)
+        kappa2DErr   = MAKE_ARRAY(nHereK,2,/FLOAT)
 
-        Temp2DKErr   = MAKE_ARRAY(2,nHereK,/FLOAT)
-        Temp2DGErr   = MAKE_ARRAY(2,nHereK,/FLOAT)
+        BlkE2DKErr   = MAKE_ARRAY(nHereK,2,/FLOAT)
+        BlkE2DGErr   = MAKE_ARRAY(nHereK,2,/FLOAT)
 
-        Dens2DKErr   = MAKE_ARRAY(2,nHereK,/FLOAT)
-        Dens2DGErr   = MAKE_ARRAY(2,nHereK,/FLOAT)
+        Temp2DKErr   = MAKE_ARRAY(nHereK,2,/FLOAT)
+        Temp2DGErr   = MAKE_ARRAY(nHereK,2,/FLOAT)
+
+        Dens2DKErr   = MAKE_ARRAY(nHereK,2,/FLOAT)
+        Dens2DGErr   = MAKE_ARRAY(nHereK,2,/FLOAT)
 
         ;; Load 'em up
-        kappa2DErr[*,matchieK]   = k2DParmErr.kappa[*,matchieK]
+        kappa2DErr[matchieK,*]   = TRANSPOSE(k2DParmErr.kappa[*,matchieK]       )
 
-        BlkE2DKErr[*,matchieK]   = k2DParmErr.bulk_energy[*,matchieK]
-        BlkE2DGErr[*,matchieG]   = g2DParmErr.bulk_energy[*,matchieG]
+        BlkE2DKErr[matchieK,*]   = TRANSPOSE(k2DParmErr.bulk_energy[*,matchieK] )
+        BlkE2DGErr[matchieG,*]   = TRANSPOSE(g2DParmErr.bulk_energy[*,matchieG] )
 
-        Temp2DKErr[*,matchieK]   = k2DParmErr.temperature[*,matchieK]
-        Temp2DGErr[*,matchieG]   = g2DParmErr.temperature[*,matchieG]
+        Temp2DKErr[matchieK,*]   = TRANSPOSE(k2DParmErr.temperature[*,matchieK] )
+        Temp2DGErr[matchieG,*]   = TRANSPOSE(g2DParmErr.temperature[*,matchieG] )
 
-        Dens2DKErr[*,matchieK]   = k2DParmErr.N[*,matchieK]
-        Dens2DGErr[*,matchieG]   = g2DParmErr.N[*,matchieG]
+        Dens2DKErr[matchieK,*]   = TRANSPOSE(k2DParmErr.N[*,matchieK]           )
+        Dens2DGErr[matchieG,*]   = TRANSPOSE(g2DParmErr.N[*,matchieG]           )
 
      ENDIF ELSE BEGIN
 
@@ -247,20 +256,50 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
      ENDELSE
 
-     BlkE2DK = {x:kappa2DTime,y:k2DParms.bulk_energy,dy:BlkE2DKErr}
-     BlkE2DG = {x:Gauss2DTime,y:g2DParms.bulk_energy,dy:BlkE2DGErr}
+        k2DVals = REFORM(kappa2D.fitParams[2,*])
+        
+        BlkE2DK = k2DParms.bulk_energy
+        BlkE2DG = g2DParms.bulk_energy
+
+        Temp2DK = k2DParms.temperature
+        Temp2DG = g2DParms.temperature
+
+        Dens2DK = k2DParms.N
+        Dens2DG = g2DParms.N
+
+     IF KEYWORD_SET(ParmUncert_2D__useMostProbK) THEN BEGIN
+
+        k2DVals[matchieK]  = k2DParmErr.mostProb.kappa[matchieK]
+        BlkE2DK[matchieK]  = k2DParmErr.mostProb.bulk_energy[matchieK]
+        Temp2DK[matchieK]  = k2DParmErr.mostProb.temperature[matchieK]
+        Dens2DK[matchieK]  = k2DParmErr.mostProb.N[matchieK]
+
+     ENDIF
+
+     IF KEYWORD_SET(ParmUncert_2D__useMostProbG) THEN BEGIN
+
+        BlkE2DG[matchieG]  = g2DParmErr.mostProb.bulk_energy[matchieG]
+        Temp2DG[matchieG]  = g2DParmErr.mostProb.temperature[matchieG]
+        Dens2DG[matchieG]  = g2DParmErr.mostProb.N[matchieG]
+
+     ENDIF
+
+     BlkE2DK = {x:kappa2DTime,y:BlkE2DK,dy:BlkE2DKErr}
+     BlkE2DG = {x:Gauss2DTime,y:BlkE2DG,dy:BlkE2DGErr}
 
      ;; Temp2DK = {x:kappa2DTime,y:k2DParms.temperature*(k2DParms.kappa-1.5D)/k2DParms.kappa}
-     Temp2DK = {x:kappa2DTime,y:k2DParms.temperature,dy:Temp2DKErr}
-     Temp2DG = {x:Gauss2DTime,y:g2DParms.temperature,dy:Temp2DGErr}
+     Temp2DK = {x:kappa2DTime,y:Temp2DK,dy:Temp2DKErr}
+     Temp2DG = {x:Gauss2DTime,y:Temp2DG,dy:Temp2DGErr}
 
-     Dens2DK = {x:kappa2DTime,y:k2DParms.N,dy:Dens2DKErr}
-     Dens2DG = {x:Gauss2DTime,y:g2DParms.N,dy:Dens2DGErr}
+     Dens2DK = {x:kappa2DTime,y:Dens2DK,dy:Dens2DKErr}
+     Dens2DG = {x:Gauss2DTime,y:Dens2DG,dy:Dens2DGErr}
 
      chi22DK = {x:kappa2DTime,y:kappa2D.chi2/(kappa2D.dof-kappa2D.nFree)}
      chi22DG = {x:Gauss2DTime,y:gauss2D.chi2/(gauss2D.dof-gauss2D.nFree)}
 
   ENDIF ELSE BEGIN
+
+     k2DVals = REFORM(kappa2D.fitParams[2,*])
 
      BlkE2DK = {x:kappa2DTime,y:k2DParms.bulk_energy}
      BlkE2DG = {x:Gauss2DTime,y:g2DParms.bulk_energy}
@@ -990,10 +1029,10 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
      CASE 1 OF
         KEYWORD_SET(add_parm_errors_from_file): BEGIN
-           STORE_DATA,'kappa_fit',DATA={x:kappa2DTime,y:REFORM(kappa2D.fitParams[2,*]),dy:kappa2DErr}
+           STORE_DATA,'kappa_fit',DATA={x:kappa2DTime,y:k2DVals,dy:kappa2DErr}
         END
-        ELSE: BEGIN
-           STORE_DATA,'kappa_fit',DATA={x:kappa2DTime,y:REFORM(kappa2D.fitParams[2,*])}
+        ELSE: BEGIN                                    
+           STORE_DATA,'kappa_fit',DATA={x:kappa2DTime,y:k2DVals}
         END
      ENDCASE
 
