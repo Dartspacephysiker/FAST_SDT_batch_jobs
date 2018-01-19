@@ -49,6 +49,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          GRL=GRL, $
                          OPLOT_POT=oPlot_pot, $
                          ADD_PARM_ERRORS_FROM_FILE=add_parm_errors_from_file, $
+                         ADD_PARM_ERRORS__NROLLS=add_parm_errors__nRolls, $
                          FIT2DPARMERRFILE=fit2DParmErrFile, $
                          FIT2DPARMERRDIR=fit2DParmErrDir, $
                          TIMEBARS=timeBars
@@ -181,12 +182,21 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      ParmUncertainty_2D = 1
      ParmUncert_2D__useMostProbK = 1
      ParmUncert_2D__useMostProbG = 0
-     fit2DParmErrFile = fit2DParmErrFile.Replace('20180118','20180117')
-     
+     ;; fit2DParmErrFile = fit2DParmErrFile.Replace('20180118',GET_TODAY_STRING)
+     fit2DParmErrFileIn = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + $
+                          STRMID(fit2DParmErrFile, $
+                                 8, $
+                                 STRLEN(fit2DParmErrFile)-8)
+
      IF KEYWORD_SET(ParmUncertainty_2D) THEN BEGIN
-           fit2DParmErrFile = fit2DParmErrFile.Replace('-2DPARMERRORS','-2DPARMERRORS_TWOSIDED')
-        ENDIF
-     RESTORE,fit2DParmErrDir+fit2DParmErrFile
+        fit2DParmErrFileIn = fit2DParmErrFileIn.Replace('-2DPARMERRORS','-2DPARMERRORS_TWOSIDED')
+     ENDIF
+     nRolls = KEYWORD_SET(add_parm_errors__nRolls) ? $
+              add_parm_errors__nRolls              : $
+              1000
+     fit2DParmErrFileIn = fit2DParmErrFileIn.Replace('.sav', $
+                                                     STRING(FORMAT='("-",I0,".sav")',nRolls))
+     RESTORE,fit2DParmErrDir+fit2DParmErrFileIn
 
      matchieKinit = VALUE_CLOSEST2(k2DParmErr.time,kappa2DTime,/CONSTRAINED)
      matchieGinit = VALUE_CLOSEST2(g2DParmErr.time,Gauss2DTime,/CONSTRAINED)
