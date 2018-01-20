@@ -181,7 +181,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
      ParmUncertainty_2D = 1
      ParmUncert_2D__useMostProbK = 1
-     ParmUncert_2D__useMostProbG = 0
+     ParmUncert_2D__useMostProbG = 1
      ;; fit2DParmErrFile = fit2DParmErrFile.Replace('20180118',GET_TODAY_STRING)
      fit2DParmErrFileIn = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + $
                           STRMID(fit2DParmErrFile, $
@@ -195,7 +195,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
               add_parm_errors__nRolls              : $
               1000
      fit2DParmErrFileIn = fit2DParmErrFileIn.Replace('.sav', $
-                                                     STRING(FORMAT='("-",I0,".sav")',nRolls))
+                                                     STRING(FORMAT='("-",I0,"Rolls.sav")',nRolls))
      RESTORE,fit2DParmErrDir+fit2DParmErrFileIn
 
      matchieKinit = VALUE_CLOSEST2(k2DParmErr.time,kappa2DTime,/CONSTRAINED)
@@ -266,16 +266,16 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
      ENDELSE
 
-        k2DVals = REFORM(kappa2D.fitParams[2,*])
-        
-        BlkE2DK = k2DParms.bulk_energy
-        BlkE2DG = g2DParms.bulk_energy
+     k2DVals = REFORM(kappa2D.fitParams[2,*])
+     
+     BlkE2DK = k2DParms.bulk_energy
+     BlkE2DG = g2DParms.bulk_energy
 
-        Temp2DK = k2DParms.temperature
-        Temp2DG = g2DParms.temperature
+     Temp2DK = k2DParms.temperature
+     Temp2DG = g2DParms.temperature
 
-        Dens2DK = k2DParms.N
-        Dens2DG = g2DParms.N
+     Dens2DK = k2DParms.N
+     Dens2DG = g2DParms.N
 
      IF KEYWORD_SET(ParmUncert_2D__useMostProbK) THEN BEGIN
 
