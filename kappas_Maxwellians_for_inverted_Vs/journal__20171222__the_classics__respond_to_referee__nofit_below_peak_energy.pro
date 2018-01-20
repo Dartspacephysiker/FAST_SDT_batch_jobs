@@ -78,7 +78,10 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   ;; bonusBonusPref                    = '-0BelowPk-neue'
   ;; ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55','09:27:05']] ;Adjust a bit
 
-  bonusBonusPref                    = '-0BelowPk-GRLRESPONSEFINAL2'
+  ;; bonusBonusPref                    = '-0BelowPk-GRLRESPONSEFINAL2'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
+
+  bonusBonusPref                    = '-0BelowPk-GRLRESPONSEFINAL2--CHECKPEAK'
   cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
 
   only_1D_fits                      = 0
@@ -94,10 +97,10 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
 
   add_oneCount_curve                = 1
 
-  daPlots_cAP                       = 0
-  fit1D__save_plotSlices            = 0
-  fit2D__save_all_plots             = 0
-  fit2D__show_each_candidate        = 0
+  daPlots_cAP                       = 1
+  fit1D__save_plotSlices            = 1
+  fit2D__save_all_plots             = 1
+  fit2D__show_each_candidate        = 1
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
@@ -136,7 +139,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -274,16 +277,16 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   curAndPot_analysis        = 1
 
   cAP_struct = { $
-               remake_masterFile : 0B, $
+               remake_masterFile : 1B, $
                map_to_100km : 1, $
                use_all_currents : 0B, $
                use_ed_current : 1B, $
                use_iu_current : 0B, $
                use_eu_current : 0B, $
                use_mag_current : 0B, $
-               use_char_en_for_downPot : 1B, $
+               use_char_en_for_downPot : 0B, $
                T_plusMinusFac_for_pot  : 0L, $
-               use_peak_en_for_downPot : 0B, $
+               use_peak_en_for_downPot : 1B, $
                add_iu_pot : N_ELEMENTS(cAP__add_iu_pot) GT 0 ? (N_ELEMENTS(cAP__add_iu_pot[evtNum]) GT 0 ? cAP__add_iu_pot[evtNum] : 1) :1, $
                tRanges : cAP_tRanges_list[evtNum], $
                ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
