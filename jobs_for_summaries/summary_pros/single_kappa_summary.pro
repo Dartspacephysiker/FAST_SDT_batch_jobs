@@ -50,6 +50,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          OPLOT_POT=oPlot_pot, $
                          ADD_PARM_ERRORS_FROM_FILE=add_parm_errors_from_file, $
                          ADD_PARM_ERRORS__NROLLS=add_parm_errors__nRolls, $
+                         ADD_PARM_ERRORS__USE_MOST_PROB=add_parm_errors__use_most_prob, $
                          FIT2DPARMERRFILE=fit2DParmErrFile, $
                          FIT2DPARMERRDIR=fit2DParmErrDir, $
                          TIMEBARS=timeBars
@@ -180,8 +181,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   IF KEYWORD_SET(add_parm_errors_from_file) THEN BEGIN
 
      ParmUncertainty_2D = 1
-     ParmUncert_2D__useMostProbK = 1
-     ParmUncert_2D__useMostProbG = 1
+     ParmUncert_2D__useMostProbK = KEYWORD_SET(add_parm_errors__use_most_prob)
+     ParmUncert_2D__useMostProbG = KEYWORD_SET(add_parm_errors__use_most_prob)
+
      ;; fit2DParmErrFile = fit2DParmErrFile.Replace('20180118',GET_TODAY_STRING)
      fit2DParmErrFileIn = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + $
                           STRMID(fit2DParmErrFile, $

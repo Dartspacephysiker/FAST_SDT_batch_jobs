@@ -1,6 +1,6 @@
 *
 Header :this is the 'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_30__thelonious' configuration file
-Header :created on Wed Feb 22 20:51:46 2017
+Header :created on Mon Jan 22 11:23:53 2018
 *
 *
 Description : 
@@ -10,7 +10,7 @@ Description :
 Configuration
 {
 Config Name:			'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_30__thelonious'
-Config MenuPosition:		6, -14
+Config MenuPosition:		4, -10
 Config MenuSize:		155, 150
 Config DefaultSourceId:	'?'
 Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_30__thelonious:0 - DA'
@@ -18,7 +18,7 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 	PlotWinStandard
 	{
 	PlotWin Name:		'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_30__thelonious:0 - DA'
-	PlotWin Position:	481, 47
+	PlotWin Position:	474, 26
 	PlotWin Size:		680, 768
 	PlotWin PlotsPage:	12
 	PlotWin TopPlotOfPage:	'Eesa Survey:  Energy'
@@ -41,15 +41,15 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	2
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	UNKNOWN
+		Plot2 ShadingMode:	SHADE
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	34150.3, 40000, 1e+06, 1, 1, 1e+09
-		Plot2 MinLimits:	33899.2, 4, 2, 0, 0, 100000
+		Plot2 MaxLimits:	39914.6, 40000, 1e+06, 1, 1, 1e+09
+		Plot2 MinLimits:	31923.2, 4, 2, 0, 0, 100000
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -80,15 +80,15 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	2
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	UNKNOWN
+		Plot2 ShadingMode:	SHADE
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	34150.3, 360, 100000, 1, 1, 1
-		Plot2 MinLimits:	33899.2, 0, 2, 0, 0, 0
+		Plot2 MaxLimits:	39914.6, 360, 100000, 1, 1, 1
+		Plot2 MinLimits:	31923.2, 0, 2, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -120,15 +120,15 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	2
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	UNKNOWN
+		Plot2 ShadingMode:	SHADE
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	34150.3, 40000, 1e+06, 1, 1, 1
-		Plot2 MinLimits:	33899.2, 4, 2, 0, 0, 0
+		Plot2 MaxLimits:	39914.6, 40000, 1e+06, 1, 1, 1
+		Plot2 MinLimits:	31923.2, 4, 2, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -160,15 +160,15 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	2
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	UNKNOWN
+		Plot2 ShadingMode:	SHADE
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	34150.3, 360, 100000, 1, 1, 1
-		Plot2 MinLimits:	33899.2, 0, 2, 0, 0, 0
+		Plot2 MaxLimits:	39914.6, 360, 100000, 1, 1, 1
+		Plot2 MinLimits:	31923.2, 0, 2, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -207,8 +207,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	34150.3, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	33899.2, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	39914.6, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	31923.2, 0, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -247,8 +247,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	34150.3, 35000, 255, 1, 1, 1
-		Plot2 MinLimits:	33899.2, 1, 0, 0, 0, 0
+		Plot2 MaxLimits:	39914.6, 35000, 255, 1, 1, 1
+		Plot2 MinLimits:	31923.2, 1, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -287,8 +287,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	34150.3, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	33899.2, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	39914.6, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	31923.2, 0, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -327,8 +327,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	34150.3, 35000, 255, 1, 1, 1
-		Plot2 MinLimits:	33899.2, 1, 0, 0, 0, 0
+		Plot2 MaxLimits:	39914.6, 35000, 255, 1, 1, 1
+		Plot2 MinLimits:	31923.2, 1, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -365,8 +365,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 32768, 0, 0
-		Plot2 MinLimits:	33899.2, -32768, 0, 0
+		Plot2 MaxLimits:	39914.6, 32768, 0, 0
+		Plot2 MinLimits:	31923.2, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -401,8 +401,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 32768, 0, 0
-		Plot2 MinLimits:	33899.2, -32768, 0, 0
+		Plot2 MaxLimits:	39914.6, 32768, 0, 0
+		Plot2 MinLimits:	31923.2, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -437,8 +437,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 32768, 0, 0
-		Plot2 MinLimits:	33899.2, -32768, 0, 0
+		Plot2 MaxLimits:	39914.6, 32768, 0, 0
+		Plot2 MinLimits:	31923.2, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -473,8 +473,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 100, 0, 0
-		Plot2 MinLimits:	33899.2, -100, 0, 0
+		Plot2 MaxLimits:	39914.6, 100, 0, 0
+		Plot2 MinLimits:	31923.2, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -510,8 +510,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 100, 0, 0
-		Plot2 MinLimits:	33899.2, -100, 0, 0
+		Plot2 MaxLimits:	39914.6, 100, 0, 0
+		Plot2 MinLimits:	31923.2, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -547,8 +547,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 100, 0, 0
-		Plot2 MinLimits:	33899.2, -100, 0, 0
+		Plot2 MaxLimits:	39914.6, 100, 0, 0
+		Plot2 MinLimits:	31923.2, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -584,8 +584,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 32768, 0, 0
-		Plot2 MinLimits:	33899.2, -32768, 0, 0
+		Plot2 MaxLimits:	39914.6, 32768, 0, 0
+		Plot2 MinLimits:	31923.2, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -620,8 +620,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 32768, 1, 0
-		Plot2 MinLimits:	33899.2, -32768, 0, 0
+		Plot2 MaxLimits:	39914.6, 32768, 0, 0
+		Plot2 MinLimits:	31923.2, -32768, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -659,8 +659,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 512, 0.001, 1, 1, 1
-		Plot2 MinLimits:	33899.2, 0, 1e-13, 0, 0, 0
+		Plot2 MaxLimits:	39914.6, 512, 0.001, 1, 1, 1
+		Plot2 MinLimits:	31923.2, 0, 1e-13, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -697,8 +697,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 1000, 1e-07, 1, 1, 1
-		Plot2 MinLimits:	33899.2, 0, 1e-15, 0, 0, 0
+		Plot2 MaxLimits:	39914.6, 1000, 1e-07, 1, 1, 1
+		Plot2 MinLimits:	31923.2, 0, 1e-15, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -734,8 +734,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 1024, 0, 0
-		Plot2 MinLimits:	33899.2, 0, 0, 0
+		Plot2 MaxLimits:	39914.6, 1024, 0, 0
+		Plot2 MinLimits:	31923.2, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -770,8 +770,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 256, 0, 0
-		Plot2 MinLimits:	33899.2, 0, 0, 0
+		Plot2 MaxLimits:	39914.6, 256, 0, 0
+		Plot2 MinLimits:	31923.2, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -808,8 +808,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 512, 0.001, 1, 1, 1
-		Plot2 MinLimits:	33899.2, 0, 1e-13, 0, 0, 0
+		Plot2 MaxLimits:	39914.6, 512, 0.001, 1, 1, 1
+		Plot2 MinLimits:	31923.2, 0, 1e-13, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -845,8 +845,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 15.77, 0, 0
-		Plot2 MinLimits:	33899.2, -0.75, 0, 0
+		Plot2 MaxLimits:	39914.6, 15.77, 0, 0
+		Plot2 MinLimits:	31923.2, -0.75, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -881,8 +881,8 @@ Config CurrentPlotWindow:	'the_classics__3__Orb_1773__Elphic_et_al_1998__09_25_3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	34150.3, 164.23, 0, 0
-		Plot2 MinLimits:	33899.2, -170.77, 0, 0
+		Plot2 MaxLimits:	39914.6, 164.23, 0, 0
+		Plot2 MinLimits:	31923.2, -170.77, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0

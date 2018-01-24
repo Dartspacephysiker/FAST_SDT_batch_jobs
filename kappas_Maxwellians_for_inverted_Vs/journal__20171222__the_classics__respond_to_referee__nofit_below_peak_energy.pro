@@ -78,11 +78,20 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   ;; bonusBonusPref                    = '-0BelowPk-neue'
   ;; ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55','09:27:05']] ;Adjust a bit
 
-  ;; bonusBonusPref                    = '-0BelowPk-GRLRESPONSEFINAL2'
+  bonusBonusPref                    = '-0BelowPk-GRLRESPONSEFINAL2'
+  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
+
+  ;; bonusBonusPref                    = '-0BelowPk-GRLRESPONSEFINAL2--CHECKPEAK'
   ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
 
-  bonusBonusPref                    = '-0BelowPk-GRLRESPONSEFINAL2--CHECKPEAK'
-  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
+  ;; 2018/01/22 What happens if we don't use most probable fit params, and
+  ;; instead use the original best-fit params?
+  ;; bonusBonusPref                    = '-GRLREPONFINAL2-best-fit_not_mostProb'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
+
+  ;; 2018/01/22 What happens to daPlots if we use peak energy and parallel temperature
+  ;; bonusBonusPref                    = '-GRLREPONFINAL2-use_peakEn_parTemp'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
 
   only_1D_fits                      = 0
 
@@ -97,10 +106,10 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
 
   add_oneCount_curve                = 1
 
-  daPlots_cAP                       = 1
-  fit1D__save_plotSlices            = 1
-  fit2D__save_all_plots             = 1
-  fit2D__show_each_candidate        = 1
+  daPlots_cAP                       = 0
+  fit1D__save_plotSlices            = 0
+  fit2D__save_all_plots             = 0
+  fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
@@ -129,6 +138,8 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   kSum__save_ps       = 1
   kSum__add_parm_errors_from_file = 1
   kSum__add_parm_errors__nRolls = 10000
+  kSum__add_parm_errors__use_most_prob = 1
+
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 1
   kSum__add_meas_T_and_N = 1
@@ -139,7 +150,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -420,6 +431,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                         KSUM__OPLOT_POT=kSum__oPlot_pot, $
                         KSUM__ADD_PARM_ERRORS_FROM_FILE=kSum__add_parm_errors_from_file, $
                         KSUM__ADD_PARM_ERRORS__NROLLS=kSum__add_parm_errors__nRolls, $
+                        KSUM__ADD_PARM_ERRORS__USE_MOST_PROB=kSum__add_parm_errors__use_most_prob, $
                         OUT_FIT2DK=fit2DK, $
                         OUT_FIT2DGAUSS=fit2DG, $
                         OUT_KAPPAFIT1DSTRUCTS=kappaFit1Ds, $
