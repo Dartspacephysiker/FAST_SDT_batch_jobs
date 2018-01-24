@@ -288,7 +288,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
   curAndPot_analysis        = 1
 
   cAP_struct = { $
-               remake_masterFile : 1B, $
+               remake_masterFile : 0B, $
                map_to_100km : 1, $
                use_all_currents : 0B, $
                use_ed_current : 1B, $

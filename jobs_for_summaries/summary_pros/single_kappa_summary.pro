@@ -843,14 +843,15 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      IF KEYWORD_SET(oPlot_pot) THEN BEGIN
 
         ;; potLStyle = 1 ;dotted
-        potLStyle = 2           ;dashed
+        ;; potLStyle = 2           ;dashed
+        potLStyle = 0           ;solid
         potColor  = hvit
         ;; potLStyle = 3 ;dash dot
         ;; potLStyle = 4 ;dash dot dot
         STORE_DATA,'potential',DATA={x:jvPlotData.time,y:jvPlotData.pot}
         OPTIONS,'potential','LINESTYLE',potLStyle
         OPTIONS,'potential','colors',potColor
-        OPTIONS,'potential','thick',2.0
+        OPTIONS,'potential','thick',3.0
 
      ENDIF
 
