@@ -106,7 +106,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
 
   add_oneCount_curve                = 1
 
-  daPlots_cAP                       = 0
+  daPlots_cAP                       = 1
   fit1D__save_plotSlices            = 0
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
@@ -340,7 +340,7 @@ PRO JOURNAL__20171222__THE_CLASSICS__RESPOND_TO_REFEREE__NOFIT_BELOW_PEAK_ENERGY
                ;; jv_theor__itergame_NFac   : 3.0, $
                jv_theor__itergame_tie_R_B_and_dens : 1, $
                in_bonusPref                        : bonusPref, $
-               plots_in_buffer                     : 0}
+               plots_in_buffer                     : 1}
 
   IF KEYWORD_SET(aRange__dens_e_down) THEN BEGIN
      STR_ELEMENT,cAP_struct,'aRange__dens_e_down',aRange__dens_e_down,/ADD_REPLACE
