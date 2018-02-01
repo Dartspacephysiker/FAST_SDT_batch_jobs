@@ -1,4 +1,4 @@
-;;2016/10/11
+;;2018/02/01
 PRO JOURNAL__20180201__THE_CLASSICS__USE_LIEMOHN_AND_KHAZANOV_DENS
 
   COMPILE_OPT IDL2
@@ -8,90 +8,11 @@ PRO JOURNAL__20180201__THE_CLASSICS__USE_LIEMOHN_AND_KHAZANOV_DENS
   ;;get orbTimes here
   @journal__20161011__info__the_classics.pro
 
-  ;;bonus bonus?
-  ;; bonusBonusPref                    = '-noFitBelowPeak'
+  ;; bonusBonusPref                    = '-0BelowPk-GRLRESPONSEFINAL2'
+  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
 
-  ;; bonusBonusPref                    = '-noFitBelowPeak-shiftT-3avg'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.5','09:27:05']] ;Adjust a bit
-  ;; spectra_average_interval_list[2] = 3 ;try three avgs
-
-  ;; bonusBonusPref                    = '-noFitBelowPeak-shiftTagain-1avg'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:57.5','09:27:05.5']] ;Adjust a bit
-  ;; spectra_average_interval_list[2] = 1 ;try one avg
-
-  ;; bonusBonusPref                    = '-noFitBelowPeak-shiftT3-1avg'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:58.5','09:27:05']] ;Adjust a bit
-  ;; spectra_average_interval_list[2] = 1
-
-  ;; bonusBonusPref                    = '-noFitBelowPeak-shiftT3-2avg'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:58.5','09:27:05']] ;Adjust a bit
-  ;; spectra_average_interval_list[2] = 2 ;try two avgs
-
-  ;; bonusBonusPref                    = '-noBelowPk-shiftT4-2avg'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:57.5','09:27:04.5']] ;Adjust a bit
-  ;; spectra_average_interval_list[2] = 2 ;try two avgs
-
-  ;; bonusBonusPref                    = '-noBelowPk-shiftT4-3avg'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:57.5','09:27:04.5']] ;Adjust a bit
-  ;; spectra_average_interval_list[2] = 3
-
-  ;; bonusBonusPref                    = '-noBelowPk-shiftT5-3avg'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55.0','09:27:04.5']] ;Adjust a bit
-  ;; spectra_average_interval_list[2] = 3
-
-  ;; bonusBonusPref                    = '-noBelowPk-shiftT5-1avg'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55.0','09:27:04.5']] ;Adjust a bit
-  ;; spectra_average_interval_list[2] = 1
-
-  ;; bonusBonusPref                    = '-noBelowPk-shiftT5-2avg'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55.0','09:27:04.5']] ;Adjust a bit
-  ;; spectra_average_interval_list[2] = 2
-
-  ;; bonusBonusPref                    = '-noBelowPk-shiftT6-2avg'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:15.0','09:26:25']] ;Adjust a bit
-  ;; spectra_average_interval_list[2] = 2
-
-  ;; bonusBonusPref                    = '-noBelowPk-shiftT7-2avg'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:15.5','09:26:22.5']] ;Adjust a bit
-  ;; spectra_average_interval_list[2] = 2
-
-  ;; bonusBonusPref                    = '-noBelowPk-shiftT8-1avg'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:59.0','09:27:04.5']] ;Adjust a bit
-  ;; spectra_average_interval_list[2] = 1
-
-  ;; bonusBonusPref                    = '-noBelowPk-shiftT8-2avg'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:59.0','09:27:04.5']] ;Adjust a bit
-  ;; spectra_average_interval_list[2] = 2
-
-  ;; bonusBonusPref                    = '-noBelowPk-toChris'
-
-  ;; bonusBonusPref                    = '-noBelowPk-toChris'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.5','09:27:04.5']] ;Adjust a bit
-  ;; Don't alter cAP_tRanges_list[2]
-  ;; spectra_average_interval_list[2] = 2
-  ;; debug__skip_to_this_time          = '1997-02-01/09:27:01.57'
-  ;; debug__break_on_this_time         = '1997-02-01/09:27:01.57'
-
-  ;; bonusBonusPref                    = '-noBelowPk-fixedTQQ'
-  ;; bonusBonusPref                    = '-1BelowPk-fixedTQQ'
-  ;; bonusBonusPref                    = '-0BelowPk-fixedTQQ'
-  ;; bonusBonusPref                    = '-0BelowPk-neue'
-  ;; ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:55','09:27:05']] ;Adjust a bit
-
-  bonusBonusPref                    = '-0BelowPk-GRLRESPONSEFINAL2'
+  bonusBonusPref                    = '-0BelowPk-LiemohnKhazDens'
   cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
-
-  ;; bonusBonusPref                    = '-0BelowPk-GRLRESPONSEFINAL2--CHECKPEAK'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
-
-  ;; 2018/01/22 What happens if we don't use most probable fit params, and
-  ;; instead use the original best-fit params?
-  ;; bonusBonusPref                    = '-GRLREPONFINAL2-best-fit_not_mostProb'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
-
-  ;; 2018/01/22 What happens to daPlots if we use peak energy and parallel temperature
-  ;; bonusBonusPref                    = '-GRLREPONFINAL2-use_peakEn_parTemp'
-  ;; cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
 
   only_1D_fits                      = 0
 
@@ -184,6 +105,8 @@ PRO JOURNAL__20180201__THE_CLASSICS__USE_LIEMOHN_AND_KHAZANOV_DENS
 
   ;; msph_sourcecone_halfWidth = 90
 
+  dens__Liemohn_Khaz   = 1
+
   ;;survey window
   eeb_or_ees           = eeb_or_ees__recommande[evtNum]
   burstItvl            = 0
@@ -210,15 +133,16 @@ PRO JOURNAL__20180201__THE_CLASSICS__USE_LIEMOHN_AND_KHAZANOV_DENS
   diffEflux_thresh     = 3e7
   nPkAbove_dEF_thresh  = 5
 
+  fit2D__density_angleRange = KEYWORD_SET(dens__Liemohn_Khaz) ?  $
+                              [-90,90] : 'ALL__EXCL_ATM'
+  aRange__dens_e_down       = KEYWORD_SET(dens__Liemohn_Khaz) ? $
+                              [-90,90] : !NULL
+
   IF orbit EQ 1773 THEN BEGIN
 
-     fit2D__density_angleRange = 'ALL__EXCL_ATM'
      fit2D__temperature_angleRange = 'LC'
      fit2D__faConductance_angleRange = 'LC'
-     ;; fit2D__density_angleRange = [-150,150]
-     ;; fit2D__density_angleRange = [-90,90]
 
-     ;; aRange__dens_e_down = [-90,90]
      ;; ;;make sure temperature is limited
      ;; kFit__limited[1,1] = 1
      ;; kFit__limits[1,1]  = 2D4
@@ -264,9 +188,6 @@ PRO JOURNAL__20180201__THE_CLASSICS__USE_LIEMOHN_AND_KHAZANOV_DENS
 
      kSum__add_chi2_line  = 15
      
-     ;; fit2D__density_angleRange         = [-150,150]
-     fit2D__density_angleRange = 'ALL__EXCL_ATM'
-
      chi2_over_dof_thresh = 50
 
   ENDIF
@@ -275,8 +196,6 @@ PRO JOURNAL__20180201__THE_CLASSICS__USE_LIEMOHN_AND_KHAZANOV_DENS
 
      kSum__add_chi2_line  = 10
      
-     fit2D__density_angleRange = [-45,45]
-
      chi2_over_dof_thresh = 20
      lowDens_thresh       = 0.002
      diffEflux_thresh     = 1e7
@@ -288,7 +207,7 @@ PRO JOURNAL__20180201__THE_CLASSICS__USE_LIEMOHN_AND_KHAZANOV_DENS
   curAndPot_analysis        = 1
 
   cAP_struct = { $
-               remake_masterFile : 0B, $
+               remake_masterFile : 1B, $
                map_to_100km : 1, $
                use_all_currents : 0B, $
                use_ed_current : 1B, $
@@ -323,8 +242,10 @@ PRO JOURNAL__20180201__THE_CLASSICS__USE_LIEMOHN_AND_KHAZANOV_DENS
 
                ;; jv_theor__fit_je         : 1, $
                jv_theor__fit_both : 0, $
-               jv_theor__Liemohn_and_Khazanov_dens : 1, $
-               use_msph_sourcecone_for_dens : [1,0,0], $
+               jv_theor__Liemohn_and_Khazanov_dens : KEYWORD_SET(dens__Liemohn_Khaz), $
+               use_msph_sourcecone_for_dens : [~KEYWORD_SET(dens__Liemohn_Khaz), $
+                                               0, $
+                                               0], $
                use_msph_sourcecone_for_temp : [0,0,0], $
                temperature_type             : fit2D__temperature_type, $
                aRange__temp_e_down         : fit2D__temperature_angleRange, $
