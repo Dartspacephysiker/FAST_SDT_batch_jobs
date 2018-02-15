@@ -133,10 +133,13 @@ PRO JOURNAL__20180201__THE_CLASSICS__USE_LIEMOHN_AND_KHAZANOV_DENS
   diffEflux_thresh     = 3e7
   nPkAbove_dEF_thresh  = 5
 
+  ;; lkARange             = [-90,90]
+  lkARange             = "ALL__EXCL_ATM"
   fit2D__density_angleRange = KEYWORD_SET(dens__Liemohn_Khaz) ?  $
-                              [-90,90] : 'ALL__EXCL_ATM'
-  aRange__dens_e_down       = KEYWORD_SET(dens__Liemohn_Khaz) ? $
-                              [-90,90] : !NULL
+                              lkARange : 'ALL__EXCL_ATM'
+  ;; aRange__dens_e_down       = KEYWORD_SET(dens__Liemohn_Khaz) ? $
+  ;;                             lkARange : !NULL
+  ;; use_msph_sc_for_dens  = ~KEYWORD_SET(dens__Liemohn_Khaz)
 
   IF orbit EQ 1773 THEN BEGIN
 
@@ -243,7 +246,7 @@ PRO JOURNAL__20180201__THE_CLASSICS__USE_LIEMOHN_AND_KHAZANOV_DENS
                ;; jv_theor__fit_je         : 1, $
                jv_theor__fit_both : 0, $
                jv_theor__Liemohn_and_Khazanov_dens : KEYWORD_SET(dens__Liemohn_Khaz), $
-               use_msph_sourcecone_for_dens : [~KEYWORD_SET(dens__Liemohn_Khaz), $
+               use_msph_sourcecone_for_dens : [use_msph_sc_for_dens, $
                                                0, $
                                                0], $
                use_msph_sourcecone_for_temp : [0,0,0], $
