@@ -23,6 +23,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   fit2D__nFlux                      = 0
 
   fit__linear_energy_shift          = 1
+  fit__JE_over_E                    = 1
   fit__LES__take_stock_of_RB        = 0
 
   fit1D__weighting                  = 2 ;1 = lin 2 = square
@@ -311,6 +312,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
                         SHOW_POST_PLOTS=show_post_plots, $
                         ONLY_1D_FITS=only_1D_fits, $
                         FIT__LINEAR_ENERGY_SHIFT=fit__linear_energy_shift, $
+                        FIT__JE_OVER_E=fit__JE_over_E, $
                         FIT__LES__TAKE_STOCK_OF_RB=fit__LES__take_stock_of_RB, $
                         FIT1D__N_BELOW_PEAK=n_below_peak1D, $
                         FIT1D__N_ABOVE_PEAK=n_above_peak1D, $
