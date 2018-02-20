@@ -323,6 +323,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      Dens2DK = {x:kappa2DTime,y:k2DParms.N}
      Dens2DG = {x:Gauss2DTime,y:g2DParms.N}
 
+     chi22DK = {x:kappa2DTime,y:kappa2D.chi2/(kappa2D.dof-kappa2D.nFree)}
+     chi22DG = {x:Gauss2DTime,y:gauss2D.chi2/(gauss2D.dof-gauss2D.nFree)}
+
   ENDELSE
 
   ;; IF ~ARRAY_EQUAL(kappa2DTime,Gauss2DTime) THEN STOP

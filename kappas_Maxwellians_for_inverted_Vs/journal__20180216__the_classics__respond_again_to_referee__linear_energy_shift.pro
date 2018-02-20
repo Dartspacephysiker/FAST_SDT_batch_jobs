@@ -33,7 +33,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   add_oneCount_curve                = 1
 
   daPlots_cAP                       = 0
-  fit1D__save_plotSlices            = 1
+  fit1D__save_plotSlices            = 0
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
@@ -76,7 +76,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -131,7 +131,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
-  chi2_over_dof_thresh = 40
+  chi2_over_dof_thresh = 25
   lowDens_thresh       = 0.05
   diffEflux_thresh     = 3D7
   nPkAbove_dEF_thresh  = 5
@@ -224,7 +224,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
                use_char_en_for_downPot : 0B, $
                T_plusMinusFac_for_pot  : 0L, $
                use_peak_en_for_downPot : 1B, $
-               add_iu_pot : N_ELEMENTS(cAP__add_iu_pot) GT 0 ? (N_ELEMENTS(cAP__add_iu_pot[evtNum]) GT 0 ? cAP__add_iu_pot[evtNum] : 1) :1, $
+               add_iu_pot : N_ELEMENTS(cAP__add_iu_pot) GT 0 ? (N_ELEMENTS(cAP__add_iu_pot[evtNum]) GT 0 ? cAP__add_iu_pot[evtNum] : 1) : 1, $
                tRanges : cAP_tRanges_list[evtNum], $
                ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
                moment_energyArr : [[energy_electrons],[energy_electrons],[100,2.4e4]], $
@@ -380,4 +380,5 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
                         EPS=eps
   
 END
+
 

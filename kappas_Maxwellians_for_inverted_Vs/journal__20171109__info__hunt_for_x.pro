@@ -221,6 +221,7 @@ cAP__add_iu_pot               = LIST( $
   @common__kappa_mpfit_paraminfo.pro
 
   kFit__DEFSINITIALIZED = 0
+  EXPLICIT_DERIVATIVES  = 1
   @kappa_mpfit_param_defaults.pro
 
   kFit__unlimited_temp = LIST( $
