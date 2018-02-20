@@ -10,10 +10,10 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   @journal__20161011__info__the_classics.pro
 
   bonusBonusPref                    = '-linearEnergyShift-GRLRESPONSE2'
-  cAP_tRanges_list[2] = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
+  cAP_tRanges_list[2]               = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
 
-  debug__skip_to_this_time          = '1997-02-01/09:27:01.57'
-  debug__break_on_this_time         = '1997-02-01/09:27:01.57'
+  ;; debug__skip_to_this_time          = '1997-02-01/09:27:01.57'
+  ;; debug__break_on_this_time         = '1997-02-01/09:27:01.57'
 
   only_1D_fits                      = 0
 
@@ -23,7 +23,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   fit2D__nFlux                      = 0
 
   fit__linear_energy_shift          = 1
-  fit__JE_over_E                    = 1
+  fit__JE_over_E                    = 0
   fit__LES__take_stock_of_RB        = 0
 
   fit1D__weighting                  = 2 ;1 = lin 2 = square
@@ -32,7 +32,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   add_oneCount_curve                = 1
 
-  daPlots_cAP                       = 1
+  daPlots_cAP                       = 0
   fit1D__save_plotSlices            = 1
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
@@ -131,9 +131,9 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
-  chi2_over_dof_thresh = 25
+  chi2_over_dof_thresh = 40
   lowDens_thresh       = 0.05
-  diffEflux_thresh     = 3e7
+  diffEflux_thresh     = 3D7
   nPkAbove_dEF_thresh  = 5
 
   IF orbit EQ 1773 THEN BEGIN
@@ -214,7 +214,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   curAndPot_analysis        = 1
 
   cAP_struct = { $
-               remake_masterFile : 1B, $
+               remake_masterFile : 0B, $
                map_to_100km : 1, $
                use_all_currents : 0B, $
                use_ed_current : 1B, $
@@ -282,9 +282,9 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   save_postKappa_plots = 0
   close_kp_after_save  = 0
 
-  n_below_peak1D       = 0
+  n_below_peak1D       = KEYWORD_SET(fit__JE_over_E) ? -1 : -1
   n_above_peak1D       = 30
-  n_below_peak2D       = 0
+  n_below_peak2D       = KEYWORD_SET(fit__JE_over_E) ? -1 : -1
   n_above_peak2D       = 30
   phi__use_energy_before_peak = 1 ;the Kaeppler et al. [2014] thing (see bottom of second par, page 10,170)
   
