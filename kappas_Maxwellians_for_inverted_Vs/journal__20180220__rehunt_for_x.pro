@@ -96,7 +96,7 @@ PRO JOURNAL__20180220__REHUNT_FOR_X
   ;; '12:  orbit 7994' Not bonus …
   ;; '13:  orbit 7991' Semi-bonus; marginal at best on arc edges, but meets criteria
   ;; '14:  orbit 7990' Bonus!
-  evtNum               = 9
+  evtNum               = 2
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
@@ -136,8 +136,8 @@ PRO JOURNAL__20180220__REHUNT_FOR_X
   ;; chi2_thresh          = 1.5e4
   chi2_over_dof_thresh = 25
   lowDens_thresh       = 0.05
-  diffEflux_thresh     = 3e7
-  nPkAbove_dEF_thresh  = 5
+  diffEflux_thresh     = 3e6
+  nPkAbove_dEF_thresh  = 2
 
   ;; IF orbit EQ 1789 THEN BEGIN
 

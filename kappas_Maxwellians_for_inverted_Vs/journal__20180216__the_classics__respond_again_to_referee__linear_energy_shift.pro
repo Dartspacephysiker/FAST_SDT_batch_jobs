@@ -33,7 +33,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   add_oneCount_curve                = 1
 
   daPlots_cAP                       = 0
-  fit1D__save_plotSlices            = 0
+  fit1D__save_plotSlices            = 1
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
@@ -76,7 +76,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -86,7 +86,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   ;; '1 :  McFadden_et_al_1998' --- 1849
   ;; '2 :  Elphic_et_al_1998' --- 1773
   ;; '3 :  Carlson_et_al_2001' --- 1789
-  evtNum               = 2
+  evtNum               = 3
 
   ;;2017/03/22
   ;; evtNum               = 3
@@ -133,14 +133,15 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   ;; chi2_thresh          = 1.5e4
   chi2_over_dof_thresh = 25
   lowDens_thresh       = 0.05
-  diffEflux_thresh     = 3D7
-  nPkAbove_dEF_thresh  = 5
+  diffEflux_thresh     = 3D6
+  nPkAbove_dEF_thresh  = 3
+
+  fit2D__density_angleRange = 'ALL__EXCL_ATM'
+  fit2D__temperature_angleRange = 'LC'
+  fit2D__faConductance_angleRange = 'LC'
 
   IF orbit EQ 1773 THEN BEGIN
 
-     fit2D__density_angleRange = 'ALL__EXCL_ATM'
-     fit2D__temperature_angleRange = 'LC'
-     fit2D__faConductance_angleRange = 'LC'
      ;; fit2D__density_angleRange = [-150,150]
      ;; fit2D__density_angleRange = [-90,90]
 

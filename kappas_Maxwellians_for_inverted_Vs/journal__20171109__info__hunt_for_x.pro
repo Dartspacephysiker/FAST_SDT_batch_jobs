@@ -151,7 +151,7 @@ eeb_or_ees__recommande  = LIST('ees', $
                                'ees', $
                                'ees', $
                                'eeb', $ ;8002
-                               'ees', $
+                               'ees', $ ;8003
                                'eeb', $
                                'eeb', $
                                'eeb', $
@@ -168,7 +168,7 @@ energy_electrons__recommande  = LIST([8D2,3.01D4], $
                                      [5D2,3.01D4], $
                                      ;; [9D2,3.01D4], $ ;Orbit 8002 BEF 2017/11/17
                                      [5D2,3.01D4], $ ;Orbit 8002
-                                     [8D2,3.01D4], $
+                                     [3D2,3.01D4], $
                                      [8D2,3.01D4], $
                                      [6D2,3.01D4], $
                                      [1D3,3.01D4], $
@@ -185,7 +185,7 @@ min_peak_energy_recommande    = LIST(800, $
                                      800, $
                                      ;; 1000, $ ;Orbit 8002 BEF 2017/11/17
                                      300, $ ;Orbit 8002 AFT
-                                     900, $
+                                     300, $
                                      900, $
                                      600, $
                                      1000, $
@@ -203,7 +203,7 @@ spectra_average_interval_list = LIST( $
                                 eeb_or_ees__recommande[6] EQ 'eeb' ? 5 : 2, $
                                 ;; eeb_or_ees__recommande[7] EQ 'eeb' ? 5 : 2, $
                                 eeb_or_ees__recommande[7] EQ 'eeb' ? 3 : 2, $ ;8002
-                                eeb_or_ees__recommande[8] EQ 'eeb' ? 5 : 2, $
+                                eeb_or_ees__recommande[8] EQ 'eeb' ? 5 : 1, $ ;8003
                                 eeb_or_ees__recommande[9] EQ 'eeb' ? 5 : 2, $
                                 eeb_or_ees__recommande[10] EQ 'eeb' ? 12 : 2, $
                                 eeb_or_ees__recommande[11] EQ 'eeb' ? 12 : 2, $
