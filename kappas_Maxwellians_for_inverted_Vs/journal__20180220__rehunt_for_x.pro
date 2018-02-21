@@ -30,7 +30,7 @@ PRO JOURNAL__20180220__REHUNT_FOR_X
   add_oneCount_curve                = 1
 
   daPlots_cAP                       = 1
-  fit1D__save_plotSlices            = 0
+  fit1D__save_plotSlices            = 1
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
@@ -269,7 +269,7 @@ PRO JOURNAL__20180220__REHUNT_FOR_X
   ENDIF
 
   spectra_average_interval = spectra_average_interval_list[evtNum]
-
+  spectra_average_interval = 4
   show_post_plots      = 0
   save_postKappa_plots = 0
   close_kp_after_save  = 0

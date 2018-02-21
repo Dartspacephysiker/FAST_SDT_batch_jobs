@@ -15,6 +15,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          ADD_CHARE_PANEL=add_chare_panel, $
                          ADD_NEWELL_PANEL=add_Newell_panel, $
                          ADD_CHI2_LINE=add_chi2_line, $
+                         CHI2BOUNDS=chi2Bounds, $
                          LOG_KAPPAPLOT=log_kappaPlot, $
                          FIT2DKAPPA_INF_LIST=fit2DKappa_inf_list, $
                          FIT2DGAUSS_INF_LIST=fit2DGauss_inf_list, $
@@ -1118,8 +1119,10 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   ;; OPTIONS,'chi22DK','ytitle',CGGREEK('chi',PS=KEYWORD_SET(save_ps))+'!X!U2!N!Dred!N'
   ;; OPTIONS,'chi22DK','ytitle','!4'+STRING(greekChi)+'!X!U2!N!Dred!N'
   OPTIONS,'chi22DK','ytitle',greekChi+'!U2!N!Dred!N'
-  chi2Bounds      = [MIN([kappa2D.chi2/(kappa2D.dof+kappa2D.nFree),gauss2D.chi2/(gauss2D.dof+gauss2D.nFree)]), $
+  chi2Bounds      = KEYWORD_SET(chi2Bounds) ? chi2Bounds : $
+                    [MIN([kappa2D.chi2/(kappa2D.dof+kappa2D.nFree),gauss2D.chi2/(gauss2D.dof+gauss2D.nFree)]), $
                      MAX([kappa2D.chi2/(kappa2D.dof+kappa2D.nFree),gauss2D.chi2/(gauss2D.dof+gauss2D.nFree)])]
+
   ;; showLog_chi2    = (ALOG10(chi2Bounds[1])-ALOG10(chi2Bounds[0])) GT 2
   IF showLog_chi2 THEN BEGIN
      chi2Bounds[0] -= (chi2Bounds[0]*0.1)

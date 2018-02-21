@@ -12,6 +12,16 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   bonusBonusPref                    = '-linearEnergyShift-GRLRESPONSE2'
   cAP_tRanges_list[2]               = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
 
+  bonusBonusPref                    = '-linearEnergyShift-GRLRESPONSE2'
+  cAP_tRanges_list[2]               = '1997-02-01/'+[['09:26:13.0','09:26:21.0']]
+  ;; cAP_tRanges_list[2]               = '1997-02-01/'+[['09:26:11.0','09:26:20.0'], $ ;Spence checkout 2018/02/21
+  ;;                                                    ['09:26:55.5','09:27:04']]
+
+
+  dens__Liemohn_Khaz   = 0
+  lkARange             = [-90,90]
+  ;; lkARange             = "ALL__EXCL_ATM"
+
   ;; debug__skip_to_this_time          = '1997-02-01/09:27:01.57'
   ;; debug__break_on_this_time         = '1997-02-01/09:27:01.57'
 
@@ -32,8 +42,8 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   add_oneCount_curve                = 1
 
-  daPlots_cAP                       = 0
-  fit1D__save_plotSlices            = 1
+  daPlots_cAP                       = 1
+  fit1D__save_plotSlices            = 0
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
@@ -41,10 +51,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   fit2D__clampTemperature           = 0
   fit2D__clampDensity               = 0
   fit2D__estimate_sourceCone_from_dist = 0B
-  ;; fit2D__density_angleRange         = 'ALL__EXCL_ATM'
-  ;; fit2D__density_angleRange         = [-90,90]
   fit2D__extend_fitStruct_eRange    = 0 ;to 50 keV, je crois?
-  ;; fit2D__density_angleRange         = [-175,175]
 
   fit2D__temperature_type  = 'AVG' ;or 'AVG'
   ;;PostScript options
@@ -65,9 +72,10 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   kSum__add_parm_errors_from_file = 0
   kSum__add_parm_errors__nRolls = 10000
   kSum__add_parm_errors__use_most_prob = 1
+  kSum__chi2Bounds    = [0,10]
 
   kSum__convert_to_Newell_interp = 1
-  kSum__add_chi2_line = 1
+  kSum__add_chi2_line = 2 ;give value at which you'd like line
   kSum__add_meas_T_and_N = 1
   kSum__GRL           = 1
   kSum__oPlot_pot     = 1
@@ -76,7 +84,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -86,7 +94,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   ;; '1 :  McFadden_et_al_1998' --- 1849
   ;; '2 :  Elphic_et_al_1998' --- 1773
   ;; '3 :  Carlson_et_al_2001' --- 1789
-  evtNum               = 3
+  evtNum               = 2
 
   ;;2017/03/22
   ;; evtNum               = 3
@@ -131,12 +139,14 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
-  chi2_over_dof_thresh = 25
+  chi2_over_dof_thresh = 50
   lowDens_thresh       = 0.05
   diffEflux_thresh     = 3D6
   nPkAbove_dEF_thresh  = 3
 
-  fit2D__density_angleRange = 'ALL__EXCL_ATM'
+  ;; fit2D__density_angleRange = 'ALL__EXCL_ATM'
+  fit2D__density_angleRange = KEYWORD_SET(dens__Liemohn_Khaz) ?  $
+                              lkARange : 'ALL__EXCL_ATM'
   fit2D__temperature_angleRange = 'LC'
   fit2D__faConductance_angleRange = 'LC'
 
@@ -230,7 +240,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
                ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
                moment_energyArr : [[energy_electrons],[energy_electrons],[100,2.4e4]], $
                plot_j_v_potBar : 0B, $
-               plot_jv_a_la_Elphic : 0B, $
+               plot_jv_a_la_Elphic : daPlots_cAP, $
                plot_T_and_N : 0B, $
                plot_j_v_and_theory : 0B, $
                plot_j_v__fixed_t_and_n : 0B, $
@@ -250,6 +260,8 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
                ;; jv_theor__fit_je         : 1, $
                jv_theor__fit_both : 0, $
+               jv_theor__Liemohn_and_Khazanov_dens : KEYWORD_SET(dens__Liemohn_Khaz), $
+
                use_msph_sourcecone_for_dens : [1,0,0], $
                use_msph_sourcecone_for_temp : [0,0,0], $
                temperature_type             : fit2D__temperature_type, $
@@ -356,6 +368,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
                         KSUM__SAVE_PNG=kSum__save_png, $
                         KSUM__CONV_DESPECS_TO_NEWELL_INTERP=kSum__convert_to_Newell_interp, $
                         KSUM__ADD_CHI2_LINE=kSum__add_chi2_line, $
+                        KSUM__CHI2BOUNDS=kSum__chi2Bounds, $
                         KSUM__ADD_MEASURED_T_AND_N=kSum__add_meas_T_and_N, $
                         KSUM__GRL=kSum__GRL, $
                         KSUM__OPLOT_POT=kSum__oPlot_pot, $

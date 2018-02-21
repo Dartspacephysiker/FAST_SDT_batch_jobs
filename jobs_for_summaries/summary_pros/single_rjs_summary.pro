@@ -1172,7 +1172,8 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      sc_pot_interp  = DATA_CUT({x:sc_pot.time,y:sc_pot.comp1},data.x) 
      this           = VALUE_CLOSEST2(data.x,jee.x) 
      data           = {x:data.x[this],y:data.y[this,*],v:data.v[this,*]}
-     IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,data,Jee,Je,mlt,ilat,alt,orbit,events,SC_POT=sc_pot_interp
+     IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,data,Jee,Je,mlt,ilat,alt,orbit,events,SC_POT=sc_pot_interp, $
+                                             /QUIET
 
      var_name = 'newellPanel'
      PREPARE_IDENTIFIED_DIFF_EFLUXES_FOR_TPLOT,events,TPLOT_NAME=var_name, $
