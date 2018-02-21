@@ -29,8 +29,8 @@ PRO JOURNAL__20180220__REHUNT_FOR_X
 
   add_oneCount_curve                = 1
 
-  daPlots_cAP                       = 0
-  fit1D__save_plotSlices            = 1
+  daPlots_cAP                       = 1
+  fit1D__save_plotSlices            = 0
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
@@ -51,7 +51,7 @@ PRO JOURNAL__20180220__REHUNT_FOR_X
 
   eps                      = 1
 
-  show_Strangeway_summary  = 0
+  show_Strangeway_summary  = 1
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
@@ -75,7 +75,7 @@ PRO JOURNAL__20180220__REHUNT_FOR_X
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -195,7 +195,7 @@ PRO JOURNAL__20180220__REHUNT_FOR_X
   ;;Current and potential analysis
   curAndPot_analysis        = 1
   cAP_struct = { $
-               remake_masterFile : 1B, $
+               remake_masterFile : 0B, $
                map_to_100km : 1, $
                use_all_currents : 0B, $
                use_ed_current : 1B, $
@@ -210,7 +210,7 @@ PRO JOURNAL__20180220__REHUNT_FOR_X
                ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
                moment_energyArr : [[energy_electrons],[energy_electrons],[100,2.4e4]], $
                plot_j_v_potBar : 0B, $
-               plot_jv_a_la_Elphic : 0B, $
+               plot_jv_a_la_Elphic : 1B, $
                plot_T_and_N : 0B, $
                plot_j_v_and_theory : 0B, $
                plot_j_v__fixed_t_and_n : 0B, $
