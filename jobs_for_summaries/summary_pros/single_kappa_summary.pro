@@ -595,67 +595,69 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   endif
 
+  sdt_idx = get_sdt_run_idx()
+
+  IF KEYWORD_SET(include_ion_plots) THEN BEGIN
 
 ; Step 3 - Iesa data
-  sdt_idx = get_sdt_run_idx()
-  prog = getenv('FASTBIN') + '/showDQIs'
-  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN begin
-     if (sdt_idx GE 10) THEN begin
-        sidstr = STRING(sdt_idx, FORMAT='(I2)')
+     prog = getenv('FASTBIN') + '/showDQIs'
+     if ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN begin
+        if (sdt_idx GE 10) THEN begin
+           sidstr = STRING(sdt_idx, FORMAT='(I2)')
+        endif else begin
+           sidstr = STRING(sdt_idx, FORMAT='(I1)')
+        endelse
+        SPAWN, [prog, sidstr], result, /noshell
      endif else begin
-        sidstr = STRING(sdt_idx, FORMAT='(I1)')
+        SPAWN, prog, result, /noshell
      endelse
-     SPAWN, [prog, sidstr], result, /noshell
-  endif else begin
-     SPAWN, prog, result, /noshell
-  endelse
-  b = WHERE (strpos(result,'Iesa Survey') ge 0,nesa)
-  if (nesa gt 0) THEN if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 THEN nesa = 0
+     b = WHERE (strpos(result,'Iesa Survey') ge 0,nesa)
+     if (nesa gt 0) THEN if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 THEN nesa = 0
 
-  if (nesa gt 0) THEN begin
+     if (nesa gt 0) THEN begin
 
 ; ION PITCH ANGLE
 
-     var_name='Iesa_Angle'
-     IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-        GET_PA_SPEC,'fa_' + ieb_or_ies + '_c',units='eflux',name=var_name,energy=[4.,30000.]
-     ENDIF
-     GET_DATA,var_name,DATA=data
-     IF KEYWORD_SET(save_for_offline) THEN BEGIN
-        Iesa_Angle_off = data
-        saveStr += var_name + '_off,'
-     ENDIF
-     data.y = ALOG10(data.y)
-     STORE_DATA,var_name,DATA=data
-     OPTIONS,var_name,'spec',1	
-     ;; zlim,var_name,4,9,0
-     zlim,var_name, $
-          (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
-          (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
-     ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-     ylim,var_name,0,360,0
-     OPTIONS,var_name,'ytitle','Ions!C!CAngle (Deg.)'
-     OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-     OPTIONS,var_name,'x_no_interp',1
-     OPTIONS,var_name,'y_no_interp',1
-     OPTIONS,var_name,'panel_size',2
+        var_name='Iesa_Angle'
+        IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+           GET_PA_SPEC,'fa_' + ieb_or_ies + '_c',units='eflux',name=var_name,energy=[4.,30000.]
+        ENDIF
+        GET_DATA,var_name,DATA=data
+        IF KEYWORD_SET(save_for_offline) THEN BEGIN
+           Iesa_Angle_off = data
+           saveStr += var_name + '_off,'
+        ENDIF
+        data.y = ALOG10(data.y)
+        STORE_DATA,var_name,DATA=data
+        OPTIONS,var_name,'spec',1	
+        ;; zlim,var_name,4,9,0
+        zlim,var_name, $
+             (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
+        ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+        ylim,var_name,0,360,0
+        OPTIONS,var_name,'ytitle','Ions!C!CAngle (Deg.)'
+        OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        OPTIONS,var_name,'x_no_interp',1
+        OPTIONS,var_name,'y_no_interp',1
+        OPTIONS,var_name,'panel_size',2
 
-     GET_DATA,var_name,DATA=data
-     bb = WHERE (data.v gt 270.,nb)
-     if (nb gt 0) THEN data.v(bb)=data.v(bb)-360.
-     nn = n_elements(data.x)
-     for n = 0,nn-1L do begin
-        bs = sort (data.v(n,*))
-        data.v(n,*)=data.v(n,bs)
-        data.y(n,*)=data.y(n,bs)
-     endfor
-     STORE_DATA,var_name,DATA=data	
-     OPTIONS,var_name,'yminor',9
-     OPTIONS,var_name,'yticks',4
-     OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
-     ylim,var_name,-90,270,0
+        GET_DATA,var_name,DATA=data
+        bb = WHERE (data.v gt 270.,nb)
+        if (nb gt 0) THEN data.v(bb)=data.v(bb)-360.
+        nn = n_elements(data.x)
+        for n = 0,nn-1L do begin
+           bs = sort (data.v(n,*))
+           data.v(n,*)=data.v(n,bs)
+           data.y(n,*)=data.y(n,bs)
+        endfor
+        STORE_DATA,var_name,DATA=data	
+        OPTIONS,var_name,'yminor',9
+        OPTIONS,var_name,'yticks',4
+        OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
+        ylim,var_name,-90,270,0
 
-     IF KEYWORD_SET(include_ion_plots) THEN BEGIN
+
         if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
 
 ; reset time limits if needed
