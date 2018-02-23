@@ -13,9 +13,9 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   cAP_tRanges_list[2]               = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
 
   bonusBonusPref                    = '-linearEnergyShift-GRLRESPONSE3'
-  cAP_tRanges_list[2]               = '1997-02-01/'+[['09:26:13.0','09:26:21.0']]
-  ;; cAP_tRanges_list[2]               = '1997-02-01/'+[['09:26:11.0','09:26:20.0'], $ ;Spence checkout 2018/02/21
-  ;;                                                    ['09:26:55.5','09:27:04']]
+  ;; cAP_tRanges_list[2]               = '1997-02-01/'+[['09:26:13.0','09:26:21.0']]
+  cAP_tRanges_list[2]               = '1997-02-01/'+[['09:26:11.0','09:26:23.0'], $ ;Spence checkout 2018/02/21
+                                                     ['09:26:56.5','09:27:07']]
 
   dens__Liemohn_Khaz   = 0
   lkARange             = [-90,90]
