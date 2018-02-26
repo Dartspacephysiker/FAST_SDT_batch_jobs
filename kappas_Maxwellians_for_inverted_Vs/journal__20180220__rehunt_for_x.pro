@@ -30,7 +30,7 @@ PRO JOURNAL__20180220__REHUNT_FOR_X
   add_oneCount_curve                = 1
 
   daPlots_cAP                       = 1
-  fit1D__save_plotSlices            = 1
+  fit1D__save_plotSlices            = 0
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
@@ -75,7 +75,7 @@ PRO JOURNAL__20180220__REHUNT_FOR_X
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -195,7 +195,7 @@ PRO JOURNAL__20180220__REHUNT_FOR_X
   ;;Current and potential analysis
   curAndPot_analysis        = 1
   cAP_struct = { $
-               remake_masterFile : 0B, $
+               remake_masterFile : 1B, $
                map_to_100km : 1, $
                use_all_currents : 0B, $
                use_ed_current : 1B, $
@@ -269,7 +269,7 @@ PRO JOURNAL__20180220__REHUNT_FOR_X
   ENDIF
 
   spectra_average_interval = spectra_average_interval_list[evtNum]
-  spectra_average_interval = 4
+  spectra_average_interval = 2
   show_post_plots      = 0
   save_postKappa_plots = 0
   close_kp_after_save  = 0

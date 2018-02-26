@@ -148,6 +148,20 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
            IF KEYWORD_SET(save_ps) THEN BEGIN
 
+              filNavn = KEYWORD_SET(outPlotName) ? outPlotName : (orbString + '-single_rjs_summary')
+              filTmp  = STRSPLIT(outPlotName,'.',/EXTRACT)
+              filPref = (filTmp)[0]
+              filSuff = N_ELEMENTS(filTmp) GT 1 ? '.' + filTmp[1] : ''
+
+              count = 0
+              WHILE FILE_TEST(plotDir+filNavn) DO BEGIN
+                 count++
+                 filNavn = STRING(FORMAT='(A0,I02,A0)', $
+                                  filPref, $
+                                  count, $
+                                  filSuff)
+              ENDWHILE
+
               POPEN,plotDir+outPlotName,/PORT,FONT=-1, $
                     ENCAPSULATED=eps ;,XSIZE=4,YSIZE=7
 
