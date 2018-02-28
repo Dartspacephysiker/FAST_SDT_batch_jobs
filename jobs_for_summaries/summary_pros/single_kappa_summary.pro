@@ -11,7 +11,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          USE_FAC_NOT_V=use_fac, $
                          NO_BLANK_PANELS=no_blank_panels, $
                          ADD_KAPPA_PANEL=add_kappa_panel, $
-                         PLOT_1_OVER_KAPPA=plot_1_over_kappa, $
+                         PLOT_Q_NOT_KAPPA=plot_q_not_kappa, $
                          ADD_CHARE_PANEL=add_chare_panel, $
                          ADD_NEWELL_PANEL=add_Newell_panel, $
                          ADD_CHI2_LINE=add_chi2_line, $
@@ -26,16 +26,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          KAPPAFIT1DS=kappaFit1Ds, $
                          GAUSSFIT1DS=gaussFit1Ds, $
                          DIFF_EFLUX=diff_eFlux, $
-                         CURPOTLIST=curPotList, $
                          JVPLOTDATA=jvPlotData, $
                          SC_POT=sc_pot, $
                          ADD_MEASURED_T_AND_N=add_meas_T_and_N, $
-                         CHI2_THRESHOLD=chi2_thresh, $
-                         CHI2_OVER_DOF_THRESHOLD=chi2_over_dof_thresh, $
-                         HIGHDENSITY_THRESHOLD=highDens_thresh, $
-                         LOWDENSITY_THRESHOLD=lowDens_thresh, $
-                         DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
-                         N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
                          CONVERT_DESPECS_TO_NEWELL_INTERP=Newell_2009_interp, $
                          SAVE_PS=save_ps, $
                          SAVE_PNG=save_png, $
@@ -1058,7 +1051,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 ;;Include kappa panel?
   ;; IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
 
-  IF ~KEYWORD_SET(plot_1_over_kappa) THEN BEGIN
+  IF ~KEYWORD_SET(plot_q_not_kappa) THEN BEGIN
      ;; STORE_DATA,'kappa_fit',DATA={x:kappa2DTime,y:Astruct.kappa}
 
      CASE 1 OF
@@ -1082,9 +1075,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      ENDCASE
 
   ENDIF ELSE BEGIN
-     STORE_DATA,'kappa_fit',DATA={x:kappa2DTime,y:REFORM(1./kappa2D.fitParams[2,*])}
-     kappaBounds      = [MIN(1./k2DParms.kappa), $
-                         MAX(1./k2DParms.kappa)]
+     STORE_DATA,'kappa_fit',DATA={x:kappa2DTime,y:REFORM(1.+1./kappa2D.fitParams[2,*])}
+     kappaBounds      = [MIN(1.+1./k2DParms.kappa), $
+                         MAX(1.+1./k2DParms.kappa)]
      showLog_kappa    = (ALOG10(1./kappaBounds[1])-ALOG10(1./kappaBounds[0])) GT 1.5
 
      CASE 1 OF

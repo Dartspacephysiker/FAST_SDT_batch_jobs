@@ -1,21 +1,16 @@
-;;2018/02/01
-;;Why does Referee #1 have to be so smart?
-PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHIFT
+;;2018/02/28
+;;Revisit Janhunen & Co.
+PRO JOURNAL__20180228__THE_JANHUNENS_AND_NEIGHBORS
 
   COMPILE_OPT IDL2
 
   routName = 'JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHIFT'
 
   ;;get orbTimes here
-  @journal__20161011__info__the_classics.pro
+  @journal__20161010__info__janhunen_2001_orbits.pro
 
-  bonusBonusPref                    = '-linearEnergyShift-GRLRESPONSE2'
-  cAP_tRanges_list[2]               = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
 
   bonusBonusPref                    = '-linearEnergyShift-GRLRESPONSE3'
-  ;; cAP_tRanges_list[2]               = '1997-02-01/'+[['09:26:13.0','09:26:21.0']]
-  cAP_tRanges_list[2]               = '1997-02-01/'+[['09:26:11.0','09:26:23.0'], $ ;Spence checkout 2018/02/21
-                                                     ['09:26:56.5','09:27:07']]
 
   dens__Liemohn_Khaz   = 0
   lkARange             = [-90,90]
@@ -41,7 +36,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   add_oneCount_curve                = 1
 
-  daPlots_cAP                       = 0
+  daPlots_cAP                       = 1
   fit1D__save_plotSlices            = 1
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
@@ -58,20 +53,20 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   eps                      = 1
 
-  show_Strangeway_summary  = 1
+  show_Strangeway_summary  = 0
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
   sway__add_Newell_panel   = 1
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary  = 1
+  show_kappa_summary  = 0
   ;; kSum__eAngle        = [-180,180]
   kSum__save_ps       = 1
   kSum__add_parm_errors_from_file = 0
   kSum__add_parm_errors__nRolls = 10000
   kSum__add_parm_errors__use_most_prob = 1
-  kSum__chi2Bounds    = [0,10]
+  kSum__chi2Bounds    = [0,5]
 
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 2 ;give value at which you'd like line
@@ -83,20 +78,50 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = 1
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
 
-  ;;Which totally classic event?
-  ;; '0 :  Ergun_et_al_1998' --- 1843
-  ;; '1 :  McFadden_et_al_1998' --- 1849
-  ;; '2 :  Elphic_et_al_1998' --- 1773
-  ;; '3 :  Carlson_et_al_2001' --- 1789
-  evtNum               = 3
+  ;; show_post_plots      = 0
+  ;; save_kappa_plot      = 0
+  ;; close_kp_after_save  = 0
 
-  ;;2017/03/22
-  ;; evtNum               = 3
+  ;;Kill this one: 14:34:52.89
+  ;; debug__skip_to_this_time    = STR_TO_TIME("98-01-22/14:34:52.00")
+  ;; debug__break_on_this_time   = STR_TO_TIME("98-01-22/14:34:52.89")
+
+  ;; debug__skip_to_this_time    = STR_TO_TIME("97-01-26/20:14:10.00")
+
+  ;;Which Janhunen event?
+  ;; 0: Orbit 3091  – Inverted V, but not Maxwellian
+  ;; 1: Orbit 3123  – Inverted V, but not Maxwellian
+  ;; 2: Orbit 3147  – Inverted V, but not Maxwellian; no exact times given!
+  ;; 3: Orbit 3219  – "Quasi-Maxwellian"
+  ;; 4: Orbit 3370  – "Quasi-Maxwellian"
+  ;; 5: Orbit 3498  – "Diffuse auroral event containing no inverted-V-type precipitation"
+  ;; 6: Orbit 0000  – No inverted V, No exact times given!
+  ;; 7: Orbit 7628  – No inverted V,No exact times given!
+  ;; 8: Orbit 0000  – No inverted V,No exact times given!
+  ;; 9: Orbit 11002 – Dombeck et al. [2013] orbit 11002
+  ;;10: Orbit 11076 – Dombeck et al. [2013] orbit 11076
+  ;;11: Orbit 11097 – Dombeck et al. [2013] orbit 11097
+  ;;12: Orbit 11109 – Dombeck et al. [2013] orbit 11109
+  ;;13: Orbit 11024 – Dombeck et al. [2013] orbit 11024
+  ;;14: Orbit 11056 – Dombeck et al. [2013] orbit 11056
+  ;;15: Orbit 11067 – Dombeck et al. [2013] orbit 11067
+  ;;16: Orbit 1771  – Bonus, orbit 1771 (poking on either side of Elphic et al. [1998] orbit 
+  ;;17: Orbit 1770  – Bonus, orbit 1770 (poking on either side of Elphic et al. [1998] orbit 
+  ;;18: Orbit 6717  – Bonus, orbit 6717 from Chaston et al. [2006], the dens cavity pape
+  ;;19: Orbit 5805  – Bonus, orbit 5805–world's longest continual observation of monoenergetic aurora
+  ;;20: Orbit 5825  – Bonus, orbit 5825 (big current, strict mono. Whence come the obs. currents? )
+  ;;21: Orbit 1713  – Bonus, orbit 1713 (Semi-big current, strict mono.
+  ;;22: Orbit 5616  – Bonus, orbit 5616 (Semi-big current, strict mono. Cleaner? Maybe not. I hope.
+  ;;23: Orbit 12136 – Bonus, orbit 12136--Kelvin-Helmholtz???
+  evtNum               = 2
+
+  ;; spectra_average_interval_list[2] = 4
+
 
   ;;If doing upgoing electrons
   peak_energy__start_at_highE       = 0
@@ -149,82 +174,11 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   fit2D__temperature_angleRange = 'LC'
   fit2D__faConductance_angleRange = 'LC'
 
-  IF orbit EQ 1773 THEN BEGIN
-
-     ;; fit2D__density_angleRange = [-150,150]
-     ;; fit2D__density_angleRange = [-90,90]
-
-     ;; aRange__dens_e_down = [-90,90]
-     ;; ;;make sure temperature is limited
-     ;; kFit__limited[1,1] = 1
-     ;; kFit__limits[1,1]  = 2D4
-
-     ;; fits__T_limited                   = [1,1]
-     ;; fits__T_limits                    = [10,2D4]
-
-     ;; fits__T_limited                   = [1,0]
-     ;; fits__T_limits                    = [10,2D5]
-
-  ENDIF
-
-  IF orbit EQ 1789 THEN BEGIN
-
-     kSum__add_chi2_line  = 10
-     
-     min_peak_energy   = 800
-     ;; energy_electrons  = [0,3.0e4]
-
-     ;; fit2D__density_angleRange = [-145,145]
-
-     ;; energy_electrons          = [7e2,3.15e4]
-
-     IF N_ELEMENTS(burstItvl) GT 0 AND (STRUPCASE(eeb_or_ees) EQ 'EEB') THEN BEGIN
-        IF burstItvl EQ 1 THEN BEGIN ;Carlson et al. [1998] state that this interval is cold electron–free
-
-           manual_angle_correction = -15
-
-        ENDIF
-     ENDIF
-     
-     ;; t1Str = '97-02-02/21:01:55'
-     ;; t2Str = '97-02-02/21:02:20'
-
-     ;; chi2_over_dof_thresh = 50
-     ;; lowDens_thresh       = 0.002
-     ;; diffEflux_thresh     = 1e7
-     ;; nPkAbove_dEF_thresh  = 5
-
-  ENDIF
-
-  IF orbit EQ 1843 THEN BEGIN
-
-     kSum__add_chi2_line  = 15
-     
-     ;; fit2D__density_angleRange         = [-150,150]
-     fit2D__density_angleRange = 'ALL__EXCL_ATM'
-
-     chi2_over_dof_thresh = 50
-
-  ENDIF
-
-  IF orbit EQ 1849 THEN BEGIN
-
-     kSum__add_chi2_line  = 10
-     
-     fit2D__density_angleRange = [-45,45]
-
-     chi2_over_dof_thresh = 20
-     lowDens_thresh       = 0.002
-     diffEflux_thresh     = 1e7
-     nPkAbove_dEF_thresh  = 5
-
-  ENDIF
-
   ;;Current and potential analysis
   curAndPot_analysis        = 1
 
   cAP_struct = { $
-               remake_masterFile : 1B, $
+               remake_masterFile : 0B, $
                map_to_100km : 1, $
                use_all_currents : 0B, $
                use_ed_current : 1B, $

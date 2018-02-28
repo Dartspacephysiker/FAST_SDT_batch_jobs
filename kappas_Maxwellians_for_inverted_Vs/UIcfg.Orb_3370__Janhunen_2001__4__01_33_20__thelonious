@@ -1,6 +1,6 @@
 *
 Header :this is the 'Orb_3370__Janhunen_2001__4__01_33_20__thelonious' configuration file
-Header :created on Mon Oct 10 11:38:27 2016
+Header :created on Wed Feb 28 11:19:01 2018
 *
 *
 Description : 
@@ -10,7 +10,7 @@ Description :
 Configuration
 {
 Config Name:			'Orb_3370__Janhunen_2001__4__01_33_20__thelonious'
-Config MenuPosition:		6, -14
+Config MenuPosition:		4, -10
 Config MenuSize:		155, 150
 Config DefaultSourceId:	'?'
 Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - DA'
@@ -18,11 +18,11 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 	PlotWinStandard
 	{
 	PlotWin Name:		'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - DA'
-	PlotWin Position:	494, 169
+	PlotWin Position:	345, 169
 	PlotWin Size:		680, 768
 	PlotWin PlotsPage:	12
 	PlotWin TopPlotOfPage:	'Eesa Survey:  Energy'
-	PlotWin DefaultDataBaseResponse:	2450629 5600 2450629 5850 'FNMLine 10'
+	PlotWin DefaultDataBaseResponse:	2450629 3247.56 2450629 11233.3 'FNMLine 10'
    '/FASTdata_1/FAST_JB_1/FAST634_ORBIT3369/lzp/fast_lzp_DSS-29_orbit3370_r'
    '/FASTdata_1/FAST_JB_1/FAST634_ORBIT3369/lzp/fast_lzp_DSS-29_orbit3370_r'
    '/FASTdata_1/FAST_JB_1/FAST634_ORBIT3369/lzp/fast_lzp_DSS-29_orbit3372_r'
@@ -47,15 +47,15 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	UNKNOWN
+		Plot2 ShadingMode:	SHADE
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	5850, 40000, 1e+06, 1, 1, 1e+09
-		Plot2 MinLimits:	5600, 4, 2, 0, 0, 100000
+		Plot2 MaxLimits:	11233.3, 40000, 1e+06, 1, 1, 1e+09
+		Plot2 MinLimits:	3247.56, 4, 2, 0, 0, 100000
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -93,8 +93,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	5850, 360, 100000, 1, 1, 1
-		Plot2 MinLimits:	5600, 0, 2, 0, 0, 0
+		Plot2 MaxLimits:	11233.3, 360, 100000, 1, 1, 1
+		Plot2 MinLimits:	3247.56, 0, 2, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -133,8 +133,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	5850, 40000, 1e+06, 1, 1, 1
-		Plot2 MinLimits:	5600, 4, 2, 0, 0, 0
+		Plot2 MaxLimits:	11233.3, 40000, 1e+06, 1, 1, 1
+		Plot2 MinLimits:	3247.56, 4, 2, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -173,8 +173,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	5850, 360, 100000, 1, 1, 1
-		Plot2 MinLimits:	5600, 0, 2, 0, 0, 0
+		Plot2 MaxLimits:	11233.3, 360, 100000, 1, 1, 1
+		Plot2 MinLimits:	3247.56, 0, 2, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -213,8 +213,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	5850, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	5600, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	11233.3, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	3247.56, 0, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -253,8 +253,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	5850, 35000, 255, 1, 1, 1
-		Plot2 MinLimits:	5600, 1, 0, 0, 0, 0
+		Plot2 MaxLimits:	11233.3, 35000, 255, 1, 1, 1
+		Plot2 MinLimits:	3247.56, 1, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -293,8 +293,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	5850, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	5600, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	11233.3, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	3247.56, 0, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -333,8 +333,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	5850, 35000, 255, 1, 1, 1
-		Plot2 MinLimits:	5600, 1, 0, 0, 0, 0
+		Plot2 MaxLimits:	11233.3, 35000, 255, 1, 1, 1
+		Plot2 MinLimits:	3247.56, 1, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -371,8 +371,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	5850, 32768, 0, 0
-		Plot2 MinLimits:	5600, -32768, 0, 0
+		Plot2 MaxLimits:	11233.3, 32768, 0, 0
+		Plot2 MinLimits:	3247.56, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -407,8 +407,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	5850, 32768, 0, 0
-		Plot2 MinLimits:	5600, -32768, 0, 0
+		Plot2 MaxLimits:	11233.3, 32768, 0, 0
+		Plot2 MinLimits:	3247.56, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -443,8 +443,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	5850, 32768, 0, 0
-		Plot2 MinLimits:	5600, -32768, 0, 0
+		Plot2 MaxLimits:	11233.3, 32768, 0, 0
+		Plot2 MinLimits:	3247.56, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -479,8 +479,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	5850, 100, 0, 0
-		Plot2 MinLimits:	5600, -100, 0, 0
+		Plot2 MaxLimits:	11233.3, 100, 0, 0
+		Plot2 MinLimits:	3247.56, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -516,8 +516,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	5850, 100, 0, 0
-		Plot2 MinLimits:	5600, -100, 0, 0
+		Plot2 MaxLimits:	11233.3, 100, 0, 0
+		Plot2 MinLimits:	3247.56, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -553,8 +553,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	5850, 100, 0, 0
-		Plot2 MinLimits:	5600, -100, 0, 0
+		Plot2 MaxLimits:	11233.3, 100, 0, 0
+		Plot2 MinLimits:	3247.56, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -590,8 +590,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	34080, 32768, 1, 0
-		Plot2 MinLimits:	33930, -32768, 0, 0
+		Plot2 MaxLimits:	11233.3, 32768, 0, 0
+		Plot2 MinLimits:	3247.56, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -619,15 +619,15 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 PlotYSubTitleName:	'-'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	UNKNOWN
+		Plot2 ShadingMode:	SHADE
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		2
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	39914.6, 32768, 1, 1
-		Plot2 MinLimits:	31923.2, -32768, 0, 0
+		Plot2 MaxLimits:	11233.3, 32768, 1, 0
+		Plot2 MinLimits:	3247.56, -32768, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -665,8 +665,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	5850, 512, 0.001, 1, 1, 1
-		Plot2 MinLimits:	5600, 0, 1e-13, 0, 0, 0
+		Plot2 MaxLimits:	11233.3, 512, 0.001, 1, 1, 1
+		Plot2 MinLimits:	3247.56, 0, 1e-13, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -703,8 +703,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	5850, 1000, 1e-07, 1, 1, 1
-		Plot2 MinLimits:	5600, 0, 1e-15, 0, 0, 0
+		Plot2 MaxLimits:	11233.3, 1000, 1e-07, 1, 1, 1
+		Plot2 MinLimits:	3247.56, 0, 1e-15, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -740,8 +740,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	5850, 1024, 0, 0
-		Plot2 MinLimits:	5600, 0, 0, 0
+		Plot2 MaxLimits:	11233.3, 1024, 0, 0
+		Plot2 MinLimits:	3247.56, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -776,8 +776,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	5850, 256, 0, 0
-		Plot2 MinLimits:	5600, 0, 0, 0
+		Plot2 MaxLimits:	11233.3, 256, 0, 0
+		Plot2 MinLimits:	3247.56, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -814,8 +814,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	5850, 512, 0.001, 1, 1, 1
-		Plot2 MinLimits:	5600, 0, 1e-13, 0, 0, 0
+		Plot2 MaxLimits:	11233.3, 512, 0.001, 1, 1, 1
+		Plot2 MinLimits:	3247.56, 0, 1e-13, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -851,8 +851,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	5850, 15.77, 0, 0
-		Plot2 MinLimits:	5600, -0.75, 0, 0
+		Plot2 MaxLimits:	11233.3, 15.77, 0, 0
+		Plot2 MinLimits:	3247.56, -0.75, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -887,8 +887,8 @@ Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - 
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	5850, 164.23, 0, 0
-		Plot2 MinLimits:	5600, -170.77, 0, 0
+		Plot2 MaxLimits:	11233.3, 164.23, 0, 0
+		Plot2 MinLimits:	3247.56, -170.77, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0

@@ -1,6 +1,6 @@
 *
-Header :this is the 'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30__thelonious' configuration file
-Header :created on Wed Feb 28 09:38:36 2018
+Header :this is the 'Orb_11097__Dombeck_2013__thelonious' configuration file
+Header :created on Wed Feb 28 12:54:23 2018
 *
 *
 Description : 
@@ -9,26 +9,30 @@ Description :
 
 Configuration
 {
-Config Name:			'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30__thelonious'
+Config Name:			'Orb_11097__Dombeck_2013__thelonious'
 Config MenuPosition:		4, -10
 Config MenuSize:		155, 150
 Config DefaultSourceId:	'?'
-Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30__thelonious:0 - DA'
+Config CurrentPlotWindow:	'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - DA'
 
 	PlotWinStandard
 	{
-	PlotWin Name:		'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30__thelonious:0 - DA'
-	PlotWin Position:	505, 48
-	PlotWin Size:		680, 768
+	PlotWin Name:		'Orb_3370__Janhunen_2001__4__01_33_20__thelonious:0 - DA'
+	PlotWin Position:	514, 153
+	PlotWin Size:		680, 763
 	PlotWin PlotsPage:	12
 	PlotWin TopPlotOfPage:	'Eesa Survey:  Energy'
-	PlotWin DefaultDataBaseResponse:	2450487 72934.6 2450487 80926.2 'FNMLine 6'
-   '/FASTdata_2/FAST_JB_4/FAST310_ORBIT1841/lzp/fast_lzp_DSS-29_orbit1843_r'
-   '/FASTdata_2/FAST_JB_4/FAST310_ORBIT1841/lzp/fast_lzp_DSS-29_orbit1843_r'
-   '/FASTdata_2/FAST_JB_4/FAST310_ORBIT1841/lzp/fast_lzp_DSS-76_orbit1845_r'
-   '/FASTdata_2/FAST_JB_4/FAST310_ORBIT1841/lzp/fast_lzp_DSS-76_orbit1845_r'
-   '/FASTdata_2/FAST_JB_4/FAST479_ORBIT1832/lzp/fast_lzp_DSS-39_orbit1844_t'
-   '/FASTdata_2/FAST_JB_4/FAST479_ORBIT1832/lzp/fast_lzp_DSS-39_orbit1844_t'
+	PlotWin DefaultDataBaseResponse:	2451341 54226.2 2451341 62170.3 'FNMLine 10'
+   '/FASTdata_2/FAST_JB_10/FAST2366_ORBIT10916/lzp/fast_lzp_DSS-82_orbit11096_r'
+   '/FASTdata_2/FAST_JB_10/FAST2366_ORBIT10916/lzp/fast_lzp_DSS-82_orbit11096_r'
+   '/FASTdata_2/FAST_JB_10/FAST2367_ORBIT10952/lzp/fast_lzp_DSS-29_orbit11098_r'
+   '/FASTdata_2/FAST_JB_10/FAST2367_ORBIT10952/lzp/fast_lzp_DSS-29_orbit11098_r'
+   '/FASTdata_2/FAST_JB_10/FAST2367_ORBIT10952/lzp/fast_lzp_DSS-82_orbit11096_r'
+   '/FASTdata_2/FAST_JB_10/FAST2367_ORBIT10952/lzp/fast_lzp_DSS-82_orbit11096_r'
+   '/FASTdata_2/FAST_JB_10/FAST2368_ORBIT10954/lzp/fast_lzp_DSS-29_orbit11098_t'
+   '/FASTdata_2/FAST_JB_10/FAST2368_ORBIT10954/lzp/fast_lzp_DSS-29_orbit11098_t'
+   '/FASTdata_2/FAST_JB_10/FAST2376_ORBIT10965/lzp/fast_lzp_DSS-29_orbit11098_p'
+   '/FASTdata_2/FAST_JB_10/FAST2376_ORBIT10965/lzp/fast_lzp_DSS-29_orbit11098_p'
 
 		PlotType
 		{
@@ -50,8 +54,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	80926.2, 40000, 1e+06, 1, 1, 1e+09
-		Plot2 MinLimits:	72934.6, 4, 2, 0, 0, 100000
+		Plot2 MaxLimits:	62170.3, 40000, 1e+06, 1, 1, 1e+09
+		Plot2 MinLimits:	54226.2, 4, 2, 0, 0, 100000
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -89,8 +93,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	80926.2, 360, 100000, 1, 1, 1
-		Plot2 MinLimits:	72934.6, 0, 2, 0, 0, 0
+		Plot2 MaxLimits:	62170.3, 360, 100000, 1, 1, 1
+		Plot2 MinLimits:	54226.2, 0, 2, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -129,8 +133,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	80926.2, 40000, 1e+06, 1, 1, 1
-		Plot2 MinLimits:	72934.6, 4, 2, 0, 0, 0
+		Plot2 MaxLimits:	62170.3, 40000, 1e+06, 1, 1, 1
+		Plot2 MinLimits:	54226.2, 4, 2, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -169,8 +173,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	80926.2, 360, 100000, 1, 1, 1
-		Plot2 MinLimits:	72934.6, 0, 2, 0, 0, 0
+		Plot2 MaxLimits:	62170.3, 360, 100000, 1, 1, 1
+		Plot2 MinLimits:	54226.2, 0, 2, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -209,8 +213,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	80926.2, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	72934.6, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	62170.3, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	54226.2, 0, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -249,8 +253,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	80926.2, 35000, 255, 1, 1, 1
-		Plot2 MinLimits:	72934.6, 1, 0, 0, 0, 0
+		Plot2 MaxLimits:	62170.3, 35000, 255, 1, 1, 1
+		Plot2 MinLimits:	54226.2, 1, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -289,8 +293,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	80926.2, 360, 255, 1, 1, 1
-		Plot2 MinLimits:	72934.6, 0, 0, 0, 0, 0
+		Plot2 MaxLimits:	62170.3, 360, 255, 1, 1, 1
+		Plot2 MinLimits:	54226.2, 0, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -329,8 +333,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LOG LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
-		Plot2 MaxLimits:	80926.2, 35000, 255, 1, 1, 1
-		Plot2 MinLimits:	72934.6, 1, 0, 0, 0, 0
+		Plot2 MaxLimits:	62170.3, 35000, 255, 1, 1, 1
+		Plot2 MinLimits:	54226.2, 1, 0, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -367,8 +371,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 32768, 0, 0
-		Plot2 MinLimits:	72934.6, -32768, 0, 0
+		Plot2 MaxLimits:	62170.3, 32768, 0, 0
+		Plot2 MinLimits:	54226.2, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -403,8 +407,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 32768, 0, 0
-		Plot2 MinLimits:	72934.6, -32768, 0, 0
+		Plot2 MaxLimits:	62170.3, 32768, 0, 0
+		Plot2 MinLimits:	54226.2, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -439,8 +443,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 32768, 0, 0
-		Plot2 MinLimits:	72934.6, -32768, 0, 0
+		Plot2 MaxLimits:	62170.3, 32768, 0, 0
+		Plot2 MinLimits:	54226.2, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -475,8 +479,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 100, 0, 0
-		Plot2 MinLimits:	72934.6, -100, 0, 0
+		Plot2 MaxLimits:	62170.3, 100, 0, 0
+		Plot2 MinLimits:	54226.2, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -512,8 +516,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 100, 0, 0
-		Plot2 MinLimits:	72934.6, -100, 0, 0
+		Plot2 MaxLimits:	62170.3, 100, 0, 0
+		Plot2 MinLimits:	54226.2, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -549,8 +553,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 100, 0, 0
-		Plot2 MinLimits:	72934.6, -100, 0, 0
+		Plot2 MaxLimits:	62170.3, 100, 0, 0
+		Plot2 MinLimits:	54226.2, -100, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -586,8 +590,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 32768, 0, 0
-		Plot2 MinLimits:	72934.6, -32768, 0, 0
+		Plot2 MaxLimits:	62170.3, 32768, 0, 0
+		Plot2 MinLimits:	54226.2, -32768, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -622,8 +626,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 32768, 0, 0
-		Plot2 MinLimits:	72934.6, -32768, 0, 0
+		Plot2 MaxLimits:	62170.3, 32768, 1, 0
+		Plot2 MinLimits:	54226.2, -32768, 0, 0
 		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -636,8 +640,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 BrkInt:		10
 		Plot2 ErrorBar:		SDT_EBAR_NONE
 		Plot2 NSymbols:		0
-		Plot2 LineFont:		Solid
-		Plot2 LineColor:	White
+		Plot2 LineFont:		-1
+		Plot2 LineColor:	-1
 		Plot2 ColorLimits:	COLORMAP 239 1
 		Plot2 EndPlot:
 		}
@@ -661,8 +665,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 512, 0.001, 1, 1, 1
-		Plot2 MinLimits:	72934.6, 0, 1e-13, 0, 0, 0
+		Plot2 MaxLimits:	62170.3, 512, 0.001, 1, 1, 1
+		Plot2 MinLimits:	54226.2, 0, 1e-13, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -699,8 +703,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 1000, 1e-07, 1, 1, 1
-		Plot2 MinLimits:	72934.6, 0, 1e-15, 0, 0, 0
+		Plot2 MaxLimits:	62170.3, 1000, 1e-07, 1, 1, 1
+		Plot2 MinLimits:	54226.2, 0, 1e-15, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -736,8 +740,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 1024, 0, 0
-		Plot2 MinLimits:	72934.6, 0, 0, 0
+		Plot2 MaxLimits:	62170.3, 1024, 0, 0
+		Plot2 MinLimits:	54226.2, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -772,8 +776,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 256, 0, 0
-		Plot2 MinLimits:	72934.6, 0, 0, 0
+		Plot2 MaxLimits:	62170.3, 256, 0, 0
+		Plot2 MinLimits:	54226.2, 0, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -810,8 +814,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR LOG
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 512, 0.001, 1, 1, 1
-		Plot2 MinLimits:	72934.6, 0, 1e-13, 0, 0, 0
+		Plot2 MaxLimits:	62170.3, 512, 0.001, 1, 1, 1
+		Plot2 MinLimits:	54226.2, 0, 1e-13, 0, 0, 0
 		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
@@ -847,8 +851,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 15.77, 0, 0
-		Plot2 MinLimits:	72934.6, -0.75, 0, 0
+		Plot2 MaxLimits:	62170.3, 15.77, 0, 0
+		Plot2 MinLimits:	54226.2, -0.75, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -883,8 +887,8 @@ Config CurrentPlotWindow:	'the_classics__1__Orb_1843__Ergun_et_al_1998__20_49_30
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	TIME LINEAR
 		Plot2 AxesUseBins:	FALSE, FALSE
-		Plot2 MaxLimits:	80926.2, 164.23, 0, 0
-		Plot2 MinLimits:	72934.6, -170.77, 0, 0
+		Plot2 MaxLimits:	62170.3, 164.23, 0, 0
+		Plot2 MinLimits:	54226.2, -170.77, 0, 0
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
