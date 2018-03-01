@@ -44,14 +44,15 @@ orbTimes = [ $
            ['1999-06-12/' + ['18:43:48','18:48:46']], $  ;11024
            ['1999-06-12/' + ['18:43:48','18:48:46']], $  ;11056
            ['1999-06-12/' + ['18:43:48','18:48:46']], $  ;11067
-           ['1997-02-01/' + ['04:58:45','05:00:10']], $  ;The Bonus orbits--giving ten on either side to see if that makes mag quantities less crazy
-           ['1997-02-01/' + ['02:44:35','02:46:00']], $
-           ['1998-05-04/' + ['06:44:10','06:45:01']], $  ;The Chaston et al. [2006] interval
-           ['1998-02-09/' + ['01:39:46','01:41:45']], $  ;The world's longest continual observation of monoenergetic aurora
-           ['1998-02-10/' + ['21:58:20','22:00:30']], $  ;Big current, strict mono
-           ['1997-01-26/' + ['20:13:20','20:14:30']], $  ;Semi-big current, strict mono
-           ['1998-01-22/' + ['14:34:35','14:35:25']], $  ;Semi-big current, strict mono
-           ['1999-09-15/' + ['02:10:00','02:38:34']]  $  ;KH candidáto
+           ['1997-02-01/' + ['04:58:45','05:00:10']], $  ;1771  - The Bonus orbits--giving ten on either side to see if that makes mag quantities less crazy
+           ['1997-02-01/' + ['02:44:35','02:46:00']], $  ;1770
+           ['1998-05-04/' + ['06:44:10','06:45:01']], $  ;6717  - The Chaston et al. [2006] interval
+           ['1998-02-09/' + ['01:38:40','01:42:40']], $  ;5805  - World's longest continual obs of monoenergetic aurora
+           ;; ['1998-02-09/' + ['01:42:40','01:46:40']], $  ;5805  - World's longest continual obs of monoenergetic aurora
+           ['1998-02-10/' + ['21:58:20','22:00:30']], $  ;5825  - Big current, strict mono
+           ['1997-01-26/' + ['20:13:20','20:14:30']], $  ;1713  - Semi-big current, strict mono
+           ['1998-01-22/' + ['14:34:35','14:35:25']], $  ;5615  - Semi-big current, strict mono
+           ['1999-09-15/' + ['02:10:00','02:38:34']]  $  ;12136 - KH candidáto
            ]
 
 orbBurstTimes = LIST( $
@@ -96,11 +97,11 @@ orbBurstTimes = LIST( $
                 )
 
 southArr = [ $
-           0,0,0,0,0,0,0,0,0, $ ;The Janhunen orbits
-           1,1,1,1,1,1,1, $     ;The Dombeck orbits
+           0,0,0,0,0,0,0,0,0, $ ;00–09 : The Janhunen orbits
+           1,1,1,1,1,1,1, $     ;10–16 : The Dombeck orbits
            0,0, $
-           1, $                 ;The Chaston interval
-           0, $                 ;The huge mono event
+           1, $                 ;18    : 6717 - The Chaston interval
+           0, $                 ;19    : 5805 - The huge mono event
            0, $                 ;The big current, strict mono event
            0, $
            0, $
@@ -133,16 +134,16 @@ bonusPrefs = [ $
              '--Bonus--6--KH_candidáto'   $
              ]
 
-kStats_startStops__ees = LIST(['1997-06-03/' + ['06:28:50','06:31:00']], $ ;3091
-                              ['1997-06-06/' + ['05:30:55','05:32:06']], $ ;3123
-                              [0],[0],[0], $ ;3–5
-                              [0],[0],[0],[0],['1999-06-02/' + ['22:42:10','22:47:50']], $ ;06–10
-                              ['1999-06-09/' + ['17:54:00','18:01:01']],[0],[0],[0],[0],[0], $ ;11–15
-                              [0],[0], $             ;16–17
-                              '1997-02-01/' + [['02:45:32.5','02:45:44'], $
-                               ['02:44:44.5','02:45:02']], $
-                              [0], $
-                              '1998-02-09/'+[['01:40:21','01:40:52'],['01:41:17.5','01:41:30']], $
+kStats_startStops__ees = LIST(['1997-06-03/' + ['06:28:50','06:31:00']], $ ;00 : 3091
+                              ['1997-06-06/' + ['05:30:55','05:32:06']], $ ;01 : 3123
+                              [0],[0],[0], $                               ;02–04
+                              [0],[0],[0],[0],['1999-06-02/' + ['22:42:10','22:47:50']], $         ;05–09
+                              ['1999-06-09/' + ['17:54:00','18:01:01']],[0],[0],[0],[0],[0], $     ;10–15
+                              [0],[0], $                                                           ;16–17
+                              '1997-02-01/' + [['02:45:32.5','02:45:44'], $                        ;18
+                                               ['02:44:44.5','02:45:02']], $                       ;
+                              '1998-02-09/'+[['01:40:21','01:40:52'],['01:41:17.5','01:41:30']], $ ;19
+                              [0], $                                                               ;20
                               ;; '1998-02-10/'+[['21:59:15','21:59:30'],['21:59:50','21:59:57.5']] $
                               '1998-02-10/'+[['21:59:15','21:59:30']], $
                               '1997-01-26/'+[['21:59:15','21:59:30']], $
@@ -181,9 +182,11 @@ FOR k=0,nHjar-1 DO eeb_or_ees__recommande.Add,'ees'
 
 energy_electrons__recommande  = LIST([5D2,3.1D4],[7D2,3.1D4],[3D2,3.1D4],[6D2,3.1D4])
 FOR k=N_ELEMENTS(energy_electrons__recommande),nHjar-1 DO energy_electrons__recommande.Add,[5E2,3.1E4]
+energy_electrons__recommande[19] = [200,3.1D4] ;19 - 5805
 
 min_peak_energy_recommande    = LIST(500,9D2,300,300)
 FOR k=N_ELEMENTS(min_peak_energy_recommande),nHjar-1 DO min_peak_energy_recommande.Add,500
+min_peak_energy_recommande[19] = [150.] ;19 -5805
 
 ;; spectra_average_interval_list = LIST(4,!NULL,2)
 spectra_average_interval_list = LIST(2, $
@@ -198,6 +201,9 @@ cAP__add_iu_pot               = LIST( $
                                 0, $ ;
                                 0)   ;
 FOR k=N_ELEMENTS(cAP__add_iu_pot),nHjar-1 DO cAP__add_iu_pot.Add,0
+
+cAP__iu_pot_tids              = LIST(0,0,0,0)
+FOR k=N_ELEMENTS(cAP__iu_pot_tids),nHjar-1 DO cAP__iu_pot_tids.Add,0
 
   ;; Any necessary mods to kappa_mpfit_paramInfo?
   @common__kappa_mpfit_paraminfo.pro

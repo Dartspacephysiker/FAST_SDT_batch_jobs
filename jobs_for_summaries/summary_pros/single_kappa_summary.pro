@@ -400,7 +400,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 ; Step 1 - DC Mag data
   IF ~(KEYWORD_SET(load_from_offline) OR KEYWORD_SET(GRL)) THEN BEGIN
 
-     ucla_mag_despin,tw_mat=tw_mat,orbit=orbit,spin_axis=spin_axis,delta_phi=delta_phi
+     GET_DATA,'dB_fac_v',data=data
+     IF SIZE(data,/TYPE) NE 8 THEN $
+        UCLA_MAG_DESPIN,tw_mat=tw_mat,orbit=orbit,spin_axis=spin_axis,delta_phi=delta_phi
 
   ENDIF ELSE BEGIN
 
@@ -502,9 +504,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
 
               count = 0
-              WHILE FILE_TEST(plotDir+filNavn) DO BEGIN
+              WHILE FILE_TEST(plotDir+filNavn+(KEYWORD_SET(eps) ? '.eps' : '.ps')) DO BEGIN
                  count++
-                 filNavn = STRING(FORMAT='(A0,I02,A0)', $
+                 filNavn = STRING(FORMAT='(A0,"-",I02,A0)', $
                                   filPref, $
                                   count, $
                                   filSuff)
@@ -537,42 +539,42 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
 ; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
 
-     STORE_DATA,'BDATA',/delete
-     STORE_DATA,'BFIT',/delete 
-     STORE_DATA,'Bx_sp',/delete
-     STORE_DATA,'By_sp',/delete
-     STORE_DATA,'Bz_sp',/delete
-     STORE_DATA,'Bx_sc',/delete
-     STORE_DATA,'By_sc',/delete
-     STORE_DATA,'Bz_sc',/delete
-     STORE_DATA,'Bx_sp_sm',/delete
-     STORE_DATA,'By_sp_sm',/delete
-     STORE_DATA,'Bz_sp_sm',/delete
-     STORE_DATA,'B_gei',/delete
-     STORE_DATA,'B_sm',/delete
-     STORE_DATA,'dB_sc',/delete
-     STORE_DATA,'dB_gei',/delete
-     STORE_DATA,'spin_freq',/delete
-     STORE_DATA,'spin_phase',/delete
-     STORE_DATA,'TORQ_X',/delete
-     STORE_DATA,'TORQ_Y',/delete
-     STORE_DATA,'TORQ_Z',/delete
-     STORE_DATA,'BX_DEL',/delete
-     STORE_DATA,'BY_DEL',/delete
-     STORE_DATA,'BZ_DEL',/delete
-     STORE_DATA,'BFIX',/delete
-     STORE_DATA,'TW_ZX',/delete
-     STORE_DATA,'TW_ZY',/delete
-     STORE_DATA,'TW_YY',/delete
-     STORE_DATA,'TW_YX',/delete
-     STORE_DATA,'O_X',/delete
-     STORE_DATA,'O_Y',/delete
-     STORE_DATA,'B_model_old',/delete
-     STORE_DATA,'Delta_B_model',/delete
-     STORE_DATA,'despun_to_gei',/delete
-     STORE_DATA,'gei_to_sm',/delete
-     STORE_DATA,'gei_to_fac',/delete
-     STORE_DATA,'gei_to_fac_v',/delete
+     ;; STORE_DATA,'BDATA',/delete
+     ;; STORE_DATA,'BFIT',/delete 
+     ;; STORE_DATA,'Bx_sp',/delete
+     ;; STORE_DATA,'By_sp',/delete
+     ;; STORE_DATA,'Bz_sp',/delete
+     ;; STORE_DATA,'Bx_sc',/delete
+     ;; STORE_DATA,'By_sc',/delete
+     ;; STORE_DATA,'Bz_sc',/delete
+     ;; STORE_DATA,'Bx_sp_sm',/delete
+     ;; STORE_DATA,'By_sp_sm',/delete
+     ;; STORE_DATA,'Bz_sp_sm',/delete
+     ;; STORE_DATA,'B_gei',/delete
+     ;; STORE_DATA,'B_sm',/delete
+     ;; STORE_DATA,'dB_sc',/delete
+     ;; STORE_DATA,'dB_gei',/delete
+     ;; STORE_DATA,'spin_freq',/delete
+     ;; STORE_DATA,'spin_phase',/delete
+     ;; STORE_DATA,'TORQ_X',/delete
+     ;; STORE_DATA,'TORQ_Y',/delete
+     ;; STORE_DATA,'TORQ_Z',/delete
+     ;; STORE_DATA,'BX_DEL',/delete
+     ;; STORE_DATA,'BY_DEL',/delete
+     ;; STORE_DATA,'BZ_DEL',/delete
+     ;; STORE_DATA,'BFIX',/delete
+     ;; STORE_DATA,'TW_ZX',/delete
+     ;; STORE_DATA,'TW_ZY',/delete
+     ;; STORE_DATA,'TW_YY',/delete
+     ;; STORE_DATA,'TW_YX',/delete
+     ;; STORE_DATA,'O_X',/delete
+     ;; STORE_DATA,'O_Y',/delete
+     ;; STORE_DATA,'B_model_old',/delete
+     ;; STORE_DATA,'Delta_B_model',/delete
+     ;; STORE_DATA,'despun_to_gei',/delete
+     ;; STORE_DATA,'gei_to_sm',/delete
+     ;; STORE_DATA,'gei_to_fac',/delete
+     ;; STORE_DATA,'gei_to_fac_v',/delete
 
      GET_DATA,'dB_fac_v',DATA=data
      IF KEYWORD_SET(save_for_offline) THEN BEGIN

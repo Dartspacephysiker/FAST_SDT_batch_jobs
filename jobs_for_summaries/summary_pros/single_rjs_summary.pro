@@ -154,15 +154,15 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
               filSuff = N_ELEMENTS(filTmp) GT 1 ? '.' + filTmp[1] : ''
 
               count = 0
-              WHILE FILE_TEST(plotDir+filNavn) DO BEGIN
+              WHILE FILE_TEST(plotDir+filNavn+(KEYWORD_SET(eps) ? '.eps' : '.ps')) DO BEGIN
                  count++
-                 filNavn = STRING(FORMAT='(A0,I02,A0)', $
+                 filNavn = STRING(FORMAT='(A0,"-",I02,A0)', $
                                   filPref, $
                                   count, $
                                   filSuff)
               ENDWHILE
 
-              POPEN,plotDir+outPlotName,/PORT,FONT=-1, $
+              POPEN,plotDir+filNavn,/PORT,FONT=-1, $
                     ENCAPSULATED=eps ;,XSIZE=4,YSIZE=7
 
               DEVICE,/PALATINO,FONT_SIZE=8
@@ -177,42 +177,42 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
 ; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
 
-     store_data,'BDATA',/delete
-     store_data,'BFIT',/delete 
-     store_data,'Bx_sp',/delete
-     store_data,'By_sp',/delete
-     store_data,'Bz_sp',/delete
-     store_data,'Bx_sc',/delete
-     store_data,'By_sc',/delete
-     store_data,'Bz_sc',/delete
-     store_data,'Bx_sp_sm',/delete
-     store_data,'By_sp_sm',/delete
-     store_data,'Bz_sp_sm',/delete
-     store_data,'B_gei',/delete
-     store_data,'B_sm',/delete
-     store_data,'dB_sc',/delete
-     store_data,'dB_gei',/delete
-     store_data,'spin_freq',/delete
-     store_data,'spin_phase',/delete
-     store_data,'TORQ_X',/delete
-     store_data,'TORQ_Y',/delete
-     store_data,'TORQ_Z',/delete
-     store_data,'BX_DEL',/delete
-     store_data,'BY_DEL',/delete
-     store_data,'BZ_DEL',/delete
-     store_data,'BFIX',/delete
-     store_data,'TW_ZX',/delete
-     store_data,'TW_ZY',/delete
-     store_data,'TW_YY',/delete
-     store_data,'TW_YX',/delete
-     store_data,'O_X',/delete
-     store_data,'O_Y',/delete
-     store_data,'B_model_old',/delete
-     store_data,'Delta_B_model',/delete
-     store_data,'despun_to_gei',/delete
-     store_data,'gei_to_sm',/delete
-     store_data,'gei_to_fac',/delete
-     store_data,'gei_to_fac_v',/delete
+     ;; store_data,'BDATA',/delete
+     ;; store_data,'BFIT',/delete 
+     ;; store_data,'Bx_sp',/delete
+     ;; store_data,'By_sp',/delete
+     ;; store_data,'Bz_sp',/delete
+     ;; store_data,'Bx_sc',/delete
+     ;; store_data,'By_sc',/delete
+     ;; store_data,'Bz_sc',/delete
+     ;; store_data,'Bx_sp_sm',/delete
+     ;; store_data,'By_sp_sm',/delete
+     ;; store_data,'Bz_sp_sm',/delete
+     ;; store_data,'B_gei',/delete
+     ;; store_data,'B_sm',/delete
+     ;; store_data,'dB_sc',/delete
+     ;; store_data,'dB_gei',/delete
+     ;; store_data,'spin_freq',/delete
+     ;; store_data,'spin_phase',/delete
+     ;; store_data,'TORQ_X',/delete
+     ;; store_data,'TORQ_Y',/delete
+     ;; store_data,'TORQ_Z',/delete
+     ;; store_data,'BX_DEL',/delete
+     ;; store_data,'BY_DEL',/delete
+     ;; store_data,'BZ_DEL',/delete
+     ;; store_data,'BFIX',/delete
+     ;; store_data,'TW_ZX',/delete
+     ;; store_data,'TW_ZY',/delete
+     ;; store_data,'TW_YY',/delete
+     ;; store_data,'TW_YX',/delete
+     ;; store_data,'O_X',/delete
+     ;; store_data,'O_Y',/delete
+     ;; store_data,'B_model_old',/delete
+     ;; store_data,'Delta_B_model',/delete
+     ;; store_data,'despun_to_gei',/delete
+     ;; store_data,'gei_to_sm',/delete
+     ;; store_data,'gei_to_fac',/delete
+     ;; store_data,'gei_to_fac_v',/delete
 
      get_data,'dB_fac_v',data=data
      IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0] ELSE t1 = time1

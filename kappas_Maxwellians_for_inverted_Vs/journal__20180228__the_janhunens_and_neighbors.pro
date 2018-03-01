@@ -60,7 +60,7 @@ PRO JOURNAL__20180228__THE_JANHUNENS_AND_NEIGHBORS
   sway__add_Newell_panel   = 1
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary  = 0
+  show_kappa_summary  = 1
   ;; kSum__eAngle        = [-180,180]
   kSum__save_ps       = 1
   kSum__add_parm_errors_from_file = 0
@@ -118,9 +118,39 @@ PRO JOURNAL__20180228__THE_JANHUNENS_AND_NEIGHBORS
   ;;21: Orbit 1713  – Bonus, orbit 1713 (Semi-big current, strict mono.
   ;;22: Orbit 5616  – Bonus, orbit 5616 (Semi-big current, strict mono. Cleaner? Maybe not. I hope.
   ;;23: Orbit 12136 – Bonus, orbit 12136--Kelvin-Helmholtz???
-  evtNum               = 2
+  evtNum               = 19
 
-  ;; spectra_average_interval_list[2] = 4
+  ;; Orb 5805 mono obs are so long that we need to divide
+  IF evtNum EQ 19 THEN BEGIN
+     subEvtNum = 0 ;0
+     CASE subEvtNum OF
+        0: BEGIN
+           orbTimes[*,evtNum] = ['1998-02-09/' + ['01:38:46','01:42:40']]
+           ;; cAP_tRanges_list[evtNum] = orbTimes[*,evtNum]
+           cAP_tRanges_list[evtNum] = ['1998-02-09/' + ['01:40:18','01:41:42']]
+           cAP__add_iu_pot[evtNum]  = 1
+           cAP__iu_pot_tids[evtNum] = [['1998-02-09/' + ['01:40:01','01:40:25']], $
+                                       ['1998-02-09/' + ['01:41:15','01:41:22']]]
+
+           ;; One seemingly linear J-V relation, possibly with kappa < 3.5
+           ;; 01:41:15.952-01:42:25.657
+
+           ;; Nuvver during 01:40:23.991–01:41:08.348 (also good eFlux-V relationship expressed!)
+
+           ;; min_peak_energyArr       = 
+           max_peak_energyArr       = [3.1E4,3.1E4,1.0e3]
+        END
+        1: BEGIN
+           orbTimes[*,evtNum] = ['1998-02-09/' + ['01:42:40','01:46:40']]
+           cAP_tRanges_list[evtNum] = orbTimes[*,evtNum]
+        END
+     ENDCASE
+
+     bonusBonusPref = STRING(FORMAT='("-subEvt",I0)',subEvtNum) + bonusBonusPref
+
+     kStats_startStops__ees[evtNum] = orbTimes[*,evtNum]
+  ENDIF
+  spectra_average_interval_list[evtNum] = 4
 
 
   ;;If doing upgoing electrons
@@ -189,6 +219,7 @@ PRO JOURNAL__20180228__THE_JANHUNENS_AND_NEIGHBORS
                T_plusMinusFac_for_pot  : 0L, $
                use_peak_en_for_downPot : 1B, $
                add_iu_pot : N_ELEMENTS(cAP__add_iu_pot) GT 0 ? (N_ELEMENTS(cAP__add_iu_pot[evtNum]) GT 0 ? cAP__add_iu_pot[evtNum] : 1) : 1, $
+               iu_pot_tids : N_ELEMENTS(cAP__iu_pot_tids) GT 0 ? (N_ELEMENTS(cAP__iu_pot_tids[evtNum]) GT 0 ? cAP__iu_pot_tids[evtNum] : 0) : 0, $
                tRanges : cAP_tRanges_list[evtNum], $
                ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
                moment_energyArr : [[energy_electrons],[energy_electrons],[100,2.4e4]], $
@@ -234,6 +265,14 @@ PRO JOURNAL__20180228__THE_JANHUNENS_AND_NEIGHBORS
                in_bonusPref                        : bonusPref, $
                plots_in_buffer                     : 1}
 
+  IF KEYWORD_SET(min_peak_energyArr) THEN BEGIN
+     STR_ELEMENT,cAP_struct,'min_peak_energyArr',min_peak_energyArr,/ADD_REPLACE
+  ENDIF
+  
+  IF KEYWORD_SET(max_peak_energyArr) THEN BEGIN
+     STR_ELEMENT,cAP_struct,'max_peak_energyArr',max_peak_energyArr,/ADD_REPLACE
+  ENDIF
+  
   IF KEYWORD_SET(aRange__dens_e_down) THEN BEGIN
      STR_ELEMENT,cAP_struct,'aRange__dens_e_down',aRange__dens_e_down,/ADD_REPLACE
   ENDIF
