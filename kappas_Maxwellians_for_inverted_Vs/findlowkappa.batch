@@ -3,19 +3,6 @@ NoPlots:
 IDL: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/findlowkappa_wrapper.pro
 
 DataBaseRequest:
-    Orbits 1869
-    Orbits 1801
-    Orbits 3178
-    Orbits 2968
-    Orbits 1858
-    Orbits 1775
-    Orbits 1804
-    Orbits 3157
-    Orbits 1940
-    Orbits 3167
-    Orbits 2078
-    Orbits 3759
-    Orbits 1694
     Orbits 1909
     Orbits 3781
     Orbits 1753
@@ -195,6 +182,10 @@ DataBaseRequest:
     Orbits 1880
     Orbits 3160
     Orbits 1696
+    Orbits 3178
+    Orbits 1940
+    Orbits 2078
+    Orbits 1775
 
 PlotConfigurationDir: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/
 PlotConfigurationFile: kappa_batch_yobbe

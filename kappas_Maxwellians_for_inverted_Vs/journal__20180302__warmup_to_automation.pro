@@ -3,6 +3,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
+  batch_mode = 1
   routName = 'JOURNAL__20180302__WARMUP_TO_AUTOMATION'
 
   ;;get orbTimes here
@@ -298,6 +299,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit
                         CURANDPOT_ANALYSIS=curAndPot_analysis, $
                         CAP_STRUCT=cAP_struct, $
                         TIMEBARS=timeBars, $
-                        EPS=eps
+                        EPS=eps, $
+                        BATCH_MODE=batch_mode
 
 END
