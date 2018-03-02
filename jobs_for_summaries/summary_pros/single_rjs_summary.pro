@@ -94,7 +94,9 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
 ; Step 1 - DC Mag data
 
-  ucla_mag_despin,tw_mat=tw_mat,orbit=orbit,spin_axis=spin_axis,delta_phi=delta_phi
+  GET_DATA,'dB_fac_v',data=data
+  IF SIZE(data,/TYPE) NE 8 THEN $
+        UCLA_MAG_DESPIN,tw_mat=tw_mat,orbit=orbit,spin_axis=spin_axis,delta_phi=delta_phi
 
   if (n_elements(orbit) gt 0) then begin
 

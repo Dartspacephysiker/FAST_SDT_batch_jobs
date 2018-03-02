@@ -1,16 +1,17 @@
 ;2018/03/02
-PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit
+PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
-  routName = 'JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHIFT'
+  routName = 'JOURNAL__20180302__WARMUP_TO_AUTOMATION'
 
   ;;get orbTimes here
   ;;@journal__20161010__info__janhunen_2001_orbits.pro
 
-  orbit = KEYWORD_SET(orbit) ? orbit : 1746
+  GET_FA_SDT_ORBIT,orbit
+  ;; orbit = KEYWORD_SET(orbit) ? orbit : 1746
 
-  addMin_on_either_side             = 1
+  addSec_on_either_side             = 20
   only_1D_fits                      = 0
 
   READ_KAPPA_BATCH_SETUP_FILE,orbit,MLT,ALT,t1Str,t2Str,t_streakLen,nPts,dt_avg,avg_current
@@ -20,15 +21,15 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit
   ;; Now add some buffer time to the sides
   t1           = S2T(t1Str)
   t2           = S2T(t2Str)
-  t1 -= addMin_on_either_side*60
-  t2 += addMin_on_either_side*60
+  t1 -= addSec_on_either_side
+  t2 += addSec_on_either_side
 
-  PRINT,t1Str
+
   t1Str        = T2S(t1,/MS)
   t2Str        = T2S(t2,/MS)
   PRINT,t1Str
   kStats__tids = [t1Str,t2Str]
-  bonusPref    = 'TESTRUN-20180302'
+  bonusPref    = '-TESTRUN-20180302'
 
   ;; Options
   fit1D__sourceCone_energy_spectrum = 1
@@ -46,6 +47,8 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit
 
   daPlots_cAP                       = 1
   fit1D__save_plotSlices            = 1
+  fit1D__save_every_nth_plot        = 8
+  fit1D__save_if_kappa_below        = 2.45
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
@@ -91,7 +94,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit
   jv_theor__only_eFlux = 0
 
   electron_angleRange  = 'lc'
-  energy_electrons     = [5e1,3.1e4]
+  energy_electrons     = [3e2,3.1e4]
   ;; electron_lca         = [150,-150]
   ;; electron_lca         = 'lc'
   min_peak_energy      = 500
@@ -237,6 +240,8 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit
                         FIT1D__CLAMPTEMPERATURE=fit1D__clampTemperature, $
                         FIT1D__CLAMPDENSITY=fit1D__clampDensity, $
                         FIT1D__SAVE_PLOTSLICES=fit1D__save_plotSlices, $
+                        FIT1D__SAVE_EVERY_NTH_PLOT=fit1D__save_every_nth_plot, $
+                        FIT1D__SAVE_IF_KAPPA_BELOW=fit1D__save_if_kappa_below, $
                         FIT2D__N_BELOW_PEAK=n_below_peak2D, $
                         FIT2D__N_ABOVE_PEAK=n_above_peak2D, $
                         FIT2D__SHOW_EACH_CANDIDATE=fit2D__show_each_candidate, $
