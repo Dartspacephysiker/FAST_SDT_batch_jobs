@@ -13,15 +13,13 @@
 ;time_stamp,off=1
 
 ; To get "alfven_stats_5.pro" in the PATH, we need this line:
-;!PATH='/home/spencerh/software/sdt/batch_jobs/Alfven_study/as5_14F:'+!PATH
-!PATH='/SPENCEdata/software/sdt/batch_jobs/do_the_Newell_2009:'+!PATH
+!PATH='/SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs:'+!PATH
       
 
 ;*****************************
 ;Put code here:
 
-;; ALFVEN_STATS_5__ELECTRON_SPEC_IDENTIFICATION_V2,/BATCH_MODE,/INCLUDE_IONS
-DOWNGOING_IONS__V1,/BATCH_MODE
+JOURNAL__20180302__WARMUP_TO_AUTOMATION
 
 ;*****************************
 ;End routine:
