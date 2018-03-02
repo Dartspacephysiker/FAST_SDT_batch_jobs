@@ -88,7 +88,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -123,7 +123,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION
   cAP__iu_pot_tids = 0
 
   cAP_struct = { $
-               remake_masterFile : 0B, $
+               remake_masterFile : 1B, $
                map_to_100km : 1, $
                use_all_currents : 0B, $
                use_ed_current : 1B, $
