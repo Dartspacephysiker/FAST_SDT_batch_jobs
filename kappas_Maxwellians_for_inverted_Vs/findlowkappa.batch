@@ -1,0 +1,10 @@
+BatchJob: "downgoing_ions__v1"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/do_the_Newell_2009/downgoing_ions__v1_wrapper.pro
+
+DataBaseRequest:
+    Orbits 12878-24634
+    
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/do_the_Newell_2009/
+PlotConfigurationFile: survey_5__super_pared__no_langmuir
