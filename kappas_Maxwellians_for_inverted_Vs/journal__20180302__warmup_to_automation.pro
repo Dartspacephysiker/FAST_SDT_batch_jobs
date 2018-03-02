@@ -1,33 +1,42 @@
 ;2018/03/02
-PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION
+PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
   routName = 'JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHIFT'
 
   ;;get orbTimes here
-  @journal__20161010__info__janhunen_2001_orbits.pro
+  ;;@journal__20161010__info__janhunen_2001_orbits.pro
 
+  orbit = KEYWORD_SET(orbit) ? orbit : 1746
 
-  bonusBonusPref                    = '-linearEnergyShift-GRLRESPONSE3'
-
-  dens__Liemohn_Khaz   = 0
-  lkARange             = [-90,90]
-  ;; lkARange             = "ALL__EXCL_ATM"
-
-  ;; debug__skip_to_this_time          = '1997-02-01/09:27:01.57'
-  ;; debug__break_on_this_time         = '1997-02-01/09:27:01.57'
-
+  addMin_on_either_side             = 1
   only_1D_fits                      = 0
 
+  READ_KAPPA_BATCH_SETUP_FILE,orbit,MLT,ALT,t1Str,t2Str,t_streakLen,nPts,dt_avg,avg_current
+
+  cAP_tRanges  = [t1Str,t2Str]
+
+  ;; Now add some buffer time to the sides
+  t1           = S2T(t1Str)
+  t2           = S2T(t2Str)
+  t1 -= addMin_on_either_side*60
+  t2 += addMin_on_either_side*60
+
+  PRINT,t1Str
+  t1Str        = T2S(t1,/MS)
+  t2Str        = T2S(t2,/MS)
+  PRINT,t1Str
+  kStats__tids = [t1Str,t2Str]
+  bonusPref    = 'TESTRUN-20180302'
+
+  ;; Options
   fit1D__sourceCone_energy_spectrum = 1
 
   fit1D__nFlux                      = 1
   fit2D__nFlux                      = 0
 
   fit__linear_energy_shift          = 1
-  fit__JE_over_E                    = 0
-  fit__LES__take_stock_of_RB        = 0
 
   fit1D__weighting                  = 2 ;1 = lin 2 = square
   fit1D__clampTemperature           = 0
@@ -52,7 +61,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION
 
   eps                      = 1
 
-  show_Strangeway_summary  = 0
+  show_Strangeway_summary  = 1
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
@@ -60,15 +69,14 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION
   sway__log_kappaPlot      = 0
 
   show_kappa_summary  = 1
-  ;; kSum__eAngle        = [-180,180]
   kSum__save_ps       = 1
   kSum__add_parm_errors_from_file = 0
   kSum__add_parm_errors__nRolls = 10000
   kSum__add_parm_errors__use_most_prob = 1
-  kSum__chi2Bounds    = [0,5]
+  kSum__chi2Bounds    = [0,15]
 
   kSum__convert_to_Newell_interp = 1
-  kSum__add_chi2_line = 2 ;give value at which you'd like line
+  kSum__add_chi2_line = 5 ;give value at which you'd like line
   kSum__add_meas_T_and_N = 1
   kSum__GRL           = 1
   kSum__oPlot_pot     = 1
@@ -77,120 +85,21 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 1
+  restore_fitFile      = 0
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
 
-  ;; show_post_plots      = 0
-  ;; save_kappa_plot      = 0
-  ;; close_kp_after_save  = 0
-
-  ;;Kill this one: 14:34:52.89
-  ;; debug__skip_to_this_time    = STR_TO_TIME("98-01-22/14:34:52.00")
-  ;; debug__break_on_this_time   = STR_TO_TIME("98-01-22/14:34:52.89")
-
-  ;; debug__skip_to_this_time    = STR_TO_TIME("97-01-26/20:14:10.00")
-
-  ;;Which Janhunen event?
-  ;; 0: Orbit 3091  – Inverted V, but not Maxwellian
-  ;; 1: Orbit 3123  – Inverted V, but not Maxwellian
-  ;; 2: Orbit 3147  – Inverted V, but not Maxwellian; no exact times given!
-  ;; 3: Orbit 3219  – "Quasi-Maxwellian"
-  ;; 4: Orbit 3370  – "Quasi-Maxwellian"
-  ;; 5: Orbit 3498  – "Diffuse auroral event containing no inverted-V-type precipitation"
-  ;; 6: Orbit 0000  – No inverted V, No exact times given!
-  ;; 7: Orbit 7628  – No inverted V,No exact times given!
-  ;; 8: Orbit 0000  – No inverted V,No exact times given!
-  ;; 9: Orbit 11002 – Dombeck et al. [2013] orbit 11002
-  ;;10: Orbit 11076 – Dombeck et al. [2013] orbit 11076
-  ;;11: Orbit 11097 – Dombeck et al. [2013] orbit 11097
-  ;;12: Orbit 11109 – Dombeck et al. [2013] orbit 11109
-  ;;13: Orbit 11024 – Dombeck et al. [2013] orbit 11024
-  ;;14: Orbit 11056 – Dombeck et al. [2013] orbit 11056
-  ;;15: Orbit 11067 – Dombeck et al. [2013] orbit 11067
-  ;;16: Orbit 1771  – Bonus, orbit 1771 (poking on either side of Elphic et al. [1998] orbit 
-  ;;17: Orbit 1770  – Bonus, orbit 1770 (poking on either side of Elphic et al. [1998] orbit 
-  ;;18: Orbit 6717  – Bonus, orbit 6717 from Chaston et al. [2006], the dens cavity pape
-  ;;19: Orbit 5805  – Bonus, orbit 5805–world's longest continual observation of monoenergetic aurora
-  ;;20: Orbit 5825  – Bonus, orbit 5825 (big current, strict mono. Whence come the obs. currents? )
-  ;;21: Orbit 1713  – Bonus, orbit 1713 (Semi-big current, strict mono.
-  ;;22: Orbit 5616  – Bonus, orbit 5616 (Semi-big current, strict mono. Cleaner? Maybe not. I hope.
-  ;;23: Orbit 12136 – Bonus, orbit 12136--Kelvin-Helmholtz???
-  evtNum               = 19
-
-  ;; Orb 5805 mono obs are so long that we need to divide
-  IF evtNum EQ 19 THEN BEGIN
-     subEvtNum = 0 ;0
-     CASE subEvtNum OF
-        0: BEGIN
-           orbTimes[*,evtNum] = ['1998-02-09/' + ['01:38:46','01:42:40']]
-           ;; cAP_tRanges_list[evtNum] = orbTimes[*,evtNum]
-           cAP_tRanges_list[evtNum] = ['1998-02-09/' + ['01:40:18','01:41:42']]
-           cAP__add_iu_pot[evtNum]  = 1
-           cAP__iu_pot_tids[evtNum] = [['1998-02-09/' + ['01:40:01','01:40:25']], $
-                                       ['1998-02-09/' + ['01:41:15','01:41:22']]]
-
-           ;; One seemingly linear J-V relation, possibly with kappa < 3.5
-           ;; 01:41:15.952-01:42:25.657
-
-           ;; Nuvver during 01:40:23.991–01:41:08.348 (also good eFlux-V relationship expressed!)
-
-           ;; min_peak_energyArr       = 
-           max_peak_energyArr       = [3.1E4,3.1E4,1.0e3]
-        END
-        1: BEGIN
-           orbTimes[*,evtNum] = ['1998-02-09/' + ['01:42:40','01:46:40']]
-           cAP_tRanges_list[evtNum] = orbTimes[*,evtNum]
-        END
-     ENDCASE
-
-     bonusBonusPref = STRING(FORMAT='("-subEvt",I0)',subEvtNum) + bonusBonusPref
-
-     kStats_startStops__ees[evtNum] = orbTimes[*,evtNum]
-  ENDIF
-  spectra_average_interval_list[evtNum] = 4
-
-
-  ;;If doing upgoing electrons
-  peak_energy__start_at_highE       = 0
-  upgoing                           = 0
-
   electron_angleRange  = 'lc'
-
-  ;; electron_angleRange  = [330,30]
-  energy_electrons     = N_ELEMENTS(energy_electrons__recommande[evtNum]) GT 0 ? $
-                         energy_electrons__recommande[evtNum]          : $
-                         [3e1,3.1e4]
+  energy_electrons     = [5e1,3.1e4]
   ;; electron_lca         = [150,-150]
   ;; electron_lca         = 'lc'
-  min_peak_energy      = KEYWORD_SET(upgoing) ? 100 : $
-                         (N_ELEMENTS(min_peak_energy_recommande[evtNum]) GT 0 ? $
-                          min_peak_energy_recommande[evtNum] : 500)
-  max_peak_energy      = KEYWORD_SET(upgoing) ? 3e4 : !NULL
-
-  ;; msph_sourcecone_halfWidth = 90
+  min_peak_energy      = 500
+  max_peak_energy      = !NULL
 
   ;;survey window
-  eeb_or_ees           = eeb_or_ees__recommande[evtNum]
-  burstItvl            = 0
-
-  READ,
-
-  ;;String setup
-  orbit                = orbs      [evtNum]
-  t1Str                = orbTimes[0,evtNum]
-  t2Str                = orbTimes[1,evtNum]
-  bonusPref            = bonusPrefs[evtNum] + (N_ELEMENTS(bonusBonusPref) GT 0 ? bonusBonusPref : '')
-
-  IF (STRUPCASE(eeb_or_ees) EQ 'EEB')  OR (STRUPCASE(eeb_or_ees) EQ 'IEB') THEN BEGIN
-     t1Str             = (orbBurstTimes[evtNum])[0,burstItvl]
-     t2Str             = (orbBurstTimes[evtNum])[1,burstItvl]
-     bonusPref        += '--burstItvl_' + STRCOMPRESS(burstItvl,/REMOVE_ALL)
-     kStats__include_these_startstops = (kStats_startStops__eeb[evtNum])[0,*,burstItvl]
-  ENDIF ELSE BEGIN
-     kStats__include_these_startstops = kStats_startStops__ees[evtNum]
-  ENDELSE
+  eeb_or_ees           = 'ees'
+  spectra_average_interval = 2
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
@@ -200,16 +109,18 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION
   nPkAbove_dEF_thresh  = 3
 
   ;; fit2D__density_angleRange = 'ALL__EXCL_ATM'
-  fit2D__density_angleRange = KEYWORD_SET(dens__Liemohn_Khaz) ?  $
-                              lkARange : 'ALL__EXCL_ATM'
+  fit2D__density_angleRange = 'ALL__EXCL_ATM'
   fit2D__temperature_angleRange = 'LC'
   fit2D__faConductance_angleRange = 'LC'
 
   ;;Current and potential analysis
   curAndPot_analysis        = 1
 
+  cAP__add_iu_pot  = 0
+  cAP__iu_pot_tids = 0
+
   cAP_struct = { $
-               remake_masterFile : 0B, $
+               remake_masterFile : 1B, $
                map_to_100km : 1, $
                use_all_currents : 0B, $
                use_ed_current : 1B, $
@@ -219,9 +130,9 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION
                use_char_en_for_downPot : 0B, $
                T_plusMinusFac_for_pot  : 0L, $
                use_peak_en_for_downPot : 1B, $
-               add_iu_pot : N_ELEMENTS(cAP__add_iu_pot) GT 0 ? (N_ELEMENTS(cAP__add_iu_pot[evtNum]) GT 0 ? cAP__add_iu_pot[evtNum] : 1) : 1, $
-               iu_pot_tids : N_ELEMENTS(cAP__iu_pot_tids) GT 0 ? (N_ELEMENTS(cAP__iu_pot_tids[evtNum]) GT 0 ? cAP__iu_pot_tids[evtNum] : 0) : 0, $
-               tRanges : cAP_tRanges_list[evtNum], $
+               add_iu_pot : cAP__add_iu_pot, $
+               iu_pot_tids : cAP__iu_pot_tids, $
+               tRanges : cAP_tRanges, $
                ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
                moment_energyArr : [[energy_electrons],[energy_electrons],[100,2.4e4]], $
                plot_j_v_potBar : 0B, $
@@ -229,7 +140,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION
                plot_T_and_N : 0B, $
                plot_j_v_and_theory : 0B, $
                plot_j_v__fixed_t_and_n : 0B, $
-               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : daPlots_cAP, $
+               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : 0, $
                plot_en_specs : 0B, $
                en_specs__movie : 0B, $
                jv_theor__R_B_init : 30, $
@@ -281,8 +192,6 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION
   IF KEYWORD_SET(timeBars) AND KEYWORD_SET(cAP_struct) THEN IF (WHERE(TAG_NAMES(cAP_struct) EQ 'TRANGES'))[0] NE -1 THEN BEGIN
      timeBars                  = cAP_struct.tRanges
   ENDIF
-
-  spectra_average_interval = spectra_average_interval_list[evtNum]
 
   show_post_plots      = 0
   save_postKappa_plots = 0
@@ -377,7 +286,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION
                         SAVE_DIFF_EFLUX_FILE=save_diff_eFlux_file, $
                         LOAD_DIFF_EFLUX_FILE=load_diff_eFlux_file, $
                         KAPPA_STATS__SAVE_STUFF=kStats__save_stuff, $
-                        KAPPA_STATS__INCLUDE_THESE_STARTSTOPS=kStats__include_these_startstops,$
+                        KAPPA_STATS__INCLUDE_THESE_STARTSTOPS=kStats__tids,$
                         DEBUG__SKIP_TO_THIS_TIME=debug__skip_to_this_time, $
                         DEBUG__BREAK_ON_THIS_TIME=debug__break_on_this_time, $
                         ORIGINATING_ROUTINE=routName, $
