@@ -3,9 +3,6 @@ NoPlots:
 IDL: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/findlowkappa_wrapper.pro
 
 DataBaseRequest:
-    Orbits 1909
-    Orbits 3781
-    Orbits 1753
     Orbits 1562
     Orbits 1715
     Orbits 3523
