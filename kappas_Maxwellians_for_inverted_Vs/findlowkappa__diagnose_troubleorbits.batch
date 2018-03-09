@@ -1,0 +1,15 @@
+BatchJob: "findlowkappa__troubleOrbits"
+NoPlots:
+IDL: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/findlowkappa__diagnose_troubleorbits_wrapper.pro
+
+DataBaseRequest:
+    Orbits 1861
+    Orbits 3931
+    Orbits 3192
+    Orbits 2045
+    Orbits 3867
+    Orbits 1257
+    Orbits 3725
+
+PlotConfigurationDir: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/
+PlotConfigurationFile: kappa_batch_yobbe

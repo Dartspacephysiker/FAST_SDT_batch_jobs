@@ -1,7 +1,11 @@
 ;2018/03/02
-PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit
+ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
+   RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE=restore_fitFile_and_no_remake_jv_masterfile
 
   COMPILE_OPT IDL2,STRICTARRSUBS
+
+  ;; manual_remake_masterFile = 0
+  ;; manual_restore_fitFile   = 0
 
   batch_mode = 1
   routName = 'JOURNAL__20180302__WARMUP_TO_AUTOMATION'
@@ -89,7 +93,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = (N_ELEMENTS(manual_restore_fitFile) GT 0 ? manual_restore_fitFile : KEYWORD_SET(restore_fitFile_and_no_remake_jv_masterfile))
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -124,7 +128,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit
   cAP__iu_pot_tids = 0
 
   cAP_struct = { $
-               remake_masterFile : 1B, $
+               remake_masterFile : (N_ELEMENTS(manual_remake_masterFile) GT 0 ? manual_remake_masterFile : ~KEYWORD_SET(restore_fitFile_and_no_remake_jv_masterfile)), $
                map_to_100km : 1, $
                use_all_currents : 0B, $
                use_ed_current : 1B, $
