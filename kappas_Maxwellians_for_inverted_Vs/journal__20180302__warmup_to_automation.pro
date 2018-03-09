@@ -24,8 +24,8 @@
   cAP_tRanges  = [t1Str,t2Str]
 
   ;; Now add some buffer time to the sides
-  t1           = S2T(t1Str)
-  t2           = S2T(t2Str)
+  t1  = S2T(t1Str)
+  t2  = S2T(t2Str)
   t1 -= addSec_on_either_side
   t2 += addSec_on_either_side
 
@@ -53,7 +53,7 @@
   daPlots_cAP                       = 1
   fit1D__save_plotSlices            = 1
   fit1D__save_every_nth_plot        = 8
-  fit1D__save_if_kappa_below        = 2.45
+  fit1D__save_if_kappa_below        = 3.
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
