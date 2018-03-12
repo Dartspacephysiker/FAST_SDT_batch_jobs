@@ -1,10 +1,10 @@
-;2018/03/02
- PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
-    RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE=restore_fitFile_and_no_remake_jv_masterfile, $
-    NO1DPLOTSPLEASE=no1DPlotsPlease, $
-    NOSTRANGEWAYSUMMARY=noStrangewaySummary, $
-    NOKAPPASUMMARY=noKappaSummary, $
-    NOCURPOTPLOTSPLEASE=noCurPotPlotsPlease
+;2018/03/12
+PRO JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE,orbit, $
+   RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE=restore_fitFile_and_no_remake_jv_masterfile, $
+   NO1DPLOTSPLEASE=no1DPlotsPlease, $
+   NOSTRANGEWAYSUMMARY=noStrangewaySummary, $
+   NOKAPPASUMMARY=noKappaSummary, $
+   NOCURPOTPLOTSPLEASE=noCurPotPlotsPlease
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -12,7 +12,7 @@
   ;; manual_restore_fitFile   = 0
 
   batch_mode = 1
-  routName = 'JOURNAL__20180302__WARMUP_TO_AUTOMATION'
+  routName = 'JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE'
 
   ;;get orbTimes here
   ;;@journal__20161010__info__janhunen_2001_orbits.pro
@@ -23,8 +23,14 @@
   addSec_on_either_side             = 20
   only_1D_fits                      = 0
 
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Read batch file with info about orbits
+  mltRange = [3,9]
+  kappaBatchGenDate = '20180312'
   READ_KAPPA_BATCH_SETUP_FILE, $
      orbit,MLT,ALT,t1Str,t2Str,t_streakLen,nPts,dt_avg,avg_current, $
+     DATE_OF_GENERATION=kappaBatchGenDate, $
+     MLTRANGE=mltRange, $
      /PRINT_SUMMARY
 
   cAP_tRanges  = [t1Str,t2Str]
@@ -98,7 +104,7 @@
   kSum__chi2Bounds    = [0,15]
 
   kSum__convert_to_Newell_interp = 1
-  kSum__add_chi2_line = 5 ;give value at which you'd like line
+  kSum__add_chi2_line = 5       ;give value at which you'd like line
   kSum__add_meas_T_and_N = 1
   kSum__GRL           = 1
   kSum__oPlot_pot     = 1
@@ -113,17 +119,13 @@
   jv_theor__only_eFlux = 0
 
   electron_angleRange  = 'lc'
-  energy_electrons     = [3e2,3.1e4]
+  energy_electrons     = [8E1,3.1e4]
   ;; electron_lca         = [150,-150]
   ;; electron_lca         = 'lc'
-  min_peak_energy      = 500
+  min_peak_energy      = 8E1
   max_peak_energy      = !NULL
 
-  IF orbit EQ 1607 THEN BEGIN
-     energy_electrons[0] = 8E1
-     min_peak_energy     = 8E1
-     min_peak_energyArr  = [8E1,1E2,1E2]
-  ENDIF
+  min_peak_energyArr  = [1E2,1E2,1E2]
 
   ;;survey window
   eeb_or_ees           = 'ees'
@@ -327,3 +329,4 @@
                         BATCH_MODE=batch_mode
 
 END
+

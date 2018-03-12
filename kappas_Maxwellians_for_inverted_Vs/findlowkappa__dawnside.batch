@@ -1,0 +1,51 @@
+BatchJob: "findlowkappa__dawnside"
+NoPlots:
+IDL: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/findlowkappa__dawnside_wrapper.pro
+
+DataBaseRequest:
+    Orbits 2585
+    Orbits 1217
+    Orbits 1368
+    Orbits 2487
+    Orbits 2597
+    Orbits 1607
+    Orbits 1294
+    Orbits 2640
+    Orbits 2347
+    Orbits 1152
+    Orbits 2379
+    Orbits 3956
+    Orbits 2586
+    Orbits 2390
+    Orbits 2685
+    Orbits 1259
+    Orbits 3741
+    Orbits 1940
+    Orbits 1272
+    Orbits 2702
+    Orbits 1232
+    Orbits 3848
+    Orbits 2446
+    Orbits 2381
+    Orbits 1182
+    Orbits 2822
+    Orbits 3846
+    Orbits 1562
+    Orbits 1855
+    Orbits 1758
+    Orbits 3592
+    Orbits 1433
+    Orbits 3991
+    Orbits 3783
+    Orbits 1293
+    Orbits 3785
+    Orbits 1152
+    Orbits 1991
+    Orbits 1952
+    Orbits 3837
+    Orbits 1238
+    Orbits 3815
+    Orbits 2606
+
+PlotConfigurationDir: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/
+PlotConfigurationFile: kappa_batch_yobbe
