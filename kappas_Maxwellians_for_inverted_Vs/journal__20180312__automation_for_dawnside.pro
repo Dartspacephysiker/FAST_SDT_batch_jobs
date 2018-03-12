@@ -170,7 +170,7 @@ PRO JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE,orbit, $
                plot_T_and_N : 0B, $
                plot_j_v_and_theory : 0B, $
                plot_j_v__fixed_t_and_n : daPlots_cAP, $
-               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : daPlots_cAP, $
+               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : 0B, $
                plot_en_specs : 0B, $
                en_specs__movie : 0B, $
                jv_theor__R_B_init : 30, $

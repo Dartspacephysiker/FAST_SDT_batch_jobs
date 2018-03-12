@@ -19,7 +19,7 @@
 ;*****************************
 ;Put code here:
 
-JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE,orbit
+JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE,orbit,/NOSTRANGEWAYSUMMARY
 
 IF N_ELEMENTS(orbit GT 0) THEN SPAWN,"cat outIDL.findlowkappa_wrapper.pro errIDL.findlowkappa_wrapper.pro > /SPENCEdata/software/sdt/batch_jobs/txtOutput/findlowkappa/" + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + "-Orbit_" + STRING(FORMAT='(I0)',orbit) + ".txt"
 
