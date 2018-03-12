@@ -1,6 +1,9 @@
 ;2018/03/02
  PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
-   RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE=restore_fitFile_and_no_remake_jv_masterfile
+    RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE=restore_fitFile_and_no_remake_jv_masterfile, $
+    NO1DPLOTSPLEASE=no1DPlotsPlease, $
+    NOSTRANGEWAYSUMMARY=noStrangewaySummary, $
+    NOKAPPASUMMARY=noKappaSummary
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -29,6 +32,14 @@
   t1 -= addSec_on_either_side
   t2 += addSec_on_either_side
 
+  ;; 2018/03/12 For super low kappa
+  IF orbit EQ 1607 THEN BEGIN
+     tmpDate     = '1997-01-17/'
+     t1          = S2T(tmpDate + '01:03:50')
+     t2          = S2T(tmpDate + '01:06:15')
+     cAP_tRanges = tmpDate + ['01:04:56','01:05:55']
+     ;;More stuff for orbit 1607 below
+  ENDIF
 
   t1Str        = T2S(t1,/MS)
   t2Str        = T2S(t2,/MS)
@@ -51,7 +62,7 @@
   add_oneCount_curve                = 1
 
   daPlots_cAP                       = 1
-  fit1D__save_plotSlices            = 1
+  fit1D__save_plotSlices            = KEYWORD_SET(no1DPlotsPlease) ? 0 : 1
   fit1D__save_every_nth_plot        = 8
   fit1D__save_if_kappa_below        = 3.
   fit2D__save_all_plots             = 0
@@ -69,14 +80,14 @@
 
   eps                      = 1
 
-  show_Strangeway_summary  = 1
+  show_Strangeway_summary  = KEYWORD_SET(noStrangewaySummary) ? 0 : 1
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
   sway__add_Newell_panel   = 1
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary  = 1
+  show_kappa_summary  = KEYWORD_SET(noKappaSummary) ? 0 : 1
   kSum__save_ps       = 1
   kSum__add_parm_errors_from_file = 0
   kSum__add_parm_errors__nRolls = 10000
@@ -105,9 +116,15 @@
   min_peak_energy      = 500
   max_peak_energy      = !NULL
 
+  IF orbit EQ 1607 THEN BEGIN
+     energy_electrons[0] = 8E1
+     min_peak_energy     = 8E1
+     min_peak_energyArr  = [8E1,1E2,1E2]
+  ENDIF
+
   ;;survey window
   eeb_or_ees           = 'ees'
-  spectra_average_interval = 2
+  spectra_average_interval = 4
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
@@ -147,8 +164,8 @@
                plot_jv_a_la_Elphic : daPlots_cAP, $
                plot_T_and_N : 0B, $
                plot_j_v_and_theory : 0B, $
-               plot_j_v__fixed_t_and_n : 0B, $
-               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : 0, $
+               plot_j_v__fixed_t_and_n : daPlots_cAP, $
+               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : 0B, $
                plot_en_specs : 0B, $
                en_specs__movie : 0B, $
                jv_theor__R_B_init : 30, $

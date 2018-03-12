@@ -402,64 +402,64 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      bb = where (data.v gt 270.,nb)
      if (nb gt 0) then data.v(bb)=data.v(bb)-360.
      nn = n_elements(data.x)
-     for n = 0,nn-1L do begin & $
-        bs = sort (data.v(n,*)) & $
-        data.v(n,*)=data.v(n,bs) & $
-        data.y(n,*)=data.y(n,bs) & $
-        endfor
-        store_data,var_name, data=data	
-        options,var_name,'yminor',9
-        options,var_name,'yticks',4
-        options,var_name,'ytickv',[-90,0,90,180,270]
-        ylim,var_name,-90,270,0
+     for n = 0,nn-1L do begin
+        bs = sort (data.v(n,*))
+        data.v(n,*)=data.v(n,bs)
+        data.y(n,*)=data.y(n,bs)
+     endfor
+     store_data,var_name, data=data	
+     options,var_name,'yminor',9
+     options,var_name,'yticks',4
+     options,var_name,'ytickv',[-90,0,90,180,270]
+     ylim,var_name,-90,270,0
 
-        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
 ; reset time limits if needed
 
-        IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
-        IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
+     IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
+     IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
 
-        if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
-           if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
-           if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
-           get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-           get_new_igrf,/no_store_old
-        endif
+     if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
+        if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
+        if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
+        get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
+        get_new_igrf,/no_store_old
+     endif
 
-        if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-           ;; loadct2,40
-           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-        endif
+     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+        ;; loadct2,40
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+     endif
 
 ; ION ENERGY 
 
-        var_name='Iesa_Energy'
-        get_en_spec,'fa_' + ieb_or_ies + '_c',name=var_name, units='eflux',/CALIB,RETRACE=1
-        get_data,var_name, data=data
-        data.y = alog10(data.y)
-        store_data,var_name, data=data
-        options,var_name,'spec',1	
-        ;; zlim,var_name,4,9,0
-        ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-        zlim,var_name, $
-             (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
-        ylim,var_name,4,30000,1
-        options,var_name,'ytitle','Ions!C!CEnergy (eV)'
-        options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,var_name,'x_no_interp',1
-        options,var_name,'y_no_interp',1
-        options,var_name,'panel_size',2
+     var_name='Iesa_Energy'
+     get_en_spec,'fa_' + ieb_or_ies + '_c',name=var_name, units='eflux',/CALIB,RETRACE=1
+     get_data,var_name, data=data
+     data.y = alog10(data.y)
+     store_data,var_name, data=data
+     options,var_name,'spec',1	
+     ;; zlim,var_name,4,9,0
+     ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+     zlim,var_name, $
+          (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
+          (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
+     ylim,var_name,4,30000,1
+     options,var_name,'ytitle','Ions!C!CEnergy (eV)'
+     options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+     options,var_name,'x_no_interp',1
+     options,var_name,'y_no_interp',1
+     options,var_name,'panel_size',2
 
-        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
-        if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-           ;; loadct2,40
-           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-        endif
-
+     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+        ;; loadct2,40
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
+
+  endif
 
 
 ; Step 4 - Eesa data
@@ -490,9 +490,9 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      options,var_name,'spec',1
      ;; zlim,var_name,4,9,0
      ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-        zlim,var_name, $
-             (MIN(data.y[WHERE(FINITE(data.y))]) > 6 ), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < 10),0
+     zlim,var_name, $
+          (MIN(data.y[WHERE(FINITE(data.y))]) > 6 ), $
+          (MAX(data.y[WHERE(FINITE(data.y))]) < 10),0
      ylim,var_name,0,360,0
      options,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
      options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
@@ -504,64 +504,64 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      bb = where (data.v gt 270.,nb)
      if (nb gt 0) then data.v(bb)=data.v(bb)-360.
      nn = n_elements(data.x)
-     for n = 0,nn-1L do begin & $
-        bs = sort (data.v(n,*)) & $
-        data.v(n,*)=data.v(n,bs) & $
-        data.y(n,*)=data.y(n,bs) & $
-        endfor
-        store_data,var_name, data=data
-        options,var_name,'yminor',9
-        options,var_name,'yticks',4
-        options,var_name,'ytickv',[-90,0,90,180,270]
-        ylim,var_name,-90,270,0
+     for n = 0,nn-1L do begin
+        bs = sort (data.v(n,*))
+        data.v(n,*)=data.v(n,bs)
+        data.y(n,*)=data.y(n,bs)
+     endfor
+     store_data,var_name, data=data
+     options,var_name,'yminor',9
+     options,var_name,'yticks',4
+     options,var_name,'ytickv',[-90,0,90,180,270]
+     ylim,var_name,-90,270,0
 
-        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
 ; reset time limits if needed
 
-        IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
-        IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
+     IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
+     IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
 
-        if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
-           if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
-           if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
-           get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-           get_new_igrf,/no_store_old
-        endif
+     if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
+        if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
+        if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
+        get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
+        get_new_igrf,/no_store_old
+     endif
 
-        if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
-           ;; loadct2,40
-           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-        endif
+     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+        ;; loadct2,40
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+     endif
 
 ; ELECTRON ENERGY
 
-        var_name='Eesa_Energy'
-        get_en_spec,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux',/CALIB,RETRACE=1
-        get_data,var_name, data=data
-        data.y = alog10(data.y)
-        store_data,var_name, data=data
-        options,var_name,'spec',1	
-        ;; zlim,var_name,4,9,0
-        ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-        zlim,var_name, $
-             (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
-        ylim,var_name,5,30000,1
-        options,var_name,'ytitle','Electrons!C!CEnergy (eV)'
-        options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,var_name,'x_no_interp',1
-        options,var_name,'y_no_interp',1
-        options,var_name,'panel_size',2
+     var_name='Eesa_Energy'
+     get_en_spec,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux',/CALIB,RETRACE=1
+     get_data,var_name, data=data
+     data.y = alog10(data.y)
+     store_data,var_name, data=data
+     options,var_name,'spec',1	
+     ;; zlim,var_name,4,9,0
+     ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+     zlim,var_name, $
+          (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
+          (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
+     ylim,var_name,5,30000,1
+     options,var_name,'ytitle','Electrons!C!CEnergy (eV)'
+     options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+     options,var_name,'x_no_interp',1
+     options,var_name,'y_no_interp',1
+     options,var_name,'panel_size',2
 
-        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
+     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
 
-        if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then BEGIN 
-           ;; loadct2,40
-           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-        endif
-
+     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then BEGIN 
+        ;; loadct2,40
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
+
+  endif
 
 
 ; Step 5 - VLF data
@@ -1095,7 +1095,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
      
      oneCheeseBounds   = [MIN(obs_current) < MIN(gauss_current) < MIN(kappa_current), $
-                        MAX(obs_current) > MAX(gauss_current) > MAX(kappa_current)]
+                          MAX(obs_current) > MAX(gauss_current) > MAX(kappa_current)]
      IF oneCheeseBounds[0] LT 0 THEN BEGIN
         showLog_oneCheese   = 0 
         oneCheeseBounds[0] /= 1.1
@@ -1158,7 +1158,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
-        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'   ;,PSYM=1
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'       ;,PSYM=1
      endif
 
   ENDIF
@@ -1183,8 +1183,8 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      GET_DATA,'ORBIT',DATA=orbit
      orbit          = orbit.y
      sc_pot         = GET_FA_POTENTIAL(t1,t2, $
-                                ;; /SPIN, $
-                                /REPAIR)
+                                       ;; /SPIN, $
+                                       /REPAIR)
      sc_pot_interp  = DATA_CUT({x:sc_pot.time,y:sc_pot.comp1},data.x) 
      this           = VALUE_CLOSEST2(data.x,jee.x) 
      data           = {x:data.x[this],y:data.y[this,*],v:data.v[this,*]}
@@ -1384,7 +1384,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
-        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'   ;,PSYM=1
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'       ;,PSYM=1
      ENDIF
   endif
 
@@ -1409,7 +1409,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
-        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'   ;,PSYM=1
+        TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'       ;,PSYM=1
      ENDIF
 
      CASE 1 OF
