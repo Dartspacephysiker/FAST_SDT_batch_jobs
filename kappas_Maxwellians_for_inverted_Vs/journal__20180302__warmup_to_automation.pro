@@ -3,7 +3,8 @@
     RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE=restore_fitFile_and_no_remake_jv_masterfile, $
     NO1DPLOTSPLEASE=no1DPlotsPlease, $
     NOSTRANGEWAYSUMMARY=noStrangewaySummary, $
-    NOKAPPASUMMARY=noKappaSummary
+    NOKAPPASUMMARY=noKappaSummary, $
+    NOCURPOTPLOTSPLEASE=noCurPotPlotsPlease
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -61,7 +62,7 @@
 
   add_oneCount_curve                = 1
 
-  daPlots_cAP                       = 1
+  daPlots_cAP                       = KEYWORD_SET(noCurPotPlotsPlease) ? 0 : 1
   fit1D__save_plotSlices            = KEYWORD_SET(no1DPlotsPlease) ? 0 : 1
   fit1D__save_every_nth_plot        = 8
   fit1D__save_if_kappa_below        = 3.
@@ -124,7 +125,7 @@
 
   ;;survey window
   eeb_or_ees           = 'ees'
-  spectra_average_interval = 4
+  spectra_average_interval = 2
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
@@ -165,7 +166,7 @@
                plot_T_and_N : 0B, $
                plot_j_v_and_theory : 0B, $
                plot_j_v__fixed_t_and_n : daPlots_cAP, $
-               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : 0B, $
+               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : daPlots_cAP, $
                plot_en_specs : 0B, $
                en_specs__movie : 0B, $
                jv_theor__R_B_init : 30, $

@@ -179,43 +179,6 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
 ; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
 
-     ;; store_data,'BDATA',/delete
-     ;; store_data,'BFIT',/delete 
-     ;; store_data,'Bx_sp',/delete
-     ;; store_data,'By_sp',/delete
-     ;; store_data,'Bz_sp',/delete
-     ;; store_data,'Bx_sc',/delete
-     ;; store_data,'By_sc',/delete
-     ;; store_data,'Bz_sc',/delete
-     ;; store_data,'Bx_sp_sm',/delete
-     ;; store_data,'By_sp_sm',/delete
-     ;; store_data,'Bz_sp_sm',/delete
-     ;; store_data,'B_gei',/delete
-     ;; store_data,'B_sm',/delete
-     ;; store_data,'dB_sc',/delete
-     ;; store_data,'dB_gei',/delete
-     ;; store_data,'spin_freq',/delete
-     ;; store_data,'spin_phase',/delete
-     ;; store_data,'TORQ_X',/delete
-     ;; store_data,'TORQ_Y',/delete
-     ;; store_data,'TORQ_Z',/delete
-     ;; store_data,'BX_DEL',/delete
-     ;; store_data,'BY_DEL',/delete
-     ;; store_data,'BZ_DEL',/delete
-     ;; store_data,'BFIX',/delete
-     ;; store_data,'TW_ZX',/delete
-     ;; store_data,'TW_ZY',/delete
-     ;; store_data,'TW_YY',/delete
-     ;; store_data,'TW_YX',/delete
-     ;; store_data,'O_X',/delete
-     ;; store_data,'O_Y',/delete
-     ;; store_data,'B_model_old',/delete
-     ;; store_data,'Delta_B_model',/delete
-     ;; store_data,'despun_to_gei',/delete
-     ;; store_data,'gei_to_sm',/delete
-     ;; store_data,'gei_to_fac',/delete
-     ;; store_data,'gei_to_fac_v',/delete
-
      get_data,'dB_fac_v',data=data
      IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0] ELSE t1 = time1
      IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L] ELSE t2 = time2
@@ -773,16 +736,29 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      ;; saveStr+='Jee_originalsk,'
      keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
      keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
-     GET_DATA,'Ji',DATA=tmp
-     ;; GET_DATA,'Ji',DATA=Ji_originalsk
-     ;; saveStr+='Ji_originalsk,'
-     keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
-     keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
-     GET_DATA,'Jei',DATA=tmp
-     ;; GET_DATA,'Jei',DATA=Jei_originalsk
-     ;; saveStr+='Jei_originalsk,'
-     keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp.y) NE 0))
-     keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp.y) GT 0.0))
+     GET_DATA,'Ji',DATA=tmp2
+     badIons                        = 0
+     IF N_ELEMENTS(tmp2.x) LE 2 THEN BEGIN
+        badIons = 1
+        tmp2 = tmp
+        tmp2.y *= 0.
+     ENDIF ELSE BEGIN
+        ;; GET_DATA,'Ji',DATA=Ji_originalsk
+        ;; saveStr+='Ji_originalsk,'
+        keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp2.y) NE 0))
+        keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp2.y) GT 0.0))
+     ENDELSE
+     GET_DATA,'Jei',DATA=tmp2
+     IF N_ELEMENTS(tmp2.x) LE 2 THEN BEGIN
+        badIons = badIons + 1
+        tmp2 = tmp
+        tmp2.y *= 0.
+     ENDIF ELSE BEGIN
+        ;; GET_DATA,'Jei',DATA=Jei_originalsk
+        ;; saveStr+='Jei_originalsk,'
+        keep1                          = CGSETINTERSECTION(keep1,WHERE(FINITE(tmp2.y) NE 0))
+        keep2                          = CGSETINTERSECTION(keep2,WHERE(ABS(tmp2.y) GT 0.0))
+     ENDELSE
      GET_DATA,'Je',DATA=tmp
      tmp.x                          = tmp.x[keep1]
      tmp.y                          = tmp.y[keep1]
@@ -795,17 +771,26 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      jee_tmp_time                   = tmp.x[keep2]
      jee_tmp_data                   = tmp.y[keep2]
      STORE_DATA,'Jee',DATA={x:jee_tmp_time,y:jee_tmp_data}
-     GET_DATA,'Ji',DATA=tmp
-     tmp.x                          = tmp.x[keep1]
-     tmp.y                          = tmp.y[keep1]
-     ji_tmp_time                    = tmp.x[keep2]
-     ji_tmp_data                    = tmp.y[keep2]
+     IF badIons GT 0 THEN BEGIN
+        ji_tmp_time                 = tmp.x[keep2]
+        ji_tmp_data                 = tmp.y[keep2]
+        jei_tmp_time                = tmp.x[keep2]
+        jei_tmp_data                = tmp.y[keep2]
+        ji_tmp_data                *= 0.
+        jei_tmp_data               *= 0.
+     ENDIF ELSE BEGIN
+        GET_DATA,'Ji',DATA=tmp
+        tmp.x                       = tmp.x[keep1]
+        tmp.y                       = tmp.y[keep1]
+        ji_tmp_time                 = tmp.x[keep2]
+        ji_tmp_data                 = tmp.y[keep2]
+        GET_DATA,'Jei',DATA=tmp
+        tmp.x                       = tmp.x[keep1]
+        tmp.y                       = tmp.y[keep1]
+        jei_tmp_time                = tmp.x[keep2]
+        jei_tmp_data                = tmp.y[keep2]
+     ENDELSE
      STORE_DATA,'Ji',DATA={x:ji_tmp_time,y:ji_tmp_data}
-     GET_DATA,'Jei',DATA=tmp
-     tmp.x                          = tmp.x[keep1]
-     tmp.y                          = tmp.y[keep1]
-     jei_tmp_time                   = tmp.x[keep2]
-     jei_tmp_data                   = tmp.y[keep2]
      STORE_DATA,'Jei',DATA={x:jei_tmp_time,y:jei_tmp_data}
 
      GET_DATA,'Je',DATA=Je
@@ -1167,7 +1152,14 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
      var_name='Eesa_LC_Energy'
      ;;This already gets called above, but we need to call it again to handle angle restrictions
-     GET_EN_SPEC,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux',/CALIB,RETRACE=1,ANGLE=eAngle
+     GET_EN_SPEC,'fa_' + eeb_or_ees + '_c', $
+                 T1=t1, $
+                 T2=t2, $
+                 NAME=var_name, $
+                 UNITS='eflux', $
+                 /CALIB, $
+                 RETRACE=1, $
+                 ANGLE=eAngle
      GET_DATA,var_name,DATA=data
 
      GET_FA_ORBIT,data.x,/TIME_ARRAY
