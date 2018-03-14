@@ -131,6 +131,12 @@
      min_peak_energyArr  = [1E2,1E2,1E2]
   ENDIF
 
+  IF orbit EQ 1945 THEN BEGIN
+     energy_electrons[0] = 2E2
+     min_peak_energy     = 2E2
+     min_peak_energyArr  = [2E2,1E2,1E2]
+  ENDIF
+
   ;;survey window
   eeb_or_ees           = 'ees'
   spectra_average_interval = 1
