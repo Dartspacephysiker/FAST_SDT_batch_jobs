@@ -44,6 +44,20 @@
      ;;More stuff for orbit 1607 below
   ENDIF
 
+  ;; 2018/03/14 For maybe-super-low low kappa
+  IF orbit EQ 1945 THEN BEGIN
+     tmpDate     = '1997-02-17/'
+     ;; t1          = S2T(tmpDate + '07:14:15')
+     ;; t2          = S2T(tmpDate + '07:15:05')
+     ;; cAP_tRanges = tmpDate + ['07:14:38','07:14:47.5']
+     ;; cAP__iu_pot_tids = tmpDate + ['07:14:22.5','07:14:38']
+     cAP__iu_pot_tids = tmpDate + [['07:14:22.5','07:14:38'], $
+                                   ['07:13:52','07:13:57.5']]
+     ;;More stuff for orbit 1945 below
+     nTRanges = N_ELEMENTS(cAP__iu_pot_tids[0,*])
+     majicInterval = 0
+  ENDIF
+
   t1Str        = T2S(t1,/MS)
   t2Str        = T2S(t2,/MS)
   PRINT,t1Str
@@ -132,14 +146,15 @@
   ENDIF
 
   IF orbit EQ 1945 THEN BEGIN
-     energy_electrons[0] = 2E2
-     min_peak_energy     = 2E2
-     min_peak_energyArr  = [2E2,1E2,1E2]
+     majicEnergy = KEYWORD_SET(majicInterval) ? 5E2 : 2E2
+     energy_electrons[0] = majicEnergy
+     min_peak_energy     = majicEnergy
+     min_peak_energyArr  = [majicEnergy,1E2,1E2]
   ENDIF
 
   ;;survey window
   eeb_or_ees           = 'ees'
-  spectra_average_interval = 1
+  spectra_average_interval = 2
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
@@ -157,7 +172,7 @@
   curAndPot_analysis        = 1
 
   cAP__add_iu_pot  = 0
-  cAP__iu_pot_tids = 0
+  cAP__iu_pot_tids = N_ELEMENTS(cAP__iu_pot_tids) GT 0 ? cAP__iu_pot_tids : 0
 
   cAP_struct = { $
                remake_masterFile : (N_ELEMENTS(manual_remake_masterFile) GT 0 ? manual_remake_masterFile : ~KEYWORD_SET(restore_fitFile_and_no_remake_jv_masterfile)), $
