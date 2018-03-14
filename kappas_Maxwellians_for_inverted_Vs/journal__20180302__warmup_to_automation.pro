@@ -66,7 +66,7 @@
 
   daPlots_cAP                       = KEYWORD_SET(noCurPotPlotsPlease) ? 0 : 1
   fit1D__save_plotSlices            = KEYWORD_SET(no1DPlotsPlease) ? 0 : 1
-  fit1D__save_every_nth_plot        = 8
+  fit1D__save_every_nth_plot        = 4
   fit1D__save_if_kappa_below        = 3.
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
@@ -125,9 +125,15 @@
      min_peak_energyArr  = [8E1,1E2,1E2]
   ENDIF
 
+  IF orbit EQ 1694 THEN BEGIN
+     energy_electrons[0] = 1E2
+     min_peak_energy     = 1E2
+     min_peak_energyArr  = [1E2,1E2,1E2]
+  ENDIF
+
   ;;survey window
   eeb_or_ees           = 'ees'
-  spectra_average_interval = 2
+  spectra_average_interval = 1
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
