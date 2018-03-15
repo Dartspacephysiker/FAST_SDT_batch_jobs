@@ -4,7 +4,8 @@
     NO1DPLOTSPLEASE=no1DPlotsPlease, $
     NOSTRANGEWAYSUMMARY=noStrangewaySummary, $
     NOKAPPASUMMARY=noKappaSummary, $
-    NOCURPOTPLOTSPLEASE=noCurPotPlotsPlease
+    NOCURPOTPLOTSPLEASE=noCurPotPlotsPlease, $
+    ONLY_SOUTH=only_south
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -24,8 +25,13 @@
   only_1D_fits                      = 0
 
   READ_KAPPA_BATCH_SETUP_FILE, $
-     orbit,MLT,ALT,t1Str,t2Str,t_streakLen,nPts,dt_avg,avg_current, $
+     orbit,MLT,ILAT,ALT,t1Str,t2Str,t_streakLen,nPts,dt_avg,avg_current, $
      /PRINT_SUMMARY
+
+  IF KEYWORD_SET(only_south) AND ILAT GT 0 THEN BEGIN
+     PRINT,"Sorry, this orbit is in the Norf"
+     RETURN
+  ENDIF
 
   cAP_tRanges  = [t1Str,t2Str]
 
