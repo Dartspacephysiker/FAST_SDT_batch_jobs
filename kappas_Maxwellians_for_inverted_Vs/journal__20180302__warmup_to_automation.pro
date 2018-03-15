@@ -171,7 +171,7 @@
   ;;Current and potential analysis
   curAndPot_analysis        = 1
 
-  cAP__add_iu_pot  = 0
+  cAP__add_iu_pot  = 1
   cAP__iu_pot_tids = N_ELEMENTS(cAP__iu_pot_tids) GT 0 ? cAP__iu_pot_tids : 0
 
   cAP_struct = { $
