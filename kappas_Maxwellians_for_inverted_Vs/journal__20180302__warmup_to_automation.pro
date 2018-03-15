@@ -173,7 +173,7 @@
   curAndPot_analysis        = 1
 
   cAP__iu_pot_tids          = N_ELEMENTS(cAP__iu_pot_tids) GT 0 ? cAP__iu_pot_tids : 0
-  cAP__add_iu_pot           = N_ELEMENTS(cAP__iu_pot_tids) GT 0
+  cAP__add_iu_pot           = KEYWORD_SET(cAP__iu_pot_tids)
 
   cAP_struct = { $
                remake_masterFile : (N_ELEMENTS(manual_remake_masterFile) GT 0 ? manual_remake_masterFile : ~KEYWORD_SET(restore_fitFile_and_no_remake_jv_masterfile)), $
