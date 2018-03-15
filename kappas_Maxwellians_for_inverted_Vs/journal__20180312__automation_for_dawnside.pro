@@ -74,6 +74,7 @@ PRO JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE,orbit, $
   fit1D__save_plotSlices            = KEYWORD_SET(no1DPlotsPlease) ? 0 : 1
   fit1D__save_every_nth_plot        = 8
   fit1D__save_if_kappa_below        = 3.
+  fit1D__combine_plotslices_in_PDF  = 1
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
@@ -101,10 +102,10 @@ PRO JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE,orbit, $
   kSum__add_parm_errors_from_file = 0
   kSum__add_parm_errors__nRolls = 10000
   kSum__add_parm_errors__use_most_prob = 1
-  kSum__chi2Bounds    = [0,15]
+  kSum__chi2Bounds    = [0.,15.]
 
   kSum__convert_to_Newell_interp = 1
-  kSum__add_chi2_line = 5       ;give value at which you'd like line
+  kSum__add_chi2_line = 5 ;give value at which you'd like line
   kSum__add_meas_T_and_N = 1
   kSum__GRL           = 1
   kSum__oPlot_pot     = 1
@@ -146,8 +147,8 @@ PRO JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE,orbit, $
   ;;Current and potential analysis
   curAndPot_analysis        = 1
 
-  cAP__add_iu_pot  = 0
-  cAP__iu_pot_tids = 0
+  cAP__iu_pot_tids          = N_ELEMENTS(cAP__iu_pot_tids) GT 0 ? cAP__iu_pot_tids : 0
+  cAP__add_iu_pot           = KEYWORD_SET(cAP__iu_pot_tids)
 
   cAP_struct = { $
                remake_masterFile : (N_ELEMENTS(manual_remake_masterFile) GT 0 ? manual_remake_masterFile : ~KEYWORD_SET(restore_fitFile_and_no_remake_jv_masterfile)), $
@@ -170,7 +171,7 @@ PRO JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE,orbit, $
                plot_T_and_N : 0B, $
                plot_j_v_and_theory : 0B, $
                plot_j_v__fixed_t_and_n : daPlots_cAP, $
-               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : 0B, $
+               plot_j_v_map__r_b_and_kappa__fixed_t_and_n : daPlots_cAP, $
                plot_en_specs : 0B, $
                en_specs__movie : 0B, $
                jv_theor__R_B_init : 30, $
@@ -269,6 +270,7 @@ PRO JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE,orbit, $
                         FIT1D__SAVE_PLOTSLICES=fit1D__save_plotSlices, $
                         FIT1D__SAVE_EVERY_NTH_PLOT=fit1D__save_every_nth_plot, $
                         FIT1D__SAVE_IF_KAPPA_BELOW=fit1D__save_if_kappa_below, $
+                        FIT1D__COMBINE_PLOTSLICES_IN_PDF=fit1D__combine_plotslices_in_PDF, $
                         FIT2D__N_BELOW_PEAK=n_below_peak2D, $
                         FIT2D__N_ABOVE_PEAK=n_above_peak2D, $
                         FIT2D__SHOW_EACH_CANDIDATE=fit2D__show_each_candidate, $
