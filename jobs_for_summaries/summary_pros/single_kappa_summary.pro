@@ -1140,13 +1140,19 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      N_ELEMENTS(WHERE(kappa2D.chi2/(kappa2D.dof+kappa2D.nFree) GT chi2Bounds[1]))) $
      / N_ELEMENTS(kappa2D.chi2) GT .2 THEN BEGIN
      showLog_chi2 = 1
-     chi2Bounds[1] += chi2Bounds[1]
+     chi2Bounds[1] += 2.*chi2Bounds[1]
+  ENDIF ELSE IF FLOAT( $
+     N_ELEMENTS(WHERE(kappa2D.chi2/(kappa2D.dof+kappa2D.nFree) LT 1.2))) $
+     / N_ELEMENTS(kappa2D.chi2) GT .25 THEN BEGIN
+     showLog_chi2 = 1
+     chi2Bounds[0] = 0.01
+     ;; chi2Bounds[1] += chi2Bounds[1]
   ENDIF
 
   IF showLog_chi2 THEN BEGIN
 
-     IF chi2Bounds[0] EQ 0 THEN chi2Bounds[0] = 1E-1 ELSE $
-        chi2Bounds[0] -= (chi2Bounds[0]*0.1)
+     IF chi2Bounds[0] EQ 0. THEN chi2Bounds[0] = 0.1;;  ELSE $
+        ;; chi2Bounds[0] -= (chi2Bounds[0]*0.1)
 
      chi2Bounds[1] += (chi2Bounds[1]*0.1)
 

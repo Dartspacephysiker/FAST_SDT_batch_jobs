@@ -116,7 +116,7 @@
   kSum__add_parm_errors_from_file = 0
   kSum__add_parm_errors__nRolls = 10000
   kSum__add_parm_errors__use_most_prob = 1
-  kSum__chi2Bounds    = [0,60]
+  kSum__chi2Bounds    = [0.,15.]
 
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 5 ;give value at which you'd like line
