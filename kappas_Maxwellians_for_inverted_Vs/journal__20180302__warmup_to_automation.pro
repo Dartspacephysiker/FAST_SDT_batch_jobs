@@ -82,6 +82,7 @@
   fit1D__save_plotSlices            = KEYWORD_SET(no1DPlotsPlease) ? 0 : 1
   fit1D__save_every_nth_plot        = 4
   fit1D__save_if_kappa_below        = 3.
+  fit1D__combine_plotslices_in_PDF  = 1
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
@@ -109,7 +110,7 @@
   kSum__add_parm_errors_from_file = 0
   kSum__add_parm_errors__nRolls = 10000
   kSum__add_parm_errors__use_most_prob = 1
-  kSum__chi2Bounds    = [0,15]
+  kSum__chi2Bounds    = [0,60]
 
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 5 ;give value at which you'd like line
@@ -130,7 +131,7 @@
   energy_electrons     = [3e2,3.1e4]
   ;; electron_lca         = [150,-150]
   ;; electron_lca         = 'lc'
-  min_peak_energy      = 500
+  min_peak_energy      = 300
   max_peak_energy      = !NULL
 
   IF orbit EQ 1607 THEN BEGIN
@@ -158,7 +159,7 @@
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
-  chi2_over_dof_thresh = 50
+  chi2_over_dof_thresh = 60
   lowDens_thresh       = 0.05
   diffEflux_thresh     = 3D6
   nPkAbove_dEF_thresh  = 3
@@ -171,8 +172,8 @@
   ;;Current and potential analysis
   curAndPot_analysis        = 1
 
-  cAP__add_iu_pot  = 1
-  cAP__iu_pot_tids = N_ELEMENTS(cAP__iu_pot_tids) GT 0 ? cAP__iu_pot_tids : 0
+  cAP__iu_pot_tids          = N_ELEMENTS(cAP__iu_pot_tids) GT 0 ? cAP__iu_pot_tids : 0
+  cAP__add_iu_pot           = N_ELEMENTS(cAP__iu_pot_tids) GT 0
 
   cAP_struct = { $
                remake_masterFile : (N_ELEMENTS(manual_remake_masterFile) GT 0 ? manual_remake_masterFile : ~KEYWORD_SET(restore_fitFile_and_no_remake_jv_masterfile)), $
@@ -294,6 +295,7 @@
                         FIT1D__SAVE_PLOTSLICES=fit1D__save_plotSlices, $
                         FIT1D__SAVE_EVERY_NTH_PLOT=fit1D__save_every_nth_plot, $
                         FIT1D__SAVE_IF_KAPPA_BELOW=fit1D__save_if_kappa_below, $
+                        FIT1D__COMBINE_PLOTSLICES_IN_PDF=fit1D__combine_plotslices_in_PDF, $
                         FIT2D__N_BELOW_PEAK=n_below_peak2D, $
                         FIT2D__N_ABOVE_PEAK=n_above_peak2D, $
                         FIT2D__SHOW_EACH_CANDIDATE=fit2D__show_each_candidate, $

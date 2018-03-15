@@ -1136,9 +1136,20 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                      MAX([kappa2D.chi2/(kappa2D.dof+kappa2D.nFree),gauss2D.chi2/(gauss2D.dof+gauss2D.nFree)])]
 
   ;; showLog_chi2    = (ALOG10(chi2Bounds[1])-ALOG10(chi2Bounds[0])) GT 2
+  IF FLOAT( $
+     N_ELEMENTS(WHERE(kappa2D.chi2/(kappa2D.dof+kappa2D.nFree) GT chi2Bounds[1]))) $
+     / N_ELEMENTS(kappa2D.chi2) GT .2 THEN BEGIN
+     showLog_chi2 = 1
+     chi2Bounds[1] += chi2Bounds[1]
+  ENDIF
+
   IF showLog_chi2 THEN BEGIN
-     chi2Bounds[0] -= (chi2Bounds[0]*0.1)
+
+     IF chi2Bounds[0] EQ 0 THEN chi2Bounds[0] = 1E-1 ELSE $
+        chi2Bounds[0] -= (chi2Bounds[0]*0.1)
+
      chi2Bounds[1] += (chi2Bounds[1]*0.1)
+
   ENDIF ELSE BEGIN
      chi2Bounds[0] /= 1.1
      chi2Bounds[1] *= 1.1
