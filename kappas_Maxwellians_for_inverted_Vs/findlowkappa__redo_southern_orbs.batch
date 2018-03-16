@@ -3,109 +3,6 @@ NoPlots:
 IDL: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/findlowkappa__redo_southern_orbs_wrapper.pro
 
 DataBaseRequest:
-    Orbits 3661
-    Orbits 2685
-    Orbits 3155
-    Orbits 2892
-    Orbits 2976
-    Orbits 3011
-    Orbits 2817
-    Orbits 2081
-    Orbits 1870
-    Orbits 3630
-    Orbits 3639
-    Orbits 3319
-    Orbits 1569
-    Orbits 1750
-    Orbits 3833
-    Orbits 3060
-    Orbits 3760
-    Orbits 1888
-    Orbits 1812
-    Orbits 3814
-    Orbits 3108
-    Orbits 1835
-    Orbits 3069
-    Orbits 1805
-    Orbits 1797
-    Orbits 3154
-    Orbits 3414
-    Orbits 1918
-    Orbits 3166
-    Orbits 1849
-    Orbits 3270
-    Orbits 3383
-    Orbits 3458
-    Orbits 1182
-    Orbits 1743
-    Orbits 1756
-    Orbits 2074
-    Orbits 1754
-    Orbits 3478
-    Orbits 1744
-    Orbits 2822
-    Orbits 3576
-    Orbits 1450
-    Orbits 1607
-    Orbits 2037
-    Orbits 1745
-    Orbits 3299
-    Orbits 3878
-    Orbits 2526
-    Orbits 1702
-    Orbits 3907
-    Orbits 2044
-    Orbits 3061
-    Orbits 3341
-    Orbits 3245
-    Orbits 3953
-    Orbits 3694
-    Orbits 1911
-    Orbits 1877
-    Orbits 1607
-    Orbits 1578
-    Orbits 1902
-    Orbits 1776
-    Orbits 1664
-    Orbits 3867
-    Orbits 1917
-    Orbits 1720
-    Orbits 1875
-    Orbits 3220
-    Orbits 1875
-    Orbits 1626
-    Orbits 1940
-    Orbits 1635
-    Orbits 2062
-    Orbits 1650
-    Orbits 1633
-    Orbits 2789
-    Orbits 3437
-    Orbits 1728
-    Orbits 1734
-    Orbits 3991
-    Orbits 2069
-    Orbits 1567
-    Orbits 3301
-    Orbits 1869
-    Orbits 3130
-    Orbits 2760
-    Orbits 1615
-    Orbits 1576
-    Orbits 2937
-    Orbits 3301
-    Orbits 3785
-    Orbits 3465
-    Orbits 3423
-    Orbits 3857
-    Orbits 1957
-    Orbits 1892
-    Orbits 3576
-    Orbits 1747
-    Orbits 1504
-    Orbits 1884
-    Orbits 2897
-    Orbits 1731
     Orbits 3274
     Orbits 3100
     Orbits 3324
@@ -120,6 +17,7 @@ DataBaseRequest:
     Orbits 1696
     Orbits 3705
     Orbits 3931
+    Orbits 3061
 
 PlotConfigurationDir: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/
 PlotConfigurationFile: kappa_batch_yobbe
