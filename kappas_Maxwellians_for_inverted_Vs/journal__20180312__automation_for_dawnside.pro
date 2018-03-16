@@ -4,7 +4,9 @@ PRO JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE,orbit, $
    NO1DPLOTSPLEASE=no1DPlotsPlease, $
    NOSTRANGEWAYSUMMARY=noStrangewaySummary, $
    NOKAPPASUMMARY=noKappaSummary, $
-   NOCURPOTPLOTSPLEASE=noCurPotPlotsPlease
+   NOCURPOTPLOTSPLEASE=noCurPotPlotsPlease, $
+   DO_2DPLOTS=do_2DPlots, $
+   DO_2D__JUSTDATA=do_2D__justData
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -46,8 +48,10 @@ PRO JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE,orbit, $
      tmpDate     = '1997-01-17/'
      t1          = S2T(tmpDate + '01:03:50')
      t2          = S2T(tmpDate + '01:06:15')
-     cAP_tRanges = tmpDate + ['01:04:56','01:05:55']
+     cAP_tRanges = tmpDate + ['01:05:15','01:05:30']
      ;;More stuff for orbit 1607 below
+     ;; debug__skip_to_this_time = S2T(tmpDate + '01:05:22.33')
+     ;; debug__break_on_this_time = S2T(tmpDate + '01:05:22.33')
   ENDIF
 
   t1Str        = T2S(t1,/MS)
@@ -75,9 +79,9 @@ PRO JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE,orbit, $
   fit1D__save_every_nth_plot        = 8
   fit1D__save_if_kappa_below        = 3.
   fit1D__combine_plotslices_in_PDF  = 1
-  fit2D__save_all_plots             = 0
-  fit2D__show_each_candidate        = 0
-  fit2D__show_only_data             = 0
+  fit2D__save_all_plots             = KEYWORD_SET(do_2Dplots)
+  fit2D__show_each_candidate        = KEYWORD_SET(do_2Dplots)
+  fit2D__show_only_data             = KEYWORD_SET(do_2D__justData)
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
   fit2D__clampDensity               = 0
@@ -120,13 +124,13 @@ PRO JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE,orbit, $
   jv_theor__only_eFlux = 0
 
   electron_angleRange  = 'lc'
-  energy_electrons     = [8E1,3.1e4]
+  energy_electrons     = [1E2,3.1e4]
   ;; electron_lca         = [150,-150]
   ;; electron_lca         = 'lc'
   min_peak_energy      = 8E1
   max_peak_energy      = !NULL
 
-  min_peak_energyArr  = [1E2,1E2,1E2]
+  min_peak_energyArr  = [8E1,1E2,1E2]
 
   ;;survey window
   eeb_or_ees           = 'ees'
