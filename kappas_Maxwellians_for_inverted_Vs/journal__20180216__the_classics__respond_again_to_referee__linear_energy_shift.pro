@@ -1,6 +1,12 @@
 ;;2018/02/01
 ;;Why does Referee #1 have to be so smart?
-PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHIFT
+PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHIFT,orbit, $
+    RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE=restore_fitFile_and_no_remake_jv_masterfile, $
+    NO1DPLOTSPLEASE=no1DPlotsPlease, $
+    NOSTRANGEWAYSUMMARY=noStrangewaySummary, $
+    NOKAPPASUMMARY=noKappaSummary, $
+    NOCURPOTPLOTSPLEASE=noCurPotPlotsPlease, $
+    ONLY_SOUTH=only_south
 
   COMPILE_OPT IDL2
 
@@ -8,6 +14,8 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   ;;get orbTimes here
   @journal__20161011__info__the_classics.pro
+
+  GET_FA_SDT_ORBIT,orbit
 
   bonusBonusPref                    = '-linearEnergyShift-GRLRESPONSE2'
   cAP_tRanges_list[2]               = '1997-02-01/'+[['09:26:56.0','09:27:06.']] ;Adjust a bit
@@ -41,8 +49,11 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   add_oneCount_curve                = 1
 
-  daPlots_cAP                       = 0
-  fit1D__save_plotSlices            = 1
+  daPlots_cAP                       = KEYWORD_SET(noCurPotPlotsPlease) ? 0 : 1
+  fit1D__save_plotSlices            = KEYWORD_SET(no1DPlotsPlease) ? 0 : 1
+  fit1D__save_every_nth_plot        = 4
+  fit1D__save_if_kappa_below        = 3.
+  fit1D__combine_plotslices_in_PDF  = 1
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
@@ -58,20 +69,19 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   eps                      = 1
 
-  show_Strangeway_summary  = 1
+  show_Strangeway_summary  = KEYWORD_SET(noStrangewaySummary) ? 0 : 1
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
   sway__add_Newell_panel   = 1
   sway__log_kappaPlot      = 0
 
-  show_kappa_summary  = 1
-  ;; kSum__eAngle        = [-180,180]
+  show_kappa_summary  = KEYWORD_SET(noKappaSummary) ? 0 : 1
   kSum__save_ps       = 1
   kSum__add_parm_errors_from_file = 0
   kSum__add_parm_errors__nRolls = 10000
   kSum__add_parm_errors__use_most_prob = 1
-  kSum__chi2Bounds    = [0,10]
+  kSum__chi2Bounds    = [0.,15.]
 
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 2 ;give value at which you'd like line
@@ -83,7 +93,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = 0
+  restore_fitFile      = (N_ELEMENTS(manual_restore_fitFile) GT 0 ? manual_restore_fitFile : KEYWORD_SET(restore_fitFile_and_no_remake_jv_masterfile))
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -93,7 +103,9 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   ;; '1 :  McFadden_et_al_1998' --- 1849
   ;; '2 :  Elphic_et_al_1998' --- 1773
   ;; '3 :  Carlson_et_al_2001' --- 1789
-  evtNum               = 3
+  ;; evtNum               = 2
+  evtNum = (WHERE(orbs EQ orbit))[0]
+  IF evtNum EQ -1 THEN STOP
 
   ;;2017/03/22
   ;; evtNum               = 3
@@ -122,7 +134,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   burstItvl            = 0
 
   ;;String setup
-  orbit                = orbs      [evtNum]
+  ;; orbit                = orbs      [evtNum]
   t1Str                = orbTimes[0,evtNum]
   t2Str                = orbTimes[1,evtNum]
   bonusPref            = bonusPrefs[evtNum] + (N_ELEMENTS(bonusBonusPref) GT 0 ? bonusBonusPref : '')
@@ -224,7 +236,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
   curAndPot_analysis        = 1
 
   cAP_struct = { $
-               remake_masterFile : 1B, $
+               remake_masterFile : (N_ELEMENTS(manual_remake_masterFile) GT 0 ? manual_remake_masterFile : ~KEYWORD_SET(restore_fitFile_and_no_remake_jv_masterfile)), $
                map_to_100km : 1, $
                use_all_currents : 0B, $
                use_ed_current : 1B, $
@@ -242,7 +254,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
                plot_jv_a_la_Elphic : daPlots_cAP, $
                plot_T_and_N : 0B, $
                plot_j_v_and_theory : 0B, $
-               plot_j_v__fixed_t_and_n : 0B, $
+               plot_j_v__fixed_t_and_n : daPlots_cAP, $
                plot_j_v_map__r_b_and_kappa__fixed_t_and_n : daPlots_cAP, $
                plot_en_specs : 0B, $
                en_specs__movie : 0B, $
@@ -280,6 +292,14 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
                in_bonusPref                        : bonusPref, $
                plots_in_buffer                     : 1}
 
+  IF KEYWORD_SET(min_peak_energyArr) THEN BEGIN
+     STR_ELEMENT,cAP_struct,'min_peak_energyArr',min_peak_energyArr,/ADD_REPLACE
+  ENDIF
+  
+  IF KEYWORD_SET(max_peak_energyArr) THEN BEGIN
+     STR_ELEMENT,cAP_struct,'max_peak_energyArr',max_peak_energyArr,/ADD_REPLACE
+  ENDIF
+  
   IF KEYWORD_SET(aRange__dens_e_down) THEN BEGIN
      STR_ELEMENT,cAP_struct,'aRange__dens_e_down',aRange__dens_e_down,/ADD_REPLACE
   ENDIF
@@ -334,6 +354,9 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
                         FIT1D__CLAMPTEMPERATURE=fit1D__clampTemperature, $
                         FIT1D__CLAMPDENSITY=fit1D__clampDensity, $
                         FIT1D__SAVE_PLOTSLICES=fit1D__save_plotSlices, $
+                        FIT1D__SAVE_EVERY_NTH_PLOT=fit1D__save_every_nth_plot, $
+                        FIT1D__SAVE_IF_KAPPA_BELOW=fit1D__save_if_kappa_below, $
+                        FIT1D__COMBINE_PLOTSLICES_IN_PDF=fit1D__combine_plotslices_in_PDF, $
                         FIT2D__N_BELOW_PEAK=n_below_peak2D, $
                         FIT2D__N_ABOVE_PEAK=n_above_peak2D, $
                         FIT2D__SHOW_EACH_CANDIDATE=fit2D__show_each_candidate, $
