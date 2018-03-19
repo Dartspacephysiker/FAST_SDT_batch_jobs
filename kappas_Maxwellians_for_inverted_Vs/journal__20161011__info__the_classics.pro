@@ -170,6 +170,14 @@ cAP__add_iu_pot               = LIST( $
                                 1, $ ;1773
                                 1)   ;1789
                                       
+cAP__iu_pot_tids = LIST(!NULL, $
+                        !NULL, $
+                        '1997-02-01/'+[['09:26:13','09:26:28'], $
+                                      ['09:26:57','09:27:07']], $
+                        !NULL)
+
+
+
   ;; Any necessary mods to kappa_mpfit_paramInfo?
   @common__kappa_mpfit_paraminfo.pro
 

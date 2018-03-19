@@ -247,6 +247,7 @@ PRO JOURNAL__20180216__THE_CLASSICS__RESPOND_AGAIN_TO_REFEREE__LINEAR_ENERGY_SHI
                T_plusMinusFac_for_pot  : 0L, $
                use_peak_en_for_downPot : 1B, $
                add_iu_pot : N_ELEMENTS(cAP__add_iu_pot) GT 0 ? (N_ELEMENTS(cAP__add_iu_pot[evtNum]) GT 0 ? cAP__add_iu_pot[evtNum] : 1) : 1, $
+               iu_pot_tids : N_ELEMENTS(cAP__iu_pot_tids) GT 0 ? (N_ELEMENTS(cAP__iu_pot_tids[evtNum]) GT 0 ? cAP__iu_pot_tids[evtNum] : 1) : 1, $
                tRanges : cAP_tRanges_list[evtNum], $
                ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
                moment_energyArr : [[energy_electrons],[energy_electrons],[100,2.4e4]], $

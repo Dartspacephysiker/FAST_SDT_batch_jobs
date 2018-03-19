@@ -10,7 +10,7 @@
   COMPILE_OPT IDL2,STRICTARRSUBS
 
   ;; manual_remake_masterFile = 0
-  ;; manual_restore_fitFile   = 0
+  ;; manual_restore_fitFile   = 1
 
   batch_mode = 1
   routName = 'JOURNAL__20180302__WARMUP_TO_AUTOMATION'
@@ -157,6 +157,20 @@
      energy_electrons[0] = majicEnergy
      min_peak_energy     = majicEnergy
      min_peak_energyArr  = [majicEnergy,1E2,1E2]
+  ENDIF
+
+  IF orbit EQ 2968 THEN BEGIN
+
+     majicEnergy         = 1.1E3
+     energy_electrons[0] = majicEnergy
+     min_peak_energy     = majicEnergy
+     min_peak_energyArr  = [majicEnergy,1E2,700]
+     max_peak_energyArr  = [2e4,2e4,4E3]
+
+     cAP__iu_pot_tids    = '1997-05-22/' + [['22:39:30','22:40:05'], $
+                                            ['22:40:15','22:40:26'], $
+                                            ['22:40:32','22:40:45']]
+
   ENDIF
 
   ;;survey window
