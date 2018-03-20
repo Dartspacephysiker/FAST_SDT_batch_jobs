@@ -71,6 +71,23 @@
      majicInterval = 0
   ENDIF
 
+  IF orbit EQ 1835 THEN BEGIN
+     tmpDate     = '1997-02-07/'
+     eeb_or_ees  = 'eeb'
+
+     cAP_tRanges = tmpDate + ['03:02:03','03:02:19']
+     ;; cAP__iu_pot_tids = tmpDate + ['07:14:22.5','07:14:38']
+     cAP__iu_pot_tids = tmpDate + ['03:02:06','03:02:18.5']
+
+     t1Str = cAP_tRanges[0]
+     t2Str = cAP_tRanges[1]
+     t1    = S2T(t1Str)
+     t2    = S2T(t2Str)
+     
+     spectra_average_interval = 4
+
+  ENDIF
+
   t1Str        = T2S(t1,/MS)
   t2Str        = T2S(t2,/MS)
   PRINT,t1Str
@@ -159,10 +176,34 @@
      min_peak_energyArr  = [8E1,1E2,1E2]
   ENDIF
 
+  IF orbit EQ 1612 THEN BEGIN
+     
+     majicEnergy         = 6E1
+     energy_electrons[0] = majicEnergy
+     min_peak_energy     = majicEnergy
+     min_peak_energyArr  = [majicEnergy,1E2,2E1]
+     max_peak_energyArr  = [1E4,2e4,1.2E3]
+
+     cAP__iu_pot_tids = '1997-01-17/' + [['12:00:27.5','12:00:38'], $
+                                         ['12:00:40.5','12:00:48'], $
+                                         ['12:01:18.5','12:01:30'], $
+                                         ['12:01:36','12:01:37.5']]
+  ENDIF
+
   IF orbit EQ 1694 THEN BEGIN
      energy_electrons[0] = 1E2
      min_peak_energy     = 1E2
      min_peak_energyArr  = [1E2,1E2,1E2]
+  ENDIF
+
+  IF orbit EQ 1835 THEN BEGIN
+
+     majicEnergy = 6E2
+     energy_electrons[0] = majicEnergy
+     min_peak_energy     = majicEnergy
+     min_peak_energyArr  = [majicEnergy,1E2,5E1]
+     max_peak_energyArr  = [2e4,2e4,2E3]
+
   ENDIF
 
   IF orbit EQ 1945 THEN BEGIN
@@ -259,7 +300,7 @@
   ENDIF
 
   ;;survey window
-  eeb_or_ees           = 'ees'
+  eeb_or_ees           = N_ELEMENTS(eeb_or_ees) GT 0 ? eeb_or_ees : 'ees'
   spectra_average_interval = N_ELEMENTS(spectra_average_interval) GT 0 ? spectra_average_interval : 2
 
   ;;Thresholds for inclusion

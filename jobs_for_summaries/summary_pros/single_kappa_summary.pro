@@ -402,7 +402,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
      GET_DATA,'dB_fac_v',data=data
      IF SIZE(data,/TYPE) NE 8 THEN $
-        UCLA_MAG_DESPIN,tw_mat=tw_mat,orbit=orbit,spin_axis=spin_axis,delta_phi=delta_phi
+        UCLA_MAG_DESPIN,tw_mat=tw_mat,orbit=orbit,spin_axis=spin_axis,delta_phi=delta_phi,/QUIET
 
   ENDIF ELSE BEGIN
 
