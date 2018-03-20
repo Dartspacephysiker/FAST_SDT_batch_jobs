@@ -19,7 +19,7 @@
 ;*****************************
 ;Put code here:
 
-JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit,/NOCURPOTPLOTSPLEASE,/BATCH_MODE
+JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit,/NOCURPOTPLOTSPLEASE,/BOTH_RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE,/BATCH_MODE
 
 IF N_ELEMENTS(orbit GT 0) THEN SPAWN,"cat outIDL.findlowkappa_wrapper.pro errIDL.findlowkappa_wrapper.pro > /SPENCEdata/software/sdt/batch_jobs/txtOutput/findlowkappa/" + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + "-Orbit_" + STRING(FORMAT='(I0)',orbit) + ".txt"
 

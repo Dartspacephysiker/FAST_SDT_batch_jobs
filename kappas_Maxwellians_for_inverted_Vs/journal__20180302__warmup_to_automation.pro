@@ -53,6 +53,10 @@
      ;;More stuff for orbit 1607 below
   ENDIF
 
+  IF orbit EQ 3931 OR orbit EQ 3218 THEN BEGIN
+     t1 += 25
+  ENDIF
+
   ;; 2018/03/14 For maybe-super-low low kappa
   IF orbit EQ 1945 THEN BEGIN
      tmpDate     = '1997-02-17/'
@@ -192,6 +196,28 @@
 
   ENDIF
 
+  IF orbit EQ 3368 THEN BEGIN
+
+     majicEnergy         = 200.
+     energy_electrons[0] = majicEnergy
+     min_peak_energy     = majicEnergy
+     min_peak_energyArr  = [majicEnergy,1E2,700]
+
+     spectra_average_interval = 4
+
+  ENDIF
+
+  IF orbit EQ 2685 THEN BEGIN
+
+     majicEnergy         = 80.
+     energy_electrons[0] = majicEnergy
+     min_peak_energy     = majicEnergy
+     min_peak_energyArr  = [majicEnergy,1E2,700]
+
+     spectra_average_interval = 1
+
+  ENDIF
+
   IF orbit EQ 1694 THEN BEGIN
      
      majicEnergy         = 280
@@ -209,13 +235,36 @@
 
   ENDIF
 
+  IF orbit EQ 3218 THEN BEGIN
+
+     majicEnergy         = 70.
+     energy_electrons[0] = majicEnergy
+     min_peak_energy     = majicEnergy
+     min_peak_energyArr  = [majicEnergy,1E2,100]
+     ;; max_peak_energyArr  = [2e4,2e4,4E3]
+
+  ENDIF
+
+  IF orbit EQ 3760 THEN BEGIN
+     
+     majicEnergy         = 80.
+     energy_electrons[0] = majicEnergy
+     min_peak_energy     = majicEnergy
+     min_peak_energyArr  = [majicEnergy,1E2,100]
+
+     tmpDate             = '1997-08-04/'
+     cAP_tRanges = tmpDate + [['03:49:50','03:50:02'], $
+                              ['03:50:38','03:50:49']]
+
+  ENDIF
+
   ;;survey window
   eeb_or_ees           = 'ees'
   spectra_average_interval = N_ELEMENTS(spectra_average_interval) GT 0 ? spectra_average_interval : 2
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
-  chi2_over_dof_thresh = 60
+  chi2_over_dof_thresh = 100
   lowDens_thresh       = 0.05
   diffEflux_thresh     = 3D6
   nPkAbove_dEF_thresh  = 3
