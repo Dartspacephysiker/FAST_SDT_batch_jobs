@@ -1,18 +1,21 @@
 ;2018/03/02
  PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
-    RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE=restore_fitFile_and_no_remake_jv_masterfile, $
+    BOTH_RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE=both_restore_fitFile_and_no_remake_jv_masterfile, $
+    RESTORE_FITFILE=restore_fitFile, $
+    RESTORE_JV_MASTERFILE=restore_jv_masterFile, $
     NO1DPLOTSPLEASE=no1DPlotsPlease, $
     NOSTRANGEWAYSUMMARY=noStrangewaySummary, $
     NOKAPPASUMMARY=noKappaSummary, $
     NOCURPOTPLOTSPLEASE=noCurPotPlotsPlease, $
-    ONLY_SOUTH=only_south
+    ONLY_SOUTH=only_south, $
+    BATCH_MODE=batch_mode
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
-  ;; manual_remake_masterFile = 0
+  ;; manual_restore_masterFile = 0
   ;; manual_restore_fitFile   = 1
 
-  batch_mode = 1
+  ;; batch_mode = 1
   routName = 'JOURNAL__20180302__WARMUP_TO_AUTOMATION'
 
   ;;get orbTimes here
@@ -128,7 +131,13 @@
 
   save_diff_eFlux_file = 1
   load_diff_eFlux_file = 1
-  restore_fitFile      = (N_ELEMENTS(manual_restore_fitFile) GT 0 ? manual_restore_fitFile : KEYWORD_SET(restore_fitFile_and_no_remake_jv_masterfile))
+  ;; restore_fitFile      = (N_ELEMENTS(manual_restore_fitFile) GT 0 ? manual_restore_fitFile : KEYWORD_SET(both_restore_fitFile_and_no_remake_jv_masterfile))
+  restore_fitFile      = KEYWORD_SET(manual_restore_fitFile) OR $
+                         KEYWORD_SET(restore_fitFile       ) OR $
+                         KEYWORD_SET(both_restore_fitFile_and_no_remake_jv_masterfile)
+  restore_jv_masterFile = KEYWORD_SET(manual_restore_masterFile) OR $
+                          KEYWORD_SET(restore_jv_masterFile    ) OR $
+                          KEYWORD_SET(both_restore_fitFile_and_no_remake_jv_masterfile)
 
   jv_theor__also_eFlux = 0
   jv_theor__only_eFlux = 0
@@ -170,12 +179,39 @@
      cAP__iu_pot_tids    = '1997-05-22/' + [['22:39:30','22:40:05'], $
                                             ['22:40:15','22:40:26'], $
                                             ['22:40:32','22:40:45']]
+  ENDIF
+
+  IF orbit EQ 3167 THEN BEGIN
+
+     majicEnergy         = 300
+     energy_electrons[0] = majicEnergy
+     min_peak_energy     = majicEnergy
+     min_peak_energyArr  = [majicEnergy,1E2,700]
+
+     spectra_average_interval = 6
+
+  ENDIF
+
+  IF orbit EQ 1694 THEN BEGIN
+     
+     majicEnergy         = 280
+     energy_electrons[0] = majicEnergy
+     min_peak_energy     = majicEnergy
+     min_peak_energyArr  = [majicEnergy,1E2,100]
+     max_peak_energyArr  = [2e4,2e4,4E3]
+
+     cAP__iu_pot_tids    = '1997-01-25/' + [['02:02:00','02:02:27.5'], $
+                                            ['02:02:58','02:03:33']]
+
+     cAP_tRanges         = cAP__iu_pot_tids
+
+     spectra_average_interval = 4
 
   ENDIF
 
   ;;survey window
   eeb_or_ees           = 'ees'
-  spectra_average_interval = 2
+  spectra_average_interval = N_ELEMENTS(spectra_average_interval) GT 0 ? spectra_average_interval : 2
 
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
@@ -195,8 +231,11 @@
   cAP__iu_pot_tids          = N_ELEMENTS(cAP__iu_pot_tids) GT 0 ? cAP__iu_pot_tids : 0
   cAP__add_iu_pot           = KEYWORD_SET(cAP__iu_pot_tids)
 
+  ;; remake_masterFile         = (N_ELEMENTS(manual_restore_masterFile) GT 0 ? ~manual_restore_masterFile : $
+  ;;                              ~(KEYWORD_SET(both_restore_fitFile_and_no_remake_jv_masterfile) $
+  ;;                                OR ~KEYWORD_SET(restore_jv_masterFile)))
   cAP_struct = { $
-               remake_masterFile : (N_ELEMENTS(manual_remake_masterFile) GT 0 ? manual_remake_masterFile : ~KEYWORD_SET(restore_fitFile_and_no_remake_jv_masterfile)), $
+               remake_masterFile : ~restore_jv_masterFile, $
                map_to_100km : 1, $
                use_all_currents : 0B, $
                use_ed_current : 1B, $

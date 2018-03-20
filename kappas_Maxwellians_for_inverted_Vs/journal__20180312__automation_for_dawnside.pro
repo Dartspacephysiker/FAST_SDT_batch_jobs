@@ -6,14 +6,15 @@ PRO JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE,orbit, $
    NOKAPPASUMMARY=noKappaSummary, $
    NOCURPOTPLOTSPLEASE=noCurPotPlotsPlease, $
    DO_2DPLOTS=do_2DPlots, $
-   DO_2D__JUSTDATA=do_2D__justData
+   DO_2D__JUSTDATA=do_2D__justData, $
+   BATCH_MODE=batch_mode
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
   ;; manual_remake_masterFile = 0
   ;; manual_restore_fitFile   = 0
 
-  batch_mode = 1
+  ;; batch_mode = 1
   routName = 'JOURNAL__20180312__AUTOMATION_FOR_DAWNSIDE'
 
   ;;get orbTimes here

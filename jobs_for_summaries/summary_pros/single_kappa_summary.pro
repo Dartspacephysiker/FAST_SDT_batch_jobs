@@ -1145,7 +1145,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      N_ELEMENTS(WHERE(kappa2D.chi2/(kappa2D.dof+kappa2D.nFree) LT 1.2))) $
      / N_ELEMENTS(kappa2D.chi2) GT .25 THEN BEGIN
      showLog_chi2 = 1
-     chi2Bounds[0] = 0.01
+     chi2Bounds[0] = 0.1
      ;; chi2Bounds[1] += chi2Bounds[1]
   ENDIF
 
