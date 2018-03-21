@@ -38,6 +38,8 @@
 
   cAP_tRanges  = [t1Str,t2Str]
 
+  IF orbit EQ 1612 THEN addSec_on_either_side = 0 ;;More stuff below for this orbit!
+
   ;; Now add some buffer time to the sides
   t1  = S2T(t1Str)
   t2  = S2T(t2Str)
@@ -178,16 +180,26 @@
 
   IF orbit EQ 1612 THEN BEGIN
      
-     majicEnergy         = 6E1
+     majicEnergy         = 1E2
      energy_electrons[0] = majicEnergy
      min_peak_energy     = majicEnergy
      min_peak_energyArr  = [majicEnergy,1E2,2E1]
      max_peak_energyArr  = [1E4,2e4,1.2E3]
 
+     use_peakE_bounds_for_moment_calc = [1,0,0]
+     peakE_bounds_indShift = [-2,0]
+
      cAP__iu_pot_tids = '1997-01-17/' + [['12:00:27.5','12:00:38'], $
                                          ['12:00:40.5','12:00:48'], $
-                                         ['12:01:18.5','12:01:30'], $
+                                         ['12:01:19.0','12:01:30'], $
                                          ['12:01:36','12:01:37.5']]
+     cAP_tRanges = '1997-01-17/' + [['12:01:24.3','12:01:28.76'], $
+                                    ['12:01:33.1','12:01:35.7']]
+
+     spectra_average_interval = 1
+     cAP_tRanges = '1997-01-17/' + [['12:01:17','12:01:20'], $
+                                    ['12:01:24.9','12:01:29.8']]
+
   ENDIF
 
   IF orbit EQ 1694 THEN BEGIN
@@ -340,6 +352,7 @@
                tRanges : cAP_tRanges, $
                ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
                moment_energyArr : [[energy_electrons],[energy_electrons],[100,2.4e4]], $
+               ;; use_peakE_bounds_for_moment_calc : 1B, $
                plot_j_v_potBar : 0B, $
                plot_jv_a_la_Elphic : daPlots_cAP, $
                plot_T_and_N : 0B, $
@@ -369,7 +382,7 @@
                aRange__temp_e_down         : fit2D__temperature_angleRange, $
                ;; eRange__temp_list         :, $
                use_energies_above_peak_for_temp : [1,0,0], $
-               ;; msph_sourcecone_halfWidth : 150, $
+               msph_sourcecone_halfWidth : 30, $
                ;; msph_sourcecone_halfWidth : msph_sourcecone_halfWidth, $
                all_pitchAngles : 0, $
                allPitch_except_atm_lc : 0, $
@@ -388,6 +401,14 @@
   
   IF KEYWORD_SET(max_peak_energyArr) THEN BEGIN
      STR_ELEMENT,cAP_struct,'max_peak_energyArr',max_peak_energyArr,/ADD_REPLACE
+  ENDIF
+  
+  IF KEYWORD_SET(use_peakE_bounds_for_moment_calc) THEN BEGIN
+     STR_ELEMENT,cAP_struct,'use_peakE_bounds_for_moment_calc',use_peakE_bounds_for_moment_calc,/ADD_REPLACE
+  ENDIF
+  
+  IF KEYWORD_SET(peakE_bounds_indShift) THEN BEGIN
+     STR_ELEMENT,cAP_struct,'peakE_bounds_indShift',peakE_bounds_indShift,/ADD_REPLACE
   ENDIF
   
   IF KEYWORD_SET(aRange__dens_e_down) THEN BEGIN
