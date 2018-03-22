@@ -2,6 +2,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          TPLT_VARS=tPlt_vars, $
                          EEB_OR_EES=eeb_OR_ees, $
                          ENERGY_ELECTRONS=energy_electrons, $
+                         ENERGY_ELECTRON_TBOUNDS=energy_electron_tBounds, $
                          ELECTRON_ANGLERANGE=electron_angleRange, $
                          TLIMIT_NORTH=tlimit_north, $
                          TLIMIT_SOUTH=tlimit_south, $

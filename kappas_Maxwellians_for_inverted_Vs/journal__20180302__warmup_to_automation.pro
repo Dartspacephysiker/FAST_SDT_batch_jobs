@@ -180,25 +180,45 @@
 
   IF orbit EQ 1612 THEN BEGIN
      
-     majicEnergy         = 1E2
+     dato = '1997-01-17/'
+
+     majicEnergy         = 60. ;50 is too low; I tried it 
      energy_electrons[0] = majicEnergy
+
+     edgeries            = [300.,90.,40.,65.]
+
+     energy_electrons    = [[300,energy_electrons[1]], $
+                            [90,energy_electrons[1]], $
+                            [40,energy_electrons[1]], $
+                            [65,energy_electrons[1]]]
+
+     energy_electron_tBounds = dato + [['12:00:25','12:00:45'], $ ;lb is 300
+                                       ['12:00:45','12:01:15'], $ ;lb is 90
+                                       ['12:01:15','12:01:17'], $ ;lb is 40
+                                       ['12:01:17','12:01:50']] ;lb is 65
+
      min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,2E1]
-     max_peak_energyArr  = [1E4,2e4,1.2E3]
+     min_peak_energyArr  = [majicEnergy,1E2,5E0]
+     max_peak_energyArr  = [1E4,2e4,1.0E3]
+
+     min_peak_energy_tStruct = {tBounds : energy_electron_tBounds, $
+                                energy  : edgeries, $
+                                forWhom : MAKE_ARRAY(N_ELEMENTS(edgeries),VALUE=0)}
 
      use_peakE_bounds_for_moment_calc = [1,0,0]
      peakE_bounds_indShift = [-2,0]
 
-     cAP__iu_pot_tids = '1997-01-17/' + [['12:00:27.5','12:00:38'], $
+     cAP__iu_pot_tids = dato + [['12:00:27.5','12:00:38'], $
                                          ['12:00:40.5','12:00:48'], $
+                                         ['12:01:09.0','12:01:13'], $
                                          ['12:01:19.0','12:01:30'], $
-                                         ['12:01:36','12:01:37.5']]
-     cAP_tRanges = '1997-01-17/' + [['12:01:24.3','12:01:28.76'], $
-                                    ['12:01:33.1','12:01:35.7']]
+                                         ['12:01:36','12:01:38']]
+     ;; cAP_tRanges = dato + [['12:01:24.3','12:01:28.76'], $
+     ;;                                ['12:01:33.1','12:01:35.7']]
 
-     spectra_average_interval = 1
-     cAP_tRanges = '1997-01-17/' + [['12:01:17','12:01:20'], $
-                                    ['12:01:24.9','12:01:29.8']]
+     spectra_average_interval = 3
+     cAP_tRanges = dato + [['12:01:10.7','12:01:15.2'], $
+                                    ['12:01:21.1','12:01:29.4']]
 
   ENDIF
 
@@ -395,6 +415,14 @@
                in_bonusPref                        : bonusPref, $
                plots_in_buffer                     : 1}
 
+  IF KEYWORD_SET(min_peak_energy_tStruct) THEN BEGIN
+     STR_ELEMENT,cAP_struct,'min_peak_energy_tStruct',min_peak_energy_tStruct,/ADD_REPLACE
+  ENDIF
+
+  IF KEYWORD_SET(max_peak_energy_tStruct) THEN BEGIN
+     STR_ELEMENT,cAP_struct,'max_peak_energy_tStruct',max_peak_energy_tStruct,/ADD_REPLACE
+  ENDIF
+
   IF KEYWORD_SET(min_peak_energyArr) THEN BEGIN
      STR_ELEMENT,cAP_struct,'min_peak_energyArr',min_peak_energyArr,/ADD_REPLACE
   ENDIF
@@ -434,6 +462,7 @@
                         ;; ELECTRON_LOSSCONEANGLE=electron_lca, $
                         MANUAL_ANGLE_CORRECTION=manual_angle_correction, $
                         ENERGY_ELECTRONS=energy_electrons, $
+                        ENERGY_ELECTRON_TBOUNDS=energy_electron_tBounds, $
                         UPGOING=upgoing, $
                         MIN_PEAK_ENERGY=min_peak_energy, $
                         MAX_PEAK_ENERGY=max_peak_energy, $
