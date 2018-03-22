@@ -124,7 +124,7 @@
   fit2D__estimate_sourceCone_from_dist = 0B
   fit2D__extend_fitStruct_eRange    = 0 ;to 50 keV, je crois?
 
-  fit2D__temperature_type  = 'AVG' ;or 'AVG'
+  fit2D__temperature_type  = 'PAR' ;or 'AVG'
   ;;PostScript options
   timeBars                 = 1
 
@@ -192,13 +192,15 @@
                             [40,energy_electrons[1]], $
                             [65,energy_electrons[1]]]
 
+     moment_energyArr    = [[energy_electrons],[energy_electrons],[10,2.4e4]]
+
      energy_electron_tBounds = dato + [['12:00:25','12:00:45'], $ ;lb is 300
                                        ['12:00:45','12:01:15'], $ ;lb is 90
                                        ['12:01:15','12:01:17'], $ ;lb is 40
                                        ['12:01:17','12:01:50']] ;lb is 65
 
      min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,5E0]
+     min_peak_energyArr  = [majicEnergy,1E2,1E1]
      max_peak_energyArr  = [1E4,2e4,1.0E3]
 
      min_peak_energy_tStruct = {tBounds : energy_electron_tBounds, $
@@ -211,12 +213,12 @@
      cAP__iu_pot_tids = dato + [['12:00:27.5','12:00:38'], $
                                          ['12:00:40.5','12:00:48'], $
                                          ['12:01:09.0','12:01:13'], $
-                                         ['12:01:19.0','12:01:30'], $
-                                         ['12:01:36','12:01:38']]
+                                         ['12:01:18.5','12:01:30'], $
+                                         ['12:01:33.5','12:01:38']]
      ;; cAP_tRanges = dato + [['12:01:24.3','12:01:28.76'], $
      ;;                                ['12:01:33.1','12:01:35.7']]
 
-     spectra_average_interval = 3
+     spectra_average_interval = 2
      cAP_tRanges = dato + [['12:01:10.7','12:01:15.2'], $
                                     ['12:01:21.1','12:01:29.4']]
 
@@ -371,7 +373,8 @@
                iu_pot_tids : cAP__iu_pot_tids, $
                tRanges : cAP_tRanges, $
                ;; moment_energyArr : [[100,3.0e4],[100,3.0e4],[100,2.4e4]]
-               moment_energyArr : [[energy_electrons],[energy_electrons],[100,2.4e4]], $
+               moment_energyArr : N_ELEMENTS(moment_energyArr) GT 0 ? moment_energyArr : $
+               [[energy_electrons],[energy_electrons],[100,2.4e4]], $
                ;; use_peakE_bounds_for_moment_calc : 1B, $
                plot_j_v_potBar : 0B, $
                plot_jv_a_la_Elphic : daPlots_cAP, $

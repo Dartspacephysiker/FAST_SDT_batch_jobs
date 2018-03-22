@@ -25,6 +25,8 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                        LOWDENSITY_THRESHOLD=lowDens_thresh, $
                        DIFFEFLUX_THRESHOLD=diffEflux_thresh, $
                        N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
+                       ION_ANGLERANGE=ion_angleRange, $
+                       ION_ENERGYRANGE=ion_energyRange, $
                        SAVE_PS=save_ps, $
                        SAVE_PNG=save_png, $
                        EPS=eps, $
@@ -345,7 +347,13 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 ; ION PITCH ANGLE
 
      var_name='Iesa_Angle'
-     get_pa_spec,'fa_' + ieb_or_ies + '_c',units='eflux',name=var_name,energy=[4.,30000.]
+     ion_ER = KEYWORD_SET(ion_energyRange) ? ion_energyRange : [4.,30000.]
+     get_pa_spec,'fa_' + ieb_or_ies + '_c', $
+                 units='eflux', $
+                 name=var_name, $
+                 energy=ion_ER, $
+                 /RETRACE, $
+                 /CALIB
      get_data,var_name, data=data
      data.y = alog10(data.y)
      store_data,var_name, data=data
@@ -356,7 +364,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
              (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
      ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
      ylim,var_name,0,360,0
-     options,var_name,'ytitle','Ions!C!CAngle (Deg.)'
+     options,var_name,'ytitle','Ions > ' + STRING(FORMAT='(I0)',ion_ER[0]) + ' eV!C!CAngle (Deg.)'
      options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
      options,var_name,'x_no_interp',1
      options,var_name,'y_no_interp',1
@@ -399,7 +407,12 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 ; ION ENERGY 
 
      var_name='Iesa_Energy'
-     get_en_spec,'fa_' + ieb_or_ies + '_c',name=var_name, units='eflux',/CALIB,RETRACE=1
+     get_en_spec,'fa_' + ieb_or_ies + '_c', $
+                 name=var_name, $
+                 units='eflux', $
+                 ANGLE=ion_angleRange, $
+                 /CALIB, $
+                 RETRACE=1
      get_data,var_name, data=data
      data.y = alog10(data.y)
      store_data,var_name, data=data
@@ -410,7 +423,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
           (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
           (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
      ylim,var_name,4,30000,1
-     options,var_name,'ytitle','Ions!C!CEnergy (eV)'
+     options,var_name,'ytitle','Loss-cone Ions!C!CEnergy (eV)'
      options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
      options,var_name,'x_no_interp',1
      options,var_name,'y_no_interp',1
