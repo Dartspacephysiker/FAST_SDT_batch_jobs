@@ -1,14 +1,15 @@
 ;2018/03/02
- PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
-    BOTH_RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE=both_restore_fitFile_and_no_remake_jv_masterfile, $
-    RESTORE_FITFILE=restore_fitFile, $
-    RESTORE_JV_MASTERFILE=restore_jv_masterFile, $
-    NO1DPLOTSPLEASE=no1DPlotsPlease, $
-    NOSTRANGEWAYSUMMARY=noStrangewaySummary, $
-    NOKAPPASUMMARY=noKappaSummary, $
-    NOCURPOTPLOTSPLEASE=noCurPotPlotsPlease, $
-    ONLY_SOUTH=only_south, $
-    BATCH_MODE=batch_mode
+PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
+   BOTH_RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE=both_restore_fitFile_and_no_remake_jv_masterfile, $
+   RESTORE_FITFILE=restore_fitFile, $
+   RESTORE_JV_MASTERFILE=restore_jv_masterFile, $
+   NO1DPLOTSPLEASE=no1DPlotsPlease, $
+   NOSTRANGEWAYSUMMARY=noStrangewaySummary, $
+   NOKAPPASUMMARY=noKappaSummary, $
+   NOCURPOTPLOTSPLEASE=noCurPotPlotsPlease, $
+   ONLY_SOUTH=only_south, $
+   MIN_ALTITUDE=min_altitude, $
+   BATCH_MODE=batch_mode
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -33,6 +34,16 @@
 
   IF KEYWORD_SET(only_south) AND ILAT GT 0 THEN BEGIN
      PRINT,"Sorry, this orbit is in the Norf"
+     RETURN
+  ENDIF
+
+  IF KEYWORD_SET(min_altitude) THEN IF ALT LT min_altitude THEN BEGIN
+     PRINT,FORMAT='(A0,I0,A0,I0,A0)', $
+           "Sorry, the altitude of this pass (", $
+           ALT, $
+           " km) is below the thresh @ ", $
+           min_altitude, $
+           " km. Returning!"
      RETURN
   ENDIF
 
@@ -145,7 +156,7 @@
   kSum__chi2Bounds    = [0.,15.]
 
   kSum__convert_to_Newell_interp = 1
-  kSum__add_chi2_line = 5 ;give value at which you'd like line
+  kSum__add_chi2_line = 5       ;give value at which you'd like line
   kSum__add_meas_T_and_N = 1
   kSum__GRL           = 1
   kSum__oPlot_pot     = 1
@@ -182,7 +193,7 @@
      
      dato = '1997-01-17/'
 
-     majicEnergy         = 60. ;50 is too low; I tried it 
+     majicEnergy         = 60.  ;50 is too low; I tried it 
      energy_electrons[0] = majicEnergy
 
      edgeries            = [300.,90.,40.,65.]
@@ -197,7 +208,7 @@
      energy_electron_tBounds = dato + [['12:00:25','12:00:45'], $ ;lb is 300
                                        ['12:00:45','12:01:15'], $ ;lb is 90
                                        ['12:01:15','12:01:17'], $ ;lb is 40
-                                       ['12:01:17','12:01:50']] ;lb is 65
+                                       ['12:01:17','12:01:50']]   ;lb is 65
 
      min_peak_energy     = majicEnergy
      min_peak_energyArr  = [majicEnergy,1E2,1E1]
@@ -211,16 +222,16 @@
      peakE_bounds_indShift = [-2,0]
 
      cAP__iu_pot_tids = dato + [['12:00:27.5','12:00:38'], $
-                                         ['12:00:40.5','12:00:48'], $
-                                         ['12:01:09.0','12:01:13'], $
-                                         ['12:01:18.5','12:01:30'], $
-                                         ['12:01:33.5','12:01:38']]
+                                ['12:00:40.5','12:00:48'], $
+                                ['12:01:09.0','12:01:13'], $
+                                ['12:01:18.5','12:01:30'], $
+                                ['12:01:33.5','12:01:38']]
      ;; cAP_tRanges = dato + [['12:01:24.3','12:01:28.76'], $
      ;;                                ['12:01:33.1','12:01:35.7']]
 
      spectra_average_interval = 2
      cAP_tRanges = dato + [['12:01:10.7','12:01:15.2'], $
-                                    ['12:01:21.1','12:01:29.4']]
+                           ['12:01:21.1','12:01:29.4']]
 
   ENDIF
 
