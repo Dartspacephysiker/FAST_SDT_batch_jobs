@@ -344,6 +344,45 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   ENDIF
 
+  IF orbit EQ 5624 THEN BEGIN
+     
+     dato = '1998-01-23/'
+
+     majicEnergy         = 60.  ;50 is too low; I tried it 
+     energy_electrons[0] = majicEnergy
+
+     edgeries            = [30.,150.]
+
+     energy_electrons    = [[edgeries[0],energy_electrons[1]], $
+                            [edgeries[1],energy_electrons[1]]]
+
+     moment_energyArr    = [[energy_electrons],[energy_electrons],[10,2.4e4]]
+
+     energy_electron_tBounds = dato + [['08:23:58','08:24:01.4'], $ ;lb is 30
+                                       ['08:24:01.4','08:25:40']]   ;lb is 150.
+
+     min_peak_energy     = majicEnergy
+     min_peak_energyArr  = [majicEnergy,1E2,1E1]
+     ;; max_peak_energyArr  = [1E4,2e4,1.0E3]
+
+     min_peak_energy_tStruct = {tBounds : energy_electron_tBounds, $
+                                energy  : edgeries, $
+                                forWhom : MAKE_ARRAY(N_ELEMENTS(edgeries),VALUE=0)}
+
+     use_peakE_bounds_for_moment_calc = [1,0,0]
+     peakE_bounds_indShift = [-1,0]
+
+     cAP__iu_pot_tids = dato + [['08:24:04','08:24:34.8'], $
+                                ['08:24:50','08:24:57.5'], $
+                                ['08:25:04.9','08:25:30']]
+     ;; cAP_tRanges = dato + [['12:01:24.3','12:01:28.76'], $
+     ;;                                ['12:01:33.1','12:01:35.7']]
+
+     spectra_average_interval = 2
+     cAP_tRanges = dato + [['08:24:04','08:24:34.8']]
+
+  ENDIF
+
   ;;survey window
   eeb_or_ees           = N_ELEMENTS(eeb_or_ees) GT 0 ? eeb_or_ees : 'ees'
   spectra_average_interval = N_ELEMENTS(spectra_average_interval) GT 0 ? spectra_average_interval : 2
