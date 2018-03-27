@@ -13,11 +13,14 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
+;; dummy=LABEL_DATE(DATE_FORMAT=['%I:%S']) & times = UTC_TO_JULDAY(curPotList[0].time) & window=WINDOW(DIMENSIONS=[1000,800]) & magcplot = plot(times,magcurrent,NAME='Magnetometer',TITLE='Current obs beginning ' + T2S(curPotList[0].time[0],/MS),XTICKFORMAT='LABEL_DATE',XTICKUNITS='Time',XRANGE=xRange,XTITLE='Tid',/CURRENT,XTICKLEN=1.0,YTICKLEN=1.0,XSUBTICKLEN=0.01,YSUBTICKLEN=0.01) & downE=PLOT(times,curPotList[0].cur,NAME='Downward e!U-!N',COLOR='BLUE',/OVERPLOT) & allcurplot=PLOT(times,curPotList[0].cur+curPotList[1].cur+curPotList[2].cur,NAME='All',LINESTYLE='--',COLOR='RED',XTICKFORMAT='LABEL_DATE',/OVERPLOT) & ionPlot=PLOT(times,curPotList[2].cur,NAME='Upward i!U+!N',LINESTYLE='-.',COLOR='Green',THICK=2,XTICKFORMAT='LABEL_DATE',/OVERPLOT) & axes=magcplot.axes & axes[0].major=ROUND((xRange[1]-xRange[0])*24*60*60/15.)+1 & axes[0].minor=2 & axes[2].major = axes[0].major & axes[2].minor = axes[0].minor & legend=LEGEND(TARGET=[magcplot,downE,allcurplot,ionPlot])
+
   ;; manual_restore_masterFile = 0
   ;; manual_restore_fitFile   = 1
 
   ;; batch_mode = 1
   routName = 'JOURNAL__20180302__WARMUP_TO_AUTOMATION'
+  bonusPref    = '-TESTRUN-20180302'
 
   ;;get orbTimes here
   ;;@journal__20161010__info__janhunen_2001_orbits.pro
@@ -28,8 +31,25 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   addSec_on_either_side             = 20
   only_1D_fits                      = 0
 
+  checkForSkippers = 1
+  nToSkip = 0
+
+  dateToCheck = '20180323'
+  dirForCheck = '/SPENCEdata/software/sdt/batch_jobs/plots/'+dateToCheck+'/kappa_fits/'
+  orbDir = STRING(FORMAT='("Orbit_",I0)',orbit)
+  IF FILE_TEST(dirForCheck+orbDir,/DIRECTORY) AND KEYWORD_SET(checkForSkippers) THEN BEGIN
+
+     skipFiles = FILE_SEARCH(dirForCheck+orbDir,'Kappa_summary--*eps')
+     sFileTids = STRMID(skipFiles, $
+                        STRLEN(dirForCheck+orbDir+'/'+'Kappa_summary--'+STRING(FORMAT='(I0)',orbit)+bonusPref+'--'), $
+                        8)
+     nToSkip = N_ELEMENTS(UNIQ(sFileTids,SORT(sFileTids)))
+
+  ENDIF
+
   READ_KAPPA_BATCH_SETUP_FILE, $
      orbit,MLT,ILAT,ALT,t1Str,t2Str,t_streakLen,nPts,dt_avg,avg_current, $
+     NTOSKIP=nToSkip, $
      /PRINT_SUMMARY
 
   IF KEYWORD_SET(only_south) AND ILAT GT 0 THEN BEGIN
@@ -49,7 +69,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   cAP_tRanges  = [t1Str,t2Str]
 
-  IF orbit EQ 1612 THEN addSec_on_either_side = 0 ;;More stuff below for this orbit!
+  IF orbit EQ 1612 AND nToSkip EQ 0 THEN addSec_on_either_side = 0 ;;More stuff below for this orbit!
 
   ;; Now add some buffer time to the sides
   t1  = S2T(t1Str)
@@ -58,7 +78,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   t2 += addSec_on_either_side
 
   ;; 2018/03/12 For super low kappa
-  IF orbit EQ 1607 THEN BEGIN
+  IF orbit EQ 1607 AND nToSkip EQ 0 THEN BEGIN
      tmpDate     = '1997-01-17/'
      t1          = S2T(tmpDate + '01:03:50')
      t2          = S2T(tmpDate + '01:06:15')
@@ -66,12 +86,12 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      ;;More stuff for orbit 1607 below
   ENDIF
 
-  IF orbit EQ 3931 OR orbit EQ 3218 THEN BEGIN
+  IF (orbit EQ 3931 OR orbit EQ 3218) AND nToSkip EQ 0 THEN BEGIN
      t1 += 25
   ENDIF
 
   ;; 2018/03/14 For maybe-super-low low kappa
-  IF orbit EQ 1945 THEN BEGIN
+  IF orbit EQ 1945 AND nToSkip EQ 0 THEN BEGIN
      tmpDate     = '1997-02-17/'
      ;; t1          = S2T(tmpDate + '07:14:15')
      ;; t2          = S2T(tmpDate + '07:15:05')
@@ -84,7 +104,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      majicInterval = 0
   ENDIF
 
-  IF orbit EQ 1835 THEN BEGIN
+  IF orbit EQ 1835 AND nToSkip EQ 0 THEN BEGIN
      tmpDate     = '1997-02-07/'
      eeb_or_ees  = 'eeb'
 
@@ -105,7 +125,6 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   t2Str        = T2S(t2,/MS)
   PRINT,t1Str
   kStats__tids = [t1Str,t2Str]
-  bonusPref    = '-TESTRUN-20180302'
 
   ;; Options
   fit1D__sourceCone_energy_spectrum = 1
@@ -146,6 +165,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
   sway__add_Newell_panel   = 1
+  sway__add_iu_pot         = 1
   sway__log_kappaPlot      = 0
 
   show_kappa_summary  = KEYWORD_SET(noKappaSummary) ? 0 : 1
@@ -183,27 +203,28 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   min_peak_energy      = 300
   max_peak_energy      = !NULL
 
-  IF orbit EQ 1607 THEN BEGIN
+  IF orbit EQ 1607 AND nToSkip EQ 0 THEN BEGIN
      energy_electrons[0] = 8E1
      min_peak_energy     = 8E1
      min_peak_energyArr  = [8E1,1E2,1E2]
   ENDIF
 
-  IF orbit EQ 1612 THEN BEGIN
+  IF orbit EQ 1612 AND nToSkip EQ 0 THEN BEGIN
      
      dato = '1997-01-17/'
 
-     majicEnergy         = 60.  ;50 is too low; I tried it 
+     majicEnergy         = 115.  ;50 is too low; I tried it 
      energy_electrons[0] = majicEnergy
 
-     edgeries            = [300.,90.,40.,65.]
+     ;; edgeries            = [300.,90.,40.,65.]
+     edgeries            = [300.,90.,125.,115.]
 
-     energy_electrons    = [[300,energy_electrons[1]], $
-                            [90,energy_electrons[1]], $
-                            [40,energy_electrons[1]], $
-                            [65,energy_electrons[1]]]
+     energy_electrons    = [[edgeries[0],energy_electrons[1]], $
+                            [edgeries[1],energy_electrons[1]], $
+                            [edgeries[2],energy_electrons[1]], $
+                            [edgeries[3],energy_electrons[1]]]
 
-     moment_energyArr    = [[energy_electrons],[energy_electrons],[10,2.4e4]]
+     moment_energyArr    = [[energy_electrons[*,2]],[energy_electrons[*,2]],[10,2.4e4]]
 
      energy_electron_tBounds = dato + [['12:00:25','12:00:45'], $ ;lb is 300
                                        ['12:00:45','12:01:15'], $ ;lb is 90
@@ -211,7 +232,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
                                        ['12:01:17','12:01:50']]   ;lb is 65
 
      min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,1E1]
+     min_peak_energyArr  = [majicEnergy,1E2,7E0]
      max_peak_energyArr  = [1E4,2e4,1.0E3]
 
      min_peak_energy_tStruct = {tBounds : energy_electron_tBounds, $
@@ -219,29 +240,32 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
                                 forWhom : MAKE_ARRAY(N_ELEMENTS(edgeries),VALUE=0)}
 
      use_peakE_bounds_for_moment_calc = [1,0,0]
-     peakE_bounds_indShift = [-2,0]
+     peakE_bounds_indShift = [-1,0]
 
-     cAP__iu_pot_tids = dato + [['12:00:27.5','12:00:38'], $
-                                ['12:00:40.5','12:00:48'], $
+     cAP__iu_pot_tids = dato + [['12:00:27.5','12:00:39.'], $
+                                ['12:00:40.0','12:00:49'], $
                                 ['12:01:09.0','12:01:13'], $
                                 ['12:01:18.5','12:01:30'], $
-                                ['12:01:33.5','12:01:38']]
+                                ['12:01:32.0','12:01:47']]
      ;; cAP_tRanges = dato + [['12:01:24.3','12:01:28.76'], $
      ;;                                ['12:01:33.1','12:01:35.7']]
 
      spectra_average_interval = 2
-     cAP_tRanges = dato + [['12:01:10.7','12:01:15.2'], $
-                           ['12:01:21.1','12:01:29.4']]
+     ;; cAP_tRanges = dato + [['12:01:10.7','12:01:15.2'], $
+     ;;                       ['12:01:21.1','12:01:29.4']]
+     ;; cAP_tRanges = dato + [['12:01:11','12:01:20']]
+     cAP_tRanges = dato + [['12:00:29.79','12:00:48.7'], $
+                           ['12:01:10.75','12:01:22.125']]
 
   ENDIF
 
-  IF orbit EQ 1694 THEN BEGIN
+  IF orbit EQ 1694 AND nToSkip EQ 0 THEN BEGIN
      energy_electrons[0] = 1E2
      min_peak_energy     = 1E2
      min_peak_energyArr  = [1E2,1E2,1E2]
   ENDIF
 
-  IF orbit EQ 1835 THEN BEGIN
+  IF orbit EQ 1835 AND nToSkip EQ 0 THEN BEGIN
 
      majicEnergy = 6E2
      energy_electrons[0] = majicEnergy
@@ -251,14 +275,14 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   ENDIF
 
-  IF orbit EQ 1945 THEN BEGIN
+  IF orbit EQ 1945 AND nToSkip EQ 0 THEN BEGIN
      majicEnergy = KEYWORD_SET(majicInterval) ? 5E2 : 2E2
      energy_electrons[0] = majicEnergy
      min_peak_energy     = majicEnergy
      min_peak_energyArr  = [majicEnergy,1E2,1E2]
   ENDIF
 
-  IF orbit EQ 2968 THEN BEGIN
+  IF orbit EQ 2968 AND nToSkip EQ 0 THEN BEGIN
 
      majicEnergy         = 1.1E3
      energy_electrons[0] = majicEnergy
@@ -271,7 +295,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
                                             ['22:40:32','22:40:45']]
   ENDIF
 
-  IF orbit EQ 3167 THEN BEGIN
+  IF orbit EQ 3167 AND nToSkip EQ 0 THEN BEGIN
 
      majicEnergy         = 300
      energy_electrons[0] = majicEnergy
@@ -282,7 +306,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   ENDIF
 
-  IF orbit EQ 3368 THEN BEGIN
+  IF orbit EQ 3368 AND nToSkip EQ 0 THEN BEGIN
 
      majicEnergy         = 200.
      energy_electrons[0] = majicEnergy
@@ -293,7 +317,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   ENDIF
 
-  IF orbit EQ 2685 THEN BEGIN
+  IF orbit EQ 2685 AND nToSkip EQ 0 THEN BEGIN
 
      majicEnergy         = 80.
      energy_electrons[0] = majicEnergy
@@ -304,7 +328,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   ENDIF
 
-  IF orbit EQ 1694 THEN BEGIN
+  IF orbit EQ 1694 AND nToSkip EQ 0 THEN BEGIN
      
      majicEnergy         = 280
      energy_electrons[0] = majicEnergy
@@ -321,7 +345,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   ENDIF
 
-  IF orbit EQ 3218 THEN BEGIN
+  IF orbit EQ 3218 AND nToSkip EQ 0 THEN BEGIN
 
      majicEnergy         = 70.
      energy_electrons[0] = majicEnergy
@@ -331,7 +355,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   ENDIF
 
-  IF orbit EQ 3760 THEN BEGIN
+  IF orbit EQ 3760 AND nToSkip EQ 0 THEN BEGIN
      
      majicEnergy         = 80.
      energy_electrons[0] = majicEnergy
@@ -344,7 +368,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   ENDIF
 
-  IF orbit EQ 5624 THEN BEGIN
+  IF orbit EQ 5624 AND nToSkip EQ 0 THEN BEGIN
      
      dato = '1998-01-23/'
 
@@ -574,6 +598,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
                         SWAY__ADD_KAPPA_PANEL=sway__add_kappa_panel, $
                         SWAY__ADD_CHARE_PANEL=sway__add_chare_panel, $
                         SWAY__ADD_NEWELL_PANEL=sway__add_Newell_panel, $
+                        SWAY__ADD_IU_POT=sway__add_iu_pot, $
                         SWAY__LOG_KAPPAPLOT=sway__log_kappaPlot, $
                         SHOW_KAPPA_SUMMARY=show_kappa_summary, $
                         KSUM__EANGLE=kSum__eAngle, $

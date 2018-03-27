@@ -14,6 +14,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                        ADD_CHARE_PANEL=add_chare_panel, $
                        ADD_NEWELL_PANEL=add_Newell_panel, $
                        NEWELL_2009_INTERP=Newell_2009_interp, $
+                       ADD_IU_POT=add_iu_pot, $
                        LOG_KAPPAPLOT=log_kappaPlot, $
                        FIT2DKAPPA_INF_LIST=fit2DKappa_inf_list, $
                        FIT2DGAUSS_INF_LIST=fit2DGauss_inf_list, $
@@ -27,6 +28,8 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                        N_PEAKS_ABOVE_DEF_THRESHOLD=nPkAbove_dEF_thresh, $
                        ION_ANGLERANGE=ion_angleRange, $
                        ION_ENERGYRANGE=ion_energyRange, $
+                       CURPOTLIST=curPotList, $
+                       CAP_STRUCT=cAP_struct, $
                        SAVE_PS=save_ps, $
                        SAVE_PNG=save_png, $
                        EPS=eps, $
@@ -85,6 +88,17 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      DEVICE,PSEUDO_COLOR=8      ;fixes color table problem for machines with 24-bit color
      LOADCT2,ctNum
   ENDIF ELSE LOADCT2,ctNum         ; rainbow color map
+
+  red              = (ctNum EQ 43) ? 235 : 250
+  darkRed          = 250
+  green            = 130
+  blue             = 90
+  maxwell          = 50
+  black            = 10
+  ;; gray             = 20
+  poiple           = 40
+  violet           = 60
+  fuschia          = (ctNum EQ 43) ? 1 : 5
 
   IF NOT KEYWORD_SET(energy_ions) THEN energy_ions=[4,1.e4]
 
@@ -435,6 +449,28 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         ;; loadct2,40
         tplot,tPlt_vars,var=['ALT','ILAT','MLT']
      endif
+
+     IF KEYWORD_SET(add_iu_pot) THEN BEGIN
+
+        have_iu_pot = 0
+        IF N_ELEMENTS(curPotList) GT 0 THEN BEGIN
+
+           ;; potLStyle = 1 ;dotted
+           ;; potLStyle = 2           ;dashed
+           potLStyle = 0        ;solid
+           potColor  = fuschia
+           ;; potLStyle = 3 ;dash dot
+           ;; potLStyle = 4 ;dash dot dot
+           STORE_DATA,'iu_pot',DATA={x:curPotList[2].time,y:curPotList[2].peakE}
+           OPTIONS,'iu_pot','LINESTYLE',potLStyle
+           OPTIONS,'iu_pot','colors',potColor
+           OPTIONS,'iu_pot','thick',2.0
+
+           have_iu_pot = 1
+
+        ENDIF
+
+     ENDIF
 
   endif
 
@@ -838,12 +874,6 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      ;; chari_interp  = {x:Jee.x,y:chari_interp}
      chartot          = chare+chari_interp
      STORE_DATA,'charepanel',DATA={x:[[Jee.x],[Jee.x],[Jee.x]],y:[[chari_interp],[chare],[chartot]]}
-
-     red              = (ctNum EQ 43) ? 235 : 250
-     green            = 130
-     blue             = 90
-     maxwell          = 50
-     black            = 10
 
      YLIM,'charepanel',charEBounds[0],charEBounds[1],showLog_charE
      OPTIONS,'charepanel','tplot_routine','mplot'
@@ -1416,6 +1446,39 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'       ;,PSYM=1
+     ENDIF
+
+     IF KEYWORD_SET(have_iu_pot) THEN BEGIN
+        TPLOT_PANEL,VARIABLE='Iesa_Energy',OPLOTVAR='iu_pot'
+
+        sjekke = 0
+        STR_ELEMENT,cAP_struct,'iu_pot_tids',sjekke
+        IF SIZE(sjekke,/TYPE) EQ 7 THEN BEGIN
+
+           CASE NDIMEN(cAP_struct.iu_pot_tids) OF
+              1: BEGIN
+
+                 FOR k=0,N_ELEMENTS(cAP_struct.iu_pot_tids)-1 DO BEGIN
+                    TIMEBAR,cAP_struct.iu_pot_tids[k],THICK=3.0,COLOR=red
+                 ENDFOR
+
+              END
+              2: BEGIN
+
+                 nHjar = N_ELEMENTS(cAP_struct.iu_pot_tids[0,*])
+                 ;; colours = GENERATE_LIST_OF_RANDOM_COLORS(nHjar)
+                 colours = [poiple,darkRed,green,blue,fuschia,LIST_TO_1DARRAY(GENERATE_LIST_OF_RANDOM_COLORS(5))]
+
+                 FOR k=0,nHjar-1 DO BEGIN
+                    TIMEBAR,S2T(cAP_struct.iu_pot_tids[0,k]),THICK=2.5,COLOR=colours[k]
+                    TIMEBAR,S2T(cAP_struct.iu_pot_tids[1,k]),THICK=2.5,COLOR=colours[k]
+                 ENDFOR
+                 
+              END
+           ENDCASE
+
+        ENDIF
+
      ENDIF
 
      CASE 1 OF
