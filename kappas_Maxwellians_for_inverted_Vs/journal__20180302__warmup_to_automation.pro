@@ -34,7 +34,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   checkForSkippers = 1
   nToSkip = 0
 
-  dateToCheck = '20180323'
+  dateToCheck = '20180328'
   dirForCheck = '/SPENCEdata/software/sdt/batch_jobs/plots/'+dateToCheck+'/kappa_fits/'
   orbDir = STRING(FORMAT='("Orbit_",I0)',orbit)
   IF FILE_TEST(dirForCheck+orbDir,/DIRECTORY) AND KEYWORD_SET(checkForSkippers) THEN BEGIN
@@ -69,7 +69,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   cAP_tRanges  = [t1Str,t2Str]
 
-  IF orbit EQ 1612 AND nToSkip EQ 0 THEN addSec_on_either_side = 0 ;;More stuff below for this orbit!
+  IF (orbit EQ 1612 OR orbit EQ 5548) AND nToSkip EQ 0 THEN addSec_on_either_side = 0 ;;More stuff below for this orbit!
 
   ;; Now add some buffer time to the sides
   t1  = S2T(t1Str)
@@ -160,6 +160,9 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   eps                      = 1
 
+  spectrogram_units        = 'flux'
+  ;; spectrogram_units        = 'eflux'
+
   show_Strangeway_summary  = KEYWORD_SET(noStrangewaySummary) ? 0 : 1
   sway__save_ps            = 1
   sway__add_kappa_panel    = 0
@@ -167,6 +170,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   sway__add_Newell_panel   = 1
   sway__add_iu_pot         = 1
   sway__log_kappaPlot      = 0
+  sway__spectrogram_units  = spectrogram_units
 
   show_kappa_summary  = KEYWORD_SET(noKappaSummary) ? 0 : 1
   kSum__save_ps       = 1
@@ -174,6 +178,8 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   kSum__add_parm_errors__nRolls = 10000
   kSum__add_parm_errors__use_most_prob = 1
   kSum__chi2Bounds    = [0.,15.]
+  ;; kSum__spectrogram_units = 'flux'
+  kSum__spectrogram_units = spectrogram_units
 
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 5       ;give value at which you'd like line
@@ -600,6 +606,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
                         SWAY__ADD_NEWELL_PANEL=sway__add_Newell_panel, $
                         SWAY__ADD_IU_POT=sway__add_iu_pot, $
                         SWAY__LOG_KAPPAPLOT=sway__log_kappaPlot, $
+                        SWAY__SPECTROGRAM_UNITS=sway__spectrogram_units, $
                         SHOW_KAPPA_SUMMARY=show_kappa_summary, $
                         KSUM__EANGLE=kSum__eAngle, $
                         KSUM__SAVE_PS=kSum__save_ps, $
@@ -610,6 +617,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
                         KSUM__ADD_MEASURED_T_AND_N=kSum__add_meas_T_and_N, $
                         KSUM__GRL=kSum__GRL, $
                         KSUM__OPLOT_POT=kSum__oPlot_pot, $
+                        KSUM__SPECTROGRAM_UNITS=kSum__spectrogram_units, $
                         KSUM__ADD_PARM_ERRORS_FROM_FILE=kSum__add_parm_errors_from_file, $
                         KSUM__ADD_PARM_ERRORS__NROLLS=kSum__add_parm_errors__nRolls, $
                         KSUM__ADD_PARM_ERRORS__USE_MOST_PROB=kSum__add_parm_errors__use_most_prob, $

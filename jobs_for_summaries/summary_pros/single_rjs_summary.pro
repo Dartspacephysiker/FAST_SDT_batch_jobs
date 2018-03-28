@@ -15,6 +15,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                        ADD_NEWELL_PANEL=add_Newell_panel, $
                        NEWELL_2009_INTERP=Newell_2009_interp, $
                        ADD_IU_POT=add_iu_pot, $
+                       SPECTROGRAM_UNITS=spectrogram_units, $
                        LOG_KAPPAPLOT=log_kappaPlot, $
                        FIT2DKAPPA_INF_LIST=fit2DKappa_inf_list, $
                        FIT2DGAUSS_INF_LIST=fit2DGauss_inf_list, $
@@ -57,11 +58,11 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 ; procedure for making summary plots
 ; batch_summary,tPlt_vars=tPlt_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
 ; loadct2,40  ; load color table
-; if (n_elements(tPlt_vars) gt 0) then tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-; if (n_elements(tlimit_north) gt 0) then tlimit,tlimit_north  ; northern hemisphere
-; if (n_elements(tlimit_south) gt 0) then tlimit,tlimit_south  ; southern hemisphere
+; if (n_elements(tPlt_vars) gt 0) then TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+; IF (N_ELEMENTS(tlimit_north) GT 0) THEN tlimit,tlimit_north  ; northern hemisphere
+; IF (N_ELEMENTS(tlimit_south) GT 0) THEN tlimit,tlimit_south  ; southern hemisphere
 
-; if running interactively
+; IF running interactively
 ; batch_summary,tPlt_vars=tPlt_vars,/screen_plot,/no_blank_panels
 
 ; Input needed on:
@@ -85,7 +86,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
   ctNum = 39
   ctNum = 43                    ;Better; not oceans of green
   IF KEYWORD_SET(screen_plot) AND ~(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) THEN BEGIN
-     DEVICE,PSEUDO_COLOR=8      ;fixes color table problem for machines with 24-bit color
+     DEVICE,PSEUDO_COLOR=8      ;fixes color table problem FOR machines with 24-bit color
      LOADCT2,ctNum
   ENDIF ELSE LOADCT2,ctNum         ; rainbow color map
 
@@ -100,39 +101,59 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
   violet           = 60
   fuschia          = (ctNum EQ 43) ? 1 : 5
 
+                                ;Determine units for electron energy and pitch-angle spectrograms
+  defSpecUnits = 'eflux' 
+  specUnits = KEYWORD_SET(spectrogram_units) ? spectrogram_units : defSpecUnits
+
+  CASE STRUPCASE(specUnits) OF
+     'FLUX': BEGIN
+
+        specUnits = 'flux'
+        ionSpecLogLims  = [1.,7.]
+        specLogUnitsString = 'Log #!C/cm!U2!N-s-sr-eV'
+        eSpecLogLims = [2.,8.]
+     END
+     'EFLUX': BEGIN
+        specUnits = 'eflux'
+        ionSpecLogLims  = [5.,9.]
+        eSpecLogLims = [6.,9.]
+        specLogUnitsString = 'Log eV!C/cm!U2!N-s-sr-eV'
+     END
+  ENDCASE
+
   IF NOT KEYWORD_SET(energy_ions) THEN energy_ions=[4,1.e4]
 
   IF STRUPCASE(eeb_or_ees) EQ 'EEB' THEN ieb_or_ies = 'ieb' ELSE ieb_or_ies = 'ies'
   burst = (WHERE(STRMATCH(STRUPCASE(eeb_or_ees),'*B')))[0] NE -1
 
-  nn = n_elements(data_quants)
+  nn = N_ELEMENTS(data_quants)
 
-  if (nn gt 1) then for n = nn-1L,1L,-1L do store_data,data_quants(n).name,/delete
+  IF (nn GT 1) THEN FOR n = nn-1L,1L,-1L DO STORE_DATA,data_quants(n).name,/DELETE
 
 ; Step 1 - DC Mag data
 
-  GET_DATA,'dB_fac_v',data=data
+  GET_DATA,'dB_fac_v',DATA=data
   IF SIZE(data,/TYPE) NE 8 THEN $
-        UCLA_MAG_DESPIN,tw_mat=tw_mat,orbit=orbit,spin_axis=spin_axis,delta_phi=delta_phi,/QUIET
+        UCLA_MAG_DESPIN,TW_MAT=tw_mat,ORBIT=orbit,SPIN_AXIS=spin_axis,DELTA_PHI=delta_phi,/QUIET
 
-  if (n_elements(orbit) gt 0) then begin
+  IF (N_ELEMENTS(orbit) GT 0) THEN BEGIN
 
-;  if orbit > 9936 return (temporary fix)
+;  IF orbit > 9936 return (temporary fix)
 
-     if (orbit gt 9936) then begin
+     IF (orbit GT 9936) THEN BEGIN
 
-        print,""
-        print,"BATCH_SUMMARY DISABLED FOR ORBITS > 9936, SORRY"
-        print,""
+        PRINT,""
+        PRINT,"BATCH_SUMMARY DISABLED FOR ORBITS > 9936, SORRY"
+        PRINT,""
         ;; return
 
-     endif
+     ENDIF
 
      orbString           = STRING(FORMAT='(I0)',orbit)
 
 ;;Handle PNGness or PSness before kicking things off
 
-     IF keyword_set(save_ps) THEN BEGIN
+     IF KEYWORD_SET(save_ps) THEN BEGIN
 
         outPlotName  = 'Strangeway_summary'
         outPlotName += '--' + orbString + (KEYWORD_SET(bonusPref) ? bonusPref : '' )
@@ -169,7 +190,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
               filNavn = KEYWORD_SET(outPlotName) ? outPlotName : (orbString + '-single_rjs_summary')
               filTmp  = STRSPLIT(outPlotName,'.',/EXTRACT)
-              filPref = (filTmp)[0]
+              filPref = (filTmp)[0] + '_' + specUnits
               filSuff = N_ELEMENTS(filTmp) GT 1 ? '.' + filTmp[1] : ''
 
               count = 0
@@ -194,53 +215,53 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
      ENDIF
 
-; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
+; got mag data, set time limits, DELETE unused tplot variables, set tPlt_vars
 
-     get_data,'dB_fac_v',data=data
+     GET_DATA,'dB_fac_v',DATA=data
      IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0] ELSE t1 = time1
-     IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L] ELSE t2 = time2
+     IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[N_ELEMENTS(data.x)-1L] ELSE t2 = time2
      tlimit_all = [t1,t2]
      tPlt_vars = 'dB_fac_v'
-     options,'dB_fac_v','panel_size',2
-     options,'dB_fac','panel_size',2
-     options,'dB_sm','panel_size',2
+     OPTIONS,'dB_fac_v','panel_size',2
+     OPTIONS,'dB_fac','panel_size',2
+     OPTIONS,'dB_sm','panel_size',2
 
-     if (keyword_set(use_fac)) then tPlt_vars = 'dB_fac'
+     IF (KEYWORD_SET(use_fac)) THEN tPlt_vars = 'dB_fac'
 
-     if (not keyword_set(no_blank_panels)) then tPlt_vars = 'dB_fac_v'
+     IF (not KEYWORD_SET(no_blank_panels)) THEN tPlt_vars = 'dB_fac_v'
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
         wInd = 0
         WINDOW,wInd,XSIZE=700,YSIZE=900
-        ;; tplot_options,'region',[0.,0.5,1.0,1.0]
+        ;; tplot_OPTIONS,'region',[0.,0.5,1.0,1.0]
         ;; loadct2,39
-        tplot,tPlt_vars,var=['ALT','ILAT','MLT'], $
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'], $
               WINDOW=wInd, $
               TRANGE=[t1,t2]
-     endif
+     ENDIF
 
-  endif
+  ENDIF
 
 ; step 2 - E field
 
 
-; JBV, 2011/05/22.   If we are running Multi-User SDT, we need
-; to get the SDT index for this run.  Otherwise "showDQIs" won't
-; return.  If this is old, single-user SDT, "sdt_idx" is returned
+; JBV, 2011/05/22.   IF we are running Multi-User SDT, we need
+; to get the SDT index FOR this run.  Otherwise "showDQIs" won't
+; return.  IF this is old, single-user SDT, "sdt_idx" is returned
 ; as 255 and we handle the call in the old way.
-  sdt_idx = get_sdt_run_idx()
+  sdt_idx = GET_SDT_RUN_IDX()
 
-  prog = getenv('FASTBIN') + '/showDQIs'
-  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-     if (sdt_idx GE 10) then begin
-        sidstr = string(sdt_idx, format='(I2)')
-     endif else begin
-        sidstr = string(sdt_idx, format='(I1)')
-     endelse
-     spawn, [prog, sidstr], result, /noshell
-  endif else begin
-     spawn, prog, result, /noshell
-  endelse
+  prog = GETENV('FASTBIN') + '/showDQIs'
+  IF ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN BEGIN
+     IF (sdt_idx GE 10) THEN BEGIN
+        sidstr = STRING(sdt_idx, FORMAT='(I2)')
+     ENDIF ELSE BEGIN
+        sidstr = STRING(sdt_idx, FORMAT='(I1)')
+     ENDELSE
+     SPAWN, [prog, sidstr], result, /NOSHELL
+  ENDIF ELSE BEGIN
+     SPAWN, prog, result, /NOSHELL
+  ENDELSE
 
 
   CASE 1 OF
@@ -257,198 +278,198 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
   ENDCASE
 
 
-  b = where (strpos(result,v14Str) ge 0,nb4)
-  if (nb4 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb4 = 0
-  b = where (strpos(result,v12Str) ge 0,nb2)
-  if (nb2 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb2 = 0
-  if (nb4 gt 0) then v12=get_fa_fields(v14Str,/all) $
-  else if (nb2 gt 0) then v12=get_fa_fields(v12Str,/all)
+  b = WHERE (STRPOS(result,v14Str) ge 0,nb4)
+  IF (nb4 GT 0) THEN IF STRPOS(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 THEN nb4 = 0
+  b = WHERE (STRPOS(result,v12Str) ge 0,nb2)
+  IF (nb2 GT 0) THEN IF STRPOS(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 THEN nb2 = 0
+  IF (nb4 GT 0) THEN v12=GET_FA_FIELDS(v14Str,/ALL) $
+  ELSE IF (nb2 GT 0) THEN v12=GET_FA_FIELDS(v12Str,/ALL)
 
-  b = where (strpos(result,v58Str) ge 0,nb5)
-  if (nb5 gt 0) then v58=get_fa_fields(v58Str,/all)
+  b = WHERE (STRPOS(result,v58Str) ge 0,nb5)
+  IF (nb5 GT 0) THEN v58=GET_FA_FIELDS(v58Str,/ALL)
 
-  got_efield = (nb4 gt 0 or nb2 gt 0) and nb5 gt 0
+  got_efield = (nb4 GT 0 or nb2 GT 0) and nb5 GT 0
 
-  if (got_efield) then begin
+  IF (got_efield) THEN BEGIN
 
 ; despin e field data
 
-     fa_fields_despin,v58,v12,/shadow_notch,/sinterp
+     FA_FIELDS_DESPIN,v58,v12,/SHADOW_NOTCH,/SINTERP
 
-     options,'EFIT_ALONG_V','yrange',0
-     options,'EFIT_ALONG_V','ytitle','E along V!C!C(mV/m)'
-     options,'EFIT_ALONG_V','panel_size',2
+     OPTIONS,'EFIT_ALONG_V','yrange',0
+     OPTIONS,'EFIT_ALONG_V','ytitle','E along V!C!C(mV/m)'
+     OPTIONS,'EFIT_ALONG_V','panel_size',2
 
-; reset time limits if needed
+; reset time limits IF needed
 
-     get_data,'EFIT_ALONG_V',data=data
+     GET_DATA,'EFIT_ALONG_V',DATA=data
      IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
-     IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
+     IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[N_ELEMENTS(data.x)-1L]
 
-     if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
-        if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
-        if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
-        get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-        get_new_igrf,/no_store_old
-     endif
+     IF ((t1 LT tlimit_all[0]) or (t2 GT tlimit_all[1])) THEN BEGIN
+        IF (t1 LT tlimit_all[0]) THEN tlimit_all[0] = t1
+        IF (t2 GT tlimit_all[1]) THEN tlimit_all[1] = t2
+        GET_FA_ORBIT,tlimit_all[0],tlimit_all[1],/ALL,STATUS=no_model,DELTA=1.,/DEFINITIVE,/DRAG_PROP
+        GET_NEW_IGRF,/NO_STORE_OLD
+     ENDIF
 
-; check for southern hemisphere and fix 
+; check FOR southern hemisphere and fix 
 ; NOTE IT IS ASSUMED THAT FA_FIELDS_DESPIN DOES NOT CORRECT PHASE
 
-     get_data,'B_model',data=bm
-     get_data,'fa_vel',data=vel
-     get_data,'fa_pos',data=pos
-     n=n_elements(reform(pos.y[*,0]))
-     rxv = dblarr(n,3)
+     GET_DATA,'B_model',DATA=bm
+     GET_DATA,'fa_vel',DATA=vel
+     GET_DATA,'fa_pos',DATA=pos
+     n=N_ELEMENTS(reform(pos.y[*,0]))
+     rxv = DBLARR(n,3)
      rxv[*,0] = pos.y[*,1]*vel.y[*,2] - pos.y[*,2]*vel.y[*,1]
      rxv[*,1] = pos.y[*,2]*vel.y[*,0] - pos.y[*,0]*vel.y[*,2]
      rxv[*,2] = pos.y[*,0]*vel.y[*,1] - pos.y[*,1]*vel.y[*,0]
-     vxb = dblarr(n,3)
+     vxb = DBLARR(n,3)
      vxb[*,0] = vel.y[*,1]*bm.y[*,2] - vel.y[*,2]*bm.y[*,1]
      vxb[*,1] = vel.y[*,2]*bm.y[*,0] - vel.y[*,0]*bm.y[*,2]
      vxb[*,2] = vel.y[*,0]*bm.y[*,1] - vel.y[*,1]*bm.y[*,0]
      tst = rxv[*,0]*vxb[*,0] + rxv[*,1]*vxb[*,1] + rxv[*,2]*vxb[*,2]
 
-     get_data,'EFIT_ALONG_V',data=data,dlimit=dlimit
+     GET_DATA,'EFIT_ALONG_V',DATA=data,DLIMIT=dlimit
      ;; y2=spl_init(pos.x-tlimit_all[0],tst,/double)
      ;; tst_ = spl_interp(pos.x-tlimit_all[0],tst,y2,data.x-tlimit_all[0],/double)
      ;; data.y = data.y*tst_/abs(tst_)
-     store_data,'EFIT_ALONG_VSC',data=data,dlimit=dlimit
-     options,'EFIT_ALONG_VSC','yrange',0
-     options,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C(mV/m)'
-     options,'EFIT_ALONG_VSC','panel_size',2
+     STORE_DATA,'EFIT_ALONG_VSC',DATA=data,DLIMIT=dlimit
+     OPTIONS,'EFIT_ALONG_VSC','yrange',0
+     OPTIONS,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C(mV/m)'
+     OPTIONS,'EFIT_ALONG_VSC','panel_size',2
 
-     store_data,'E_NEAR_B',/delete
-     store_data,'E_ALONG_V',/delete
-     store_data,'EFIT_NEAR_B',/delete
-     store_data,'EFIT_ALONG_V',/delete
+     STORE_DATA,'E_NEAR_B',/DELETE
+     STORE_DATA,'E_ALONG_V',/DELETE
+     STORE_DATA,'EFIT_NEAR_B',/DELETE
+     STORE_DATA,'EFIT_ALONG_V',/DELETE
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['EFIT_ALONG_VSC'] else tPlt_vars=['EFIT_ALONG_VSC',tPlt_vars]
+     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=['EFIT_ALONG_VSC'] ELSE tPlt_vars=['EFIT_ALONG_VSC',tPlt_vars]
 
      YLIM,'EFIT_ALONG_VSC',MIN(data.y),MAX(data.y),0
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
         ;; loadct2,40
-        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-     endif
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+     ENDIF
 
-  endif else if (n_elements(tPlt_vars) ne 0) then begin
+  ENDIF ELSE IF (N_ELEMENTS(tPlt_vars) NE 0) THEN BEGIN
 
      tPlt_vars = 'dB_fac'
-     if (keyword_set(use_fac_v)) then tPlt_vars = 'dB_fac_v'
-     if (not keyword_set(no_blank_panels)) then tPlt_vars = 'dB_fac_v'
+     IF (KEYWORD_SET(use_fac_v)) THEN tPlt_vars = 'dB_fac_v'
+     IF (not KEYWORD_SET(no_blank_panels)) THEN tPlt_vars = 'dB_fac_v'
 
-  endif
+  ENDIF
 
 
 ; Step 3 - Iesa data
 
-  prog = getenv('FASTBIN') + '/showDQIs'
-  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-     if (sdt_idx GE 10) then begin
-        sidstr = string(sdt_idx, format='(I2)')
-     endif else begin
-        sidstr = string(sdt_idx, format='(I1)')
-     endelse
-     spawn, [prog, sidstr], result, /noshell
-  endif else begin
-     spawn, prog, result, /noshell
-  endelse
-  b = where (strpos(result,'Iesa Survey') ge 0,nesa)
-  if (nesa gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nesa = 0
+  prog = GETENV('FASTBIN') + '/showDQIs'
+  IF ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN BEGIN
+     IF (sdt_idx GE 10) THEN BEGIN
+        sidstr = STRING(sdt_idx, FORMAT='(I2)')
+     ENDIF ELSE BEGIN
+        sidstr = STRING(sdt_idx, FORMAT='(I1)')
+     ENDELSE
+     SPAWN, [prog, sidstr], result, /NOSHELL
+  ENDIF ELSE BEGIN
+     SPAWN, prog, result, /NOSHELL
+  ENDELSE
+  b = WHERE (STRPOS(result,'Iesa Survey') ge 0,nesa)
+  IF (nesa GT 0) THEN IF STRPOS(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 THEN nesa = 0
 
-  if (nesa gt 0) then begin
+  IF (nesa GT 0) THEN BEGIN
 
 ; ION PITCH ANGLE
 
-     var_name='Iesa_Angle'
+     var_NAME='Iesa_Angle'
      ion_ER = KEYWORD_SET(ion_energyRange) ? ion_energyRange : [4.,30000.]
-     get_pa_spec,'fa_' + ieb_or_ies + '_c', $
-                 units='eflux', $
-                 name=var_name, $
-                 energy=ion_ER, $
+     GET_PA_SPEC,'fa_' + ieb_or_ies + '_c', $
+                 UNITS=specUnits, $
+                 NAME=var_name, $
+                 ENERGY=ion_ER, $
                  /RETRACE, $
                  /CALIB
-     get_data,var_name, data=data
-     data.y = alog10(data.y)
-     store_data,var_name, data=data
-     options,var_name,'spec',1	
-     ;; zlim,var_name,4,9,0
-        zlim,var_name, $
-             (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
-     ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-     ylim,var_name,0,360,0
-     options,var_name,'ytitle','Ions > ' + STRING(FORMAT='(I0)',ion_ER[0]) + ' eV!C!CAngle (Deg.)'
-     options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-     options,var_name,'x_no_interp',1
-     options,var_name,'y_no_interp',1
-     options,var_name,'panel_size',2
+     GET_DATA,var_name, DATA=data
+     data.y = ALOG10(data.y)
+     STORE_DATA,var_name, DATA=data
+     OPTIONS,var_name,'spec',1	
+     ;; ZLIM,var_name,4,9,0
+        ZLIM,var_name, $
+             (MIN(data.y[WHERE(FINITE(data.y))]) > ionSpecLogLims[0]), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < ionSpecLogLims[1]),0
+     ;; ZLIM,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+     YLIM,var_name,0,360,0
+     OPTIONS,var_name,'ytitle','Ions > ' + STRING(FORMAT='(I0)',ion_ER[0]) + ' eV!C!CAngle (Deg.)'
+     OPTIONS,var_name,'ztitle',specLogUnitsString
+     OPTIONS,var_name,'x_no_interp',1
+     OPTIONS,var_name,'y_no_interp',1
+     OPTIONS,var_name,'panel_size',2
 
-     get_data,var_name, data=data
-     bb = where (data.v gt 270.,nb)
-     if (nb gt 0) then data.v(bb)=data.v(bb)-360.
-     nn = n_elements(data.x)
-     for n = 0,nn-1L do begin
-        bs = sort (data.v(n,*))
+     GET_DATA,var_name, DATA=data
+     bb = WHERE (data.v GT 270.,nb)
+     IF (nb GT 0) THEN data.v(bb)=data.v(bb)-360.
+     nn = N_ELEMENTS(data.x)
+     FOR n = 0,nn-1L DO BEGIN
+        bs = SORT (data.v(n,*))
         data.v(n,*)=data.v(n,bs)
         data.y(n,*)=data.y(n,bs)
      endfor
-     store_data,var_name, data=data	
-     options,var_name,'yminor',9
-     options,var_name,'yticks',4
-     options,var_name,'ytickv',[-90,0,90,180,270]
-     ylim,var_name,-90,270,0
+     STORE_DATA,var_name, DATA=data	
+     OPTIONS,var_name,'yminor',9
+     OPTIONS,var_name,'yticks',4
+     OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
+     YLIM,var_name,-90,270,0
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
+     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[var_name] ELSE tPlt_vars=[var_name,tPlt_vars]
 
-; reset time limits if needed
+; reset time limits IF needed
 
      IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
-     IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
+     IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[N_ELEMENTS(data.x)-1L]
 
-     if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
-        if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
-        if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
-        get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-        get_new_igrf,/no_store_old
-     endif
+     IF ((t1 LT tlimit_all[0]) or (t2 GT tlimit_all[1])) THEN BEGIN
+        IF (t1 LT tlimit_all[0]) THEN tlimit_all[0] = t1
+        IF (t2 GT tlimit_all[1]) THEN tlimit_all[1] = t2
+        GET_FA_ORBIT,tlimit_all[0],tlimit_all[1],/ALL,STATUS=no_model,DELTA=1.,/DEFINITIVE,/DRAG_PROP
+        GET_NEW_IGRF,/NO_STORE_OLD
+     ENDIF
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
         ;; loadct2,40
-        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-     endif
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+     ENDIF
 
 ; ION ENERGY 
 
-     var_name='Iesa_Energy'
-     get_en_spec,'fa_' + ieb_or_ies + '_c', $
-                 name=var_name, $
-                 units='eflux', $
+     var_NAME='Iesa_Energy'
+     GET_EN_SPEC,'fa_' + ieb_or_ies + '_c', $
+                 NAME=var_name, $
+                 UNITS=specUnits, $
                  ANGLE=ion_angleRange, $
                  /CALIB, $
                  RETRACE=1
-     get_data,var_name, data=data
-     data.y = alog10(data.y)
-     store_data,var_name, data=data
-     options,var_name,'spec',1	
-     ;; zlim,var_name,4,9,0
-     ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-     zlim,var_name, $
-          (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
-          (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
-     ylim,var_name,4,30000,1
-     options,var_name,'ytitle','Loss-cone Ions!C!CEnergy (eV)'
-     options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-     options,var_name,'x_no_interp',1
-     options,var_name,'y_no_interp',1
-     options,var_name,'panel_size',2
+     GET_DATA,var_name,DATA=data
+     data.y = ALOG10(data.y)
+     STORE_DATA,var_name,DATA=data
+     OPTIONS,var_name,'spec',1	
+     ;; ZLIM,var_name,4,9,0
+     ;; ZLIM,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+     ZLIM,var_name, $
+          (MIN(data.y[WHERE(FINITE(data.y))]) > ionSpecLogLims[0]), $
+          (MAX(data.y[WHERE(FINITE(data.y))]) < ionSpecLogLims[1]),0
+     YLIM,var_name,4,24000,1
+     OPTIONS,var_name,'ytitle','Loss-coNE Ions!C!CEnergy (eV)'
+     OPTIONS,var_name,'ztitle',specLogUnitsString
+     OPTIONS,var_name,'x_no_interp',1
+     OPTIONS,var_name,'y_no_interp',1
+     OPTIONS,var_name,'panel_size',2
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
+     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[var_name] ELSE tPlt_vars=[var_name,tPlt_vars]
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
         ;; loadct2,40
-        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-     endif
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+     ENDIF
 
      IF KEYWORD_SET(add_iu_pot) THEN BEGIN
 
@@ -472,109 +493,116 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
      ENDIF
 
-  endif
+  ENDIF
 
 
 ; Step 4 - Eesa data
 
-  prog = getenv('FASTBIN') + '/showDQIs'
-  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-     if (sdt_idx GE 10) then begin
-        sidstr = string(sdt_idx, format='(I2)')
-     endif else begin
-        sidstr = string(sdt_idx, format='(I1)')
-     endelse
-     spawn, [prog, sidstr], result, /noshell
-  endif else begin
-     spawn, prog, result, /noshell
-  endelse
-  b = where (strpos(result,'Eesa Survey') ge 0,nesa)
-  if (nesa gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nesa = 0
+  prog = GETENV('FASTBIN') + '/showDQIs'
+  IF ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN BEGIN
+     IF (sdt_idx GE 10) THEN BEGIN
+        sidstr = STRING(sdt_idx, FORMAT='(I2)')
+     ENDIF ELSE BEGIN
+        sidstr = STRING(sdt_idx, FORMAT='(I1)')
+     ENDELSE
+     SPAWN, [prog, sidstr], result, /NOSHELL
+  ENDIF ELSE BEGIN
+     SPAWN, prog, result, /NOSHELL
+  ENDELSE
+  b = WHERE (STRPOS(result,'Eesa Survey') ge 0,nesa)
+  IF (nesa GT 0) THEN IF STRPOS(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 THEN nesa = 0
 
-  if (nesa gt 0) then begin
+  IF (nesa GT 0) THEN BEGIN
 
 ; ELECTRON PITCH ANGLE
 
-     var_name='Eesa_Angle'
-     get_pa_spec,'fa_' + eeb_or_ees + '_c',units='eflux',name=var_name, energy=[10.,30000.]
-     get_data,var_name, data=data 
-     data.y = alog10(data.y)
-     store_data,var_name, data=data
-     options,var_name,'spec',1
-     ;; zlim,var_name,4,9,0
-     ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-     zlim,var_name, $
-          (MIN(data.y[WHERE(FINITE(data.y))]) > 6 ), $
-          (MAX(data.y[WHERE(FINITE(data.y))]) < 10),0
-     ylim,var_name,0,360,0
-     options,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
-     options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-     options,var_name,'x_no_interp',1
-     options,var_name,'y_no_interp',1
-     options,var_name,'panel_size',2
+     var_NAME='Eesa_Angle'
+     GET_PA_SPEC,'fa_' + eeb_or_ees + '_c', $
+                 UNITS=specUnits, $
+                 NAME=var_name, $
+                 ENERGY=[10.,30000.]
+     GET_DATA,var_name,DATA=data 
+     data.y = ALOG10(data.y)
+     STORE_DATA,var_name,DATA=data
+     OPTIONS,var_name,'spec',1
+     ;; ZLIM,var_name,4,9,0
+     ;; ZLIM,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+     ZLIM,var_name, $
+          (MIN(data.y[WHERE(FINITE(data.y))]) > eSpecLogLims[0]), $
+          (MAX(data.y[WHERE(FINITE(data.y))]) < eSpecLogLims[1]),0
+     YLIM,var_name,0,360,0
+     OPTIONS,var_name,'ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
+     OPTIONS,var_name,'ztitle',specLogUnitsString
+     OPTIONS,var_name,'x_no_interp',1
+     OPTIONS,var_name,'y_no_interp',1
+     OPTIONS,var_name,'panel_size',2
 
-     get_data,var_name, data=data
-     bb = where (data.v gt 270.,nb)
-     if (nb gt 0) then data.v(bb)=data.v(bb)-360.
-     nn = n_elements(data.x)
-     for n = 0,nn-1L do begin
-        bs = sort (data.v(n,*))
+     GET_DATA,var_name, DATA=data
+     bb = WHERE (data.v GT 270.,nb)
+     IF (nb GT 0) THEN data.v(bb)=data.v(bb)-360.
+     nn = N_ELEMENTS(data.x)
+     FOR n = 0,nn-1L DO BEGIN
+        bs = SORT (data.v(n,*))
         data.v(n,*)=data.v(n,bs)
         data.y(n,*)=data.y(n,bs)
      endfor
-     store_data,var_name, data=data
-     options,var_name,'yminor',9
-     options,var_name,'yticks',4
-     options,var_name,'ytickv',[-90,0,90,180,270]
-     ylim,var_name,-90,270,0
+     STORE_DATA,var_name, DATA=data
+     OPTIONS,var_name,'yminor',9
+     OPTIONS,var_name,'yticks',4
+     OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
+     YLIM,var_name,-90,270,0
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
+     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[var_name] ELSE tPlt_vars=[var_name,tPlt_vars]
 
-; reset time limits if needed
+; reset time limits IF needed
 
      IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
-     IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
+     IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[N_ELEMENTS(data.x)-1L]
 
-     if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) then begin
-        if (t1 lt tlimit_all[0]) then tlimit_all[0] = t1
-        if (t2 gt tlimit_all[1]) then tlimit_all[1] = t2
-        get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-        get_new_igrf,/no_store_old
-     endif
+     IF ((t1 LT tlimit_all[0]) or (t2 GT tlimit_all[1])) THEN BEGIN
+        IF (t1 LT tlimit_all[0]) THEN tlimit_all[0] = t1
+        IF (t2 GT tlimit_all[1]) THEN tlimit_all[1] = t2
+        GET_FA_ORBIT,tlimit_all[0],tlimit_all[1],/ALL,STATUS=no_model,DELTA=1.,/DEFINITIVE,/DRAG_PROP
+        GET_NEW_IGRF,/NO_STORE_OLD
+     ENDIF
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
         ;; loadct2,40
-        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-     endif
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+     ENDIF
 
 ; ELECTRON ENERGY
 
-     var_name='Eesa_Energy'
-     get_en_spec,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux',/CALIB,RETRACE=1
-     get_data,var_name, data=data
-     data.y = alog10(data.y)
-     store_data,var_name, data=data
-     options,var_name,'spec',1	
-     ;; zlim,var_name,4,9,0
-     ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-     zlim,var_name, $
-          (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
-          (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
-     ylim,var_name,5,30000,1
-     options,var_name,'ytitle','Electrons!C!CEnergy (eV)'
-     options,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-     options,var_name,'x_no_interp',1
-     options,var_name,'y_no_interp',1
-     options,var_name,'panel_size',2
+     var_NAME='Eesa_Energy'
+     GET_EN_SPEC,'fa_' + eeb_or_ees + '_c', $
+                 NAME=var_name, $
+                 UNITS=specUnits, $
+                 /CALIB, $
+                 RETRACE=1
+     GET_DATA,var_name,DATA=data
+     data.y = ALOG10(data.y)
+     STORE_DATA,var_name,DATA=data
+     OPTIONS,var_name,'spec',1	
+     ;; ZLIM,var_name,4,9,0
+     ;; ZLIM,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+     ZLIM,var_name, $
+          (MIN(data.y[WHERE(FINITE(data.y))]) > eSpecLogLims[0]), $
+          (MAX(data.y[WHERE(FINITE(data.y))]) < eSpecLogLims[1]),0
+     YLIM,var_name,5,30110,1
+     OPTIONS,var_name,'ytitle','Electrons!C!CEnergy (eV)'
+     OPTIONS,var_name,'ztitle',specLogUnitsString
+     OPTIONS,var_name,'x_no_interp',1
+     OPTIONS,var_name,'y_no_interp',1
+     OPTIONS,var_name,'panel_size',2
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
+     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[var_name] ELSE tPlt_vars=[var_name,tPlt_vars]
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then BEGIN 
+     IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN 
         ;; loadct2,40
-        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-     endif
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+     ENDIF
 
-  endif
+  ENDIF
 
 
 ; Step 5 - VLF data
@@ -582,52 +610,52 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
 ; DSP_V5-V8HG or DSP_V5-V8
 
-  prog = getenv('FASTBIN') + '/showDQIs'
-  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-     if (sdt_idx GE 10) then begin
-        sidstr = string(sdt_idx, format='(I2)')
-     endif else begin
-        sidstr = string(sdt_idx, format='(I1)')
-     endelse
-     spawn, [prog, sidstr], result, /noshell
-  endif else begin
-     spawn, prog, result, /noshell
-  endelse
-  b = where (strpos(result,'DspADC_V5-V8HG') ge 0,ndsphg)
-  if (ndsphg gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then ndsphg = 0
-  b = where ((strpos(result,'DspADC_V5-V8') ge 0) and (strpos(result,'DspADC_V5-V8HG') lt 0),ndsp)
-  if (ndsp gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then ndsp = 0
+  prog = GETENV('FASTBIN') + '/showDQIs'
+  IF ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN BEGIN
+     IF (sdt_idx GE 10) THEN BEGIN
+        sidstr = STRING(sdt_idx, FORMAT='(I2)')
+     ENDIF ELSE BEGIN
+        sidstr = STRING(sdt_idx, FORMAT='(I1)')
+     ENDELSE
+     SPAWN, [prog, sidstr], result, /NOSHELL
+  ENDIF ELSE BEGIN
+     SPAWN, prog, result, /NOSHELL
+  ENDELSE
+  b = WHERE (STRPOS(result,'DspADC_V5-V8HG') ge 0,ndsphg)
+  IF (ndsphg GT 0) THEN IF STRPOS(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 THEN ndsphg = 0
+  b = WHERE ((STRPOS(result,'DspADC_V5-V8') ge 0) and (STRPOS(result,'DspADC_V5-V8HG') LT 0),ndsp)
+  IF (ndsp GT 0) THEN IF STRPOS(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 THEN ndsp = 0
 
-  if (ndsphg gt 0) then dat=get_fa_fields('DspADC_V5-V8HG',/all) else if (ndsp gt 0) then dat=get_fa_fields('DspADC_V5-V8',/all)
-  ndsp = (ndsp gt 0) or (ndsphg gt 0)
+  IF (ndsphg GT 0) THEN dat=GET_FA_FIELDS('DspADC_V5-V8HG',/ALL) ELSE IF (ndsp GT 0) THEN dat=GET_FA_FIELDS('DspADC_V5-V8',/ALL)
+  ndsp = (ndsp GT 0) or (ndsphg GT 0)
 
-  if (ndsp) then begin
+  IF (ndsp) THEN BEGIN
      data   = {x:dat.time, y:alog10(dat.comp1), v:dat.yaxis}
-     store_data,'DSP_V5-V8', data=data
+     STORE_DATA,'DSP_V5-V8', DATA=data
      ;; dlimit = {spec:1, ystyle:1, yrange:[0.1, 16.0], zrange:[-16,-6], $
 
-;  look for big jumps in time - blank these
+;  look FOR big jumps in time - blank these
 
-     get_data,'DSP_V5-V8',data=data
+     GET_DATA,'DSP_V5-V8',DATA=data
      dt = data.x[1:*]-data.x[0:*]
-     ntimes=n_elements(data.x)
-     bg = where (dt gt 300, ng)
-     if (ng gt 0) then begin
+     ntimes=N_ELEMENTS(data.x)
+     bg = WHERE (dt GT 300, ng)
+     IF (ng GT 0) THEN BEGIN
         bbb = bg-1
-        if (bbb[0] lt 0) then bbb[0] = 0
+        IF (bbb[0] LT 0) THEN bbb[0] = 0
         add_tag=[data.x[bg]+dt[bbb],data.x[bg+1]-dt[bbb]]
         flag_dat = fltarr(ng*2)+!values.f_nan
         new_tag = [data.x,add_tag]
-        tsort = sort(new_tag-new_tag[0])
-        nvec=n_elements(data.y)/ntimes
-        new_dat = fltarr(n_elements(new_tag),nvec)
-        for nv = 0,nvec-1 do begin
+        tSORT = SORT(new_tag-new_tag[0])
+        nvec=N_ELEMENTS(data.y)/ntimes
+        new_dat = fltarr(N_ELEMENTS(new_tag),nvec)
+        FOR nv = 0,nvec-1 DO BEGIN
            new_dat[*,nv] = [data.y[*,nv],flag_dat]
            new_dat[*,nv] = new_dat[tsort,nv]
         endfor
-        data={x:new_tag[tsort],y:new_dat,v:data.v}
-        store_data,'DSP_V5-V8',data=data
-     endif
+        DATA={x:new_tag[tsort],y:new_dat,v:data.v}
+        STORE_DATA,'DSP_V5-V8',DATA=data
+     ENDIF
      
      ;;Plot opts
      VLF_zRange = [MIN(data.y[WHERE(FINITE(data.y))] > (-13)), $
@@ -637,69 +665,69 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                ytitle:'VLF E 55m!C!C(kHz)', ylog:1, $
                ztitle: '(V/m)!U2!N/Hz', panel_size:2}
 
-     STORE_DATA,'DSP_V5-V8', dlimit=dlimit
+     STORE_DATA,'DSP_V5-V8', DLIMIT=dlimit
 
      OPTIONS,'DSP_V5-V8','x_no_interp',1
      OPTIONS,'DSP_V5-V8','y_no_interp',1
 
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['DSP_V5-V8'] else tPlt_vars=['DSP_V5-V8',tPlt_vars]
+     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=['DSP_V5-V8'] ELSE tPlt_vars=['DSP_V5-V8',tPlt_vars]
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
         ;; loadct2,40
-        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-     endif
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+     ENDIF
 
-  endif else begin
+  ENDIF ELSE BEGIN
 
-  endelse
+  ENDELSE
 
 ; Step 5 - AKR data
 
   IF ~KEYWORD_SET(GRL) THEN BEGIN
-     prog = getenv('FASTBIN') + '/showDQIs'
-     if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
-        if (sdt_idx GE 10) then begin
-           sidstr = string(sdt_idx, format='(I2)')
-        endif else begin
-           sidstr = string(sdt_idx, format='(I1)')
-        endelse
-        spawn, [prog, sidstr], result, /noshell
-     endif else begin
-        spawn, prog, result, /noshell
-     endelse
-     b = where (strpos(result,'SfaAve_V5-V8') ge 0,nakr)
-     if (nakr gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nakr = 0
+     prog = GETENV('FASTBIN') + '/showDQIs'
+     IF ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN BEGIN
+        IF (sdt_idx GE 10) THEN BEGIN
+           sidstr = STRING(sdt_idx, FORMAT='(I2)')
+        ENDIF ELSE BEGIN
+           sidstr = STRING(sdt_idx, FORMAT='(I1)')
+        ENDELSE
+        SPAWN, [prog, sidstr], result, /NOSHELL
+     ENDIF ELSE BEGIN
+        SPAWN, prog, result, /NOSHELL
+     ENDELSE
+     b = WHERE (STRPOS(result,'SfaAve_V5-V8') ge 0,nakr)
+     IF (nakr GT 0) THEN IF STRPOS(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 THEN nakr = 0
 
-     if (nakr gt 0) then begin
+     IF (nakr GT 0) THEN BEGIN
 
-        dat = get_fa_fields('SfaAve_V5-V8', /all)
+        dat = GET_FA_FIELDS('SfaAve_V5-V8', /ALL)
         data   = {x:dat.time, y:alog10(dat.comp1), v:dat.yaxis}
-        store_data,'SFA_V5-V8', data=data
+        STORE_DATA,'SFA_V5-V8', DATA=data
         ;; dlimit = {spec:1, ystyle:1, yrange:[10., 1000.0], zrange:[-16,-10], $
 
-;  look for big jumps in time - blank these
+;  look FOR big jumps in time - blank these
 
-        get_data,'SFA_V5-V8',data=data
+        GET_DATA,'SFA_V5-V8',DATA=data
         dt = data.x[1:*]-data.x[0:*]
-        ntimes=n_elements(data.x)
-        bg = where (dt gt 300, ng)
-        if (ng gt 0) then begin
+        ntimes=N_ELEMENTS(data.x)
+        bg = WHERE (dt GT 300, ng)
+        IF (ng GT 0) THEN BEGIN
            bbb = bg-1
-           if (bbb[0] lt 0) then bbb[0] = 0
+           IF (bbb[0] LT 0) THEN bbb[0] = 0
            add_tag=[data.x[bg]+dt[bbb],data.x[bg+1]-dt[bbb]]
            flag_dat = fltarr(ng*2)+!values.f_nan
            new_tag = [data.x,add_tag]
-           tsort = sort(new_tag-new_tag[0])
-           nvec=n_elements(data.y)/ntimes
-           new_dat = fltarr(n_elements(new_tag),nvec)
-           for nv = 0,nvec-1 do begin
+           tSORT = SORT(new_tag-new_tag[0])
+           nvec=N_ELEMENTS(data.y)/ntimes
+           new_dat = fltarr(N_ELEMENTS(new_tag),nvec)
+           FOR nv = 0,nvec-1 DO BEGIN
               new_dat[*,nv] = [data.y[*,nv],flag_dat]
               new_dat[*,nv] = new_dat[tsort,nv]
            endfor
-           data={x:new_tag[tsort],y:new_dat,v:data.v}
-           store_data,'SFA_V5-V8',data=data
-        endif
+           DATA={x:new_tag[tsort],y:new_dat,v:data.v}
+           STORE_DATA,'SFA_V5-V8',DATA=data
+        ENDIF
 
         ;;Plot opts
         GET_DATA,'DSP_V5-V8',DLIMIT=VLF_dlimit
@@ -716,44 +744,44 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                   zrange:AKR_zRange, $
                   ytitle:'AKR E 55m!C!C(kHz)', ylog:1, $
                   ztitle: '(V/m)!U2!N/Hz', panel_size:2}
-        store_data,'SFA_V5-V8', dlimit=dlimit
-        options,'SFA_V5-V8','x_no_interp',1
-        options,'SFA_V5-V8','y_no_interp',1
+        STORE_DATA,'SFA_V5-V8', DLIMIT=dlimit
+        OPTIONS,'SFA_V5-V8','x_no_interp',1
+        OPTIONS,'SFA_V5-V8','y_no_interp',1
 
 
 
 
-        if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['SFA_V5-V8'] else tPlt_vars=['SFA_V5-V8',tPlt_vars]
+        IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=['SFA_V5-V8'] ELSE tPlt_vars=['SFA_V5-V8',tPlt_vars]
 
-        if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+        IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
            ;; loadct2,40
-           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-        endif
+           TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+        ENDIF
 
      ENDIF
 
   ENDIF
 ; STEP 6 - Clean up and return
 
-; determine tlimit_north and tlimit_south also change plot title
+; determiNE tlimit_north and tlimit_south also change plot title
 
-  get_data,'LAT',data=data
+  GET_DATA,'LAT',DATA=data
 
-  if (n_elements(data.y) le 0) then return
+  IF (N_ELEMENTS(data.y) le 0) THEN return
 
-  bb = where (data.y gt 10,nn)
-  if (nn gt 0) then tlimit_north=[data.x[bb[0]],data.x[bb[nn-1L]]]
+  bb = WHERE (data.y GT 10,nn)
+  IF (nn GT 0) THEN tlimit_north=[data.x[bb[0]],data.x[bb[nn-1L]]]
 
-  bb = where (data.y lt -10,nn)
-  if (nn gt 0) then tlimit_south=[data.x[bb[0]],data.x[bb[nn-1L]]]
+  bb = WHERE (data.y LT -10,nn)
+  IF (nn GT 0) THEN tlimit_south=[data.x[bb[0]],data.x[bb[nn-1L]]]
 
-  hemisph = getenv('FAST_ORBIT_HEMISPHERE')
+  hemisph = GETENV('FAST_ORBIT_HEMISPHERE')
 
-  get_data,'ORBIT',data=data
-  nn = n_elements(data.y)/2
+  GET_DATA,'ORBIT',DATA=data
+  nn = N_ELEMENTS(data.y)/2
   orbit = data.y(nn)
-  orbit_lab = strcompress(string(orbit,format="(i5.4)"),/remove_all)
-  tplot_options,'title','FAST Orbit ' + orbit_lab + ' ' + hemisph
+  orbit_lab = STRCOMPRESS(STRING(orbit,FORMAT="(i5.4)"),/REMOVE_ALL)
+  TPLOT_OPTIONS,'title','FAST Orbit ' + orbit_lab + ' ' + hemisph
 
 ;;Include chare panel?
 
@@ -885,12 +913,12 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      ;; OPTIONS,'charepanel','ytickname',['0','5e3','1.0e4','1.5e4','2.e4'] ; set y-axis labels
      ;; OPTIONS,'charepanel','ytickv',[0.,5.e3,1.0e4,1.5e4,2.0e4]           ; set y-axis labels
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['charepanel'] else tPlt_vars=['charepanel',tPlt_vars]
+     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=['charepanel'] ELSE tPlt_vars=['charepanel',tPlt_vars]
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
         ;; loadct2,40
-        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-     endif
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+     ENDIF
 
   ENDIF
 
@@ -929,7 +957,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                                                          OUT_BAD_I=excludeG_i, $
                                                          OUT_BAD_T=excludeG_t)
 
-     PRINT,"This has not been update to use 2D fit parameters (e.g., search for Astruct and see what turns up in this pro)!"
+     PRINT,"This has not been update to use 2D fit parameters (e.g., search FOR Astruct and see what turns up in this pro)!"
      PRINT,"Gotta fix it"
      STOP
      ;; PARSE_KAPPA_FIT_STRUCTS,kappaFit1Ds, $
@@ -986,7 +1014,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      ;;Four-current panel (it's like four-cheese pizza)
 
      ;;Get mag current
-     get_data,'dB_fac_v',data=db_fac
+     GET_DATA,'dB_fac_v',DATA=db_fac
 
      jMag                         = GET_CURRENT_FROM_FLUXMAG(t1,t2, $
                                                              db_fac,vel, $
@@ -1180,21 +1208,21 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      OPTIONS,'feta','labpos',oneCheesePos[2]*(oneCheeseBounds[1]-oneCheeseBounds[0])+oneCheeseBounds[0]
      ;; OPTIONS,'feta','labpos',[-1.75,-1.25]
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=['onecheese','kappa_fit'] else tPlt_vars=['onecheese','kappa_fit',tPlt_vars]
+     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=['onecheese','kappa_fit'] ELSE tPlt_vars=['onecheese','kappa_fit',tPlt_vars]
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
         ;; loadct2,40
-        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'       ;,PSYM=1
-     endif
+     ENDIF
 
   ENDIF
 
   IF KEYWORD_SET(add_Newell_panel) THEN BEGIN
 
-     var_name='Eesa_LC_Energy'
+     var_NAME='Eesa_LC_Energy'
      ;;This already gets called above, but we need to call it again to handle angle restrictions
      GET_EN_SPEC,'fa_' + eeb_or_ees + '_c', $
                  T1=t1, $
@@ -1208,13 +1236,13 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
      GET_FA_ORBIT,data.x,/TIME_ARRAY
      GET_DATA,'MLT',DATA=mlt
-     mlt       = mlt.y
+     mLT       = mlt.y
 
      GET_DATA,'ILAT',DATA=ilat
      ilat      = ilat.y
 
      GET_DATA,'ALT',DATA=alt
-     alt      = alt.y
+     aLT      = alt.y
 
      GET_DATA,'ORBIT',DATA=orbit
      orbit          = orbit.y
@@ -1232,170 +1260,170 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                                                /NO_STRICT_TYPES, $
                                                CONVERT_TO_NEWELL_INTERP=Newell_2009_interp
 
-     if (n_elements(tPlt_vars) eq 0) then tPlt_vars=[var_name] else tPlt_vars=[var_name,tPlt_vars]
+     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[var_name] ELSE tPlt_vars=[var_name,tPlt_vars]
 
-     if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+     IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
         ;; loadct2,40
-        tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-     endif
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+     ENDIF
 
   ENDIF
 
 ; force tPlt_vars to be all the panels unless no_blank_panels is set
 
-  if (not keyword_set(no_blank_panels)) then begin
+  IF (NOT KEYWORD_SET(no_blank_panels)) THEN BEGIN
 
 
 ; SFA
 
-     bdat = where(tPlt_vars eq 'SFA_V5-V8',ndat)
-     if (ndat eq 0) then begin
+     bdat = WHERE(tPlt_vars EQ 'SFA_V5-V8',ndat)
+     IF (ndat EQ 0) THEN BEGIN
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
         y_arr[*,*] = !values.f_nan
         v_arr = [-112.700,12.5031,997.434,2015.75]
-        store_data,'SFA_V5-V8', data={x:t_arr, y:y_arr, v:v_arr}
+        STORE_DATA,'SFA_V5-V8', DATA={x:t_arr, y:y_arr, v:v_arr}
         dlimit = {spec:1, ystyle:1, yrange:[10., 1000.0], zrange:[-16,-10], $
                   ytitle:'AKR E 55m!C!C(kHz)', ylog:1, $
                   ztitle: '(V/m)!U2!N/Hz', panel_size:2}
-        store_data,'SFA_V5-V8', dlimit=dlimit
-        options,'SFA_V5-V8','x_no_interp',1
-        options,'SFA_V5-V8','y_no_interp',1
-     endif
+        STORE_DATA,'SFA_V5-V8', DLIMIT=dlimit
+        OPTIONS,'SFA_V5-V8','x_no_interp',1
+        OPTIONS,'SFA_V5-V8','y_no_interp',1
+     ENDIF
 
 ; DSP
 
-     bdat = where(tPlt_vars eq 'DSP_V5-V8',ndat)
-     if (ndat eq 0) then begin
+     bdat = WHERE(tPlt_vars EQ 'DSP_V5-V8',ndat)
+     IF (ndat EQ 0) THEN BEGIN
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
         y_arr[*,*] = !values.f_nan
         v_arr = [0.0,0.128,9.984,16.352]
-        store_data,'DSP_V5-V8', data={x:t_arr, y:y_arr, v:v_arr}
+        STORE_DATA,'DSP_V5-V8', DATA={x:t_arr, y:y_arr, v:v_arr}
         dlimit = {spec:1, ystyle:1, yrange:[0.1, 16.0], zrange:[-16,-6], $
                   ytitle:'VLF E 55m!C!C(kHz)', ylog:1, $
                   ztitle: '(V/m)!U2!N/Hz', panel_size:2}
-        store_data,'DSP_V5-V8', dlimit=dlimit
-        options,'DSP_V5-V8','x_no_interp',1
-        options,'DSP_V5-V8','y_no_interp',1
-     endif
+        STORE_DATA,'DSP_V5-V8', DLIMIT=dlimit
+        OPTIONS,'DSP_V5-V8','x_no_interp',1
+        OPTIONS,'DSP_V5-V8','y_no_interp',1
+     ENDIF
 
 ; Eesa_Energy
 
-     bdat = where(tPlt_vars eq 'Eesa_Energy',ndat)
-     if (ndat eq 0) then begin
+     bdat = WHERE(tPlt_vars EQ 'Eesa_Energy',ndat)
+     IF (ndat EQ 0) THEN BEGIN
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
         y_arr[*,*] = !values.f_nan
         v_arr = fltarr(2,4)
         v_arr[0,*] = [34119.7,26091.5,50.9600,5.88000]
-        store_data,'Eesa_Energy', data={x:t_arr, y:y_arr, v:v_arr}
-        options,'Eesa_Energy','spec',1	
-        zlim,'Eesa_Energy',4,9,0
-        ylim,'Eesa_Energy',5,30000,1
-        options,'Eesa_Energy','ytitle','Electrons!C!CEnergy (eV)'
-        options,'Eesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,'Eesa_Energy','x_no_interp',1
-        options,'Eesa_Energy','y_no_interp',1
-        options,'Eesa_Energy','panel_size',2
-     endif
+        STORE_DATA,'Eesa_Energy', DATA={x:t_arr, y:y_arr, v:v_arr}
+        OPTIONS,'Eesa_Energy','spec',1	
+        ZLIM,'Eesa_Energy',eSpecLogLims[0],eSpecLogLims[1],0
+        YLIM,'Eesa_Energy',5,30000,1
+        OPTIONS,'Eesa_Energy','ytitle','Electrons!C!CEnergy (eV)'
+        OPTIONS,'Eesa_Energy','ztitle',specLogUnitsString
+        OPTIONS,'Eesa_Energy','x_no_interp',1
+        OPTIONS,'Eesa_Energy','y_no_interp',1
+        OPTIONS,'Eesa_Energy','panel_size',2
+     ENDIF
 
 ; Eesa_Angle
 
-     bdat = where(tPlt_vars eq 'Eesa_Angle',ndat)
-     if (ndat eq 0) then begin
+     bdat = WHERE(tPlt_vars EQ 'Eesa_Angle',ndat)
+     IF (ndat EQ 0) THEN BEGIN
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
         y_arr[*,*] = !values.f_nan
         v_arr = fltarr(2,4)
         v_arr[0,*] = [-87.7792,2.22077,114.721,267.206]
-        store_data,'Eesa_Angle', data={x:t_arr, y:y_arr, v:v_arr}
-        options,'Eesa_Angle','spec',1	
+        STORE_DATA,'Eesa_Angle', DATA={x:t_arr, y:y_arr, v:v_arr}
+        OPTIONS,'Eesa_Angle','spec',1	
         zlim,'Eesa_Angle',4,9,0
-        ylim,'Eesa_Angle',-90,270,0
-        options,'Eesa_Angle','ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
-        options,'Eesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,'Eesa_Angle','x_no_interp',1
-        options,'Eesa_Angle','y_no_interp',1
-        options,'Eesa_Angle','panel_size',2
-        options,'Eesa_Angle','yminor',9
-        options,'Eesa_Angle','yticks',4
-        options,'Eesa_Angle','ytickv',[-90,0,90,180,270]
-     endif
+        YLIM,'Eesa_Angle',-90,270,0
+        OPTIONS,'Eesa_Angle','ytitle','Electrons > 10 eV!C!CAngle (Deg.)'
+        OPTIONS,'Eesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        OPTIONS,'Eesa_Angle','x_no_interp',1
+        OPTIONS,'Eesa_Angle','y_no_interp',1
+        OPTIONS,'Eesa_Angle','panel_size',2
+        OPTIONS,'Eesa_Angle','yminor',9
+        OPTIONS,'Eesa_Angle','yticks',4
+        OPTIONS,'Eesa_Angle','ytickv',[-90,0,90,180,270]
+     ENDIF
 
 ; Iesa_Energy
 
-     bdat = where(tPlt_vars eq 'Iesa_Energy',ndat)
-     if (ndat eq 0) then begin
+     bdat = WHERE(tPlt_vars EQ 'Iesa_Energy',ndat)
+     IF (ndat EQ 0) THEN BEGIN
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
         y_arr[*,*] = !values.f_nan
         v_arr = fltarr(2,4)
         v_arr[0,*] = [26808.3,11827.2,27.7200,4.62000]
-        store_data,'Iesa_Energy', data={x:t_arr, y:y_arr, v:v_arr}
-        options,'Iesa_Energy','spec',1	
+        STORE_DATA,'Iesa_Energy', DATA={x:t_arr, y:y_arr, v:v_arr}
+        OPTIONS,'Iesa_Energy','spec',1	
         zlim,'Iesa_Energy',4,9,0
-        ylim,'Iesa_Energy',4,30000,1
-        options,'Iesa_Energy','ytitle','Ions!C!CEnergy (eV)'
-        options,'Iesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,'Iesa_Energy','x_no_interp',1
-        options,'Iesa_Energy','y_no_interp',1
-        options,'Iesa_Energy','panel_size',2
-     endif
+        YLIM,'Iesa_Energy',4,24000,1
+        OPTIONS,'Iesa_Energy','ytitle','Ions!C!CEnergy (eV)'
+        OPTIONS,'Iesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        OPTIONS,'Iesa_Energy','x_no_interp',1
+        OPTIONS,'Iesa_Energy','y_no_interp',1
+        OPTIONS,'Iesa_Energy','panel_size',2
+     ENDIF
 
 ; Iesa_Angle
 
-     bdat = where(tPlt_vars eq 'Iesa_Angle',ndat)
-     if (ndat eq 0) then begin
+     bdat = WHERE(tPlt_vars EQ 'Iesa_Angle',ndat)
+     IF (ndat EQ 0) THEN BEGIN
         t_arr = tlimit_all
         y_arr = fltarr(2,4)
         y_arr[*,*] = !values.f_nan
         v_arr = fltarr(2,4)
         v_arr[0,*] = [-87.7792,2.22077,114.721,267.206]
-        store_data,'Iesa_Angle', data={x:t_arr, y:y_arr, v:v_arr}
-        options,'Iesa_Angle','spec',1	
+        STORE_DATA,'Iesa_Angle', DATA={x:t_arr, y:y_arr, v:v_arr}
+        OPTIONS,'Iesa_Angle','spec',1	
         zlim,'Iesa_Angle',4,9,0
-        ylim,'Iesa_Angle',-90,270,0
-        options,'Iesa_Angle','ytitle','Ions!C!CAngle (Deg.)'
-        options,'Iesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
-        options,'Iesa_Angle','x_no_interp',1
-        options,'Iesa_Angle','y_no_interp',1
-        options,'Iesa_Angle','panel_size',2
-        options,'Iesa_Angle','yminor',9
-        options,'Iesa_Angle','yticks',4
-        options,'Iesa_Angle','ytickv',[-90,0,90,180,270]
-     endif
+        YLIM,'Iesa_Angle',-90,270,0
+        OPTIONS,'Iesa_Angle','ytitle','Ions!C!CAngle (Deg.)'
+        OPTIONS,'Iesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        OPTIONS,'Iesa_Angle','x_no_interp',1
+        OPTIONS,'Iesa_Angle','y_no_interp',1
+        OPTIONS,'Iesa_Angle','panel_size',2
+        OPTIONS,'Iesa_Angle','yminor',9
+        OPTIONS,'Iesa_Angle','yticks',4
+        OPTIONS,'Iesa_Angle','ytickv',[-90,0,90,180,270]
+     ENDIF
 
 ; EFIT_ALONG_VSC
 
-     bdat = where(tPlt_vars eq 'EFIT_ALONG_VSC',ndat)
-     if (ndat eq 0) then begin
+     bdat = WHERE(tPlt_vars EQ 'EFIT_ALONG_VSC',ndat)
+     IF (ndat EQ 0) THEN BEGIN
         t_arr = tlimit_all
         y_arr = [!values.f_nan,!values.f_nan]
-        store_data,'EFIT_ALONG_VSC', data={x:t_arr, y:y_arr}
+        STORE_DATA,'EFIT_ALONG_VSC', DATA={x:t_arr, y:y_arr}
         dlimit = {spec:0, ystyle:1, yrange:[-1000., 1000.], $
                   ytitle:'EFIT ALONG V!C!C55m (mV/m)', $
                   panel_size:3}
-        store_data,'EFIT_ALONG_V',dlimit=dlimit
-        options,'EFIT_ALONG_VSC','yrange',[-100.,100.]
-        options,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C(mV/m)'
-        options,'EFIT_ALONG_VSC','panel_size',2
-     endif
+        STORE_DATA,'EFIT_ALONG_V',DLIMIT=dlimit
+        OPTIONS,'EFIT_ALONG_VSC','yrange',[-100.,100.]
+        OPTIONS,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C(mV/m)'
+        OPTIONS,'EFIT_ALONG_VSC','panel_size',2
+     ENDIF
 
 ; dB_fac_v
 
-     bdat = where(tPlt_vars eq 'dB_fac_v',ndat)
-     if (ndat eq 0) then begin
+     bdat = WHERE(tPlt_vars EQ 'dB_fac_v',ndat)
+     IF (ndat EQ 0) THEN BEGIN
         t_arr = tlimit_all
-        y_arr = dblarr(2,3)
+        y_arr = DBLARR(2,3)
         y_arr[*,*] = !values.d_nan
-        store_data,'dB_fac_v', data={x:t_arr, y:y_arr}
-        options,'dB_fac_v','yrange',[-100,100]
-        options,'dB_fac_v','ytitle','dB_fac_v!C!C(nT))'
-        options,'dB_fac_v','panel_size',2
-        options,'dB_fac_v','colors',[6,4,2]
-        options,'dB_fac_v','labels',['v ((BxV)xB)','p (BxV)','b']
-     endif
+        STORE_DATA,'dB_fac_v', DATA={x:t_arr, y:y_arr}
+        OPTIONS,'dB_fac_v','yrange',[-100,100]
+        OPTIONS,'dB_fac_v','ytitle','dB_fac_v!C!C(nT))'
+        OPTIONS,'dB_fac_v','panel_size',2
+        OPTIONS,'dB_fac_v','colors',[6,4,2]
+        OPTIONS,'dB_fac_v','labels',['v ((BxV)xB)','p (BxV)','b']
+     ENDIF
 
      tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','SFA_V5-V8','DSP_V5-V8','EFIT_ALONG_VSC','dB_fac_v']
 
@@ -1405,7 +1433,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
      IF KEYWORD_SET(add_Newell_panel) THEN tPlt_vars = ['newellPanel',tPlt_vars]
 
-  endif
+  ENDIF
 
   ;;Help db_fac_v
   GET_DATA,'dB_fac_v',DATA=dat
@@ -1413,18 +1441,18 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
   dat.y[*,1] = dat.y[*,1] - (dat.y[0,1]-dat.y[0,2])
   STORE_DATA,'dB_fac_v',DATA=dat
 
-  if (keyword_set(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) then begin
+  IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
      ;; loadct2,40
-     tplot,tPlt_vars,var=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
+     TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=[t1,t2]
 
      IF KEYWORD_SET(add_kappa_panel) THEN BEGIN
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM='*'
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings'   ;,PSYM=1
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'       ;,PSYM=1
      ENDIF
-  endif
+  ENDIF
 
-  IF keyword_set(save_ps) THEN BEGIN
+  IF KEYWORD_SET(save_ps) THEN BEGIN
 
      CASE 1 OF
         KEYWORD_SET(plot_north): BEGIN

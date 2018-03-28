@@ -43,6 +43,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          INCLUDE_ELECTRON_PA_SPEC=include_electron_pa_spec, $
                          GRL=GRL, $
                          OPLOT_POT=oPlot_pot, $
+                         SPECTROGRAM_UNITS=spectrogram_units, $
                          ADD_PARM_ERRORS_FROM_FILE=add_parm_errors_from_file, $
                          ADD_PARM_ERRORS__NROLLS=add_parm_errors__nRolls, $
                          ADD_PARM_ERRORS__USE_MOST_PROB=add_parm_errors__use_most_prob, $
@@ -55,6 +56,26 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   !P.CHARSIZE = 3.4
   !P.SYMSIZE  = 2.0
+
+  ;Determine units for electron energy and pitch-angle spectrograms
+  defSpecUnits = 'eflux' 
+  specUnits = KEYWORD_SET(spectrogram_units) ? spectrogram_units : defSpecUnits
+
+  CASE STRUPCASE(specUnits) OF
+     'FLUX': BEGIN
+
+        specUnits = 'flux'
+        ionSpecLogLims  = [1.,7.]
+        specLogUnitsString = 'Log #!C/cm!U2!N-s-sr-eV'
+        eSpecLogLims = [2.,8.]
+     END
+     'EFLUX': BEGIN
+        specUnits = 'eflux'
+        ionSpecLogLims  = [5.,9.]
+        eSpecLogLims = [6.,9.]
+        specLogUnitsString = 'Log eV!C/cm!U2!N-s-sr-eV'
+     END
+  ENDCASE
 
   ;;Some defaults
   ;; ctNum            = 39
@@ -500,7 +521,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
               filNavn = KEYWORD_SET(outPlotName) ? outPlotName : (orbString + '-single_kappa_summary')
               filTmp  = STRSPLIT(outPlotName,'.',/EXTRACT)
-              filPref = (filTmp)[0]
+              filPref = (filTmp)[0] + '_' + specUnits
               filSuff = N_ELEMENTS(filTmp) GT 1 ? '.' + filTmp[1] : ''
 
 
@@ -631,7 +652,10 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
         var_name='Iesa_Angle'
         IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-           GET_PA_SPEC,'fa_' + ieb_or_ies + '_c',units='eflux',name=var_name,energy=[4.,30000.]
+           GET_PA_SPEC,'fa_' + ieb_or_ies + '_c', $
+                       UNITS=specUnits, $
+                       NAME=var_name, $
+                       ENERGY=[4.,30000.]
         ENDIF
         GET_DATA,var_name,DATA=data
         IF KEYWORD_SET(save_for_offline) THEN BEGIN
@@ -643,12 +667,12 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         OPTIONS,var_name,'spec',1	
         ;; zlim,var_name,4,9,0
         zlim,var_name, $
-             (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
+             (MIN(data.y[WHERE(FINITE(data.y))]) > ionSpecLogLims[0]), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < ionSpecLogLims[1]),0
         ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
         ylim,var_name,0,360,0
         OPTIONS,var_name,'ytitle','Ions!C!CAngle (Deg.)'
-        OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        OPTIONS,var_name,'ztitle',specLogUnitsString
         OPTIONS,var_name,'x_no_interp',1
         OPTIONS,var_name,'y_no_interp',1
         OPTIONS,var_name,'panel_size',2
@@ -703,7 +727,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
            GET_EN_SPEC,'fa_' + ieb_or_ies + '_c', $
                        NAME=var_name, $
-                       UNITS='eflux', $
+                       UNITS=specUnits, $
                        /CALIB, $
                        RETRACE=1
         ENDIF
@@ -716,12 +740,12 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         STORE_DATA,var_name,DATA=data
         OPTIONS,var_name,'spec',1	
         ;; zlim,var_name,4,9,0
-        zlim,var_name, $
-             (MIN(data.y[WHERE(FINITE(data.y))]) > 5 ), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < 9),0
-        ylim,var_name,4,30000,1
+        ZLIM,var_name, $
+             (MIN(data.y[WHERE(FINITE(data.y))]) > ionSpecLogLims[0]), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < ionSpecLogLims[1]),0
+        YLIM,var_name,4,24000,1
         OPTIONS,var_name,'ytitle','Ions!C!CEnergy (eV)'
-        OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        OPTIONS,var_name,'ztitle',specLogUnitsString
         OPTIONS,var_name,'x_no_interp',1
         OPTIONS,var_name,'y_no_interp',1
         OPTIONS,var_name,'panel_size',2
@@ -760,7 +784,10 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      IF KEYWORD_SET(include_electron_pa_spec) THEN BEGIN
         var_name='Eesa_Angle'
         IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-           GET_PA_SPEC,'fa_' + eeb_or_ees + '_c',units='eflux',name=var_name, energy=[energy_electrons[0],30000.]
+           GET_PA_SPEC,'fa_' + eeb_or_ees + '_c', $
+                       UNITS=specUnits, $
+                       NAME=var_name, $
+                       ENERGY=[energy_electrons[0],30000.]
         ENDIF
         GET_DATA,var_name,DATA=data 
         IF KEYWORD_SET(save_for_offline) THEN BEGIN
@@ -775,11 +802,14 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         ;;      (MIN(data.y[WHERE(FINITE(data.y))]) > 1.D6 ), $
         ;;      (MAX(data.y[WHERE(FINITE(data.y))]) < 1.D9),1
         zlim,var_name, $
-             (MIN(data.y[WHERE(FINITE(data.y))]) > 6. ), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < 9.),0
+             (MIN(data.y[WHERE(FINITE(data.y))]) > eSpecLogLims[0] ), $
+             (MAX(data.y[WHERE(FINITE(data.y))]) < eSpecLogLims[1]),0
         ylim,var_name,0,360,0
-        OPTIONS,var_name,'ytitle','Electrons > ' + STRING(FORMAT='(F0.1)',energy_electrons[0]/1000.) + ' keV!C!CAngle (Deg.)'
-        OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+        OPTIONS,var_name,'ytitle','Electrons > ' $
+                + STRING(FORMAT='(F0.1)', $
+                       energy_electrons[0]/1000.) $
+                + ' keV!C!CAngle (Deg.)'
+        OPTIONS,var_name,'ztitle',specLogUnitsString
         OPTIONS,var_name,'x_no_interp',1
         OPTIONS,var_name,'y_no_interp',1
         OPTIONS,var_name,'panel_size',2
@@ -832,7 +862,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
         GET_EN_SPEC,'fa_' + eeb_or_ees + '_c', $
                     NAME=var_name, $
-                    UNITS='eflux', $
+                    UNITS=specUnits, $
                     ANGLE=electron_angleRange, $
                     /CALIB, $
                     RETRACE=1
@@ -847,12 +877,12 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      OPTIONS,var_name,'spec',1
      ;; zlim,var_name,4,9,0
      ZLIM,var_name, $
-          (MIN(data.y[WHERE(FINITE(data.y))]) > 6.), $
-          (MAX(data.y[WHERE(FINITE(data.y))]) < 9.),0
+          (MIN(data.y[WHERE(FINITE(data.y))]) > eSpecLogLims[0]), $
+          (MAX(data.y[WHERE(FINITE(data.y))]) < eSpecLogLims[1]),0
      ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-     YLIM,var_name,5.,30000.,1
+     YLIM,var_name,5.,30110.,1
      OPTIONS,var_name,'ytitle','Electrons!C!CEnergy (eV)'
-     OPTIONS,var_name,'ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
+     OPTIONS,var_name,'ztitle',specLogUnitsString
      OPTIONS,var_name,'x_no_interp',1
      OPTIONS,var_name,'y_no_interp',1
      OPTIONS,var_name,'panel_size',2
@@ -1573,7 +1603,12 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      var_name='Eesa_LC_Energy'
      ;;This already gets called above, but we need to call it again to handle angle restrictions
      IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-        GET_EN_SPEC,'fa_' + eeb_or_ees + '_c',name=var_name,units='eflux',/CALIB,RETRACE=1,ANGLE=eAngle
+        GET_EN_SPEC,'fa_' + eeb_or_ees + '_c', $
+                    NAME=var_name, $
+                    UNITS=specUnits, $
+                    /CALIB, $
+                    RETRACE=1, $
+                    ANGLE=eAngle
      ENDIF
      GET_DATA,var_name,DATA=data
      IF KEYWORD_SET(save_for_offline) THEN BEGIN
