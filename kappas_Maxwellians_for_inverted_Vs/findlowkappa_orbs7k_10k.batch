@@ -3,47 +3,6 @@ NoPlots:
 IDL: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/findlowkappa_wrapper.pro
 
 DataBaseRequest:
-    Orbits 7002
-    Orbits 7006
-    Orbits 7034
-    Orbits 7052
-    Orbits 7059
-    Orbits 7077
-    Orbits 7079
-    Orbits 7099
-    Orbits 7121
-    Orbits 7121
-    Orbits 7128
-    Orbits 7133
-    Orbits 7158
-    Orbits 7158
-    Orbits 7172
-    Orbits 7174
-    Orbits 7175
-    Orbits 7176
-    Orbits 7235
-    Orbits 7238
-    Orbits 7314
-    Orbits 7387
-    Orbits 7398
-    Orbits 7409
-    Orbits 7611
-    Orbits 7831
-    Orbits 7871
-    Orbits 7871
-    Orbits 7871
-    Orbits 7895
-    Orbits 7963
-    Orbits 7974
-    Orbits 7983
-    Orbits 7983
-    Orbits 8095
-    Orbits 8097
-    Orbits 8114
-    Orbits 8115
-    Orbits 8117
-    Orbits 8129
-    Orbits 8152
     Orbits 8153
     Orbits 8154
     Orbits 8161
@@ -150,6 +109,47 @@ DataBaseRequest:
     Orbits 9965
     Orbits 9977
     Orbits 9995
+    Orbits 2007002
+    Orbits 2007006
+    Orbits 2007034
+    Orbits 2007052
+    Orbits 2007059
+    Orbits 2007077
+    Orbits 2007079
+    Orbits 2007099
+    Orbits 2007121
+    Orbits 2007121
+    Orbits 2007128
+    Orbits 2007133
+    Orbits 2007158
+    Orbits 2007158
+    Orbits 2007172
+    Orbits 2007174
+    Orbits 2007175
+    Orbits 2007176
+    Orbits 2007235
+    Orbits 2007238
+    Orbits 2007314
+    Orbits 2007387
+    Orbits 2007398
+    Orbits 2007409
+    Orbits 2007611
+    Orbits 2007831
+    Orbits 2007871
+    Orbits 2007871
+    Orbits 2007871
+    Orbits 2007895
+    Orbits 2007963
+    Orbits 2007974
+    Orbits 2007983
+    Orbits 2007983
+    Orbits 2008095
+    Orbits 2008097
+    Orbits 2008114
+    Orbits 2008115
+    Orbits 2008117
+    Orbits 2008129
+    Orbits 2008152
 
 PlotConfigurationDir: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/
 PlotConfigurationFile: kappa_batch_yobbe
