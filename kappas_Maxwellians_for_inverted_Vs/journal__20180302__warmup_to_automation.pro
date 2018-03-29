@@ -31,7 +31,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   addSec_on_either_side             = 20
   only_1D_fits                      = 0
 
-  checkForSkippers = 1
+  checkForSkippers = 0
   nToSkip = 0
 
   dateToCheck = '20180328'
@@ -160,8 +160,8 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   eps                      = 1
 
-  spectrogram_units        = 'flux'
-  ;; spectrogram_units        = 'eflux'
+  ;; spectrogram_units        = 'flux'
+  spectrogram_units        = 'eflux'
 
   show_Strangeway_summary  = KEYWORD_SET(noStrangewaySummary) ? 0 : 1
   sway__save_ps            = 1
@@ -266,9 +266,28 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   ENDIF
 
   IF orbit EQ 1694 AND nToSkip EQ 0 THEN BEGIN
-     energy_electrons[0] = 1E2
-     min_peak_energy     = 1E2
-     min_peak_energyArr  = [1E2,1E2,1E2]
+     
+  ;;    isMajic             = 2E2
+  ;;    energy_electrons[0] = isMajic
+  ;;    min_peak_energy     = isMajic
+  ;;    min_peak_energyArr  = [isMajic,isMajic,isMajic]
+
+     majicEnergy         = 2E2
+     energy_electrons[0] = majicEnergy
+     min_peak_energy     = majicEnergy
+     min_peak_energyArr  = [majicEnergy,1E2,100]
+     max_peak_energyArr  = [2e4,2e4,4E3]
+
+     cAP__iu_pot_tids    = '1997-01-25/' + [['02:02:00','02:02:27.5'], $
+                                            ['02:02:58','02:03:33']]
+
+     use_peakE_bounds_for_moment_calc = [1,0,0]
+     peakE_bounds_indShift            = [-1,0]
+
+     cAP_tRanges         = cAP__iu_pot_tids
+
+     spectra_average_interval = 2
+
   ENDIF
 
   IF orbit EQ 1835 AND nToSkip EQ 0 THEN BEGIN
@@ -331,23 +350,6 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      min_peak_energyArr  = [majicEnergy,1E2,700]
 
      spectra_average_interval = 1
-
-  ENDIF
-
-  IF orbit EQ 1694 AND nToSkip EQ 0 THEN BEGIN
-     
-     majicEnergy         = 280
-     energy_electrons[0] = majicEnergy
-     min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,100]
-     max_peak_energyArr  = [2e4,2e4,4E3]
-
-     cAP__iu_pot_tids    = '1997-01-25/' + [['02:02:00','02:02:27.5'], $
-                                            ['02:02:58','02:03:33']]
-
-     cAP_tRanges         = cAP__iu_pot_tids
-
-     spectra_average_interval = 4
 
   ENDIF
 
