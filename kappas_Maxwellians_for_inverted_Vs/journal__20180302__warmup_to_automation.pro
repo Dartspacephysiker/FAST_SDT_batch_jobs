@@ -160,8 +160,8 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   eps                      = 1
 
-  spectrogram_units        = 'flux'
-  ;; spectrogram_units        = 'eflux'
+  ;; spectrogram_units        = 'flux'
+  spectrogram_units        = 'eflux'
 
   show_Strangeway_summary  = KEYWORD_SET(noStrangewaySummary) ? 0 : 1
   sway__save_ps            = 1
@@ -203,10 +203,10 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   jv_theor__only_eFlux = 0
 
   electron_angleRange  = 'lc'
-  energy_electrons     = [3e2,3.1e4]
+  energy_electrons     = [2e2,3.1e4]
   ;; electron_lca         = [150,-150]
   ;; electron_lca         = 'lc'
-  min_peak_energy      = 300
+  min_peak_energy      = 200
   max_peak_energy      = !NULL
 
   IF orbit EQ 1607 AND nToSkip EQ 0 THEN BEGIN
