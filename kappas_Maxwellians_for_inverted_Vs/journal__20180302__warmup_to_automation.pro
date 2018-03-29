@@ -34,7 +34,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   checkForSkippers = 0
   nToSkip = 0
 
-  dateToCheck = '20180328'
+  dateToCheck = '20180329'
   dirForCheck = '/SPENCEdata/software/sdt/batch_jobs/plots/'+dateToCheck+'/kappa_fits/'
   orbDir = STRING(FORMAT='("Orbit_",I0)',orbit)
   IF FILE_TEST(dirForCheck+orbDir,/DIRECTORY) AND KEYWORD_SET(checkForSkippers) THEN BEGIN
@@ -222,31 +222,39 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      majicEnergy         = 115.  ;50 is too low; I tried it 
      energy_electrons[0] = majicEnergy
 
-     ;; edgeries            = [300.,90.,40.,65.]
-     edgeries            = [300.,90.,125.,115.]
+     crazyElectrons=0
+     IF crazyElectrons THEN BEGIN
 
-     energy_electrons    = [[edgeries[0],energy_electrons[1]], $
-                            [edgeries[1],energy_electrons[1]], $
-                            [edgeries[2],energy_electrons[1]], $
-                            [edgeries[3],energy_electrons[1]]]
+        ;; edgeries            = [300.,90.,40.,65.]
+        edgeries            = [300.,90.,125.,115.]
 
-     moment_energyArr    = [[energy_electrons[*,2]],[energy_electrons[*,2]],[10,2.4e4]]
+        energy_electrons    = [[edgeries[0],energy_electrons[1]], $
+                               [edgeries[1],energy_electrons[1]], $
+                               [edgeries[2],energy_electrons[1]], $
+                               [edgeries[3],energy_electrons[1]]]
 
-     energy_electron_tBounds = dato + [['12:00:25','12:00:45'], $ ;lb is 300
-                                       ['12:00:45','12:01:15'], $ ;lb is 90
-                                       ['12:01:15','12:01:17'], $ ;lb is 40
-                                       ['12:01:17','12:01:50']]   ;lb is 65
+        moment_energyArr    = [[energy_electrons[*,2]],[energy_electrons[*,2]],[10,2.4e4]]
+
+        energy_electron_tBounds = dato + [['12:00:25','12:00:45'], $ ;lb is 300
+                                          ['12:00:45','12:01:15'], $ ;lb is 90
+                                          ['12:01:15','12:01:17'], $ ;lb is 40
+                                          ['12:01:17','12:01:50']]   ;lb is 65
+
+        min_peak_energy_tStruct = {tBounds : energy_electron_tBounds, $
+                                   energy  : edgeries, $
+                                   forWhom : MAKE_ARRAY(N_ELEMENTS(edgeries),VALUE=0)}
+
+     ENDIF ELSE BEGIN
+        moment_energyArr    = [[energy_electrons],[energy_electrons],[10,2.4e4]]
+     ENDELSE
+
 
      min_peak_energy     = majicEnergy
      min_peak_energyArr  = [majicEnergy,1E2,7E0]
      max_peak_energyArr  = [1E4,2e4,1.0E3]
 
-     min_peak_energy_tStruct = {tBounds : energy_electron_tBounds, $
-                                energy  : edgeries, $
-                                forWhom : MAKE_ARRAY(N_ELEMENTS(edgeries),VALUE=0)}
-
-     use_peakE_bounds_for_moment_calc = [1,0,0]
-     peakE_bounds_indShift = [-1,0]
+     ;; use_peakE_bounds_for_moment_calc = [1,0,0]
+     ;; peakE_bounds_indShift = [-1,0]
 
      cAP__iu_pot_tids = dato + [['12:00:27.5','12:00:39.'], $
                                 ['12:00:40.0','12:00:49'], $
@@ -256,7 +264,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      ;; cAP_tRanges = dato + [['12:01:24.3','12:01:28.76'], $
      ;;                                ['12:01:33.1','12:01:35.7']]
 
-     spectra_average_interval = 2
+     spectra_average_interval = 4
      ;; cAP_tRanges = dato + [['12:01:10.7','12:01:15.2'], $
      ;;                       ['12:01:21.1','12:01:29.4']]
      ;; cAP_tRanges = dato + [['12:01:11','12:01:20']]
@@ -281,12 +289,12 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      cAP__iu_pot_tids    = '1997-01-25/' + [['02:02:00','02:02:27.5'], $
                                             ['02:02:58','02:03:33']]
 
-     use_peakE_bounds_for_moment_calc = [1,0,0]
-     peakE_bounds_indShift            = [-1,0]
+     ;; use_peakE_bounds_for_moment_calc = [1,0,0]
+     ;; peakE_bounds_indShift            = [-2,0]
 
      cAP_tRanges         = cAP__iu_pot_tids
 
-     spectra_average_interval = 2
+     spectra_average_interval = 4
 
   ENDIF
 
