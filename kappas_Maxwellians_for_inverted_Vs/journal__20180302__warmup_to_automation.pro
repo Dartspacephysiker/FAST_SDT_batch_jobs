@@ -254,7 +254,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      max_peak_energyArr  = [1E4,2e4,1.0E3]
 
      ;; use_peakE_bounds_for_moment_calc = [1,0,0]
-     ;; peakE_bounds_indShift = [-1,0]
+     ;; peakE_bounds_indShift = [-2,0]
 
      cAP__iu_pot_tids = dato + [['12:00:27.5','12:00:39.'], $
                                 ['12:00:40.0','12:00:49'], $
@@ -264,12 +264,14 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      ;; cAP_tRanges = dato + [['12:01:24.3','12:01:28.76'], $
      ;;                                ['12:01:33.1','12:01:35.7']]
 
-     spectra_average_interval = 4
+     spectra_average_interval = 2
      ;; cAP_tRanges = dato + [['12:01:10.7','12:01:15.2'], $
      ;;                       ['12:01:21.1','12:01:29.4']]
      ;; cAP_tRanges = dato + [['12:01:11','12:01:20']]
+     ;; cAP_tRanges = dato + [['12:00:29.79','12:00:48.7'], $
+     ;;                       ['12:01:10.75','12:01:22.125']]
      cAP_tRanges = dato + [['12:00:29.79','12:00:48.7'], $
-                           ['12:01:10.75','12:01:22.125']]
+                           ['12:01:22.75','12:01:29.073']]
 
   ENDIF
 
