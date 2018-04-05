@@ -15,18 +15,10 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
 ;; dummy=LABEL_DATE(DATE_FORMAT=['%I:%S']) & times = UTC_TO_JULDAY(curPotList[0].time) & window=WINDOW(DIMENSIONS=[1000,800]) & magcplot = plot(times,magcurrent,NAME='Magnetometer',TITLE='Current obs beginning ' + T2S(curPotList[0].time[0],/MS),XTICKFORMAT='LABEL_DATE',XTICKUNITS='Time',XRANGE=xRange,XTITLE='Tid',/CURRENT,XTICKLEN=1.0,YTICKLEN=1.0,XSUBTICKLEN=0.01,YSUBTICKLEN=0.01) & downE=PLOT(times,curPotList[0].cur,NAME='Downward e!U-!N',COLOR='BLUE',/OVERPLOT) & allcurplot=PLOT(times,curPotList[0].cur+curPotList[1].cur+curPotList[2].cur,NAME='All',LINESTYLE='--',COLOR='RED',XTICKFORMAT='LABEL_DATE',/OVERPLOT) & ionPlot=PLOT(times,curPotList[2].cur,NAME='Upward i!U+!N',LINESTYLE='-.',COLOR='Green',THICK=2,XTICKFORMAT='LABEL_DATE',/OVERPLOT) & axes=magcplot.axes & axes[0].major=ROUND((xRange[1]-xRange[0])*24*60*60/15.)+1 & axes[0].minor=2 & axes[2].major = axes[0].major & axes[2].minor = axes[0].minor & legend=LEGEND(TARGET=[magcplot,downE,allcurplot,ionPlot])
 
-  ;; manual_restore_masterFile = 0
-  ;; manual_restore_fitFile   = 1
-
-  ;; batch_mode = 1
   routName = 'JOURNAL__20180302__WARMUP_TO_AUTOMATION'
-  bonusPref    = '-TESTRUN-20180302'
-
-  ;;get orbTimes here
-  ;;@journal__20161010__info__janhunen_2001_orbits.pro
+  bonusPref    = '-AUTO'
 
   GET_FA_SDT_ORBIT,orbit
-  ;; orbit = KEYWORD_SET(orbit) ? orbit : 1746
 
   addSec_on_either_side             = 20
   only_1D_fits                      = 0
@@ -34,14 +26,14 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   checkForSkippers = 0
   nToSkip = 0
 
-  dateToCheck = '20180329'
+  dateToCheck = '20180402'
   dirForCheck = '/SPENCEdata/software/sdt/batch_jobs/plots/'+dateToCheck+'/kappa_fits/'
   orbDir = STRING(FORMAT='("Orbit_",I0)',orbit)
   IF FILE_TEST(dirForCheck+orbDir,/DIRECTORY) AND KEYWORD_SET(checkForSkippers) THEN BEGIN
 
-     skipFiles = FILE_SEARCH(dirForCheck+orbDir,'Kappa_summary--*eps')
+     skipFiles = FILE_SEARCH(dirForCheck+orbDir,'Kappa_summary-*eps')
      sFileTids = STRMID(skipFiles, $
-                        STRLEN(dirForCheck+orbDir+'/'+'Kappa_summary--'+STRING(FORMAT='(I0)',orbit)+bonusPref+'--'), $
+                        STRLEN(dirForCheck+orbDir+'/'+'Kappa_summary-'+STRING(FORMAT='(I0)',orbit)+bonusPref+'-'), $
                         8)
      nToSkip = N_ELEMENTS(UNIQ(sFileTids,SORT(sFileTids)))
 
@@ -142,8 +134,8 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   daPlots_cAP                       = KEYWORD_SET(noCurPotPlotsPlease) ? 0 : 1
   fit1D__save_plotSlices            = KEYWORD_SET(no1DPlotsPlease) ? 0 : 1
-  fit1D__save_every_nth_plot        = 4
-  fit1D__save_if_kappa_below        = 3.
+  ;; fit1D__save_every_nth_plot        = 4
+  ;; fit1D__save_if_kappa_below        = 3.
   fit1D__combine_plotslices_in_PDF  = 1
   fit2D__save_all_plots             = 0
   fit2D__show_each_candidate        = 0
@@ -253,8 +245,8 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      min_peak_energyArr  = [majicEnergy,1E2,7E0]
      max_peak_energyArr  = [1E4,2e4,1.0E3]
 
-     ;; use_peakE_bounds_for_moment_calc = [1,0,0]
-     ;; peakE_bounds_indShift = [-2,0]
+     use_peakE_bounds_for_moment_calc = [1,0,0]
+     peakE_bounds_indShift = [-2,0]
 
      cAP__iu_pot_tids = dato + [['12:00:27.5','12:00:39.'], $
                                 ['12:00:40.0','12:00:49'], $
@@ -437,7 +429,8 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   nPkAbove_dEF_thresh  = 3
 
   ;; fit2D__density_angleRange = 'ALL__EXCL_ATM'
-  fit2D__density_angleRange = 'ALL__EXCL_ATM'
+  ;; fit2D__density_angleRange = 'ALL__EXCL_ATM'
+  fit2D__density_angleRange = 'ALL_EARTHWARD'
   fit2D__temperature_angleRange = 'LC'
   fit2D__faConductance_angleRange = 'LC'
 
@@ -497,7 +490,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
                aRange__temp_e_down         : fit2D__temperature_angleRange, $
                ;; eRange__temp_list         :, $
                use_energies_above_peak_for_temp : [1,0,0], $
-               msph_sourcecone_halfWidth : 30, $
+               msph_sourcecone_halfWidth : 90, $
                ;; msph_sourcecone_halfWidth : msph_sourcecone_halfWidth, $
                all_pitchAngles : 0, $
                allPitch_except_atm_lc : 0, $

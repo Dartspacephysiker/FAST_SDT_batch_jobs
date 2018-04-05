@@ -34,7 +34,8 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                        SAVE_PS=save_ps, $
                        SAVE_PNG=save_png, $
                        EPS=eps, $
-                       SAVEKAPPA_BONUSPREF=bonusPref, $
+                       OUTPLOT_BONUSPREF=bonusPref, $
+                       SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
                        GRL=GRL, $
                        PLOTDIR=plotDir
 
@@ -156,11 +157,11 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      IF KEYWORD_SET(save_ps) THEN BEGIN
 
         outPlotName  = 'Strangeway_summary'
-        outPlotName += '--' + orbString + (KEYWORD_SET(bonusPref) ? bonusPref : '' )
+        outPlotName += '-' + orbString + (KEYWORD_SET(bonusPref) ? bonusPref : '' )
 
         IF N_ELEMENTS(Newell_2009_interp) GT 0 THEN BEGIN
            IF Newell_2009_interp EQ 0 THEN BEGIN
-              outPlotName += '--not_Newell_interpreted'
+              outPlotName += '-not_Newell_interpreted'
            ENDIF
         ENDIF
 
@@ -173,8 +174,10 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         t2S = t2S.REPLACE(':', '_')
         t2S = t2S.REPLACE('.', '__')
         
-        outPlotName += '--' + t1S + '_-_' + t2S
-
+        specAvgSuff = KEYWORD_SET(spectra_average_interval)                     ? $
+                      STRING(FORMAT='("-avgItvl",I0)',spectra_average_interval) : $
+                      ''
+        outPlotName += '-' + t1S + '_-_' + t2S + specAvgSuff
 
         IF N_ELEMENTS(plotDir) EQ 0 THEN BEGIN
            SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF='/Strangeway_et_al_2005'
@@ -192,6 +195,9 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
               filTmp  = STRSPLIT(outPlotName,'.',/EXTRACT)
               filPref = (filTmp)[0] + '_' + specUnits
               filSuff = N_ELEMENTS(filTmp) GT 1 ? '.' + filTmp[1] : ''
+
+              ;; Update filNavn so that it has specUnits on the end
+              filNavn = filPref
 
               count = 0
               WHILE FILE_TEST(plotDir+filNavn+(KEYWORD_SET(eps) ? '.eps' : '.ps')) DO BEGIN

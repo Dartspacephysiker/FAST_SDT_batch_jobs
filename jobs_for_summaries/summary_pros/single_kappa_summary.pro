@@ -34,7 +34,8 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          SAVE_PS=save_ps, $
                          SAVE_PNG=save_png, $
                          EPS=eps, $
-                         SAVEKAPPA_BONUSPREF=bonusPref, $
+                         SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
+                         OUTPLOT_BONUSPREF=bonusPref, $
                          PLOTDIR=plotDir, $
                          SAVE_FOR_OFFLINE=save_for_offline, $
                          LOAD_FROM_OFFLINE=load_from_offline, $
@@ -457,7 +458,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 ;;Handle PNGness or PSness before kicking things off
 
      outPlotName  = 'Kappa_summary'
-     outPlotName += '--' + orbString + (KEYWORD_SET(bonusPref) ? bonusPref : '' )
+     outPlotName += '-' + orbString + (KEYWORD_SET(bonusPref) ? bonusPref : '' )
      IF KEYWORD_SET(save_ps) THEN BEGIN
 
         t1S = STRMID(TIME_TO_STR(time1,/MSEC),11,11)
@@ -469,11 +470,15 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         t2S = t2S.REPLACE(':', '_')
         t2S = t2S.REPLACE('.', '__')
         
-        outPlotName += '--' + t1S + '_-_' + t2S
+        specAvgSuff = KEYWORD_SET(spectra_average_interval)                     ? $
+                      STRING(FORMAT='("-avgItvl",I0)',spectra_average_interval) : $
+                      ''
+
+        outPlotName += '-' + t1S + '_-_' + t2S + specAvgSuff
 
         IF N_ELEMENTS(Newell_2009_interp) GT 0 THEN BEGIN
            IF Newell_2009_interp EQ 0 THEN BEGIN
-              outPlotName += '--not_Newell_interpreted'
+              outPlotName += '-not_Newell_interpreted'
            ENDIF
         ENDIF
 
@@ -524,6 +529,8 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
               filPref = (filTmp)[0] + '_' + specUnits
               filSuff = N_ELEMENTS(filTmp) GT 1 ? '.' + filTmp[1] : ''
 
+              ;; Update filNavn so that it has specUnits on the end
+              filNavn = filPref
 
               count = 0
               WHILE FILE_TEST(plotDir+filNavn+(KEYWORD_SET(eps) ? '.eps' : '.ps')) DO BEGIN
@@ -1456,18 +1463,18 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         CASE 1 OF
            KEYWORD_SET(kStats__include_these_startstops): BEGIN
               PRINT,'Save it, save stuff: ' + saveDir + outplotname + $
-                    '--for_kStats_analysis--has_startstops.sav'
+                    '-for_kStats_analysis-has_startstops.sav'
               startStop_t = kStats__include_these_startstops
               SAVE,setup,kappa2d,gauss2d,orbString, $
                    startStop_t, $
-                   FILENAME=saveDir + outplotname + '--for_kStats_analysis--has_startstops.sav'
+                   FILENAME=saveDir + outplotname + '-for_kStats_analysis-has_startstops.sav'
               
            END
            ELSE: BEGIN
               PRINT,'Save it, save stuff: ' + saveDir + outplotname + $
-                    '--for_kStats_analysis.sav'
+                    '-for_kStats_analysis.sav'
               SAVE,setup,kappa2d,gauss2d,orbString, $
-                   FILENAME=saveDir + outplotname + '--for_kStats_analysis.sav'
+                   FILENAME=saveDir + outplotname + '-for_kStats_analysis.sav'
            END
         ENDCASE
      ENDIF
