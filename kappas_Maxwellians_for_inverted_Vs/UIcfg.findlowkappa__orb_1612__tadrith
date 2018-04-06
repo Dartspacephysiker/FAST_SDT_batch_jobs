@@ -1,6 +1,6 @@
 *
 Header :this is the 'findlowkappa__orb_1612__tadrith' configuration file
-Header :created on Wed Apr  4 13:31:30 2018
+Header :created on Thu Apr  5 13:15:31 2018
 *
 *
 Description : 
@@ -13,11 +13,11 @@ Config Name:			'findlowkappa__orb_1612__tadrith'
 Config MenuPosition:		4, -10
 Config MenuSize:		155, 150
 Config DefaultSourceId:	'?'
-Config CurrentPlotWindow:	'findlowkappa__orb_1612__tadrith:0 - DA'
+Config CurrentPlotWindow:	'findlowkappa__orb_1612:0 - DA'
 
 	PlotWinStandard
 	{
-	PlotWin Name:		'findlowkappa__orb_1612__tadrith:0 - DA'
+	PlotWin Name:		'findlowkappa__orb_1612:0 - DA'
 	PlotWin Position:	4, 17
 	PlotWin Size:		1280, 997
 	PlotWin PlotsPage:	12

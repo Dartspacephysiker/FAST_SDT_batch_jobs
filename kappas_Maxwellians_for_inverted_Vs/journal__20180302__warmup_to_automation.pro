@@ -137,14 +137,15 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   ;; fit1D__save_every_nth_plot        = 4
   ;; fit1D__save_if_kappa_below        = 3.
   fit1D__combine_plotslices_in_PDF  = 1
-  fit2D__save_all_plots             = 0
-  fit2D__show_each_candidate        = 0
+  fit2D__save_all_plots             = 1
+  fit2D__show_each_candidate        = 1
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
   fit2D__clampDensity               = 0
   fit2D__estimate_sourceCone_from_dist = 0B
   fit2D__extend_fitStruct_eRange    = 0 ;to 50 keV, je crois?
+  add_fitParams_text                = 0
 
   fit2D__temperature_type  = 'PAR' ;or 'AVG'
   ;;PostScript options
@@ -209,6 +210,10 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   IF orbit EQ 1612 AND nToSkip EQ 0 THEN BEGIN
      
+     ;; debug__skip_to_this_time  = '1997-01-17/12:01:00'
+     ;; debug__skip_to_this_time  = '1997-01-17/12:00:26.006'
+     ;; debug__break_on_this_time = '1997-01-17/12:00:26.006'
+
      dato = '1997-01-17/'
 
      majicEnergy         = 115.  ;50 is too low; I tried it 
@@ -245,8 +250,8 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      min_peak_energyArr  = [majicEnergy,1E2,7E0]
      max_peak_energyArr  = [1E4,2e4,1.0E3]
 
-     use_peakE_bounds_for_moment_calc = [1,0,0]
-     peakE_bounds_indShift = [-2,0]
+     ;; use_peakE_bounds_for_moment_calc = [1,0,0]
+     ;; peakE_bounds_indShift = [-2,0]
 
      cAP__iu_pot_tids = dato + [['12:00:27.5','12:00:39.'], $
                                 ['12:00:40.0','12:00:49'], $
@@ -600,6 +605,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
                         FIT2D__NFLUX=fit2D__nFlux, $
                         ADD_ONECOUNT_CURVE=add_oneCount_curve, $
                         SAVE_POSTKAPPA_PLOTS=save_postKappa_plots, $
+                        ADD_FITPARAMS_TEXT=add_fitParams_text, $
                         SAVEKAPPA_BONUSPREF=bonusPref, $
                         CLOSE_KAPPAPLOTS_AFTER_SAVE=close_kp_after_save, $
                         PLOTDIR=plotDir, $
