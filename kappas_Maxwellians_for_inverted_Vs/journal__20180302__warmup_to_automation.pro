@@ -137,8 +137,8 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   ;; fit1D__save_every_nth_plot        = 4
   ;; fit1D__save_if_kappa_below        = 3.
   fit1D__combine_plotslices_in_PDF  = 1
-  fit2D__save_all_plots             = 1
-  fit2D__show_each_candidate        = 1
+  fit2D__save_all_plots             = 0
+  fit2D__show_each_candidate        = 0
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
@@ -212,7 +212,7 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      
      ;; debug__skip_to_this_time  = '1997-01-17/12:01:00'
      ;; debug__skip_to_this_time  = '1997-01-17/12:00:26.006'
-     ;; debug__break_on_this_time = '1997-01-17/12:00:26.006'
+     debug__break_on_this_time = '1997-01-17/12:01:12.5'
 
      dato = '1997-01-17/'
 
