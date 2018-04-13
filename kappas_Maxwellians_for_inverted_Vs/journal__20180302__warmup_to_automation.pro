@@ -210,24 +210,43 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   IF orbit EQ 1612 AND nToSkip EQ 0 THEN BEGIN
      
+     dato = '1997-01-17/'
+     add_parm_errors = 1
+
+     spectra_average_interval = 2
+
      ;; debug__skip_to_this_time  = '1997-01-17/12:01:00'
-     ;; debug__skip_to_this_time  = '1997-01-17/12:00:26.006'
      ;; debug__break_on_this_time = '1997-01-17/12:01:12.5'
 
-     dato = '1997-01-17/'
+     minElecEnergy        = 115. ;50 is too low; I tried it 
+     use_electron_tBounds = 0
 
-     add_parm_errors = 1
+     use_peak_energy_bounds_for_moment_calc = 0
+     peakE_bounds_indShift = [-2,0]
+
+     ;; cAP_tRanges = dato + [['12:00:29.79','12:00:48.7'], $
+     ;;                       ['12:01:22.75','12:01:29.073']]
+
+     ;; Want stats from full kappa interval
+     cAP_tRanges = dato + [['12:00:29.79','12:00:48.7'], $
+                           ['12:00:55','12:01:29.073']]
+
+     cAP__iu_pot_tids = dato + [['12:00:27.5','12:00:39.'], $
+                                ['12:00:40.0','12:00:49'], $
+                                ['12:01:09.0','12:01:13'], $
+                                ['12:01:18.5','12:01:30'], $
+                                ['12:01:32.0','12:01:47']]
+
+
      IF KEYWORD_SET(add_parm_errors) THEN BEGIN
         kSum__add_parm_errors_from_file      = 1
         kSum__add_parm_errors__nRolls        = 10000
         kSum__add_parm_errors__use_most_prob = 1
      ENDIF
 
-     majicEnergy         = 115.  ;50 is too low; I tried it 
-     energy_electrons[0] = majicEnergy
+     energy_electrons[0] = minElecEnergy
 
-     crazyElectrons=0
-     IF crazyElectrons THEN BEGIN
+     IF use_electron_tBounds THEN BEGIN
 
         ;; edgeries            = [300.,90.,40.,65.]
         edgeries            = [300.,90.,125.,115.]
@@ -253,29 +272,13 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      ENDELSE
 
 
-     min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,7E0]
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,7E0]
      max_peak_energyArr  = [1E4,2e4,1.0E3]
 
-     ;; use_peakE_bounds_for_moment_calc = [1,0,0]
-     ;; peakE_bounds_indShift = [-2,0]
-
-     cAP__iu_pot_tids = dato + [['12:00:27.5','12:00:39.'], $
-                                ['12:00:40.0','12:00:49'], $
-                                ['12:01:09.0','12:01:13'], $
-                                ['12:01:18.5','12:01:30'], $
-                                ['12:01:32.0','12:01:47']]
-     ;; cAP_tRanges = dato + [['12:01:24.3','12:01:28.76'], $
-     ;;                                ['12:01:33.1','12:01:35.7']]
-
-     spectra_average_interval = 2
-     ;; cAP_tRanges = dato + [['12:01:10.7','12:01:15.2'], $
-     ;;                       ['12:01:21.1','12:01:29.4']]
-     ;; cAP_tRanges = dato + [['12:01:11','12:01:20']]
-     ;; cAP_tRanges = dato + [['12:00:29.79','12:00:48.7'], $
-     ;;                       ['12:01:10.75','12:01:22.125']]
-     cAP_tRanges = dato + [['12:00:29.79','12:00:48.7'], $
-                           ['12:01:22.75','12:01:29.073']]
+     IF KEYWORD_SET(use_peak_energy_bounds_for_moment_calc) THEN BEGIN
+        use_peakE_bounds_for_moment_calc = [1,0,0]
+     ENDIF
 
   ENDIF
 
@@ -286,10 +289,10 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
   ;;    min_peak_energy     = isMajic
   ;;    min_peak_energyArr  = [isMajic,isMajic,isMajic]
 
-     majicEnergy         = 2E2
-     energy_electrons[0] = majicEnergy
-     min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,100]
+     minElecEnergy       = 2E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
      max_peak_energyArr  = [2e4,2e4,4E3]
 
      cAP__iu_pot_tids    = '1997-01-25/' + [['02:02:00','02:02:27.5'], $
@@ -306,27 +309,27 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   IF orbit EQ 1835 AND nToSkip EQ 0 THEN BEGIN
 
-     majicEnergy = 6E2
-     energy_electrons[0] = majicEnergy
-     min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,5E1]
+     minElecEnergy = 6E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,5E1]
      max_peak_energyArr  = [2e4,2e4,2E3]
 
   ENDIF
 
   IF orbit EQ 1945 AND nToSkip EQ 0 THEN BEGIN
-     majicEnergy = KEYWORD_SET(majicInterval) ? 5E2 : 2E2
-     energy_electrons[0] = majicEnergy
-     min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,1E2]
+     minElecEnergy = KEYWORD_SET(majicInterval) ? 5E2 : 2E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,1E2]
   ENDIF
 
   IF orbit EQ 2968 AND nToSkip EQ 0 THEN BEGIN
 
-     majicEnergy         = 1.1E3
-     energy_electrons[0] = majicEnergy
-     min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,700]
+     minElecEnergy        = 1.1E3
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,700]
      max_peak_energyArr  = [2e4,2e4,4E3]
 
      cAP__iu_pot_tids    = '1997-05-22/' + [['22:39:30','22:40:05'], $
@@ -336,10 +339,10 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   IF orbit EQ 3167 AND nToSkip EQ 0 THEN BEGIN
 
-     majicEnergy         = 300
-     energy_electrons[0] = majicEnergy
-     min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,700]
+     minElecEnergy       = 300
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,700]
 
      spectra_average_interval = 6
 
@@ -347,10 +350,10 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   IF orbit EQ 3368 AND nToSkip EQ 0 THEN BEGIN
 
-     majicEnergy         = 200.
-     energy_electrons[0] = majicEnergy
-     min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,700]
+     minElecEnergy       = 200.
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,700]
 
      spectra_average_interval = 4
 
@@ -358,10 +361,10 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   IF orbit EQ 2685 AND nToSkip EQ 0 THEN BEGIN
 
-     majicEnergy         = 80.
-     energy_electrons[0] = majicEnergy
-     min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,700]
+     minElecEnergy       = 80.
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,700]
 
      spectra_average_interval = 1
 
@@ -369,20 +372,20 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
 
   IF orbit EQ 3218 AND nToSkip EQ 0 THEN BEGIN
 
-     majicEnergy         = 70.
-     energy_electrons[0] = majicEnergy
-     min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,100]
+     minElecEnergy       = 70.
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
      ;; max_peak_energyArr  = [2e4,2e4,4E3]
 
   ENDIF
 
   IF orbit EQ 3760 AND nToSkip EQ 0 THEN BEGIN
      
-     majicEnergy         = 80.
-     energy_electrons[0] = majicEnergy
-     min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,100]
+     minElecEnergy       = 80.
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
 
      tmpDate             = '1997-08-04/'
      cAP_tRanges = tmpDate + [['03:49:50','03:50:02'], $
@@ -394,8 +397,8 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      
      dato = '1998-01-23/'
 
-     majicEnergy         = 60.  ;50 is too low; I tried it 
-     energy_electrons[0] = majicEnergy
+     minElecEnergy       = 60.  ;50 is too low; I tried it 
+     energy_electrons[0] = minElecEnergy
 
      edgeries            = [30.,150.]
 
@@ -407,8 +410,8 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      energy_electron_tBounds = dato + [['08:23:58','08:24:01.4'], $ ;lb is 30
                                        ['08:24:01.4','08:25:40']]   ;lb is 150.
 
-     min_peak_energy     = majicEnergy
-     min_peak_energyArr  = [majicEnergy,1E2,1E1]
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,1E1]
      ;; max_peak_energyArr  = [1E4,2e4,1.0E3]
 
      min_peak_energy_tStruct = {tBounds : energy_electron_tBounds, $
