@@ -212,9 +212,16 @@ PRO JOURNAL__20180302__WARMUP_TO_AUTOMATION,orbit, $
      
      ;; debug__skip_to_this_time  = '1997-01-17/12:01:00'
      ;; debug__skip_to_this_time  = '1997-01-17/12:00:26.006'
-     debug__break_on_this_time = '1997-01-17/12:01:12.5'
+     ;; debug__break_on_this_time = '1997-01-17/12:01:12.5'
 
      dato = '1997-01-17/'
+
+     add_parm_errors = 1
+     IF KEYWORD_SET(add_parm_errors) THEN BEGIN
+        kSum__add_parm_errors_from_file      = 1
+        kSum__add_parm_errors__nRolls        = 10000
+        kSum__add_parm_errors__use_most_prob = 1
+     ENDIF
 
      majicEnergy         = 115.  ;50 is too low; I tried it 
      energy_electrons[0] = majicEnergy
