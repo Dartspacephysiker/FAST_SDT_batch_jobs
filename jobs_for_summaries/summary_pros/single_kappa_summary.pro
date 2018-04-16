@@ -35,6 +35,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          SAVE_PNG=save_png, $
                          EPS=eps, $
                          SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
+                         ENFORCE_DIFF_EFLUX_SRATE=enforce_diff_eFlux_sRate, $
                          OUTPLOT_BONUSPREF=bonusPref, $
                          PLOTDIR=plotDir, $
                          SAVE_FOR_OFFLINE=save_for_offline, $
@@ -478,9 +479,15 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         t2S = t2S.REPLACE(':', '_')
         t2S = t2S.REPLACE('.', '__')
         
-        specAvgSuff = KEYWORD_SET(spectra_average_interval)                     ? $
-                      STRING(FORMAT='("-avgItvl",I0)',spectra_average_interval) : $
-                      ''
+        specAvgSuff = ''
+        CASE 1 OF
+           KEYWORD_SET(enforce_diff_eFlux_sRate): BEGIN
+              specAvgSuff = (STRING(FORMAT='("-sRate",F0.2)',enforce_diff_eFlux_sRate)).Replace('.','_')
+           END
+           KEYWORD_SET(spectra_average_interval): BEGIN
+              specAvgSuff = STRING(FORMAT='("-avgItvl",I0)',spectra_average_interval)
+           END
+        ENDCASE
 
         outPlotName += '-' + t1S + '_-_' + t2S + specAvgSuff
 

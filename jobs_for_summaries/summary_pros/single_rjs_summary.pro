@@ -36,6 +36,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                        EPS=eps, $
                        OUTPLOT_BONUSPREF=bonusPref, $
                        SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
+                       ENFORCE_DIFF_EFLUX_SRATE=enforce_diff_eFlux_sRate, $
                        GRL=GRL, $
                        PLOTDIR=plotDir
 
@@ -174,9 +175,16 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         t2S = t2S.REPLACE(':', '_')
         t2S = t2S.REPLACE('.', '__')
         
-        specAvgSuff = KEYWORD_SET(spectra_average_interval)                     ? $
-                      STRING(FORMAT='("-avgItvl",I0)',spectra_average_interval) : $
-                      ''
+        specAvgSuff = ''
+        CASE 1 OF
+           KEYWORD_SET(enforce_diff_eFlux_sRate): BEGIN
+              specAvgSuff = (STRING(FORMAT='("-sRate",F0.2)',enforce_diff_eFlux_sRate)).Replace('.','_')
+           END
+           KEYWORD_SET(spectra_average_interval): BEGIN
+              specAvgSuff = STRING(FORMAT='("-avgItvl",I0)',spectra_average_interval)
+           END
+        ENDCASE
+
         outPlotName += '-' + t1S + '_-_' + t2S + specAvgSuff
 
         IF N_ELEMENTS(plotDir) EQ 0 THEN BEGIN
