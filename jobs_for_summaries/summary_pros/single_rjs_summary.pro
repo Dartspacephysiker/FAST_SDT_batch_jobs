@@ -15,6 +15,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                        ADD_CHARE_PANEL=add_chare_panel, $
                        ADD_NEWELL_PANEL=add_Newell_panel, $
                        NEWELL_2009_INTERP=Newell_2009_interp, $
+                       SAVE_NEWELL_DATA=save_Newell_data, $
                        ADD_IU_POT=add_iu_pot, $
                        SPECTROGRAM_UNITS=spectrogram_units, $
                        LOG_KAPPAPLOT=log_kappaPlot, $
@@ -156,7 +157,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
 ;;Handle PNGness or PSness before kicking things off
 
-     IF KEYWORD_SET(save_ps) THEN BEGIN
+     IF KEYWORD_SET(save_ps) OR KEYWORD_SET(save_Newell_data) THEN BEGIN
 
         outPlotName  = 'Strangeway_summary'
         outPlotName += '-' + orbString + (KEYWORD_SET(bonusPref) ? bonusPref : '' )
@@ -1280,6 +1281,25 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
         ;; loadct2,40
         TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+     ENDIF
+
+     IF KEYWORD_SET(save_Newell_data) THEN BEGIN
+
+        outDir= '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/kappa_Newell_data/' $
+                + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + '/'
+        IF ~FILE_TEST(outDir,/DIRECTORY) THEN BEGIN
+
+           SPAWN,'mkdir -p ' + outDir
+
+           IF ~FILE_TEST(outDir,/DIRECTORY) THEN STOP
+           
+        ENDIF
+        
+        ;; '18' represents length of string "Strangeway_summary"
+        outName = 'NewellData' + STRMID(outPlotName,18,STRLEN(outPlotName)-18) + '.sav'
+        PRINT,'Saving Newell data to' + outName + ' ...'
+        SAVE,events,FILENAME=outDir+outName
+
      ENDIF
 
   ENDIF

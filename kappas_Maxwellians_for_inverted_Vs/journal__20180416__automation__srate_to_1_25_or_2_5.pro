@@ -16,7 +16,8 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 ;; dummy=LABEL_DATE(DATE_FORMAT=['%I:%S']) & times = UTC_TO_JULDAY(curPotList[0].time) & window=WINDOW(DIMENSIONS=[1000,800]) & magcplot = plot(times,magcurrent,NAME='Magnetometer',TITLE='Current obs beginning ' + T2S(curPotList[0].time[0],/MS),XTICKFORMAT='LABEL_DATE',XTICKUNITS='Time',XRANGE=xRange,XTITLE='Tid',/CURRENT,XTICKLEN=1.0,YTICKLEN=1.0,XSUBTICKLEN=0.01,YSUBTICKLEN=0.01) & downE=PLOT(times,curPotList[0].cur,NAME='Downward e!U-!N',COLOR='BLUE',/OVERPLOT) & allcurplot=PLOT(times,curPotList[0].cur+curPotList[1].cur+curPotList[2].cur,NAME='All',LINESTYLE='--',COLOR='RED',XTICKFORMAT='LABEL_DATE',/OVERPLOT) & ionPlot=PLOT(times,curPotList[2].cur,NAME='Upward i!U+!N',LINESTYLE='-.',COLOR='Green',THICK=2,XTICKFORMAT='LABEL_DATE',/OVERPLOT) & axes=magcplot.axes & axes[0].major=ROUND((xRange[1]-xRange[0])*24*60*60/15.)+1 & axes[0].minor=2 & axes[2].major = axes[0].major & axes[2].minor = axes[0].minor & legend=LEGEND(TARGET=[magcplot,downE,allcurplot,ionPlot])
 
   routName = 'JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5'
-  bonusPref    = '-SRATE_1_25'
+  ;; bonusPref    = '-SRATE_1_25'
+  bonusPref    = '-GETKLOWBOUND'
   ;; McFadden_diff_eFlux = 0
   enforce_diff_eFlux_sRate = 1.25
 
@@ -163,6 +164,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   sway__add_kappa_panel    = 0
   sway__add_chare_panel    = 1
   sway__add_Newell_panel   = 1
+  sway__save_Newell_data   = 1
   sway__add_iu_pot         = 1
   sway__log_kappaPlot      = 0
   sway__spectrogram_units  = spectrogram_units
@@ -339,6 +341,16 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
                                             ['22:40:32','22:40:45']]
   ENDIF
 
+  IF orbit EQ 3061 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 300.
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     ;; min_peak_energyArr  = [minElecEnergy,1E2,700]
+     ;; max_peak_energyArr  = [2e4,2e4,4E3]
+
+  ENDIF
+  
   IF orbit EQ 3167 AND nToSkip EQ 0 THEN BEGIN
 
      minElecEnergy       = 300
@@ -630,6 +642,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
                         SWAY__ADD_KAPPA_PANEL=sway__add_kappa_panel, $
                         SWAY__ADD_CHARE_PANEL=sway__add_chare_panel, $
                         SWAY__ADD_NEWELL_PANEL=sway__add_Newell_panel, $
+                        SWAY__SAVE_NEWELL_DATA=sway__save_Newell_data, $
                         SWAY__ADD_IU_POT=sway__add_iu_pot, $
                         SWAY__LOG_KAPPAPLOT=sway__log_kappaPlot, $
                         SWAY__SPECTROGRAM_UNITS=sway__spectrogram_units, $
