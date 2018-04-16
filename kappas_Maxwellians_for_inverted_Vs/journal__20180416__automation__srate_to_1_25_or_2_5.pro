@@ -26,10 +26,10 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   addSec_on_either_side = 20
   only_1D_fits          = 0
 
-  checkForSkippers = 0
+  checkForSkippers = 1
   nToSkip = 0
 
-  dateToCheck = '20180402'
+  dateToCheck = '20180416'
   dirForCheck = '/SPENCEdata/software/sdt/batch_jobs/plots/'+dateToCheck+'/kappa_fits/'
   orbDir = STRING(FORMAT='("Orbit_",I0)',orbit)
   IF FILE_TEST(dirForCheck+orbDir,/DIRECTORY) AND KEYWORD_SET(checkForSkippers) THEN BEGIN
