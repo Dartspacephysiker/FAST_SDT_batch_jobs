@@ -3,6 +3,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                        EEB_OR_EES=eeb_OR_ees, $
                        ENERGY_ELECTRONS=energy_electrons, $
                        ENERGY_ELECTRON_TBOUNDS=energy_electron_tBounds, $
+                       ELECTRON_ANGLERANGE=electron_angleRange, $
                        TLIMIT_NORTH=tlimit_north, $
                        TLIMIT_SOUTH=tlimit_south, $
                        TLIMIT_ALL=tlimit_all, $
@@ -802,8 +803,8 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Chare panel
   IF KEYWORD_SET(add_chare_panel) OR KEYWORD_SET(add_kappa_panel) OR KEYWORD_SET(add_Newell_panel) THEN BEGIN
-     eAngle       = [360.-30.,30.]
-     iAngle       = [135.,225.]
+     eAngle       = KEYWORD_SET(electron_angleRange) ? electron_angleRange : [360.-30.,30.]
+     iAngle       = KEYWORD_SET(ion_angleRange     ) ? ion_angleRange      : [135.,225.]
      eAngleChare  = eAngle
      iAngleChari  = iAngle
      t1eeb = 0.D 
