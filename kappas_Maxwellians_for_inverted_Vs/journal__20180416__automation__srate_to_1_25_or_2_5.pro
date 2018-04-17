@@ -29,7 +29,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   checkForSkippers = 1
   nToSkip = 0
 
-  dateToCheck = '20180416'
+  dateToCheck = '20180417'
   dirForCheck = '/SPENCEdata/software/sdt/batch_jobs/plots/'+dateToCheck+'/kappa_fits/'
   orbDir = STRING(FORMAT='("Orbit_",I0)',orbit)
   IF FILE_TEST(dirForCheck+orbDir,/DIRECTORY) AND KEYWORD_SET(checkForSkippers) THEN BEGIN
@@ -319,6 +319,13 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
      min_peak_energyArr  = [minElecEnergy,1E2,5E1]
      max_peak_energyArr  = [2e4,2e4,2E3]
 
+  ENDIF
+
+  IF orbit EQ 1861 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 2E3
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,1E2]
   ENDIF
 
   IF orbit EQ 1945 AND nToSkip EQ 0 THEN BEGIN
