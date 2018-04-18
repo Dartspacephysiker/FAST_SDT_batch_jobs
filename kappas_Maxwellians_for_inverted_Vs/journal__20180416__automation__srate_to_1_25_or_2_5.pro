@@ -29,7 +29,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   only_1D_fits          = 0
 
   checkForSkippers = N_ELEMENTS(checkForSkippers) GT 0 ? checkForSkippers : 1
-  defSkippersDate  = '20180417'
+  defSkippersDate  = '20180418'
   skippersDate     = N_ELEMENTS(skippersDate    ) GT 0 ? skippersDate     : defSkippersDate
   nToSkip = 0
 
@@ -211,7 +211,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   IF orbit EQ 1579 AND nToSkip EQ 0 THEN BEGIN
      
-     minElecEnergy       = 5E2
+     minElecEnergy       = 8E2
      energy_electrons[0] = minElecEnergy
      min_peak_energy     = minElecEnergy
      min_peak_energyArr  = [minElecEnergy,1E2,100]
@@ -325,7 +325,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   IF orbit EQ 1697 AND nToSkip EQ 0 THEN BEGIN
      
-     minElecEnergy       = 7E2
+     minElecEnergy       = 9E2
      energy_electrons[0] = minElecEnergy
      min_peak_energy     = minElecEnergy
      min_peak_energyArr  = [minElecEnergy,1E2,100]
@@ -353,6 +353,15 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   IF orbit EQ 1758 AND nToSkip EQ 0 THEN BEGIN
      
      minElecEnergy       = 4E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+
+  ENDIF
+
+  IF orbit EQ 1775 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 7E2
      energy_electrons[0] = minElecEnergy
      min_peak_energy     = minElecEnergy
      min_peak_energyArr  = [minElecEnergy,1E2,100]
@@ -396,7 +405,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   IF orbit EQ 1909 AND nToSkip EQ 0 THEN BEGIN
      
-     minElecEnergy       = 4E2
+     minElecEnergy       = 7E2
      energy_electrons[0] = minElecEnergy
      min_peak_energy     = minElecEnergy
      min_peak_energyArr  = [minElecEnergy,1E2,100]
