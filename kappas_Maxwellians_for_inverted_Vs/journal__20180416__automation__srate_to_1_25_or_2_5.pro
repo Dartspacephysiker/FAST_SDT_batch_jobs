@@ -9,6 +9,8 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    NOCURPOTPLOTSPLEASE=noCurPotPlotsPlease, $
    ONLY_SOUTH=only_south, $
    MIN_ALTITUDE=min_altitude, $
+   CHECKFORSKIPPERS=checkForSkippers, $
+   SKIPPERSDATE=skippersDate, $
    BATCH_MODE=batch_mode
 
   COMPILE_OPT IDL2,STRICTARRSUBS
@@ -26,11 +28,12 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   addSec_on_either_side = 20
   only_1D_fits          = 0
 
-  checkForSkippers = 1
+  checkForSkippers = N_ELEMENTS(checkForSkippers) GT 0 ? checkForSkippers : 1
+  defSkippersDate  = '20180417'
+  skippersDate     = N_ELEMENTS(skippersDate    ) GT 0 ? skippersDate     : defSkippersDate
   nToSkip = 0
 
-  dateToCheck = '20180417'
-  dirForCheck = '/SPENCEdata/software/sdt/batch_jobs/plots/'+dateToCheck+'/kappa_fits/'
+  dirForCheck = '/SPENCEdata/software/sdt/batch_jobs/plots/'+skippersDate+'/kappa_fits/'
   orbDir = STRING(FORMAT='("Orbit_",I0)',orbit)
   IF FILE_TEST(dirForCheck+orbDir,/DIRECTORY) AND KEYWORD_SET(checkForSkippers) THEN BEGIN
 
@@ -206,6 +209,15 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   min_peak_energy      = 200
   max_peak_energy      = !NULL
 
+  IF orbit EQ 1579 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 5E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+
+  ENDIF
+
   IF orbit EQ 1607 AND nToSkip EQ 0 THEN BEGIN
      energy_electrons[0] = 8E1
      min_peak_energy     = 8E1
@@ -311,6 +323,51 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   ENDIF
 
+  IF orbit EQ 1697 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 7E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+
+  ENDIF
+
+  IF orbit EQ 1746 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 8E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+
+  ENDIF
+
+  IF orbit EQ 1753 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 7E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+
+  ENDIF
+
+  IF orbit EQ 1758 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 4E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+
+  ENDIF
+
+  IF orbit EQ 1801 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 9E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+
+  ENDIF
+
   IF orbit EQ 1835 AND nToSkip EQ 0 THEN BEGIN
 
      minElecEnergy = 6E2
@@ -328,8 +385,78 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
      min_peak_energyArr  = [minElecEnergy,1E2,1E2]
   ENDIF
 
+  IF orbit EQ 1869 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 8E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+
+  ENDIF
+
+  IF orbit EQ 1909 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 4E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+
+  ENDIF
+
   IF orbit EQ 1945 AND nToSkip EQ 0 THEN BEGIN
      minElecEnergy = KEYWORD_SET(majicInterval) ? 5E2 : 2E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,1E2]
+  ENDIF
+
+  IF orbit EQ 2045 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 8E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+
+  ENDIF
+
+  IF orbit EQ 2072 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 1E3
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+
+  ENDIF
+
+  IF orbit EQ 2078 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 1.2E3
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+
+  ENDIF
+
+  IF orbit EQ 2685 AND nToSkip EQ 0 THEN BEGIN
+
+     minElecEnergy       = 80.
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,700]
+
+     spectra_average_interval = 1
+
+  ENDIF
+
+  IF orbit EQ 2891 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 5E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,1E2]
+  ENDIF
+
+  IF orbit EQ 2891 AND nToSkip EQ 1 THEN BEGIN
+     minElecEnergy       = 5E2
      energy_electrons[0] = minElecEnergy
      min_peak_energy     = minElecEnergy
      min_peak_energyArr  = [minElecEnergy,1E2,1E2]
@@ -358,6 +485,22 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   ENDIF
   
+  IF orbit EQ 3075 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 1E3
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,1E2]
+  ENDIF
+
+  IF orbit EQ 3099 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 2E3
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+
+  ENDIF
+
   IF orbit EQ 3167 AND nToSkip EQ 0 THEN BEGIN
 
      minElecEnergy       = 300
@@ -380,17 +523,6 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   ENDIF
 
-  IF orbit EQ 2685 AND nToSkip EQ 0 THEN BEGIN
-
-     minElecEnergy       = 80.
-     energy_electrons[0] = minElecEnergy
-     min_peak_energy     = minElecEnergy
-     min_peak_energyArr  = [minElecEnergy,1E2,700]
-
-     spectra_average_interval = 1
-
-  ENDIF
-
   IF orbit EQ 3218 AND nToSkip EQ 0 THEN BEGIN
 
      minElecEnergy       = 70.
@@ -398,6 +530,22 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
      min_peak_energy     = minElecEnergy
      min_peak_energyArr  = [minElecEnergy,1E2,100]
      ;; max_peak_energyArr  = [2e4,2e4,4E3]
+
+  ENDIF
+
+  IF orbit EQ 3369 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 7E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,1E2]
+  ENDIF
+
+  IF orbit EQ 3759 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 3E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
 
   ENDIF
 
@@ -411,6 +559,15 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
      tmpDate             = '1997-08-04/'
      cAP_tRanges = tmpDate + [['03:49:50','03:50:02'], $
                               ['03:50:38','03:50:49']]
+
+  ENDIF
+
+  IF orbit EQ 3781 AND nToSkip EQ 0 THEN BEGIN
+     
+     minElecEnergy       = 8E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
 
   ENDIF
 
