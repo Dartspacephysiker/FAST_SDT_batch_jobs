@@ -29,7 +29,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   only_1D_fits          = 0
 
   checkForSkippers = N_ELEMENTS(checkForSkippers) GT 0 ? checkForSkippers : 1
-  defSkippersDate  = '20180418'
+  defSkippersDate  = '20180419'
   skippersDate     = N_ELEMENTS(skippersDate    ) GT 0 ? skippersDate     : defSkippersDate
   nToSkip = 0
 
@@ -219,9 +219,10 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   ENDIF
 
   IF orbit EQ 1607 AND nToSkip EQ 0 THEN BEGIN
-     energy_electrons[0] = 8E1
-     min_peak_energy     = 8E1
-     min_peak_energyArr  = [8E1,1E2,1E2]
+     minElecEnergy       = 8E1
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,1E2]
   ENDIF
 
   IF orbit EQ 1612 AND nToSkip EQ 0 THEN BEGIN
@@ -298,6 +299,20 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   ENDIF
 
+  IF orbit EQ 1662 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 1E3
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,1E2]
+  ENDIF
+
+  IF orbit EQ 1664 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 1E3
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,1E2]
+  ENDIF
+
   IF orbit EQ 1694 AND nToSkip EQ 0 THEN BEGIN
      
   ;;    isMajic             = 2E2
@@ -323,6 +338,13 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   ENDIF
 
+  IF orbit EQ 1696 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 4E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
   IF orbit EQ 1697 AND nToSkip EQ 0 THEN BEGIN
      
      minElecEnergy       = 9E2
@@ -332,13 +354,81 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   ENDIF
 
-  IF orbit EQ 1746 AND nToSkip EQ 0 THEN BEGIN
-     
-     minElecEnergy       = 8E2
+  IF orbit EQ 1719 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 4E2
      energy_electrons[0] = minElecEnergy
      min_peak_energy     = minElecEnergy
      min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
 
+  IF orbit EQ 1719 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 4E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 1720 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 6E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 1727 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 6E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 1728 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 4E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 1731 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 1E3
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 1734 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 1E3
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 1743 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 1E3
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 1744 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 5E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 1747 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 1E3
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 1750 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 1E3
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
   ENDIF
 
   IF orbit EQ 1753 AND nToSkip EQ 0 THEN BEGIN
