@@ -3,13 +3,21 @@ NoPlots:
 IDL: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/findlowkappa__dawnandduskside_wrapper.pro
 
 DataBaseRequest:
+    Orbits 2585
+    Orbits 3146
+    Orbits 3585
+    Orbits 1217
+    Orbits 3370
+    Orbits 1368
     Orbits 3157
     Orbits 3317
     Orbits 3221
     Orbits 3167
     Orbits 3267
     Orbits 3553
+    Orbits 3468
     Orbits 3550
+    Orbits 1478
     Orbits 2487
     Orbits 2597
     Orbits 1607
@@ -168,14 +176,6 @@ DataBaseRequest:
     Orbits 1238
     Orbits 3815
     Orbits 2606
-    Orbits DONE2585
-    Orbits REDO-CUSTOMELENERGY3146
-    Orbits REDO-DIFFEFLUXMESSUP3585
-    Orbits REDO-DIFFEFLUXMESSUP1217
-    Orbits REDO-DIFFEFLUXMESSUP3370
-    Orbits DONE1368
-    Orbits DONE3468
-    Orbits CRASHESSTUFF1478
 
 PlotConfigurationDir: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/
 PlotConfigurationFile: kappa_batch_yobbe

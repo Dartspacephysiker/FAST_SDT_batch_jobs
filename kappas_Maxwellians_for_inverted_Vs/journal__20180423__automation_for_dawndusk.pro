@@ -187,6 +187,55 @@ PRO JOURNAL__20180423__AUTOMATION_FOR_DAWNDUSK,orbit, $
 
   min_peak_energyArr  = [8E1,1E2,1E2]
 
+  IF orbit EQ 3157 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 4E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 3167 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 4E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 3221 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 3E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 3267 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 4E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 3317 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 3E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 3550 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 3E2
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
+  IF orbit EQ 3553 AND nToSkip EQ 0 THEN BEGIN
+     minElecEnergy       = 1E3
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,100]
+  ENDIF
+
   ;;survey window
   eeb_or_ees           = N_ELEMENTS(eeb_or_ees) GT 0 ? eeb_or_ees : 'ees'
   spectra_average_interval = N_ELEMENTS(spectra_average_interval) GT 0 ? spectra_average_interval : 2
