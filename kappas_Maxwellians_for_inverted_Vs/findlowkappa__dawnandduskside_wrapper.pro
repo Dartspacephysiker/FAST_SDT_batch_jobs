@@ -19,9 +19,9 @@
 ;*****************************
 ;Put code here:
 
-JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit,/NOCURPOTPLOTSPLEASE,/BATCH_MODE,CHECKFORSKIPPERS=0
+JOURNAL__20180423__AUTOMATION_FOR_DAWNDUSK,orbit,/NOCURPOTPLOTSPLEASE,/BATCH_MODE,CHECKFORSKIPPERS=1
 
-IF N_ELEMENTS(orbit GT 0) THEN SPAWN,"cat outIDL.findlowkappa__nowautomated_wrapper.pro errIDL.findlowkappa__nowautomated_wrapper.pro > /SPENCEdata/software/sdt/batch_jobs/txtOutput/findlowkappa/" + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + "-Orbit_" + STRING(FORMAT='(I0)',orbit) + ".txt"
+IF N_ELEMENTS(orbit GT 0) THEN SPAWN,"cat outIDL.findlowkappa__dawnandduskside_wrapper.pro errIDL.findlowkappa__dawnandduskside_wrapper.pro > /SPENCEdata/software/sdt/batch_jobs/txtOutput/findlowkappa/" + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + "-Orbit_" + STRING(FORMAT='(I0)',orbit) + ".txt"
 
 ;*****************************
 ;End routine:
