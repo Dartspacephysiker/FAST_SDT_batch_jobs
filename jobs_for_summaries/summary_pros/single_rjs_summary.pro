@@ -531,6 +531,13 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      OPTIONS,var_name,'y_no_interp',1
      OPTIONS,var_name,'panel_size',2
 
+     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[var_name] ELSE tPlt_vars=[var_name,tPlt_vars]
+
+     IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
+        ;; loadct2,40
+        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+     ENDIF
+
      ;; 2018/04/24
      ;; Save ion stuff as I try to figure out how to automate identification of ion beams
      IF KEYWORD_SET(checkForIonBeams) THEN BEGIN 
@@ -667,13 +674,6 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
         ;; SAVE,ionEvents,FILENAME='/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/orb1694_iondata.sav'
 
-     ENDIF
-
-     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[var_name] ELSE tPlt_vars=[var_name,tPlt_vars]
-
-     IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
-        ;; loadct2,40
-        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
      ENDIF
 
      IF KEYWORD_SET(add_iu_pot) THEN BEGIN
