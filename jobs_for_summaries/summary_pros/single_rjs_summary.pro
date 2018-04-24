@@ -39,6 +39,8 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                        OUTPLOT_BONUSPREF=bonusPref, $
                        SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
                        ENFORCE_DIFF_EFLUX_SRATE=enforce_diff_eFlux_sRate, $
+                       SC_POT=sc_pot, $
+                       CHECKFORIONBEAMS=checkForIonBeams, $
                        GRL=GRL, $
                        PLOTDIR=plotDir
 
@@ -397,7 +399,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
 ; ION PITCH ANGLE
 
-     var_NAME='Iesa_Angle'
+     var_name='Iesa_Angle'
      ion_ER = KEYWORD_SET(ion_energyRange) ? ion_energyRange : [4.,30000.]
      GET_PA_SPEC,'fa_' + ieb_or_ies + '_c', $
                  UNITS=specUnits, $
@@ -406,6 +408,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                  /RETRACE, $
                  /CALIB
      GET_DATA,var_name, DATA=data
+     IF KEYWORD_SET(checkForIonBeams) THEN STORE_DATA,'IesaPASpec',DATA=data
      data.y = ALOG10(data.y)
      STORE_DATA,var_name, DATA=data
      OPTIONS,var_name,'spec',1	
@@ -465,6 +468,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                  /CALIB, $
                  RETRACE=1
      GET_DATA,var_name,DATA=data
+     IF KEYWORD_SET(checkForIonBeams) THEN STORE_DATA,"IesaEnSpec",DATA=data
      data.y = ALOG10(data.y)
      STORE_DATA,var_name,DATA=data
      OPTIONS,var_name,'spec',1	
@@ -479,6 +483,155 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      OPTIONS,var_name,'x_no_interp',1
      OPTIONS,var_name,'y_no_interp',1
      OPTIONS,var_name,'panel_size',2
+
+     ;; 2018/04/24
+     ;; Save ion stuff as I try to figure out how to automate identification of ion beams
+     IF KEYWORD_SET(checkForIonBeams) THEN BEGIN 
+        var_name='IesaPASpec'
+        GET_DATA,var_name, DATA=paspec
+        var_NAME='IesaEnSpec'
+        GET_DATA,var_name, DATA=enspec
+        t1eeb = 0.D 
+        t2eeb = 0.D
+        bro   = CALL_FUNCTION('GET_FA_' + STRUPCASE(eeb_or_ees),t1eeb,/ST)
+        bro   = CALL_FUNCTION('GET_FA_' + STRUPCASE(eeb_or_ees),t2eeb,/EN)
+        t1eeb = time1 > t1eeb
+        t2eeb = time2 < t2eeb
+
+        IF N_ELEMENTS(sc_pot) EQ 0 THEN BEGIN
+           GET_SC_POTENTIAL,T1=t1eeb,T2=t2eeb, $
+                            DATA=sc_pot, $
+                            FROM_FA_POTENTIAL=pot__from_fa_potential, $
+                            ALL=pot__all, $
+                            /REPAIR, $
+                            CHASTON_STYLE=pot__Chaston_style, $
+                            FILENAME=pot__fName, $
+                            FROM_FILE=pot__from_file, $
+                            ORBIT=orbit, $
+                            SAVE_FILE=pot__save_file
+        ENDIF
+
+        spin_period   = 4.946   ; seconds
+
+        ;;get_sample_rate
+        sc_pot_dt         = ABS(sc_pot.x-SHIFT(sc_pot.x,-1))
+        sc_pot_dt[0]      = sc_pot_dt[1]
+        nSC_POT           = N_ELEMENTS(sc_pot.x)
+        sc_pot_dt[nSC_POT-1]  = sc_pot_dt[nSC_POT-2]
+
+        ;;get maxima within a 1 spin window
+        j_range       = WHERE(sc_pot.x LT sc_pot.x[N_ELEMENTS(sc_pot.x)-1]-spin_period)
+        index_max     = MAX(j_range)
+
+        pot = MAKE_ARRAY(N_ELEMENTS(sc_pot.x),/DOUBLE)
+        FOR j=0L,index_max DO BEGIN
+           spin_range = j+FINDGEN(CEIL(spin_period/SC_POT_dt[j]))
+           pot[j]     = MAX(ABS(sc_pot.y[spin_range]),ind)
+           sign       = sc_pot.y[spin_range[ind]]/ABS(sc_pot.y[spin_range[ind]])
+           pot[j]     = sign*pot[j]
+        ENDFOR
+
+        pot[index_max+1:nSC_POT-1] = pot[j_range[index_max]]
+        sc_potAvg     = {x:sc_pot.x,y:pot,type:"Chaston style"}
+
+        GET_2DT_TS_POT,'j_2d_fs','fa_' + ieb_or_ies, $
+                       NAME='Ji', $
+                       T1=t1eeb,T2=t2eeb, $
+                       ENERGY=[0.,ion_ER[1]], $
+                       ANGLE=ion_angleRange, $
+                       SC_POT=sc_potAvg, $
+                       /CALIB
+        GET_2DT_TS_POT,'je_2d_fs','fa_' + ieb_or_ies, $
+                       NAME='Jei', $
+                       T1=t1eeb,T2=t2eeb, $
+                       ENERGY=[10.,ion_ER[1]], $
+                       ANGLE=ion_angleRange, $
+                       SC_POT=sc_potAvg, $
+                       /CALIB
+        GET_DATA,'Ji',DATA=ji
+        GET_DATA,'Jei',DATA=jei
+        chari   = jei.y/ji.y*6.242*1.0e11
+
+        ;; GET_2DT,'j_2d_fs','fa_' + ieb_or_ies + '_c', $
+        ;;         NAME='JiLB10', $
+        ;;         T1=t1eeb,T2=t2eeb, $
+        ;;         ENERGY=[10.,ion_ER[1]], $
+        ;;                ANGLE=ion_angleRange, $
+        ;;                /CALIB
+        ;; GET_2DT,'je_2d_fs','fa_' + ieb_or_ies + '_c', $
+        ;;         NAME='JeiLB10', $
+        ;;         T1=t1eeb,T2=t2eeb, $
+        ;;         ENERGY=[10.,ion_ER[1]], $
+        ;;         ANGLE=ion_angleRange,/CALIB
+        ;; GET_2DT,'j_2d_fs','fa_' + ieb_or_ies + '_c', $
+        ;;         NAME='JiLB30', $
+        ;;         T1=t1eeb,T2=t2eeb, $
+        ;;         ENERGY=[30.,ion_ER[1]], $
+        ;;         ANGLE=ion_angleRange,/CALIB
+        ;; GET_2DT,'je_2d_fs','fa_' + ieb_or_ies + '_c', $
+        ;;         NAME='JeiLB30', $
+        ;;         T1=t1eeb,T2=t2eeb, $
+        ;;         ENERGY=[30.,ion_ER[1]], $
+        ;;         ANGLE=ion_angleRange,/CALIB
+        ;; GET_2DT,'j_2d_fs','fa_' + ieb_or_ies + '_c', $
+        ;;         NAME='JiLB100', $
+        ;;         T1=t1eeb,T2=t2eeb, $
+        ;;         ENERGY=[100.,ion_ER[1]], $
+        ;;         ANGLE=ion_angleRange,/CALIB
+        ;; GET_2DT,'je_2d_fs','fa_' + ieb_or_ies + '_c', $
+        ;;         NAME='JeiLB100', $
+        ;;         T1=t1eeb,T2=t2eeb, $
+        ;;         ENERGY=[100.,ion_ER[1]], $
+        ;;         ANGLE=ion_angleRange,/CALIB
+        ;; GET_DATA,'JiLB10',DATA=jilb10
+        ;; GET_DATA,'JeiLB10',DATA=jeilb10
+        ;; GET_DATA,'JiLB30',DATA=jilb30
+        ;; GET_DATA,'JeiLB30',DATA=jeilb30
+        ;; GET_DATA,'JiLB100',DATA=jilb100
+        ;; GET_DATA,'JeiLB100',DATA=jeilb100
+        ;; charilb10   = jeilb10.y/jilb10.y*6.242*1.0e11
+        ;; charilb30   = jeilb30.y/jilb30.y*6.242*1.0e11
+        ;; charilb100   = jeilb100.y/jilb100.y*6.242*1.0e11
+
+        ;; ion = {pa    : paspec, $
+        ;;        en    : enspec, $
+        ;;        ji    : {lb10: jilb10, $
+        ;;                 lb30: jilb30, $
+        ;;                 lb100: jilb100}, $
+        ;;        jei   : {lb10: jilb10, $
+        ;;                 lb30: jilb30, $
+        ;;                 lb100: jilb100}, $
+        ;;        chari : {lb10: charilb10, $
+        ;;                 lb30: charilb30, $
+        ;;                 lb100: charilb100}, $
+        ;;        arange: ion_angleRange, $
+        ;;        erange: ion_er}
+
+        this           = VALUE_CLOSEST2(enspec.x,jei.x,/CONSTRAINED) 
+        enspec         = {x:enspec.x[this],y:enspec.y[this,*],v:enspec.v[this,*]}
+        that           = VALUE_CLOSEST2(sc_potAvg.x,jei.x,/CONSTRAINED) 
+        sc_potAvgIn    = sc_potAvg.y[that]
+
+        GET_FA_ORBIT,enspec.x,/TIME_ARRAY,/NO_STORE,STRUC=ionEphem
+        IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,enspec,jei,ji, $
+                                                ionEphem.mlt,ionEphem.ilat,ionEphem.alt,ionEphem.orbit, $
+                                                ionEvents, $
+                                                SC_POT=sc_potAvgIn, $
+                                                /IS_ION, $
+                                                /QUIET
+
+        ion = {pa    : paspec, $
+               en    : enspec, $
+               ji    : ji, $
+               jei   : jei, $
+               chari : chari, $
+               newell : ionEvents, $
+               arange: ion_angleRange, $
+               erange: ion_er}
+
+        SAVE,ion,FILENAME='/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/orb1694_iondata.sav'
+
+     ENDIF
 
      IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[var_name] ELSE tPlt_vars=[var_name,tPlt_vars]
 
@@ -1262,9 +1415,12 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
      GET_DATA,'ORBIT',DATA=orbit
      orbit          = orbit.y
-     sc_pot         = GET_FA_POTENTIAL(t1,t2, $
+     
+     IF N_ELEMENTS(sc_pot) EQ 0 THEN BEGIN
+        sc_pot      = GET_FA_POTENTIAL(t1,t2, $
                                        ;; /SPIN, $
                                        /REPAIR)
+     ENDIF
      sc_pot_interp  = DATA_CUT({x:sc_pot.time,y:sc_pot.comp1},data.x) 
      this           = VALUE_CLOSEST2(data.x,jee.x) 
      data           = {x:data.x[this],y:data.y[this,*],v:data.v[this,*]}
