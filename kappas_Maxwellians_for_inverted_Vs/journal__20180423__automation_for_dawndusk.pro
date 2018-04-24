@@ -147,6 +147,7 @@ PRO JOURNAL__20180423__AUTOMATION_FOR_DAWNDUSK,orbit, $
   sway__add_iu_pot         = 1
   sway__log_kappaPlot      = 0
   sway__spectrogram_units  = spectrogram_units
+  sway__checkForIonBeams   = 1
 
   show_kappa_summary  = KEYWORD_SET(noKappaSummary) ? 0 : 1
   kSum__save_ps       = 1
@@ -431,6 +432,7 @@ PRO JOURNAL__20180423__AUTOMATION_FOR_DAWNDUSK,orbit, $
                         SWAY__ADD_IU_POT=sway__add_iu_pot, $
                         SWAY__LOG_KAPPAPLOT=sway__log_kappaPlot, $
                         SWAY__SPECTROGRAM_UNITS=sway__spectrogram_units, $
+                        SWAY__CHECKFORIONBEAMS=sway__checkForIonBeams, $
                         SHOW_KAPPA_SUMMARY=show_kappa_summary, $
                         KSUM__EANGLE=kSum__eAngle, $
                         KSUM__SAVE_PS=kSum__save_ps, $
