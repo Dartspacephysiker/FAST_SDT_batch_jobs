@@ -506,7 +506,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
 ; ION ENERGY 
 
-     var_NAME='Iesa_Energy'
+     var_name='Iesa_Energy'
      GET_EN_SPEC,'fa_' + ieb_or_ies + '_c', $
                  T1=t1, $
                  T2=t2, $
@@ -525,7 +525,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
           (MIN(data.y[WHERE(FINITE(data.y))]) > ionSpecLogLims[0]), $
           (MAX(data.y[WHERE(FINITE(data.y))]) < ionSpecLogLims[1]),0
      YLIM,var_name,4,24000,1
-     OPTIONS,var_name,'ytitle','Loss-coNE Ions!C!CEnergy (eV)'
+     OPTIONS,var_name,'ytitle','Loss-cone Ions!C!CEnergy (eV)'
      OPTIONS,var_name,'ztitle',specLogUnitsString
      OPTIONS,var_name,'x_no_interp',1
      OPTIONS,var_name,'y_no_interp',1
