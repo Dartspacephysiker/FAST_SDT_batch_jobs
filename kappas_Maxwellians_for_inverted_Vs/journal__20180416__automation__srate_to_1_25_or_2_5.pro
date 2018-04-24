@@ -186,6 +186,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   kSum__convert_to_Newell_interp = 1
   kSum__add_chi2_line = 5       ;give value at which you'd like line
   kSum__add_meas_T_and_N = 1
+  kSum__add_only_meas_N = 1
   kSum__GRL           = 1
   kSum__oPlot_pot     = 1
 
@@ -1137,6 +1138,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
                         KSUM__ADD_CHI2_LINE=kSum__add_chi2_line, $
                         KSUM__CHI2BOUNDS=kSum__chi2Bounds, $
                         KSUM__ADD_MEASURED_T_AND_N=kSum__add_meas_T_and_N, $
+                        KSUM__ADD_ONLY_MEAS_N=kSum__add_only_meas_N, $
                         KSUM__GRL=kSum__GRL, $
                         KSUM__OPLOT_POT=kSum__oPlot_pot, $
                         KSUM__SPECTROGRAM_UNITS=kSum__spectrogram_units, $

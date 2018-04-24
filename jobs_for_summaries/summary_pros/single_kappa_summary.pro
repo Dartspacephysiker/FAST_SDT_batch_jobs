@@ -30,6 +30,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          JVPLOTDATA=jvPlotData, $
                          SC_POT=sc_pot, $
                          ADD_MEASURED_T_AND_N=add_meas_T_and_N, $
+                         ADD_ONLY_MEAS_N=add_only_meas_N, $
                          CONVERT_DESPECS_TO_NEWELL_INTERP=Newell_2009_interp, $
                          SAVE_PS=save_ps, $
                          SAVE_PNG=save_png, $
@@ -111,7 +112,8 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   IF KEYWORD_SET(GRL) THEN BEGIN
 
-     add_meas_T_and_N         = 1
+     add_meas_T_and_N         = 0
+     add_only_meas_N          = 1
      include_electron_pa_spec = 1
      oPlot_pot                = 1
 
@@ -120,7 +122,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   ENDIF
 
-  IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
+  IF KEYWORD_SET(add_meas_T_and_N) OR KEYWORD_SET(add_only_meas_N) THEN BEGIN
 
      can_add_meas = SIZE(jvPlotData,/TYPE) EQ 8
      IF ~can_add_meas THEN BEGIN
@@ -346,8 +348,17 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      Temp2DK = {x:kappa2DTime,y:k2DParms.temperature}
      Temp2DG = {x:Gauss2DTime,y:g2DParms.temperature}
 
-     Dens2DK = {x:kappa2DTime,y:k2DParms.N}
-     Dens2DG = {x:Gauss2DTime,y:g2DParms.N}
+     ;; Ald as of 2018/04/24
+     ;; Dens2DK = {x:kappa2DTime,y:k2DParms.N}
+     ;; Dens2DG = {x:Gauss2DTime,y:g2DParms.N}
+
+     ;; Nye as of 2018/04/24
+     kDens = MAKE_ARRAY(nHereK,VALUE=0.)
+     gDens = MAKE_ARRAY(nHereG,VALUE=0.)
+     FOR k=0,nHereK-1 DO kDens[k] = (fit2DKappa_inf_list[k]).fitmoms.scdens
+     FOR k=0,nHereG-1 DO gDens[k] = (fit2DGauss_inf_list[k]).fitmoms.scdens
+     Dens2DK = {x:kappa2DTime,y:kDens}
+     Dens2DG = {x:Gauss2DTime,y:gDens}
 
      chi22DK = {x:kappa2DTime,y:kappa2D.chi2/(kappa2D.dof-kappa2D.nFree)}
      chi22DG = {x:Gauss2DTime,y:gauss2D.chi2/(gauss2D.dof-gauss2D.nFree)}
@@ -1299,7 +1310,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   OPTIONS,'Dens2DG','colors',GaussColor
   OPTIONS,'Dens2DG','symsize',!P.SYMSIZE
 
-  IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
+  IF KEYWORD_SET(add_meas_T_and_N) OR KEYWORD_SET(add_only_meas_N) THEN BEGIN
      ;; STORE_DATA,'Dens2DD',DATA={x:nData.x,y:nData.y,dy:nErrData}
      STORE_DATA,'Dens2DD',DATA=Dens2DD
      OPTIONS,'Dens2DD','psym',dataSym
@@ -1312,7 +1323,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   ;; IF KEYWORD_SET(add_meas_T_and_N) THEN candidatos = [candidatos,jvPlotdata.NDown]
   OPTIONS,'Dens2DK','ytitle','Density!C(cm!U-3!N)'
   candidatos = [Dens2DK.y,Dens2DG.y]
-  IF KEYWORD_SET(add_meas_T_and_N) THEN candidatos = [candidatos,Density]
+  IF KEYWORD_SET(add_meas_T_and_N) OR KEYWORD_SET(add_only_meas_N) THEN candidatos = [candidatos,Density]
 
   DensBounds      = [MIN(candidatos), $
                      MAX(candidatos)]
@@ -1336,6 +1347,8 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
      IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
         TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DD',PSYM=dataSym
+     ENDIF
+     IF KEYWORD_SET(add_meas_T_and_N) OR KEYWORD_SET(add_only_meas_N) THEN BEGIN
         TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DD',PSYM=dataSym
      ENDIF
   endif
@@ -1756,6 +1769,8 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
      IF KEYWORD_SET(add_meas_T_and_N) THEN BEGIN
         TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DD',PSYM=dataSym
+     ENDIF
+     IF KEYWORD_SET(add_meas_T_and_N) OR KEYWORD_SET(add_only_meas_N) THEN BEGIN
         TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DD',PSYM=dataSym
      ENDIF
 
