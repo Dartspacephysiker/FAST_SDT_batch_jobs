@@ -18,9 +18,12 @@
 ;*****************************
 ;Put code here:
 
-date = '20180425'
-min_T_streakLen = 30
-mltRange = [-3.5,1.5]
+skippersDate = '20180425'
+;; batch_setup_date = '20180425'
+;; min_T_streakLen = 30
+;; mltRange = [-3.5,1.5]
+skipIfMLTLT = 21
+skipIfMLTGT = 1
 
 JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    /NOCURPOTPLOTSPLEASE, $
@@ -28,8 +31,10 @@ JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    ;; /BOTH_RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE, $
    /NO1DPLOTSPLEASE, $
    CHECKFORSKIPPERS=1, $
-   SKIPPERSDATE='20180424', $
-   BATCH_SETUP__DATE_OF_GENERATION=date, $
+   SKIPPERSDATE=skippersDate, $
+   SKIPIFMLTLT=skipIfMLTLT, $
+   SKIPIFMLTGT=skipIfMLTGT, $
+   BATCH_SETUP__DATE_OF_GENERATION=batch_setup_date, $
    BATCH_SETUP__MLTRANGE=mltRange, $
    BATCH_SETUP__MIN_T_STREAKLEN=min_T_streakLen
 

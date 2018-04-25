@@ -3,54 +3,6 @@ NoPlots:
 IDL: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/findlowkappa__nowautomated__getionbeams__min30secstreak_wrapper.pro
 
 DataBaseRequest:
-    Orbits 4487
-    Orbits 4191
-    Orbits 5701
-    Orbits 5805
-    Orbits 5640
-    Orbits 4189
-    Orbits 4060
-    Orbits 6769
-    Orbits 4703
-    Orbits 5561
-    Orbits 5933
-    Orbits 5846
-    Orbits 5483
-    Orbits 4357
-    Orbits 5855
-    Orbits 5816
-    Orbits 6953
-    Orbits 5444
-    Orbits 4147
-    Orbits 5677
-    Orbits 4019
-    Orbits 5826
-    Orbits 6904
-    Orbits 5634
-    Orbits 4328
-    Orbits 6964
-    Orbits 5505
-    Orbits 6812
-    Orbits 4489
-    Orbits 4314
-    Orbits 5683
-    Orbits 6722
-    Orbits 4339
-    Orbits 6767
-    Orbits 4640
-    Orbits 4475
-    Orbits 5602
-    Orbits 6864
-    Orbits 6808
-    Orbits 4208
-    Orbits 4144
-    Orbits 5472
-    Orbits 5538
-    Orbits 5621
-    Orbits 4246
-    Orbits 5627
-    Orbits 5900
-    Orbits 5833
     Orbits 5457
     Orbits 5451
     Orbits 5699
@@ -573,6 +525,54 @@ DataBaseRequest:
     Orbits 5629
     Orbits 4679
     Orbits 5582
+    Orbits DONE4487
+    Orbits DONE4191
+    Orbits DONE5701
+    Orbits DONE5805
+    Orbits DONE5640
+    Orbits DONE4189
+    Orbits DONE4060
+    Orbits DONE6769
+    Orbits DONE4703
+    Orbits DONE5561
+    Orbits DONE5933
+    Orbits DONE5846
+    Orbits DONE5483
+    Orbits DONE4357
+    Orbits DONE5855
+    Orbits DONE5816
+    Orbits DONE6953
+    Orbits DONE5444
+    Orbits DONE4147
+    Orbits DONE5677
+    Orbits DONE4019
+    Orbits DONE5826
+    Orbits DONE6904
+    Orbits DONE5634
+    Orbits DONE4328
+    Orbits DONE6964
+    Orbits DONE5505
+    Orbits DONENEEDSREDO6812
+    Orbits DONE4489
+    Orbits DONE4314
+    Orbits DONE5683
+    Orbits DONE6722
+    Orbits DONE4339
+    Orbits DONE6767
+    Orbits DONE4640
+    Orbits DONE4475
+    Orbits DONE5602
+    Orbits DONE6864
+    Orbits DONE6808
+    Orbits DONE4208
+    Orbits DONE4144
+    Orbits DONE5472
+    Orbits DONE5538
+    Orbits DONE5621
+    Orbits DONE4246
+    Orbits DONE5627
+    Orbits DONE5900
+    Orbits DONE5833
 
 PlotConfigurationDir: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/
 PlotConfigurationFile: kappa_batch_yobbe

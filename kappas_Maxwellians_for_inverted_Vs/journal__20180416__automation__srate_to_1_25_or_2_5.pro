@@ -11,6 +11,8 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    MIN_ALTITUDE=min_altitude, $
    CHECKFORSKIPPERS=checkForSkippers, $
    SKIPPERSDATE=skippersDate, $
+   SKIPIFMLTLT=skipIfMLTLT, $
+   SKIPIFMLTGT=skipIfMLTGT, $
    BATCH_MODE=batch_mode, $
    BATCH_SETUP__DATE_OF_GENERATION=date, $
    BATCH_SETUP__MLTRANGE=mltRange, $
@@ -56,6 +58,22 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
      MIN_T_STREAKLEN=min_T_streakLen, $
      NTOSKIP=nToSkip, $
      /PRINT_SUMMARY
+
+  IF N_ELEMENTS(skipIfMLTLT) GT 0 THEN BEGIN
+     IF MLT LT skipIfMLTLT AND MLT GT (N_ELEMENTS(skipIfMLTGT) GT 0? skipIfMLTGT : 0 ) $
+     THEN BEGIN
+        PRINT,FORMAT='("MLT = ",F0.2," doesn' + "'" + 't cut it. Out!")',MLT
+        RETURN
+     ENDIF
+  ENDIF
+
+  IF N_ELEMENTS(skipIfMLTGT) GT 0 THEN BEGIN
+     IF MLT GT skipIfMLTGT AND MLT LT (N_ELEMENTS(skipIfMLTLT) GT 0 ? skipIfMLTLT : 24 ) $
+     THEN BEGIN
+        PRINT,FORMAT='("MLT = ",F0.2," doesn' + "'" + 't cut it. Out!")',MLT
+        RETURN
+     ENDIF
+  ENDIF
 
   IF KEYWORD_SET(only_south) AND ILAT GT 0 THEN BEGIN
      PRINT,"Sorry, this orbit is in the Norf"
