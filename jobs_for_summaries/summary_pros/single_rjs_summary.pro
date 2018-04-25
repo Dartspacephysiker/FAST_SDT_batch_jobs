@@ -339,7 +339,9 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
         ;;get_sample_rate
         sc_potRed         = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
-                            sc_pot,/NO_SEPARATE_DC_AC)
+                            sc_pot, $
+                            /NO_SEPARATE_DC_AC, $
+                            /DO_UNIQ_CHECK)
 
         sc_pot_dt         = ABS(sc_potRed.x-SHIFT(sc_potRed.x,-1))
         sc_pot_dt[0]      = sc_pot_dt[1]
@@ -519,6 +521,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                  /CALIB, $
                  RETRACE=1
      GET_DATA,var_name,DATA=data
+     IF KEYWORD_SET(checkForIonBeams) THEN IesaLCSpec = data
      data.y = ALOG10(data.y)
      STORE_DATA,var_name,DATA=data
      OPTIONS,var_name,'spec',1	
@@ -547,14 +550,21 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
         ionBeam_aRange = ion_angleRange
         IF ion_angleRange[0] GE 90. AND ion_angleRange[0] LE 180 THEN BEGIN
+           ;; NH
            ionBeam_aRange[0] = 180.-(180.-ion_angleRange[0])/2.
            ionBeam_aRange[1] = 180.+(180.-ion_angleRange[0])/2.
+           ion_halfRange     = [90,270]
         ENDIF 
         IF ion_angleRange[0] GE 270. AND ion_angleRange[0] LE 360. THEN BEGIN
+           ;; SH
            ionBeam_aRange[0] = 360.-(360.-ion_angleRange[0])/2.
            ionBeam_aRange[1] = (360.-ion_angleRange[0])/2.
+           ion_halfRange     = [270,90]
         ENDIF
-        var_name = "IesaEnSpec"
+        iAngle       = KEYWORD_SET(ion_angleRange     ) ? ion_angleRange      : [135.,225.]
+        iAngleChari  = iAngle
+
+        var_name = "IesaTightEnSpec"
         GET_EN_SPEC,'fa_' + ieb_or_ies + '_c', $
                     T1=t1, $
                     T2=t2, $
@@ -563,12 +573,27 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                     ANGLE=ionBeam_aRange, $
                     /CALIB, $
                     RETRACE=1
+        var_name = "IesaHalfRangeEnSpec"
+        GET_EN_SPEC,'fa_' + ieb_or_ies + '_c', $
+                    T1=t1, $
+                    T2=t2, $
+                    NAME=var_name, $
+                    UNITS=specUnits, $
+                    ANGLE=ion_halfRange, $
+                    /CALIB, $
+                    RETRACE=1
 
 
         var_name='IesaPASpec'
         GET_DATA,var_name, DATA=paspec
-        var_name='IesaEnSpec'
+        var_name='IesaTightEnSpec'
         GET_DATA,var_name, DATA=enspec
+        var_name='IesaHalfRangeEnSpec'
+        GET_DATA,var_name,DATA=IesaHRSpec
+
+        compSpec = IesaHRSpec
+        ;; compSpec = IesaLCSpec
+
         t1eeb = 0.D 
         t2eeb = 0.D
         bro   = CALL_FUNCTION('GET_FA_' + STRUPCASE(eeb_or_ees),t1eeb,/ST)
@@ -577,22 +602,37 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         t2eeb = time2 < t2eeb
 
         GET_2DT_TS_POT,'j_2d_fs','fa_' + ieb_or_ies, $
-                       NAME='Ji', $
+                       NAME='JiTight', $
                        T1=t1eeb,T2=t2eeb, $
                        ENERGY=[0.,ion_ER[1]], $
-                       ANGLE=ion_angleRange, $
+                       ANGLE=ionBeam_aRange, $
                        SC_POT={x:sc_potAvg.x,y:sc_potAvg.y*(-1.)}, $ ;This routine expects pot values to be the negative of their actual value
                        /CALIB
         GET_2DT_TS_POT,'je_2d_fs','fa_' + ieb_or_ies, $
-                       NAME='Jei', $
+                       NAME='JeiTight', $
                        T1=t1eeb,T2=t2eeb, $
                        ENERGY=[0.,ion_ER[1]], $
-                       ANGLE=ion_angleRange, $
+                       ANGLE=ionBeam_aRange, $
                        SC_POT={x:sc_potAvg.x,y:sc_potAvg.y*(-1.)}, $ ;This routine expects pot values to be the negative of their actual value
                        /CALIB
-        GET_DATA,'Ji',DATA=ji
-        GET_DATA,'Jei',DATA=jei
-        chari   = jei.y/ji.y*6.242*1.0e11
+
+        ;; GET_2DT_TS_POT,'j_2d_fs','fa_' + ieb_or_ies, $
+        ;;                NAME='Ji', $
+        ;;                T1=t1eeb,T2=t2eeb, $
+        ;;                ENERGY=[0.,ion_ER[1]], $
+        ;;                ANGLE=iAngleChari, $
+        ;;                SC_POT={x:sc_potAvg.x,y:sc_potAvg.y*(-1.)}, $ ;This routine expects pot values to be the negative of their actual value
+        ;;                /CALIB
+        ;; GET_2DT_TS_POT,'je_2d_fs','fa_' + ieb_or_ies, $
+        ;;                NAME='Jei', $
+        ;;                T1=t1eeb,T2=t2eeb, $
+        ;;                ENERGY=[0.,ion_ER[1]], $
+        ;;                ANGLE=iAngleChari, $
+        ;;                /CALIB
+
+        GET_DATA,'JiTight',DATA=jiTight
+        GET_DATA,'JeiTight',DATA=jeiTight
+        chari   = jeiTight.y/jiTight.y*6.242*1.0e11
 
         ;; GET_2DT,'j_2d_fs','fa_' + ieb_or_ies + '_c', $
         ;;         NAME='JiLB10', $
@@ -649,18 +689,22 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         ;;        arange: ion_angleRange, $
         ;;        erange: ion_er}
 
-        this           = VALUE_CLOSEST2(enspec.x,jei.x,/CONSTRAINED) 
+        this           = VALUE_CLOSEST2(enspec.x,jeiTight.x,/CONSTRAINED) 
         enspec         = {x:enspec.x[this],y:enspec.y[this,*],v:enspec.v[this,*]}
-        that           = VALUE_CLOSEST2(sc_potAvg.x,jei.x,/CONSTRAINED) 
+        this           = VALUE_CLOSEST2(compSpec.x,jeiTight.x,/CONSTRAINED) 
+        compSpec     = {x:compSpec.x[this],y:compSpec.y[this,*],v:compSpec.v[this,*]}
+
+        that           = VALUE_CLOSEST2(sc_potAvg.x,jeiTight.x,/CONSTRAINED) 
         sc_potAvgIn    = sc_potAvg.y[that]
 
         GET_FA_ORBIT,enspec.x,/TIME_ARRAY,/NO_STORE,STRUC=ionEphem
-        IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,enspec,jei,ji, $
+        IDENTIFY_DIFF_EFLUXES_AND_CREATE_STRUCT,enspec,jeiTight,jiTight, $
                                                 ionEphem.mlt,ionEphem.ilat,ionEphem.alt,ionEphem.orbit, $
                                                 ionEvents, $
                                                 BATCH_MODE=batch_mode, $
                                                 SC_POT=sc_potAvgIn, $
                                                 /IS_ION, $
+                                                ION_HALFRANGE_SPEC=compSpec, $
                                                 /QUIET
 
         ion_erArr = TRANSPOSE([[REPLICATE(ion_er[0],N_ELEMENTS(chari))], $
@@ -668,8 +712,8 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         ion_erArr[0,*] = ion_erArr[0,*] > (sc_potAvgIn*(-1.))
         ionEvents = {pa     : paspec, $
                      en     : enspec, $
-                     ji     : ji, $
-                     jei    : jei, $
+                     ji     : jiTight, $
+                     jei    : jeiTight, $
                      chari  : chari, $
                      newell : ionEvents, $
                      arange : ionBeam_aRange, $
