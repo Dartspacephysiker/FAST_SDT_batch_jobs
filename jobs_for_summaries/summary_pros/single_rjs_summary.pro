@@ -338,25 +338,28 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         spin_period   = 4.946   ; seconds
 
         ;;get_sample_rate
-        sc_pot_dt         = ABS(sc_pot.x-SHIFT(sc_pot.x,-1))
+        sc_potRed         = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
+                            sc_pot,/NO_SEPARATE_DC_AC)
+
+        sc_pot_dt         = ABS(sc_potRed.x-SHIFT(sc_potRed.x,-1))
         sc_pot_dt[0]      = sc_pot_dt[1]
-        nSC_POT           = N_ELEMENTS(sc_pot.x)
+        nSC_POT           = N_ELEMENTS(sc_potRed.x)
         sc_pot_dt[nSC_POT-1]  = sc_pot_dt[nSC_POT-2]
 
         ;;get maxima within a 1 spin window
-        j_range       = WHERE(sc_pot.x LT sc_pot.x[N_ELEMENTS(sc_pot.x)-1]-spin_period)
+        j_range       = WHERE(sc_potRed.x LT sc_potRed.x[N_ELEMENTS(sc_potRed.x)-1]-spin_period)
         index_max     = MAX(j_range)
 
-        pot = MAKE_ARRAY(N_ELEMENTS(sc_pot.x),/DOUBLE)
+        pot = MAKE_ARRAY(N_ELEMENTS(sc_potRed.x),/DOUBLE)
         FOR j=0L,index_max DO BEGIN
            spin_range = j+FINDGEN(CEIL(spin_period/SC_POT_dt[j]))
-           pot[j]     = MAX(ABS(sc_pot.y[spin_range]),ind)
-           sign       = sc_pot.y[spin_range[ind]]/ABS(sc_pot.y[spin_range[ind]])
+           pot[j]     = MAX(ABS(sc_potRed.y[spin_range]),ind)
+           sign       = sc_potRed.y[spin_range[ind]]/ABS(sc_potRed.y[spin_range[ind]])
            pot[j]     = sign*pot[j]
         ENDFOR
 
         pot[index_max+1:nSC_POT-1] = pot[j_range[index_max]]
-        sc_potAvg     = {x:sc_pot.x,y:pot,type:"Chaston style"}
+        sc_potAvg     = {x:sc_potRed.x,y:pot,type:"Chaston style"}
 
         IF sc_pot.isNeg THEN sc_potAvg.y *= -1.
 
@@ -560,7 +563,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                     ANGLE=ionBeam_aRange, $
                     /CALIB, $
                     RETRACE=1
-        ;; STORE_DATA,var_name,DATA=data
+
 
         var_name='IesaPASpec'
         GET_DATA,var_name, DATA=paspec

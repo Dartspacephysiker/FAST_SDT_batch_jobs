@@ -33,7 +33,7 @@ JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    BATCH_SETUP__MLTRANGE=mltRange, $
    BATCH_SETUP__MIN_T_STREAKLEN=min_T_streakLen
 
-IF N_ELEMENTS(orbit GT 0) THEN SPAWN,"cat outIDL.findlowkappa__nowautomated__getionbeams_wrapper.pro errIDL.findlowkappa__nowautomated__getionbeams_wrapper.pro > /SPENCEdata/software/sdt/batch_jobs/txtOutput/findlowkappa/" + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + "-Orbit_" + STRING(FORMAT='(I0)',orbit) + "-ionbeams.txt"
+IF N_ELEMENTS(orbit GT 0) THEN SPAWN,"cat outIDL.findlowkappa__nowautomated__getionbeams__min30secstreak_wrapper.pro errIDL.findlowkappa__nowautomated__getionbeams__min30secstreak_wrapper.pro > /SPENCEdata/software/sdt/batch_jobs/txtOutput/findlowkappa/" + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + "-Orbit_" + STRING(FORMAT='(I0)',orbit) + "-ionbeams.txt"
 
 ;*****************************
 ;End routine:

@@ -11,7 +11,11 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    MIN_ALTITUDE=min_altitude, $
    CHECKFORSKIPPERS=checkForSkippers, $
    SKIPPERSDATE=skippersDate, $
-   BATCH_MODE=batch_mode
+   BATCH_MODE=batch_mode, $
+   BATCH_SETUP__DATE_OF_GENERATION=date, $
+   BATCH_SETUP__MLTRANGE=mltRange, $
+   BATCH_SETUP__MIN_T_STREAKLEN=min_T_streakLen
+
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -47,6 +51,9 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   READ_KAPPA_BATCH_SETUP_FILE, $
      orbit,MLT,ILAT,ALT,t1Str,t2Str,t_streakLen,nPts,dt_avg,avg_current, $
+     DATE_OF_GENERATION=date, $
+     MLTRANGE=mltRange, $
+     MIN_T_STREAKLEN=min_T_streakLen, $
      NTOSKIP=nToSkip, $
      /PRINT_SUMMARY
 
