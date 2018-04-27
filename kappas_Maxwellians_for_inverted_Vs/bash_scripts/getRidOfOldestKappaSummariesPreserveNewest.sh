@@ -26,13 +26,17 @@ for bro in ${myArray[@]}; do
 	cd ${tmpDir}
 	nFil=$(ls -1 Kappa_summary* 2>/dev/null | wc -l)
 	echo "Orb ${bro}: ${nFil} kappaSums"
-	killFile=$(ls -t1r Kappa_summary* | head -n 1)
+	killFile=$(ls -t1r Kappa_summary* 2>/dev/null | head -n 1)
+	if [ ${nFil} -eq 0 ]; then
+	    echo "No file!"
+	fi
+	if [ ${nFil} -ge 1 ]; then
+	    echo "rm ${killFile}"
+	    # rm -v ${killFile}
+	fi
 	if [ ${nFil} -gt 1 ]; then
 	    echo "2 files!"
 	    keepFiles=$(ls -t1r Kappa_summary* | tail -n $((${nFil}-1)))
-
-	    echo "rm ${killFile}"
-	    # rm -v ${killFile}
 
 	    echo "keepFiles: "
 	    for keeper in ${keepFiles[@]}; do

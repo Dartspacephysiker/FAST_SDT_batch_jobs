@@ -18,7 +18,7 @@
 ;*****************************
 ;Put code here:
 
-skippersDate = '20180426'
+skippersDate = '20180425'
 date = '20180425'
 min_T_streakLen = 30
 mltRange = [-3.5,1.5]

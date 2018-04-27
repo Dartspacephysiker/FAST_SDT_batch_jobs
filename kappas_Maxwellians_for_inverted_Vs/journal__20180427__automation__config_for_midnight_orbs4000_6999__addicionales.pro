@@ -5,13 +5,6 @@ maxMMidnight20180427 = 5
 
 IF MLT GT minMMidnight20180427 OR MLT LT maxMMidnight20180427 THEN BEGIN
 
-   IF orbit EQ 4328 AND nToSkip EQ 0 THEN BEGIN
-      minElecEnergy = 400
-      energy_electrons[0] = minElecEnergy
-      min_peak_energy = minElecEnergy
-      min_peak_energyArr = [minElecEnergy,1E2,1E2]
-   ENDIF
-
    IF orbit EQ 5699 and nToSkip EQ 0 THEN BEGIN
       minElecEnergy = 700
       energy_electrons[0] = minElecEnergy

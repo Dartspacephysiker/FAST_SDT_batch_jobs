@@ -241,6 +241,8 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   @journal__20180425__automation__config_for_midnight_orbs4000_6999.pro
 
+  @journal__20180427__automation__config_for_midnight_orbs4000_6999__addicionales.pro
+
   ;;survey window
   eeb_or_ees           = N_ELEMENTS(eeb_or_ees) GT 0 ? eeb_or_ees : 'ees'
   spectra_average_interval = N_ELEMENTS(spectra_average_interval) GT 0 ? spectra_average_interval : 2
