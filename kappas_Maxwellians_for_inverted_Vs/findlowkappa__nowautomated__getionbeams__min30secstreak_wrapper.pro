@@ -27,6 +27,7 @@ mltRange = [-3.5,1.5]
 ;; COMMENT OUT IF NOT 
 IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20180430' THEN BEGIN & $
    read_nToSkip_from_me = 1 & $
+   skippersDate = !NULL & $
 ENDIF
 
 JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
