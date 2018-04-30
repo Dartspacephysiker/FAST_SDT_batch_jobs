@@ -4,6 +4,28 @@ NoPlots:
 IDL: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/findlowkappa__nowautomated__getionbeams__min30secstreak_wrapper.pro
 
 DataBaseRequest:
+    Orbits 5773
+    Orbits 5686
+    Orbits 6787
+    Orbits 5560
+    Orbits 5552
+    Orbits 5824
+    Orbits 4273
+    Orbits 6982
+    Orbits 5711
+    Orbits 5589
+    Orbits 5513
+    Orbits 5643
+    Orbits 5625
+    Orbits 5906
+    Orbits 5932
+    Orbits 5440
+    Orbits 5848
+    Orbits 5481
+    Orbits 5780
+    Orbits 5417
+    Orbits 6778
+    Orbits 6712
     Orbits ALLTHEWAYDONE4487
     Orbits ALLTHEWAYDONE4191
     Orbits ALLTHEWAYDONE5701

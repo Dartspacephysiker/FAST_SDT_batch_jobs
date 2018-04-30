@@ -16,8 +16,8 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    BATCH_MODE=batch_mode, $
    BATCH_SETUP__DATE_OF_GENERATION=date, $
    BATCH_SETUP__MLTRANGE=mltRange, $
-   BATCH_SETUP__MIN_T_STREAKLEN=min_T_streakLen
-
+   BATCH_SETUP__MIN_T_STREAKLEN=min_T_streakLen, $
+   BATCH_SETUP__READ_NTOSKIP_FROM_ME=read_nToSkip_from_me
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -41,13 +41,28 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   dirForCheck = '/SPENCEdata/software/sdt/batch_jobs/plots/'+skippersDate+'/kappa_fits/'
   orbDir = STRING(FORMAT='("Orbit_",I0)',orbit)
-  IF FILE_TEST(dirForCheck+orbDir,/DIRECTORY) AND KEYWORD_SET(checkForSkippers) THEN BEGIN
+  IF KEYWORD_SET(checkForSkippers) THEN BEGIN
 
-     skipFiles = FILE_SEARCH(dirForCheck+orbDir,'Kappa_summary-*eps')
-     sFileTids = STRMID(skipFiles, $
-                        STRLEN(dirForCheck+orbDir+'/'+'Kappa_summary-'+STRING(FORMAT='(I0)',orbit)+bonusPref+'-'), $
-                        8)
-     nToSkip = N_ELEMENTS(UNIQ(sFileTids,SORT(sFileTids)))
+     IF KEYWORD_SET(read_nToSkip_from_me) THEN BEGIN
+
+        toDag = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
+        
+        ;; 2018/04/30
+        IF toDag EQ '20180430' THEN BEGIN
+           IF orbit EQ 5686 THEN nToSkip = 2
+           IF orbit EQ 5481 THEN nToSkip = 1
+           IF orbit EQ 6712 THEN nToSkip = 1
+        ENDIF
+
+     ENDIF ELSE IF FILE_TEST(dirForCheck+orbDir,/DIRECTORY) THEN BEGIN
+
+        skipFiles = FILE_SEARCH(dirForCheck+orbDir,'Kappa_summary-*eps')
+        sFileTids = STRMID(skipFiles, $
+                           STRLEN(dirForCheck+orbDir+'/'+'Kappa_summary-'+STRING(FORMAT='(I0)',orbit)+bonusPref+'-'), $
+                           8)
+        nToSkip = N_ELEMENTS(UNIQ(sFileTids,SORT(sFileTids)))
+
+     ENDIF
 
   ENDIF
 
@@ -242,6 +257,8 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   @journal__20180425__automation__config_for_midnight_orbs4000_6999.pro
 
   @journal__20180427__automation__config_for_midnight_orbs4000_6999__addicionales.pro
+
+  @journal__20180430__automation__config_for_midnight_orbs4000_6999__addicionales2.pro
 
   ;;survey window
   eeb_or_ees           = N_ELEMENTS(eeb_or_ees) GT 0 ? eeb_or_ees : 'ees'
@@ -480,4 +497,3 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
                         BATCH_MODE=batch_mode
 
 END
-
