@@ -17,7 +17,9 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    BATCH_SETUP__DATE_OF_GENERATION=date, $
    BATCH_SETUP__MLTRANGE=mltRange, $
    BATCH_SETUP__MIN_T_STREAKLEN=min_T_streakLen, $
-   BATCH_SETUP__READ_NTOSKIP_FROM_ME=read_nToSkip_from_me
+   BATCH_SETUP__READ_NTOSKIP_FROM_MANUAL_INPUT=read_nToSkip_from_manual_input, $
+   BATCH_SETUP__READ_NTOSKIP_FROM_DAILY_FILE=read_nToSkip_from_daily_file, $
+   NTOSKIP_FROM_DAILY_FILE__SKIPSTART_FROM_THIS_FILE=nToSkip_from_daily_file__skipStart_from_this_file
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -43,26 +45,70 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   orbDir = STRING(FORMAT='("Orbit_",I0)',orbit)
   IF KEYWORD_SET(checkForSkippers) THEN BEGIN
 
-     IF KEYWORD_SET(read_nToSkip_from_me) THEN BEGIN
+     CASE 1 OF
+        KEYWORD_SET(read_nToSkip_from_manual_input): BEGIN
 
-        toDag = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
-        
-        ;; 2018/04/30
-        IF toDag EQ '20180430' THEN BEGIN
-           IF orbit EQ 5686 THEN nToSkip = 2
-           IF orbit EQ 5481 THEN nToSkip = 1
-           IF orbit EQ 6712 THEN nToSkip = 1
-        ENDIF
+           toDag = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
+           
+           ;; 2018/04/30
+           IF toDag EQ '20180430' THEN BEGIN
+              IF orbit EQ 5686 THEN nToSkip = 2
+              IF orbit EQ 5481 THEN nToSkip = 1
+              IF orbit EQ 6712 THEN nToSkip = 1
+           ENDIF
 
-     ENDIF ELSE IF FILE_TEST(dirForCheck+orbDir,/DIRECTORY) THEN BEGIN
+        END 
+        KEYWORD_SET(read_nToSkip_from_daily_file): BEGIN
 
-        skipFiles = FILE_SEARCH(dirForCheck+orbDir,'Kappa_summary-*eps')
-        sFileTids = STRMID(skipFiles, $
-                           STRLEN(dirForCheck+orbDir+'/'+'Kappa_summary-'+STRING(FORMAT='(I0)',orbit)+bonusPref+'-'), $
-                           8)
-        nToSkip = N_ELEMENTS(UNIQ(sFileTids,SORT(sFileTids)))
+           nToSkipStart = 0
+           ;; IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20180501' THEN BEGIN
+           ;;    IF orbit EQ 6929 THEN nToSkipStart = 1
+           ;;    IF orbit EQ 6898 THEN nToSkipStart = 1
+           ;;    IF orbit EQ 4361 THEN nToSkipStart = 1
+           ;;    IF orbit EQ 6835 THEN nToSkipStart = 1
+           ;; ENDIF
 
-     ENDIF
+           IF KEYWORD_SET(nToSkip_from_daily_file__skipStart_from_this_file) THEN BEGIN
+
+              OPENR,lun,nToSkip_from_daily_file__skipStart_from_this_file,/GET_LUN
+
+              WHILE ~EOF(lun) DO BEGIN
+                 READF,lun,FORMAT='(I05,TR1,I02)', $
+                       tmpOrb,nToSkipStartTmp
+
+                 IF tmpOrb EQ orbit THEN BEGIN
+                    nToSkipStart = TEMPORARY(nToSkipStartTmp)
+                    BREAK
+                 ENDIF
+
+              ENDWHILE
+
+              CLOSE,lun
+
+           ENDIF
+
+           DAILY_KAPPA_REDO_FILE__READ,orbit,dateString, $
+                                       OUT_NTOSKIP=nToSkip
+
+           nToSkip += nToSkipStart
+
+           DAILY_KAPPA_REDO_FILE__INIT_OR_APPEND_TO,orbit,dateString
+
+        END
+        ELSE: BEGIN
+
+           IF FILE_TEST(dirForCheck+orbDir,/DIRECTORY) THEN BEGIN
+
+              skipFiles = FILE_SEARCH(dirForCheck+orbDir,'Kappa_summary-*eps')
+              sFileTids = STRMID(skipFiles, $
+                                 STRLEN(dirForCheck+orbDir+'/'+'Kappa_summary-'+STRING(FORMAT='(I0)',orbit)+bonusPref+'-'), $
+                                 8)
+              nToSkip = N_ELEMENTS(UNIQ(sFileTids,SORT(sFileTids)))
+
+           ENDIF
+
+        END
+     ENDCASE
 
   ENDIF
 
@@ -252,13 +298,23 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   min_peak_energy      = 200
   max_peak_energy      = !NULL
 
-  @journal__20180425__automation__config_for_midnight_orbs1000_3999.pro
+  todayStr = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
+  IF todayStr EQ '20180425' THEN BEGIN
+    @journal__20180425__automation__config_for_midnight_orbs1000_3999.pro
+    @journal__20180425__automation__config_for_midnight_orbs4000_6999.pro
+  ENDIF
+  
+  IF todayStr EQ '20180427' THEN BEGIN
+    @journal__20180427__automation__config_for_midnight_orbs4000_6999__addicionales.pro
+  ENDIF
+  
+  IF todayStr EQ '20180430' THEN BEGIN
+    @journal__20180430__automation__config_for_midnight_orbs4000_6999__addicionales2.pro
+  ENDIF
 
-  @journal__20180425__automation__config_for_midnight_orbs4000_6999.pro
-
-  @journal__20180427__automation__config_for_midnight_orbs4000_6999__addicionales.pro
-
-  @journal__20180430__automation__config_for_midnight_orbs4000_6999__addicionales2.pro
+  IF todayStr EQ '20180501' THEN BEGIN
+    @journal__20180501__automation__config_for_midnight_orbs4000_6999__addicionales3.pro
+  ENDIF
 
   ;;survey window
   eeb_or_ees           = N_ELEMENTS(eeb_or_ees) GT 0 ? eeb_or_ees : 'ees'

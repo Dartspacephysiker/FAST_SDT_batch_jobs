@@ -25,9 +25,17 @@ mltRange = [-3.5,1.5]
 
 ;; 2018/04/30 FOR CHECKING OUT FIRST 100 ORBITS
 ;; COMMENT OUT IF NOT 
-IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20180430' THEN BEGIN & $
-   read_nToSkip_from_me = 1 & $
+;; IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20180430' THEN BEGIN & $
+;;    read_nToSkip_from_manual_input = 1 & $
+;;    skippersDate = !NULL & $
+;; ENDIF
+
+;; 2018/05/01
+IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20180501' THEN BEGIN & $
    skippersDate = !NULL & $
+   read_nToSkip_from_daily_file = 1 & $
+   nToSkip_from_daily_file__skipStart_from_this_file = $
+   '~/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/orbits__ntoskipstart__20180501.txt' & $
 ENDIF
 
 JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
@@ -40,7 +48,9 @@ JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    BATCH_SETUP__DATE_OF_GENERATION=date, $
    BATCH_SETUP__MLTRANGE=mltRange, $
    BATCH_SETUP__MIN_T_STREAKLEN=min_T_streakLen, $
-   BATCH_SETUP__READ_NTOSKIP_FROM_ME=read_nToSkip_from_me
+   BATCH_SETUP__READ_NTOSKIP_FROM_MANUAL_INPUT=read_nToSkip_from_manual_input, $
+   BATCH_SETUP__READ_NTOSKIP_FROM_DAILY_FILE=read_nToSkip_from_daily_file, $
+   NTOSKIP_FROM_DAILY_FILE__SKIPSTART_FROM_THIS_FILE=nToSkip_from_daily_file__skipStart_from_this_file
 
 IF N_ELEMENTS(orbit GT 0) THEN SPAWN,"cat outIDL.findlowkappa__nowautomated__getionbeams__min30secstreak_wrapper.pro errIDL.findlowkappa__nowautomated__getionbeams__min30secstreak_wrapper.pro > /SPENCEdata/software/sdt/batch_jobs/txtOutput/findlowkappa/" + GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + "-Orbit_" + STRING(FORMAT='(I0)',orbit) + "-ionbeams.txt"
 

@@ -1,6 +1,7 @@
 #!/bin/bash
 
-orbitList=/SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/orbits__toinspect_20180430.txt
+# orbitList=/SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/orbits__toinspect_20180430.txt
+orbitList=/SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/orbits__toinspect_20180501.txt
 inspectDir=/SPENCEdata/software/sdt/batch_jobs/plots/20180426/kappa_fits/
 checkForPrevDir=/SPENCEdata/software/sdt/batch_jobs/plots/20180425/kappa_fits/
 
