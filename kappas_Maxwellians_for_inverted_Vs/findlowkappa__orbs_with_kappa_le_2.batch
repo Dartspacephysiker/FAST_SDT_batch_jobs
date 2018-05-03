@@ -1,0 +1,53 @@
+
+BatchJob: "findlowkappa__orbs_with_kappa_le_2"
+NoPlots:
+IDL: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/findlowkappa__orbs_with_kappa_le_2_wrapper.pro
+
+DataBaseRequest:
+    Orbits 1727
+    Orbits 1744
+    Orbits 1745
+    Orbits 1805
+    Orbits 4286
+    Orbits 4328
+    Orbits 5484
+    Orbits 5515
+    Orbits 5538
+    Orbits 5620
+    Orbits 5637
+    Orbits 5671
+    Orbits 5674
+    Orbits 5687
+    Orbits 5725
+    Orbits 5752
+    Orbits 5772
+    Orbits 5780
+    Orbits 5783
+    Orbits 5805
+    Orbits 5813
+    Orbits 5825
+    Orbits 5845
+    Orbits 5847
+    Orbits 6853
+    Orbits 7002
+    Orbits 7078
+    Orbits 7119
+    Orbits 7153
+    Orbits 7247
+    Orbits 7861
+    Orbits 8064
+    Orbits 8065
+    Orbits 8097
+    Orbits 8129
+    Orbits 8153
+    Orbits 8161
+    Orbits 8171
+    Orbits 8214
+    Orbits 8227
+    Orbits 8281
+    Orbits 8282
+    Orbits 8301
+    Orbits 8346
+
+PlotConfigurationDir: /SPENCEdata/software/sdt/batch_jobs/kappas_Maxwellians_for_inverted_Vs/
+PlotConfigurationFile: kappa_batch_yobbe

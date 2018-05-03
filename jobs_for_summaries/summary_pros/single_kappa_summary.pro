@@ -50,9 +50,11 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          ADD_PARM_ERRORS_FROM_FILE=add_parm_errors_from_file, $
                          ADD_PARM_ERRORS__NROLLS=add_parm_errors__nRolls, $
                          ADD_PARM_ERRORS__USE_MOST_PROB=add_parm_errors__use_most_prob, $
+                         IONEVENTS=ionEvents, $                             
                          FIT2DPARMERRFILE=fit2DParmErrFile, $
                          FIT2DPARMERRDIR=fit2DParmErrDir, $
-                         TIMEBARS=timeBars
+                         TIMEBARS=timeBars, $
+                         TIMEBAR_FROM_ION_BEAMS=timeBar_from_ion_beams
 
   oldSize = !P.CHARSIZE
   oldSymSize = !P.SYMSIZE
@@ -218,7 +220,67 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
               1000
      fit2DParmErrFileIn = fit2DParmErrFileIn.Replace('.sav', $
                                                      STRING(FORMAT='("-",I0,"Rolls.sav")',nRolls))
-     RESTORE,fit2DParmErrDir+fit2DParmErrFileIn
+
+     searchbackward1month = 1
+
+     remaining = KEYWORD_SET(searchbackward1month) ? 30 : 0
+
+     foundParmErrFile = 0
+     tmpParmErrFile   = fit2DParmErrFileIn
+     WHILE ~foundParmErrFile AND remaining GT -1 DO BEGIN
+
+        IF FILE_TEST(fit2DParmErrDir+tmpParmErrFile) THEN BEGIN
+
+           foundParmErrFile = 1
+           fit2DParmErrFileIn      = TEMPORARY(tmpParmErrFile)
+           
+           PRINT,'Restoring ' + fit2DParmErrFileIn + ' ...'
+           RESTORE,fit2DParmErrDir+fit2DParmErrFileIn
+           restored_fit2DParmErrFileIn = 1B
+           ;; just_diff_eFlux  = 1B
+
+           ;;And diff eFlux
+           ;; RESTORE,fit2DParmErrDir+'/diff_eFlux/'+diff_eFlux_file
+
+        ENDIF ELSE BEGIN
+           ;; PRINT,"Couldn't get file!"
+           ;; STOP
+           date = (STRSPLIT(tmpParmErrFile,'-',/EXTRACT))
+           rest = STRJOIN(date[1:-1],'-')
+           date = date[0]
+           dd   = FIX(STRMID(date,STRLEN(date)-2,2))
+           mm   = FIX(STRMID(date,STRLEN(date)-4,2))
+           jahr = FIX(STRMID(date,STRLEN(date)-8,4))
+
+           CASE 1 OF
+              ((dd EQ 1) AND (mm EQ 1)): BEGIN
+                 jahr--
+                 dd = 31
+                 mm = 12
+              END
+              (dd EQ 1): BEGIN
+                 dd = 31
+                 mm--
+              END
+              ELSE: BEGIN
+                 dd--
+              END
+           ENDCASE
+           
+           tmpParmErrFile = STRJOIN([STRING(FORMAT='(I04,I02,I02)',jahr,mm,dd),rest],'-')
+
+           remaining--
+
+        ENDELSE
+        
+     ENDWHILE
+
+     IF ~foundParmErrFile THEN BEGIN
+        PRINT,"Couldn't get file!"
+        IF KEYWORD_SET(batch_mode) THEN RETURN ELSE STOP
+     ENDIF
+
+     ;; RESTORE,fit2DParmErrDir+fit2DParmErrFileIn
 
      matchieKinit = VALUE_CLOSEST2(k2DParmErr.time,kappa2DTime,/CONSTRAINED)
      matchieGinit = VALUE_CLOSEST2(g2DParmErr.time,Gauss2DTime,/CONSTRAINED)
@@ -1797,25 +1859,57 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
      IF KEYWORD_SET(timeBars) THEN BEGIN
 
-        CASE NDIMEN(timeBars) OF
+        IF KEYWORD_SET(timeBar_from_ion_beams) THEN BEGIN
+
+           this = WHERE(ionEvents.newell.mono EQ 1 OR ionEvents.newell.mono EQ 2)
+
+           GET_STREAKS,this, $
+                       START_I=start_i, $
+                       STOP_I=stop_i, $
+                       ALLOWABLE_GAP=1, $
+                       MIN_STREAK_TO_KEEP=7, $
+                       OUT_STREAKLENS=streakLens, $
+                       OUT_GAPLENS=gapLens
+
+           tBars = !NULL
+           FOR k=0,N_ELEMENTS(start_i)-1 DO tBars = [[tBars], $
+                                                     [ionEvents.ji.x[this[start_i[k]]], $
+                                                      ionEvents.ji.x[this[stop_i [k]]]]]
+
+        ENDIF ELSE BEGIN
+           tBars = timeBars
+        ENDELSE
+
+        CASE NDIMEN(tBars) OF
            1: BEGIN
 
-              FOR k=0,N_ELEMENTS(timeBars)-1 DO BEGIN
-                 TIMEBAR,timeBars[k],THICK=3.0,COLOR=red
+              FOR k=0,N_ELEMENTS(tBars)-1 DO BEGIN
+                 TIMEBAR,tBars[k], $
+                         THICK=3.0, $
+                         COLOR=red
               ENDFOR
 
            END
            2: BEGIN
 
-              nHjar = N_ELEMENTS(timeBars[0,*])
+              nHjar = N_ELEMENTS(tBars[0,*])
               ;; colours = GENERATE_LIST_OF_RANDOM_COLORS(nHjar)
-              colours = [poiple,darkRed,green,blue]
+              use_colours = 0
+              colours = [poiple,darkRed,green,blue,poiple]
+              use_lineStyles = 1
+              lineStyles = [1,2,5,0] ;dotted, dashed, long dashes, solid
 
               FOR k=0,nHjar-1 DO BEGIN
-                 ;; TIMEBAR,timeBars[0,k],THICK=3.0,COLOR=(colours[k])[0]
-                 ;; TIMEBAR,timeBars[1,k],THICK=3.0,COLOR=(colours[k])[0]
-                 TIMEBAR,timeBars[0,k],THICK=3.0,COLOR=colours[k]
-                 TIMEBAR,timeBars[1,k],THICK=3.0,COLOR=colours[k]
+                 ;; TIMEBAR,tBars[0,k],THICK=3.0,COLOR=(colours[k])[0]
+                 ;; TIMEBAR,tBars[1,k],THICK=3.0,COLOR=(colours[k])[0]
+                 TIMEBAR,tBars[0,k], $
+                         LINESTYLE=(KEYWORD_SET(use_lineStyles) ? lineStyles[k] : !NULL), $
+                         THICK=3.0, $
+                         COLOR=(KEYWORD_SET(use_colours) ? colours[k] : !NULL)
+                 TIMEBAR,tBars[1,k], $
+                         LINESTYLE=(KEYWORD_SET(use_lineStyles) ? lineStyles[k] : !NULL), $
+                         THICK=3.0, $
+                         COLOR=(KEYWORD_SET(use_colours) ? colours[k] : !NULL)
               ENDFOR
               
            END

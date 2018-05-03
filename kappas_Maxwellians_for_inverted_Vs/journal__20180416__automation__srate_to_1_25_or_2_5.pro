@@ -19,7 +19,8 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    BATCH_SETUP__MIN_T_STREAKLEN=min_T_streakLen, $
    BATCH_SETUP__READ_NTOSKIP_FROM_MANUAL_INPUT=read_nToSkip_from_manual_input, $
    BATCH_SETUP__READ_NTOSKIP_FROM_DAILY_FILE=read_nToSkip_from_daily_file, $
-   NTOSKIP_FROM_DAILY_FILE__SKIPSTART_FROM_THIS_FILE=nToSkip_from_daily_file__skipStart_from_this_file
+   NTOSKIP_FROM_DAILY_FILE__SKIPSTART_FROM_THIS_FILE=nToSkip_from_daily_file__skipStart_from_this_file, $
+   SPOOFDATE=spoofDate
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -298,7 +299,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   min_peak_energy      = 200
   max_peak_energy      = !NULL
 
-  todayStr = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
+  todayStr = KEYWORD_SET(spoofDate) ? spoofDate : GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
   IF todayStr EQ '20180425' THEN BEGIN
     @journal__20180425__automation__config_for_midnight_orbs1000_3999.pro
     @journal__20180425__automation__config_for_midnight_orbs4000_6999.pro
@@ -314,6 +315,90 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   IF todayStr EQ '20180501' THEN BEGIN
     @journal__20180501__automation__config_for_midnight_orbs4000_6999__addicionales3.pro
+  ENDIF
+
+  IF todayStr EQ 'SpenceGRLSpoof' THEN BEGIN
+     IF orbit EQ 1612 AND nToSkip EQ 0 THEN BEGIN
+        
+        kSum__timeBar_from_ion_beams = 1
+
+        dato = '1997-01-17/'
+
+        ;; enforce_diff_eFlux_sRate = !NULL
+        ;; add_parm_errors = 1
+
+        ;; enforce_diff_eFlux_sRate = !NULL
+        add_parm_errors = 0
+
+        spectra_average_interval = 2
+
+        ;; debug__skip_to_this_time  = '1997-01-17/12:01:00'
+        ;; debug__break_on_this_time = '1997-01-17/12:01:12.5'
+
+        minElecEnergy        = 115. ;50 is too low; I tried it 
+        use_electron_tBounds = 0
+
+        use_peak_energy_bounds_for_moment_calc = 1
+        peakE_bounds_indShift = [-1,0]
+
+        ;; cAP_tRanges = dato + [['12:00:29.79','12:00:48.7'], $
+        ;;                       ['12:01:22.75','12:01:29.073']]
+
+        ;; Want stats from full kappa interval
+        cAP_tRanges = dato + [['12:00:29.79','12:00:48.7'], $
+                              ['12:00:55','12:01:29.073']]
+
+        cAP__iu_pot_tids = dato + [['12:00:27.5','12:00:39.'], $
+                                   ['12:00:40.0','12:00:49'], $
+                                   ['12:01:09.0','12:01:13'], $
+                                   ['12:01:18.5','12:01:30'], $
+                                   ['12:01:32.0','12:01:47']]
+
+
+        IF KEYWORD_SET(add_parm_errors) THEN BEGIN
+           kSum__add_parm_errors_from_file      = 1
+           kSum__add_parm_errors__nRolls        = 10000
+           kSum__add_parm_errors__use_most_prob = 1
+        ENDIF
+
+        energy_electrons[0] = minElecEnergy
+
+        IF use_electron_tBounds THEN BEGIN
+
+           ;; edgeries            = [300.,90.,40.,65.]
+           edgeries            = [300.,90.,125.,115.]
+
+           energy_electrons    = [[edgeries[0],energy_electrons[1]], $
+                                  [edgeries[1],energy_electrons[1]], $
+                                  [edgeries[2],energy_electrons[1]], $
+                                  [edgeries[3],energy_electrons[1]]]
+
+           moment_energyArr    = [[energy_electrons[*,2]],[energy_electrons[*,2]],[10,2.4e4]]
+
+           energy_electron_tBounds = dato + [['12:00:25','12:00:45'], $ ;lb is 300
+                                             ['12:00:45','12:01:15'], $ ;lb is 90
+                                             ['12:01:15','12:01:17'], $ ;lb is 40
+                                             ['12:01:17','12:01:50']]   ;lb is 65
+
+           min_peak_energy_tStruct = {tBounds : energy_electron_tBounds, $
+                                      energy  : edgeries, $
+                                      forWhom : MAKE_ARRAY(N_ELEMENTS(edgeries),VALUE=0)}
+
+        ENDIF ELSE BEGIN
+           moment_energyArr    = [[energy_electrons],[energy_electrons],[10,2.4e4]]
+        ENDELSE
+
+
+        min_peak_energy     = minElecEnergy
+        min_peak_energyArr  = [minElecEnergy,1E2,7E0]
+        max_peak_energyArr  = [1E4,2e4,1.0E3]
+
+        IF KEYWORD_SET(use_peak_energy_bounds_for_moment_calc) THEN BEGIN
+           use_peakE_bounds_for_moment_calc = [1,0,0]
+        ENDIF
+
+     ENDIF
+
   ENDIF
 
   ;;survey window
@@ -532,6 +617,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
                         KSUM__ADD_PARM_ERRORS_FROM_FILE=kSum__add_parm_errors_from_file, $
                         KSUM__ADD_PARM_ERRORS__NROLLS=kSum__add_parm_errors__nRolls, $
                         KSUM__ADD_PARM_ERRORS__USE_MOST_PROB=kSum__add_parm_errors__use_most_prob, $
+                        KSUM__TIMEBAR_FROM_ION_BEAMS=kSum__timeBar_from_ion_beams, $
                         OUT_FIT2DK=fit2DK, $
                         OUT_FIT2DGAUSS=fit2DG, $
                         OUT_KAPPAFIT1DSTRUCTS=kappaFit1Ds, $

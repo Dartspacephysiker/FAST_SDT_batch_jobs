@@ -41,6 +41,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                        ENFORCE_DIFF_EFLUX_SRATE=enforce_diff_eFlux_sRate, $
                        SC_POT=sc_pot, $
                        CHECKFORIONBEAMS=checkForIonBeams, $
+                       OUT_IONEVENTS=ionEvents, $
                        GRL=GRL, $
                        BATCH_MODE=batch_mode, $
                        PLOTDIR=plotDir
