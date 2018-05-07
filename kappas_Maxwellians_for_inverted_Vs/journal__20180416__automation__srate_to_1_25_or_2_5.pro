@@ -17,6 +17,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    BATCH_SETUP__DATE_OF_GENERATION=date, $
    BATCH_SETUP__MLTRANGE=mltRange, $
    BATCH_SETUP__MIN_T_STREAKLEN=min_T_streakLen, $
+   BATCH_SETUP__MAX_T_STREAKLEN=max_T_streakLen, $
    BATCH_SETUP__READ_NTOSKIP_FROM_MANUAL_INPUT=read_nToSkip_from_manual_input, $
    BATCH_SETUP__READ_NTOSKIP_FROM_DAILY_FILE=read_nToSkip_from_daily_file, $
    NTOSKIP_FROM_DAILY_FILE__SKIPSTART_FROM_THIS_FILE=nToSkip_from_daily_file__skipStart_from_this_file, $
@@ -118,6 +119,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
      DATE_OF_GENERATION=date, $
      MLTRANGE=mltRange, $
      MIN_T_STREAKLEN=min_T_streakLen, $
+     MAX_T_STREAKLEN=max_T_streakLen, $
      NTOSKIP=nToSkip, $
      /PRINT_SUMMARY
 
