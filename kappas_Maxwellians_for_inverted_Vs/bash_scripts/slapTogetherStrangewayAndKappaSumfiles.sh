@@ -15,6 +15,11 @@ NPLOTSTOCAT=100
 PDFSUFF="_to400"
 startOrb=8217
 
+# 2018/05/01
+PDFSUFF="_to407"
+startOrb=9457
+NPLOTSTOCAT=7
+
 if [ ! -d "${dir}" ]; then
     echo "Can't! N'existe pas: ${dir}";
     exit
@@ -51,5 +56,5 @@ if [ -e "kappaOrbits${PDFSUFF}.pdf" ]; then
     exit
 fi
 
-gs -sDEVICE=pdfwrite -dEPSFitPage -dNOPAUSE -dBATCH -dSAFER -sOutputFile=sWayOrbits${PDFSUFF}.pdf ${swayArr[@]}
-gs -sDEVICE=pdfwrite -dEPSFitPage -dNOPAUSE -dBATCH -dSAFER -sOutputFile=kappaOrbits${PDFSUFF}.pdf ${kappArr[@]}
+# gs -sDEVICE=pdfwrite -dEPSFitPage -dNOPAUSE -dBATCH -dSAFER -sOutputFile=sWayOrbits${PDFSUFF}.pdf ${swayArr[@]}
+# gs -sDEVICE=pdfwrite -dEPSFitPage -dNOPAUSE -dBATCH -dSAFER -sOutputFile=kappaOrbits${PDFSUFF}.pdf ${kappArr[@]}

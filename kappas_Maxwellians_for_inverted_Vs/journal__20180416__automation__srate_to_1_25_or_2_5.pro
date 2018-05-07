@@ -403,6 +403,18 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   ENDIF
 
+  IF orbit EQ 1773 AND todayStr EQ 'Spence1773_20180507' THEN BEGIN
+
+     enforce_diff_eFlux_sRate = !NULL
+     spectra_average_interval = 2
+
+     kSum__timeBar_from_ion_beams = 1
+
+     use_peak_energy_bounds_for_moment_calc = 1
+     peakE_bounds_indShift = [-1,0]
+
+  ENDIF
+
   ;;survey window
   eeb_or_ees           = N_ELEMENTS(eeb_or_ees) GT 0 ? eeb_or_ees : 'ees'
   spectra_average_interval = N_ELEMENTS(spectra_average_interval) GT 0 ? spectra_average_interval : 2

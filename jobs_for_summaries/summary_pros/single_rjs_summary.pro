@@ -1,6 +1,7 @@
 PRO SINGLE_RJS_SUMMARY,time1,time2, $
                        TPLT_VARS=tPlt_vars, $
-                       EEB_OR_EES=eeb_OR_ees, $
+                       ORBIT=orbit, $
+                       EEB_OR_EES=eeb_or_ees, $
                        ENERGY_ELECTRONS=energy_electrons, $
                        ENERGY_ELECTRON_TBOUNDS=energy_electron_tBounds, $
                        ELECTRON_ANGLERANGE=electron_angleRange, $
@@ -39,9 +40,10 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                        OUTPLOT_BONUSPREF=bonusPref, $
                        SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
                        ENFORCE_DIFF_EFLUX_SRATE=enforce_diff_eFlux_sRate, $
-                       SC_POT=sc_pot, $
+                       ;; SC_POT=sc_pot, $
                        CHECKFORIONBEAMS=checkForIonBeams, $
-                       OUT_IONEVENTS=ionEvents, $
+                       IONEVENTS=ionEvents, $
+                       SC_POTAVG=sc_potAvg, $
                        GRL=GRL, $
                        BATCH_MODE=batch_mode, $
                        PLOTDIR=plotDir
@@ -115,7 +117,6 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
   CASE STRUPCASE(specUnits) OF
      'FLUX': BEGIN
-
         specUnits = 'flux'
         ionSpecLogLims  = [1.,7.]
         specLogUnitsString = 'Log #!C/cm!U2!N-s-sr-eV'
@@ -321,7 +322,8 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      OPTIONS,'EFIT_ALONG_V','panel_size',2
 
 ;Need sc pot?
-     IF KEYWORD_SET(add_Newell_panel) OR KEYWORD_SET(checkForIonBeams) THEN BEGIN
+     ;; IF KEYWORD_SET(add_Newell_panel) OR KEYWORD_SET(checkForIonBeams) THEN BEGIN
+     IF KEYWORD_SET(add_Newell_panel) AND N_ELEMENTS(sc_potAvg) EQ 0 THEN BEGIN
 
         IF N_ELEMENTS(sc_pot) EQ 0 THEN BEGIN
            GET_SC_POTENTIAL,T1=t1eeb,T2=t2eeb, $
@@ -449,18 +451,32 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
 ; ION PITCH ANGLE
 
+     needIonPAStruc = 1
+     IF KEYWORD_SET(checkForIonBeams) THEN BEGIN
+        ;; GET_DATA,'IesaPASpec',DATA=data
+        IF SIZE(ionEvents,/TYPE) EQ 8 THEN BEGIN
+           IF N_ELEMENTS(TAG_NAMES(ionEvents.pa)) EQ 3 THEN BEGIN
+              var_name = 'Iesa_Angle'
+              STORE_DATA,var_name,DATA=ionEvents.pa
+              needIonPAStruc = 0
+           ENDIF
+        ENDIF
+     ENDIF
+     
      var_name='Iesa_Angle'
      ion_ER = KEYWORD_SET(ion_energyRange) ? ion_energyRange : [4.,30000.]
-     GET_PA_SPEC,'fa_' + ieb_or_ies + '_c', $
-                 T1=t1, $
-                 T2=t2, $
-                 UNITS=specUnits, $
-                 NAME=var_name, $
-                 ENERGY=ion_ER, $
-                 /RETRACE, $
-                 /CALIB
-     GET_DATA,var_name, DATA=data
-     IF KEYWORD_SET(checkForIonBeams) THEN STORE_DATA,'IesaPASpec',DATA=data
+     IF needIonPAStruc THEN BEGIN
+        GET_PA_SPEC,'fa_' + ieb_or_ies + '_c', $
+                    T1=t1, $
+                    T2=t2, $
+                    UNITS=specUnits, $
+                    NAME=var_name, $
+                    ENERGY=ion_ER, $
+                    /RETRACE, $
+                    /CALIB
+     ENDIF
+     GET_DATA,var_name,DATA=data        
+
      data.y = ALOG10(data.y)
      STORE_DATA,var_name, DATA=data
      OPTIONS,var_name,'spec',1	
@@ -522,7 +538,6 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                  /CALIB, $
                  RETRACE=1
      GET_DATA,var_name,DATA=data
-     IF KEYWORD_SET(checkForIonBeams) THEN IesaLCSpec = data
      data.y = ALOG10(data.y)
      STORE_DATA,var_name,DATA=data
      OPTIONS,var_name,'spec',1	
@@ -547,7 +562,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
      ;; 2018/04/24
      ;; Save ion stuff as I try to figure out how to automate identification of ion beams
-     IF KEYWORD_SET(checkForIonBeams) THEN BEGIN 
+     IF KEYWORD_SET(checkForIonBeams) AND SIZE(ionEvents,/TYPE) NE 8 THEN BEGIN 
 
         ionBeam_aRange = ion_angleRange
         IF ion_angleRange[0] GE 90. AND ion_angleRange[0] LE 180 THEN BEGIN
@@ -593,7 +608,6 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         GET_DATA,var_name,DATA=IesaHRSpec
 
         compSpec = IesaHRSpec
-        ;; compSpec = IesaLCSpec
 
         t1eeb = 0.D 
         t2eeb = 0.D
@@ -1564,7 +1578,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         PRINT,'Saving Newell data to' + outName + ' ...'
 
         saveStr = 'SAVE,events,'
-        IF KEYWORD_SET(checkForIonBeams) THEN BEGIN
+        IF SIZE(ionEvents,/TYPE) EQ 8 THEN BEGIN
            saveStr += 'ionEvents,'
         ENDIF
         saveStr += 'FILENAME=outDir+outName'
