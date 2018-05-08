@@ -319,6 +319,10 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
     @journal__20180501__automation__config_for_midnight_orbs4000_6999__addicionales3.pro
   ENDIF
 
+  IF todayStr EQ '20180508' THEN BEGIN
+    @journal__20180508__automation__config_for_midnight_orbs1000_3999__lt60sec.pro
+  ENDIF
+
   IF todayStr EQ 'SpenceGRLSpoof' THEN BEGIN
      IF orbit EQ 1612 AND nToSkip EQ 0 THEN BEGIN
         

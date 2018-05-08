@@ -18,18 +18,25 @@
 ;*****************************
 ;Put code here:
 
-skippersDate = '20180507'
-date = '20180507'
 min_T_streakLen = 30
 max_T_streakLen = 60
 mltRange = [-3.5,1.5]
+
+skippersDate = '20180507'
+date = '20180507'
+checkForSkippers = 1
+
+;; 2018/05/08 redoers
+;; skippersDate = '20180507'
+date = '20180507'
+checkForSkippers = 0
 
 JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    /NO1DPLOTSPLEASE, $
    /NOCURPOTPLOTSPLEASE, $
    /BATCH_MODE, $
    ;; /BOTH_RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE, $
-   CHECKFORSKIPPERS=1, $
+   CHECKFORSKIPPERS=checkForSkippers, $
    SKIPPERSDATE=skippersDate, $
    BATCH_SETUP__DATE_OF_GENERATION=date, $
    BATCH_SETUP__MLTRANGE=mltRange, $
