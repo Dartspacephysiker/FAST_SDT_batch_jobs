@@ -21,14 +21,9 @@
 min_T_streakLen = 30
 mltRange = [0,24]
 
-;; skippersDate = '20180507'
 date = '20180516'
 checkForSkippers = 1
-
-;; 2018/05/08 redoers
-;; skippersDate = '20180507'
-;; date = '20180516'
-;; checkForSkippers = 1
+do_not_analyze_if_exists = 1
 
 JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    /NO1DPLOTSPLEASE, $
@@ -37,6 +32,7 @@ JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    ;; /BOTH_RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE, $
    CHECKFORSKIPPERS=checkForSkippers, $
    SKIPPERSDATE=skippersDate, $
+   DO_NOT_ANALYZE_IF_EXISTS=do_not_analyze_if_exists, $
    BATCH_SETUP__DATE_OF_GENERATION=date, $
    BATCH_SETUP__MLTRANGE=mltRange, $
    BATCH_SETUP__MIN_T_STREAKLEN=min_T_streakLen, $

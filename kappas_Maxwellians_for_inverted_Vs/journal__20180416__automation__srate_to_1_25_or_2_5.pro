@@ -13,6 +13,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
    SKIPPERSDATE=skippersDate, $
    SKIPIFMLTLT=skipIfMLTLT, $
    SKIPIFMLTGT=skipIfMLTGT, $
+   DO_NOT_ANALYZE_IF_EXISTS=do_not_analyze_if_exists, $
    BATCH_MODE=batch_mode, $
    BATCH_SETUP__DATE_OF_GENERATION=date, $
    BATCH_SETUP__MLTRANGE=mltRange, $
@@ -143,7 +144,13 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
      SPECAVGSUFF=specAvgSuff, $
      BONUSPREF=bonusPref, $
      NTOSKIP=nToSkip, $
+     ALL_ALREADY_EXIST=all_already_exist, $
      /PRINT_SUMMARY
+
+  IF KEYWORD_SET(all_already_exist) AND KEYWORD_SET(do_not_analyze_if_exists) THEN BEGIN
+     PRINT,"Not analyzing! All files for this orb already exist!"
+     RETURN
+  ENDIF
 
   IF N_ELEMENTS(skipIfMLTLT) GT 0 THEN BEGIN
      IF MLT LT skipIfMLTLT AND MLT GT (N_ELEMENTS(skipIfMLTGT) GT 0? skipIfMLTGT : 0 ) $
