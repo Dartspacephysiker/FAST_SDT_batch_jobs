@@ -33,6 +33,8 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   ;; McFadden_diff_eFlux = 0
   enforce_diff_eFlux_sRate = 1.25
 
+  kSum__timeBar_from_ion_beams = 1
+
   GET_FA_SDT_ORBIT,orbit
 
   addSec_on_either_side = 20
@@ -40,79 +42,95 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   checkForSkippers = N_ELEMENTS(checkForSkippers) GT 0 ? checkForSkippers : 1
   defSkippersDate  = '20180421'
+  skipRootDir      = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/kappa_Newell_data/'
   skippersDate     = N_ELEMENTS(skippersDate    ) GT 0 ? skippersDate     : defSkippersDate
-  nToSkip = 0
+  nToSkip          = 0
 
+  ;; OLD VEI
   dirForCheck = '/SPENCEdata/software/sdt/batch_jobs/plots/'+skippersDate+'/kappa_fits/'
   orbDir = STRING(FORMAT='("Orbit_",I0)',orbit)
-  IF KEYWORD_SET(checkForSkippers) THEN BEGIN
 
-     CASE 1 OF
-        KEYWORD_SET(read_nToSkip_from_manual_input): BEGIN
+  ;; THIS IS BAD: spectra_average_interval is set below, not here!
+  ;; Should be OK in this journal, though, since we deal with enforce_diff_eFlux_sRate = 1.25
+  specAvgSuff = ''
+  CASE 1 OF
+     KEYWORD_SET(enforce_diff_eFlux_sRate): BEGIN
+        specAvgSuff = (STRING(FORMAT='("-sRate",F0.2)',enforce_diff_eFlux_sRate)).Replace('.','_')
+     END
+     KEYWORD_SET(spectra_average_interval): BEGIN
+        specAvgSuff = STRING(FORMAT='("-avgItvl",I0)',spectra_average_interval)
+     END
+  ENDCASE
 
-           toDag = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
+  skipIfExists = KEYWORD_SET(checkForSkippers)
+  ;; IF KEYWORD_SET(checkForSkippers) THEN BEGIN
+
+  ;;    CASE 1 OF
+  ;;       KEYWORD_SET(read_nToSkip_from_manual_input): BEGIN
+
+  ;;          toDag = GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
            
-           ;; 2018/04/30
-           IF toDag EQ '20180430' THEN BEGIN
-              IF orbit EQ 5686 THEN nToSkip = 2
-              IF orbit EQ 5481 THEN nToSkip = 1
-              IF orbit EQ 6712 THEN nToSkip = 1
-           ENDIF
+  ;;          ;; 2018/04/30
+  ;;          IF toDag EQ '20180430' THEN BEGIN
+  ;;             IF orbit EQ 5686 THEN nToSkip = 2
+  ;;             IF orbit EQ 5481 THEN nToSkip = 1
+  ;;             IF orbit EQ 6712 THEN nToSkip = 1
+  ;;          ENDIF
 
-        END 
-        KEYWORD_SET(read_nToSkip_from_daily_file): BEGIN
+  ;;       END 
+  ;;       KEYWORD_SET(read_nToSkip_from_daily_file): BEGIN
 
-           nToSkipStart = 0
-           ;; IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20180501' THEN BEGIN
-           ;;    IF orbit EQ 6929 THEN nToSkipStart = 1
-           ;;    IF orbit EQ 6898 THEN nToSkipStart = 1
-           ;;    IF orbit EQ 4361 THEN nToSkipStart = 1
-           ;;    IF orbit EQ 6835 THEN nToSkipStart = 1
-           ;; ENDIF
+  ;;          nToSkipStart = 0
+  ;;          ;; IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20180501' THEN BEGIN
+  ;;          ;;    IF orbit EQ 6929 THEN nToSkipStart = 1
+  ;;          ;;    IF orbit EQ 6898 THEN nToSkipStart = 1
+  ;;          ;;    IF orbit EQ 4361 THEN nToSkipStart = 1
+  ;;          ;;    IF orbit EQ 6835 THEN nToSkipStart = 1
+  ;;          ;; ENDIF
 
-           IF KEYWORD_SET(nToSkip_from_daily_file__skipStart_from_this_file) THEN BEGIN
+  ;;          IF KEYWORD_SET(nToSkip_from_daily_file__skipStart_from_this_file) THEN BEGIN
 
-              OPENR,lun,nToSkip_from_daily_file__skipStart_from_this_file,/GET_LUN
+  ;;             OPENR,lun,nToSkip_from_daily_file__skipStart_from_this_file,/GET_LUN
 
-              WHILE ~EOF(lun) DO BEGIN
-                 READF,lun,FORMAT='(I05,TR1,I02)', $
-                       tmpOrb,nToSkipStartTmp
+  ;;             WHILE ~EOF(lun) DO BEGIN
+  ;;                READF,lun,FORMAT='(I05,TR1,I02)', $
+  ;;                      tmpOrb,nToSkipStartTmp
 
-                 IF tmpOrb EQ orbit THEN BEGIN
-                    nToSkipStart = TEMPORARY(nToSkipStartTmp)
-                    BREAK
-                 ENDIF
+  ;;                IF tmpOrb EQ orbit THEN BEGIN
+  ;;                   nToSkipStart = TEMPORARY(nToSkipStartTmp)
+  ;;                   BREAK
+  ;;                ENDIF
 
-              ENDWHILE
+  ;;             ENDWHILE
 
-              CLOSE,lun
+  ;;             CLOSE,lun
 
-           ENDIF
+  ;;          ENDIF
 
-           DAILY_KAPPA_REDO_FILE__READ,orbit,dateString, $
-                                       OUT_NTOSKIP=nToSkip
+  ;;          DAILY_KAPPA_REDO_FILE__READ,orbit,dateString, $
+  ;;                                      OUT_NTOSKIP=nToSkip
 
-           nToSkip += nToSkipStart
+  ;;          nToSkip += nToSkipStart
 
-           DAILY_KAPPA_REDO_FILE__INIT_OR_APPEND_TO,orbit,dateString
+  ;;          DAILY_KAPPA_REDO_FILE__INIT_OR_APPEND_TO,orbit,dateString
 
-        END
-        ELSE: BEGIN
+  ;;       END
+  ;;       ELSE: BEGIN
 
-           IF FILE_TEST(dirForCheck+orbDir,/DIRECTORY) THEN BEGIN
+  ;;          IF FILE_TEST(dirForCheck+orbDir,/DIRECTORY) THEN BEGIN
 
-              skipFiles = FILE_SEARCH(dirForCheck+orbDir,'Kappa_summary-*eps')
-              sFileTids = STRMID(skipFiles, $
-                                 STRLEN(dirForCheck+orbDir+'/'+'Kappa_summary-'+STRING(FORMAT='(I0)',orbit)+bonusPref+'-'), $
-                                 8)
-              nToSkip = N_ELEMENTS(UNIQ(sFileTids,SORT(sFileTids)))
+  ;;             skipFiles = FILE_SEARCH(dirForCheck+orbDir,'Kappa_summary-*eps')
+  ;;             sFileTids = STRMID(skipFiles, $
+  ;;                                STRLEN(dirForCheck+orbDir+'/'+'Kappa_summary-'+STRING(FORMAT='(I0)',orbit)+bonusPref+'-'), $
+  ;;                                8)
+  ;;             nToSkip = N_ELEMENTS(UNIQ(sFileTids,SORT(sFileTids)))
 
-           ENDIF
+  ;;          ENDIF
 
-        END
-     ENDCASE
+  ;;       END
+  ;;    ENDCASE
 
-  ENDIF
+  ;; ENDIF
 
   READ_KAPPA_BATCH_SETUP_FILE, $
      orbit,MLT,ILAT,ALT,t1Str,t2Str,t_streakLen,nPts,dt_avg,avg_current, $
@@ -120,6 +138,10 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
      MLTRANGE=mltRange, $
      MIN_T_STREAKLEN=min_T_streakLen, $
      MAX_T_STREAKLEN=max_T_streakLen, $
+     SKIPIFEXISTS=skipIfExists, $
+     SKIPROOTDIR=skipRootDir, $
+     SPECAVGSUFF=specAvgSuff, $
+     BONUSPREF=bonusPref, $
      NTOSKIP=nToSkip, $
      /PRINT_SUMMARY
 
@@ -156,7 +178,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
   cAP_tRanges  = [t1Str,t2Str]
 
-  IF (orbit EQ 1612 OR orbit EQ 5548) AND nToSkip EQ 0 THEN addSec_on_either_side = 0 ;;More stuff below for this orbit!
+  IF (orbit EQ 1612 OR orbit EQ 5548) AND nToSkip EQ 0 THEN addSec_on_either_side = 0 ;;More stu
 
   ;; Now add some buffer time to the sides
   t1  = S2T(t1Str)
@@ -164,7 +186,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   t1 -= addSec_on_either_side
   t2 += addSec_on_either_side
 
-  ;; 2018/03/12 For super low kappa
+;; 2018/03/12 For super low kappa
   IF orbit EQ 1607 AND nToSkip EQ 0 THEN BEGIN
      tmpDate     = '1997-01-17/'
      t1          = S2T(tmpDate + '01:03:50')
