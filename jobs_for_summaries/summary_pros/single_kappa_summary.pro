@@ -45,6 +45,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          KAPPA_STATS__SAVE_STUFF=kStats__save_stuff, $
                          KAPPA_STATS__INCLUDE_THESE_STARTSTOPS=kStats__include_these_startstops, $
                          INCLUDE_ELECTRON_PA_SPEC=include_electron_pa_spec, $
+                         INCLUDE_ION_PA_SPEC=include_ion_pa_spec, $
+                         INCLUDE_ION_ENERGY_SPEC=include_ion_energy_spec, $
+                         ION_ANGLERANGE=ion_angleRange, $
                          GRL=GRL, $
                          OPLOT_POT=oPlot_pot, $
                          SPECTROGRAM_UNITS=spectrogram_units, $
@@ -63,6 +66,8 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   !P.CHARSIZE = 3.4
   !P.SYMSIZE  = 2.0
 
+  bigPanelSize = 1.5
+  
   ;Determine units for electron energy and pitch-angle spectrograms
   defSpecUnits = 'eflux' 
   specUnits = KEYWORD_SET(spectrogram_units) ? spectrogram_units : defSpecUnits
@@ -77,7 +82,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      END
      'EFLUX': BEGIN
         specUnits = 'eflux'
-        ionSpecLogLims  = [5.,9.]
+        ionSpecLogLims  = [6.,9.]
         eSpecLogLims = [6.,9.]
         specLogUnitsString = 'Log eV!C/cm!U2!N-s-sr-eV'
      END
@@ -118,6 +123,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      add_meas_T_and_N         = 0
      add_only_meas_N          = 1
      include_electron_pa_spec = 1
+     include_ion_energy_spec  = 1
      oPlot_pot                = 1
 
      add_Newell_panel         = 0
@@ -703,9 +709,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L] ELSE t2 = time2
      tlimit_all = [t1,t2]
      ;; tPlt_vars = 'dB_fac_v'
-     OPTIONS,'dB_fac_v','panel_size',2
-     OPTIONS,'dB_fac','panel_size',2
-     OPTIONS,'dB_sm','panel_size',2
+     OPTIONS,'dB_fac_v','panel_size',bigPanelSize
+     OPTIONS,'dB_fac','panel_size',bigPanelSize
+     OPTIONS,'dB_sm','panel_size',bigPanelSize
 
      ;; if (KEYWORD_SET(use_fac)) THEN tPlt_vars = 'dB_fac'
 
@@ -725,139 +731,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   sdt_idx = get_sdt_run_idx()
 
-  IF KEYWORD_SET(include_ion_plots) THEN BEGIN
-
-; Step 3 - Iesa data
-     prog = getenv('FASTBIN') + '/showDQIs'
-     if ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN begin
-        if (sdt_idx GE 10) THEN begin
-           sidstr = STRING(sdt_idx, FORMAT='(I2)')
-        endif else begin
-           sidstr = STRING(sdt_idx, FORMAT='(I1)')
-        endelse
-        SPAWN, [prog, sidstr], result, /noshell
-     endif else begin
-        SPAWN, prog, result, /noshell
-     endelse
-     b = WHERE (strpos(result,'Iesa Survey') ge 0,nesa)
-     if (nesa gt 0) THEN if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 THEN nesa = 0
-
-     if (nesa gt 0) THEN begin
-
-; ION PITCH ANGLE
-
-        var_name='Iesa_Angle'
-        IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-           GET_PA_SPEC,'fa_' + ieb_or_ies + '_c', $
-                       UNITS=specUnits, $
-                       NAME=var_name, $
-                       ENERGY=[4.,30000.]
-        ENDIF
-        GET_DATA,var_name,DATA=data
-        IF KEYWORD_SET(save_for_offline) THEN BEGIN
-           Iesa_Angle_off = data
-           saveStr += var_name + '_off,'
-        ENDIF
-        data.y = ALOG10(data.y)
-        STORE_DATA,var_name,DATA=data
-        OPTIONS,var_name,'spec',1	
-        ;; zlim,var_name,4,9,0
-        zlim,var_name, $
-             (MIN(data.y[WHERE(FINITE(data.y))]) > ionSpecLogLims[0]), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < ionSpecLogLims[1]),0
-        ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
-        ylim,var_name,0,360,0
-        OPTIONS,var_name,'ytitle','Ions!C!CAngle (Deg.)'
-        OPTIONS,var_name,'ztitle',specLogUnitsString
-        OPTIONS,var_name,'x_no_interp',1
-        OPTIONS,var_name,'y_no_interp',1
-        OPTIONS,var_name,'panel_size',2
-
-        GET_DATA,var_name,DATA=data
-        bb = WHERE (data.v gt 270.,nb)
-        if (nb gt 0) THEN data.v(bb)=data.v(bb)-360.
-        nn = n_elements(data.x)
-        for n = 0,nn-1L do begin
-           bs = sort (data.v(n,*))
-           data.v(n,*)=data.v(n,bs)
-           data.y(n,*)=data.y(n,bs)
-        endfor
-        STORE_DATA,var_name,DATA=data	
-        OPTIONS,var_name,'yminor',9
-        OPTIONS,var_name,'yticks',4
-        OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
-        ylim,var_name,-90,270,0
-
-
-        if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
-
-; reset time limits if needed
-
-        IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
-        IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
-
-        if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) THEN begin
-           if (t1 lt tlimit_all[0]) THEN tlimit_all[0] = t1
-           if (t2 gt tlimit_all[1]) THEN tlimit_all[1] = t2
-           get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
-           get_new_igrf,/no_store_old
-        endif
-
-        if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-           wInd = 0
-           WINDOW,wInd,XSIZE=700,YSIZE=900
-           ;; tplot_OPTIONS,'region',[0.,0.5,1.0,1.0]
-           loadct2,39
-           tplot,tPlt_vars,var=['ALT','ILAT','MLT'], $
-                 WINDOW=wInd, $
-                 TRANGE=[t1,t2]
-        endif
-        ;; if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-        ;;    loadct2,40
-        ;;    tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-        ;; endif
-
-; ION ENERGY 
-
-        var_name='Iesa_Energy'
-        IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
-           GET_EN_SPEC,'fa_' + ieb_or_ies + '_c', $
-                       NAME=var_name, $
-                       UNITS=specUnits, $
-                       /CALIB, $
-                       RETRACE=1
-        ENDIF
-        GET_DATA,var_name,DATA=data
-        IF KEYWORD_SET(save_for_offline) THEN BEGIN
-           Iesa_Energy_off = data
-           saveStr += var_name + '_off,'
-        ENDIF
-        data.y = ALOG10(data.y)
-        STORE_DATA,var_name,DATA=data
-        OPTIONS,var_name,'spec',1	
-        ;; zlim,var_name,4,9,0
-        ZLIM,var_name, $
-             (MIN(data.y[WHERE(FINITE(data.y))]) > ionSpecLogLims[0]), $
-             (MAX(data.y[WHERE(FINITE(data.y))]) < ionSpecLogLims[1]),0
-        YLIM,var_name,4,24000,1
-        OPTIONS,var_name,'ytitle','Ions!C!CEnergy (eV)'
-        OPTIONS,var_name,'ztitle',specLogUnitsString
-        OPTIONS,var_name,'x_no_interp',1
-        OPTIONS,var_name,'y_no_interp',1
-        OPTIONS,var_name,'panel_size',2
-
-        if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
-
-        if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
-           ;; loadct2,40
-           tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-        endif
-
-     ENDIF
-  endif
-
-
-; Step 4 - Eesa data
+; Step 3 - Eesa data
 
   prog = getenv('FASTBIN') + '/showDQIs'
   if ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN begin
@@ -908,7 +782,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         OPTIONS,var_name,'ztitle',specLogUnitsString
         OPTIONS,var_name,'x_no_interp',1
         OPTIONS,var_name,'y_no_interp',1
-        OPTIONS,var_name,'panel_size',2
+        OPTIONS,var_name,'panel_size',bigPanelSize
 
         GET_DATA,var_name,DATA=data
         bb = WHERE (data.v gt 270.,nb)
@@ -981,7 +855,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      OPTIONS,var_name,'ztitle',specLogUnitsString
      OPTIONS,var_name,'x_no_interp',1
      OPTIONS,var_name,'y_no_interp',1
-     OPTIONS,var_name,'panel_size',2
+     OPTIONS,var_name,'panel_size',bigPanelSize
 
      IF KEYWORD_SET(oPlot_pot) THEN BEGIN
 
@@ -1004,6 +878,149 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         ;; LOADCT2,40
         TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
      endif
+
+  endif
+
+  include_ion_plots = KEYWORD_SET(include_ion_pa_spec) OR KEYWORD_SET(include_ion_energy_spec)
+
+  IF KEYWORD_SET(include_ion_plots) THEN BEGIN
+
+; Step 4 - Iesa data
+     prog = getenv('FASTBIN') + '/showDQIs'
+     if ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN begin
+        if (sdt_idx GE 10) THEN begin
+           sidstr = STRING(sdt_idx, FORMAT='(I2)')
+        endif else begin
+           sidstr = STRING(sdt_idx, FORMAT='(I1)')
+        endelse
+        SPAWN, [prog, sidstr], result, /noshell
+     endif else begin
+        SPAWN, prog, result, /noshell
+     endelse
+     b = WHERE (strpos(result,'Iesa Survey') ge 0,nesa)
+     if (nesa gt 0) THEN if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 THEN nesa = 0
+
+     if (nesa gt 0) THEN begin
+
+; ION PITCH ANGLE
+
+        IF KEYWORD_SET(include_ion_pa_spec) THEN BEGIN
+
+           var_name='Iesa_Angle'
+           IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+              GET_PA_SPEC,'fa_' + ieb_or_ies + '_c', $
+                          UNITS=specUnits, $
+                          NAME=var_name, $
+                          ENERGY=[4.,30000.]
+           ENDIF
+           GET_DATA,var_name,DATA=data
+           IF KEYWORD_SET(save_for_offline) THEN BEGIN
+              Iesa_Angle_off = data
+              saveStr += var_name + '_off,'
+           ENDIF
+           data.y = ALOG10(data.y)
+           STORE_DATA,var_name,DATA=data
+           OPTIONS,var_name,'spec',1	
+           ;; zlim,var_name,4,9,0
+           zlim,var_name, $
+                (MIN(data.y[WHERE(FINITE(data.y))]) > ionSpecLogLims[0]), $
+                (MAX(data.y[WHERE(FINITE(data.y))]) < ionSpecLogLims[1]),0
+           ;; zlim,var_name,MIN(data.y[WHERE(FINITE(data.y))]),MAX(data.y[WHERE(FINITE(data.y))]),0
+           ylim,var_name,0,360,0
+           OPTIONS,var_name,'ytitle','Ions!C!CAngle (Deg.)'
+           OPTIONS,var_name,'ztitle',specLogUnitsString
+           OPTIONS,var_name,'x_no_interp',1
+           OPTIONS,var_name,'y_no_interp',1
+           OPTIONS,var_name,'panel_size',bigPanelSize
+
+           GET_DATA,var_name,DATA=data
+           bb = WHERE (data.v gt 270.,nb)
+           if (nb gt 0) THEN data.v(bb)=data.v(bb)-360.
+           nn = n_elements(data.x)
+           for n = 0,nn-1L do begin
+              bs = sort (data.v(n,*))
+              data.v(n,*)=data.v(n,bs)
+              data.y(n,*)=data.y(n,bs)
+           endfor
+           STORE_DATA,var_name,DATA=data	
+           OPTIONS,var_name,'yminor',9
+           OPTIONS,var_name,'yticks',4
+           OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
+           ylim,var_name,-90,270,0
+
+
+           if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
+
+; reset time limits if needed
+
+           IF N_ELEMENTS(time1) EQ 0 THEN t1 = data.x[0]
+           IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[n_elements(data.x)-1L]
+
+           if ((t1 lt tlimit_all[0]) or (t2 gt tlimit_all[1])) THEN begin
+              if (t1 lt tlimit_all[0]) THEN tlimit_all[0] = t1
+              if (t2 gt tlimit_all[1]) THEN tlimit_all[1] = t2
+              get_fa_orbit,tlimit_all[0],tlimit_all[1],/all,status=no_model,delta=1.,/definitive,/drag_prop
+              get_new_igrf,/no_store_old
+           endif
+
+           if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
+              wInd = 0
+              WINDOW,wInd,XSIZE=700,YSIZE=900
+              ;; tplot_OPTIONS,'region',[0.,0.5,1.0,1.0]
+              loadct2,39
+              tplot,tPlt_vars,var=['ALT','ILAT','MLT'], $
+                    WINDOW=wInd, $
+                    TRANGE=[t1,t2]
+           endif
+           ;; if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
+           ;;    loadct2,40
+           ;;    tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+           ;; endif
+
+        ENDIF
+
+; ION ENERGY 
+
+        IF KEYWORD_SET(include_ion_energy_spec) THEN BEGIN
+
+           var_name='Iesa_Energy'
+           IF ~KEYWORD_SET(load_from_offline) THEN BEGIN
+              GET_EN_SPEC,'fa_' + ieb_or_ies + '_c', $
+                          NAME=var_name, $
+                          UNITS=specUnits, $
+                          ANGLE=ion_angleRange, $
+                          /CALIB, $
+                          RETRACE=1
+           ENDIF
+           GET_DATA,var_name,DATA=data
+           IF KEYWORD_SET(save_for_offline) THEN BEGIN
+              Iesa_Energy_off = data
+              saveStr += var_name + '_off,'
+           ENDIF
+           data.y = ALOG10(data.y)
+           STORE_DATA,var_name,DATA=data
+           OPTIONS,var_name,'spec',1	
+           ;; zlim,var_name,4,9,0
+           ZLIM,var_name, $
+                (MIN(data.y[WHERE(FINITE(data.y))]) > ionSpecLogLims[0]), $
+                (MAX(data.y[WHERE(FINITE(data.y))]) < ionSpecLogLims[1]),0
+           YLIM,var_name,4,24000,1
+           OPTIONS,var_name,'ytitle','Ions!C!CEnergy (eV)'
+           OPTIONS,var_name,'ztitle',specLogUnitsString
+           OPTIONS,var_name,'x_no_interp',1
+           OPTIONS,var_name,'y_no_interp',1
+           OPTIONS,var_name,'panel_size',bigPanelSize
+
+           if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
+
+           if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
+              ;; loadct2,40
+              tplot,tPlt_vars,var=['ALT','ILAT','MLT']
+           endif
+
+        ENDIF
+
+     ENDIF
 
   endif
 

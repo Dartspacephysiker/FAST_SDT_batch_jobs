@@ -34,7 +34,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   ;; McFadden_diff_eFlux = 0
   enforce_diff_eFlux_sRate = 1.25
 
-  kSum__timeBar_from_ion_beams = 1
+  ;; kSum__timeBar_from_ion_beams = 1
 
   GET_FA_SDT_ORBIT,orbit
 
@@ -200,6 +200,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
      t2          = S2T(tmpDate + '01:06:15')
      cAP_tRanges = tmpDate + ['01:04:56','01:05:55']
      ;;More stuff for orbit 1607 below
+
   ENDIF
 
   IF (orbit EQ 3931 OR orbit EQ 3218) AND nToSkip EQ 0 THEN BEGIN
@@ -352,9 +353,11 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
     @journal__20180508__automation__config_for_midnight_orbs1000_3999__lt60sec.pro
   ENDIF
 
+  ;; DON'T EDIT!! These give you the stuff for the 2018 GRL
   IF todayStr EQ 'SpenceGRLSpoof' THEN BEGIN
      IF orbit EQ 1612 AND nToSkip EQ 0 THEN BEGIN
         
+        sway__timeBar_from_ion_beams = 1
         kSum__timeBar_from_ion_beams = 1
 
         dato = '1997-01-17/'
@@ -362,7 +365,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
         ;; enforce_diff_eFlux_sRate = !NULL
         ;; add_parm_errors = 1
 
-        ;; enforce_diff_eFlux_sRate = !NULL
+        enforce_diff_eFlux_sRate = !NULL
         add_parm_errors = 0
 
         spectra_average_interval = 2
@@ -446,6 +449,17 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
      use_peak_energy_bounds_for_moment_calc = 1
      peakE_bounds_indShift = [-1,0]
 
+  ENDIF
+
+  IF orbit EQ 1607 AND todayStr EQ '20180523' THEN BEGIN
+     minElecEnergy       = 80
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,7E0]
+     max_peak_energyArr  = [1E4,2e4,1.0E3]
+
+     use_peak_energy_bounds_for_moment_calc = 1
+     peakE_bounds_indShift = [-1,0]
   ENDIF
 
   ;;survey window
@@ -649,6 +663,7 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
                         SWAY__LOG_KAPPAPLOT=sway__log_kappaPlot, $
                         SWAY__SPECTROGRAM_UNITS=sway__spectrogram_units, $
                         SWAY__CHECKFORIONBEAMS=sway__checkForIonBeams, $
+                        SWAY__TIMEBAR_FROM_ION_BEAMS=sway__timeBar_from_ion_beams, $
                         SHOW_KAPPA_SUMMARY=show_kappa_summary, $
                         KSUM__EANGLE=kSum__eAngle, $
                         KSUM__SAVE_PS=kSum__save_ps, $

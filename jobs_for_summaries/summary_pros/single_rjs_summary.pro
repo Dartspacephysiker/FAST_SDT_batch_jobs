@@ -42,6 +42,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
                        ENFORCE_DIFF_EFLUX_SRATE=enforce_diff_eFlux_sRate, $
                        ;; SC_POT=sc_pot, $
                        CHECKFORIONBEAMS=checkForIonBeams, $
+                       TIMEBAR_FROM_ION_BEAMS=timeBar_from_ion_beams, $
                        IONEVENTS=ionEvents, $
                        SC_POTAVG=sc_potAvg, $
                        GRL=GRL, $
@@ -93,6 +94,10 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
 @tplot_com
 
+  include_B_despun  = 1
+  include_E_along_V = 0
+
+  bigPanelSize = 1.5
   ctNum = 39
   ctNum = 43                    ;Better; not oceans of green
   IF KEYWORD_SET(screen_plot) AND ~(KEYWORD_SET(save_ps) OR KEYWORD_SET(save_png)) THEN BEGIN
@@ -243,9 +248,9 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      IF N_ELEMENTS(time2) EQ 0 THEN t2 = data.x[N_ELEMENTS(data.x)-1L] ELSE t2 = time2
      tlimit_all = [t1,t2]
      tPlt_vars = 'dB_fac_v'
-     OPTIONS,'dB_fac_v','panel_size',2
-     OPTIONS,'dB_fac','panel_size',2
-     OPTIONS,'dB_sm','panel_size',2
+     OPTIONS,'dB_fac_v','panel_size',bigPanelSize
+     OPTIONS,'dB_fac','panel_size',bigPanelSize
+     OPTIONS,'dB_sm','panel_size',bigPanelSize
 
      IF (KEYWORD_SET(use_fac)) THEN tPlt_vars = 'dB_fac'
 
@@ -319,7 +324,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
 
      OPTIONS,'EFIT_ALONG_V','yrange',0
      OPTIONS,'EFIT_ALONG_V','ytitle','E along V!C!C(mV/m)'
-     OPTIONS,'EFIT_ALONG_V','panel_size',2
+     OPTIONS,'EFIT_ALONG_V','panel_size',bigPanelSize
 
 ;Need sc pot?
      ;; IF KEYWORD_SET(add_Newell_panel) OR KEYWORD_SET(checkForIonBeams) THEN BEGIN
@@ -407,19 +412,24 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      STORE_DATA,'EFIT_ALONG_VSC',DATA=data,DLIMIT=dlimit
      OPTIONS,'EFIT_ALONG_VSC','yrange',0
      OPTIONS,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C(mV/m)'
-     OPTIONS,'EFIT_ALONG_VSC','panel_size',2
+     OPTIONS,'EFIT_ALONG_VSC','panel_size',bigPanelSize
 
      STORE_DATA,'E_NEAR_B',/DELETE
      STORE_DATA,'E_ALONG_V',/DELETE
      STORE_DATA,'EFIT_NEAR_B',/DELETE
      STORE_DATA,'EFIT_ALONG_V',/DELETE
 
-     IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=['EFIT_ALONG_VSC'] ELSE tPlt_vars=['EFIT_ALONG_VSC',tPlt_vars]
+     IF KEYWORD_SET(include_E_along_V) THEN BEGIN
+        IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN $
+           tPlt_vars=['EFIT_ALONG_VSC'] ELSE $
+              tPlt_vars=['EFIT_ALONG_VSC',tPlt_vars]
 
-     YLIM,'EFIT_ALONG_VSC',MIN(data.y),MAX(data.y),0
-     IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
-        ;; loadct2,40
-        TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+        YLIM,'EFIT_ALONG_VSC',MIN(data.y),MAX(data.y),0
+        IF (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN BEGIN
+           ;; loadct2,40
+           TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+        ENDIF
+
      ENDIF
 
   ENDIF ELSE IF (N_ELEMENTS(tPlt_vars) NE 0) THEN BEGIN
@@ -490,7 +500,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      OPTIONS,var_name,'ztitle',specLogUnitsString
      OPTIONS,var_name,'x_no_interp',1
      OPTIONS,var_name,'y_no_interp',1
-     OPTIONS,var_name,'panel_size',2
+     OPTIONS,var_name,'panel_size',bigPanelSize
 
      GET_DATA,var_name, DATA=data
      bb = WHERE (data.v GT 270.,nb)
@@ -551,7 +561,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      OPTIONS,var_name,'ztitle',specLogUnitsString
      OPTIONS,var_name,'x_no_interp',1
      OPTIONS,var_name,'y_no_interp',1
-     OPTIONS,var_name,'panel_size',2
+     OPTIONS,var_name,'panel_size',bigPanelSize
 
      IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[var_name] ELSE tPlt_vars=[var_name,tPlt_vars]
 
@@ -804,7 +814,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      OPTIONS,var_name,'ztitle',specLogUnitsString
      OPTIONS,var_name,'x_no_interp',1
      OPTIONS,var_name,'y_no_interp',1
-     OPTIONS,var_name,'panel_size',2
+     OPTIONS,var_name,'panel_size',bigPanelSize
 
      GET_DATA,var_name, DATA=data
      bb = WHERE (data.v GT 270.,nb)
@@ -864,7 +874,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
      OPTIONS,var_name,'ztitle',specLogUnitsString
      OPTIONS,var_name,'x_no_interp',1
      OPTIONS,var_name,'y_no_interp',1
-     OPTIONS,var_name,'panel_size',2
+     OPTIONS,var_name,'panel_size',bigPanelSize
 
      IF (N_ELEMENTS(tPlt_vars) EQ 0) THEN tPlt_vars=[var_name] ELSE tPlt_vars=[var_name,tPlt_vars]
 
@@ -1649,7 +1659,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         OPTIONS,'Eesa_Energy','ztitle',specLogUnitsString
         OPTIONS,'Eesa_Energy','x_no_interp',1
         OPTIONS,'Eesa_Energy','y_no_interp',1
-        OPTIONS,'Eesa_Energy','panel_size',2
+        OPTIONS,'Eesa_Energy','panel_size',bigPanelSize
      ENDIF
 
 ; Eesa_Angle
@@ -1669,7 +1679,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         OPTIONS,'Eesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
         OPTIONS,'Eesa_Angle','x_no_interp',1
         OPTIONS,'Eesa_Angle','y_no_interp',1
-        OPTIONS,'Eesa_Angle','panel_size',2
+        OPTIONS,'Eesa_Angle','panel_size',bigPanelSize
         OPTIONS,'Eesa_Angle','yminor',9
         OPTIONS,'Eesa_Angle','yticks',4
         OPTIONS,'Eesa_Angle','ytickv',[-90,0,90,180,270]
@@ -1692,7 +1702,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         OPTIONS,'Iesa_Energy','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
         OPTIONS,'Iesa_Energy','x_no_interp',1
         OPTIONS,'Iesa_Energy','y_no_interp',1
-        OPTIONS,'Iesa_Energy','panel_size',2
+        OPTIONS,'Iesa_Energy','panel_size',bigPanelSize
      ENDIF
 
 ; Iesa_Angle
@@ -1712,7 +1722,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         OPTIONS,'Iesa_Angle','ztitle','Log eV!C!C/cm!U2!N-s-sr-eV'
         OPTIONS,'Iesa_Angle','x_no_interp',1
         OPTIONS,'Iesa_Angle','y_no_interp',1
-        OPTIONS,'Iesa_Angle','panel_size',2
+        OPTIONS,'Iesa_Angle','panel_size',bigPanelSize
         OPTIONS,'Iesa_Angle','yminor',9
         OPTIONS,'Iesa_Angle','yticks',4
         OPTIONS,'Iesa_Angle','ytickv',[-90,0,90,180,270]
@@ -1731,7 +1741,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         STORE_DATA,'EFIT_ALONG_V',DLIMIT=dlimit
         OPTIONS,'EFIT_ALONG_VSC','yrange',[-100.,100.]
         OPTIONS,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C(mV/m)'
-        OPTIONS,'EFIT_ALONG_VSC','panel_size',2
+        OPTIONS,'EFIT_ALONG_VSC','panel_size',bigPanelSize
      ENDIF
 
 ; dB_fac_v
@@ -1744,14 +1754,21 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         STORE_DATA,'dB_fac_v', DATA={x:t_arr, y:y_arr}
         OPTIONS,'dB_fac_v','yrange',[-100,100]
         OPTIONS,'dB_fac_v','ytitle','dB_fac_v!C!C(nT))'
-        OPTIONS,'dB_fac_v','panel_size',2
+        OPTIONS,'dB_fac_v','panel_size',bigPanelSize
         OPTIONS,'dB_fac_v','colors',[6,4,2]
         OPTIONS,'dB_fac_v','labels',['v ((BxV)xB)','p (BxV)','b']
      ENDIF
 
-     tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','SFA_V5-V8','DSP_V5-V8','EFIT_ALONG_VSC','dB_fac_v']
+     tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle','SFA_V5-V8','DSP_V5-V8']
 
-     IF KEYWORD_SET(add_chare_panel)  THEN tPlt_vars = [tPlt_vars[0:3],'charepanel',tPlt_vars[4:7]]
+     IF KEYWORD_SET(include_E_along_V) THEN BEGIN
+        tPlt_vars = [tPlt_vars,'EFIT_ALONG_VSC']
+     ENDIF
+     IF KEYWORD_SET(include_B_despun) THEN BEGIN
+        tPlt_vars = [tPlt_vars,'dB_fac_v']
+     ENDIF
+
+     IF KEYWORD_SET(add_chare_panel)  THEN tPlt_vars = [tPlt_vars[0:3],'charepanel',tPlt_vars[4:(5+KEYWORD_SET(include_E_along_V)+KEYWORD_SET(include_B_despun))]]
 
      IF KEYWORD_SET(add_kappa_panel)  THEN tPlt_vars = ['onecheese','kappa_fit',tPlt_vars]
 
@@ -1800,36 +1817,108 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta'       ;,PSYM=1
      ENDIF
 
-     IF KEYWORD_SET(have_iu_pot) THEN BEGIN
+     IF KEYWORD_SET(have_iu_pot) AND KEYWORD_SET(ionEvents) THEN BEGIN
+
         TPLOT_PANEL,VARIABLE='Iesa_Energy',OPLOTVAR='iu_pot'
 
-        sjekke = 0
-        STR_ELEMENT,cAP_struct,'iu_pot_tids',sjekke
-        IF SIZE(sjekke,/TYPE) EQ 7 THEN BEGIN
 
-           CASE NDIMEN(cAP_struct.iu_pot_tids) OF
-              1: BEGIN
+        IF KEYWORD_SET(timeBar_from_ion_beams) THEN BEGIN
 
-                 FOR k=0,N_ELEMENTS(cAP_struct.iu_pot_tids)-1 DO BEGIN
-                    TIMEBAR,cAP_struct.iu_pot_tids[k],THICK=3.0,COLOR=red
-                 ENDFOR
+           this = WHERE(ionEvents.newell.mono EQ 1 OR ionEvents.newell.mono EQ 2)
 
-              END
-              2: BEGIN
+           GET_STREAKS,this, $
+                       START_I=start_i, $
+                       STOP_I=stop_i, $
+                       ALLOWABLE_GAP=1, $
+                       MIN_STREAK_TO_KEEP=6, $
+                       OUT_STREAKLENS=streakLens, $
+                       OUT_GAPLENS=gapLens
 
-                 nHjar = N_ELEMENTS(cAP_struct.iu_pot_tids[0,*])
-                 ;; colours = GENERATE_LIST_OF_RANDOM_COLORS(nHjar)
-                 colours = [poiple,darkRed,green,blue,fuschia,LIST_TO_1DARRAY(GENERATE_LIST_OF_RANDOM_COLORS(5))]
+           tBars = !NULL
+           FOR k=0,N_ELEMENTS(start_i)-1 DO tBars = [[tBars], $
+                                                     [ionEvents.ji.x[this[start_i[k]]], $
+                                                      ionEvents.ji.x[this[stop_i [k]]]]]
 
-                 FOR k=0,nHjar-1 DO BEGIN
-                    TIMEBAR,S2T(cAP_struct.iu_pot_tids[0,k]),THICK=2.5,COLOR=colours[k]
-                    TIMEBAR,S2T(cAP_struct.iu_pot_tids[1,k]),THICK=2.5,COLOR=colours[k]
-                 ENDFOR
-                 
-              END
-           ENDCASE
+        ENDIF ELSE BEGIN
 
-        ENDIF
+           sjekke = 0
+           STR_ELEMENT,cAP_struct,'iu_pot_tids',sjekke
+           IF SIZE(sjekke,/TYPE) EQ 7 THEN BEGIN
+
+              CASE NDIMEN(cAP_struct.iu_pot_tids) OF
+                 1: BEGIN
+
+                    tBars = cAP_struct.iu_pot_tids
+                    ;; FOR k=0,N_ELEMENTS(cAP_struct.iu_pot_tids)-1 DO BEGIN
+                    ;;    TIMEBAR,cAP_struct.iu_pot_tids[k],THICK=3.0,COLOR=red
+                    ;; ENDFOR
+
+                 END
+                 2: BEGIN
+
+                    tBars = cAP_struct.iu_pot_tids
+
+                    ;; nHjar = N_ELEMENTS(cAP_struct.iu_pot_tids[0,*])
+                    ;; ;; colours = GENERATE_LIST_OF_RANDOM_COLORS(nHjar)
+                    ;; colours = [poiple,darkRed,green,blue,fuschia,LIST_TO_1DARRAY(GENERATE_LIST_OF_RANDOM_COLORS(5))]
+                    ;; use_lineStyles = 1
+                    ;; lineStyles = [1,2,5,0,1] ;dotted, dashed, long dashes, solid
+
+                    ;; FOR k=0,((nHjar-1)<3) DO BEGIN
+                    ;;    TIMEBAR,S2T(cAP_struct.iu_pot_tids[0,k]), $
+                    ;;            LINESTYLE=(KEYWORD_SET(use_lineStyles) ? lineStyles[k MOD N_ELEMENTS(lineStyles)] : !NULL), $
+                    ;;            THICK=3.0, $
+                    ;;            COLOR=(KEYWORD_SET(use_colours) ? colours[k] : !NULL)
+                    ;;    TIMEBAR,S2T(cAP_struct.iu_pot_tids[1,k]), $
+                    ;;            LINESTYLE=(KEYWORD_SET(use_lineStyles) ? lineStyles[k  MOD N_ELEMENTS(lineStyles)] : !NULL), $
+                    ;;            THICK=3.0, $
+                    ;;            COLOR=(KEYWORD_SET(use_colours) ? colours[k] : !NULL)
+                    ;; ENDFOR
+                    
+                 END
+              ENDCASE
+
+           ENDIF
+           tBars = timeBars
+        ENDELSE
+
+
+        CASE NDIMEN(tBars) OF
+           -1:
+           1: BEGIN
+
+              FOR k=0,N_ELEMENTS(tBars)-1 DO BEGIN
+                 TIMEBAR,tBars[k], $
+                         THICK=3.0, $
+                         COLOR=red
+              ENDFOR
+
+           END
+           2: BEGIN
+
+              nHjar = N_ELEMENTS(tBars[0,*])
+              ;; colours = GENERATE_LIST_OF_RANDOM_COLORS(nHjar)
+              use_colours = 0
+              colours = [poiple,darkRed,green,blue,poiple]
+              use_lineStyles = 1
+              lineStyles = [1,2,5,0] ;dotted, dashed, long dashes, solid
+
+              FOR k=0,nHjar-1 DO BEGIN
+                 ;; TIMEBAR,tBars[0,k],THICK=3.0,COLOR=(colours[k])[0]
+                 ;; TIMEBAR,tBars[1,k],THICK=3.0,COLOR=(colours[k])[0]
+                 TIMEBAR,tBars[0,k], $
+                         LINESTYLE=(KEYWORD_SET(use_lineStyles) ? lineStyles[k MOD N_ELEMENTS(lineStyles)] : !NULL), $
+                         THICK=3.0, $
+                         COLOR=(KEYWORD_SET(use_colours) ? colours[k] : !NULL)
+                 TIMEBAR,tBars[1,k], $
+                         LINESTYLE=(KEYWORD_SET(use_lineStyles) ? lineStyles[k MOD N_ELEMENTS(lineStyles)] : !NULL), $
+                         THICK=3.0, $
+                         COLOR=(KEYWORD_SET(use_colours) ? colours[k] : !NULL)
+              ENDFOR
+              
+           END
+        ENDCASE
+
 
      ENDIF
 
