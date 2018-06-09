@@ -431,10 +431,6 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
         min_peak_energyArr  = [minElecEnergy,1E2,7E0]
         max_peak_energyArr  = [1E4,2e4,1.0E3]
 
-        IF KEYWORD_SET(use_peak_energy_bounds_for_moment_calc) THEN BEGIN
-           use_peakE_bounds_for_moment_calc = [1,0,0]
-        ENDIF
-
      ENDIF
 
   ENDIF
@@ -458,8 +454,34 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
      min_peak_energyArr  = [minElecEnergy,1E2,7E0]
      max_peak_energyArr  = [1E4,2e4,1.0E3]
 
+     ;; use_peak_energy_bounds_for_moment_calc = 1
+     ;; peakE_bounds_indShift = [-1,0]
+  ENDIF
+
+  ;; Just trying to see how this all changes if I don't use the peak value
+  IF orbit EQ 1607 AND todayStr EQ '20180609' THEN BEGIN
+
+     minElecEnergy       = 80
+     energy_electrons[0] = minElecEnergy
+     min_peak_energy     = minElecEnergy
+     min_peak_energyArr  = [minElecEnergy,1E2,7E0]
+     max_peak_energyArr  = [1E4,2e4,1.0E3]
+
      use_peak_energy_bounds_for_moment_calc = 1
      peakE_bounds_indShift = [-1,0]
+
+     dato = '1997-01-17/'
+
+     cAP_tRanges = dato + [['01:04:24.276','01:04:49.521']]
+
+
+     ;; New thing
+     enforce_diff_eFlux_sRate = 1.89
+
+  ENDIF
+
+  IF KEYWORD_SET(use_peak_energy_bounds_for_moment_calc) THEN BEGIN
+     use_peakE_bounds_for_moment_calc = [1,0,0]
   ENDIF
 
   ;;survey window

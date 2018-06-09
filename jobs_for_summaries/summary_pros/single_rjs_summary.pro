@@ -1879,7 +1879,7 @@ PRO SINGLE_RJS_SUMMARY,time1,time2, $
               ENDCASE
 
            ENDIF
-           tBars = timeBars
+           tBars = N_ELEMENTS(timeBars) GT 0 ? timeBars : !NULL
         ENDELSE
 
 
