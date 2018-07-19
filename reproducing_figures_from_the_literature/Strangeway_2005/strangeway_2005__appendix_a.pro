@@ -3,7 +3,7 @@
 ;"But really, Spence—what's going on in this routine?"
 ;You want to know? Like … for real what's going on? 'Cause I'm serious.
 ;"No, I know. So am I."
-;Don't mess with me, now.
+;Don't mess with me.
 ;"I'm serious! Just a summary or a few words, that's all. It's not like a Trump/Russia sort of thing and I'm Trump and you're
 ;Comey, all right? Cool down, and tell me what's up!"
 ;All right, check it.
@@ -501,7 +501,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      PRINT,'SMOOTHDSP'
      DSP = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
            data, $
-           INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+           /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
            /USE_DOUBLE_STREAKER, $
            ONESEC_TS=tS_1s)
 
@@ -977,7 +977,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      ;; IF KEYWORD_SET(smooth_fluxes) THEN BEGIN
      tmpJe = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
               tmp, $
-              INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+              /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
               /NO_SEPARATE_DC_AC, $
               /USE_DOUBLE_STREAKER, $
               ONESEC_TS=tS_1s)
@@ -1042,7 +1042,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
      ;; IF KEYWORD_SET(smooth_fluxes) THEN BEGIN
      tmpJEe = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
               tmp, $
-              INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+              /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
               /NO_SEPARATE_DC_AC, $
               /USE_DOUBLE_STREAKER, $
               ONESEC_TS=tS_1s)
@@ -1090,7 +1090,7 @@ PRO STRANGEWAY_2005__APPENDIX_A, $
 
      tmpJi = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
              tmp, $
-             INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+             /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
              /NO_SEPARATE_DC_AC, $
              /USE_DOUBLE_STREAKER, $
              ONESEC_TS=tS_1s)

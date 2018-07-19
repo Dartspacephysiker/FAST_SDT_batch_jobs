@@ -262,9 +262,9 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
   ;; fit1D__save_every_nth_plot        = 4
   ;; fit1D__save_if_kappa_below        = 3.
   fit1D__combine_plotslices_in_PDF  = 1
-  fit2D__save_all_plots             = 0
-  fit2D__show_each_candidate        = 0
-  fit2D__show_only_data             = 0
+  fit2D__save_all_plots             = 1
+  fit2D__show_each_candidate        = 1
+  fit2D__show_only_data             = 1
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
   fit2D__clampDensity               = 0
@@ -472,7 +472,8 @@ PRO JOURNAL__20180416__AUTOMATION__SRATE_TO_1_25_OR_2_5,orbit, $
 
      dato = '1997-01-17/'
 
-     cAP_tRanges = dato + [['01:04:24.276','01:04:49.521']]
+     ;; cAP_tRanges = dato + [['01:04:24.276','01:04:49.521']]
+     cAP_tRanges = dato + [['01:04:28.0','01:04:41.3']] ;2018/06/11
 
 
      ;; New thing
