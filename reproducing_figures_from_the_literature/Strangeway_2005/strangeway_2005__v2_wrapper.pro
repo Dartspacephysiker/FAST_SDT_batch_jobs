@@ -14,7 +14,7 @@
 ;*****************************
 ;Put code here:
 
-STRANGEWAY_2005__APPENDIX_A,/SAVE_PS,/DECIMATE_EB_CALC_PFLUX
+STRANGEWAY_2005__V2,/SAVE_PS,/DECIMATE_EB_CALC_PFLUX
 
 ;*****************************
 ;End routine:
