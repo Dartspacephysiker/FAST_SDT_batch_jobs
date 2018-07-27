@@ -1,6 +1,6 @@
   ;;Outputs
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/V2/'
-  hashFile     = 'Strangeway_et_al_2005__v2.sav'
+  hashFile     = 'Strangeway_et_al_2005__v2'
   indivOrbPref = 'Strangeway_et_al_2005__v2--'
 
   outPlotName  = 'Strangeway_2005_v2'
@@ -14,14 +14,18 @@
   IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
   IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
 
+  ;; 20180727 This version gives you the DB that requires upflow to be greater than
+  ;; ... "downflow"(?) by a factor of 10 
   bonusSuff    = ''
 
-  ;; IF ( ABS(energy_ions[0] - 4.)   LT 0.01 ) THEN bonusSuff += '--4eV_lower'
-  ;; IF ( ABS(energy_ions[1] - 500.) LT 0.01 ) THEN bonusSuff += '--500eV_upper'
+  ;; 20180727 This version gives you the DB that requires upflow to be greater than
+  ;; ... "downflow"(?) by a factor of 10 
+  bonusSuff    = '-factorof5'
 
   hashFile    += bonusSuff
   outPlotName += bonusSuff
 
+  hashFile += ".sav"
 
   ;;Update hashfile name and outPlotName
   plotPref = SETUP_STRANGEWAY_BRAMBLES_PLOTPREF($

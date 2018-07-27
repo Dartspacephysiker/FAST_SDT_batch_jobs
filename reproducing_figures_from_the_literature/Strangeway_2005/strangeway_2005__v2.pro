@@ -4,6 +4,7 @@
 ;We just need to use this to get the electrons and fields info, which you have to admit is easiest. 
 PRO STRANGEWAY_2005__V2, $
    TPLT_VARS=tPlt_vars, $
+   IONSPECS_UPDOWNMINRATIO=upDownMinRatio, $
    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
    SCREEN_PLOT=screen_plot, $
    DECIMATE_EB_CALC_PFLUX=decimate_eb_calc_pFlux, $
@@ -120,6 +121,7 @@ PRO STRANGEWAY_2005__V2, $
   ;; Step 0a - restore ion fings, or get 'em if we ain't got em
 
   JOURNAL__20180720__LOOK_AT_CONIC_VS_ALL_FLUX_RATIOS, $
+     UPDOWNMINRATIO=upDownMinRatio, $
      SAVE_PS=save_ps, $
      NO_PLOTS=no_plots, $
      /QUIT_IF_FILE_EXISTS, $
@@ -1161,7 +1163,7 @@ PRO STRANGEWAY_2005__V2, $
            IF KEYWORD_SET(save_ps) THEN BEGIN
 
               POPEN,plotDir+tmpPlotName,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
-              DEVICE,/PALATINO,FONT_SIZE=8
+              DEVICE,/PALATINO
 
 
            ENDIF ELSE BEGIN

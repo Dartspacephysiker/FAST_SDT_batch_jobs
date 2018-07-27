@@ -1,6 +1,6 @@
 *
 Header :this is the 'strangeway_2005__Fig_1__orb_8276' configuration file
-Header :created on Thu May 18 11:15:42 2017
+Header :created on Thu Jul 26 08:02:41 2018
 *
 *
 Description :plot of summary data quantities
@@ -10,7 +10,7 @@ Description :plot of summary data quantities
 Configuration
 {
 Config Name:			'strangeway_2005__Fig_1__orb_8276'
-Config MenuPosition:		6, -14
+Config MenuPosition:		15, -1
 Config MenuSize:		155, 150
 Config DefaultSourceId:	'?'
 Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
@@ -18,9 +18,9 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 	PlotWinStandard
 	{
 	PlotWin Name:		'strangeway_2005__Fig_1__orb_8276:0 - DA'
-	PlotWin Position:	355, -22
+	PlotWin Position:	370, 24
 	PlotWin Size:		728, 768
-	PlotWin PlotsPage:	12
+	PlotWin PlotsPage:	4
 	PlotWin TopPlotOfPage:	'Eesa Survey:  Energy'
 	PlotWin DefaultDataBaseResponse:	2451081 84680.6 2451082 6242.86 'FNMLine 18'
    '/FASTdata_1/FAST_JB_7/FAST1699_ORBIT8275/lzp/fast_lzp_DSS-29_orbit8276_r'

@@ -383,7 +383,9 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
 
   @strway_stuff
 
-  @strangeway_2005__defaults__appendix_a.pro
+  ;; @strangeway_2005__defaults__appendix_a.pro
+
+  @strangeway_2005__defaults__v2.pro
 
   ;; ;;Outputs
   ;; outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/Appendix_A/'
@@ -764,7 +766,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__APPENDIX_A, $
 
                  IF have_H_TS THEN BEGIN
                     PH_TS          = PTR_NEW(tmpStruct[k].(HInd).(0).(0))
-                    BPTSArr[*]     = PB_TS
+                    HPTSArr[*]     = PH_TS
                  ENDIF ELSE BEGIN
                     FOR p=0,nETags-1 DO BEGIN
                        HPTSArr[p]  = PTR_NEW(tmpStruct[k].(HInd).(p).(0))
