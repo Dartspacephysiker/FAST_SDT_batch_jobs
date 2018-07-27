@@ -373,8 +373,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
   ;;Some outflow defaults
   ;;The originals are here. I started experimenting 2017/05/20
   ;; outflowMinLog10 = 5  ;No longer relevant, since the new methodology does a gooder job
-  ptsMinOutflow   = 10
-  ;; allowableGap    = 4 ;seconds
+  ptsMinOutflow   = 3
+  allowableGap    = 1 ;seconds
   ;; min_streakLen_t =  ;;At least 30, right?
 
   ;; outflowMinLog10 = 6.0
@@ -422,7 +422,9 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
          DAY=day, $
          NIGHT=night)
 
-  lastFile = "last_sway_stats_v2_file-"+defs.statStr+"-"+defs.sideStr+"-"+defs.hemStr+".sav"
+  lastFile = "last_sway_stats_v2_file" $
+             +(hashFile.Replace(indivOrbPref,"")).Replace(".sav","")$
+             +defs.statStr+"-"+defs.sideStr+"-"+defs.hemStr+".sav"
 
   IF FILE_TEST(outDir+lastFile) AND KEYWORD_SET(restore_last_file) THEN BEGIN
 

@@ -5,6 +5,7 @@
 PRO STRANGEWAY_2005__V2, $
    TPLT_VARS=tPlt_vars, $
    IONSPECS_UPDOWNMINRATIO=upDownMinRatio, $
+   IONSPECS_MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
    SCREEN_PLOT=screen_plot, $
    DECIMATE_EB_CALC_PFLUX=decimate_eb_calc_pFlux, $
@@ -122,6 +123,7 @@ PRO STRANGEWAY_2005__V2, $
 
   JOURNAL__20180720__LOOK_AT_CONIC_VS_ALL_FLUX_RATIOS, $
      UPDOWNMINRATIO=upDownMinRatio, $
+     MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
      SAVE_PS=save_ps, $
      NO_PLOTS=no_plots, $
      /QUIT_IF_FILE_EXISTS, $

@@ -14,7 +14,9 @@
 ;*****************************
 ;Put code here:
 
-STRANGEWAY_2005__V2,/SAVE_PS,IONSPECS_UPDOWNMINRATIO=3
+STRANGEWAY_2005__V2,/SAVE_PS, $
+                    IONSPECS_UPDOWNMINRATIO=2, $
+                    IONSPECS_MINNUMQUALIFYINGECHANNELS=3
 
 ;*****************************
 ;End routine:

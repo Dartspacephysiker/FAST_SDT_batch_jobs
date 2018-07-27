@@ -1,7 +1,7 @@
   ;;Outputs
   outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/V2/'
   hashFile     = 'Strangeway_et_al_2005__v2'
-  indivOrbPref = 'Strangeway_et_al_2005__v2--'
+  indivOrbPref = 'Strangeway_et_al_2005__v2'
 
   outPlotName  = 'Strangeway_2005_v2'
   plotDirSuff  = '/Strangeway_et_al_2005/V2'
@@ -15,12 +15,16 @@
   IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
 
   ;; 20180727 This version gives you the DB that requires upflow to be greater than
-  ;; ... "downflow"(?) by a factor of 10 
-  bonusSuff    = ''
+  ;; ... "downflow"(?) by a factor of 10 , and at least 4 energy channels
+  bonusSuff    = '-upDownRatio_10-minNQualECh_4'
 
   ;; 20180727 This version gives you the DB that requires upflow to be greater than
-  ;; ... "downflow"(?) by a factor of 10 
-  bonusSuff    = '-factorof5'
+  ;; ... "downflow"(?) by a factor of 3, and at least 4 energy channels
+  bonusSuff    = '-upDownRatio_3-minNQualECh_4'
+
+  ;; 20180727 This version gives you the DB that requires upflow to be greater than
+  ;; ... "downflow"(?) by a factor of 2, and at least 3 energy channels
+  bonusSuff    = '-upDownRatio_2-minNQualECh_3'
 
   hashFile    += bonusSuff
   outPlotName += bonusSuff
