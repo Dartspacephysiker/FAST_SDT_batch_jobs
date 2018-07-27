@@ -26,6 +26,10 @@
   ;; ... "downflow"(?) by a factor of 2, and at least 3 energy channels
   bonusSuff    = '-upDownRatio_2-minNQualECh_3'
 
+  ;; 20180727 This version gives you the DB that requires upflow to be greater than
+  ;; ... "downflow"(?) by a factor of 2, and at least 3 energy channels
+  bonusSuff    = '-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s'
+
   hashFile    += bonusSuff
   outPlotName += bonusSuff
 

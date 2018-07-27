@@ -102,9 +102,15 @@ PRO STRANGEWAY_2005__V2, $
   ;;From UCLA_MAG_DESPIN:
   ;;"   Field-aligned coordinates defined as: 
   ;;"   z-along B, y-east (BxR), x-nominally out"
-  ;;    (ind 2)    (ind 1)       (ind 0)
+  ;;    (ind 2)  , (ind 1)     , (ind 0)
+  ;;    (b)      , (e)         , (o)
 
-  magInd = 1
+  ;;"   Field-aligned velocity-based coordinates defined as: 
+  ;;"   z-along B, y-cross track (BxV), x-along track ((BxV)xB).
+  ;;    (ind 2)  , (ind 1)            , (ind 0)
+  ;;    (b)      , (p)                , (v)
+
+  ;; magInd = 1
 
   normColorI   = (KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) ? 0 : 255
 
@@ -127,16 +133,18 @@ PRO STRANGEWAY_2005__V2, $
      SAVE_PS=save_ps, $
      NO_PLOTS=no_plots, $
      /QUIT_IF_FILE_EXISTS, $
-     ESPECN=eSpecN, $
-     ESPECUPN=eSpecUpN, $
-     ESPECDOWNN=eSpecDownN, $
-     UPDOWNRATIOSPECN=upDownRatioSpecN, $
-     UPALLRATIOSPECN=upAllRatioSpecN, $
+     ESPECALL=eSpec, $
+     ESPECUP=eSpecUp, $
+     ESPECDOWN=eSpecDown, $
+     UPDOWNRATIOSPEC=upDownRatioSpec, $
+     UPALLRATIOSPEC=upAllRatioSpec, $
      EBOUND=eBound, $
      IONMOMSTRUCT=ionMomStruct, $
      IONUPJ=ionUpJ, $
      UP_ARANGEN=up_aRangeN, $
-     DOWN_ARANGEN=down_aRangeN
+     DOWN_ARANGEN=down_aRangeN, $
+     UP_ARANGES=up_aRangeS, $
+     DOWN_ARANGES=down_aRangeS
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Step 1 - DC Mag data
@@ -345,7 +353,7 @@ PRO STRANGEWAY_2005__V2, $
   IF (got_efield) THEN BEGIN
 
      ;; despin e field data
-     FA_FIELDS_DESPIN,v58,v12,/SHADOW_NOTCH,/MAG_NOTCH,/SINTERP
+     FA_FIELDS_DESPIN,v58,v12
 
   ENDIF ELSE BEGIN
      PRINT,"Couldn't get E-field data! Out ..."
@@ -466,8 +474,10 @@ PRO STRANGEWAY_2005__V2, $
 
      nDSP = nTmp
 
-     data   = {x:data.time[tmp_i], y:ALOG10(data.comp1[tmp_i,*]), v:data.yaxis}
-     STORE_DATA,'DSP_V5-V8', DATA=data
+     data   = {x:data.time[tmp_i], y:data.comp1[tmp_i,*], v:data.yaxis}
+     STORE_DATA,'DSP_V5-V8', DATA={x:data.x, $
+                                   y:ALOG10(data.y), $
+                                   v:data.v}
      dlimit = {spec:1, ystyle:1, yrange:[0.1, 16.0], zrange:[-14,-4], $
                ytitle:'AC E 55m!C!C(kHz)', ylog:1, $
                ztitle: '(V/m)!U2!N/Hz', panel_size:2}
@@ -477,7 +487,6 @@ PRO STRANGEWAY_2005__V2, $
 
      ;;  look for big jumps in time - blank these
 
-     GET_DATA,'DSP_V5-V8',DATA=data
      dt = data.x[1:*]-data.x[0:*]
      ntimes=N_ELEMENTS(data.x)
      bg = where (dt GT 300, ng)
@@ -506,15 +515,27 @@ PRO STRANGEWAY_2005__V2, $
      endif
 
      ;;Now integrate
-     data.y    = 10.^data.y
+     ;; data.y    = data.y
      data.v   *= 1000.
+
+     ;; 20180728
+     ;; These lines were supposed to skip the integration over the 0 Hz channel,
+     ;; But the tmpF_i line does it already!
+     ;; nNRG = N_ELEMENTS(data.v)
+     ;; data   = {x:data.x, y:data.y[*,1:nNRG-1], v:data.v[1:nNRG-1]}
 
      integData = MAKE_ARRAY(N_ELEMENTS(data.x),VALUE=0.)
 
-     tmpF_i = LINDGEN(N_ELEMENTS(data.v)-1)+1
+     ;; tmpF_i = LINDGEN(N_ELEMENTS(data.v)-1)+1
+     tmpF_i = LINDGEN(N_ELEMENTS(data.v))
      FOR m=0,N_ELEMENTS(data.x)-1 DO BEGIN
 
+        ;; 20180728
+        ;; Bothering with finiteness seems to do us no good, to my surprise 
+        ;; finiteii = WHERE(FINITE(data.y[m,tmpF_i]),nFinite,/NULL)
+
         ;;"Intergrate," as some have it, and apply test
+        ;; integData[m] = INT_TABULATED(data.v[tmpF_i[finiteii]],data.y[m,tmpF_i[finiteii]])
         integData[m] = INT_TABULATED(data.v[tmpF_i],data.y[m,tmpF_i])
      ENDFOR
 
@@ -531,7 +552,6 @@ PRO STRANGEWAY_2005__V2, $
            /USE_DOUBLE_STREAKER, $
            ONESEC_TS=tS_1s)
 
-
      ;; STORE_DATA,'DSP_integ',DATA={x:data.x,y:data.y}
      STORE_DATA,'DSP_integ',DATA={x:DSP.x,y:dsp.DC+dsp.AC}
      dlimit = {ystyle:1, yrange:[0.0,0.05], $
@@ -545,7 +565,6 @@ PRO STRANGEWAY_2005__V2, $
   ENDIF ELSE BEGIN
 
   ENDELSE
-
 
   ;;Now loop over stuff
 
@@ -675,7 +694,6 @@ PRO STRANGEWAY_2005__V2, $
 
      ;; magz = {x:magData.x, $
      ;;         y:REFORM(magData.y[*,magInd])}
-
 
      dBv = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
            magv, $
@@ -844,7 +862,7 @@ PRO STRANGEWAY_2005__V2, $
         ENDIF ELSE BEGIN
 
            pFluxB = {x:magp.x, $
-                     y:      magp.y*eAlongVtoMag/mu_0}      ;Poynting flux along B
+                     y:magp.y*eAlongVtoMag/mu_0}      ;Poynting flux along B
            pFluxP = {x:magp.x, $
                      y:(-1.)*magB.y*eAlongVtoMag/mu_0} ;Poynting flux perp to B and to (Bxv)xB
            ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system

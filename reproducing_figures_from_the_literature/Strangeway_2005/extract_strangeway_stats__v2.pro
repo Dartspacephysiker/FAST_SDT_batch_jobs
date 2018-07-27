@@ -375,7 +375,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
   ;; outflowMinLog10 = 5  ;No longer relevant, since the new methodology does a gooder job
   ptsMinOutflow   = 3
   allowableGap    = 1 ;seconds
-  ;; min_streakLen_t =  ;;At least 30, right?
+  min_streakLen_t = 3 ;;At least 30, right?
 
   ;; outflowMinLog10 = 6.0
   ;; ptsMinOutflow   = 5
@@ -386,6 +386,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
 
   ;; @strangeway_2005__defaults__appendix_a.pro
 
+  ;; Can change which database to use here! There are currently three (2018/07/27)
   @strangeway_2005__defaults__v2.pro
 
   ;; ;;Outputs
@@ -488,8 +489,6 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
      orbCnt       = 0           ;orbit counter
      notUnivCnt   = 0           ;Number of intervals for which there is no universal time series
      FOREACH tmpStruct, swHash, key DO BEGIN
-
-        IF key EQ 8292 THEN CONTINUE
 
         ;;Anything here?
         IF N_ELEMENTS(tmpStruct[0]) EQ 0 THEN CONTINUE
