@@ -1,0 +1,78 @@
+BatchJob: "strangeway_et_al_2005__v2__south"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005__v2__south_wrapper.pro
+
+DataBaseRequest:
+    Orbits 6881
+    Orbits 6882
+    Orbits 6885
+    Orbits 6889
+    Orbits 6891
+    Orbits 6892
+    Orbits 6893
+    Orbits 6894
+    Orbits 6896
+    Orbits 6903
+    Orbits 6904
+    Orbits 6905
+    Orbits 6906
+    Orbits 6912
+    Orbits 6913
+    Orbits 6914
+    Orbits 6915
+    Orbits 6918
+    Orbits 6921
+    Orbits 6924
+    Orbits 6925
+    Orbits 6927
+    Orbits 6928
+    Orbits 6929
+    Orbits 6932
+    Orbits 6935
+    Orbits 6936
+    Orbits 6937
+    Orbits 6939
+    Orbits 6943
+    Orbits DONE9422
+    Orbits DONE9423
+    Orbits DONE9424
+    Orbits DONE9425
+    Orbits BAD9428
+    Orbits DONE9430
+    Orbits DONE9432
+    Orbits DONE9433
+    Orbits DONE9434
+    Orbits BAD9435
+    Orbits DONE9436
+    Orbits BAD9437
+    Orbits BAD9439
+    Orbits DONE9441
+    Orbits DONE9443
+    Orbits DONE9444
+    Orbits DONE9445
+    Orbits DONE9446
+    Orbits DONE9450
+    Orbits DONE9452
+    Orbits DONE9454
+    Orbits DONE9456
+    Orbits DONE9457
+    Orbits DONE9461
+    Orbits DONE9463
+    Orbits DONE9465
+    Orbits DONE9467
+    Orbits DONE9468
+    Orbits DONE9470
+    Orbits DONE9472
+    Orbits DONE9474
+    Orbits DONE9475
+    Orbits DONE9476
+    Orbits DONE9477
+    Orbits DONE9478
+    Orbits DONE9479
+    Orbits DONE9480
+    Orbits DONE9483
+    Orbits DONE9485
+    Orbits DONE9486
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005
+PlotConfigurationFile: rjs_clean

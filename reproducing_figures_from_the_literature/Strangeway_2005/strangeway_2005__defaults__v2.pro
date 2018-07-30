@@ -30,6 +30,15 @@
   ;; ... "downflow"(?) by a factor of 2, and at least 3 energy channels
   bonusSuff    = '-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s'
 
+  ;; 20180728 Try out some southern orbs
+  bonusSuff    = '-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-SOUTH'
+
+  ;; 20180728 Try out some southern orbs
+  bonusSuff    = '-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-SOUTH_6000orbs'
+
+  ;; 20180728 Try out the northern orbs, leeward style
+  bonusSuff    = '-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-NORTH_leeward'
+
   hashFile    += bonusSuff
   outPlotName += bonusSuff
 

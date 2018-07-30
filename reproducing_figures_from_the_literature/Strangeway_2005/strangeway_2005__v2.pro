@@ -7,6 +7,7 @@ PRO STRANGEWAY_2005__V2, $
    IONSPECS_UPDOWNMINRATIO=upDownMinRatio, $
    IONSPECS_MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+   ONLY_LEEWARD_IONS=only_leeward_ions, $
    SCREEN_PLOT=screen_plot, $
    DECIMATE_EB_CALC_PFLUX=decimate_eb_calc_pFlux, $
    USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
@@ -89,10 +90,9 @@ PRO STRANGEWAY_2005__V2, $
 
   minILAT           = 50 
 
-  energy_ions       = [4,120.]
+  ;; energy_ions       = [4,120.]
   energy_electrons  = [50,30400.]
 
-  strWay_orbs       = INDGEN(33)+8260
   ctNum = 43
 
   IF ~KEYWORD_SET(batch_mode) THEN BEGIN
@@ -133,6 +133,7 @@ PRO STRANGEWAY_2005__V2, $
      SAVE_PS=save_ps, $
      NO_PLOTS=no_plots, $
      /QUIT_IF_FILE_EXISTS, $
+     ONLY_LEEWARD_IONS=only_leeward_ions, $
      ESPECALL=eSpec, $
      ESPECUP=eSpecUp, $
      ESPECDOWN=eSpecDown, $
@@ -144,8 +145,14 @@ PRO STRANGEWAY_2005__V2, $
      UP_ARANGEN=up_aRangeN, $
      DOWN_ARANGEN=down_aRangeN, $
      UP_ARANGES=up_aRangeS, $
-     DOWN_ARANGES=down_aRangeS
+     DOWN_ARANGES=down_aRangeS, $
+     MISLYKTES=mislyktes
 
+  IF KEYWORD_SET(mislyktes) THEN BEGIN
+     PRINT,"Mislyktes under identifikasjon av ion utstrømming-perioder"
+     PRINT,"Tilbake ..."
+     RETURN
+  ENDIF
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Step 1 - DC Mag data
 
@@ -934,11 +941,11 @@ PRO STRANGEWAY_2005__V2, $
      dLimit = {spec:0, $
                ystyle:1, $
                ytitle:'SFlux Wave!C[0.125-0.5 Hz]!C(mW/m!U2!N)', $
-               yticks:6, $      
+               yticks:4, $      
                ylog:0, $
-               yrange:[-9,2], $
-               ytickv:[-8,-6,-4,-2,0,2], $
-               ytickname:['10!U-8!N','10!U-6!N','10!U-4!N', $
+               yrange:[-5,2], $
+               ytickv:[-4,-2,0,2], $
+               ytickname:['10!U-4!N', $
                           '10!U-2!N','10!U0!N','10!U2!N'], $
                ;; ylog:1, $
                ;; yrange:[1e-4,1e2], $
@@ -1130,17 +1137,23 @@ PRO STRANGEWAY_2005__V2, $
              /USE_DOUBLE_STREAKER, $
              ONESEC_TS=tS_1s)
 
+     IF SIZE(tmpJi,/TYPE) NE 8 THEN BEGIN
+        PRINT,"Mislyktes fordi det er ingen identifisert ion-utstrømming her"
+        PRINT,"Tilbake ..."
+        RETURN
+     ENDIF
+
      ;;Make all upgoing, pre-log
      good_i   = WHERE(FINITE(tmpJi.y) AND tmpJi.y GT 0.00,nGood, $
                       COMPLEMENT=bad_i,NCOMPLEMENT=nBad)
 
      STORE_DATA,'Ji_tmp',DATA={x:tmpJi.x[good_i],y:ALOG10(tmpJi.y[good_i])}
-     YLIM,'Ji_tmp',4,10,0                                               ; set y limits
+     YLIM,'Ji_tmp',6,10,0                                               ; set y limits
      OPTIONS,'Ji_tmp','ytitle','Upward Ion!CNumber Flux!C(#/cm!U2!N-s)' ; set y title
      OPTIONS,'Ji_tmp','panel_size',3                                    ; set panel size
-     OPTIONS,'Ji_tmp','yticks',6                                        ; set y-axis labels
-     OPTIONS,'Ji_tmp','ytickv',[4,5,6,7,8,9,10]                         ; set y-axis labels
-     OPTIONS,'Ji_tmp','ytickname',['10!U4!N','10!U5!N','10!U6!N', $
+     OPTIONS,'Ji_tmp','yticks',4                                        ; set y-axis labels
+     OPTIONS,'Ji_tmp','ytickv',[6,7,8,9,10]                         ; set y-axis labels
+     OPTIONS,'Ji_tmp','ytickname',['10!U6!N', $
                                    '10!U7!N','10!U8!N','10!U9!N','10!U10!N'] ; set y-axis labels
      OPTIONS,'Ji_tmp','ynozero',1
      OPTIONS,'Ji_tmp','psym',psym_ptcl ;period symbol
@@ -1348,7 +1361,7 @@ PRO STRANGEWAY_2005__V2, $
                   ptcl:{jEe:TEMPORARY(tmpJEe), $
                         je :TEMPORARY(tmpJe), $
                         ji :TEMPORARY(tmpJi)}, $
-                  info:{full_pFlux             : KEYWORD_SET(full_pFlux), $
+                  info:{full_pFlux            : KEYWORD_SET(full_pFlux), $
                         decimate_eb_calc_pFlux : KEYWORD_SET(decimate_eb_calc_pFlux), $
                         interp_4Hz_to_1s       : KEYWORD_SET(interp_4Hz_to_1s      ), $
                         include_E_near_B       : BYTE(KEYWORD_SET(include_E_near_B)), $

@@ -373,9 +373,9 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
   ;;Some outflow defaults
   ;;The originals are here. I started experimenting 2017/05/20
   ;; outflowMinLog10 = 5  ;No longer relevant, since the new methodology does a gooder job
-  ptsMinOutflow   = 3
+  ptsMinOutflow   = 10
   allowableGap    = 1 ;seconds
-  min_streakLen_t = 3 ;;At least 30, right?
+  min_streakLen_t = 10 ;;At least 30, right?
 
   ;; outflowMinLog10 = 6.0
   ;; ptsMinOutflow   = 5

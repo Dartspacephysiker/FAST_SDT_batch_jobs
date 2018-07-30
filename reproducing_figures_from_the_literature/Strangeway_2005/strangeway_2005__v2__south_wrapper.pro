@@ -19,7 +19,7 @@ STRANGEWAY_2005__V2,/SAVE_PS, $
                     IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
                     /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
                     /ONLY_LEEWARD_IONS
-                    
+
 ;*****************************
 ;End routine:
 
