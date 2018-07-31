@@ -34,10 +34,17 @@
   bonusSuff    = '-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-SOUTH'
 
   ;; 20180728 Try out some southern orbs
-  bonusSuff    = '-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-SOUTH_6000orbs'
+  ;; 20180730 Leeward didn't work out very well; it wipes out masse ion outflow
+  bonusSuff    = '-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-SOUTH_6000orbs-leeward'
 
   ;; 20180728 Try out the northern orbs, leeward style
   bonusSuff    = '-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-NORTH_leeward'
+
+  ;; 20180730 "Leeward-stil" gikk ikke så bra; det går glipp av masse ion utstømming
+  bonusSuff    = '-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-SOUTH_6000orbs'
+
+  ;; 20180730 "Leeward-stil" gikk ikke så bra; det går glipp av masse ion utstømming
+  bonusSuff    = '-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-SOUTH_6000orbs-nyemetod'
 
   hashFile    += bonusSuff
   outPlotName += bonusSuff

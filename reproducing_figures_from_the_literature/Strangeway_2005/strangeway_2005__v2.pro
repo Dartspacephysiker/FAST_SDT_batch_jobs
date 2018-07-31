@@ -8,6 +8,7 @@ PRO STRANGEWAY_2005__V2, $
    IONSPECS_MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
    ONLY_LEEWARD_IONS=only_leeward_ions, $
+   ENFORCE_THIS_SAMPLE_RATE=enforce_this_sample_rate, $
    SCREEN_PLOT=screen_plot, $
    DECIMATE_EB_CALC_PFLUX=decimate_eb_calc_pFlux, $
    USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
@@ -134,6 +135,7 @@ PRO STRANGEWAY_2005__V2, $
      NO_PLOTS=no_plots, $
      /QUIT_IF_FILE_EXISTS, $
      ONLY_LEEWARD_IONS=only_leeward_ions, $
+     ENFORCE_THIS_SAMPLE_RATE=enforce_this_sample_rate, $
      ESPECALL=eSpec, $
      ESPECUP=eSpecUp, $
      ESPECDOWN=eSpecDown, $

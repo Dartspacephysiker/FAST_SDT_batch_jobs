@@ -1,6 +1,6 @@
 *
 Header :this is the 'strangeway_2005__Fig_1__orb_8276' configuration file
-Header :created on Thu Jul 26 08:02:41 2018
+Header :created on Mon Jul 30 02:07:44 2018
 *
 *
 Description :plot of summary data quantities
@@ -10,7 +10,7 @@ Description :plot of summary data quantities
 Configuration
 {
 Config Name:			'strangeway_2005__Fig_1__orb_8276'
-Config MenuPosition:		15, -1
+Config MenuPosition:		15, 7
 Config MenuSize:		155, 150
 Config DefaultSourceId:	'?'
 Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
@@ -18,8 +18,8 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 	PlotWinStandard
 	{
 	PlotWin Name:		'strangeway_2005__Fig_1__orb_8276:0 - DA'
-	PlotWin Position:	370, 24
-	PlotWin Size:		728, 768
+	PlotWin Position:	385, 40
+	PlotWin Size:		1380, 970
 	PlotWin PlotsPage:	4
 	PlotWin TopPlotOfPage:	'Eesa Survey:  Energy'
 	PlotWin DefaultDataBaseResponse:	2451081 84680.6 2451082 6242.86 'FNMLine 18'
@@ -55,15 +55,16 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
 		Plot2 MaxLimits:	92642.9, 40000, 1e+06, 1, 1, 1
 		Plot2 MinLimits:	84680.6, 4, 2, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -94,15 +95,16 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LOG
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
 		Plot2 MaxLimits:	92642.9, 360, 100000, 1, 1, 1
 		Plot2 MinLimits:	84680.6, 0, 2, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -133,15 +135,16 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LOG LOG
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
 		Plot2 MaxLimits:	92642.9, 40000, 1e+06, 1, 1, 1
 		Plot2 MinLimits:	84680.6, 4, 2, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -172,15 +175,16 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
 		Plot2 NDraws:		1
 		Plot2 ScaleTypes:	LINEAR LINEAR LOG
-		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
+		Plot2 AxesUseBins:	FALSE, FALSE, TRUE
 		Plot2 MaxLimits:	92642.9, 360, 100000, 1, 1, 1
 		Plot2 MinLimits:	84680.6, 0, 2, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -209,7 +213,7 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 PlotYSubTitleName:	'-'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		2
@@ -218,6 +222,7 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 AxesUseBins:	FALSE, FALSE
 		Plot2 MaxLimits:	92642.9, 32768, 0, 0
 		Plot2 MinLimits:	84680.6, -32768, 0, 0
+		Plot2 AutoScale:	FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -430,7 +435,7 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
@@ -439,6 +444,7 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
 		Plot2 MaxLimits:	92642.9, 512, 0.001, 1, 1, 1
 		Plot2 MinLimits:	84680.6, 0, 1e-13, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
@@ -468,7 +474,7 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 PlotZSubTitleName:	'#'
 		Plot2 HeightUnits:	1
 		Plot2 SkipPoints:	0
-		Plot2 ShadingMode:	SHADE
+		Plot2 ShadingMode:	UNKNOWN
 		Plot2 RedLimits:	FALSE 0 0
 		Plot2 YellowLimits:	FALSE 0 0
 		Plot2 NAxes:		3
@@ -477,6 +483,7 @@ Config CurrentPlotWindow:	'strangeway_2005__Fig_1__orb_8276:0 - DA'
 		Plot2 AxesUseBins:	FALSE, FALSE, FALSE
 		Plot2 MaxLimits:	92642.9, 1000, 1e-07, 1, 1, 1
 		Plot2 MinLimits:	84680.6, 0, 1e-15, 0, 0, 0
+		Plot2 AutoScale:	FALSE, FALSE, TRUE
 		Plot2 UseOff:		FALSE
 		Plot2 LinOff:		0
 		Plot2 LogOff:		0
