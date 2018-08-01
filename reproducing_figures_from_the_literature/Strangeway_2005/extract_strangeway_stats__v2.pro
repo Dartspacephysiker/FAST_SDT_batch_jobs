@@ -94,7 +94,7 @@ PRO DECLARE_ARRAYS,nOrbs,nBTags,nETags,nPTags,nHTags, $
                    BACAvg,BACAbsAvg,BACPosAvg,BACNegAvg, $
                    EACAvg,EACAbsAvg,EACPosAvg,EACNegAvg, $
                    PACAvg,PACAbsAvg,PACPosAvg,PACNegAvg, $
-                   HAvg
+                   HAvg,HPosAvg,HNegAvg,HAbsAvg
 
   maxNElems    = 1e6
 
@@ -153,11 +153,15 @@ PRO DECLARE_ARRAYS,nOrbs,nBTags,nETags,nPTags,nHTags, $
   PACNegAvg    = MAKE_ARRAY(nOrbs,nPTags,/FLOAT,VALUE=0.) 
 
   HAvg         = MAKE_ARRAY(nOrbs,nHTags,/FLOAT,VALUE=0.) 
+  HPosAvg      = MAKE_ARRAY(nOrbs,nHTags,/FLOAT,VALUE=0.) 
+  HNegAvg      = MAKE_ARRAY(nOrbs,nHTags,/FLOAT,VALUE=0.) 
+  HAbsAvg      = MAKE_ARRAY(nOrbs,nHTags,/FLOAT,VALUE=0.) 
 
 END
 
 PRO LOCALE_ADJUSTMENTS,times, $
                        oflow_i,nOutflow, $
+                       ORBIT=orbit, $
                        NORTH=north, $
                        SOUTH=south, $
                        DAY=day, $
@@ -182,33 +186,52 @@ PRO LOCALE_ADJUSTMENTS,times, $
      mlt = mlt.y
   ENDIF
 
+  CASE N_ELEMENTS(SIZE(minILAT,/DIMENSIONS)) OF
+     1: BEGIN
+
+        tmpMinILAT = minILAT
+
+     END
+     2: BEGIN
+
+        this = WHERE(orbit EQ minILAT[0,*],nThis)
+
+        IF nThis NE 1 THEN STOP
+
+        tmpMinILAT = minILAT[1,this]
+
+     END
+  ENDCASE
+
+  IF tmpMinILAT LT 0 THEN BEGIN
+     PRINT,FORMAT='("Flipping sign of tmpMinILAT = ",F4.1,"; it should be pos in any case, you know ...")',tmpMinILAT
+     tmpMinILAT = tmpMinILAT*(-1)
+  ENDIF
+
   IF KEYWORD_SET(north) THEN BEGIN
 
-     hemi_i  = WHERE(ilat GE minILAT,nHemi)
+     hemi_i  = WHERE(ilat GE tmpMinILAT,nHemi)
      
+  ENDIF ELSE IF KEYWORD_SET(south) THEN BEGIN
+
+     hemi_i  = WHERE(ilat LE -1.*tmpMinILAT,nHemi)
+
   ENDIF ELSE BEGIN
 
-     IF KEYWORD_SET(south) THEN BEGIN
-
-        hemi_i  = WHERE(ilat LE -1.*minILAT,nHemi)
-
-     ENDIF ELSE BEGIN
-
-        hemi_i  = WHERE(ABS(ilat) GE minILAT,nHemi)
-
-     ENDELSE
+     hemi_i  = WHERE(ABS(ilat) GE tmpMinILAT,nHemi)
 
   ENDELSE
 
+
   IF KEYWORD_SET(day) THEN BEGIN
 
-     side_i    = WHERE(mlt GE 6.0 AND mlt LT 18.0 AND (ABS(ilat) GE minILAT),nSide)
+     side_i    = WHERE(mlt GE 6.0 AND mlt LT 18.0 AND (ABS(ilat) GE tmpMinILAT),nSide)
      
   ENDIF ELSE BEGIN
 
      IF KEYWORD_SET(night) THEN BEGIN
 
-        side_i    = WHERE(mlt GE 18.0 OR mlt LT 6.0 AND (ABS(ilat) GE minILAT),nSide)
+        side_i    = WHERE(mlt GE 18.0 OR mlt LT 6.0 AND (ABS(ilat) GE tmpMinILAT),nSide)
 
      ENDIF
 
@@ -313,7 +336,7 @@ PRO KILL_AVG_ARRAYS,BDCAvg,BDCAbsAvg,BDCPosAvg,BDCNegAvg, $
                     BACAvg,BACAbsAvg,BACPosAvg,BACNegAvg, $
                     EACAvg,EACAbsAvg,EACPosAvg,EACNegAvg, $
                     PACAvg,PACAbsAvg,PACPosAvg,PACNegAvg, $
-                    HAvg
+                    HAvg,HPosAvg,HNegAvg,HAbsAvg
 
   BDCAvg       = !NULL
   BDCAbsAvg    = !NULL
@@ -346,13 +369,20 @@ PRO KILL_AVG_ARRAYS,BDCAvg,BDCAbsAvg,BDCPosAvg,BDCNegAvg, $
   PACNegAvg    = !NULL
 
   HAvg         = !NULL
+  HPosAvg      = !NULL
+  HNegAvg      = !NULL
+  HAbsAvg      = !NULL
 
 END
 
+;; 20180801  Can provide minILAT as an array of form [[orbit,minILAT],...]
+
 FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
    RESTORE_LAST_FILE=restore_last_file, $
+   USERDEF_HASHFILE=userDef_hashFile, $
    AVERAGES=averages, $
    ;; INTEGRALS=integrals, $ ;meaningless
+   SKIP_THESE_ORBS=skip_these_orbs, $
    PTS_STRUCT=pts, $
    NORTH=north, $
    SOUTH=south, $
@@ -374,8 +404,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
   ;;The originals are here. I started experimenting 2017/05/20
   ;; outflowMinLog10 = 5  ;No longer relevant, since the new methodology does a gooder job
   ptsMinOutflow   = 1
-  allowableGap    = 5 ;seconds
-  min_streakLen_t = 3 ;;At least 30, right?
+  allowableGap    = 180 ;seconds
+  ;; min_streakLen_t = 3 ;;At least 30, right?
 
   ;; outflowMinLog10 = 6.0
   ;; ptsMinOutflow   = 5
@@ -384,36 +414,14 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
 
   @strway_stuff
 
-  ;; @strangeway_2005__defaults__appendix_a.pro
-
   ;; Can change which database to use here! There are currently three (2018/07/27)
   @strangeway_2005__defaults__v2.pro
 
-  ;; ;;Outputs
-  ;; outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/Appendix_A/'
-  ;; hashFile     = 'Strangeway_et_al_2005__real_thing--outflow_intervals.sav'
+  IF KEYWORD_SET(userDef_hashFile) THEN BEGIN
+     PRINT,"ACTUALLY, userDef hashFile: ",userDef_hashFile
 
-  ;; IF KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
-  ;;    hashFile    +='--eFieldFits'
-  ;; ENDIF
-
-  ;; bonusSuff    = ''
-
-  ;; IF ( ABS(energy_ions[0] - 4.)   LT 0.01 ) THEN bonusSuff += '--4eV_lower'
-  ;; IF ( ABS(energy_ions[1] - 500.) LT 0.01 ) THEN bonusSuff += '--500eV_upper'
-
-  ;; hashFile    += bonusSuff
-
-  ;;Update hashfile name and outPlotName
-  ;; plotPref = SETUP_STRANGEWAY_BRAMBLES_PLOTPREF($
-  ;;            USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
-  ;;            ONLY_FASTSRVY_DATA=only_128Ss_data, $
-  ;;            INCLUDE_E_NEAR_B=include_E_near_B, $
-  ;;            FULL_PFLUX_CALC=full_pFlux, $
-  ;;            FIELDS_INTERP=do_fields_interp, $
-  ;;            FIELDS_SPLINE=do_fields_spline)
-  
-  ;; hashFile    += plotPref
+     hashFile = userDef_hashFile
+  ENDIF
 
   defs = SETUP_STRANGEWAY_STATS__DEFAULTS($
          AVERAGES=averages, $
@@ -483,7 +491,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
                     BACAvg,BACAbsAvg,BACPosAvg,BACNegAvg, $
                     EACAvg,EACAbsAvg,EACPosAvg,EACNegAvg, $
                     PACAvg,PACAbsAvg,PACPosAvg,PACNegAvg, $
-                    HAvg
+                    HAvg,HPosAvg,HNegAvg,HAbsAvg
 
      totPtCnt     = 0           ;master counter
      orbCnt       = 0           ;orbit counter
@@ -492,6 +500,14 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
 
         ;;Anything here?
         IF N_ELEMENTS(tmpStruct[0]) EQ 0 THEN CONTINUE
+
+        IF KEYWORD_SET(skip_these_orbs) THEN BEGIN
+           ;; FOREACH skipper,skip_these_orbs DO BEGIN
+           IF (WHERE(key EQ skip_these_orbs))[0] NE -1 THEN BEGIN
+              PRINT,FORMAT='("Skipping orbit ",I0," ...")',key
+              CONTINUE
+           ENDIF
+        ENDIF
 
         ;;How many?
         nItvls    = N_ELEMENTS(tmpStruct)
@@ -531,8 +547,45 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
 
               eAV        = PTR_NEW(tmpStruct[k].(Eind).(EAVind))
               eNB        = PTR_NEW(tmpStruct[k].(Eind).(ENBind))
-              eDSP       = PTR_NEW(tmpStruct[k].(Eind).(EDSPind))
+              ;; eDSP       = PTR_NEW(tmpStruct[k].(Eind).(EDSPind))
 
+              ;; STOP
+
+              dsp = tmpStruct[k].(Eind).(EDSPind)
+              dspTags = STRLOWCASE(TAG_NAMES(dsp))
+              IF (WHERE(dspTags EQ "dc"))[0] EQ -1 THEN BEGIN
+                 dspDat = dsp.y
+                 dspInd = (WHERE(dspTags EQ "y"))[0]
+              ENDIF ELSE BEGIN
+                 dspDat = dsp.DC + dsp.AC
+                 dspInd = (WHERE(dspTags EQ "dc"))[0]
+              ENDELSE
+
+              dsp.(dspInd) = TEMPORARY(dspDat)
+
+              eDSP = PTR_NEW(TEMPORARY(dsp))
+
+                    ;; CASE N_ELEMENTS(dspTags) OF
+                    ;;    2: BEGIN
+
+                    ;;       dspDat = (*eDSP).(1)
+                    ;;    END
+                    ;;    3: BEGIN
+                    ;;       dspDat = (*eDSP).(1) + (*eDSP).(2)
+                    ;;    END
+                    ;; ENDCASE
+                    ;; dspYInd = (WHERE(dspTags EQ "y" OR $
+                    ;;              dspTags EQ "dc"))[0]
+                    ;; eDSP    = PTR_NEW({y : DATA_CUT({x:(*eDSP).x,y:(*eDSP).(dspYInd)},(*pUniv_ts), $
+                    ;; eDSP    = PTR_NEW({y : DATA_CUT({x:(*eDSP).x, $
+                    ;;                                  y:TEMPORARY(dspDat)},(*pUniv_ts), $
+                    ;;                                  COUNT=count, $
+                    ;;                                  GAP_THRESH=gap_thresh, $
+                    ;;                                  INTERP_GAP=interp_gap, $
+                    ;;                                  GAP_DIST=gap_dist, $
+                    ;;                                  MISSING=missing, $
+                    ;;                                  IGNORE_NAN=ignore_nan)})
+                    
 
               ;;Particles for hjar
               tmpJEe     = tmpStruct[k].(Hind).(HJEeInd)
@@ -702,24 +755,21 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
                        STOP
                     ENDELSE
 
-                    eDSP    = PTR_NEW({DC : DATA_CUT({x:(*eDSP).x,y:(*eDSP).DC},(*pUniv_ts), $
-                                                     COUNT=count, $
-                                                     GAP_THRESH=gap_thresh, $
-                                                     INTERP_GAP=interp_gap, $
-                                                     GAP_DIST=gap_dist, $
-                                                     MISSING=missing, $
-                                                     IGNORE_NAN=ignore_nan), $
-                                       AC : DATA_CUT({x:(*eDSP).x,y:(*eDSP).AC},(*pUniv_ts), $
-                                                     COUNT=count, $
-                                                     GAP_THRESH=gap_thresh, $
-                                                     INTERP_GAP=interp_gap, $
-                                                     GAP_DIST=gap_dist, $
-                                                     MISSING=missing, $
-                                                     IGNORE_NAN=ignore_nan)})
+                    ;; eDSP    = PTR_NEW({DC : DATA_CUT({x:(*eDSP).x,y:(*eDSP).DC},(*pUniv_ts), $
+                    ;;                                  COUNT=count, $
+                    ;;                                  GAP_THRESH=gap_thresh, $
+                    ;;                                  INTERP_GAP=interp_gap, $
+                    ;;                                  GAP_DIST=gap_dist, $
+                    ;;                                  MISSING=missing, $
+                    ;;                                  IGNORE_NAN=ignore_nan), $
+                    ;;                    AC : DATA_CUT({x:(*eDSP).x,y:(*eDSP).AC},(*pUniv_ts), $
+                    ;;                                  COUNT=count, $
+                    ;;                                  GAP_THRESH=gap_thresh, $
+                    ;;                                  INTERP_GAP=interp_gap, $
+                    ;;                                  GAP_DIST=gap_dist, $
+                    ;;                                  MISSING=missing, $
+                    ;;                                  IGNORE_NAN=ignore_nan)})
                     
-
-                    
-
                     ;;Now interp particles
                     tS = !NULL
                     STR_ELEMENT,tmpJe,"x",tS
@@ -945,13 +995,13 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
 
                     ENDELSE
 
-                    tmpJi    = {y : DATA_CUT(tmpJi,(*pUniv_ts), $
-                                             COUNT=count, $
-                                             GAP_THRESH=gap_thresh, $
-                                             INTERP_GAP=interp_gap, $
-                                             GAP_DIST=gap_dist, $
-                                             MISSING=missing, $
-                                             IGNORE_NAN=ignore_nan)}
+                    ;; tmpJi    = {y : DATA_CUT({x:,y:tmpJi},(*pUniv_ts), $
+                    ;;                          COUNT=count, $
+                    ;;                          GAP_THRESH=gap_thresh, $
+                    ;;                          INTERP_GAP=interp_gap, $
+                    ;;                          GAP_DIST=gap_dist, $
+                    ;;                          MISSING=missing, $
+                    ;;                          IGNORE_NAN=ignore_nan)}
                  ENDIF
 
               ENDIF ELSE BEGIN
@@ -994,6 +1044,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
 
               LOCALE_ADJUSTMENTS,(N_ELEMENTS(PUniv_TS) GT 0 ? (*PUniv_TS) : (*PH_TS)), $
                                  oflow_i,nOutflow, $
+                                 ORBIT=key, $
                                  NORTH=north, $
                                  SOUTH=south, $
                                  DAY=day, $
@@ -1050,8 +1101,14 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
               FOR l=0,nStreaks-1 DO BEGIN
 
                  ;; curInds  = [orbPtCnt:orbPtCnt+nThisItvl[k]-1]
-                 arrInds  = [ofloItvlPtCnt:ofloItvlPtCnt+lens[l]]
+
+                 ;; Den gamle ordning, pre-2018-07-31
+                 ;; arrInds  = [ofloItvlPtCnt:ofloItvlPtCnt+lens[l]]
+                 ;; strkInds  = [oflow_i[start_ii[l]]:oflow_i[stop_ii[l]]]
+
+                 ;; Den nye ordning post-2018-07-31
                  strkInds  = [oflow_i[start_ii[l]]:oflow_i[stop_ii[l]]]
+                 arrInds  = strkInds-MIN(strkInds)+ofloItvlPtCnt
 
                  ;; PRINT,FORMAT='(A0,I0,":",I0,A0)',"arrInds : [",arrInds[0],arrInds[-1],"]"
                  ;; PRINT,FORMAT='(A0,I0,":",I0,A0)',"strkInds : [",strkInds[0],strkInds[-1],"]"
@@ -1062,7 +1119,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
                                               [(*dBB).DC[strkInds]]]
                  ofloItvlEDCArr[arrInds,*] = [[(*eAV).DC[strkInds]], $
                                               [(*eNB).DC[strkInds]], $
-                                              [(*eDSP).DC[strkInds]]]
+                                              ;; [(*eDSP).DC[strkInds]]]
+                                              [(*eDSP).(dspInd)[strkInds]]]
                  ofloItvlPDCArr[arrInds,*] = [[(*pFP).DC[strkInds]], $
                                               [(*pFV).DC[strkInds]], $
                                               [(*pFB).DC[strkInds]]]
@@ -1073,7 +1131,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
                                               [(*dBB).AC[strkInds]]]
                  ofloItvlEACArr[arrInds,*] = [[(*eAV).AC[strkInds]], $
                                               [(*eNB).AC[strkInds]], $
-                                              [(*eDSP).AC[strkInds]]]
+                                              ;; [(*eDSP).AC[strkInds]]]
+                                              [(*eDSP).(dspInd)[strkInds]]]
                  ofloItvlPACArr[arrInds,*] = [[(*pFP).AC[strkInds]], $
                                               [(*pFV).AC[strkInds]], $
                                               [(*pFB).AC[strkInds]]]
@@ -1187,11 +1246,32 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
               safe                  = WHERE(FINITE(HArr[tmpTotInds,l]),nSafe)
               IF safe[0] NE -1 THEN BEGIN
                  HAvg[orbCnt,l]     = MEAN( (HArr[tmpTotInds,l])[safe],/NAN)
+                 HAbsAvg[orbCnt,l]  = MEAN( ABS((HArr[tmpTotInds,l])[safe]),/NAN)
 
                  ;; 2018/07/27 Just wanted to experiment with this
                  ;; HAvg[orbCnt,l]     = 10.D^(MEAN( (ALOG10(ABS((HArr[tmpTotInds,l]))))[safe],/NAN))
+
+                 pos = CGSETINTERSECTION(safe,WHERE(ofloOrbHArr[*,l] GT 0),COUNT=nPos)
+                 neg = CGSETINTERSECTION(safe,WHERE(ofloOrbHArr[*,l] LT 0),COUNT=nNeg)
+
+                 IF pos[0] NE -1 THEN BEGIN
+                    HPosAvg[orbCnt,l]  = MEAN( (HArr[tmpTotInds,l])[pos],/NAN)
+                 ENDIF ELSE BEGIN
+                    HPosAvg[orbCnt,l]  = !VALUES.F_NaN
+                 ENDELSE
+
+                 IF neg[0] NE -1 THEN BEGIN
+                    HNegAvg[orbCnt,l]  = MEAN( (HArr[tmpTotInds,l])[neg],/NAN)
+                 ENDIF ELSE BEGIN
+                    HNegAvg[orbCnt,l]  = !VALUES.F_NaN
+                 ENDELSE
+
               ENDIF ELSE BEGIN
                  HAvg[orbCnt,l]     = !VALUES.F_NaN
+                 HPosAvg[orbCnt,l]  = !VALUES.F_NaN
+                 HNegAvg[orbCnt,l]  = !VALUES.F_NaN
+                 HAbsAvg[orbCnt,l]  = !VALUES.F_NaN
+
               ENDELSE
 
            ENDFOR
@@ -1239,22 +1319,26 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
                                         pos:EACPosAvg[*,0], $
                                         neg:EACNegAvg[*,0], $
                                         abs:EACAbsAvg[*,0]}}, $
-                          'NearB',{DC:{avg:EDCAvg[*,1], $
-                                       pos:EDCPosAvg[*,1], $
-                                       neg:EDCNegAvg[*,1], $
-                                       abs:EDCAbsAvg[*,1]}, $
-                                   AC:{avg:EACAvg[*,1], $
-                                       pos:EACPosAvg[*,1], $
-                                       neg:EACNegAvg[*,1], $
-                                       abs:EACAbsAvg[*,1]}}, $
-                          'DSP',{DC:{avg:EDCAvg[*,2], $
-                                     pos:EDCPosAvg[*,2], $
-                                     neg:EDCNegAvg[*,2], $
-                                     abs:EDCAbsAvg[*,2]}, $
-                                 AC:{avg:EACAvg[*,2], $
-                                     pos:EACPosAvg[*,2], $
-                                     neg:EACNegAvg[*,2], $
-                                     abs:EACAbsAvg[*,2]}})
+                          'NearB' ,{DC:{avg:EDCAvg[*,1], $
+                                        pos:EDCPosAvg[*,1], $
+                                        neg:EDCNegAvg[*,1], $
+                                        abs:EDCAbsAvg[*,1]}, $
+                                    AC:{avg:EACAvg[*,1], $
+                                        pos:EACPosAvg[*,1], $
+                                        neg:EACNegAvg[*,1], $
+                                        abs:EACAbsAvg[*,1]}}, $
+                          ;; 'DSP'   ,{DC:{avg:EDCAvg[*,2], $
+                          ;;               pos:EDCPosAvg[*,2], $
+                          ;;               neg:EDCNegAvg[*,2], $
+                          ;;               abs:EDCAbsAvg[*,2]}, $
+                          ;;           AC:{avg:EACAvg[*,2], $
+                          ;;               pos:EACPosAvg[*,2], $
+                          ;;               neg:EACNegAvg[*,2], $
+                          ;;               abs:EACAbsAvg[*,2]}})
+                          'DSP'   ,{y:{avg:EDCAvg[*,2], $
+                                        pos:EDCPosAvg[*,2], $
+                                        neg:EDCNegAvg[*,2], $
+                                        abs:EDCAbsAvg[*,2]}})
 
      PAvg = CREATE_STRUCT('P',{DC:{avg:PDCAvg[*,0], $
                                    pos:PDCPosAvg[*,0], $
@@ -1281,23 +1365,28 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
                                    neg:PACNegAvg[*,2], $
                                    abs:PACAbsAvg[*,2]}})
 
-     HAvg = CREATE_STRUCT('JEe',{y:{avg:HAvg[*,0]}}, $
-                          ;; pos:HPosAvg[*,0], $
-                          ;; neg:HNegAvg[*,0], $
+     HAvg = CREATE_STRUCT('JEe',{y:{avg:HAvg[*,0], $
+                                    pos:HPosAvg[*,0], $
+                                    neg:HNegAvg[*,0], $
+                                    abs:HAbsAvg[*,0]}}, $
                           ;; abs:HAbsAvg[*,0]}, $
                           ;; AC:{avg:HACAvg[*,0], $
                           ;; pos:HACPosAvg[*,0], $
                           ;; neg:HACNegAvg[*,0], $
                           ;; abs:HACAbsAvg[*,0]}}, $
-                          'Je',{y:{avg:HAvg[*,1]}}, $
-                          ;; pos:HPosAvg[*,1], $
-                          ;; neg:HNegAvg[*,1], $
+                          'Je',{y:{avg:HAvg[*,1], $
+                                   pos:HPosAvg[*,1], $
+                                   neg:HNegAvg[*,1], $
+                                   abs:HAbsAvg[*,1]}}, $
                           ;; abs:HAbsAvg[*,1]}, $
                           ;; AC:{avg:HACAvg[*,1], $
                           ;; pos:HACPosAvg[*,1], $
                           ;; neg:HACNegAvg[*,1], $
                           ;; abs:HACAbsAvg[*,1]}}, $
-                          'Ji',{y:{avg:HAvg[*,2]}})
+                          'Ji',{y:{avg:HAvg[*,2], $
+                                   pos:HPosAvg[*,2], $
+                                   neg:HNegAvg[*,2], $
+                                   abs:HAbsAvg[*,2]}})
      ;; pos:HPosAvg[*,2], $
      ;; neg:HNegAvg[*,2], $
      ;; abs:HAbsAvg[*,2]}, $
@@ -1318,7 +1407,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
                      BACAvg,BACAbsAvg,BACPosAvg,BACNegAvg, $
                      EACAvg,EACAbsAvg,EACPosAvg,EACNegAvg, $
                      PACAvg,PACAbsAvg,PACPosAvg,PACNegAvg, $
-                     HAvg
+                     HAvg,HPosAvg,HNegAvg,HAbsAvg
 
      ;;All pts Arr
      orbArr       = orbArr [0:totPtCnt-1]
@@ -1345,8 +1434,9 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
                                      AC:EACArr[*,0]}, $
                           'NearB'  ,{DC:EDCArr[*,1], $
                                      AC:EACArr[*,1]}, $
-                          'DSP'    ,{DC:EDCArr[*,2], $
-                                     AC:EACArr[*,2]})
+                          ;; 'DSP'    ,{DC:EDCArr[*,2], $
+                          ;;            AC:EACArr[*,2]})
+                          'DSP'    ,{y:EDCArr[*,2]})
 
      PArr = CREATE_STRUCT('P',{DC:PDCArr[*,0], $
                                AC:PACArr[*,0]}, $
@@ -1446,43 +1536,46 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
 
      finStruct   = {orbit     : avgStruct.orbit    [sw_i], $
                     ;; interval  : avgStruct.interval [sw_i], $   
-                    ;; eAlongV   : avgStruct.eAlongV  [sw_i], $   
-                    ;; dB_perp   : avgStruct.dB_perp  [sw_i], $   
+                    eAlongVAC : avgStruct.e.AlongV.AC.(avgInd) [sw_i], $   
+                    dB_perpAC : avgStruct.dB.p.AC.(avgInd) [sw_i], $   
                     pFAlongBDC: avgStruct.pFlux.B.DC.(avgInd) [sw_i], $
                     pFAlongPDC: avgStruct.pFlux.P.DC.(avgInd) [sw_i], $
                     pFAlongBAC: avgStruct.pFlux.B.AC.(avgInd) [sw_i], $
                     pFAlongPAC: avgStruct.pFlux.P.AC.(avgInd) [sw_i], $
-                    DSPDC     : avgStruct.E.DSP.DC.(avgInd)   [sw_i], $
-                    DSPAC     : avgStruct.E.DSP.AC.(avgInd)   [sw_i], $
-                    je        : avgStruct.ptcl.je.y.avg   [sw_i], $
-                    jee       : avgStruct.ptcl.jee.y.avg  [sw_i], $
+                    DSPDC     : avgStruct.E.DSP.y.(avgInd)[sw_i], $
+                    ;; DSPAC     : avgStruct.E.DSP.AC.(avgInd)   [sw_i], $
+                    je        : avgStruct.ptcl.je.y.(avgInd)   [sw_i], $
+                    jee       : avgStruct.ptcl.jee.y.(avgInd)  [sw_i], $
                     ji        : avgStruct.ptcl.ji.y.avg   [sw_i]}
-
 
      IF ~KEYWORD_SET(no_plots) THEN BEGIN
 
         IF N_ELEMENTS(xQuants) EQ 0 THEN BEGIN
-           xQuants = [1,2,3,4,5,6,7,8]
+           xQuants = [1,2,3,4,5,6,7,8,9]
         ENDIF
 
         plotInfo  = {xQuants       : xQuants, $
                      xTitle        : ["", $
+                                      "EAlongV [AC] (mV/m)", $
+                                      "Cross-track B [AC] (nT)", $
                                       "Poynting FluxB [DC] (mW/m^2)", $
                                       "Poynting FluxP [DC] (mW/m^2)", $
                                       "Poynting FluxB [AC] (mW/m^2)", $
                                       "Poynting FluxP [AC] (mW/m^2)", $
                                       "Average ELF amplitude [DC] (V/m)", $
-                                      "Average ELF amplitude [AC] (V/m)", $
+                                      ;; "Average ELF amplitude [AC] (V/m)", $
                                       "Average Electron Flux (#/cm$^2$/s)", $
                                       "Average Electron Energy Flux (mW/m$^2$)", $
                                       "Ion Flux (#/cm!U2!N/s)"] + avgTypeString, $
                      xRange        : [[0.,0.], $
+                                      [1e0,1e3], $
+                                      [1e-1,1e3], $
                                       [1e-1,1e2], $
                                       [1e-1,1e2], $
                                       [1e-4,1e0], $
                                       [1e-4,1e0], $
                                       [1e-3,1e-1], $
-                                      [1e-5,1e-2], $
+                                      ;; [1e-5,1e-2], $
                                       [1e7,1e10], $
                                       [1e-2,1e0], $                                    
                                       [1e6,1e10]], $
@@ -1490,12 +1583,14 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
                      yData         : finStruct.ji, $
                      yRange        : [1e6,1e10], $
                      plotNames     : ["", $
+                                      "EAlongVAC__vs__ionNumFlux", $
+                                      "CrossTrackBAC__vs__ionNumFlux", $
                                       "DC_Poynting_fluxB__vs__ionNumFlux", $
                                       "AC_Poynting_fluxB__vs__ionNumFlux", $
                                       "DC_Poynting_fluxP__vs__ionNumFlux", $
                                       "AC_Poynting_fluxP__vs__ionNumFlux", $
                                       "ELF_amplitudeDC__vs__ionNumFlux", $
-                                      "ELF_amplitudeAC__vs__ionNumFlux", $
+                                      ;; "ELF_amplitudeAC__vs__ionNumFlux", $
                                       "eNumFlux__vs__ionNumFlux", $
                                       "eFlux__vs__ionNumFlux", $
                                       "Ion Flux (#/cm!U2!N/s)"], $

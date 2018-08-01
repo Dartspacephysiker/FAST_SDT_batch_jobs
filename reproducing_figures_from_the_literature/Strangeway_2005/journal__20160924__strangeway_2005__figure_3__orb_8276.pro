@@ -365,10 +365,12 @@ PRO JOURNAL__20160924__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
      y2=spl_init(pos.x-tlimit_all[0],tst,/double)
      tst_ = spl_interp(pos.x-tlimit_all[0],tst,y2,data.x-tlimit_all[0],/double)
      data.y = data.y*tst_/abs(tst_)
+     dlimit = {spec:0, ystyle:1, yrange:[-100., 200.], $
+               ytitle:'EFIT ALONG V!C!C55m (mV/m)', $
+               panel_size:3}
      store_data,'EFIT_ALONG_VSC',data=data,dlimit=dlimit
      options,'EFIT_ALONG_VSC','ytitle','E along V!Dsc!N!C!C[DC] (mV/m)'
      OPTIONS,'EFIT_ALONG_VSC','colors',[normColorI,normColorI]
-     options,'EFIT_ALONG_VSC','panel_size',2
 
      store_data,'E_NEAR_B',/delete
      store_data,'E_ALONG_V',/delete

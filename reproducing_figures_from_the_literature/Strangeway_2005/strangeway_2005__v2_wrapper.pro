@@ -14,12 +14,27 @@
 ;*****************************
 ;Put code here:
 
-STRANGEWAY_2005__V2,/SAVE_PS, $
-                    IONSPECS_UPDOWNMINRATIO=2, $
-                    IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
-                    /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
-                    /ONLY_LEEWARD_IONS
+;; Pre-20180801
+;; STRANGEWAY_2005__V2,/SAVE_PS, $
+;;                     IONSPECS_UPDOWNMINRATIO=2, $
+;;                     IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
+;;                     /INTERP_4HZ_RES_TO_1S_TIMESERIES,  $
+;;                     /STRANGEWAY_2005_FIG3_PLOT ;; , $
+;;                     ;; /ONLY_LEEWARD_IONS
                     
+
+;; POST 20180801
+;; for  bonusSuff = '-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s'
+
+thresh_eFlux = 5e5
+STRANGEWAY_2005__V2,/SAVE_PS, $
+                    IONSPECS_UPDOWNMINRATIO=1, $
+                    IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
+                    IONSPECS_THRESH_EFLUX=thresh_eFlux, $
+                    /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
+                    /STRANGEWAY_2005_FIG3_PLOT
+
+
 ;*****************************
 ;End routine:
 

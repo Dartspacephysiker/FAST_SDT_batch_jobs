@@ -1,27 +1,20 @@
-;2018/07/26
-;The new sheriff in town wants us to use JOURNAL__20180720__LOOK_AT_CONIC_VS_ALL_FLUX_RATIOS (NOT JOURNAL__20180723__[YADDAYADDA]).
-;The journal provides identification of outflow as well as all required ion moments.
-;We just need to use this to get the electrons and fields info, which you have to admit is easiest. 
-PRO STRANGEWAY_2005__V2, $
+;;09/24/16
+;;This is entirely ripped off from Strangeway's batch_summary.pro, gifted to me by that beautiful human, Jack Vernetti.
+PRO JOURNAL__20180731__STRANGEWAY_2005__FIGURE_3__ORB_8276, $
    TPLT_VARS=tPlt_vars, $
-   IONSPECS_UPDOWNMINRATIO=upDownMinRatio, $
-   IONSPECS_MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
-   IONSPECS_THRESH_EFLUX=thresh_eFlux, $
-   USERDEF_HASHFILE=userDef_hashFile, $
-   INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
-   ONLY_LEEWARD_IONS=only_leeward_ions, $
-   ENFORCE_THIS_SAMPLE_RATE=enforce_this_sample_rate, $
+   PLOT_NORTH=plot_north, $
+   PLOT_SOUTH=plot_south, $
+   TLIMIT_NORTH=tlimit_north, $
+   TLIMIT_SOUTH=tlimit_south, $
+   TLIMIT_ALL=tlimit_all, $
    SCREEN_PLOT=screen_plot, $
-   DECIMATE_EB_CALC_PFLUX=decimate_eb_calc_pFlux, $
-   USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
-   SAVE_INDIVIDUAL_ORBIT=save_individual_orbit, $
+   USE_FAC_V=use_fac_v, $
+   USE_FAC=use_fac, $
    NO_BLANK_PANELS=no_blank_panels, $
    STRANGEWAY_2005_FIG3_PLOT=Strangeway_2005_Fig3_plot, $
-   NO_HASH_UPDATE=no_hash_update, $
+   USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
    SAVE_PNG=save_png, $
-   SAVE_PS=save_ps, $
-   BATCH_MODE=batch_mode, $
-   SKIP_EXISTING_IN_HASH=skip_existing_in_hash
+   SAVE_PS=save_ps
 
 ; create a summary plot of:
 ; SFA (AKR)
@@ -65,10 +58,6 @@ PRO STRANGEWAY_2005__V2, $
 
 ; Step 0 - safety measure - delete all tplot quantities if found
 
-  ;; outflowMinLog10 = 6
-  ;; ptsMinOutflow   = 60
-  ;; allowableGap    = 3 ;seconds
-
   CASE 1 OF
      KEYWORD_SET(use_eField_fit_variables): BEGIN
         eAV_variable = 'EFIT_ALONG_V'
@@ -80,57 +69,35 @@ PRO STRANGEWAY_2005__V2, $
      END
   ENDCASE
 
-  @tplot_com ;provides data_quants variable
+  @tplot_com
 
   @startup
 
-  mu_0              = DOUBLE(4.0D*!PI*1e-7)
+  @strway_stuff
 
-  ;;Allowable difference between t{1,2} and nearest fields data
-  tBuf              = 10.
+  ON_ERROR,0
+  ctNum = 43 
+  ;;Set YNOZERO
+  !Y.STYLE = (!Y.STYLE) OR 16
 
-  minILAT           = 50 
+  normColorI     = (KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) ? 0 : 255
 
-  ;; energy_ions       = [4,120.]
-  energy_electrons  = [50,30400.]
+  mu_0           = DOUBLE(4.0D*!PI*1e-7)
 
-  ctNum = 43
+  outPlotName             = 'Strangeway_et_al_2005__ion_outflow-Fig_3'
 
-  IF ~KEYWORD_SET(batch_mode) THEN BEGIN
-     ON_ERROR,0
+  IF KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
+     outPlotName += '-eFieldFit'
   ENDIF
 
-  ;;From UCLA_MAG_DESPIN:
-  ;;"   Field-aligned coordinates defined as: 
-  ;;"   z-along B, y-east (BxR), x-nominally out"
-  ;;    (ind 2)  , (ind 1)     , (ind 0)
-  ;;    (b)      , (e)         , (o)
+  IF N_ELEMENTS(use_fac) EQ 0 AND N_ELEMENTS(use_fac_v) EQ 0 THEN use_fac = 1
 
-  ;;"   Field-aligned velocity-based coordinates defined as: 
-  ;;"   z-along B, y-cross track (BxV), x-along track ((BxV)xB).
-  ;;    (ind 2)  , (ind 1)            , (ind 0)
-  ;;    (b)      , (p)                , (v)
+  t1ZoomStr               = '1998-09-25/00:00:00'
+  t2ZoomStr               = '1998-09-25/00:16:00'
 
-  ;; magInd = 1
+  nn = n_elements(data_quants)
 
-  normColorI   = (KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) ? 0 : 255
-
-; Step 1 - DC Mag data
-
-  @strangeway_2005__defaults__v2.pro
-  
-  IF KEYWORD_SET(userDef_hashFile) THEN BEGIN
-     PRINT,"ACTUALLY, userDef hashFile: ",userDef_hashFile
-
-     hashFile = userDef_hashFile
-     outPlotName = userDef_hashFile.Replace(".sav","")
-  ENDIF
-
-  psym_ptcl    = 3              ;period
-  symsize_ptcl = 5.0
-  nn           = N_ELEMENTS(data_quants)
-
-  if (nn GT 1) THEN for n = nn-1L,1L,-1L do STORE_DATA,data_quants(n).name,/delete
+  if (nn gt 1) then for n = nn-1L,1L,-1L do store_data,data_quants(n).name,/delete
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Step 0a - restore ion fings, or get 'em if we ain't got em
@@ -138,7 +105,8 @@ PRO STRANGEWAY_2005__V2, $
   JOURNAL__20180720__LOOK_AT_CONIC_VS_ALL_FLUX_RATIOS, $
      UPDOWNMINRATIO=upDownMinRatio, $
      MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
-     THRESH_EFLUX=thresh_eFlux, $
+     SAVE_PS=save_ps, $
+     NO_PLOTS=no_plots, $
      /QUIT_IF_FILE_EXISTS, $
      ONLY_LEEWARD_IONS=only_leeward_ions, $
      ENFORCE_THIS_SAMPLE_RATE=enforce_this_sample_rate, $
@@ -154,8 +122,6 @@ PRO STRANGEWAY_2005__V2, $
      DOWN_ARANGEN=down_aRangeN, $
      UP_ARANGES=up_aRangeS, $
      DOWN_ARANGES=down_aRangeS, $
-     SAVE_PS=save_ps, $
-     NO_PLOTS=no_plots, $
      MISLYKTES=mislyktes
 
   IF KEYWORD_SET(mislyktes) THEN BEGIN
@@ -169,34 +135,9 @@ PRO STRANGEWAY_2005__V2, $
 
   UCLA_MAG_DESPIN,TW_MAT=tw_mat,ORBIT=orbit,SPIN_AXIS=spin_axis,DELTA_PHI=delta_phi
 
-  IF (N_ELEMENTS(orbit) GT 0) THEN BEGIN
+  if (n_elements(orbit) gt 0) then begin
 
      orbString           = STRING(FORMAT='(I0)',orbit)
-     outPlotName        += '--' + orbString
-
-     IF KEYWORD_SET(save_individual_orbit) THEN BEGIN
-        indiv_orbFile = indivOrbPref + orbString + '.sav'
-     ENDIF
-
-     IF KEYWORD_SET(skip_existing_in_hash) THEN BEGIN
-
-        IF FILE_TEST(outDir+hashFile) THEN BEGIN
-           PRINT,"Checking for orbit " + orbString + " in hash file " + hashFile + " ..."
-           RESTORE,outDir+hashFile
-
-           CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
-              -1: BEGIN
-                 PRINT,'Getting stuff from orbit ' + orbString + ' ...'
-              END
-              ELSE: BEGIN
-                 PRINT,"Already got this orbit! Out ..."
-                 RETURN
-              END
-           ENDCASE
-
-        ENDIF
-
-     ENDIF
 
      ;;Get time and Je info
      check =  LOAD_JE_AND_JE_TIMES_FOR_ORB(orbit, $
@@ -258,70 +199,69 @@ PRO STRANGEWAY_2005__V2, $
 
      if (orbit gt 9936) then begin
 
-        PRINT,""
-        PRINT,"BATCH_SUMMARY DISABLED FOR ORBITS > 9936, SORRY"
-        PRINT,""
+        print,""
+        print,"BATCH_SUMMARY DISABLED FOR ORBITS > 9936, SORRY"
+        print,""
         return
 
      endif
 
 ; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
 
-     STORE_DATA,'BDATA',/delete
-     STORE_DATA,'BFIT',/delete 
-     STORE_DATA,'Bx_sp',/delete
-     STORE_DATA,'By_sp',/delete
-     STORE_DATA,'Bz_sp',/delete
-     STORE_DATA,'Bx_sc',/delete
-     STORE_DATA,'By_sc',/delete
-     STORE_DATA,'Bz_sc',/delete
-     STORE_DATA,'Bx_sp_sm',/delete
-     STORE_DATA,'By_sp_sm',/delete
-     STORE_DATA,'Bz_sp_sm',/delete
-     STORE_DATA,'B_gei',/delete
-     STORE_DATA,'B_sm',/delete
-     STORE_DATA,'dB_sc',/delete
-     STORE_DATA,'dB_gei',/delete
-     STORE_DATA,'spin_freq',/delete
-     STORE_DATA,'spin_phase',/delete
-     STORE_DATA,'TORQ_X',/delete
-     STORE_DATA,'TORQ_Y',/delete
-     STORE_DATA,'TORQ_Z',/delete
-     STORE_DATA,'BX_DEL',/delete
-     STORE_DATA,'BY_DEL',/delete
-     STORE_DATA,'BZ_DEL',/delete
-     STORE_DATA,'BFIX',/delete
-     STORE_DATA,'TW_ZX',/delete
-     STORE_DATA,'TW_ZY',/delete
-     STORE_DATA,'TW_YY',/delete
-     STORE_DATA,'TW_YX',/delete
-     STORE_DATA,'O_X',/delete
-     STORE_DATA,'O_Y',/delete
-     STORE_DATA,'B_model_old',/delete
-     STORE_DATA,'Delta_B_model',/delete
-     STORE_DATA,'despun_to_gei',/delete
-     STORE_DATA,'gei_to_sm',/delete
-     STORE_DATA,'gei_to_fac',/delete
-     STORE_DATA,'gei_to_fac_v',/delete
+     store_data,'BDATA',/delete
+     store_data,'BFIT',/delete 
+     store_data,'Bx_sp',/delete
+     store_data,'By_sp',/delete
+     store_data,'Bz_sp',/delete
+     store_data,'Bx_sc',/delete
+     store_data,'By_sc',/delete
+     store_data,'Bz_sc',/delete
+     store_data,'Bx_sp_sm',/delete
+     store_data,'By_sp_sm',/delete
+     store_data,'Bz_sp_sm',/delete
+     store_data,'B_gei',/delete
+     store_data,'B_sm',/delete
+     store_data,'dB_sc',/delete
+     store_data,'dB_gei',/delete
+     store_data,'spin_freq',/delete
+     store_data,'spin_phase',/delete
+     store_data,'TORQ_X',/delete
+     store_data,'TORQ_Y',/delete
+     store_data,'TORQ_Z',/delete
+     store_data,'BX_DEL',/delete
+     store_data,'BY_DEL',/delete
+     store_data,'BZ_DEL',/delete
+     store_data,'BFIX',/delete
+     store_data,'TW_ZX',/delete
+     store_data,'TW_ZY',/delete
+     store_data,'TW_YY',/delete
+     store_data,'TW_YX',/delete
+     store_data,'O_X',/delete
+     store_data,'O_Y',/delete
+     store_data,'B_model_old',/delete
+     store_data,'Delta_B_model',/delete
+     store_data,'despun_to_gei',/delete
+     store_data,'gei_to_sm',/delete
+     store_data,'gei_to_fac',/delete
+     store_data,'gei_to_fac_v',/delete
 
-     GET_DATA,'dB_fac_v',data=data
-     t1            = data.x[0]
-     t2            = data.x[N_ELEMENTS(data.x)-1L]
+     get_data,'dB_fac_v',data=data
+     t1 = data.x[0]
+     t2 = data.x[n_elements(data.x)-1L]
      magz_tBounds  = [t1,t2]
-
-     OPTIONS,'dB_fac_v','panel_size',2
-     OPTIONS,'dB_fac','panel_size',2
-     OPTIONS,'dB_sm','panel_size',2
-
-     PRINT,FORMAT='(A0,T35,A0,", ",A0)',"MAG beginning/end : ",TIME_TO_STR(t1,/MSEC),TIME_TO_STR(t2,/MSEC)
-
+     ;; tlimit_all = [t1,t2]
+     options,'dB_fac_v','panel_size',2
+     options,'dB_fac','panel_size',2
+     options,'dB_sm','panel_size',2
 
      ;;Interp time series
      tS_1s = DOUBLE(LINDGEN(CEIL(t2-t1))+ROUND(t1))
 
-     tPlt_vars = 'dB_fac_v'
+     ;; if (keyword_set(use_fac)) then tPlt_vars = 'dB_fac'
 
-     if (keyword_set(screen_plot)) then begin
+     ;; if ~KEYWORD_SET(no_blank_panels) AND ~KEYWORD_SET(use_fac) then tPlt_vars = 'dB_fac_v'
+
+     if (KEYWORD_SET(screen_plot)) then begin
         LOADCT2,ctNum
         tplot,tPlt_vars,var=['ALT','ILAT','MLT'],TRANGE=je_tBounds
      endif
@@ -333,8 +273,79 @@ PRO STRANGEWAY_2005__V2, $
      RETURN
   ENDELSE
 
+     ;; ;;Smooth to 4-s resolution
+     ;; PRINT,'SMOOTHmag'
+     ;; var_name = tPlt_vars
+     ;; GET_DATA,var_name,DATA=data
+     ;; FA_FIELDS_BUFS,{time:data.x},BUF_STARTS=strt_i,BUF_ENDS=stop_i
+     ;; IF (strt_i[0] EQ 0) AND (stop_i[0] EQ 0) THEN STOP
+
+     ;; sRates = 1./(data.x[strt_i+1]-data.x[strt_i])
+     ;; nBufs  = N_ELEMENTS(strt_i)
+     ;; FOR k=0, nBufs-1 DO BEGIN
+
+     ;;    tmpI          = [strt_i[k]:stop_i[k]]
+     ;;    smooth_int    = CEIL(sRates[k]/0.25)
+
+     ;;    FOR l=0,2 DO BEGIN
+     ;;       tmp           = {x:data.x[tmpI], $
+     ;;                        y:data.y[tmpI,l]}
+
+     ;;       smoothed      = SMOOTH(tmp.y,smooth_int)
+           
+     ;;       data.y[tmpI,l]  = smoothed
+
+     ;;    ENDFOR
+
+     ;;    PRINT,'Smooth int: ' + STRCOMPRESS(smooth_int,/REMOVE_ALL)
+     ;; ENDFOR
+
+     ;; ;; OPTIONS,var_name,'labels',['o','e','b']
+
+     ;; ;;From UCLA_MAG_DESPIN:
+     ;; ;;"   Field-aligned coordinates defined as: 
+     ;; ;;"   z-along B, y-east (BxR), x-nominally out"
+     ;; ;;    (ind 2)    (ind 1)       (ind 0)
+
+     ;; magInd = 1
+     ;; data = {x:data.x, $
+     ;;         y:REFORM(data.y[*,magInd])}
+
+     ;; ;;Interp to 1-s resolution
+     ;; FA_FIELDS_COMBINE,{TIME:tS_1s,COMP1:tS_1s}, $
+     ;;                   {TIME:data.x,COMP1:data.y}, $
+     ;;                   RESULT=datInterp, $
+     ;;                   /INTERP, $
+     ;;                   ;; /SVY, $ ;;Sets delt_t to 0.9 of time step in magz. S'OK
+     ;;                   DELT_T=(1.01)/MIN(sRates), $
+     ;;                   /TALK
+
+     ;; ;; data = {x:[TRANSPOSE(tS_1s),TRANSPOSE(tS_1s)], $
+     ;; ;;         y:[TRANSPOSE(TEMPORARY(datInterp)), $
+     ;; ;;            TRANSPOSE(MAKE_ARRAY(N_ELEMENTS(tS_1s),VALUE=0.))]}
+     ;; data = {x:[[tS_1s],[tS_1s]], $
+     ;;         y:[[MAKE_ARRAY(N_ELEMENTS(tS_1s),VALUE=0.)], $
+     ;;            [TEMPORARY(datInterp)]]}
+
+     ;; ;; data = {x:tS_1s, $
+     ;; ;;         y:datInterp}
+
+     ;; ;; OPTIONS,'dB_fac_interp','labels',(['o','e','b'])[magInd]
+
+     ;; STORE_DATA,'dB_fac_interp',DATA=data
+
+     ;; dLimit = {spec:0, ystyle:1, yrange:[-600., 800.], $
+     ;;           ytitle:'dB Perp.!C!C[DC] (nT)', $
+     ;;           panel_size:3}
+
+     ;; OPTIONS,'dB_fac_interp','colors',[normColorI,normColorI]
+     ;; OPTIONS,'dB_fac_interp','tplot_routine','mplot'
+     ;; STORE_DATA,'dB_fac_interp',DLIMITS=dLimit
+
+  ;; endif
 
 ; step 2 - E field
+
 
 ; JBV, 2011/05/22.   If we are running Multi-User SDT, we need
 ; to get the SDT index for this run.  Otherwise "showDQIs" won't
@@ -342,35 +353,36 @@ PRO STRANGEWAY_2005__V2, $
 ; as 255 and we handle the call in the old way.
   sdt_idx = get_sdt_run_idx()
 
-  prog = GETENV('FASTBIN') + '/showDQIs'
-  IF ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN BEGIN
-     IF (sdt_idx GE 10) THEN BEGIN
-        sidstr = STRING(sdt_idx,FORMAT='(I2)')
-     ENDIF ELSE BEGIN
-        sidstr = STRING(sdt_idx,FORMAT='(I1)')
-     ENDELSE
-     SPAWN,[prog, sidstr],result,/NOSHELL
-  ENDIF ELSE BEGIN
-     SPAWN,prog,result,/NOSHELL
-  ENDELSE
+  prog = getenv('FASTBIN') + '/showDQIs'
+  if ((sdt_idx GE 0) AND (sdt_idx LT 100)) then begin
+     if (sdt_idx GE 10) then begin
+        sidstr = string(sdt_idx, format='(I2)')
+     endif else begin
+        sidstr = string(sdt_idx, format='(I1)')
+     endelse
+     spawn, [prog, sidstr], result, /noshell
+  endif else begin
+     spawn, prog, result, /noshell
+  endelse
 
 
   ;;Find out if we have various eField things
-  b = WHERE(STRPOS(result,'V1-V4_S') GE 0,nb4)
-  IF (nb4 GT 0) THEN IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN nb4 = 0
-  b = WHERE(STRPOS(result,'V1-V2_S') GE 0,nb2)
-  IF (nb2 GT 0) THEN IF STRPOS(RESULT[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN nb2 = 0
-  IF (nb4 GT 0) THEN v12 = GET_FA_FIELDS('V1-V4_S',/DEFAULT) $
-  ELSE IF (nb2 GT 0) THEN v12 = GET_FA_FIELDS('V1-V2_S',/DEFAULT)
+  b = where (strpos(result,'V1-V4_S') ge 0,nb4)
+  if (nb4 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb4 = 0
+  b = where (strpos(result,'V1-V2_S') ge 0,nb2)
+  if (nb2 gt 0) then if strpos(result(b(0)+1),'Points (cur/aloc): 0       /') ge 0 then nb2 = 0
+  if (nb4 gt 0) then v12=get_fa_fields('V1-V4_S',/all) $
+  else if (nb2 gt 0) then v12=get_fa_fields('V1-V2_S',/all)
 
-  b = WHERE(STRPOS(result,'V5-V8_S') GE 0,nb5)
-  IF (nb5 GT 0) THEN v58 = GET_FA_FIELDS('V5-V8_S',/DEFAULT)
+  b = where (strpos(result,'V5-V8_S') ge 0,nb5)
+  if (nb5 gt 0) then v58=get_fa_fields('V5-V8_S',/all)
 
-  got_efield = (nb4 GT 0 OR nb2 GT 0) AND nb5 GT 0
+  got_efield = (nb4 gt 0 or nb2 gt 0) and nb5 gt 0
 
-  IF (got_efield) THEN BEGIN
+  if (got_efield) then begin
 
-     ;; despin e field data
+; despin e field data
+
      FA_FIELDS_DESPIN,v58,v12
 
   ENDIF ELSE BEGIN
@@ -568,11 +580,10 @@ PRO STRANGEWAY_2005__V2, $
            data, $
            /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
            /USE_DOUBLE_STREAKER, $
-           /NO_SEPARATE_DC_AC, $
            ONESEC_TS=tS_1s)
 
-     STORE_DATA,'DSP_integ',DATA={x:DSP.x,y:DSP.y}
-     ;; STORE_DATA,'DSP_integ',DATA={x:DSP.x,y:dsp.DC+dsp.AC}
+     ;; STORE_DATA,'DSP_integ',DATA={x:data.x,y:data.y}
+     STORE_DATA,'DSP_integ',DATA={x:DSP.x,y:dsp.DC+dsp.AC}
      dlimit = {ystyle:1, yrange:[0.0,0.05], $
                ytitle:'ELF Amplitude (V/m)', $
                panel_size:3}
@@ -586,10 +597,8 @@ PRO STRANGEWAY_2005__V2, $
   ENDELSE
 
   ;;Now loop over stuff
-
   structList             = LIST()
   FOR jj=0,number_of_intervals-1 DO BEGIN
-
 
      itvlString     = STRCOMPRESS(jj,/REMOVE_ALL)
 
@@ -700,11 +709,9 @@ PRO STRANGEWAY_2005__V2, $
         CONTINUE
      ENDIF
 
-     ;; tmpDSP = {x:DSP.x[ind1:ind2], $
-     ;;           DC:DSP.DC[ind1:ind2], $
-     ;;           AC:DSP.AC[ind1:ind2]}
      tmpDSP = {x:DSP.x[ind1:ind2], $
-               y:DSP.y[ind1:ind2]}
+               DC:DSP.DC[ind1:ind2], $
+               AC:DSP.AC[ind1:ind2]}
      nDSP   = N_ELEMENTS(tmpDSP.x)
 
      ;; magx = {x:magData.x, $
@@ -732,6 +739,7 @@ PRO STRANGEWAY_2005__V2, $
      eAV = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
            eAlongV, $
            INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+           USE_DOUBLE_STREAKER=KEYWORD_SET(use_eField_fit_variables), $
            ONESEC_TS=tS_1s)
 
      IF KEYWORD_SET(include_E_near_B) THEN BEGIN
@@ -843,14 +851,14 @@ PRO STRANGEWAY_2005__V2, $
         ;; ENDCASE
 
         ;; IF gjordet THEN BEGIN
-           
+        
         ;;    nBigT = N_ELEMENTS(bigT)
         ;;    nLilT = N_ELEMENTS(lilT)
 
         ;;    WHILE FIX(FLOAT(nBigT)/nLilT) GE 2 THEN BEGIN
 
-              
-              
+        
+        
 
         ;;       bigTInds = VALUE_CLOSEST2(bigT,lilT,/CONSTRAINED)
 
@@ -883,7 +891,7 @@ PRO STRANGEWAY_2005__V2, $
         ENDIF ELSE BEGIN
 
            pFluxB = {x:magp.x, $
-                     y:magp.y*eAlongVtoMag/mu_0}      ;Poynting flux along B
+                     y:magp.y*eAlongVtoMag/mu_0} ;Poynting flux along B
            pFluxP = {x:magp.x, $
                      y:(-1.)*magB.y*eAlongVtoMag/mu_0} ;Poynting flux perp to B and to (Bxv)xB
            ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
@@ -908,9 +916,9 @@ PRO STRANGEWAY_2005__V2, $
         IF KEYWORD_SET(full_pFlux) THEN BEGIN
 
            pFV  = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
-                    pFluxV, $
-                    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
-                    ONESEC_TS=tS_1s)
+                  pFluxV, $
+                  INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
+                  ONESEC_TS=tS_1s)
            pFV  = {DC:pFV.DC, $
                    AC:pFV.AC}
 
@@ -918,7 +926,7 @@ PRO STRANGEWAY_2005__V2, $
 
      ENDELSE
 
-     pFB.AC *= 1e-9            ;Junk that nano prefix in nT
+     pFB.AC *= 1e-9             ;Junk that nano prefix in nT
      pFP.AC *= 1e-9
 
      pFB.DC *= 1e-9             ;Junk that nano prefix in nT
@@ -1005,7 +1013,7 @@ PRO STRANGEWAY_2005__V2, $
 
      dLimit = {spec:0, $
                ystyle:1, $
-               ytitle:'SFlux Wave!C[< 0.125 Hz]!C(mW/m!U2!N)', $
+               ytitle:'SFlux DC!C[< 0.125 Hz]!C(mW/m!U2!N)', $
                yticks:7, $      
                ylog:0, $
                yrange:[-4,2], $
@@ -1040,14 +1048,14 @@ PRO STRANGEWAY_2005__V2, $
      ;; doDat    = tmp.y
      ;; IF KEYWORD_SET(smooth_fluxes) THEN BEGIN
      tmpJe = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
-              tmp, $
-              /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
-              /NO_SEPARATE_DC_AC, $
-              /USE_DOUBLE_STREAKER, $
-              ONESEC_TS=tS_1s)
-        ;; tmp.y = SMOOTH(tmp.y,5)
-        ;; doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
-        ;; tFlux = tS_1s
+             tmp, $
+             /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
+             /NO_SEPARATE_DC_AC, $
+             /USE_DOUBLE_STREAKER, $
+             ONESEC_TS=tS_1s)
+     ;; tmp.y = SMOOTH(tmp.y,5)
+     ;; doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
+     ;; tFlux = tS_1s
      ;; ENDIF
      
      ;;Make all downgoing, pre-log
@@ -1059,70 +1067,32 @@ PRO STRANGEWAY_2005__V2, $
 
      ;; STORE_DATA,'Je_tmp',DATA={x:tFlux,y:doDat}
      STORE_DATA,'Je_tmp',DATA={x:tmpJe.x[good_i],y:ALOG10(tmpJe.y[good_i])}
-     YLIM,'Je_tmp',6,12,0                                                  ; set y limits
+     YLIM,'Je_tmp',6,12,0                                            ; set y limits
      OPTIONS,'Je_tmp','ytitle','Downgoing Elec.!CFlux!C#/cm!U2!N-s)' ; set y title
-     OPTIONS,'Je_tmp','panel_size',3                                       ; set panel size
-     OPTIONS,'Je_tmp','yticks',6                                           ; set y-axis labels
-     OPTIONS,'Je_tmp','ytickv',[6,7,8,9,10,11,12]                         ; set y-axis labels
+     OPTIONS,'Je_tmp','panel_size',3                                 ; set panel size
+     OPTIONS,'Je_tmp','yticks',6                                     ; set y-axis labels
+     OPTIONS,'Je_tmp','ytickv',[6,7,8,9,10,11,12]                    ; set y-axis labels
      OPTIONS,'Je_tmp','ytickname',['10!U6!N','10!U7!N','10!U8!N','10!U9!N','10!U10!N', $
                                    '10!U11!N','10!U12!N'] ; set y-axis labels
      OPTIONS,'Je_tmp','ynozero',1
      OPTIONS,'Je_tmp','ystyle',1
-     ;; dLimit = {spec:0, $
-     ;;           ystyle:1, $
-     ;;           ytitle:'Downgoing Elec.!CFlux!C#/cm!U2!N-s)', $
-     ;;           yticks:6, $      
-     ;;           ylog:0, $
-     ;;           yrange:[6,12], $
-     ;;           ytickv:[6,7,8,9,10,11,12], $ ; set y-axis labels
-     ;;           ytickname:['10!U6!N','10!U7!N','10!U8!N','10!U9!N','10!U10!N', $
-     ;;                      '10!U11!N','10!U12!N'], $
-     ;;           colors:normColorI,$
-     ;;           panel_size:3}
-     ;; STORE_DATA,'Je_tmp',DLIMITS=dLimit
-     OPTIONS,'Je_tmp','psym',psym_ptcl ;period symbol
+     OPTIONS,'Je_tmp','psym',psym_ptcl       ;period symbol
      OPTIONS,'Je_tmp','symsize',symsize_ptcl ;period symbol
 
 ; Electron energy flux
-
-     ;; t           = 0.0D
-     ;; tmp         = GET_FA_EES_C(t,/EN)
-     ;; IF tmp.valid EQ 0 THEN BEGIN
-     ;;    PRINT,'Junk'
-     ;;    RETURN
-     ;; ENDIF
-     ;; last_index  = LONG(tmp.index)
-     ;; t1          = 0.0D
-     ;; t2          = 0.0D
-     ;; temp        = GET_FA_EES(t1,INDEX=0.0D)
-     ;; temp        = GET_FA_EES(t2,INDEX=DOUBLE(last_index))
-
-     ;;Did this up top
-     ;; GET_2DT,'je_2d_fs','fa_ees_c',name='JEe',t1=t1,t2=t2,energy=energy_electrons
      GET_DATA,'JEe',DATA=tmp
 
-     ;; tFlux    = tmp.x
-     ;; doDat    = tmp.y
-     ;; IF KEYWORD_SET(smooth_fluxes) THEN BEGIN
      tmpJEe = STRANGEWAY_DECIMATE_AND_SMOOTH_FIELDS( $
               tmp, $
               /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
               /NO_SEPARATE_DC_AC, $
               /USE_DOUBLE_STREAKER, $
               ONESEC_TS=tS_1s)
-        ;; tmp.y = SMOOTH(tmp.y,5)
-        ;; doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
-        ;; tFlux = tS_1s
-     ;; ENDIF
      
      ;;Make all downgoing, pre-log
      good_i   = WHERE(FINITE(tmpJEe.y) AND tmpJEe.y GT 0.00,nGood, $
                       COMPLEMENT=bad_i,NCOMPLEMENT=nBad)
-     ;; tmpJEe    = {x:tmpJEe.x[good_i],y:ALOG10(tmpJEe.y[good_i])}
-     ;; tFlux    = tFlux[good_i]
-     ;; doDat    = ALOG10(doDat[good_i])
 
-     ;; STORE_DATA,'JEe_tmp',DATA={x:tFlux,y:doDat}
      STORE_DATA,'JEe_tmp',DATA={x:tmpJEe.x[good_i],y:ALOG10(tmpJEe.y[good_i])}
      YLIM,'JEe_tmp',-5,1,0                                                  ; set y limits
      OPTIONS,'JEe_tmp','ytitle','Downgoing Elec.!CEnergy Flux!CmW/(m!U2!N)' ; set y title
@@ -1130,11 +1100,11 @@ PRO STRANGEWAY_2005__V2, $
      OPTIONS,'JEe_tmp','yticks',6                                           ; set y-axis labels
      OPTIONS,'JEe_tmp','ytickv',[-5,-4,-3,-2,-1,0,1]                        ; set y-axis labels
      OPTIONS,'JEe_tmp','ytickname',['10!U-5!N','10!U-4!N','10!U-3!N', $
-                                '10!U-2!N','10!U-1!N','10!U0!N','10!U1!N'] ; set y-axis labels
+                                    '10!U-2!N','10!U-1!N','10!U0!N','10!U1!N'] ; set y-axis labels
      OPTIONS,'JEe_tmp','x_no_interp',1
      OPTIONS,'JEe_tmp','y_no_interp',1
      OPTIONS,'JEe_tmp','ystyle',1
-     OPTIONS,'JEe_tmp','psym',psym_ptcl ;period symbol
+     OPTIONS,'JEe_tmp','psym',psym_ptcl       ;period symbol
      OPTIONS,'JEe_tmp','symsize',symsize_ptcl ;period symbol
 
 ; Step 5 - Ion flux
@@ -1166,11 +1136,11 @@ PRO STRANGEWAY_2005__V2, $
      OPTIONS,'Ji_tmp','ytitle','Upward Ion!CNumber Flux!C(#/cm!U2!N-s)' ; set y title
      OPTIONS,'Ji_tmp','panel_size',3                                    ; set panel size
      OPTIONS,'Ji_tmp','yticks',4                                        ; set y-axis labels
-     OPTIONS,'Ji_tmp','ytickv',[6,7,8,9,10]                         ; set y-axis labels
+     OPTIONS,'Ji_tmp','ytickv',[6,7,8,9,10]                             ; set y-axis labels
      OPTIONS,'Ji_tmp','ytickname',['10!U6!N', $
                                    '10!U7!N','10!U8!N','10!U9!N','10!U10!N'] ; set y-axis labels
      OPTIONS,'Ji_tmp','ynozero',1
-     OPTIONS,'Ji_tmp','psym',psym_ptcl ;period symbol
+     OPTIONS,'Ji_tmp','psym',psym_ptcl       ;period symbol
      OPTIONS,'Ji_tmp','symsize',symsize_ptcl ;period symbol
 
 ; STEP 6 - Clean up and return
@@ -1197,6 +1167,77 @@ PRO STRANGEWAY_2005__V2, $
 
      tPlt_vars=['dB_fac_v','pFluxHigh','pFluxLow','JEe_tmp','Je_tmp','Ji_tmp']
 
+     IF KEYWORD_SET(Strangeway_2005_Fig3_plot) THEN BEGIN
+
+        tmpPlotName    = outPlotName + '-Sway2005Style' + '__itvl_' + itvlString
+
+        ;;;;;;;;;;;;;;;;;;;;
+        varName = eAV_variable + "tmp"
+        yTitle = eAV_variable EQ 'EFIT_ALONG_V' ? $
+                 'EFIT ALONG V!Dsc!N!C!C[DC] (mV/m)' : $
+                 'E ALONG V!Dsc!N!C!C[DC] (mV/m)'
+        dlimit = {spec:0, ystyle:1, yrange:[-100., 200.], $
+                  ytitle:yTitle, $
+                  panel_size:3}
+        STORE_DATA,varName,DATA={x: [[eAV.x],[eAV.x]], $
+                                 y: [[MAKE_ARRAY(N_ELEMENTS(eAV.x),VALUE=0)], $
+                                     [eAV.DC]]},DLIMIT=dlimit
+        OPTIONS,varName,'ytitle','E along V!Dsc!N!C!C[DC] (mV/m)'
+        OPTIONS,varName,'tplot_routine','mplot'
+        OPTIONS,varName,'colors',[normColorI,normColorI]
+
+        ;;;;;;;;;;;;;;;;;;;;
+        varName = 'dB_fac_interp'
+        dLimit = {spec:0, ystyle:1, yrange:[-600., 800.], $
+                  ytitle:'dB Perp.!C!C[DC] (nT)', $
+                  panel_size:3}
+        STORE_DATA,varName,DATA={x: [[dBp.x],[dBp.x]], $
+                                 y: [[MAKE_ARRAY(N_ELEMENTS(dBp.x),VALUE=0)], $
+                                     [dBp.DC]]},DLIMITS=dLimit
+        OPTIONS,varName,'colors',[normColorI,normColorI]
+        OPTIONS,varName,'tplot_routine','mplot'
+        OPTIONS,varName,'colors',[normColorI,normColorI]
+
+        ;;;;;;;;;;;;;;;;;;;;
+        varName = 'pFlux'
+        STORE_DATA,varName, $
+                   DATA={x:[[dBp.x],[dBp.x]], $
+                         y:[ $
+                   [MAKE_ARRAY(N_ELEMENTS(dBp.x),VALUE=0.)], $
+                   [pFB.DC] $
+                           ]}, $
+                   DLIMIT={spec:0, ystyle:1, yrange:[-20., 80.], $
+                           ytitle:'Poynting Flux!C!C[DC] (mW/m!U2!N)', $
+                           panel_size:3}
+        OPTIONS,varName,'colors',[normColorI,normColorI]
+
+        ;;;;;;;;;;;;;;;;;;;;
+        varName='tmpJe'
+        STORE_DATA,varName,DATA=tmpJe
+        YLIM,varName,-5.e9,1.5e10,0                       ; set y limits
+        OPTIONS,varName,'ytitle','Electron Flux!C#/(cm!U2!N-s)' ; set y title
+        OPTIONS,varName,'panel_size',3                          ; set panel size
+
+        ;;;;;;;;;;;;;;;;;;;;
+        varName='tmpJEe'
+        STORE_DATA,varName,DATA=tmpJEe
+        YLIM,varName,-1.,6.,0                                   ; set y limits
+        OPTIONS,varName,'ytitle','Electron!CEnergy Flux!CmW/(m!U2!N)' ; set y title
+        OPTIONS,varName,'panel_size',3                                ; set panel size
+
+        ;;;;;;;;;;;;;;;;;;;;
+        varName='tmpJi'
+        STORE_DATA,varName,DATA=tmpJi
+        YLIM,varName,-1.e9,6.e9,0                    ; set y limits
+        OPTIONS,varName,'ytitle','Ion Flux!C#/(cm!U2!N-s)' ; set y title
+        OPTIONS,varName,'panel_size',3                     ; set panel size
+
+        tPlt_vars=[eAV_variable+"tmp",'dB_fac_interp','pFlux','tmpJe','tmpJEe','DSP_integ','tmpJi']
+
+        IF orbit EQ 8276 AND jj EQ 0 THEN je_tmp_tBounds = [t1ZoomStr,t2ZoomStr]
+
+     ENDIF
+     
      IF KEYWORD_SET(screen_plot) OR KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
 
 
@@ -1242,144 +1283,6 @@ PRO STRANGEWAY_2005__V2, $
 
      ENDIF
 
-     IF KEYWORD_SET(Strangeway_2005_Fig3_plot) THEN BEGIN
-
-        tmpPlotName2    = outPlotName + '-Sway2005Style' + '__itvl_' + itvlString
-
-        ;;;;;;;;;;;;;;;;;;;;
-        varName = eAV_variable + "tmp"
-
-        finite = WHERE(FINITE(eAV.DC),nFinite)
-        yRange = nFinite GT 0 ? [MIN(eAV.DC[finite]) > (-300),MAX(eAV.DC[finite]) < 300] : [-100,200]
-
-        yTitle = eAV_variable EQ 'EFIT_ALONG_V' ? $
-                 'EFIT ALONG V!Dsc!N!C!C[DC] (mV/m)' : $
-                 'E ALONG V!Dsc!N!C!C[DC] (mV/m)'
-        dlimit = {spec:0, ystyle:1, yrange:yRange, $
-                  ytitle:yTitle, $
-                  panel_size:3}
-        STORE_DATA,varName,DATA={x: [[eAV.x],[eAV.x]], $
-                                 y: [[MAKE_ARRAY(N_ELEMENTS(eAV.x),VALUE=0)], $
-                                     [eAV.DC]]},DLIMIT=dlimit
-        OPTIONS,varName,'ytitle','E along V!Dsc!N!C!C[DC] (mV/m)'
-        OPTIONS,varName,'tplot_routine','mplot'
-        OPTIONS,varName,'colors',[normColorI,normColorI]
-
-        ;;;;;;;;;;;;;;;;;;;;
-        varName = 'dB_fac_interp'
-
-        finite = WHERE(FINITE(dBp.DC),nFinite)
-        yRange = nFinite GT 0 ? [MIN(dBp.DC[finite]) > (-1500),MAX(dBp.DC[finite]) < 2000] : [-600,800]
-
-        dLimit = {spec:0, ystyle:1, yrange:yRange, $
-                  ytitle:'dB Perp.!C!C[DC] (nT)', $
-                  panel_size:3}
-        STORE_DATA,varName,DATA={x: [[dBp.x],[dBp.x]], $
-                                 y: [[MAKE_ARRAY(N_ELEMENTS(dBp.x),VALUE=0)], $
-                                     [dBp.DC]]},DLIMITS=dLimit
-        OPTIONS,varName,'colors',[normColorI,normColorI]
-        OPTIONS,varName,'tplot_routine','mplot'
-        OPTIONS,varName,'colors',[normColorI,normColorI]
-
-        ;;;;;;;;;;;;;;;;;;;;
-        varName = 'pFlux'
-
-        finite = WHERE(FINITE(pFB.DC),nFinite)
-        yRange = nFinite GT 0 ? [MIN(pFB.DC[finite]) > (-100) ,MAX(pFB.DC[finite]) < 150] : [-20,80]
-
-        STORE_DATA,varName, $
-                   DATA={x:[[dBp.x],[dBp.x]], $
-                         y:[ $
-                   [MAKE_ARRAY(N_ELEMENTS(dBp.x),VALUE=0.)], $
-                   [pFB.DC] $
-                           ]}, $
-                   DLIMIT={spec:0, ystyle:1, yrange:yRange, $
-                           ytitle:'Poynting Flux!C!C[DC] (mW/m!U2!N)', $
-                           panel_size:3}
-        OPTIONS,varName,'colors',[normColorI,normColorI]
-
-        ;;;;;;;;;;;;;;;;;;;;
-        varName='tmpJe'
-
-        finite = WHERE(FINITE(tmpJe.y),nFinite)
-        yRange = nFinite GT 0 ? [MIN(tmpJe.y[finite]) > (-1.e10),MAX(tmpJe.y[finite]) < 3.e10] : [-5.e9,1.5e10]
-
-        STORE_DATA,varName,DATA=tmpJe
-        YLIM,varName,yRange[0],yRange[1],0                      ; set y limits
-        OPTIONS,varName,'ytitle','Electron Flux!C#/(cm!U2!N-s)' ; set y title
-        OPTIONS,varName,'panel_size',3                          ; set panel size
-
-        ;;;;;;;;;;;;;;;;;;;;
-        varName='tmpJEe'
-
-        finite = WHERE(FINITE(tmpJEe.y),nFinite)
-        yRange = nFinite GT 0 ? [MIN(tmpJEe.y[finite]) > (-50),MAX(tmpJEe.y[finite]) < 50] : [-1,6]
-
-        STORE_DATA,varName,DATA=tmpJEe
-        YLIM,varName,yRange[0],yRange[1],0                      ; set y limits
-        OPTIONS,varName,'ytitle','Electron!CEnergy Flux!CmW/(m!U2!N)' ; set y title
-        OPTIONS,varName,'panel_size',3                                ; set panel size
-
-        ;;;;;;;;;;;;;;;;;;;;
-        varName='tmpJi'
-
-        finite = WHERE(FINITE(tmpJi.y),nFinite)
-        yRange = nFinite GT 0 ? [MIN(tmpJi.y[finite]) > (-3.e9),MAX(tmpJi.y[finite]) < 3.e10] : [-1.e9,6.e9]
-
-        STORE_DATA,varName,DATA=tmpJi
-        YLIM,varName,yRange[0],yRange[1],0                      ; set y limits
-        OPTIONS,varName,'ytitle','Ion Flux!C#/(cm!U2!N-s)' ; set y title
-        OPTIONS,varName,'panel_size',3                     ; set panel size
-
-        tPlt_vars=[eAV_variable+"tmp",'dB_fac_interp','pFlux','tmpJe','tmpJEe','DSP_integ','tmpJi']
-
-        IF KEYWORD_SET(screen_plot) OR KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
-
-
-           IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
-              SET_PLOT_DIR,plotDir,/FOR_SDT,ADD_SUFF=plotDirSuff
-           ENDIF
-
-           IF KEYWORD_SET(save_png) THEN BEGIN
-              CGPS_OPEN, plotDir+tmpPlotName2+'.ps',FONT=0 ;,XSIZE=4,YSIZE=7
-           ENDIF ELSE BEGIN
-              IF KEYWORD_SET(save_ps) THEN BEGIN
-
-                 POPEN,plotDir+tmpPlotName2,/PORT,FONT=-1 ;,XSIZE=4,YSIZE=7
-                 DEVICE,/PALATINO
-
-
-              ENDIF ELSE BEGIN
-                 WINDOW,0,XSIZE=600,YSIZE=800
-              ENDELSE
-           ENDELSE
-           
-           ;; CASE 1 OF
-           ;;    KEYWORD_SET(plot_north): BEGIN
-           ;;       tLims = tlimit_north
-           ;;    END
-           ;;    KEYWORD_SET(plot_south): BEGIN
-           ;;       tLims = tlimit_south
-           ;;    END
-           ;;    ELSE: BEGIN
-           ;;       tLims = je_tmp_tBounds
-           ;;    END        
-           ;; ENDCASE
-
-           LOADCT2,ctNum
-           TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT'],TRANGE=je_tmp_tBounds
-
-
-           IF KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps) THEN BEGIN
-              PCLOSE
-           ENDIF ELSE BEGIN
-
-           ENDELSE
-
-        ENDIF
-
-     ENDIF
-
      ;; IF ~KEYWORD_SET(full_pFlux) THEN BEGIN
      ;;    pFVLow  = MAKE_ARRAY(N_ELEMENTS(pFBLow),/FLOAT)
      ;;    pFVHigh = MAKE_ARRAY(N_ELEMENTS(pFBHigh),/FLOAT)
@@ -1389,190 +1292,140 @@ PRO STRANGEWAY_2005__V2, $
      ;;                                'full_pFlux',KEYWORD_SET(full_pFlux))
      ;; ENDELSE
 
-     IF ~KEYWORD_SET(include_E_near_B) THEN BEGIN
-        eNB = eAV
-        eNB.DC[*] = 0.
-        eNB.AC[*] = 0.
-     ENDIF
+     ;; IF ~KEYWORD_SET(include_E_near_B) THEN BEGIN
+     ;;    eNB = eAV
+     ;;    eNB.DC[*] = 0.
+     ;;    eNB.AC[*] = 0.
+     ;; ENDIF
 
      ;;If the B structs have a common time series, only dBp keeps the x member of its struct
      ;; B_has_common_TS = ARRAY_EQUAL(dBp.x,dBv.x) AND ARRAY_EQUAL(dBp.x,dBB.x) AND ARRAY_EQUAL(dBv.x,dBB.x)
-     B_has_common_TS = 1 ;Of COURSE B has a common TS!
-     IF B_has_common_TS THEN BEGIN
+     ;; B_has_common_TS = 1        ;Of COURSE B has a common TS!
+     ;; IF B_has_common_TS THEN BEGIN
 
-        dBp  = {x:dBp.x, $
-                DC:dBp.DC, $
-                AC:dBp.AC, $
-                common_ts:1B}
+     ;;    dBp  = {x:dBp.x, $
+     ;;            DC:dBp.DC, $
+     ;;            AC:dBp.AC, $
+     ;;            common_ts:1B}
 
-        dBv  = {DC:dBv.DC, $
-                AC:dBv.AC}
+     ;;    dBv  = {DC:dBv.DC, $
+     ;;            AC:dBv.AC}
 
-        dBB  = {DC:dBB.DC, $
-                AC:dBB.AC}
+     ;;    dBB  = {DC:dBB.DC, $
+     ;;            AC:dBB.AC}
 
-     ENDIF
+     ;; ENDIF
 
-     ;;If the E structs have a common time series, only dBp keeps the x member of its struct
+     ;; ;;If the E structs have a common time series, only dBp keeps the x member of its struct
+     ;; ;; E_has_common_TS = ARRAY_EQUAL(eAV.x,eNB.x) AND ARRAY_EQUAL(eAV.x,tmpDSP.x) AND ARRAY_EQUAL(eNB.x,tmpDSP.x)
      ;; E_has_common_TS = ARRAY_EQUAL(eAV.x,eNB.x) AND ARRAY_EQUAL(eAV.x,tmpDSP.x) AND ARRAY_EQUAL(eNB.x,tmpDSP.x)
-     E_has_common_TS = ARRAY_EQUAL(eAV.x,eNB.x) AND ARRAY_EQUAL(eAV.x,tmpDSP.x) AND ARRAY_EQUAL(eNB.x,tmpDSP.x)
-     IF E_has_common_TS THEN BEGIN
+     ;; IF E_has_common_TS THEN BEGIN
 
-        eAV     = {x:eAV.x, $
-                   DC:eAV.DC, $
-                   AC:eAV.AC, $
-                   common_ts:1B}
+     ;;    eAV     = {x:eAV.x, $
+     ;;               DC:eAV.DC, $
+     ;;               AC:eAV.AC, $
+     ;;               common_ts:1B}
 
-        eNB     = {DC:eNB.DC, $
-                   AC:eNB.AC}
+     ;;    eNB     = {DC:eNB.DC, $
+     ;;               AC:eNB.AC}
 
-        ;; tmpDSP  = {DC:tmpDSP.DC, $
-        ;;            AC:tmpDSP.AC}
-        tmpDSP  = {y:tmpDSP.y}
+     ;;    tmpDSP  = {DC:tmpDSP.DC, $
+     ;;               AC:tmpDSP.AC}
 
-     ENDIF ELSE BEGIN
+     ;; ENDIF ELSE BEGIN
 
-        ;;See if DSP is messing things up
-        IF ( N_ELEMENTS(tmpDSP.x) EQ ( N_ELEMENTS(eAV.x) + 1 ) ) AND $
-           ARRAY_EQUAL(eAV.x,eNB.x) THEN BEGIN
+     ;;    ;;See if DSP is messing things up
+     ;;    IF ( N_ELEMENTS(tmpDSP.x) EQ ( N_ELEMENTS(eAV.x) + 1 ) ) AND $
+     ;;       ARRAY_EQUAL(eAV.x,eNB.x) THEN BEGIN
            
-           IF ARRAY_EQUAL(eAV.x,tmpDSP.x[0:-2]) THEN BEGIN
-              E_has_common_TS     = 1
-              ;; tmpDSP              = {DC:tmpDSP.DC[0:-2], $
-              ;;                        AC:tmpDSP.AC[0:-2]}
-              tmpDSP              = {y:tmpDSP.y[0:-2]}
-           ENDIF ELSE BEGIN
+     ;;       IF ARRAY_EQUAL(eAV.x,tmpDSP.x[0:-2]) THEN BEGIN
+     ;;          E_has_common_TS     = 1
+     ;;          tmpDSP              = {DC:tmpDSP.DC[0:-2], $
+     ;;                                 AC:tmpDSP.AC[0:-2]}
+     ;;       ENDIF ELSE BEGIN
 
-              IF ARRAY_EQUAL(eAV.x,tmpDSP.x[1:-1]) THEN BEGIN
-                 E_has_common_TS  = 1
-                 ;; tmpDSP           = {DC:tmpDSP.DC[1:-1], $
-                 ;;                     AC:tmpDSP.AC[1:-1]}
-                 tmpDSP           = {y:tmpDSP.y[1:-1]}
-              ENDIF
+     ;;          IF ARRAY_EQUAL(eAV.x,tmpDSP.x[1:-1]) THEN BEGIN
+     ;;             E_has_common_TS  = 1
+     ;;             tmpDSP           = {DC:tmpDSP.DC[1:-1], $
+     ;;                                 AC:tmpDSP.AC[1:-1]}
+     ;;          ENDIF
 
-           ENDELSE
+     ;;       ENDELSE
 
-        ENDIF
+     ;;    ENDIF
         
-        IF E_has_common_TS THEN BEGIN
-           eAV  = {x:eAV.x, $
-                   DC:eAV.DC, $
-                   AC:eAV.AC, $
-                   common_ts:1B}
+     ;;    IF E_has_common_TS THEN BEGIN
+     ;;       eAV  = {x:eAV.x, $
+     ;;               DC:eAV.DC, $
+     ;;               AC:eAV.AC, $
+     ;;               common_ts:1B}
 
-           eNB  = {DC:eNB.DC, $
-                   AC:eNB.AC}
+     ;;       eNB  = {DC:eNB.DC, $
+     ;;               AC:eNB.AC}
 
-        ENDIF
+     ;;    ENDIF
 
-     ENDELSE
+     ;; ENDELSE
 
-     ptcl_has_common_TS = ARRAY_EQUAL(tmpJEe.x,tmpJe.x) AND ARRAY_EQUAL(tmpJEe.x,tmpJi.x) AND ARRAY_EQUAL(tmpJe.x,tmpJi.x)
+     ;; ptcl_has_common_TS = ARRAY_EQUAL(tmpJEe.x,tmpJe.x) AND ARRAY_EQUAL(tmpJEe.x,tmpJi.x) AND ARRAY_EQUAL(tmpJe.x,tmpJi.x)
 
-     IF ptcl_has_common_TS THEN BEGIN
+     ;; IF ptcl_has_common_TS THEN BEGIN
 
-        tmpJEe  = {x:tmpJEe.x, $
-                   y:tmpJEe.y, $
-                   ;; DC:tmpJEe.DC, $
-                   ;; AC:tmpJEe.AC, $
-                   common_ts:1B}
+     ;;    tmpJEe  = {x:tmpJEe.x, $
+     ;;               y:tmpJEe.y, $
+     ;;               ;; DC:tmpJEe.DC, $
+     ;;               ;; AC:tmpJEe.AC, $
+     ;;               common_ts:1B}
 
-        tmpJe   = {y:tmpJe.y} ;; DC:tmpJe.DC, $
-        ;; AC:tmpJe.AC}
+     ;;    tmpJe   = {y:tmpJe.y} ;; DC:tmpJe.DC, $
+     ;;    ;; AC:tmpJe.AC}
 
-        tmpJi   = {y:tmpJi.y} ;;DC:tmpDSP.DC, $
-        ;; AC:tmpDSP.AC}
+     ;;    tmpJi   = {y:tmpJi.y} ;;DC:tmpDSP.DC, $
+     ;;    ;; AC:tmpDSP.AC}
 
-     ENDIF
+     ;; ENDIF
 
-     ;;...And if they ALL have the same time series, we're only keeping one
-     IF B_has_common_TS AND E_has_common_TS AND ptcl_has_common_TS THEN BEGIN
+     ;; ;;...And if they ALL have the same time series, we're only keeping one
+     ;; IF B_has_common_TS AND E_has_common_TS AND ptcl_has_common_TS THEN BEGIN
 
-        dBp     = {x:dBp.x, $
-                   DC:dBp.DC, $
-                   AC:dBp.AC, $
-                   common_ts:1B, $
-                   commonest_ts:1B}
+     ;;    dBp     = {x:dBp.x, $
+     ;;               DC:dBp.DC, $
+     ;;               AC:dBp.AC, $
+     ;;               common_ts:1B, $
+     ;;               commonest_ts:1B}
 
-        eAV     = {DC:eAV.DC, $
-                   AC:eAV.AC, $
-                   common_ts:1B}
+     ;;    eAV     = {DC:eAV.DC, $
+     ;;               AC:eAV.AC, $
+     ;;               common_ts:1B}
 
-        tmpJEe  = {y:tmpJEe.y, $
-                   ;; DC:tmpJEe.DC, $
-                   ;; AC:tmpJEe.AC, $
-                   common_ts:1B}
-     ENDIF
+     ;;    tmpJEe  = {y:tmpJEe.y, $
+     ;;               ;; DC:tmpJEe.DC, $
+     ;;               ;; AC:tmpJEe.AC, $
+     ;;               common_ts:1B}
+     ;; ENDIF
 
-     tmpStruct = {dB:{p:TEMPORARY(dBp), $
-                      v:TEMPORARY(dBv), $
-                      B:TEMPORARY(dBB)}, $
-                  e:{AlongV:TEMPORARY(eAV   ), $
-                     NearB :TEMPORARY(eNB   ), $
-                     dsp   :TEMPORARY(tmpDSP)}, $
-                  pFlux : CREATE_STRUCT('p',pFP, $
-                                        'v',(KEYWORD_SET(full_pFlux) ? pFV : 0B), $
-                                        'b',pFB), $
-                  ptcl:{jEe:TEMPORARY(tmpJEe), $
-                        je :TEMPORARY(tmpJe), $
-                        ji :TEMPORARY(tmpJi)}, $
-                  info:{full_pFlux            : KEYWORD_SET(full_pFlux), $
-                        decimate_eb_calc_pFlux : KEYWORD_SET(decimate_eb_calc_pFlux), $
-                        interp_4Hz_to_1s       : KEYWORD_SET(interp_4Hz_to_1s      ), $
-                        include_E_near_B       : BYTE(KEYWORD_SET(include_E_near_B)), $
-                        eField_fit_variables   : BYTE(KEYWORD_SET(use_eField_fit_variables))}}
-     ;; outflow_i:[[start_i],[stop_i]]}
+     ;; tmpStruct = {dB:{p:dBp, $
+     ;;                  v:dBv, $
+     ;;                  B:dBB}, $
+     ;;              e:{AlongV:eAV, $
+     ;;                 NearB:eNB, $
+     ;;                 dsp:tmpDSP}, $
+     ;;              pFlux : CREATE_STRUCT('p',pFP, $
+     ;;                                    'v',(KEYWORD_SET(full_pFlux) ? pFV : 0B), $
+     ;;                                    'b',pFB), $
+     ;;              ptcl:{jEe:TEMPORARY(tmpJEe), $
+     ;;                    je :TEMPORARY(tmpJe), $
+     ;;                    ji :TEMPORARY(tmpJi)}, $
+     ;;              info:{full_pFlux            : KEYWORD_SET(full_pFlux), $
+     ;;                    decimate_eb_calc_pFlux : KEYWORD_SET(decimate_eb_calc_pFlux), $
+     ;;                    interp_4Hz_to_1s       : KEYWORD_SET(interp_4Hz_to_1s      ), $
+     ;;                    include_E_near_B       : BYTE(KEYWORD_SET(include_E_near_B)), $
+     ;;                    eField_fit_variables   : BYTE(KEYWORD_SET(use_eField_fit_variables))}}
+     ;; ;; outflow_i:[[start_i],[stop_i]]}
      
-     PRINT,"Adding struct for interval " + itvlString + " in orbit " + orbString + ' ...'
-     structList.Add,tmpStruct
+     ;; PRINT,"Adding struct for interval " + itvlString + " in orbit " + orbString + ' ...'
+     ;; structList.Add,tmpStruct
 
   ENDFOR
-
-  CASE 1 OF
-     KEYWORD_SET(save_individual_orbit): BEGIN
-
-        PRINT,"Saving " + indiv_orbFile + ' ...' 
-        SAVE,structList,FILENAME=outDir+indiv_orbFile
-
-     END
-     ELSE: BEGIN
-
-        IF ~KEYWORD_SET(no_hash_update) THEN BEGIN
-
-           IF FILE_TEST(outDir+hashFile) THEN BEGIN
-              PRINT,"Restoring hash file " + hashFile + " ..."
-              RESTORE,outDir+hashFile
-
-              CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
-                 -1: BEGIN
-                    PRINT,'Adding stuff from orbit ' + orbString + ' ...'
-                    swHash  = swHash + ORDEREDHASH(orbit,structList)
-                 END
-                 ELSE: BEGIN
-                    PRINT,'Replacing hash entry for orbit ' + orbString + ' ...'
-                    swHash[orbit] = structList
-                 END
-              ENDCASE
-
-              PRINT,'Saving Strangeway statistics hash ...'
-
-              SAVE,swHash,FILENAME=outDir+hashFile
-
-           ENDIF ELSE BEGIN
-
-              PRINT,'Creating Strangeway statistics hash for orbit ' + orbString + ' ...'
-
-              swHash = ORDEREDHASH(orbit,structList)
-
-              SAVE,swHash,FILENAME=outDir+hashFile
-
-           ENDELSE
-
-        ENDIF
-
-     END
-  ENDCASE
-
-  RETURN
 
 END
