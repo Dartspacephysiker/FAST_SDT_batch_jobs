@@ -1,7 +1,7 @@
 PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          TPLT_VARS=tPlt_vars, $
                          ORBIT=orbit, $
-                         EEB_OR_EES=eeb_OR_ees, $
+                         EEB_OR_EES=eeb_or_ees, $
                          ENERGY_ELECTRONS=energy_electrons, $
                          ENERGY_ELECTRON_TBOUNDS=energy_electron_tBounds, $
                          ELECTRON_ANGLERANGE=electron_angleRange, $
@@ -49,6 +49,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          INCLUDE_ION_ENERGY_SPEC=include_ion_energy_spec, $
                          ION_ANGLERANGE=ion_angleRange, $
                          GRL=GRL, $
+                         JGR__KAPPA2=JGR__kappa2, $
                          OPLOT_POT=oPlot_pot, $
                          SPECTROGRAM_UNITS=spectrogram_units, $
                          ADD_PARM_ERRORS_FROM_FILE=add_parm_errors_from_file, $
@@ -124,6 +125,19 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      add_only_meas_N          = 1
      include_electron_pa_spec = 1
      include_ion_energy_spec  = 1
+     oPlot_pot                = 1
+
+     add_Newell_panel         = 0
+     add_charE_panel          = 0
+
+  ENDIF
+
+  IF KEYWORD_SET(JGR__kappa2) THEN BEGIN
+
+     add_meas_T_and_N         = 0
+     add_only_meas_N          = 1
+     include_electron_pa_spec = 1
+     include_ion_energy_spec  = 0
      oPlot_pot                = 1
 
      add_Newell_panel         = 0
@@ -510,7 +524,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   if (nn gt 1) THEN for n = nn-1L,1L,-1L do STORE_DATA,data_quants(n).name,/delete
 
 ; Step 1 - DC Mag data
-  IF ~(KEYWORD_SET(load_from_offline) OR KEYWORD_SET(GRL)) THEN BEGIN
+  IF ~(KEYWORD_SET(load_from_offline) OR KEYWORD_SET(GRL) OR KEYWORD_SET(JGR__kappa2)) THEN BEGIN
 
      GET_DATA,'dB_fac_v',data=data
      IF SIZE(data,/TYPE) NE 8 THEN $
@@ -582,7 +596,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
            PRINT,'Restoring ' + load_from_offFile + ' ...'
            RESTORE,load_from_offFile
 
-           IF ~KEYWORD_SET(GRL) THEN BEGIN
+           IF ~(KEYWORD_SET(GRL) OR KEYWORD_SET(JGR__kappa2)) THEN BEGIN
               STORE_DATA,"dB_fac_V",DATA=dB_fac_V_off
               STORE_DATA,"Je",DATA=Je_off
               STORE_DATA,"Jee",DATA=Jee_off
@@ -1066,7 +1080,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   t1eeb = time1 > t1eeb
   t2eeb = time2 < t2eeb
 
-  IF ~KEYWORD_SET(load_from_offline) AND ~KEYWORD_SET(GRL) THEN BEGIN     
+  IF ~KEYWORD_SET(load_from_offline) AND ~(KEYWORD_SET(GRL) OR KEYWORD_SET(JGR__kappa2)) THEN BEGIN     
 
      GET_2DT,'j_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Je',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
      GET_2DT,'je_2d_fs','fa_' + eeb_or_ees + '_c',NAME='Jee',T1=t1eeb,T2=t2eeb,ENERGY=energy_electrons,ANGLE=eAngleChare,/CALIB
@@ -1145,7 +1159,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Chare panel
-  IF KEYWORD_SET(add_chare_panel) AND ~KEYWORD_SET(GRL) THEN BEGIN
+  IF KEYWORD_SET(add_chare_panel) AND ~(KEYWORD_SET(GRL) OR KEYWORD_SET(JGR__kappa2)) THEN BEGIN
 
      chare            = Jee.y/Je.y*6.242*1.0e11
      chari            = Jei.y/Ji.y*6.242*1.0e11
@@ -1433,7 +1447,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      ENDIF
   endif
 
-  IF ~KEYWORD_SET(GRL) THEN BEGIN
+  IF ~(KEYWORD_SET(GRL) OR KEYWORD_SET(JGR__kappa2)) THEN BEGIN
      ;;Now Bulk energy
      STORE_DATA,'BlkE2DK',DATA=BlkE2DK
      OPTIONS,'BlkE2DK','psym',kappaSym
@@ -1467,7 +1481,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
         TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
 
-        IF ~KEYWORD_SET(GRL) THEN BEGIN
+        IF ~(KEYWORD_SET(GRL) OR KEYWORD_SET(JGR__kappa2)) THEN BEGIN
            TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
         ENDIF
         
@@ -1477,7 +1491,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;Four-current panel (it's like four-cheese pizza)
-  IF ~KEYWORD_SET(GRL) THEN BEGIN
+  IF ~(KEYWORD_SET(GRL) OR KEYWORD_SET(JGR__kappa2)) THEN BEGIN
 
      ;;Get mag current
      GET_DATA,'dB_fac_v',DATA=db_fac
@@ -1698,7 +1712,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
         TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
 
-        IF ~KEYWORD_SET(GRL) THEN BEGIN
+        IF ~(KEYWORD_SET(GRL) OR KEYWORD_SET(JGR__kappa2)) THEN BEGIN
            TPLOT_PANEL,VARIABLE='BlkE2DK',OPLOTVAR='BlkE2DG',PSYM=GaussSym
         ENDIF
 
@@ -1790,7 +1804,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
   ;; tPlt_vars=['Eesa_Energy','Eesa_Angle','Iesa_Energy','Iesa_Angle']
 
-  IF ~KEYWORD_SET(GRL) THEN BEGIN
+  IF ~(KEYWORD_SET(GRL) OR KEYWORD_SET(JGR__kappa2)) THEN BEGIN
      IF KEYWORD_SET(add_chare_panel)  THEN tPlt_vars = ['charepanel',tPlt_vars]
   ENDIF
   
@@ -1809,7 +1823,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      TPLOT_PANEL,VARIABLE='Temp2DK',OPLOTVAR='Temp2DG',PSYM=GaussSym
      TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DG',PSYM=GaussSym
 
-     IF ~KEYWORD_SET(GRL) THEN BEGIN
+     IF ~(KEYWORD_SET(GRL) OR KEYWORD_SET(JGR__kappa2)) THEN BEGIN
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;,PSYM=BRO
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings',PSYM=kappaSym
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='feta',PSYM=GaussSym
@@ -1854,7 +1868,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         TPLOT_PANEL,VARIABLE='Dens2DK',OPLOTVAR='Dens2DD',PSYM=dataSym
      ENDIF
 
-     IF ~KEYWORD_SET(GRL) THEN BEGIN
+     IF ~(KEYWORD_SET(GRL) OR KEYWORD_SET(JGR__kappa2)) THEN BEGIN
 
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='fourcheese' ;PSYM=BRO
         TPLOT_PANEL,VARIABLE='onecheese',OPLOTVAR='toppings',PSYM=kappaSym

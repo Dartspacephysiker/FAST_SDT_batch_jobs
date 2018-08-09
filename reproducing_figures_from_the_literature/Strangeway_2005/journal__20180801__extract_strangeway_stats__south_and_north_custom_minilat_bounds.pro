@@ -12,7 +12,7 @@ PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
 
   simple_60_assumption = 1
 
-  night_instead = 1
+  night_instead = 0
 
   CASE 1 OF
      KEYWORD_SET(south): BEGIN
