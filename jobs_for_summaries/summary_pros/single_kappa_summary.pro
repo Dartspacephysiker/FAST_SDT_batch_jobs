@@ -56,6 +56,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          ADD_PARM_ERRORS__NROLLS=add_parm_errors__nRolls, $
                          ADD_PARM_ERRORS__USE_MOST_PROB=add_parm_errors__use_most_prob, $
                          IONEVENTS=ionEvents, $                             
+                         MSPH_SOURCECONE_HALFWIDTH=msph_sourcecone_halfWidth, $
                          FIT2DPARMERRFILE=fit2DParmErrFile, $
                          FIT2DPARMERRDIR=fit2DParmErrDir, $
                          TIMEBARS=timeBars, $
@@ -221,80 +222,91 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   Dens2DD = {x:jvPlotData.time,y:Density,dy:DensityErr}
   Temp2DD = {x:jvPlotData.time,y:Temperature,dy:TemperatureErr}
 
+  IF KEYWORD_SET(msph_sourcecone_halfWidth) THEN BEGIN
+     fac = CEIL(90./msph_sourcecone_halfWidth)
+     Dens2DD.y = Dens2DD.y * fac
+     Dens2DD.dy = Dens2DD.dy * fac
+  ENDIF
+
   IF KEYWORD_SET(add_parm_errors_from_file) THEN BEGIN
 
      ParmUncertainty_2D = 1
      ParmUncert_2D__useMostProbK = KEYWORD_SET(add_parm_errors__use_most_prob)
      ParmUncert_2D__useMostProbG = KEYWORD_SET(add_parm_errors__use_most_prob)
 
-     ;; fit2DParmErrFile = fit2DParmErrFile.Replace('20180118',GET_TODAY_STRING)
-     fit2DParmErrFileIn = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + $
-                          STRMID(fit2DParmErrFile, $
-                                 8, $
-                                 STRLEN(fit2DParmErrFile)-8)
-
-     IF KEYWORD_SET(ParmUncertainty_2D) THEN BEGIN
-        fit2DParmErrFileIn = fit2DParmErrFileIn.Replace('-2DPARMERRORS','-2DPARMERRORS_TWOSIDED')
-     ENDIF
-     nRolls = KEYWORD_SET(add_parm_errors__nRolls) ? $
-              add_parm_errors__nRolls              : $
-              1000
-     fit2DParmErrFileIn = fit2DParmErrFileIn.Replace('.sav', $
-                                                     STRING(FORMAT='("-",I0,"Rolls.sav")',nRolls))
-
-     searchbackward1month = 1
-
-     remaining = KEYWORD_SET(searchbackward1month) ? 30 : 0
-
      foundParmErrFile = 0
-     tmpParmErrFile   = fit2DParmErrFileIn
-     WHILE ~foundParmErrFile AND remaining GT -1 DO BEGIN
-
-        IF FILE_TEST(fit2DParmErrDir+tmpParmErrFile) THEN BEGIN
-
+     IF SIZE(add_parm_errors_from_file,/TYPE) EQ 7 THEN BEGIN
+        IF FILE_TEST(add_parm_errors_from_file) THEN BEGIN
            foundParmErrFile = 1
-           fit2DParmErrFileIn      = TEMPORARY(tmpParmErrFile)
-           
-           PRINT,'Restoring ' + fit2DParmErrFileIn + ' ...'
-           RESTORE,fit2DParmErrDir+fit2DParmErrFileIn
-           restored_fit2DParmErrFileIn = 1B
-           ;; just_diff_eFlux  = 1B
-
-           ;;And diff eFlux
-           ;; RESTORE,fit2DParmErrDir+'/diff_eFlux/'+diff_eFlux_file
-
+           RESTORE,add_parm_errors_from_file
         ENDIF ELSE BEGIN
-           ;; PRINT,"Couldn't get file!"
-           ;; STOP
-           date = (STRSPLIT(tmpParmErrFile,'-',/EXTRACT))
-           rest = STRJOIN(date[1:-1],'-')
-           date = date[0]
-           dd   = FIX(STRMID(date,STRLEN(date)-2,2))
-           mm   = FIX(STRMID(date,STRLEN(date)-4,2))
-           jahr = FIX(STRMID(date,STRLEN(date)-8,4))
-
-           CASE 1 OF
-              ((dd EQ 1) AND (mm EQ 1)): BEGIN
-                 jahr--
-                 dd = 31
-                 mm = 12
-              END
-              (dd EQ 1): BEGIN
-                 dd = 31
-                 mm--
-              END
-              ELSE: BEGIN
-                 dd--
-              END
-           ENDCASE
-           
-           tmpParmErrFile = STRJOIN([STRING(FORMAT='(I04,I02,I02)',jahr,mm,dd),rest],'-')
-
-           remaining--
-
+           PRINT,"Is this right? It looks like you provided a parmErr filename, but I can't find the file ..."
+           STOP
         ENDELSE
-        
-     ENDWHILE
+     ENDIF
+
+     IF ~foundParmErrFile THEN BEGIN
+        fit2DParmErrFileIn = GET_TODAY_STRING(/DO_YYYYMMDD_FMT) + $
+                             STRMID(fit2DParmErrFile, $
+                                    8, $
+                                    STRLEN(fit2DParmErrFile)-8)
+
+        IF KEYWORD_SET(ParmUncertainty_2D) THEN BEGIN
+           fit2DParmErrFileIn = fit2DParmErrFileIn.Replace('-2DPARMERRORS','-2DPARMERRORS_TWOSIDED')
+        ENDIF
+        nRolls = KEYWORD_SET(add_parm_errors__nRolls) ? $
+                 add_parm_errors__nRolls              : $
+                 1000
+        fit2DParmErrFileIn = fit2DParmErrFileIn.Replace('.sav', $
+                                                        STRING(FORMAT='("-",I0,"Rolls.sav")',nRolls))
+
+        searchbackward1month = 1
+
+        remaining = KEYWORD_SET(searchbackward1month) ? 30 : 0
+
+        tmpParmErrFile   = fit2DParmErrFileIn
+        WHILE ~foundParmErrFile AND remaining GT -1 DO BEGIN
+
+           IF FILE_TEST(fit2DParmErrDir+tmpParmErrFile) THEN BEGIN
+
+              foundParmErrFile = 1
+              fit2DParmErrFileIn      = TEMPORARY(tmpParmErrFile)
+              
+              PRINT,'Restoring ' + fit2DParmErrFileIn + ' ...'
+              RESTORE,fit2DParmErrDir+fit2DParmErrFileIn
+
+           ENDIF ELSE BEGIN
+              date = (STRSPLIT(tmpParmErrFile,'-',/EXTRACT))
+              rest = STRJOIN(date[1:-1],'-')
+              date = date[0]
+              dd   = FIX(STRMID(date,STRLEN(date)-2,2))
+              mm   = FIX(STRMID(date,STRLEN(date)-4,2))
+              jahr = FIX(STRMID(date,STRLEN(date)-8,4))
+
+              CASE 1 OF
+                 ((dd EQ 1) AND (mm EQ 1)): BEGIN
+                    jahr--
+                    dd = 31
+                    mm = 12
+                 END
+                 (dd EQ 1): BEGIN
+                    dd = 31
+                    mm--
+                 END
+                 ELSE: BEGIN
+                    dd--
+                 END
+              ENDCASE
+              
+              tmpParmErrFile = STRJOIN([STRING(FORMAT='(I04,I02,I02)',jahr,mm,dd),rest],'-')
+
+              remaining--
+
+           ENDELSE
+           
+        ENDWHILE
+
+     ENDIF
 
      IF ~foundParmErrFile THEN BEGIN
         PRINT,"Couldn't get file!"
@@ -387,8 +399,11 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      Temp2DK = k2DParms.temperature
      Temp2DG = g2DParms.temperature
 
-     Dens2DK = k2DParms.N
-     Dens2DG = g2DParms.N
+     ;; Dens2DK = k2DParms.N
+     ;; Dens2DG = g2DParms.N
+
+     Dens2DK = fit2DKappa_inf_list[*].fitMoms.scDens
+     Dens2DG = fit2DGauss_inf_list[*].fitMoms.scDens
 
      IF KEYWORD_SET(ParmUncert_2D__useMostProbK) THEN BEGIN
 
@@ -789,10 +804,16 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
              (MIN(data.y[WHERE(FINITE(data.y))]) > eSpecLogLims[0] ), $
              (MAX(data.y[WHERE(FINITE(data.y))]) < eSpecLogLims[1]),0
         ylim,var_name,0,360,0
+        ;; keV version
+        ;; OPTIONS,var_name,'ytitle','Electrons > ' $
+        ;;         + STRING(FORMAT='(F0.1)', $
+        ;;                energy_electrons[0]/1000.) $
+        ;;         + ' keV!C!CAngle (Deg.)'
+        ;; eV version
         OPTIONS,var_name,'ytitle','Electrons > ' $
-                + STRING(FORMAT='(F0.1)', $
-                       energy_electrons[0]/1000.) $
-                + ' keV!C!CAngle (Deg.)'
+                + STRING(FORMAT='(I2)', $
+                       energy_electrons[0]) $
+                + ' eV!C!CAngle (Deg.)'
         OPTIONS,var_name,'ztitle',specLogUnitsString
         OPTIONS,var_name,'x_no_interp',1
         OPTIONS,var_name,'y_no_interp',1
@@ -1915,10 +1936,16 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         CASE NDIMEN(tBars) OF
            1: BEGIN
 
+              use_colours = 0
+              colours = [poiple,darkRed,green,blue,poiple]
+              use_lineStyles = 1
+              lineStyles = [1,2,5,0] ;dotted, dashed, long dashes, solid
+
               FOR k=0,N_ELEMENTS(tBars)-1 DO BEGIN
                  TIMEBAR,tBars[k], $
                          THICK=3.0, $
-                         COLOR=red
+                         LINESTYLE=(KEYWORD_SET(use_lineStyles) ? lineStyles[0] : !NULL), $
+                         COLOR=(KEYWORD_SET(use_colours) ? colours[0] : !NULL)
               ENDFOR
 
            END

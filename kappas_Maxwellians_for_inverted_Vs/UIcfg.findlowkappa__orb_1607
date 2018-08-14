@@ -1,6 +1,6 @@
 *
 Header :this is the 'findlowkappa__orb_1607' configuration file
-Header :created on Sat Jun  9 01:47:23 2018
+Header :created on Fri Aug 10 04:48:51 2018
 *
 *
 Description : 
@@ -10,17 +10,17 @@ Description :
 Configuration
 {
 Config Name:			'findlowkappa__orb_1607'
-Config MenuPosition:		52, -7
+Config MenuPosition:		15, -6
 Config MenuSize:		155, 150
 Config DefaultSourceId:	'?'
-Config CurrentPlotWindow:	'findlowkappa__orb_1612:0 - DA'
+Config CurrentPlotWindow:	'findlowkappa__orb_1607:0 - DA'
 
 	PlotWinStandard
 	{
-	PlotWin Name:		'findlowkappa__orb_1612:0 - DA'
-	PlotWin Position:	52, -7
-	PlotWin Size:		1299, 713
-	PlotWin PlotsPage:	12
+	PlotWin Name:		'findlowkappa__orb_1607:0 - DA'
+	PlotWin Position:	263, 166
+	PlotWin Size:		1274, 691
+	PlotWin PlotsPage:	3
 	PlotWin TopPlotOfPage:	'Eesa Survey:  Energy'
 	PlotWin DefaultDataBaseResponse:	2450466 1380.05 2450466 9370.98 'FNMLine 8'
    '/FASTdata_2/FAST_JB_2/FAST243_ORBIT1603/lzp/fast_lzp_DSS-29_orbit1607_r'
