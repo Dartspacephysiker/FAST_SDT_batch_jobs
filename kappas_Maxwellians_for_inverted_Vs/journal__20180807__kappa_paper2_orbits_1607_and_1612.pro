@@ -319,7 +319,12 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
      ;; debug__skip_to_this_time  = '1997-01-17/01:04:41'
      ;; debug__break_on_this_time = '1997-01-17/01:04:41'
 
-     disable_msph_sc_dens = 30
+     disable_msph_sc_dens = 45
+
+     ;; New thing
+     ;; enforce_diff_eFlux_sRate = 1.89
+     ;; enforce_diff_eFlux_sRate = 0.95
+     enforce_diff_eFlux_sRate = 0.63
 
      minElecEnergy       = 80
      energy_electrons[0] = minElecEnergy
@@ -334,10 +339,6 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
 
      ;; cAP_tRanges = dato + [['01:04:24.276','01:04:49.521']]
      cAP_tRanges = dato + [['01:04:28.0','01:04:41.3']] ;2018/06/11
-
-
-     ;; New thing
-     enforce_diff_eFlux_sRate = 1.89
 
      add_parm_errors = 0
      IF KEYWORD_SET(add_parm_errors) THEN BEGIN
@@ -497,9 +498,12 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
      enforce_diff_eFlux_sRate = 1.25
 
      nPkAbove_dEF_thresh = 0    ;Without this we end up excluding fits during the interval of interest (2018/08/14)
+     lowDens_thresh = 0.01      ;Because we're doing the disable_msph_sc_dens thing
 
      ;; debug__skip_to_this_time  = '1997-10-28/09:06:51.4'
      ;; debug__break_on_this_time = '1997-10-28/09:06:51.4'
+     debug__skip_to_this_time  = '1997-10-28/09:06:31.4'
+     debug__break_on_this_time = '1997-10-28/09:06:31.4'
 
      minElecEnergy       = 120
      energy_electrons[0] = minElecEnergy
@@ -523,13 +527,14 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
 
      ;; cAP__iu_pot_tids = cAP_tRanges
 
-     add_parm_errors = 0
+     add_parm_errors = 1
      IF KEYWORD_SET(add_parm_errors) THEN BEGIN
         kSum__add_parm_errors_from_file      = 1
-        kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20180810-orb_1607-KandGfits-ees-2NDKAPPA-only_fit_peak_eRange-sRate1_89-01_03_50__000-01_06_15__000-2DPARMERRORS_TWOSIDED-10000Rolls.sav'
+        kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20180815-orb_4682-KandGfits-ees-2NDKAPPA-only_fit_peak_eRange-sRate1_25-09_05_40__000-09_06_55__000-2DPARMERRORS_TWOSIDED-10000Rolls.sav'
 
         kSum__add_parm_errors__nRolls        = 10000
         kSum__add_parm_errors__use_most_prob = 1
+        kSum__add_parm_errors__densMom__not_fit_param = 0
      ENDIF
 
   ENDIF
@@ -547,7 +552,7 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
   ;;Thresholds for inclusion
   ;; chi2_thresh          = 1.5e4
   chi2_over_dof_thresh = 100
-  lowDens_thresh       = 0.05
+  lowDens_thresh       = KEYWORD_SET(lowDens_thresh) ? lowDens_thresh : 0.05
   diffEflux_thresh     = N_ELEMENTS(diffEflux_thresh   ) GT 0 ? diffEflux_thresh    : 3D6
   nPkAbove_dEF_thresh  = N_ELEMENTS(nPkAbove_dEF_thresh) GT 0 ? nPkAbove_dEF_thresh : 3
 
@@ -767,6 +772,7 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
                         KSUM__ADD_PARM_ERRORS_FROM_FILE=kSum__add_parm_errors_from_file, $
                         KSUM__ADD_PARM_ERRORS__NROLLS=kSum__add_parm_errors__nRolls, $
                         KSUM__ADD_PARM_ERRORS__USE_MOST_PROB=kSum__add_parm_errors__use_most_prob, $
+                        KSUM__ADD_PARM_ERRORS__DENSMOM__NOT_FIT_PARAM=kSum__add_parm_errors__densMom__not_fit_param, $
                         KSUM__TIMEBAR_FROM_ION_BEAMS=kSum__timeBar_from_ion_beams, $
                         KSUM__MSPH_SOURCECONE_HALFWIDTH=kSum__msph_sourcecone_halfWidth, $
                         OUT_FIT2DK=fit2DK, $

@@ -55,6 +55,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          ADD_PARM_ERRORS_FROM_FILE=add_parm_errors_from_file, $
                          ADD_PARM_ERRORS__NROLLS=add_parm_errors__nRolls, $
                          ADD_PARM_ERRORS__USE_MOST_PROB=add_parm_errors__use_most_prob, $
+                         ADD_PARM_ERRORS__DENSMOM__NOT_FIT_PARAM=add_parm_errors__densMom__not_fit_param, $
                          IONEVENTS=ionEvents, $                             
                          MSPH_SOURCECONE_HALFWIDTH=msph_sourcecone_halfWidth, $
                          FIT2DPARMERRFILE=fit2DParmErrFile, $
@@ -359,8 +360,16 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         Temp2DKErr[matchieK,*]   = TRANSPOSE(k2DParmErr.temperature[*,matchieK2] )
         Temp2DGErr[matchieG,*]   = TRANSPOSE(g2DParmErr.temperature[*,matchieG2] )
 
-        Dens2DKErr[matchieK,*]   = TRANSPOSE(k2DParmErr.N[*,matchieK2]           )
-        Dens2DGErr[matchieG,*]   = TRANSPOSE(g2DParmErr.N[*,matchieG2]           )
+        CASE 1 OF
+           KEYWORD_SET(add_parm_errors__densMom__not_fit_param): BEGIN
+              Dens2DKErr[matchieK,*]   = TRANSPOSE(k2DParmErr.N2[*,matchieK2]    )
+              Dens2DGErr[matchieG,*]   = TRANSPOSE(g2DParmErr.N2[*,matchieG2]    )
+           END
+           ELSE: BEGIN
+              Dens2DKErr[matchieK,*]   = TRANSPOSE(k2DParmErr.N[*,matchieK2]     )
+              Dens2DGErr[matchieG,*]   = TRANSPOSE(g2DParmErr.N[*,matchieG2]     )
+           END
+        ENDCASE
 
      ENDIF ELSE BEGIN
 
@@ -399,18 +408,36 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
      Temp2DK = k2DParms.temperature
      Temp2DG = g2DParms.temperature
 
-     ;; Dens2DK = k2DParms.N
-     ;; Dens2DG = g2DParms.N
+     Dens2DK = k2DParms.N
+     Dens2DG = g2DParms.N
 
-     Dens2DK = fit2DKappa_inf_list[*].fitMoms.scDens
-     Dens2DG = fit2DGauss_inf_list[*].fitMoms.scDens
+     ;; Dens2DK = fit2DKappa_inf_list[*].fitMoms.scDens
+     ;; Dens2DG = fit2DGauss_inf_list[*].fitMoms.scDens
 
      IF KEYWORD_SET(ParmUncert_2D__useMostProbK) THEN BEGIN
+
+        IF KEYWORD_SET(timeBars) THEN BEGIN
+           these = S2T(timeBars)
+           this  = WHERE(k2DParmErr.time GE these[0] AND k2DParmErr.time LE these[1])
+           IF this[0] NE -1 THEN BEGIN
+              PRINT,MEAN(k2DParmErr.mostProb.temperature[this],/NAN)
+              PRINT,MEDIAN(k2DParmErr.mostProb.temperature[this])
+              PRINT,MEAN(g2DParmErr.mostProb.temperature[this],/NAN)
+              PRINT,MEDIAN(g2DParmErr.mostProb.temperature[this])
+           ENDIF
+        ENDIF
 
         k2DVals[matchieK]  = k2DParmErr.mostProb.kappa[matchieK2]
         BlkE2DK[matchieK]  = k2DParmErr.mostProb.bulk_energy[matchieK2]
         Temp2DK[matchieK]  = k2DParmErr.mostProb.temperature[matchieK2]
-        Dens2DK[matchieK]  = k2DParmErr.mostProb.N[matchieK2]
+        CASE 1 OF
+           KEYWORD_SET(add_parm_errors__densMom__not_fit_param): BEGIN
+              Dens2DK[matchieK]  = k2DParmErr.mostProb.N2[matchieK2]
+           END
+           ELSE: BEGIN
+              Dens2DK[matchieK]  = k2DParmErr.mostProb.N[matchieK2]
+           END
+        ENDCASE
 
      ENDIF
 
@@ -418,7 +445,14 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
         BlkE2DG[matchieG]  = g2DParmErr.mostProb.bulk_energy[matchieG2]
         Temp2DG[matchieG]  = g2DParmErr.mostProb.temperature[matchieG2]
-        Dens2DG[matchieG]  = g2DParmErr.mostProb.N[matchieG2]
+        CASE 1 OF
+           KEYWORD_SET(add_parm_errors__densMom__not_fit_param): BEGIN
+              Dens2DG[matchieG]  = g2DParmErr.mostProb.N2[matchieG2]
+           END
+           ELSE: BEGIN
+              Dens2DG[matchieG]  = g2DParmErr.mostProb.N[matchieG2]
+           END
+        ENDCASE
 
      ENDIF
 
