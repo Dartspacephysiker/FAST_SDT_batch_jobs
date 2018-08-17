@@ -127,10 +127,34 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
 
 ;; 2018/03/12 For super low kappa
   IF orbit EQ 1607 AND nToSkip EQ 0 THEN BEGIN
+     ;; New thing
+     enforce_diff_eFlux_sRate = 0.31
+     ;; enforce_diff_eFlux_sRate = 0.95
+     ;; enforce_diff_eFlux_sRate = 0.63
+
      tmpDate     = '1997-01-17/'
-     t1          = S2T(tmpDate + '01:03:53.988')
-     t2          = S2T(tmpDate + '01:06:15')
+     ;; t1          = S2T(tmpDate + '01:03:53.988')
+     ;; t2          = S2T(tmpDate + '01:06:15')
      ;;More stuff for orbit 1607 below
+     CASE enforce_diff_eFlux_sRate OF
+        0.95: BEGIN
+           t1          = S2T(tmpDate + '01:03:53.988')
+           t2          = S2T(tmpDate + '01:06:15')
+        END
+        1.89: BEGIN
+           t1          = S2T(tmpDate + '01:03:53.988')
+           t2          = S2T(tmpDate + '01:06:15')
+        END
+        0.63: BEGIN
+           t1          = S2T(tmpDate + '01:04:20.5')
+           t2          = S2T(tmpDate + '01:05:54')
+        END
+        0.31: BEGIN
+           t1          = S2T(tmpDate + '01:04:20.5')
+           t2          = S2T(tmpDate + '01:05:54')
+        END
+     ENDCASE
+
   ENDIF
 
   t1Str        = T2S(t1,/MS)
@@ -321,11 +345,6 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
 
      disable_msph_sc_dens = 45
 
-     ;; New thing
-     ;; enforce_diff_eFlux_sRate = 1.89
-     ;; enforce_diff_eFlux_sRate = 0.95
-     enforce_diff_eFlux_sRate = 0.63
-
      minElecEnergy       = 80
      energy_electrons[0] = minElecEnergy
      min_peak_energy     = minElecEnergy
@@ -343,10 +362,21 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
      add_parm_errors = 0
      IF KEYWORD_SET(add_parm_errors) THEN BEGIN
         kSum__add_parm_errors_from_file      = 1
-        kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20180810-orb_1607-KandGfits-ees-2NDKAPPA-only_fit_peak_eRange-sRate1_89-01_03_50__000-01_06_15__000-2DPARMERRORS_TWOSIDED-10000Rolls.sav'
-
-        kSum__add_parm_errors__nRolls        = 10000
+        CASE enforce_diff_eFlux_sRate OF
+           0.95: BEGIN
+              kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20180817-orb_1607-KandGfits-ees-2NDKAPPA-only_fit_peak_eRange-sRate0_95-01_03_53__988-01_06_15__000-2DPARMERRORS_TWOSIDED-5000Rolls.sav'
+           END
+           0.63: BEGIN
+              kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20180817-orb_1607-KandGfits-ees-2NDKAPPA-only_fit_peak_eRange-sRate0_63-01_04_20__500-01_05_54__000-2DPARMERRORS_TWOSIDED-5000Rolls.sav'
+           END
+           1.89: BEGIN
+              kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20180817-orb_1607-KandGfits-ees-2NDKAPPA-only_fit_peak_eRange-sRate1_89-01_03_53__988-01_06_15__000-2DPARMERRORS_TWOSIDED-5000Rolls.sav'
+           END
+        ENDCASE
+        
+        kSum__add_parm_errors__nRolls        = 5000
         kSum__add_parm_errors__use_most_prob = 1
+        kSum__add_parm_errors__densMom__not_fit_param = 1
      ENDIF
 
   ENDIF
@@ -381,7 +411,7 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
      add_parm_errors = 0
      IF KEYWORD_SET(add_parm_errors) THEN BEGIN
         kSum__add_parm_errors_from_file      = 1
-        kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20180810-orb_1607-KandGfits-ees-2NDKAPPA-only_fit_peak_eRange-sRate1_89-01_03_50__000-01_06_15__000-2DPARMERRORS_TWOSIDED-10000Rolls.sav'
+        kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
 
         kSum__add_parm_errors__nRolls        = 10000
         kSum__add_parm_errors__use_most_prob = 1
@@ -413,7 +443,7 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
      add_parm_errors = 0
      IF KEYWORD_SET(add_parm_errors) THEN BEGIN
         kSum__add_parm_errors_from_file      = 1
-        kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20180810-orb_1607-KandGfits-ees-2NDKAPPA-only_fit_peak_eRange-sRate1_89-01_03_50__000-01_06_15__000-2DPARMERRORS_TWOSIDED-10000Rolls.sav'
+        kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
 
         kSum__add_parm_errors__nRolls        = 10000
         kSum__add_parm_errors__use_most_prob = 1
@@ -447,7 +477,7 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
      add_parm_errors = 0
      IF KEYWORD_SET(add_parm_errors) THEN BEGIN
         kSum__add_parm_errors_from_file      = 1
-        kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20180810-orb_1607-KandGfits-ees-2NDKAPPA-only_fit_peak_eRange-sRate1_89-01_03_50__000-01_06_15__000-2DPARMERRORS_TWOSIDED-10000Rolls.sav'
+        kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
 
         kSum__add_parm_errors__nRolls        = 10000
         kSum__add_parm_errors__use_most_prob = 1
@@ -483,7 +513,7 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
      add_parm_errors = 0
      IF KEYWORD_SET(add_parm_errors) THEN BEGIN
         kSum__add_parm_errors_from_file      = 1
-        kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20180810-orb_1607-KandGfits-ees-2NDKAPPA-only_fit_peak_eRange-sRate1_89-01_03_50__000-01_06_15__000-2DPARMERRORS_TWOSIDED-10000Rolls.sav'
+        kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
 
         kSum__add_parm_errors__nRolls        = 10000
         kSum__add_parm_errors__use_most_prob = 1
@@ -502,15 +532,18 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
 
      ;; debug__skip_to_this_time  = '1997-10-28/09:06:51.4'
      ;; debug__break_on_this_time = '1997-10-28/09:06:51.4'
-     debug__skip_to_this_time  = '1997-10-28/09:06:31.4'
-     debug__break_on_this_time = '1997-10-28/09:06:31.4'
+     ;; debug__skip_to_this_time  = '1997-10-28/09:06:21.3'
+     ;; debug__break_on_this_time = '1997-10-28/09:06:21.3'
 
      minElecEnergy       = 120
      energy_electrons[0] = minElecEnergy
      min_peak_energy     = minElecEnergy
      min_peak_energyArr  = [minElecEnergy,1E2,7E0]
-     max_peak_energyArrf  = [2E4,2e4,1.0E3]
+     max_peak_energyArr  = [2E3,2e3,1.0E3]
 
+     energy_electrons[0] = minElecEnergy
+
+     use_electron_tBounds = 1
      use_peak_energy_bounds_for_moment_calc = 1
      peakE_bounds_indShift = [-1,0]
 
@@ -529,13 +562,36 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
 
      add_parm_errors = 1
      IF KEYWORD_SET(add_parm_errors) THEN BEGIN
-        kSum__add_parm_errors_from_file      = 1
-        kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20180815-orb_4682-KandGfits-ees-2NDKAPPA-only_fit_peak_eRange-sRate1_25-09_05_40__000-09_06_55__000-2DPARMERRORS_TWOSIDED-10000Rolls.sav'
+        kSum__add_parm_errors_from_file    = 1
+        ;; kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20180815-orb_4682-KandGfits-ees-2NDKAPPA-only_fit_peak_eRange-sRate1_25-09_05_40__000-09_06_55__000-2DPARMERRORS_TWOSIDED-10000Rolls.sav'
+        kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20180816-orb_4682-KandGfits-ees-2NDKAPPA-only_fit_peak_eRange-sRate1_25-09_05_40__000-09_06_55__000-2DPARMERRORS_TWOSIDED-5000Rolls.sav'
 
-        kSum__add_parm_errors__nRolls        = 10000
+        kSum__add_parm_errors__nRolls        = 5000
         kSum__add_parm_errors__use_most_prob = 1
-        kSum__add_parm_errors__densMom__not_fit_param = 0
+        kSum__add_parm_errors__densMom__not_fit_param = 1
      ENDIF
+
+     IF use_electron_tBounds THEN BEGIN
+
+        edgeries            = [100.,300.,100.]
+
+        energy_electrons    = [[edgeries[0],energy_electrons[1]], $
+                               [edgeries[1],energy_electrons[1]], $
+                               [edgeries[2],energy_electrons[1]]]
+
+        moment_energyArr    = [[energy_electrons[*,2]],[energy_electrons[*,2]],[10,2.4e4]]
+
+        energy_electron_tBounds = dato + [['09:05:40','09:05:55'], $ ;lb is 100
+                                          ['09:05:55','09:06:45'], $ ;lb is 300
+                                          ['09:06:45','09:06:55']]   ;lb is 100
+
+        min_peak_energy_tStruct = {tBounds : energy_electron_tBounds, $
+                                   energy  : edgeries, $
+                                   forWhom : MAKE_ARRAY(N_ELEMENTS(edgeries),VALUE=0)}
+
+     ENDIF ELSE BEGIN
+        moment_energyArr    = [[energy_electrons],[energy_electrons],[10,2.4e4]]
+     ENDELSE
 
   ENDIF
 

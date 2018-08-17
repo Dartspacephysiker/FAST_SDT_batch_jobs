@@ -420,10 +420,17 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
            these = S2T(timeBars)
            this  = WHERE(k2DParmErr.time GE these[0] AND k2DParmErr.time LE these[1])
            IF this[0] NE -1 THEN BEGIN
-              PRINT,MEAN(k2DParmErr.mostProb.temperature[this],/NAN)
-              PRINT,MEDIAN(k2DParmErr.mostProb.temperature[this])
-              PRINT,MEAN(g2DParmErr.mostProb.temperature[this],/NAN)
-              PRINT,MEDIAN(g2DParmErr.mostProb.temperature[this])
+              
+              PRINT,FORMAT='(A17,": ",G10.3)',"kFitTemp_Mean",MEAN(k2DParmErr.mostProb.temperature[this],/NAN)
+              PRINT,FORMAT='(A17,": ",G10.3)',"kFitTemp_Medn",MEDIAN(k2DParmErr.mostProb.temperature[this])
+              PRINT,FORMAT='(A17,": ",G10.3)',"gFitTemp_Mean",MEAN(g2DParmErr.mostProb.temperature[this],/NAN)
+              PRINT,FORMAT='(A17,": ",G10.3)',"gFitTemp_Medn",MEDIAN(g2DParmErr.mostProb.temperature[this])
+              PRINT,""
+              PRINT,FORMAT='(A17,": ",G10.3)',"kFitKappa_Mean",MEAN(k2DParmErr.mostProb.kappa[this],/NAN)
+              PRINT,FORMAT='(A17,": ",G10.3)',"kFitKappa_Medn",MEDIAN(k2DParmErr.mostProb.kappa[this])
+              PRINT,FORMAT='(A17,": ",G10.3)',"kFitKappa_Min",MIN(k2DParmErr.mostProb.kappa[this],/NAN)
+              PRINT,FORMAT='(A17,": ",G10.3)',"kFitKappa_Max",MAX(k2DParmErr.mostProb.kappa[this],/NAN)
+              PRINT,""
            ENDIF
         ENDIF
 
