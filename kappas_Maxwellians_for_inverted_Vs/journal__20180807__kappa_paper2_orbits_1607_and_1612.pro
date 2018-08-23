@@ -128,9 +128,9 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
 ;; 2018/03/12 For super low kappa
   IF orbit EQ 1607 AND nToSkip EQ 0 THEN BEGIN
      ;; New thing
-     enforce_diff_eFlux_sRate = 0.31
+     ;; enforce_diff_eFlux_sRate = 0.31
      ;; enforce_diff_eFlux_sRate = 0.95
-     ;; enforce_diff_eFlux_sRate = 0.63
+     enforce_diff_eFlux_sRate = 0.63
 
      tmpDate     = '1997-01-17/'
      ;; t1          = S2T(tmpDate + '01:03:53.988')
@@ -181,8 +181,8 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
   ;; fit1D__save_every_nth_plot        = 4
   ;; fit1D__save_if_kappa_below        = 3.
   fit1D__combine_plotslices_in_PDF  = 1
-  fit2D__save_all_plots             = 0
-  fit2D__show_each_candidate        = 0
+  fit2D__save_all_plots             = 1
+  fit2D__show_each_candidate        = 1
   fit2D__show_only_data             = 0
   fit2D__weighting                  = 2 ;1 = lin 2 = square
   fit2D__clampTemperature           = 0
@@ -340,8 +340,8 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
   IF orbit EQ 1607 AND (todayStr EQ '20180609' OR todayStr EQ magicToday) THEN BEGIN
 
      ;; So I can get the plot that will be Figure 3b
-     ;; debug__skip_to_this_time  = '1997-01-17/01:04:41'
-     ;; debug__break_on_this_time = '1997-01-17/01:04:41'
+     ;; debug__skip_to_this_time  = '1997-01-17/01:04:34.37'
+     ;; debug__break_on_this_time = '1997-01-17/01:04:34.37'
 
      disable_msph_sc_dens = 45
 
@@ -534,6 +534,8 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
      ;; debug__break_on_this_time = '1997-10-28/09:06:51.4'
      ;; debug__skip_to_this_time  = '1997-10-28/09:06:21.3'
      ;; debug__break_on_this_time = '1997-10-28/09:06:21.3'
+     ;; debug__skip_to_this_time  = '1997-10-28/09:06:38.9'
+     ;; debug__break_on_this_time = '1997-10-28/09:06:38.9'
 
      minElecEnergy       = 120
      energy_electrons[0] = minElecEnergy

@@ -852,7 +852,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         ;;         + ' keV!C!CAngle (Deg.)'
         ;; eV version
         OPTIONS,var_name,'ytitle','Electrons > ' $
-                + STRING(FORMAT='(I2)', $
+                + STRING(FORMAT='(I3)', $
                        energy_electrons[0]) $
                 + ' eV!C!CAngle (Deg.)'
         OPTIONS,var_name,'ztitle',specLogUnitsString
