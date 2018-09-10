@@ -58,6 +58,7 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
                          ADD_PARM_ERRORS__DENSMOM__NOT_FIT_PARAM=add_parm_errors__densMom__not_fit_param, $
                          IONEVENTS=ionEvents, $                             
                          MSPH_SOURCECONE_HALFWIDTH=msph_sourcecone_halfWidth, $
+                         ADD_LC_LINES=add_LC_lines, $
                          FIT2DPARMERRFILE=fit2DParmErrFile, $
                          FIT2DPARMERRDIR=fit2DParmErrDir, $
                          TIMEBARS=timeBars, $
@@ -875,6 +876,44 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         OPTIONS,var_name,'ytickv',[-90,0,90,180,270]
         ylim,var_name,-90,270,0
 
+        IF KEYWORD_SET(add_LC_lines) THEN BEGIN
+
+           lcLine1 = MAKE_ARRAY(nHereK,VALUE=0.)
+           lcLine2 = MAKE_ARRAY(nHereK,VALUE=0.)
+           FOR k=0,nHereK-1 DO lcLine1[k] = (fit2DKappa_inf_list[k]).angleRange[0]
+           FOR k=0,nHereK-1 DO lcLine2[k] = (fit2DGauss_inf_list[k]).angleRange[1]
+
+           changer = WHERE(lcLine1 GT 270,nChanger)
+           IF nChanger GT 0 THEN BEGIN
+              lcLine1[changer] -= 360.
+           ENDIF
+
+           changer = WHERE(lcLine2 GT 270,nChanger)
+           IF nChanger GT 0 THEN BEGIN
+              lcLine2[changer] -= 360.
+           ENDIF
+
+           ;; potLStyle = 1 ;dotted
+           ;; potLStyle = 2           ;dashed
+           LCLStyle = 1        ;solid
+           potColor  = hvit
+           ;; LCLStyle = 3 ;dash dot
+           ;; LCLStyle = 4 ;dash dot dot
+
+           varName = 'LCLine1'
+           STORE_DATA,varName,DATA={x:kappa2DTime,y:lcLine1}
+           OPTIONS,varName,'LINESTYLE',LCLStyle
+           OPTIONS,varName,'colors',potColor
+           OPTIONS,varName,'thick',3.0
+
+           varName = 'LCLine2'
+           STORE_DATA,varName,DATA={x:kappa2DTime,y:lcLine2}
+           OPTIONS,varName,'LINESTYLE',LCLStyle
+           OPTIONS,varName,'colors',potColor
+           OPTIONS,varName,'thick',3.0
+
+        ENDIF
+
         if (n_elements(tPlt_vars) eq 0) THEN tPlt_vars=[var_name] else tPlt_vars=[tPlt_vars,var_name]
 
 ; reset time limits if needed
@@ -899,7 +938,14 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
         if (KEYWORD_SET(screen_plot)) AND ~(KEYWORD_SET(save_png) OR KEYWORD_SET(save_ps)) THEN begin
            ;; LOADCT2,40
            TPLOT,tPlt_vars,VAR=['ALT','ILAT','MLT']
+
+           IF KEYWORD_SET(add_LC_lines) THEN BEGIN
+              TPLOT_PANEL,VARIABLE='Eesa_Angle',OPLOTVAR='LCLine1'
+              TPLOT_PANEL,VARIABLE='Eesa_Angle',OPLOTVAR='LCLine2'
+           ENDIF
+
         endif
+
      ENDIF
 
 ; ELECTRON ENERGY
@@ -1947,6 +1993,11 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
 
      IF KEYWORD_SET(oPlot_pot) THEN BEGIN
         TPLOT_PANEL,VARIABLE='Eesa_Energy',OPLOTVAR='potential'
+     ENDIF
+
+     IF KEYWORD_SET(add_LC_lines) THEN BEGIN
+        TPLOT_PANEL,VARIABLE='Eesa_Angle',OPLOTVAR='LCLine1'
+        TPLOT_PANEL,VARIABLE='Eesa_Angle',OPLOTVAR='LCLine2'
      ENDIF
 
      ;; ENDIF

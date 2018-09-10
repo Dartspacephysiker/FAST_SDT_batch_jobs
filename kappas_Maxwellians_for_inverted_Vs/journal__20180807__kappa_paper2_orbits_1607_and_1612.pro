@@ -1,4 +1,13 @@
 ;2018/04/16
+;; For orbit 4682
+;; date = '20180425'
+;; min_T_streakLen = 30
+;; mltRange = [-3.5,1.5]
+;; 
+;; JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,/BOTH_RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE,/NOSTRANGEWAYSUMMARY,/NOCURPOTPLOTSPLEASE,SKIPPERSDATE=skippersDate,BATCH_SETUP__DATE_OF_GENERATION=date,BATCH_SETUP__MLTRANGE=mtRange,BATCH_SETUP__MIN_T_STREAKLEN=min_T_streakLen
+;; For orbit 1607
+;; spoofDate = TODAY
+;; JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,/BOTH_RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE,/NOSTRANGEWAYSUMMARY,/NOCURPOTPLOTSPLEASE
 PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
    BOTH_RESTORE_FITFILE_AND_NO_REMAKE_JV_MASTERFILE=both_restore_fitFile_and_no_remake_jv_masterfile, $
    RESTORE_FITFILE=restore_fitFile, $
@@ -228,6 +237,7 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
   ;; kSum__GRL           = 0
   kSum__JGR__kappa2   = 1
   kSum__oPlot_pot     = 1
+  kSum__add_LC_lines  = 1
 
   kStats__save_stuff   = 1
 
@@ -252,7 +262,7 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
   min_peak_energy      = 200
   max_peak_energy      = !NULL
 
-  magicToday = '20180810' ; The day that we make the final plots for orbit 1607!
+  magicToday = '20180910' ; The day that we make the final plots for orbit 1607!
   todayStr = KEYWORD_SET(spoofDate) ? spoofDate : GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
   
   ;; For the JGR
@@ -359,7 +369,7 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
      ;; cAP_tRanges = dato + [['01:04:24.276','01:04:49.521']]
      cAP_tRanges = dato + [['01:04:28.0','01:04:41.3']] ;2018/06/11
 
-     add_parm_errors = 0
+     add_parm_errors = 1
      IF KEYWORD_SET(add_parm_errors) THEN BEGIN
         kSum__add_parm_errors_from_file      = 1
         CASE enforce_diff_eFlux_sRate OF
@@ -833,6 +843,7 @@ PRO JOURNAL__20180807__KAPPA_PAPER2_ORBITS_1607_AND_1612,orbit, $
                         KSUM__ADD_PARM_ERRORS__DENSMOM__NOT_FIT_PARAM=kSum__add_parm_errors__densMom__not_fit_param, $
                         KSUM__TIMEBAR_FROM_ION_BEAMS=kSum__timeBar_from_ion_beams, $
                         KSUM__MSPH_SOURCECONE_HALFWIDTH=kSum__msph_sourcecone_halfWidth, $
+                        KSUM__ADD_LC_LINES=kSum__add_LC_lines, $
                         OUT_FIT2DK=fit2DK, $
                         OUT_FIT2DGAUSS=fit2DG, $
                         OUT_KAPPAFIT1DSTRUCTS=kappaFit1Ds, $

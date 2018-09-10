@@ -2,22 +2,32 @@
 PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_BOUNDS, $
    SOUTH=south, $
    NORTH=north, $
-   RESTORE_LAST_FILE=restore_last_file
+   RESTORE_LAST_FILE=restore_last_file, $
+   USE_V3_STRANGEWAY=use_v3_strangeway
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
   ;; south = 1
   ;; north = 0
-  ;; restore_last_file = 1
 
   simple_60_assumption = 1
 
   night_instead = 0
 
+  ;; use_v3_strangeway = 1
+
   CASE 1 OF
      KEYWORD_SET(south): BEGIN
 
-        userDef_hashFile = 'Strangeway_et_al_2005__v2-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-SOUTH.sav'
+        CASE 1 OF
+           KEYWORD_SET(use_v3_strangeway): BEGIN
+              PRINT,"Can't!"
+              STOP
+           END
+           ELSE: BEGIN
+              userDef_hashFile = 'Strangeway_et_al_2005__v2-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-SOUTH.sav'
+           END
+        ENDCASE
 
         ;; These minILATs only apply to dayside
         minILATs = [[9443,70], $
@@ -53,7 +63,14 @@ PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
      END
      KEYWORD_SET(north): BEGIN
 
-        userDef_hashFile = 'Strangeway_et_al_2005__v2-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s.sav'
+        CASE 1 OF
+           KEYWORD_SET(use_v3_strangeway): BEGIN
+              userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s.sav'
+           END
+           ELSE: BEGIN
+              userDef_hashFile = 'Strangeway_et_al_2005__v2-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s.sav'
+           END
+        ENDCASE
 
         ;; These minILATs only apply to dayside
         minILATs = [[8260,70], $
@@ -97,14 +114,23 @@ PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
      minILATs[1,*] = 60
   ENDIF
 
-  this = EXTRACT_STRANGEWAY_STATS__V2(/AVERAGES, $
-                                      SOUTH=south, $
-                                      NORTH=north, $
-                                      DAY=~KEYWORD_SET(night_instead), $
-                                      NIGHT=KEYWORD_SET(night_instead), $
-                                      USERDEF_HASHFILE=userDef_hashFile, $
-                                      MINILAT=minILATs, $
-                                      RESTORE_LAST_FILE=restore_last_file)
+  CASE 1 OF
+     KEYWORD_SET(use_v3_strangeway): BEGIN
+        func = 'EXTRACT_STRANGEWAY_STATS__V3'
+     END
+     ELSE: BEGIN
+        func = 'EXTRACT_STRANGEWAY_STATS__V2'
+     END
+  ENDCASE
+
+  this = CALL_FUNCTION(func,/AVERAGES, $
+                       SOUTH=south, $
+                       NORTH=north, $
+                       DAY=~KEYWORD_SET(night_instead), $
+                       NIGHT=KEYWORD_SET(night_instead), $
+                       USERDEF_HASHFILE=userDef_hashFile, $
+                       MINILAT=minILATs, $
+                       RESTORE_LAST_FILE=restore_last_file)
 
 
 END
