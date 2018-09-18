@@ -14,6 +14,17 @@
 ;*****************************
 ;Put code here:
 
+;; PRE 20180801
+;; STRANGEWAY_2005__V2,/SAVE_PS, $
+;;                     IONSPECS_UPDOWNMINRATIO=1, $
+;;                     IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
+;;                     /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
+;;                     /STRANGEWAY_2005_FIG3_PLOT; , $
+;;                     ;; /ONLY_LEEWARD_IONS
+
+;; POST 20180801
+;; for  bonusSuff = '-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-SOUTH'
+
 thresh_eFlux = 5e5
 enforce_this_sample_rate = 1.25
 STRANGEWAY_2005__V3,/SAVE_PS, $

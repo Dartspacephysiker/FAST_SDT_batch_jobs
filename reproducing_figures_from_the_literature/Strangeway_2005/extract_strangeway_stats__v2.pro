@@ -396,7 +396,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
    PLOTDIR=plotDir, $
    PLOTS_PREFIX=plots_prefix, $
    SQUARE_WINDOW=square_window, $
-   NO_PLOTS=no_plots
+   NO_PLOTS=no_plots, $
+   OUT_PLOTINFO=plotInfo
 
   COMPILE_OPT IDL2
 
@@ -404,7 +405,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
   ;;The originals are here. I started experimenting 2017/05/20
   ;; outflowMinLog10 = 5  ;No longer relevant, since the new methodology does a gooder job
   ptsMinOutflow   = 1
-  allowableGap    = 180 ;seconds
+  allowableGap    = 300 ;seconds
   ;; min_streakLen_t = 3 ;;At least 30, right?
 
   ;; outflowMinLog10 = 6.0
@@ -1548,60 +1549,59 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
                     jee       : avgStruct.ptcl.jee.y.(avgInd)  [sw_i], $
                     ji        : avgStruct.ptcl.ji.y.avg   [sw_i]}
 
+     IF N_ELEMENTS(xQuants) EQ 0 THEN BEGIN
+        xQuants = [1,2,3,4,5,6,7,8,9]
+     ENDIF
+
+     plotInfo  = {xQuants       : xQuants, $
+                  xTitle        : ["", $
+                                   "EAlongV [AC] (mV/m)", $
+                                   "Cross-track B [AC] (nT)", $
+                                   "Poynting FluxB [DC] (mW/m^2)", $
+                                   "Poynting FluxP [DC] (mW/m^2)", $
+                                   "Poynting FluxB [AC] (mW/m^2)", $
+                                   "Poynting FluxP [AC] (mW/m^2)", $
+                                   "Average ELF amplitude [DC] (V/m)", $
+                                   ;; "Average ELF amplitude [AC] (V/m)", $
+                                   "Average Electron Flux (#/cm$^2$/s)", $
+                                   "Average Electron Energy Flux (mW/m$^2$)", $
+                                   "Ion Flux (#/cm!U2!N/s)"] + avgTypeString, $
+                  xRange        : [[0.,0.], $
+                                   [1e0,1e3], $
+                                   [1e-1,1e2], $
+                                   [1e-1,1e2], $
+                                   [1e-1,1e2], $
+                                   [1e-4,1e0], $
+                                   [1e-4,1e0], $
+                                   [1e-3,1e-1], $
+                                   ;; [1e-5,1e-2], $
+                                   [1e7,1e10], $
+                                   [1e-2,1e0], $                                    
+                                   [1e6,1e10]], $
+                  yTitle        : "Ion Flux (#/cm!U2!N/s)", $
+                  yData         : finStruct.ji, $
+                  yRange        : [1e6,1e10], $
+                  plotNames     : ["", $
+                                   "EAlongVAC__vs__ionNumFlux", $
+                                   "CrossTrackBAC__vs__ionNumFlux", $
+                                   "DC_Poynting_fluxB__vs__ionNumFlux", $
+                                   "AC_Poynting_fluxB__vs__ionNumFlux", $
+                                   "DC_Poynting_fluxP__vs__ionNumFlux", $
+                                   "AC_Poynting_fluxP__vs__ionNumFlux", $
+                                   "ELF_amplitudeDC__vs__ionNumFlux", $
+                                   ;; "ELF_amplitudeAC__vs__ionNumFlux", $
+                                   "eNumFlux__vs__ionNumFlux", $
+                                   "eFlux__vs__ionNumFlux", $
+                                   "Ion Flux (#/cm!U2!N/s)"], $
+                  canonPref     : 'Strangeway_2005_Appendix_A--', $
+                  plotDirSuff   : '/Strangeway_et_al_2005--Appendix_A', $
+                  plots_prefix  : (KEYWORD_SET(bonusSuff) ? bonusSuff : '') + $ 
+                  defs.statStr+'--'+defs.sideStr+'--'+defs.hemStr+'--' + $
+                  avgTypeString, $
+                  verboten      : [0], $
+                  navn_verboten : ["Orbit    (ind 0)"]}
+
      IF ~KEYWORD_SET(no_plots) THEN BEGIN
-
-        IF N_ELEMENTS(xQuants) EQ 0 THEN BEGIN
-           xQuants = [1,2,3,4,5,6,7,8,9]
-        ENDIF
-
-        plotInfo  = {xQuants       : xQuants, $
-                     xTitle        : ["", $
-                                      "EAlongV [AC] (mV/m)", $
-                                      "Cross-track B [AC] (nT)", $
-                                      "Poynting FluxB [DC] (mW/m^2)", $
-                                      "Poynting FluxP [DC] (mW/m^2)", $
-                                      "Poynting FluxB [AC] (mW/m^2)", $
-                                      "Poynting FluxP [AC] (mW/m^2)", $
-                                      "Average ELF amplitude [DC] (V/m)", $
-                                      ;; "Average ELF amplitude [AC] (V/m)", $
-                                      "Average Electron Flux (#/cm$^2$/s)", $
-                                      "Average Electron Energy Flux (mW/m$^2$)", $
-                                      "Ion Flux (#/cm!U2!N/s)"] + avgTypeString, $
-                     xRange        : [[0.,0.], $
-                                      [1e0,1e3], $
-                                      [1e-1,1e3], $
-                                      [1e-1,1e2], $
-                                      [1e-1,1e2], $
-                                      [1e-4,1e0], $
-                                      [1e-4,1e0], $
-                                      [1e-3,1e-1], $
-                                      ;; [1e-5,1e-2], $
-                                      [1e7,1e10], $
-                                      [1e-2,1e0], $                                    
-                                      [1e6,1e10]], $
-                     yTitle        : "Ion Flux (#/cm!U2!N/s)", $
-                     yData         : finStruct.ji, $
-                     yRange        : [1e6,1e10], $
-                     plotNames     : ["", $
-                                      "EAlongVAC__vs__ionNumFlux", $
-                                      "CrossTrackBAC__vs__ionNumFlux", $
-                                      "DC_Poynting_fluxB__vs__ionNumFlux", $
-                                      "AC_Poynting_fluxB__vs__ionNumFlux", $
-                                      "DC_Poynting_fluxP__vs__ionNumFlux", $
-                                      "AC_Poynting_fluxP__vs__ionNumFlux", $
-                                      "ELF_amplitudeDC__vs__ionNumFlux", $
-                                      ;; "ELF_amplitudeAC__vs__ionNumFlux", $
-                                      "eNumFlux__vs__ionNumFlux", $
-                                      "eFlux__vs__ionNumFlux", $
-                                      "Ion Flux (#/cm!U2!N/s)"], $
-                     canonPref     : 'Strangeway_2005_Appendix_A--', $
-                     plotDirSuff   : '/Strangeway_et_al_2005--Appendix_A', $
-                     plots_prefix  : (KEYWORD_SET(bonusSuff) ? bonusSuff : '') + $ 
-                     defs.statStr+'--'+defs.sideStr+'--'+defs.hemStr+'--' + $
-                     avgTypeString, $
-                     verboten      : [0], $
-                     navn_verboten : ["Orbit    (ind 0)"]}
-
 
         PLOT_STRANGEWAY_STATS, $
            finStruct, $

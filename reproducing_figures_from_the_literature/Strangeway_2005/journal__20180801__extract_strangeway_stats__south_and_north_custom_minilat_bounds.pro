@@ -3,7 +3,10 @@ PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
    SOUTH=south, $
    NORTH=north, $
    RESTORE_LAST_FILE=restore_last_file, $
-   USE_V3_STRANGEWAY=use_v3_strangeway
+   USE_V3_STRANGEWAY=use_v3_strangeway, $
+   OUT_STATS=this, $
+   OUT_PLOTINFO=plotInfo, $
+   NO_PLOTS=no_plots
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -21,8 +24,45 @@ PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
 
         CASE 1 OF
            KEYWORD_SET(use_v3_strangeway): BEGIN
-              PRINT,"Can't!"
-              STOP
+              ;; PRINT,"Can't!"
+              ;; STOP
+           userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s.sav'
+
+           skip_these_orbs =  [8260, $
+                               8261, $
+                               8262, $
+                               8263, $
+                               8264, $
+                               8265, $
+                               8266, $
+                               8267, $
+                               8268, $
+                               8269, $
+                               8270, $
+                               8271, $
+                               8272, $
+                               8273, $
+                               8274, $
+                               8275, $
+                               8276, $
+                               8277, $
+                               8278, $
+                               8279, $
+                               8280, $
+                               8281, $
+                               8282, $
+                               8283, $
+                               8284, $
+                               8285, $
+                               8286, $
+                               8287, $
+                               8288, $
+                               8289, $
+                               8290, $
+                               8291, $
+                               8292]
+
+
            END
            ELSE: BEGIN
               userDef_hashFile = 'Strangeway_et_al_2005__v2-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-SOUTH.sav'
@@ -66,6 +106,37 @@ PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
         CASE 1 OF
            KEYWORD_SET(use_v3_strangeway): BEGIN
               userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s.sav'
+
+              skip_these_orbs = [9443, $
+                                 9444, $
+                                 9452, $
+                                 9454, $
+                                 9457, $
+                                 9463, $
+                                 9465, $
+                                 9472, $
+                                 9474, $
+                                 9475, $
+                                 9476, $
+                                 9477, $
+                                 9478, $
+                                 9479, $
+                                 9480, $
+                                 9483, $
+                                 9485, $
+                                 9486, $
+                                 9487, $
+                                 9488, $
+                                 9489, $
+                                 9490, $
+                                 9493, $
+                                 9495, $
+                                 9497, $
+                                 9498, $
+                                 9504, $
+                                 9506, $
+                                 9517]
+
            END
            ELSE: BEGIN
               userDef_hashFile = 'Strangeway_et_al_2005__v2-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s.sav'
@@ -126,11 +197,14 @@ PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
   this = CALL_FUNCTION(func,/AVERAGES, $
                        SOUTH=south, $
                        NORTH=north, $
+                       SKIP_THESE_ORBS=skip_these_orbs, $
                        DAY=~KEYWORD_SET(night_instead), $
                        NIGHT=KEYWORD_SET(night_instead), $
                        USERDEF_HASHFILE=userDef_hashFile, $
                        MINILAT=minILATs, $
-                       RESTORE_LAST_FILE=restore_last_file)
+                       RESTORE_LAST_FILE=restore_last_file, $
+                       OUT_PLOTINFO=plotInfo, $
+                       NO_PLOTS=no_plots)
 
 
 END

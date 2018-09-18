@@ -7,6 +7,7 @@ FUNCTION SETUP_TAGNAMES_AND_INDICES,tmpStruct, $
                                     EAVind,ENBind,EDSPind,EIENBind, $
                                     HJEeInd,HJeInd,HJiInd, $
                                     HMomNeInd,HMomCEInd,HMomTInd, $
+                                    HMomJEeInd,HMomJeInd, $
                                     PPind,PVind,PBind,have_included_pFlux
 
   strucTags    = TAG_NAMES(tmpStruct)
@@ -40,7 +41,7 @@ FUNCTION SETUP_TAGNAMES_AND_INDICES,tmpStruct, $
   Btags        = TAG_NAMES(tmpStruct.(Bind))
   Etags        = TAG_NAMES(tmpStruct.(Eind))
   Htags        = TAG_NAMES(tmpStruct.(Hind))
-  HMomtags     = TAG_NAMES(tmpStruct.(HMomind).allpa)
+  HMomtags     = TAG_NAMES(tmpStruct.(HMomind).lcpa)
   ;; Ptags        = TAG_NAMES(tmpStruct.pFlux)
   Ptags        = ['p','v','b']
   ;; IF KEYWORD_SET(full_pFlux) THEN Ptags = [Ptags,'v']
@@ -62,6 +63,9 @@ FUNCTION SETUP_TAGNAMES_AND_INDICES,tmpStruct, $
   HMomNeInd    = (WHERE(STRUPCASE(HMomtags)EQ 'N'              ))[0]
   HMomCEInd    = (WHERE(STRUPCASE(HMomtags)EQ 'CHARE'          ))[0]
   HMomTInd     = (WHERE(STRUPCASE(HMomtags)EQ 'T'              ))[0]
+
+  HMomJeInd    = (WHERE(STRUPCASE(HMomtags)EQ 'J'             ))[0]
+  HMomJEeInd   = (WHERE(STRUPCASE(HMomtags)EQ 'JE'            ))[0]
 
   IF have_included_pFlux THEN BEGIN
      PPind     = (WHERE(STRUPCASE(Ptags) EQ 'P'                ))[0]
@@ -85,7 +89,8 @@ FUNCTION SETUP_TAGNAMES_AND_INDICES,tmpStruct, $
   ;; nPTags       = N_ELEMENTS(Ptags)
   nPTags       = ( PPind   GE 0 ? 1 : 0 ) + ( PVind   GE 0 ? 1 : 0 ) + ( PBind    GE 0 ? 1 : 0 )
 
-  nHMomTags    = (HMomNeInd GE 0 ? 1 : 0 ) + (HMomCEInd GE 0 ? 1 : 0 ) + (HMomTInd  GE 0 ? 1 : 0 )
+  nHMomTags    = (HMomNeInd GE 0 ? 1 : 0 ) + (HMomCEInd GE 0 ? 1 : 0 ) + (HMomTInd  GE 0 ? 1 : 0 ) $
+                 + (HMomJEeInd  GE 0 ? 1 : 0 ) + (HMomJeInd  GE 0 ? 1 : 0 )
 
   RETURN,0
 
@@ -417,7 +422,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
    PLOTDIR=plotDir, $
    PLOTS_PREFIX=plots_prefix, $
    SQUARE_WINDOW=square_window, $
-   NO_PLOTS=no_plots
+   NO_PLOTS=no_plots, $
+   OUT_PLOTINFO=plotInfo
 
   COMPILE_OPT IDL2
 
@@ -425,7 +431,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
   ;;The originals are here. I started experimenting 2017/05/20
   ;; outflowMinLog10 = 5  ;No longer relevant, since the new methodology does a gooder job
   ptsMinOutflow   = 1
-  allowableGap    = 180 ;seconds
+  allowableGap    = 300 ;seconds
   ;; min_streakLen_t = 3 ;;At least 30, right?
 
   ;; outflowMinLog10 = 6.0
@@ -483,6 +489,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                                                EAVind,ENBind,EDSPind,EIENBind, $
                                                HJEeInd,HJeInd,HJiInd, $
                                                HMomNeInd,HMomCEInd,HMomTInd, $
+                                               HMomJEeInd,HMomJeInd, $
                                                PPind,PVind,PBind,have_included_pFlux)
 
 ;; SETUP_TAGNAMES_AND_INDICES( $
@@ -1167,9 +1174,11 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                                               [tmpStruct[k].(Hind).(HJeInd).y[strkInds]], $
                                               [tmpJi.y[strkInds]]]
 
-                 ofloItvlHMomArr[arrInds,*] = [[tmpStruct[k].(HMomind).allpa.(HMomNeInd)[strkInds]], $
-                                              [tmpStruct[k].(HMomind).allpa.(HMomCEInd)[strkInds]], $
-                                              [tmpStruct[k].(HMomind).allpa.(HMomTInd)[strkInds]]]
+                 ofloItvlHMomArr[arrInds,*] = [[tmpStruct[k].(HMomind).lcpa.(HMomNeInd)[strkInds]], $
+                                              [tmpStruct[k].(HMomind).lcpa.(HMomCEInd)[strkInds]], $
+                                              [tmpStruct[k].(HMomind).lcpa.(HMomTInd)[strkInds]], $
+                                              [tmpStruct[k].(HMomind).lcpa.(HMomJEeInd)[strkInds]], $
+                                              [tmpStruct[k].(HMomind).lcpa.(HMomJeInd)[strkInds]]]
 
                  ofloItvlPtCnt += lens[l] + 1
 
@@ -1471,27 +1480,35 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
      ;; abs:HACAbsAvg[*,2]}})
 
      HMomAvg = CREATE_STRUCT('densE',{y:{avg:HMomAvg[*,0], $
-                                    pos:HMomPosAvg[*,0], $
-                                    neg:HMomNegAvg[*,0], $
-                                    abs:HMomAbsAvg[*,0]}}, $
-                          ;; abs:HMomAbsAvg[*,0]}, $
-                          ;; AC:{avg:HMomACAvg[*,0], $
-                          ;; pos:HMomACPosAvg[*,0], $
-                          ;; neg:HMomACNegAvg[*,0], $
-                          ;; abs:HMomACAbsAvg[*,0]}}, $
-                          'CEe',{y:{avg:HMomAvg[*,1], $
-                                   pos:HMomPosAvg[*,1], $
-                                   neg:HMomNegAvg[*,1], $
-                                   abs:HMomAbsAvg[*,1]}}, $
-                          ;; abs:HMomAbsAvg[*,1]}, $
-                          ;; AC:{avg:HMomACAvg[*,1], $
-                          ;; pos:HMomACPosAvg[*,1], $
-                          ;; neg:HMomACNegAvg[*,1], $
-                          ;; abs:HMomACAbsAvg[*,1]}}, $
-                          'Te',{y:{avg:HMomAvg[*,2], $
+                                         pos:HMomPosAvg[*,0], $
+                                         neg:HMomNegAvg[*,0], $
+                                         abs:HMomAbsAvg[*,0]}}, $
+                             ;; abs:HMomAbsAvg[*,0]}, $
+                             ;; AC:{avg:HMomACAvg[*,0], $
+                             ;; pos:HMomACPosAvg[*,0], $
+                             ;; neg:HMomACNegAvg[*,0], $
+                             ;; abs:HMomACAbsAvg[*,0]}}, $
+                             'CEe',{y:{avg:HMomAvg[*,1], $
+                                       pos:HMomPosAvg[*,1], $
+                                       neg:HMomNegAvg[*,1], $
+                                       abs:HMomAbsAvg[*,1]}}, $
+                             ;; abs:HMomAbsAvg[*,1]}, $
+                             ;; AC:{avg:HMomACAvg[*,1], $
+                             ;; pos:HMomACPosAvg[*,1], $
+                             ;; neg:HMomACNegAvg[*,1], $
+                             ;; abs:HMomACAbsAvg[*,1]}}, $
+                             'Te',{y:{avg:HMomAvg[*,2], $
                                    pos:HMomPosAvg[*,2], $
                                    neg:HMomNegAvg[*,2], $
-                                   abs:HMomAbsAvg[*,2]}})
+                                      abs:HMomAbsAvg[*,2]}}, $
+                             'JEe',{y:{avg:HMomAvg[*,3], $
+                                       pos:HMomPosAvg[*,3], $
+                                       neg:HMomNegAvg[*,3], $
+                                       abs:HMomAbsAvg[*,3]}}, $
+                             'Je',{y:{avg:HMomAvg[*,4], $
+                                       pos:HMomPosAvg[*,4], $
+                                       neg:HMomNegAvg[*,4], $
+                                       abs:HMomAbsAvg[*,4]}})
 
      avgStruct = {orbit  : (swHash.Keys()).ToArray(), $
                   dB     : TEMPORARY(dBAvg), $
@@ -1552,8 +1569,10 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                           'Ji',{y:HArr[*,2]})
 
      HMomArr = CREATE_STRUCT('densE',{y:HMomArr[*,0]}, $
-                          'CEe',{y:HMomArr[*,1]}, $
-                          'Te',{y:HMomArr[*,2]})
+                             'CEe',{y:HMomArr[*,1]}, $
+                             'Te',{y:HMomArr[*,2]}, $
+                             'JEe',{y:HMomArr[*,3]}, $
+                             'Je',{y:HMomArr[*,4]})
 
      pts = {orbit:orbArr, $
             interval:itvlArr, $
@@ -1651,69 +1670,71 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                     pFAlongPAC: avgStruct.pFlux.P.AC.(avgInd) [sw_i], $
                     DSPDC     : avgStruct.E.DSP.y.(avgInd)[sw_i], $
                     ;; DSPAC     : avgStruct.E.DSP.AC.(avgInd)   [sw_i], $
-                    je        : avgStruct.ptcl.je.y.(avgInd)   [sw_i], $
-                    jee       : avgStruct.ptcl.jee.y.(avgInd)  [sw_i], $
+                    ;; je        : avgStruct.ptcl.je.y.(avgInd)   [sw_i], $
+                    ;; jee       : avgStruct.ptcl.jee.y.(avgInd)  [sw_i], $
+                    je        : avgStruct.ptclMom.je.y.(avgInd)   [sw_i], $
+                    jee       : avgStruct.ptclMom.jee.y.(avgInd)  [sw_i], $
                     ji        : avgStruct.ptcl.ji.y.avg   [sw_i], $
                     densE     : avgStruct.ptclMom.densE.y.(avgInd)  [sw_i]}
 
+     IF N_ELEMENTS(xQuants) EQ 0 THEN BEGIN
+        ;; xQuants = [1,2,3,4,5,6,7,8,9,11]
+        xQuants = [1,2,3,5,8,9,11]
+     ENDIF
+
+     plotInfo  = {xQuants       : xQuants, $
+                  xTitle        : ["", $
+                                   "EAlongV [AC] (mV/m)", $
+                                   "Cross-track B [AC] (nT)", $
+                                   "Poynting FluxB [DC] (mW/m^2)", $
+                                   "Poynting FluxP [DC] (mW/m^2)", $
+                                   "Poynting FluxB [AC] (mW/m^2)", $
+                                   "Poynting FluxP [AC] (mW/m^2)", $
+                                   "Average ELF amplitude [DC] (V/m)", $
+                                   ;; "Average ELF amplitude [AC] (V/m)", $
+                                   "Average Electron Flux (#/cm$^2$/s)", $
+                                   "Average Electron Energy Flux (mW/m$^2$)", $
+                                   "Ion Flux (#/cm!U2!N/s)", $
+                                   "Average Electron Density (cm$^-3$)"] $
+                  + avgTypeString, $
+                  xRange        : [[0.,0.], $
+                                   [1e0,1e3], $
+                                   [1e-1,3e1], $
+                                   [1e-1,1e2], $
+                                   [1e-1,1e2], $
+                                   [1e-4,1e0], $
+                                   [1e-4,1e0], $
+                                   [1e-3,1e-1], $
+                                   ;; [1e-5,1e-2], $
+                                   [1e7,1e10], $
+                                   [1e-2,1e0], $                                    
+                                   [1e6,1e10], $                                    
+                                   [1e-1,1e2]], $
+                  yTitle        : "Ion Flux (#/cm!U2!N/s)", $
+                  yData         : finStruct.ji, $
+                  yRange        : [1e6,1e10], $
+                  plotNames     : ["", $
+                                   "EAlongVAC__vs__ionNumFlux", $
+                                   "CrossTrackBAC__vs__ionNumFlux", $
+                                   "DC_Poynting_fluxB__vs__ionNumFlux", $
+                                   "AC_Poynting_fluxB__vs__ionNumFlux", $
+                                   "DC_Poynting_fluxP__vs__ionNumFlux", $
+                                   "AC_Poynting_fluxP__vs__ionNumFlux", $
+                                   "ELF_amplitudeDC__vs__ionNumFlux", $
+                                   ;; "ELF_amplitudeAC__vs__ionNumFlux", $
+                                   "eNumFlux__vs__ionNumFlux", $
+                                   "eFlux__vs__ionNumFlux", $
+                                   "Ion Flux (#/cm!U2!N/s)", $
+                                   "Density (cm!U-3!N)"], $
+                  canonPref     : 'Strangeway_2005__v3--', $
+                  plotDirSuff   : '/Strangeway_et_al_2005__v3', $
+                  plots_prefix  : (KEYWORD_SET(bonusSuff) ? bonusSuff : '') + $ 
+                  defs.statStr+'--'+defs.sideStr+'--'+defs.hemStr+'--' + $
+                  avgTypeString, $
+                  verboten      : [0], $
+                  navn_verboten : ["Orbit    (ind 0)"]}
+
      IF ~KEYWORD_SET(no_plots) THEN BEGIN
-
-        IF N_ELEMENTS(xQuants) EQ 0 THEN BEGIN
-           ;; xQuants = [1,2,3,4,5,6,7,8,9,11]
-           xQuants = [1,2,3,5,8,9,11]
-        ENDIF
-
-        plotInfo  = {xQuants       : xQuants, $
-                     xTitle        : ["", $
-                                      "EAlongV [AC] (mV/m)", $
-                                      "Cross-track B [AC] (nT)", $
-                                      "Poynting FluxB [DC] (mW/m^2)", $
-                                      "Poynting FluxP [DC] (mW/m^2)", $
-                                      "Poynting FluxB [AC] (mW/m^2)", $
-                                      "Poynting FluxP [AC] (mW/m^2)", $
-                                      "Average ELF amplitude [DC] (V/m)", $
-                                      ;; "Average ELF amplitude [AC] (V/m)", $
-                                      "Average Electron Flux (#/cm$^2$/s)", $
-                                      "Average Electron Energy Flux (mW/m$^2$)", $
-                                      "Ion Flux (#/cm!U2!N/s)", $
-                                      "Average Electron Density (cm$^-3$)"] $
-                     + avgTypeString, $
-                     xRange        : [[0.,0.], $
-                                      [1e0,1e3], $
-                                      [1e-1,1e3], $
-                                      [1e-1,1e2], $
-                                      [1e-1,1e2], $
-                                      [1e-4,1e0], $
-                                      [1e-4,1e0], $
-                                      [1e-3,1e-1], $
-                                      ;; [1e-5,1e-2], $
-                                      [1e7,1e10], $
-                                      [1e-2,1e0], $                                    
-                                      [1e6,1e10], $                                    
-                                      [1e-2,1e2]], $
-                     yTitle        : "Ion Flux (#/cm!U2!N/s)", $
-                     yData         : finStruct.ji, $
-                     yRange        : [1e6,1e10], $
-                     plotNames     : ["", $
-                                      "EAlongVAC__vs__ionNumFlux", $
-                                      "CrossTrackBAC__vs__ionNumFlux", $
-                                      "DC_Poynting_fluxB__vs__ionNumFlux", $
-                                      "AC_Poynting_fluxB__vs__ionNumFlux", $
-                                      "DC_Poynting_fluxP__vs__ionNumFlux", $
-                                      "AC_Poynting_fluxP__vs__ionNumFlux", $
-                                      "ELF_amplitudeDC__vs__ionNumFlux", $
-                                      ;; "ELF_amplitudeAC__vs__ionNumFlux", $
-                                      "eNumFlux__vs__ionNumFlux", $
-                                      "eFlux__vs__ionNumFlux", $
-                                      "Ion Flux (#/cm!U2!N/s)", $
-                                      "Density (cm!U-3!N)"], $
-                     canonPref     : 'Strangeway_2005__v3--', $
-                     plotDirSuff   : '/Strangeway_et_al_2005__v3', $
-                     plots_prefix  : (KEYWORD_SET(bonusSuff) ? bonusSuff : '') + $ 
-                     defs.statStr+'--'+defs.sideStr+'--'+defs.hemStr+'--' + $
-                     avgTypeString, $
-                     verboten      : [0], $
-                     navn_verboten : ["Orbit    (ind 0)"]}
 
         PLOT_STRANGEWAY_STATS, $
            finStruct, $
