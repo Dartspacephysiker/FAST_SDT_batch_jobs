@@ -14,14 +14,14 @@
   IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
   IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
 
-  bonusSuff    = '-threshEFlux5e5-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s'
+  ;; bonusSuff    = '-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s'
+  ;; bonusSuff    = '-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec'
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; SOUTHERN
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   
-  ;; 20180731 Nylige valgte vaner på 9400-taller
-  ;; bonusSuff    = '-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-SOUTH'
+  bonusSuff    = '-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec-SOUTH'
 
   hashFile    += bonusSuff
   outPlotName += bonusSuff

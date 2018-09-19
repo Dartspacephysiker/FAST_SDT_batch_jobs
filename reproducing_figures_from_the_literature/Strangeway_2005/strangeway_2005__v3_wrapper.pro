@@ -16,13 +16,15 @@
 
 thresh_eFlux = 5e5
 enforce_this_sample_rate = 1.25
+energy_electrons_lb = 30
 STRANGEWAY_2005__V3,/SAVE_PS, $
                     IONSPECS_UPDOWNMINRATIO=1, $
                     IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
                     IONSPECS_THRESH_EFLUX=thresh_eFlux, $
                     /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
                     /STRANGEWAY_2005_FIG3_PLOT, $
-                    /REMAKE_DIFF_EFLUX
+                    /REMAKE_DIFF_EFLUX, $
+                    ENERGY_ELECTRONS_LB=energy_electrons_lb
 
 
 ;*****************************

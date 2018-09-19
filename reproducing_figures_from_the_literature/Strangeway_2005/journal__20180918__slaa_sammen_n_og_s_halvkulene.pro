@@ -1,36 +1,57 @@
 ;2018/09/18
-PRO JOURNAL__20180918__SLAA_SAMMEN_N_OG_S_HALVKULENE
+PRO JOURNAL__20180918__SLAA_SAMMEN_N_OG_S_HALVKULENE, $
+   NIGHT=night, $
+   RESTORE_LAST_FILE=restore_last_file, $
+   USE_V3_STRANGEWAY=use_v3_strangeway, $
+   V3__USE_ELEC_LB30EV_HASHFILE=use_elec_lb30eV_hashFile, $
+   V3__HMOM__USE_LOSSCONE_NOT_ALL_PITCHA=HMom__use_losscone_not_all_pitcha, $
+   V3__AVERAGE_OVER_WHOLE_PASS=average_over_whole_pass
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
   no_plots = 1
 
   use_v3_strangeway = 1
-  restore_last_file = 0
+  ;; restore_last_file = 0
+
+  ;; IF KEYWORD_SET(use_elec_lb30eV_hashFile) THEN BEGIN
+
+  ;;    userDef_hashFileN = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec.sav'
+  ;;    userDef_hashFileS = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec-SOUTH.sav'
+
+  ;; ENDIF
 
   JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_BOUNDS, $
      ;; SOUTH=south, $
      ;; NORTH=north, $
      /SOUTH, $
+     NIGHT=night, $
      ;; /NORTH, $
      RESTORE_LAST_FILE=restore_last_file, $
      ;; /RESTORE_LAST_FILE, $
      USE_V3_STRANGEWAY=use_v3_strangeway, $
      OUT_STATS=thisS, $
      OUT_PLOTINFO=plotInfoS, $
-     NO_PLOTS=no_plots
+     NO_PLOTS=no_plots, $
+     V3__USE_ELEC_LB30EV_HASHFILE=use_elec_lb30eV_hashFile, $
+     V3__HMOM__USE_LOSSCONE_NOT_ALL_PITCHA=HMom__use_losscone_not_all_pitcha, $
+     V3__AVERAGE_OVER_WHOLE_PASS=average_over_whole_pass
 
   JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_BOUNDS, $
      ;; SOUTH=south, $
      ;; NORTH=north, $
      ;; /SOUTH, $
      /NORTH, $
+     NIGHT=night, $
      RESTORE_LAST_FILE=restore_last_file, $
      ;; /RESTORE_LAST_FILE, $
      USE_V3_STRANGEWAY=use_v3_strangeway, $
      OUT_STATS=thisN, $
      OUT_PLOTINFO=plotInfoN, $
-     NO_PLOTS=no_plots
+     NO_PLOTS=no_plots, $
+     V3__USE_ELEC_LB30EV_HASHFILE=use_elec_lb30eV_hashFile, $
+     V3__HMOM__USE_LOSSCONE_NOT_ALL_PITCHA=HMom__use_losscone_not_all_pitcha, $
+     V3__AVERAGE_OVER_WHOLE_PASS=average_over_whole_pass
 
   CASE 1 OF
      KEYWORD_SET(use_v3_strangeway): BEGIN

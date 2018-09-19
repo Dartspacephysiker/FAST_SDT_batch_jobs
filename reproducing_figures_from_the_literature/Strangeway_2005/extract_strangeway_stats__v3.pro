@@ -8,7 +8,8 @@ FUNCTION SETUP_TAGNAMES_AND_INDICES,tmpStruct, $
                                     HJEeInd,HJeInd,HJiInd, $
                                     HMomNeInd,HMomCEInd,HMomTInd, $
                                     HMomJEeInd,HMomJeInd, $
-                                    PPind,PVind,PBind,have_included_pFlux
+                                    PPind,PVind,PBind,have_included_pFlux, $
+                                    HMOM_INDEX=HMom_index
 
   strucTags    = TAG_NAMES(tmpStruct)
 
@@ -41,7 +42,7 @@ FUNCTION SETUP_TAGNAMES_AND_INDICES,tmpStruct, $
   Btags        = TAG_NAMES(tmpStruct.(Bind))
   Etags        = TAG_NAMES(tmpStruct.(Eind))
   Htags        = TAG_NAMES(tmpStruct.(Hind))
-  HMomtags     = TAG_NAMES(tmpStruct.(HMomind).lcpa)
+  HMomtags     = TAG_NAMES(tmpStruct.(HMomind).(HMom_index))
   ;; Ptags        = TAG_NAMES(tmpStruct.pFlux)
   Ptags        = ['p','v','b']
   ;; IF KEYWORD_SET(full_pFlux) THEN Ptags = [Ptags,'v']
@@ -186,7 +187,8 @@ PRO LOCALE_ADJUSTMENTS,times, $
                        SOUTH=south, $
                        DAY=day, $
                        NIGHT=night, $
-                       MINILAT=minILAT
+                       MINILAT=minILAT, $
+                       MAXILAT=maxILAT
 
 
   IF ~(KEYWORD_SET(north) OR KEYWORD_SET(south) OR KEYWORD_SET(day) OR KEYWORD_SET(night)) THEN RETURN
@@ -207,6 +209,7 @@ PRO LOCALE_ADJUSTMENTS,times, $
   ENDIF
 
   CASE N_ELEMENTS(SIZE(minILAT,/DIMENSIONS)) OF
+     0: 
      1: BEGIN
 
         tmpMinILAT = minILAT
@@ -228,20 +231,50 @@ PRO LOCALE_ADJUSTMENTS,times, $
      tmpMinILAT = tmpMinILAT*(-1)
   ENDIF
 
+  CASE N_ELEMENTS(SIZE(maxILAT,/DIMENSIONS)) OF
+     0: 
+     1: BEGIN
+
+        tmpMaxILAT = maxILAT
+
+     END
+     2: BEGIN
+
+        this = WHERE(orbit EQ maxILAT[0,*],nThis)
+
+        IF nThis NE 1 THEN STOP
+
+        tmpMaxILAT = maxILAT[1,this]
+
+     END
+  ENDCASE
+
+  IF tmpMaxILAT LT 0 THEN BEGIN
+     PRINT,FORMAT='("Flipping sign of tmpMaxILAT = ",F4.1,"; it should be pos in any case, you know ...")',tmpMaxILAT
+     tmpMaxILAT = tmpMaxILAT*(-1)
+  ENDIF
+
   IF KEYWORD_SET(north) THEN BEGIN
 
-     hemi_i  = WHERE(ilat GE tmpMinILAT,nHemi)
-     
+     IF KEYWORD_SET(tmpMaxILAT) THEN BEGIN
+        hemi_i  = WHERE((ilat GE tmpMinILAT) AND (ilat LE tmpMaxILAT),nHemi)
+     ENDIF ELSE BEGIN
+        hemi_i  = WHERE(ilat GE tmpMinILAT,nHemi)
+     ENDELSE
+
   ENDIF ELSE IF KEYWORD_SET(south) THEN BEGIN
 
-     hemi_i  = WHERE(ilat LE -1.*tmpMinILAT,nHemi)
+     IF KEYWORD_SET(tmpMaxILAT) THEN BEGIN
+        hemi_i  = WHERE((ilat LE -1.*tmpMinILAT) AND (ilat GE -1.*tmpMaxILAT),nHemi)
+     ENDIF ELSE BEGIN
+        hemi_i  = WHERE(ilat LE -1.*tmpMinILAT,nHemi)
+     ENDELSE
 
   ENDIF ELSE BEGIN
 
      hemi_i  = WHERE(ABS(ilat) GE tmpMinILAT,nHemi)
 
   ENDELSE
-
 
   IF KEYWORD_SET(day) THEN BEGIN
 
@@ -409,13 +442,16 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
    AVERAGES=averages, $
    ;; INTEGRALS=integrals, $ ;meaningless
    SKIP_THESE_ORBS=skip_these_orbs, $
+   HMOM__USE_LOSSCONE_NOT_ALL_PITCHA=HMom__use_losscone_not_all_pitcha, $
+   AVERAGE_OVER_WHOLE_PASS=average_over_whole_pass, $
    PTS_STRUCT=pts, $
    NORTH=north, $
    SOUTH=south, $
    DAY=day, $
    NIGHT=night, $
    MINILAT=minILAT, $
-   FOLD_INTERVALS=fold_intervals, $
+   MAXILAT=maxILAT, $
+   ;; FOLD_INTERVALS=fold_intervals, $ ;Is default
    USE_INCLUDED_PFLUX=use_included_pFlux, $
    INTERP_E_B_TSERIES_TO_MAKE_PFLUX=interp_E_B_tSeries, $
    SAVE_PLOTS=save_plots, $
@@ -431,7 +467,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
   ;;The originals are here. I started experimenting 2017/05/20
   ;; outflowMinLog10 = 5  ;No longer relevant, since the new methodology does a gooder job
   ptsMinOutflow   = 1
-  allowableGap    = 300 ;seconds
+  allowableGap    = 180 ;seconds
   ;; min_streakLen_t = 3 ;;At least 30, right?
 
   ;; outflowMinLog10 = 6.0
@@ -443,6 +479,10 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
 
   ;; Can change which database to use here! There are currently three (2018/07/27)
   @strangeway_2005__defaults__v3.pro
+
+  IF N_ELEMENTS(maxILAT) EQ 0 THEN maxILAT = 90
+
+  HMom_index = KEYWORD_SET(HMom__use_losscone_not_all_pitcha) 
 
   IF KEYWORD_SET(userDef_hashFile) THEN BEGIN
      PRINT,"ACTUALLY, userDef hashFile: ",userDef_hashFile
@@ -458,9 +498,20 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
          DAY=day, $
          NIGHT=night)
 
+  allowGapStr = STRING(FORMAT='("-allowGap",I0)',allowableGap)
+  wholePassStr = ''
+  IF KEYWORD_SET(average_over_whole_pass) THEN BEGIN
+     wholePassStr = "-wholePass"
+     allowableGap = 0
+     allowGapStr = ''
+  ENDIF
+
+  HMomString = STRING(FORMAT='("-HMomIdx",I0)',HMom_index)
+
   lastFile = "last_sway_stats_v3_file" $
              +(hashFile.Replace(indivOrbPref,"")).Replace(".sav","")$
-             +defs.statStr+"-"+defs.sideStr+"-"+defs.hemStr+".sav"
+             +defs.statStr+"-"+defs.sideStr+"-"+defs.hemStr $
+             +HMomString+allowGapStr+wholePassStr+".sav"
 
   IF FILE_TEST(outDir+lastFile) AND KEYWORD_SET(restore_last_file) THEN BEGIN
 
@@ -490,7 +541,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                                                HJEeInd,HJeInd,HJiInd, $
                                                HMomNeInd,HMomCEInd,HMomTInd, $
                                                HMomJEeInd,HMomJeInd, $
-                                               PPind,PVind,PBind,have_included_pFlux)
+                                               PPind,PVind,PBind,have_included_pFlux, $
+                                               HMOM_INDEX=HMom_index)
 
 ;; SETUP_TAGNAMES_AND_INDICES( $
 ;;                  swHash[tmpKey,0], $
@@ -529,7 +581,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
      FOREACH tmpStruct, swHash, key DO BEGIN
 
         ;;Anything here?
-        IF N_ELEMENTS(tmpStruct[0]) EQ 0 THEN CONTINUE
+        IF N_ELEMENTS(tmpStruct) EQ 0 THEN CONTINUE
 
         IF KEYWORD_SET(skip_these_orbs) THEN BEGIN
            ;; FOREACH skipper,skip_these_orbs DO BEGIN
@@ -1071,6 +1123,10 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
               oflow_i = WHERE((FINITE(tmpJi.y))                         AND $
                               (tmpJi.y GT 0),nOutflow)
 
+              IF KEYWORD_SET(average_over_whole_pass) THEN BEGIN
+                 oflow_i = LINDGEN(N_ELEMENTS(tmpJi.y))
+              ENDIF
+
               IF nOutflow LT ptsMinOutflow THEN CONTINUE
 
               LOCALE_ADJUSTMENTS,(N_ELEMENTS(PUniv_TS) GT 0 ? (*PUniv_TS) : (*PH_TS)), $
@@ -1080,7 +1136,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                                  SOUTH=south, $
                                  DAY=day, $
                                  NIGHT=night, $
-                                 MINILAT=minILAT
+                                 MINILAT=minILAT, $
+                                 MAXILAT=maxILAT
 
               IF nOutflow LT ptsMinOutflow THEN CONTINUE
 
@@ -1174,11 +1231,11 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                                               [tmpStruct[k].(Hind).(HJeInd).y[strkInds]], $
                                               [tmpJi.y[strkInds]]]
 
-                 ofloItvlHMomArr[arrInds,*] = [[tmpStruct[k].(HMomind).lcpa.(HMomNeInd)[strkInds]], $
-                                              [tmpStruct[k].(HMomind).lcpa.(HMomCEInd)[strkInds]], $
-                                              [tmpStruct[k].(HMomind).lcpa.(HMomTInd)[strkInds]], $
-                                              [tmpStruct[k].(HMomind).lcpa.(HMomJEeInd)[strkInds]], $
-                                              [tmpStruct[k].(HMomind).lcpa.(HMomJeInd)[strkInds]]]
+                 ofloItvlHMomArr[arrInds,*] = [[tmpStruct[k].(HMomind).(HMom_index).(HMomNeInd)[strkInds]], $
+                                              [tmpStruct[k].(HMomind).(HMom_index).(HMomCEInd)[strkInds]], $
+                                              [tmpStruct[k].(HMomind).(HMom_index).(HMomTInd)[strkInds]], $
+                                              [tmpStruct[k].(HMomind).(HMom_index).(HMomJEeInd)[strkInds]], $
+                                              [tmpStruct[k].(HMomind).(HMom_index).(HMomJeInd)[strkInds]]]
 
                  ofloItvlPtCnt += lens[l] + 1
 
@@ -1660,6 +1717,10 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
 
      sw_i = SORT(avgStruct.orbit)
 
+     jiOutflowers = KEYWORD_SET(average_over_whole_pass) ? $
+                    avgStruct.ptcl.ji.y.avg   [sw_i]     : $
+                    avgStruct.ptcl.ji.y.avg   [sw_i]
+
      finStruct   = {orbit     : avgStruct.orbit    [sw_i], $
                     ;; interval  : avgStruct.interval [sw_i], $   
                     eAlongVAC : avgStruct.e.AlongV.AC.(avgInd) [sw_i], $   
@@ -1674,8 +1735,16 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                     ;; jee       : avgStruct.ptcl.jee.y.(avgInd)  [sw_i], $
                     je        : avgStruct.ptclMom.je.y.(avgInd)   [sw_i], $
                     jee       : avgStruct.ptclMom.jee.y.(avgInd)  [sw_i], $
-                    ji        : avgStruct.ptcl.ji.y.avg   [sw_i], $
+                    ji        : jiOutflowers, $
                     densE     : avgStruct.ptclMom.densE.y.(avgInd)  [sw_i]}
+
+     IF KEYWORD_SET(south) THEN BEGIN
+        finStruct.dB_perpAC  *= -1.
+        finStruct.pFAlongBDC *= -1.
+        finStruct.pFAlongBAC *= -1.
+        finStruct.pFAlongPDC *= -1.
+        finStruct.pFAlongPAC *= -1.
+     ENDIF
 
      IF N_ELEMENTS(xQuants) EQ 0 THEN BEGIN
         ;; xQuants = [1,2,3,4,5,6,7,8,9,11]

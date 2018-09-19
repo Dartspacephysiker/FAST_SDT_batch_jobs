@@ -2,31 +2,44 @@
 PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_BOUNDS, $
    SOUTH=south, $
    NORTH=north, $
+   NIGHT=night, $
    RESTORE_LAST_FILE=restore_last_file, $
    USE_V3_STRANGEWAY=use_v3_strangeway, $
+   V3__USE_ELEC_LB30EV_HASHFILE=use_elec_lb30eV_hashFile, $
+   V3__HMOM__USE_LOSSCONE_NOT_ALL_PITCHA=HMom__use_losscone_not_all_pitcha, $
+   V3__AVERAGE_OVER_WHOLE_PASS=average_over_whole_pass, $
    OUT_STATS=this, $
    OUT_PLOTINFO=plotInfo, $
    NO_PLOTS=no_plots
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
+  ;; USE KEYWORDS
   ;; south = 1
-  ;; north = 0
+  ;; north = 1
 
   simple_60_assumption = 1
 
-  night_instead = 0
+  ;; night = 0
 
+  ;; USE KEYWORDS
   ;; use_v3_strangeway = 1
+  ;; use_elec_lb30eV_hashFile = 1
 
   CASE 1 OF
      KEYWORD_SET(south): BEGIN
 
         CASE 1 OF
            KEYWORD_SET(use_v3_strangeway): BEGIN
-              ;; PRINT,"Can't!"
-              ;; STOP
-           userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s.sav'
+
+              CASE 1 OF
+                 KEYWORD_SET(use_elec_lb30eV_hashFile): BEGIN
+                    userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec-SOUTH.sav'
+                 END
+                 ELSE: BEGIN
+                    userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s.sav'
+                 END
+              ENDCASE
 
            skip_these_orbs =  [8260, $
                                8261, $
@@ -105,7 +118,15 @@ PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
 
         CASE 1 OF
            KEYWORD_SET(use_v3_strangeway): BEGIN
-              userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s.sav'
+
+              CASE 1 OF
+                 KEYWORD_SET(use_elec_lb30eV_hashFile): BEGIN
+                    userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec.sav'
+                 END
+                 ELSE: BEGIN
+                    userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s.sav'
+                 END
+              ENDCASE
 
               skip_these_orbs = [9443, $
                                  9444, $
@@ -181,8 +202,16 @@ PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
   ENDCASE
 
   IF KEYWORD_SET(simple_60_assumption) THEN BEGIN
-     PRINT,"Simple assumption that ILAT lower limit for ion upflow is 60 deg ..."
-     minILATs[1,*] = 60
+     CASE 1 OF
+        KEYWORD_SET(south): BEGIN
+           PRINT,"Simple assumption that ILAT lower limit for ion upflow is 65 deg ..."
+           minILATs[1,*] = 60
+        END
+        KEYWORD_SET(north): BEGIN
+           PRINT,"Simple assumption that ILAT lower limit for ion upflow is 60 deg ..."
+           minILATs[1,*] = 60
+        END
+     ENDCASE
   ENDIF
 
   CASE 1 OF
@@ -198,13 +227,15 @@ PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
                        SOUTH=south, $
                        NORTH=north, $
                        SKIP_THESE_ORBS=skip_these_orbs, $
-                       DAY=~KEYWORD_SET(night_instead), $
-                       NIGHT=KEYWORD_SET(night_instead), $
+                       DAY=~KEYWORD_SET(night), $
+                       NIGHT=KEYWORD_SET(night), $
                        USERDEF_HASHFILE=userDef_hashFile, $
                        MINILAT=minILATs, $
                        RESTORE_LAST_FILE=restore_last_file, $
                        OUT_PLOTINFO=plotInfo, $
-                       NO_PLOTS=no_plots)
+                       NO_PLOTS=no_plots, $
+                       HMOM__USE_LOSSCONE_NOT_ALL_PITCHA=HMom__use_losscone_not_all_pitcha, $
+                       AVERAGE_OVER_WHOLE_PASS=average_over_whole_pass)
 
 
 END

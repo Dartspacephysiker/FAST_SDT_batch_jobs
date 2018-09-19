@@ -24,7 +24,9 @@ PRO STRANGEWAY_2005__V3, $
    SAVE_PS=save_ps, $
    BATCH_MODE=batch_mode, $
    SKIP_EXISTING_IN_HASH=skip_existing_in_hash, $
-   REMAKE_DIFF_EFLUX=remake_diff_eFlux
+   REMAKE_DIFF_EFLUX=remake_diff_eFlux, $
+   FORCE_SH_TBOUNDS_FOR_JE=force_SH_tBounds_for_je, $
+   ENERGY_ELECTRONS_LB=energy_electrons_lb
 
 ; create a summary plot of:
 ; SFA (AKR)
@@ -97,6 +99,10 @@ PRO STRANGEWAY_2005__V3, $
   ;; energy_ions       = [4,120.]
   energy_electrons  = [50,30400.]
   energy_electronsforSCPot = [0,30400.]
+
+  IF KEYWORD_SET(energy_electrons_lb) THEN BEGIN
+     energy_electronsforSCPot[0] = energy_electrons_lb
+  ENDIF
 
   ctNum = 43
 
@@ -256,13 +262,25 @@ PRO STRANGEWAY_2005__V3, $
         RETURN
      ENDIF
 
+     IF KEYWORD_SET(force_SH_tBounds_for_je) THEN BEGIN
+        GET_FA_ORBIT,je_pristine.x,/TIME_ARRAY,/DEFINITIVE,/ALL,STRUC=struc
+        
+        north_south = LONG(ABS(struc.ilat)/struc.ilat)
+
+        keep = WHERE(north_south EQ -1,nKeep)
+
+        IF nKeep EQ 0 THEN STOP
+
+        je_pristine = {x: je_pristine.x[keep], $
+                       y: je_pristine.y[keep]}
+        GET_FA_ORBIT,je_pristine.x,/TIME_ARRAY,/DEFINITIVE,/ALL,STRUC=struc
+     ENDIF
 
      je_tBounds = [je_pristine.x[0],je_pristine.x[-1]]
      ;; je_tBounds = [ionMomStruct.x[0],ionMomStruct.x[-1]]
      PRINT,FORMAT='(A0,T35,A0,", ",A0)',"ionMomStruct beginning/end : ", $
            TIME_TO_STR(je_tBounds[0],/MSEC), $
            TIME_TO_STR(je_tBounds[1],/MSEC)
-
 
 ;  if orbit > 9936 return (temporary fix)
 
@@ -413,7 +431,7 @@ PRO STRANGEWAY_2005__V3, $
   names_2dt = ['JEe','Je']
 
   ngsgn_2dt = [0,0]
-  enrgy_2dt = [[energy_electrons],[energy_electrons]]
+  ;; enrgy_2dt = [[energy_electrons],[energy_electrons]]
   titls_2dt = ['Electron!CEnergy Flux!CmW/(m!U2!N)', $
                'Electron Flux!C!C#/(cm!U2!N-s)']
   lims_2dt  = [[-1.,6.,0],[-5.e9,1.5e10,0]]
@@ -519,13 +537,15 @@ PRO STRANGEWAY_2005__V3, $
   ;; ENDIF
 
   elec_min_if_nan_scpots = 30.
+  minEn_if_no_sc_pot = 30.
   energy = MAKE_ENERGY_ARRAYS__FOR_DIFF_EFLUX( $
            elec_dEF, $
            ENERGY=elec_dEF_energy, $
            SC_POT=sc_pot, $
            EEB_OR_EES=eeb_or_ees, $
            ARRAY_OF_STRUCTS_INSTEAD=diffEFlux__array_of_structs, $
-           MIN_IF_NAN_SCPOTS=elec_min_if_nan_scpots)
+           MIN_IF_NAN_SCPOTS=elec_min_if_nan_scpots, $
+           MINEN_IF_NO_SC_POT=minEn_if_no_sc_pot)
 
   ;; NOTE, MOMENT_SUITE_2D ensures that earthward fluxes are positive
 

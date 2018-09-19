@@ -397,7 +397,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V2, $
    PLOTS_PREFIX=plots_prefix, $
    SQUARE_WINDOW=square_window, $
    NO_PLOTS=no_plots, $
-   OUT_PLOTINFO=plotInfo
+   OUT_PLOTINFO=plotInfo, $
+   _EXTRA=e                     ;Exists because of journal__20180801__extract_strangeway_stats__south_and_north_custom_minilat_bounds.pro: I want to use CALL_FUNCTION to call both this and V3, but only V3 has the HMOM keyword
 
   COMPILE_OPT IDL2
 
