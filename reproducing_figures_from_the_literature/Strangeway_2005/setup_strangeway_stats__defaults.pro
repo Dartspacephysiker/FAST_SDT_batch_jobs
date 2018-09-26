@@ -5,7 +5,9 @@ FUNCTION SETUP_STRANGEWAY_STATS__DEFAULTS, $
    NORTH=north, $
    SOUTH=south, $
    DAY=day, $
-   NIGHT=night
+   NIGHT=night, $
+   MINMLT=minMLT, $
+   MAXMLT=maxMLT
 
   COMPILE_OPT IDL2
 
@@ -37,8 +39,37 @@ FUNCTION SETUP_STRANGEWAY_STATS__DEFAULTS, $
         sideStr = 'night'
      END
      ELSE: BEGIN
-        side    = 0
-        sideStr = 'day_n_night'
+
+        CASE 1 OF
+           (N_ELEMENTS(minMLT) GT 0 AND N_ELEMENTS(maxMLT) GT 0): BEGIN
+
+              sideStr = STRING(FORMAT='("-",I02,"-",I02,"MLT")', $
+                               minMLT, $
+                               maxMLT)
+              side = 3
+
+           END
+           N_ELEMENTS(minMLT) GT 0: BEGIN
+
+              sideStr = STRING(FORMAT='("-",I02,"-",I02,"MLT")', $
+                               minMLT, $
+                               24)
+              side = 3
+
+           END
+           N_ELEMENTS(maxMLT) GT 0: BEGIN
+
+              sideStr = STRING(FORMAT='("-",I02,"-",I02,"MLT")', $
+                               0, $
+                               maxMLT)
+              side = 3
+
+           END
+           ELSE: BEGIN
+              side    = 0
+              sideStr = 'day_n_night'
+           END
+        ENDCASE
      END
   ENDCASE
 

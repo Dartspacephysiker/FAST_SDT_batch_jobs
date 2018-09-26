@@ -45,7 +45,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
      SET_PLOT_DIR,outPlotDir,/FOR_SDT,ADD_SUFF='/as6_spectral/'
   ENDIF
 
-  IF N_ELEMENTS(full_pFlux         ) EQ 0 THEN full_pFlux          = 1
+  IF N_ELEMENTS(full_pFlux         ) EQ 0 THEN full_pFlux          = 0
   IF N_ELEMENTS(include_E_near_B   ) EQ 0 THEN include_E_near_B    = KEYWORD_SET(full_pFlux)
   IF N_ELEMENTS(ucla_mag_despin    ) EQ 0 THEN ucla_mag_despin     = 1
   IF N_ELEMENTS(below_auroral_oval ) EQ 0 THEN below_auroral_oval  = 1
@@ -91,9 +91,13 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
   ;;(See section with the same label below to investigate how I came up with these)
   BSpecThresh    = 0.01          ;in     nT^2/Hz
   ESpecThresh    = 0.01          ;in (mV/m)^2/Hz
+
+  pFSpecThresh   = 0.0          ;meaningless?
   ;;...And thresholds on integrated spectra
-  BIntegThresh   = 0.2           ; in nT
-  EIntegThresh   = 0.2           ; in mV/m
+  ;; BIntegThresh   = 0.2           ; in nT
+  ;; EIntegThresh   = 0.2           ; in mV/m
+  BIntegThresh   = 1.0           ; in nT
+  EIntegThresh   = 1.0           ; in mV/m
   ebAlfRat       = 10.0
 
   ;;Other screenings
@@ -616,6 +620,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         filtdBB  = MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0)
         filtdBv  = MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0)
         filteAV  = MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0)
+        filtpFB  = MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0)
         filteNB  = KEYWORD_SET(include_E_near_B) ? $
                    MAKE_ARRAY(N_ELEMENTS(magz.y),VALUE=0.0) : !NULL
 
@@ -682,6 +687,16 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                          UNITS_NAME   : 'mV/m'                , $
                          CALIBRATED   : 1}
 
+           pFB        = {TIME         : magz.x[tmpI]          , $
+                         COMP1        : magz.y[tmpI]*eAVInterpDat[tmpI]/mu_0*1e-9    , $
+                         NCOMP        : 1                     , $
+                         DATA_NAME    : 'pFBpreFilt'          , $
+                         VALID        : 1                     , $
+                         PROJECT_NAME : 'FAST'                , $
+                         UNITS_NAME   : 'mW/m^2'              , $
+                         CALIBRATED   : 1}
+
+
            FA_FIELDS_FILTER,dBp,freqBounds[*,k], $
                             DB=FFTdb, $
                             POLES=[lowPole,highPole]
@@ -695,15 +710,21 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                             DB=FFTdb, $
                             POLES=[lowPole,highPole]
 
+           FA_FIELDS_FILTER,pFB,freqBounds[*,k], $
+                            DB=FFTdb, $
+                            POLES=[lowPole,highPole]
+
            dBp.comp1[WHERE(~FINITE(dBp.comp1))]             = 0.
            dBB.comp1[WHERE(~FINITE(dBB.comp1))]             = 0.
            dBv.comp1[WHERE(~FINITE(dBv.comp1))]             = 0.
            eAVInterp.comp1[WHERE(~FINITE(eAVInterp.comp1))] = 0.
+           pfB.comp1[WHERE(~FINITE(pFB.comp1))]             = 0.
 
            filtdBp[tmpI]  = dBp.comp1
            filtdBB[tmpI]  = dBB.comp1
            filtdBv[tmpI]  = dBv.comp1
            filteAV[tmpI]  = eAVInterp.comp1
+           filtpFB[tmpI]  = pFB.comp1
 
            IF KEYWORD_SET(include_E_near_B) THEN BEGIN
               tmpG    = {TIME         : magz.x[tmpI]       , $
@@ -772,6 +793,15 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                         UNITS_NAME   : 'mV/m'              , $
                         CALIBRATED   : 1}
         
+        pFAlongBFilt = {TIME         : magz.x              , $
+                        COMP1        : filtpFB             , $
+                        NCOMP        : 1                   , $
+                        VALID        : 1                   , $
+                        DATA_NAME    :'PFB_intrpFilt'      , $
+                        PROJECT_NAME : 'FAST'              , $
+                        UNITS_NAME   : 'mW/m^2'            , $
+                        CALIBRATED   : 1}
+
         IF KEYWORD_SET(include_E_near_B) THEN BEGIN
            eNearBTmp   = {TIME         :  eNearB.x      , $
                           COMP1        :  eNearB.y      , $
@@ -836,6 +866,16 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                                  SLIDE=FFTSlide, $
                                  SPECTHRESHVAL=ESpecThresh
 
+        TRANSFORM_CLEAN_AND_LOAD,pFAlongBFilt, $
+                                 /STORE, $
+                                 T_NAME='PFBSpecFilt', $
+                                 PANEL_NAME='pFBFilt', $
+                                 STRUCTURE=pFBSpecFilt, $
+                                 NPTS=FFTLen, $
+                                 N_AVE=nFFTAvg, $
+                                 SLIDE=FFTSlide, $
+                                 SPECTHRESHVAL=pFSpecThresh
+
         IF KEYWORD_SET(include_E_near_B) THEN BEGIN
            ;; spec = FA_FIELDS_SPEC(eNearBFilt, $
            TRANSFORM_CLEAN_AND_LOAD,eNearBTmp, $
@@ -861,6 +901,8 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
         IF ~KEYWORD_SET(no_plots) THEN BEGIN
 
            PREP_AND_PLOT_AS6_TPLOTS, $
+              T1=tmpT1, $
+              T2=tmpT2, $
               DBPSPEC=dBpSpec, $
               MSPECFILT=dBpSpecFilt, $
               EAVSPEC=eAVSpec, $
@@ -905,7 +947,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                  STORE_DATA,'alfTimes',DATA={x:MAXIMUS__times[great_i], $
                                              y:MAKE_ARRAY(nOrb,VALUE=10)}
                  OPTIONS,'alfTimes','psym',1 ;Plus
-                 TPLOT_PANEL,VARIABLE='dBpSpecFilt',OPLOTVAR='alfTimes'
+                 TPLOT_PANEL,VARIABLE='dBpSpecFilt',OPLOTVAR='alfTimes',PSYM=1
               ENDIF
 
               ;; PRINT,maximus.time[great_i]
@@ -1003,6 +1045,115 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
 
         PRINT,'Got ' + STRCOMPRESS(nWinPts,/REMOVE_ALL) + ' winning indices !'
 
+        ;; Get the Alfvénic time periods
+        GET_STREAKS,winFFT_i,START_I=winFFT_start_ii,STOP_I=winFFT_stop_ii, $
+                    OUT_STREAKLENS=winFFTStreakLens,SINGLE_I=winFFT_single_ii
+
+        CASE 1 OF 
+           winFFT_single_ii[0] EQ -1: BEGIN
+
+              totalAlfStreaks = N_ELEMENTS(winFFT_start_ii)
+
+              alfStartStopTimes = MAKE_ARRAY(2,totalAlfStreaks,/DOUBLE)
+
+              FOR ll=0,totalAlfStreaks-1 DO BEGIN
+                 ;; Indexes into magz.x
+                 tIndStart = FFTBin_i[0,winFFT_i[winFFT_start_ii[ll]]]
+                 tIndStop  = FFTBin_i[1,winFFT_i[winFFT_stop_ii[ll]]]
+                 alfStartStopTimes[*,ll] = [magz.x[tIndStart],magz.x[tIndStop]]
+              ENDFOR
+
+           END
+           ELSE: BEGIN
+
+              totalAlfStreaks = N_ELEMENTS(winFFT_start_ii) + N_ELEMENTS(winFFT_single_ii)
+
+              alfStartStopTimes = MAKE_ARRAY(2,totalAlfStreaks,/DOUBLE)              
+              startStopInd = 0
+              singleInd    = 0
+
+              tmpStart_ii = winFFT_start_ii
+              tmpStop_ii  = winFFT_stop_ii
+              tmpSingle_ii = winFFT_single_ii
+              FOR ll=0,totalAlfStreaks-1 DO BEGIN
+
+                 ;; Check if we have any more
+                 nStart  = N_ELEMENTS(tmpStart_ii)
+                 nSingle = N_ELEMENTS(tmpSingle_ii)
+
+                 CASE 1 OF
+                    (nStart GT 0) AND (nSingle GT 0): BEGIN
+
+                       IF tmpStart_ii[0] LT tmpSingle_ii[0] THEN BEGIN
+                          fftInd_ii = [tmpStart_ii[0],tmpStop_ii[0]]
+
+                          ;; Clear these if only one left
+                          IF nStart EQ 1 THEN BEGIN
+                             tmpStart_ii = !NULL
+                             tmpStop_ii  = !NULL
+                          ENDIF ELSE BEGIN
+                             ;; Else just peel one off
+                             tmpStart_ii = tmpStart_ii[1:-1]
+                             tmpStop_ii  = tmpStop_ii [1:-1]
+                          ENDELSE
+                          
+                       ENDIF ELSE BEGIN
+
+                          fftInd_ii = [tmpSingle_ii[0],tmpSingle_ii[0]]
+
+                          IF nSingle EQ 1 THEN BEGIN
+                             tmpSingle_ii = !NULL
+                          ENDIF ELSE BEGIN
+                             ;; Else just peel one off
+                             tmpSingle_ii = tmpSingle_ii[1:-1]
+                          ENDELSE
+
+                       ENDELSE
+
+
+                    END
+                    (nStart GT 0): BEGIN
+
+                       fftInd_ii = [tmpStart_ii[0],tmpStop_ii[0]]
+
+                       ;; Clear these if only one left
+                       IF nStart EQ 1 THEN BEGIN
+                          tmpStart_ii = !NULL
+                          tmpStop_ii  = !NULL
+                       ENDIF ELSE BEGIN
+                          ;; Else just peel one off
+                          tmpStart_ii = tmpStart_ii[1:-1]
+                          tmpStop_ii  = tmpStop_ii [1:-1]
+                       ENDELSE
+
+                    END
+                    (nSingle GT 0): BEGIN
+
+                       fftInd_ii = [tmpSingle_ii[0],tmpSingle_ii[0]]
+
+                       IF nSingle EQ 1 THEN BEGIN
+                          tmpSingle_ii = !NULL
+                       ENDIF ELSE BEGIN
+                          ;; Else just peel one off
+                          tmpSingle_ii = tmpSingle_ii[1:-1]
+                       ENDELSE
+
+                    END
+                 ENDCASE
+
+                 ;; Indexes into magz.x
+                 tIndStart = FFTBin_i[0,winFFT_i[fftInd_ii[0]]]
+                 tIndStop  = FFTBin_i[1,winFFT_i[fftInd_ii[1]]]
+
+                 PRINT,FORMAT='("tindStart,tIndStop:",TR3,I5,TR3,I5)',tIndStart,tIndStop
+                 ;; If I don't do the trick with tIndStop+1, the periods are short by one sample
+                 alfStartStopTimes[*,ll] = [magz.x[tIndStart],magz.x[(tIndStop+1)<(N_ELEMENTS(magz.x)-1)]]
+
+              ENDFOR
+
+           END
+        ENDCASE
+
         IF ~KEYWORD_SET(no_plots) THEN BEGIN
 
            IF KEYWORD_SET(B_and_E_specPlots) THEN BEGIN
@@ -1057,6 +1208,23 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
                                  XTICKFORMAT=xTickFormat, $
                                  XTICKUNITS=xTickUnits) 
            ENDIF
+
+        ENDIF
+
+        ;; timebars??
+        add_time_bars = 1
+        IF KEYWORD_SET(add_time_bars) THEN BEGIN
+           tBars = alfStartStopTimes
+           FOR k=0,N_ELEMENTS(tBars[0,*])-1 DO BEGIN
+              TIMEBAR,tBars[0,k], $
+                      THICK=1.0, $
+                      LINESTYLE=(KEYWORD_SET(use_lineStyles) ? lineStyles[0] : !NULL), $
+                      COLOR=(KEYWORD_SET(use_colours) ? colours[0] : !NULL)
+              TIMEBAR,tBars[1,k], $
+                      THICK=1.0, $
+                      LINESTYLE=(KEYWORD_SET(use_lineStyles) ? lineStyles[0] : !NULL), $
+                      COLOR=(KEYWORD_SET(use_colours) ? colours[0] : !NULL)
+           ENDFOR
 
         ENDIF
 
@@ -1298,7 +1466,7 @@ PRO ALFVEN_STATS_6_SPECTRAL, $
            GET_2DT_TS_POT,'j_2d_b','fa_ees',T1=tmpT1,T2=tmpT2, $
                           NAME='Je_tot',ENERGY=energy_electrons,SC_POT=sc_pot
 
-           ;;Now loss-coners
+           ;;Now loss coners
            GET_2DT_TS_POT,'je_2d_b','fa_ees',T1=tmpT1,T2=tmpT2, $
                           NAME='JEe_lc',ANGLE=e_angle, $
                           ENERGY=energy_electrons,SC_POT=sc_pot, $
@@ -1939,6 +2107,8 @@ PRO TRANSFORM_CLEAN_AND_LOAD,data, $
 END
 
 PRO PREP_AND_PLOT_AS6_TPLOTS, $
+   T1=t1, $
+   T2=t2, $
    DBPSPEC=dBpSpec, $
    MSPECFILT=dBpSpecFilt, $
    EAVSPEC=eAVSpec, $
@@ -2059,7 +2229,7 @@ PRO PREP_AND_PLOT_AS6_TPLOTS, $
 
   TPLOT,tPlotArr, $
         TRANGE=(KEYWORD_SET(t1) AND KEYWORD_SET(t2)) ? [t1,t2] : !NULL, $
-        WINDOW=myWindow
+        WINDOW=myWindow,VAR=['ALT','ILAT','MLT']
 
   TPLOT_PANEL,VARIABLE='dBpPanel',OPLOTVAR='dBpFilt'
   TPLOT_PANEL,VARIABLE='eAVPanel',OPLOTVAR='eAVFilt'

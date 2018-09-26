@@ -17,11 +17,17 @@
   ;; bonusSuff    = '-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s'
   ;; bonusSuff    = '-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec'
 
+  ;; bonusSuff    = '-threshEFlux5e5-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec'
+
+  bonusSuff    = '-threshEFlux5e5-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-50eVLBforelec'
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; SOUTHERN
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   
-  bonusSuff    = '-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec-SOUTH'
+  ;; bonusSuff    = '-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec-SOUTH'
+
+  ;; bonusSuff    = '-threshEFlux5e5-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec-SOUTH'
 
   hashFile    += bonusSuff
   outPlotName += bonusSuff

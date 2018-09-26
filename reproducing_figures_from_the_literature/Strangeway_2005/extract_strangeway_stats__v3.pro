@@ -110,7 +110,10 @@ PRO DECLARE_ARRAYS,nOrbs,nBTags,nETags,nPTags,nHTags,nHMomTags, $
                    EACAvg,EACAbsAvg,EACPosAvg,EACNegAvg, $
                    PACAvg,PACAbsAvg,PACPosAvg,PACNegAvg, $
                    HAvg,HPosAvg,HNegAvg,HAbsAvg, $
-                   HMomAvg,HMomPosAvg,HMomNegAvg,HMomAbsAvg
+                   HMomAvg,HMomPosAvg,HMomNegAvg,HMomAbsAvg, $
+                   SW_infos
+
+  COMMON SWSTATS_SWINFO,SWStat_SW_tmplt
 
   maxNElems    = 1e6
 
@@ -178,136 +181,11 @@ PRO DECLARE_ARRAYS,nOrbs,nBTags,nETags,nPTags,nHTags,nHMomTags, $
   HMomNegAvg   = MAKE_ARRAY(nOrbs,nHMomTags,/FLOAT,VALUE=0.) 
   HMomAbsAvg   = MAKE_ARRAY(nOrbs,nHMomTags,/FLOAT,VALUE=0.) 
 
-END
+  ;; Get SW conds
+  SW_info = SWAY_STATS__ADD_SW_INFO(t1, $
+                                    /INITIALIZE_STRUCT)
 
-PRO LOCALE_ADJUSTMENTS,times, $
-                       oflow_i,nOutflow, $
-                       ORBIT=orbit, $
-                       NORTH=north, $
-                       SOUTH=south, $
-                       DAY=day, $
-                       NIGHT=night, $
-                       MINILAT=minILAT, $
-                       MAXILAT=maxILAT
-
-
-  IF ~(KEYWORD_SET(north) OR KEYWORD_SET(south) OR KEYWORD_SET(day) OR KEYWORD_SET(night)) THEN RETURN
-
-  GET_FA_ORBIT,times,/TIME_ARRAY,/DEFINITIVE
-
-  IF KEYWORD_SET(north) OR KEYWORD_SET(south) THEN BEGIN
-     haveHemi = 1
-     GET_DATA,'ILAT',DATA=ilat
-     ilat = ilat.y
-     
-  ENDIF
-
-  IF KEYWORD_SET(day) OR KEYWORD_SET(night) THEN BEGIN
-     haveSide = 1
-     GET_DATA,'MLT',DATA=mlt
-     mlt = mlt.y
-  ENDIF
-
-  CASE N_ELEMENTS(SIZE(minILAT,/DIMENSIONS)) OF
-     0: 
-     1: BEGIN
-
-        tmpMinILAT = minILAT
-
-     END
-     2: BEGIN
-
-        this = WHERE(orbit EQ minILAT[0,*],nThis)
-
-        IF nThis NE 1 THEN STOP
-
-        tmpMinILAT = minILAT[1,this]
-
-     END
-  ENDCASE
-
-  IF tmpMinILAT LT 0 THEN BEGIN
-     PRINT,FORMAT='("Flipping sign of tmpMinILAT = ",F4.1,"; it should be pos in any case, you know ...")',tmpMinILAT
-     tmpMinILAT = tmpMinILAT*(-1)
-  ENDIF
-
-  CASE N_ELEMENTS(SIZE(maxILAT,/DIMENSIONS)) OF
-     0: 
-     1: BEGIN
-
-        tmpMaxILAT = maxILAT
-
-     END
-     2: BEGIN
-
-        this = WHERE(orbit EQ maxILAT[0,*],nThis)
-
-        IF nThis NE 1 THEN STOP
-
-        tmpMaxILAT = maxILAT[1,this]
-
-     END
-  ENDCASE
-
-  IF tmpMaxILAT LT 0 THEN BEGIN
-     PRINT,FORMAT='("Flipping sign of tmpMaxILAT = ",F4.1,"; it should be pos in any case, you know ...")',tmpMaxILAT
-     tmpMaxILAT = tmpMaxILAT*(-1)
-  ENDIF
-
-  IF KEYWORD_SET(north) THEN BEGIN
-
-     IF KEYWORD_SET(tmpMaxILAT) THEN BEGIN
-        hemi_i  = WHERE((ilat GE tmpMinILAT) AND (ilat LE tmpMaxILAT),nHemi)
-     ENDIF ELSE BEGIN
-        hemi_i  = WHERE(ilat GE tmpMinILAT,nHemi)
-     ENDELSE
-
-  ENDIF ELSE IF KEYWORD_SET(south) THEN BEGIN
-
-     IF KEYWORD_SET(tmpMaxILAT) THEN BEGIN
-        hemi_i  = WHERE((ilat LE -1.*tmpMinILAT) AND (ilat GE -1.*tmpMaxILAT),nHemi)
-     ENDIF ELSE BEGIN
-        hemi_i  = WHERE(ilat LE -1.*tmpMinILAT,nHemi)
-     ENDELSE
-
-  ENDIF ELSE BEGIN
-
-     hemi_i  = WHERE(ABS(ilat) GE tmpMinILAT,nHemi)
-
-  ENDELSE
-
-  IF KEYWORD_SET(day) THEN BEGIN
-
-     side_i    = WHERE(mlt GE 6.0 AND mlt LT 18.0 AND (ABS(ilat) GE tmpMinILAT),nSide)
-     
-  ENDIF ELSE BEGIN
-
-     IF KEYWORD_SET(night) THEN BEGIN
-
-        side_i    = WHERE(mlt GE 18.0 OR mlt LT 6.0 AND (ABS(ilat) GE tmpMinILAT),nSide)
-
-     ENDIF
-
-  ENDELSE
-
-  IF (nSide GT 0) AND (nHemi GT 0) THEN BEGIN
-     comb_i = CGSETINTERSECTION(hemi_i,side_i,COUNT=nComb)
-  ENDIF ELSE BEGIN
-     oflow_i = -1
-     RETURN
-  ENDELSE
-
-  IF nComb EQ 0 THEN BEGIN
-     oflow_i = -1
-     RETURN
-  ENDIF
-
-  oflow_i = CGSETINTERSECTION(comb_i,oflow_i,COUNT=nOutflow)
-
-  IF nOutflow EQ 0 THEN BEGIN
-     oflow_i = -1
-     RETURN
-  ENDIF
+  SW_infos     = REPLICATE(SWStat_SW_tmplt,nOrbs)
 
 END
 
@@ -449,6 +327,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
    SOUTH=south, $
    DAY=day, $
    NIGHT=night, $
+   MINMLT=minMLT, $
+   MAXMLT=maxMLT, $
    MINILAT=minILAT, $
    MAXILAT=maxILAT, $
    ;; FOLD_INTERVALS=fold_intervals, $ ;Is default
@@ -463,12 +343,14 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
 
   COMPILE_OPT IDL2
 
+  COMMON SWSTATS_SWINFO,SWStat_SW_tmplt
+
   ;;Some outflow defaults
   ;;The originals are here. I started experimenting 2017/05/20
   ;; outflowMinLog10 = 5  ;No longer relevant, since the new methodology does a gooder job
   ptsMinOutflow   = 1
   allowableGap    = 180 ;seconds
-  ;; min_streakLen_t = 3 ;;At least 30, right?
+  ;; min_streakLen_t = 10 ;;At least 30, right?
 
   ;; outflowMinLog10 = 6.0
   ;; ptsMinOutflow   = 5
@@ -496,7 +378,9 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
          NORTH=north, $
          SOUTH=south, $
          DAY=day, $
-         NIGHT=night)
+         NIGHT=night, $
+         MINMLT=minMLT, $
+         MAXMLT=maxMLT)
 
   allowGapStr = STRING(FORMAT='("-allowGap",I0)',allowableGap)
   wholePassStr = ''
@@ -573,7 +457,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                     EACAvg,EACAbsAvg,EACPosAvg,EACNegAvg, $
                     PACAvg,PACAbsAvg,PACPosAvg,PACNegAvg, $
                     HAvg,HPosAvg,HNegAvg,HAbsAvg, $
-                    HMomAvg,HMomPosAvg,HMomNegAvg,HMomAbsAvg
+                    HMomAvg,HMomPosAvg,HMomNegAvg,HMomAbsAvg, $
+                    SW_infos
 
      totPtCnt     = 0           ;master counter
      orbCnt       = 0           ;orbit counter
@@ -1120,8 +1005,31 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
               ;; oflow_i = WHERE((ALOG10(ABS(tmpJi.y)) GE outflowMinLog10) AND $
               ;;                 (FINITE(tmpJi.y))                         AND $
               ;;                 (tmpJi.y GT 0),nOutflow)
+              mustZap = WHERE(tmpJi.y LE 0)
+              IF mustZap[0] NE -1 THEN BEGIN
+                 PRINT,"NANNING NEGATIVE ION FLUXES"
+                 tmpJi.y[mustZap] = !VALUES.F_NaN
+                 ;; STOP
+              ENDIF
+
               oflow_i = WHERE((FINITE(tmpJi.y))                         AND $
                               (tmpJi.y GT 0),nOutflow)
+              ;; oflow_i = WHERE((FINITE(tmpJi.y))                         AND $
+              ;;                 (tmpJi.y GT 5e5),nOutflow)
+              ;; print,"First ji point:",tmpJi.y[0]
+
+              tSerie = (N_ELEMENTS(PUniv_TS) GT 0 ? (*PUniv_TS) : (*PH_TS))
+              ;; Add everything from 10 min before to 10 after
+              ;; t10before = tSerie[oflow_i[0]]-300.D
+              ;; ;; t10after  = tSerie[oflow_i[-1]]+300.D
+              ;; t10after  = tSerie[oflow_i[-1]]
+
+              ;; PRINT,"First data point: ",T2S(tSerie[0])
+              ;; PRINT,"t10before       : ",T2S(t10before)
+
+              ;; oflow_i   = WHERE(tSerie GE t10before AND tSerie LE t10after)
+
+              ;; IF key EQ 8274 THEN STOP
 
               IF KEYWORD_SET(average_over_whole_pass) THEN BEGIN
                  oflow_i = LINDGEN(N_ELEMENTS(tmpJi.y))
@@ -1129,12 +1037,14 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
 
               IF nOutflow LT ptsMinOutflow THEN CONTINUE
 
-              LOCALE_ADJUSTMENTS,(N_ELEMENTS(PUniv_TS) GT 0 ? (*PUniv_TS) : (*PH_TS)), $
+              LOCALE_ADJUSTMENTS,tSerie, $
                                  oflow_i,nOutflow, $
                                  ORBIT=key, $
                                  NORTH=north, $
                                  SOUTH=south, $
                                  DAY=day, $
+                                 MINMLT=minMLT, $
+                                 MAXMLT=maxMLT, $
                                  NIGHT=night, $
                                  MINILAT=minILAT, $
                                  MAXILAT=maxILAT
@@ -1186,6 +1096,13 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
               ofloItvlHMomArr= MAKE_ARRAY(nOfloPts,nHMomTags,/FLOAT,VALUE=0.) 
 
               ofloItvlPtCnt  = 0
+
+              IF k EQ 0 THEN BEGIN
+                 SW_infos[orbCnt] = SWAY_STATS__ADD_SW_INFO( $
+                                    tmpStruct[0].(0).(0).(0)[0], $
+                                    MINUTESBEFORE=minutesBefore, $
+                                    MINUTESAVERAGE=minutesAverage)
+              ENDIF
 
               FOR l=0,nStreaks-1 DO BEGIN
 
@@ -1419,8 +1336,13 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
 
            totPtCnt += orbPtCnt
 
-        ENDIF
+           ;; Get SW conds
+           ;; SW_infos[orbCnt] = SWAY_STATS__ADD_SW_INFO( $
+           ;;                    tmpStruct[0].(0).(0).(0), $
+           ;;                    MINUTESBEFORE=minutesBefore, $
+           ;;                    MINUTESAVERAGE=minutesAverage)
 
+        ENDIF
 
         orbCnt++
      ENDFOREACH
@@ -1646,6 +1568,8 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
 
   ENDELSE
 
+  PRINT,FORMAT='("Lastfile: ",A0)',lastFile
+
   quit = 0
   WHILE ~quit DO BEGIN
 
@@ -1736,19 +1660,26 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                     je        : avgStruct.ptclMom.je.y.(avgInd)   [sw_i], $
                     jee       : avgStruct.ptclMom.jee.y.(avgInd)  [sw_i], $
                     ji        : jiOutflowers, $
-                    densE     : avgStruct.ptclMom.densE.y.(avgInd)  [sw_i]}
+                    densE     : avgStruct.ptclMom.densE.y.(avgInd)  [sw_i], $
+                    ;; densE     : 2.134e-14*((avgStruct.ptclMom.je.y.(avgInd))^(1.5D)/(avgStruct.ptclMom.jee.y.(avgInd))^(0.5D))  [sw_i], $ ;Strangeway dens
+                    pFBDCAC   : (avgStruct.pFlux.B.DC.(1) $
+                                 *(avgStruct.pFlux.B.AC.(3))^(1.5D)) [sw_i], $
+                    denspFBAC : ((avgStruct.ptclMom.densE.y.(0))^(1.27) $
+                                 *(avgStruct.pFlux.B.AC.(3))^(1.38D)) [sw_i]}
 
-     IF KEYWORD_SET(south) THEN BEGIN
-        finStruct.dB_perpAC  *= -1.
-        finStruct.pFAlongBDC *= -1.
-        finStruct.pFAlongBAC *= -1.
-        finStruct.pFAlongPDC *= -1.
-        finStruct.pFAlongPAC *= -1.
-     ENDIF
+     ;; IF KEYWORD_SET(south) THEN BEGIN
+     ;;    finStruct.dB_perpAC  *= -1.
+     ;;    finStruct.pFAlongBDC *= -1.
+     ;;    finStruct.pFAlongBAC *= -1.
+     ;;    finStruct.pFAlongPDC *= -1.
+     ;;    finStruct.pFAlongPAC *= -1.
+     ;; ENDIF
 
      IF N_ELEMENTS(xQuants) EQ 0 THEN BEGIN
         ;; xQuants = [1,2,3,4,5,6,7,8,9,11]
-        xQuants = [1,2,3,5,8,9,11]
+        ;; xQuants = [1,2,3,5,8,9,11,12]
+        ;; xQuants = [2,3,5,8,11,12,13]
+        xQuants = [2,3,5,8,11]
      ENDIF
 
      plotInfo  = {xQuants       : xQuants, $
@@ -1757,14 +1688,16 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                                    "Cross-track B [AC] (nT)", $
                                    "Poynting FluxB [DC] (mW/m^2)", $
                                    "Poynting FluxP [DC] (mW/m^2)", $
-                                   "Poynting FluxB [AC] (mW/m^2)", $
+                                   "Poynting FluxB [AC] (mW/m^2)", $ ;xQuant5
                                    "Poynting FluxP [AC] (mW/m^2)", $
                                    "Average ELF amplitude [DC] (V/m)", $
                                    ;; "Average ELF amplitude [AC] (V/m)", $
                                    "Average Electron Flux (#/cm$^2$/s)", $
                                    "Average Electron Energy Flux (mW/m$^2$)", $
                                    "Ion Flux (#/cm!U2!N/s)", $
-                                   "Average Electron Density (cm$^-3$)"] $
+                                   "Average Electron Density (cm$^-3$)", $
+                                   "PFB[DC]*PFB[AC]!U1.5!N", $
+                                   "dens*PFB[AC]!U1.5!N"] $ ;xQuant12
                   + avgTypeString, $
                   xRange        : [[0.,0.], $
                                    [1e0,1e3], $
@@ -1778,7 +1711,9 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                                    [1e7,1e10], $
                                    [1e-2,1e0], $                                    
                                    [1e6,1e10], $                                    
-                                   [1e-1,1e2]], $
+                                   [1e-1,1e2], $                                    
+                                   [1e-4,1e1], $                                    
+                                   [1e-5,1e1]], $
                   yTitle        : "Ion Flux (#/cm!U2!N/s)", $
                   yData         : finStruct.ji, $
                   yRange        : [1e6,1e10], $
@@ -1794,7 +1729,9 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                                    "eNumFlux__vs__ionNumFlux", $
                                    "eFlux__vs__ionNumFlux", $
                                    "Ion Flux (#/cm!U2!N/s)", $
-                                   "Density (cm!U-3!N)"], $
+                                   "dens_vs_ionNumFlux", $
+                                   "magicPFlux", $
+                                   "densPFBAC"], $
                   canonPref     : 'Strangeway_2005__v3--', $
                   plotDirSuff   : '/Strangeway_et_al_2005__v3', $
                   plots_prefix  : (KEYWORD_SET(bonusSuff) ? bonusSuff : '') + $ 

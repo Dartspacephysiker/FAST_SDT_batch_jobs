@@ -666,15 +666,16 @@ PRO ALFVEN_STATS_6_SPECTRAL__METHODE_DEUX, $
         TPLOT_PANEL,VARIABLE='eAVPanel',OPLOTVAR='eAVFilt'
 
         LOAD_MAXIMUS_AND_CDBTIME,maximus,cdbTime, $
-                                 /DO_DESPUNDB, $
+                                 ;; /DESPUNDB, $
                                  GOOD_I=good_i, $
-                                 HEMI__GOOD_I='BOTH'
+                                 HEMI__GOOD_I='BOTH', $
+                                 /NO_MEMORY_LOAD
         ii = WHERE(maximus.orbit[good_i] EQ orbit,nOrb)
 
         STORE_DATA,'alfTimes',DATA={x:cdbTime[good_i[ii]], $
                                     y:MAKE_ARRAY(nOrb,VALUE=10)}
         OPTIONS,'alfTimes','psym',1 ;Plus
-        TPLOT_PANEL,VARIABLE='MagSpec',OPLOTVAR='alfTimes'
+        TPLOT_PANEL,VARIABLE='MagSpec',OPLOTVAR='alfTimes',PSYM=1
 
         ;; OPLOT,cdbtime[good_i[ii]]-t,MAKE_ARRAY(N_ELEMENTS(ii),VALUE=10),PSYM=1
         ;; PRINT,maximus.time[good_i[ii]]
@@ -774,8 +775,10 @@ PRO ALFVEN_STATS_6_SPECTRAL__METHODE_DEUX, $
         
         FOR m=0,nThings-1 DO BEGIN
            tmpF_i    = WHERE(freqs GE lowFreq[m] AND freqs LE upFreqBound)
-         ESpecSum[m] = TOTAL(tmpE.y[m,tmpF_i])
-         BSpecSum[m] = TOTAL(tmpB.y[m,tmpF_i])
+           ;; ESpecSum[m] = TOTAL(tmpE.y[m,tmpF_i])
+           ;; BSpecSum[m] = TOTAL(tmpB.y[m,tmpF_i])
+           ESpecSum[m] = INT_TABULATED(freqs[tmpF_i],tmpE.y[m,tmpF_i])
+           BSpecSum[m] = INT_TABULATED(freqs[tmpF_i],tmpB.y[m,tmpF_i])
         ENDFOR
 
         ;; ESpecSum *= 1e-3
@@ -784,8 +787,10 @@ PRO ALFVEN_STATS_6_SPECTRAL__METHODE_DEUX, $
         ;;Apply
 
         E_over_B  = (ESpecSum*1e-3)/(BSpecSum*1e-9)
+        ;; winFFT_i  = WHERE( ( (E_over_B/va_mlt) GE 1.0/eb_to_alfven_speed ) AND $
+        ;;                    ( (E_over_B/va_mlt) LE 10.0*eb_to_alfven_speed ),nWin)
         winFFT_i  = WHERE( ( (E_over_B/va_mlt) GE 1.0/eb_to_alfven_speed ) AND $
-                           ( (E_over_B/va_mlt) LE 10.0*eb_to_alfven_speed ),nWin)
+                           ( (E_over_B/va_mlt) LE eb_to_alfven_speed ),nWin)
 
         GET_STREAKS,winFFT_i,START_I=strtWin_ii,STOP_I=stpWin_ii, $
                     SINGLE_I=singleWin_ii, $

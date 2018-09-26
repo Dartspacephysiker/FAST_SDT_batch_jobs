@@ -1723,7 +1723,8 @@ PRO STRANGEWAY_2005__V3, $
                         je :TEMPORARY(tmpJe), $
                         ji :TEMPORARY(tmpJi)}, $
                   ptclMoms:{allPA:eMomStruct_allAngle, $
-                            lcPA:eMomStruct_lcAngle}, $
+                            lcPA:eMomStruct_lcAngle, $
+                            ionMom:ionMomStruct}, $
                   info:{full_pFlux            : KEYWORD_SET(full_pFlux), $
                         decimate_eb_calc_pFlux : KEYWORD_SET(decimate_eb_calc_pFlux), $
                         interp_4Hz_to_1s       : KEYWORD_SET(interp_4Hz_to_1s      ), $

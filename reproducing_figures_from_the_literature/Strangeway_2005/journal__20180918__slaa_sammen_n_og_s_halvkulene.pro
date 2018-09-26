@@ -1,6 +1,8 @@
 ;2018/09/18
 PRO JOURNAL__20180918__SLAA_SAMMEN_N_OG_S_HALVKULENE, $
    NIGHT=night, $
+   MINMLT=minMLT, $
+   MAXMLT=maxMLT, $
    RESTORE_LAST_FILE=restore_last_file, $
    USE_V3_STRANGEWAY=use_v3_strangeway, $
    V3__USE_ELEC_LB30EV_HASHFILE=use_elec_lb30eV_hashFile, $
@@ -26,6 +28,8 @@ PRO JOURNAL__20180918__SLAA_SAMMEN_N_OG_S_HALVKULENE, $
      ;; NORTH=north, $
      /SOUTH, $
      NIGHT=night, $
+     MINMLT=minMLT, $
+     MAXMLT=maxMLT, $
      ;; /NORTH, $
      RESTORE_LAST_FILE=restore_last_file, $
      ;; /RESTORE_LAST_FILE, $
@@ -43,6 +47,8 @@ PRO JOURNAL__20180918__SLAA_SAMMEN_N_OG_S_HALVKULENE, $
      ;; /SOUTH, $
      /NORTH, $
      NIGHT=night, $
+     MINMLT=minMLT, $
+     MAXMLT=maxMLT, $
      RESTORE_LAST_FILE=restore_last_file, $
      ;; /RESTORE_LAST_FILE, $
      USE_V3_STRANGEWAY=use_v3_strangeway, $
@@ -57,31 +63,33 @@ PRO JOURNAL__20180918__SLAA_SAMMEN_N_OG_S_HALVKULENE, $
      KEYWORD_SET(use_v3_strangeway): BEGIN
         this = { $
                orbit       : [thisN.orbit,thisS.orbit]           , $
-               EAlongVAC   : [ThisN.EAlongVAC,ThisS.EAlongVAC]   , $
+               EAlongVAC   : [thisN.EAlongVAC,thisS.EAlongVAC]   , $
                dB_perpAC   : [thisN.dB_perpAC,thisS.dB_perpAC]   , $
                pFAlongBDC  : [thisN.pFAlongBDC,thisS.pFAlongBDC] , $
                pFAlongPDC  : [thisN.pFAlongPDC,thisS.pFAlongPDC] , $
                pFAlongBAC  : [thisN.pFAlongBAC,thisS.pFAlongBAC] , $
                pFAlongPAC  : [thisN.pFAlongPAC,thisS.pFAlongPAC] , $
-               DSPDC       : [THISN.DSPDC,THISS.DSPDC]           , $
-               Je          : [ThisN.Je,ThisS.Je]                 , $
-               Jee         : [ThisN.Jee,ThisS.Jee]               , $
-               Ji          : [ThisN.Ji,ThisS.Ji]                 , $
-               dense       : [ThisN.dense,ThisS.dense]           }
+               DSPDC       : [thisN.DSPDC,thisS.DSPDC]           , $
+               Je          : [thisN.Je,thisS.Je]                 , $
+               Jee         : [thisN.Jee,thisS.Jee]               , $
+               Ji          : [thisN.Ji,thisS.Ji]                 , $
+               dense       : [thisN.dense,thisS.dense]           , $
+               pFBDCAC     : [thisN.pFBDCAC,thisS.pFBDCAC]       , $
+               densPFBAC   : [thisN.densPFBAC,thisS.densPFBAC]   }
      END
      ELSE: BEGIN
         this = { $
                orbit       : [thisN.orbit,thisS.orbit]           , $
-               EAlongVAC   : [ThisN.EAlongVAC,ThisS.EAlongVAC]   , $
+               EAlongVAC   : [thisN.EAlongVAC,thisS.EAlongVAC]   , $
                dB_perpAC   : [thisN.dB_perpAC,thisS.dB_perpAC]   , $
                pFAlongBDC  : [thisN.pFAlongBDC,thisS.pFAlongBDC] , $
                pFAlongPDC  : [thisN.pFAlongPDC,thisS.pFAlongPDC] , $
                pFAlongBAC  : [thisN.pFAlongBAC,thisS.pFAlongBAC] , $
                pFAlongPAC  : [thisN.pFAlongPAC,thisS.pFAlongPAC] , $
-               DSPDC       : [THISN.DSPDC,THISS.DSPDC]           , $
-               Je          : [ThisN.Je,ThisS.Je]                 , $
-               Jee         : [ThisN.Jee,ThisS.Jee]               , $
-               Ji          : [ThisN.Ji,ThisS.Ji]}
+               DSPDC       : [thisN.DSPDC,thisS.DSPDC]           , $
+               Je          : [thisN.Je,thisS.Je]                 , $
+               Jee         : [thisN.Jee,thisS.Jee]               , $
+               Ji          : [thisN.Ji,thisS.Ji]}
 
 
      END

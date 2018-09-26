@@ -3,9 +3,13 @@ PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
    SOUTH=south, $
    NORTH=north, $
    NIGHT=night, $
+   MINMLT=minMLT, $
+   MAXMLT=maxMLT, $
+   MAXILAT=maxILAT, $
    RESTORE_LAST_FILE=restore_last_file, $
    USE_V3_STRANGEWAY=use_v3_strangeway, $
    V3__USE_ELEC_LB30EV_HASHFILE=use_elec_lb30eV_hashFile, $
+   V3__USE_ELEC_LB50EV_HASHFILE=use_elec_lb50eV_hashFile, $
    V3__HMOM__USE_LOSSCONE_NOT_ALL_PITCHA=HMom__use_losscone_not_all_pitcha, $
    V3__AVERAGE_OVER_WHOLE_PASS=average_over_whole_pass, $
    OUT_STATS=this, $
@@ -35,6 +39,9 @@ PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
               CASE 1 OF
                  KEYWORD_SET(use_elec_lb30eV_hashFile): BEGIN
                     userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec-SOUTH.sav'
+                 END
+                 KEYWORD_SET(use_elec_lb50eV_hashFile): BEGIN
+                    userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-50eVLBforelec-SOUTH.sav'
                  END
                  ELSE: BEGIN
                     userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s.sav'
@@ -122,6 +129,9 @@ PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
               CASE 1 OF
                  KEYWORD_SET(use_elec_lb30eV_hashFile): BEGIN
                     userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec.sav'
+                 END
+                 KEYWORD_SET(use_elec_lb50eV_hashFile): BEGIN
+                    userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-50eVLBforelec.sav'
                  END
                  ELSE: BEGIN
                     userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s.sav'
@@ -223,14 +233,19 @@ PRO JOURNAL__20180801__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
      END
   ENDCASE
 
+  yesDay = (~KEYWORD_SET(night)) AND N_ELEMENTS(minMLT) EQ 0 AND N_ELEMENTS(maxMLT) EQ 0
+
   this = CALL_FUNCTION(func,/AVERAGES, $
                        SOUTH=south, $
                        NORTH=north, $
                        SKIP_THESE_ORBS=skip_these_orbs, $
-                       DAY=~KEYWORD_SET(night), $
+                       DAY=yesDay, $
                        NIGHT=KEYWORD_SET(night), $
+                       MINMLT=minMLT, $
+                       MAXMLT=maxMLT, $
                        USERDEF_HASHFILE=userDef_hashFile, $
                        MINILAT=minILATs, $
+                       MAXILAT=maxILAT, $
                        RESTORE_LAST_FILE=restore_last_file, $
                        OUT_PLOTINFO=plotInfo, $
                        NO_PLOTS=no_plots, $
