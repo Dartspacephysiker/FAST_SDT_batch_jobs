@@ -1,0 +1,10 @@
+BatchJob: "electron_spec_identification_v4__just_electrons"
+NoPlots:
+IDL: /SPENCEdata/software/sdt/batch_jobs/do_the_Newell_2009/electron_moments_and_spectral_identification_v0_wrapper.pro
+
+DataBaseRequest:
+    Orbits 1078-50000
+    
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/do_the_Newell_2009
+PlotConfigurationFile: survey_5__super_pared__no_langmuir
