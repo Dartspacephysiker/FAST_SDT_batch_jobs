@@ -174,6 +174,8 @@ PRO ELECTRON_MOMENTS_AND_SPECTRAL_IDENTIFICATION_V0
                   MCFADDEN_STYLE_DIFF_EFLUX=McFadden_diff_eFlux, $
                   /PROVIDING_EPHEM_INFO, $
                   IN_ILAT=elec_dEF.ilat, $
+                  IN_MLT=elec_dEF.mlt, $
+                  IN_ALT=elec_dEF.alt, $
                   ;; /DONT_FLIP_SIGNS_OF_SOUTHHEMI_MOMENTS, $
                   QUIET=quiet, $
                   OUTTIME=time, $
@@ -207,8 +209,10 @@ PRO ELECTRON_MOMENTS_AND_SPECTRAL_IDENTIFICATION_V0
                   MCFADDEN_STYLE_DIFF_EFLUX=McFadden_diff_eFlux, $
                   /PROVIDING_EPHEM_INFO, $
                   IN_ILAT=elec_dEF.ilat, $
+                  IN_MLT=elec_dEF.mlt, $
+                  IN_ALT=elec_dEF.alt, $
                   ;; /DONT_FLIP_SIGNS_OF_SOUTHHEMI_MOMENTS, $
-                  QUIET=quiet, $
+                  /QUIET, $
                   OUTTIME=time, $
                   OUT_N=n, $
                   OUT_J_=j, $
