@@ -120,6 +120,7 @@ PRO ELECTRON_MOMENTS_AND_SPECTRAL_IDENTIFICATION_V0
      EARTHWARD_ARANGE=earthward_aRange, $
      ANGLESTR=angleStr, $
      ELECTRON_ENERGY_LIMS=elec_dEF_energy, $
+     /IGNORE_MIXED_HEMISPHERE, $
      ;; SAVE_DIFF_EFLUX_TO_FILE=elec_dEF_fileName, $
      _EXTRA=e
 
