@@ -17,6 +17,7 @@ PRO STRANGEWAY_2005__V3, $
    DECIMATE_EB_CALC_PFLUX=decimate_eb_calc_pFlux, $
    USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
    SAVE_INDIVIDUAL_ORBIT=save_individual_orbit, $
+   SAVE_INDIVIDUAL_DATA_PRODUCTS_AND_QUIT=save_individual_data_products_and_quit, $
    NO_BLANK_PANELS=no_blank_panels, $
    STRANGEWAY_2005_FIG3_PLOT=Strangeway_2005_Fig3_plot, $
    NO_HASH_UPDATE=no_hash_update, $
@@ -129,6 +130,7 @@ PRO STRANGEWAY_2005__V3, $
 
   @strangeway_2005__defaults__v3.pro
   savesDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
+  savesIndivDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/V3/rawProds/'
 
   dEF__include_sc_pot = 1
 
@@ -166,6 +168,7 @@ PRO STRANGEWAY_2005__V3, $
      EBOUND=eBound, $
      IONMOMSTRUCT=ionMomStruct, $
      IONUPJ=ionUpJ, $
+     IONDIFFEFLUX=ion_dEF, $
      UP_ARANGEN=up_aRangeN, $
      DOWN_ARANGEN=down_aRangeN, $
      UP_ARANGES=up_aRangeS, $
@@ -192,6 +195,10 @@ PRO STRANGEWAY_2005__V3, $
 
      IF KEYWORD_SET(save_individual_orbit) THEN BEGIN
         indiv_orbFile = indivOrbPref + orbString + '.sav'
+     ENDIF
+
+     IF KEYWORD_SET(save_individual_data_products_and_quit) THEN BEGIN
+        indivPref = "Orbit_"+orbString+'-rawProds.sav'
      ENDIF
 
      IF KEYWORD_SET(skip_existing_in_hash) THEN BEGIN
@@ -361,6 +368,11 @@ PRO STRANGEWAY_2005__V3, $
      RETURN
   ENDELSE
 
+  IF KEYWORD_SET(save_individual_data_products_and_quit) THEN BEGIN
+     GET_DATA,'dB_fac_v',data=dB_fac_v
+     GET_DATA,'dB_fac',data=dB_fac
+     GET_FA_ORBIT,dB_fac.x,/TIME_ARRAY,/DEFINITIVE,/ALL,STRUC=dBEphem
+  ENDIF
 
 ; step 2 - E field
 
@@ -405,6 +417,13 @@ PRO STRANGEWAY_2005__V3, $
      PRINT,"Couldn't get E-field data! Out ..."
      RETURN
   ENDELSE
+
+  IF KEYWORD_SET(save_individual_data_products_and_quit) THEN BEGIN
+     GET_DATA,eAV_variable,DATA=eAlongV
+     GET_DATA,eNB_variable,DATA=eNearB
+     GET_DATA,"EFIT_ALONG_V",DATA=eFitAlongV
+     GET_DATA,"EFIT_NEAR_B",DATA=eFitNearB
+  ENDIF
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Step 4 - Electron junk, AND
@@ -477,8 +496,10 @@ PRO STRANGEWAY_2005__V3, $
   ;; Nei da, med diff_eFlux
   McFadden_diff_eFlux = 1
   eeb_or_ees = "ees"
-  angleRange = {all : [0,360.], $
-                lc  : [0.,0.]}
+
+  ;; Get all loss-cone angle ranges
+  ;; angleRange = {all : [0,360.], $
+  ;;               lc  : [0.,0.]}
                 
   load_elec_dEF_file = N_ELEMENTS(remake_diff_eFlux) GT 0 ? ~remake_diff_eFlux : 1
   save_elec_dEF_file = 1
@@ -527,9 +548,39 @@ PRO STRANGEWAY_2005__V3, $
      ;; ESPECUNITS=KF__Curvefit_opt.units, $
      ELECTRON_ENERGY_LIMS=elec_dEF_energy, $
      SAVE_DIFF_EFLUX_TO_FILE=elec_dEF_fileName, $
+     /IGNORE_MIXED_HEMISPHERE, $
      _EXTRA=e
 
+  angleRange = {all : [0,360.], $
+                lc  : MAKE_ARRAY(2,N_ELEMENTS(elec_dEF),/FLOAT,VALUE=0.0)}
+
+  ;; Now get loss-cone angles, map ratio
+  eMomEphem = {fa_pos : TRANSPOSE(elec_dEF.fa_pos), $
+           fa_vel : TRANSPOSE(elec_dEF.fa_vel), $
+           alt    : elec_dEF.alt, $
+           mlt    : elec_dEF.mlt, $
+           ilat   : elec_dEF.ilat, $
+           B_model: TRANSPOSE(elec_dEF.B_model), $
+           Bfoot  : TRANSPOSE(elec_dEF.B_foot ), $
+           foot_lat : TRANSPOSE(elec_dEF.foot_lat ), $
+           foot_lng : TRANSPOSE(elec_dEF.foot_lng )}
+
+  GET_LOSS_CONE_AND_ANGLE_RANGES_FOR_HEMI,t1,t2, $
+                                          lc_angleRange, $
+                                          i_angle,i_angle_up, $
+                                          north_south, $
+                                          ALLEXCLATM_ARANGE=allExclAtm_aRange, $
+                                          EARTHWARD_ARANGE=earthward_aRange, $
+                                          CUSTOM_E_ANGLERANGE=custom_e_angleRange, $
+                                          UPGOING=upgoing, $
+                                          OUT_E_ANGLE=e_angle, $
+                                          OUT_MAPRATIO=mapRatio, $
+                                          ANGLESTR=angleStr, $
+                                          SDTSTRUCT=eMomEphem, $
+                                          JUST_ONE=just_one
+
   angleRange.lc = lc_angleRange
+  ;; angleRange.lc = lc_angleRange
 
   ;; flip = WHERE(lc_angleRange GT 180,nFlip)
   ;; IF nFlip GT 0 THEN BEGIN
@@ -559,6 +610,10 @@ PRO STRANGEWAY_2005__V3, $
                   ORBIT=orbit, $
                   /NEW_MOMENT_ROUTINE, $
                   MCFADDEN_STYLE_DIFF_EFLUX=McFadden_diff_eFlux, $
+                  /PROVIDING_EPHEM_INFO, $
+                  IN_ILAT=elec_dEF.ilat, $
+                  IN_MLT=elec_dEF.mlt, $
+                  IN_ALT=elec_dEF.alt, $
                   QUIET=quiet, $
                   OUTTIME=time, $
                   OUT_N=n, $
@@ -589,6 +644,10 @@ PRO STRANGEWAY_2005__V3, $
                   ORBIT=orbit, $
                   /NEW_MOMENT_ROUTINE, $
                   MCFADDEN_STYLE_DIFF_EFLUX=McFadden_diff_eFlux, $
+                  /PROVIDING_EPHEM_INFO, $
+                  IN_ILAT=elec_dEF.ilat, $
+                  IN_MLT=elec_dEF.mlt, $
+                  IN_ALT=elec_dEF.alt, $
                   QUIET=quiet, $
                   OUTTIME=time, $
                   OUT_N=n, $
@@ -646,6 +705,67 @@ PRO STRANGEWAY_2005__V3, $
 
   IF nDSP EQ 0 THEN BEGIN
      PRINT,'Junk DSP data'
+     RETURN
+  ENDIF
+
+  IF KEYWORD_SET(save_individual_data_products_and_quit) THEN BEGIN
+     
+     iMomEphem = {fa_pos : TRANSPOSE(ion_dEF.fa_pos), $
+                  fa_vel : TRANSPOSE(ion_dEF.fa_vel), $
+                  alt    : ion_dEF.alt, $
+                  mlt    : ion_dEF.mlt, $
+                  ilat   : ion_dEF.ilat, $
+                  B_model: TRANSPOSE(ion_dEF.B_model), $
+                  Bfoot  : TRANSPOSE(ion_dEF.B_foot ), $
+                  foot_lat : TRANSPOSE(ion_dEF.foot_lat ), $
+                  foot_lng : TRANSPOSE(ion_dEF.foot_lng )}
+
+     iMom = CREATE_STRUCT("ionUpJ",ionUpJ,TEMPORARY(iMomEphem),TEMPORARY(ionMomStruct))
+
+     GET_DATA,'MAG_FLAGS',data=mag_flags
+
+     dB = CREATE_STRUCT('x',dB_fac.x, $
+                        'fac',dB_fac.y, $
+                        'fac_v',dB_fac_v.y, $
+                        'mag_flags',mag_flags, $
+                        TEMPORARY(dBEphem))
+
+     ;; dB = {x: dB_fac.x, $
+     ;;       fac: dB_fac.y, $
+     ;;       fac_v: dB_fac_v.y}
+
+     eF = CREATE_STRUCT('x',eAlongV.x, $
+                        'alongV',eAlongV.y, $
+                        'nearB',eNearB.y)
+     eFFit = CREATE_STRUCT('x',eFitAlongV.x, $
+                           'alongV',eFitAlongV.y, $
+                           'nearB',eFitNearB.y)
+
+     eMom = CREATE_STRUCT('lc',TEMPORARY(eMomStruct_lcAngle), $
+                          'all',TEMPORARY(eMomStruct_allAngle), $
+                          eMomEphem)     
+
+     dsp = data
+     GET_FA_ORBIT,dsp.time,/TIME_ARRAY,/DEFINITIVE,/ALL,STRUC=dspEphem
+     ;; dsp = CREATE_STRUCT(dsp,dspEphem)
+
+     ;; Get rid of time tag in dspEphem
+     dspEphem = {orbit : dspEphem.orbit, $  
+                 fa_pos : dspEphem.fa_pos, $ 
+                 alt : dspEphem.alt, $    
+                 ilat : dspEphem.ilat, $   
+                 ilng : dspEphem.ilng, $   
+                 mlt : dspEphem.mlt, $    
+                 fa_vel : dspEphem.fa_vel, $ 
+                 bfoot : dspEphem.bfoot, $  
+                 lat : dspEphem.lat, $    
+                 lng : dspEphem.lng, $    
+                 flat : dspEphem.flat, $   
+                 flng : dspEphem.flng, $   
+                 b_model : dspEphem.b_model}
+
+     PRINT,"Saving " + indivPref + ' ...'
+     SAVE,iMom,dB,eF,eFFit,eMom,dsp,FILENAME=savesIndivDir+indivPref
      RETURN
   ENDIF
 
@@ -752,7 +872,6 @@ PRO STRANGEWAY_2005__V3, $
 
   structList             = LIST()
   FOR jj=0,number_of_intervals-1 DO BEGIN
-
 
      itvlString     = STRCOMPRESS(jj,/REMOVE_ALL)
 

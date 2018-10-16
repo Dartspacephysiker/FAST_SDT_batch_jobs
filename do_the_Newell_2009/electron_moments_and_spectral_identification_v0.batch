@@ -3,7 +3,7 @@ NoPlots:
 IDL: /SPENCEdata/software/sdt/batch_jobs/do_the_Newell_2009/electron_moments_and_spectral_identification_v0_wrapper.pro
 
 DataBaseRequest:
-    Orbits 1533-50000
+    Orbits 13209-50000
     
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/do_the_Newell_2009
