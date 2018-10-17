@@ -1,0 +1,10 @@
+BatchJob: "strangeway_2005__v3__just_save_data_for_spectrograms"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005__v3__just_save_data_for_spectrograms_wrapper.pro
+
+DataBaseRequest:
+    Orbits 8260-8292
+
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005
+PlotConfigurationFile: rjs_clean
