@@ -55,7 +55,7 @@ PRO ELECTRON_MOMENTS_AND_SPECTRAL_IDENTIFICATION_V0
      ;; IF dat.index EQ last_index THEN BREAK
 
      nCalls++
-     IF nCalls EQ n_EESA_spectra THEN BREAK
+     IF nCalls GE n_EESA_spectra THEN BREAK
   ENDWHILE
 
   IF ~greide THEN BEGIN
@@ -74,6 +74,8 @@ PRO ELECTRON_MOMENTS_AND_SPECTRAL_IDENTIFICATION_V0
   PRINT,'Orb ' + orbStr + ': ' + STRCOMPRESS(n_EESA_spectra,/REMOVE_ALL) + ' EESA survey spectra loaded in SDT...'
   PRINT,'*********************************************'
   PRINT,''
+
+  IF orbit_num GT 23912 THEN dEF__include_sc_pot = 0
 
   ;; load_elec_dEF_file = N_ELEMENTS(remake_diff_eFlux) GT 0 ? ~remake_diff_eFlux : 1
   ;; save_elec_dEF_file = 1
@@ -123,6 +125,11 @@ PRO ELECTRON_MOMENTS_AND_SPECTRAL_IDENTIFICATION_V0
      /IGNORE_MIXED_HEMISPHERE, $
      ;; SAVE_DIFF_EFLUX_TO_FILE=elec_dEF_fileName, $
      _EXTRA=e
+
+  IF SIZE(elec_dEF,/TYPE) NE 8 THEN BEGIN
+     PRINT,"Couldn't get diff_eFlux!"
+     RETURN
+  ENDIF
 
   ;; Now time differences
   tDiffs     = elec_dEF.end_time - elec_dEF.time
