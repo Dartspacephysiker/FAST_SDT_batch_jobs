@@ -3,22 +3,32 @@
 # 2018/04/27
 # NOTE: THE ORDER OF ORBIT PLOTS CATTED IS NOT NUMERICAL; IT IS BASED ON THE TIME OF CREATION (hence ls -lahtr)
 
-
-dir=/SPENCEdata/software/sdt/batch_jobs/plots/20180426/kappa_fits/
-NPLOTSTOCAT=100
+NPLOTSTOCAT=99
 
 # 2018/04/27
+dir=/SPENCEdata/software/sdt/batch_jobs/plots/20180426/kappa_fits/
 # PDFSUFF="_to300"
 # startOrb=5683
 
 # 2018/05/01
+dir=/SPENCEdata/software/sdt/batch_jobs/plots/20180426/kappa_fits/
 PDFSUFF="_to400"
 startOrb=8217
 
 # 2018/05/01
+dir=/SPENCEdata/software/sdt/batch_jobs/plots/20180426/kappa_fits/
 PDFSUFF="_to407"
 startOrb=9457
-NPLOTSTOCAT=7
+# NPLOTSTOCAT=7
+
+# 2018/05/01
+dir=/SPENCEdata/software/sdt/batch_jobs/plots/20180507/kappa_fits/
+PDFSUFF="_0-100"
+startOrb=1460
+
+dir=/SPENCEdata/software/sdt/batch_jobs/plots/20180507/kappa_fits/
+PDFSUFF="_86-185"
+startOrb=3254
 
 if [ ! -d "${dir}" ]; then
     echo "Can't! N'existe pas: ${dir}";
