@@ -17,6 +17,10 @@
 thresh_eFlux = 5e5
 enforce_this_sample_rate = 1.25
 energy_electrons_lb = 50
+
+indivSuff = '-rawProds_med_dB_sc_and_spinplane_E.sav'
+
+
 STRANGEWAY_2005__V3,/SAVE_PS, $
                     IONSPECS_UPDOWNMINRATIO=2, $
                     IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
@@ -25,6 +29,7 @@ STRANGEWAY_2005__V3,/SAVE_PS, $
                     /STRANGEWAY_2005_FIG3_PLOT, $
                     /REMAKE_DIFF_EFLUX, $
                     /SAVE_INDIVIDUAL_DATA_PRODUCTS_AND_QUIT, $
+                    SAVE_INDIVIDUAL_DATA_PRODUCTS__FSUFF=indivSuff, $
                     ENERGY_ELECTRONS_LB=energy_electrons_lb
 
 

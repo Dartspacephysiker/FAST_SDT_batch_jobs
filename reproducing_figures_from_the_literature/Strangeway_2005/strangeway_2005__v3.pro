@@ -18,6 +18,7 @@ PRO STRANGEWAY_2005__V3, $
    USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
    SAVE_INDIVIDUAL_ORBIT=save_individual_orbit, $
    SAVE_INDIVIDUAL_DATA_PRODUCTS_AND_QUIT=save_individual_data_products_and_quit, $
+   SAVE_INDIVIDUAL_DATA_PRODUCTS__FSUFF=save_individual_data_products__fSuff, $
    NO_BLANK_PANELS=no_blank_panels, $
    STRANGEWAY_2005_FIG3_PLOT=Strangeway_2005_Fig3_plot, $
    NO_HASH_UPDATE=no_hash_update, $
@@ -201,7 +202,13 @@ PRO STRANGEWAY_2005__V3, $
   ENDIF
 
   IF KEYWORD_SET(save_individual_data_products_and_quit) THEN BEGIN
-     indivPref = "Orbit_"+orbString+'-rawProds.sav'
+     IF KEYWORD_SET(save_individual_data_products__fSuff) THEN BEGIN
+        indivSuff = save_individual_data_products__fSuff
+     ENDIF ELSE BEGIN
+        ;; indivSuff = "Orbit_"+orbString+'-rawProds.sav'
+        indivSuff = '-rawProds.sav'
+     ENDELSE
+     indivFile = "Orbit_"+orbString+indivSuff
   ENDIF
 
   IF KEYWORD_SET(skip_existing_in_hash) THEN BEGIN
@@ -305,42 +312,42 @@ PRO STRANGEWAY_2005__V3, $
 
 ; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
 
-  STORE_DATA,'BDATA',/delete
-  STORE_DATA,'BFIT',/delete 
-  STORE_DATA,'Bx_sp',/delete
-  STORE_DATA,'By_sp',/delete
-  STORE_DATA,'Bz_sp',/delete
-  STORE_DATA,'Bx_sc',/delete
-  STORE_DATA,'By_sc',/delete
-  STORE_DATA,'Bz_sc',/delete
-  STORE_DATA,'Bx_sp_sm',/delete
-  STORE_DATA,'By_sp_sm',/delete
-  STORE_DATA,'Bz_sp_sm',/delete
-  STORE_DATA,'B_gei',/delete
-  STORE_DATA,'B_sm',/delete
-  STORE_DATA,'dB_sc',/delete
-  STORE_DATA,'dB_gei',/delete
-  STORE_DATA,'spin_freq',/delete
-  STORE_DATA,'spin_phase',/delete
-  STORE_DATA,'TORQ_X',/delete
-  STORE_DATA,'TORQ_Y',/delete
-  STORE_DATA,'TORQ_Z',/delete
-  STORE_DATA,'BX_DEL',/delete
-  STORE_DATA,'BY_DEL',/delete
-  STORE_DATA,'BZ_DEL',/delete
-  STORE_DATA,'BFIX',/delete
-  STORE_DATA,'TW_ZX',/delete
-  STORE_DATA,'TW_ZY',/delete
-  STORE_DATA,'TW_YY',/delete
-  STORE_DATA,'TW_YX',/delete
-  STORE_DATA,'O_X',/delete
-  STORE_DATA,'O_Y',/delete
-  STORE_DATA,'B_model_old',/delete
-  STORE_DATA,'Delta_B_model',/delete
-  STORE_DATA,'despun_to_gei',/delete
-  STORE_DATA,'gei_to_sm',/delete
-  STORE_DATA,'gei_to_fac',/delete
-  STORE_DATA,'gei_to_fac_v',/delete
+  ;; STORE_DATA,'BDATA',/delete
+  ;; STORE_DATA,'BFIT',/delete 
+  ;; STORE_DATA,'Bx_sp',/delete
+  ;; STORE_DATA,'By_sp',/delete
+  ;; STORE_DATA,'Bz_sp',/delete
+  ;; STORE_DATA,'Bx_sc',/delete
+  ;; STORE_DATA,'By_sc',/delete
+  ;; STORE_DATA,'Bz_sc',/delete
+  ;; STORE_DATA,'Bx_sp_sm',/delete
+  ;; STORE_DATA,'By_sp_sm',/delete
+  ;; STORE_DATA,'Bz_sp_sm',/delete
+  ;; STORE_DATA,'B_gei',/delete
+  ;; STORE_DATA,'B_sm',/delete
+  ;; STORE_DATA,'dB_sc',/delete
+  ;; STORE_DATA,'dB_gei',/delete
+  ;; STORE_DATA,'spin_freq',/delete
+  ;; STORE_DATA,'spin_phase',/delete
+  ;; STORE_DATA,'TORQ_X',/delete
+  ;; STORE_DATA,'TORQ_Y',/delete
+  ;; STORE_DATA,'TORQ_Z',/delete
+  ;; STORE_DATA,'BX_DEL',/delete
+  ;; STORE_DATA,'BY_DEL',/delete
+  ;; STORE_DATA,'BZ_DEL',/delete
+  ;; STORE_DATA,'BFIX',/delete
+  ;; STORE_DATA,'TW_ZX',/delete
+  ;; STORE_DATA,'TW_ZY',/delete
+  ;; STORE_DATA,'TW_YY',/delete
+  ;; STORE_DATA,'TW_YX',/delete
+  ;; STORE_DATA,'O_X',/delete
+  ;; STORE_DATA,'O_Y',/delete
+  ;; STORE_DATA,'B_model_old',/delete
+  ;; STORE_DATA,'Delta_B_model',/delete
+  ;; STORE_DATA,'despun_to_gei',/delete
+  ;; STORE_DATA,'gei_to_sm',/delete
+  ;; STORE_DATA,'gei_to_fac',/delete
+  ;; STORE_DATA,'gei_to_fac_v',/delete
 
   GET_DATA,'dB_fac_v',data=data
   t1            = data.x[0]
@@ -416,7 +423,7 @@ PRO STRANGEWAY_2005__V3, $
      ;; despin e field data
      FA_FIELDS_DESPIN,v58,v12
 
-     eF_spinPlane = GET_EFIELD_A_LA_ALFVEN_STATS_5(BURST=burst)
+     eF_spinPlane = GET_EFIELD_A_LA_ALFVEN_STATS_5(/BURST)
 
   ENDIF ELSE BEGIN
      PRINT,"Couldn't get E-field data! Out ..."
@@ -751,6 +758,8 @@ PRO STRANGEWAY_2005__V3, $
                            'alongV',eFitAlongV.y, $
                            'nearB',eFitNearB.y)
 
+     ;; eF_spinPlane
+
      eMom = CREATE_STRUCT('lc',TEMPORARY(eMomStruct_lcAngle), $
                           'all',TEMPORARY(eMomStruct_allAngle), $
                           eMomEphem)     
@@ -774,8 +783,8 @@ PRO STRANGEWAY_2005__V3, $
                  flng : dspEphem.flng, $   
                  b_model : dspEphem.b_model}
 
-     PRINT,"Saving " + indivPref + ' ...'
-     SAVE,iMom,dB,eF,eFFit,eMom,dsp,FILENAME=savesIndivDir+indivPref
+     PRINT,"Saving " + indivFile + ' ...'
+     SAVE,iMom,dB,eF,eFFit,eF_spinPlane,eMom,dsp,FILENAME=savesIndivDir+indivFile
      RETURN
   ENDIF
 
