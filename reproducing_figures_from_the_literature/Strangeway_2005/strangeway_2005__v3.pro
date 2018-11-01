@@ -188,189 +188,192 @@ PRO STRANGEWAY_2005__V3, $
 
   UCLA_MAG_DESPIN,TW_MAT=tw_mat,ORBIT=orbit,SPIN_AXIS=spin_axis,DELTA_PHI=delta_phi
 
-  IF (N_ELEMENTS(orbit) GT 0) THEN BEGIN
+  IF (N_ELEMENTS(orbit) EQ 0) THEN BEGIN
+     PRINT,"Couldn't pick up orb info from UCLA_MAG_DESPIN. OUT!"
+     RETURN
+  ENDIF
 
-     orbString           = STRING(FORMAT='(I0)',orbit)
-     outPlotName        += '--' + orbString
+  orbString           = STRING(FORMAT='(I0)',orbit)
+  outPlotName        += '--' + orbString
 
-     IF KEYWORD_SET(save_individual_orbit) THEN BEGIN
-        indiv_orbFile = indivOrbPref + orbString + '.sav'
+  IF KEYWORD_SET(save_individual_orbit) THEN BEGIN
+     indiv_orbFile = indivOrbPref + orbString + '.sav'
+  ENDIF
+
+  IF KEYWORD_SET(save_individual_data_products_and_quit) THEN BEGIN
+     indivPref = "Orbit_"+orbString+'-rawProds.sav'
+  ENDIF
+
+  IF KEYWORD_SET(skip_existing_in_hash) THEN BEGIN
+
+     IF FILE_TEST(outDir+hashFile) THEN BEGIN
+        PRINT,"Checking for orbit " + orbString + " in hash file " + hashFile + " ..."
+        RESTORE,outDir+hashFile
+
+        CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
+           -1: BEGIN
+              PRINT,'Getting stuff from orbit ' + orbString + ' ...'
+           END
+           ELSE: BEGIN
+              PRINT,"Already got this orbit! Out ..."
+              RETURN
+           END
+        ENDCASE
+
      ENDIF
 
-     IF KEYWORD_SET(save_individual_data_products_and_quit) THEN BEGIN
-        indivPref = "Orbit_"+orbString+'-rawProds.sav'
-     ENDIF
+  ENDIF
 
-     IF KEYWORD_SET(skip_existing_in_hash) THEN BEGIN
+  ;;Get time and Je info
+  check =  LOAD_JE_AND_JE_TIMES_FOR_ORB(orbit, $
+                                        RETURN_STRUCT=return_struct, $
+                                        /USE_DUPELESS_FILES, $
+                                        JE_OUT=je_pristine, $
+                                        TIME_RANGES_OUT=time_ranges, $
+                                        TIME_RANGE_INDICES_OUT=time_range_indices, $
+                                        NINTERVALS_OUT=number_of_intervals, $
+                                        ;; OUT_JEFILENAME=jeFileName, $
+                                        ;; CLEAN_DUPES=clean_dupes, $
+                                        /QUIET)
 
-        IF FILE_TEST(outDir+hashFile) THEN BEGIN
-           PRINT,"Checking for orbit " + orbString + " in hash file " + hashFile + " ..."
-           RESTORE,outDir+hashFile
+  ;;Checkups
+  IF check[0] EQ -1 THEN BEGIN
+     PRINT,"Couldn't get Je time info for orbit " + orbString + '!!!'
+     PRINT,"Out ..."
+     RETURN
+  ENDIF
 
-           CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
-              -1: BEGIN
-                 PRINT,'Getting stuff from orbit ' + orbString + ' ...'
-              END
-              ELSE: BEGIN
-                 PRINT,"Already got this orbit! Out ..."
-                 RETURN
-              END
-           ENDCASE
+  IF SIZE(je_pristine,/TYPE) NE 8 THEN BEGIN
+     PRINT,"Apparently no ESA interval information for this orbit. Returning ..."
+     RETURN
+  ENDIF
 
-        ENDIF
+  IF N_ELEMENTS(je_pristine.x) LE 1 THEN BEGIN
+     PRINT,'Insufficient data to do anything awesome! Returning ...'
+     RETURN
+  ENDIF
 
-     ENDIF
+  ;;Clean up based on ILAT
+  GET_FA_ORBIT,je_pristine.x,/TIME_ARRAY,/DEFINITIVE,/ALL
+  GET_DATA,'ILAT',DATA=ilat
+  IF SIZE(ilat,/TYPE) NE 8 THEN BEGIN
+     PRINT,'Invalid ephemeris data for orb ' + orbString + '. Returning ...'
+     RETURN
+  ENDIF
+  IF N_ELEMENTS(ilat.y) LE 1 THEN BEGIN
+     PRINT,'Invalid ephemeris data for orb ' + orbString + '. Returning ...'
+     RETURN
+  ENDIF
 
-     ;;Get time and Je info
-     check =  LOAD_JE_AND_JE_TIMES_FOR_ORB(orbit, $
-                                           RETURN_STRUCT=return_struct, $
-                                           /USE_DUPELESS_FILES, $
-                                           JE_OUT=je_pristine, $
-                                           TIME_RANGES_OUT=time_ranges, $
-                                           TIME_RANGE_INDICES_OUT=time_range_indices, $
-                                           NINTERVALS_OUT=number_of_intervals, $
-                                           ;; OUT_JEFILENAME=jeFileName, $
-                                           ;; CLEAN_DUPES=clean_dupes, $
-                                           /QUIET)
+  ;;Make sure we have data where we want it.
+  keep  = WHERE(ABS(ilat.y) GE minILAT,nKeep)
+  IF nKeep LE 1 THEN BEGIN
+     PRINT,'No data above min ILAT. Out!'
+     RETURN
+  ENDIF
 
-     ;;Checkups
-     IF check[0] EQ -1 THEN BEGIN
-        PRINT,"Couldn't get Je time info for orbit " + orbString + '!!!'
-        PRINT,"Out ..."
-        RETURN
-     ENDIF
+  IF KEYWORD_SET(force_SH_tBounds_for_je) THEN BEGIN
+     GET_FA_ORBIT,je_pristine.x,/TIME_ARRAY,/DEFINITIVE,/ALL,STRUC=struc
+     
+     north_south = LONG(ABS(struc.ilat)/struc.ilat)
 
-     IF SIZE(je_pristine,/TYPE) NE 8 THEN BEGIN
-        PRINT,"Apparently no ESA interval information for this orbit. Returning ..."
-        RETURN
-     ENDIF
+     keep = WHERE(north_south EQ -1,nKeep)
 
-     IF N_ELEMENTS(je_pristine.x) LE 1 THEN BEGIN
-        PRINT,'Insufficient data to do anything awesome! Returning ...'
-        RETURN
-     ENDIF
+     IF nKeep EQ 0 THEN STOP
 
-     ;;Clean up based on ILAT
-     GET_FA_ORBIT,je_pristine.x,/TIME_ARRAY,/DEFINITIVE,/ALL
-     GET_DATA,'ILAT',DATA=ilat
-     IF SIZE(ilat,/TYPE) NE 8 THEN BEGIN
-        PRINT,'Invalid ephemeris data for orb ' + orbString + '. Returning ...'
-        RETURN
-     ENDIF
-     IF N_ELEMENTS(ilat.y) LE 1 THEN BEGIN
-        PRINT,'Invalid ephemeris data for orb ' + orbString + '. Returning ...'
-        RETURN
-     ENDIF
+     je_pristine = {x: je_pristine.x[keep], $
+                    y: je_pristine.y[keep]}
+     GET_FA_ORBIT,je_pristine.x,/TIME_ARRAY,/DEFINITIVE,/ALL,STRUC=struc
+  ENDIF
 
-     ;;Make sure we have data where we want it.
-     keep  = WHERE(ABS(ilat.y) GE minILAT,nKeep)
-     IF nKeep LE 1 THEN BEGIN
-        PRINT,'No data above min ILAT. Out!'
-        RETURN
-     ENDIF
-
-     IF KEYWORD_SET(force_SH_tBounds_for_je) THEN BEGIN
-        GET_FA_ORBIT,je_pristine.x,/TIME_ARRAY,/DEFINITIVE,/ALL,STRUC=struc
-        
-        north_south = LONG(ABS(struc.ilat)/struc.ilat)
-
-        keep = WHERE(north_south EQ -1,nKeep)
-
-        IF nKeep EQ 0 THEN STOP
-
-        je_pristine = {x: je_pristine.x[keep], $
-                       y: je_pristine.y[keep]}
-        GET_FA_ORBIT,je_pristine.x,/TIME_ARRAY,/DEFINITIVE,/ALL,STRUC=struc
-     ENDIF
-
-     je_tBounds = [je_pristine.x[0],je_pristine.x[-1]]
-     ;; je_tBounds = [ionMomStruct.x[0],ionMomStruct.x[-1]]
-     PRINT,FORMAT='(A0,T35,A0,", ",A0)',"ionMomStruct beginning/end : ", $
-           TIME_TO_STR(je_tBounds[0],/MSEC), $
-           TIME_TO_STR(je_tBounds[1],/MSEC)
+  je_tBounds = [je_pristine.x[0],je_pristine.x[-1]]
+  ;; je_tBounds = [ionMomStruct.x[0],ionMomStruct.x[-1]]
+  PRINT,FORMAT='(A0,T35,A0,", ",A0)',"ionMomStruct beginning/end : ", $
+        TIME_TO_STR(je_tBounds[0],/MSEC), $
+        TIME_TO_STR(je_tBounds[1],/MSEC)
 
 ;  if orbit > 9936 return (temporary fix)
 
-     if (orbit gt 9936) then begin
+  if (orbit gt 9936) then begin
 
-        PRINT,""
-        PRINT,"BATCH_SUMMARY DISABLED FOR ORBITS > 9936, SORRY"
-        PRINT,""
-        return
+     PRINT,""
+     PRINT,"BATCH_SUMMARY DISABLED FOR ORBITS > 9936, SORRY"
+     PRINT,""
+     return
 
-     endif
+  endif
 
 ; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
 
-     STORE_DATA,'BDATA',/delete
-     STORE_DATA,'BFIT',/delete 
-     STORE_DATA,'Bx_sp',/delete
-     STORE_DATA,'By_sp',/delete
-     STORE_DATA,'Bz_sp',/delete
-     STORE_DATA,'Bx_sc',/delete
-     STORE_DATA,'By_sc',/delete
-     STORE_DATA,'Bz_sc',/delete
-     STORE_DATA,'Bx_sp_sm',/delete
-     STORE_DATA,'By_sp_sm',/delete
-     STORE_DATA,'Bz_sp_sm',/delete
-     STORE_DATA,'B_gei',/delete
-     STORE_DATA,'B_sm',/delete
-     STORE_DATA,'dB_sc',/delete
-     STORE_DATA,'dB_gei',/delete
-     STORE_DATA,'spin_freq',/delete
-     STORE_DATA,'spin_phase',/delete
-     STORE_DATA,'TORQ_X',/delete
-     STORE_DATA,'TORQ_Y',/delete
-     STORE_DATA,'TORQ_Z',/delete
-     STORE_DATA,'BX_DEL',/delete
-     STORE_DATA,'BY_DEL',/delete
-     STORE_DATA,'BZ_DEL',/delete
-     STORE_DATA,'BFIX',/delete
-     STORE_DATA,'TW_ZX',/delete
-     STORE_DATA,'TW_ZY',/delete
-     STORE_DATA,'TW_YY',/delete
-     STORE_DATA,'TW_YX',/delete
-     STORE_DATA,'O_X',/delete
-     STORE_DATA,'O_Y',/delete
-     STORE_DATA,'B_model_old',/delete
-     STORE_DATA,'Delta_B_model',/delete
-     STORE_DATA,'despun_to_gei',/delete
-     STORE_DATA,'gei_to_sm',/delete
-     STORE_DATA,'gei_to_fac',/delete
-     STORE_DATA,'gei_to_fac_v',/delete
+  STORE_DATA,'BDATA',/delete
+  STORE_DATA,'BFIT',/delete 
+  STORE_DATA,'Bx_sp',/delete
+  STORE_DATA,'By_sp',/delete
+  STORE_DATA,'Bz_sp',/delete
+  STORE_DATA,'Bx_sc',/delete
+  STORE_DATA,'By_sc',/delete
+  STORE_DATA,'Bz_sc',/delete
+  STORE_DATA,'Bx_sp_sm',/delete
+  STORE_DATA,'By_sp_sm',/delete
+  STORE_DATA,'Bz_sp_sm',/delete
+  STORE_DATA,'B_gei',/delete
+  STORE_DATA,'B_sm',/delete
+  STORE_DATA,'dB_sc',/delete
+  STORE_DATA,'dB_gei',/delete
+  STORE_DATA,'spin_freq',/delete
+  STORE_DATA,'spin_phase',/delete
+  STORE_DATA,'TORQ_X',/delete
+  STORE_DATA,'TORQ_Y',/delete
+  STORE_DATA,'TORQ_Z',/delete
+  STORE_DATA,'BX_DEL',/delete
+  STORE_DATA,'BY_DEL',/delete
+  STORE_DATA,'BZ_DEL',/delete
+  STORE_DATA,'BFIX',/delete
+  STORE_DATA,'TW_ZX',/delete
+  STORE_DATA,'TW_ZY',/delete
+  STORE_DATA,'TW_YY',/delete
+  STORE_DATA,'TW_YX',/delete
+  STORE_DATA,'O_X',/delete
+  STORE_DATA,'O_Y',/delete
+  STORE_DATA,'B_model_old',/delete
+  STORE_DATA,'Delta_B_model',/delete
+  STORE_DATA,'despun_to_gei',/delete
+  STORE_DATA,'gei_to_sm',/delete
+  STORE_DATA,'gei_to_fac',/delete
+  STORE_DATA,'gei_to_fac_v',/delete
 
-     GET_DATA,'dB_fac_v',data=data
-     t1            = data.x[0]
-     t2            = data.x[N_ELEMENTS(data.x)-1L]
-     magz_tBounds  = [t1,t2]
+  GET_DATA,'dB_fac_v',data=data
+  t1            = data.x[0]
+  t2            = data.x[N_ELEMENTS(data.x)-1L]
+  magz_tBounds  = [t1,t2]
 
-     OPTIONS,'dB_fac_v','panel_size',2
-     OPTIONS,'dB_fac','panel_size',2
-     OPTIONS,'dB_sm','panel_size',2
+  OPTIONS,'dB_fac_v','panel_size',2
+  OPTIONS,'dB_fac','panel_size',2
+  OPTIONS,'dB_sm','panel_size',2
 
-     PRINT,FORMAT='(A0,T35,A0,", ",A0)',"MAG beginning/end : ",TIME_TO_STR(t1,/MSEC),TIME_TO_STR(t2,/MSEC)
-
-
-     ;;Interp time series
-     tS_1s = DOUBLE(LINDGEN(CEIL(t2-t1))+ROUND(t1))
-
-     tPlt_vars = 'dB_fac_v'
-
-     if (keyword_set(screen_plot)) then begin
-        LOADCT2,ctNum
-        tplot,tPlt_vars,var=['ALT','ILAT','MLT'],TRANGE=je_tBounds
-     endif
+  PRINT,FORMAT='(A0,T35,A0,", ",A0)',"MAG beginning/end : ",TIME_TO_STR(t1,/MSEC),TIME_TO_STR(t2,/MSEC)
 
 
-  ENDIF ELSE BEGIN
+  ;;Interp time series
+  tS_1s = DOUBLE(LINDGEN(CEIL(t2-t1))+ROUND(t1))
 
-     PRINT,"Couldn't pick up orb info from UCLA_MAG_DESPIN. OUT!"
-     RETURN
-  ENDELSE
+  tPlt_vars = 'dB_fac_v'
+
+  if (keyword_set(screen_plot)) then begin
+     LOADCT2,ctNum
+     tplot,tPlt_vars,var=['ALT','ILAT','MLT'],TRANGE=je_tBounds
+  endif
 
   IF KEYWORD_SET(save_individual_data_products_and_quit) THEN BEGIN
      GET_DATA,'dB_fac_v',data=dB_fac_v
      GET_DATA,'dB_fac',data=dB_fac
+
+     ;;  'Bx_sc'      Despun Bx (in spin plane, to sun, smoothed, deglitched)
+     ;;  'By_sc'      Despun By (in spin plane, perp sun, smoothed, deglitched)
+     ;;  'Bz_sc'      Despun Bz (spin axis component, smoothed, deglitched)
+     ;;  'dB_sc'      Detrended field in despun spacecraft coordinates
+     GET_DATA,'dB_sc',data=dB_sc
+
      GET_FA_ORBIT,dB_fac.x,/TIME_ARRAY,/DEFINITIVE,/ALL,STRUC=dBEphem
   ENDIF
 
@@ -412,6 +415,8 @@ PRO STRANGEWAY_2005__V3, $
 
      ;; despin e field data
      FA_FIELDS_DESPIN,v58,v12
+
+     eF_spinPlane = GET_EFIELD_A_LA_ALFVEN_STATS_5(BURST=burst)
 
   ENDIF ELSE BEGIN
      PRINT,"Couldn't get E-field data! Out ..."
@@ -724,9 +729,14 @@ PRO STRANGEWAY_2005__V3, $
 
      GET_DATA,'MAG_FLAGS',data=mag_flags
 
+     ;; dB_info = CREATE_STRUCT('x',dB_fac.x, $
+     ;;                    'fac',dB_fac.y, $
+     ;;                    'fac_v',dB_fac_v.y, $
+     ;;                    'sc',{x:"",y:"",z:""})
      dB = CREATE_STRUCT('x',dB_fac.x, $
                         'fac',dB_fac.y, $
                         'fac_v',dB_fac_v.y, $
+                        'sc',dB_sc.y, $
                         'mag_flags',mag_flags, $
                         TEMPORARY(dBEphem))
 
