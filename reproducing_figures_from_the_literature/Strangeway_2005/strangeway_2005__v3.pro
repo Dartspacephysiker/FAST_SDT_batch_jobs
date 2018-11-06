@@ -8,6 +8,7 @@ PRO STRANGEWAY_2005__V3, $
    TPLT_VARS=tPlt_vars, $
    IONSPECS_UPDOWNMINRATIO=upDownMinRatio, $
    IONSPECS_MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
+   IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
    IONSPECS_THRESH_EFLUX=thresh_eFlux, $
    USERDEF_HASHFILE=userDef_hashFile, $
    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
@@ -154,6 +155,7 @@ PRO STRANGEWAY_2005__V3, $
   JOURNAL__20180720__LOOK_AT_CONIC_VS_ALL_FLUX_RATIOS, $
      UPDOWNMINRATIO=upDownMinRatio, $
      MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
+     FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
      THRESH_EFLUX=thresh_eFlux, $
      ;; /QUIT_IF_FILE_EXISTS, $
      ONLY_LEEWARD_IONS=only_leeward_ions, $
@@ -617,7 +619,7 @@ PRO STRANGEWAY_2005__V3, $
                   ARANGE__MOMENTS=angleRange.all, $
                   SC_POT=sc_pot, $
                   EEB_OR_EES=eeb_or_ees, $
-                  /ERROR_ESTIMATES, $
+                  ;; /ERROR_ESTIMATES, $
                   ;; MAP_TO_100KM=map_to_100km, $ 
                   ORBIT=orbit, $
                   /NEW_MOMENT_ROUTINE, $
@@ -651,7 +653,7 @@ PRO STRANGEWAY_2005__V3, $
                   ARANGE__MOMENTS=angleRange.lc, $
                   SC_POT=sc_pot, $
                   EEB_OR_EES=eeb_or_ees, $
-                  /ERROR_ESTIMATES, $
+                  ;; /ERROR_ESTIMATES, $
                   ;; MAP_TO_100KM=map_to_100km, $ 
                   ORBIT=orbit, $
                   /NEW_MOMENT_ROUTINE, $
