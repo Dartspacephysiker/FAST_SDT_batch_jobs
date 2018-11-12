@@ -17,14 +17,20 @@
 thresh_eFlux = 5e5
 enforce_this_sample_rate = 1.25
 energy_electrons_lb = 50
-fracBelowThatMustBeUpward = 0.75D
 
 ;; indivSuff = '-rawProds_med_dB_sc_and_spinplane_E.sav'
-indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat10_thresh5e5_fracBelow0_75.sav'
+;; fracBelowThatMustBeUpward = 0.75D
+;; indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat10_thresh5e5_fracBelow0_75.sav'
+
+;; fracBelowThatMustBeUpward = 0.5D
+;; indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat2_thresh5e5_fracBelow0_5.sav'
+
+fracBelowThatMustBeUpward = 0.5D
+indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat5_thresh5e5_fracBelow0_5.sav'
 
 
 STRANGEWAY_2005__V3,/SAVE_PS, $
-                    IONSPECS_UPDOWNMINRATIO=10, $
+                    IONSPECS_UPDOWNMINRATIO=5, $
                     IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
                     IONSPECS_THRESH_EFLUX=thresh_eFlux, $
                     IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $

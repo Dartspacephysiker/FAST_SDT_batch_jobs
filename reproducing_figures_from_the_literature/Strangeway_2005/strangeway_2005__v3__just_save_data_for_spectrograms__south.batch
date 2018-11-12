@@ -92,4 +92,4 @@ DataBaseRequest:
     Orbits DONTKNOWIFILIKEEM6943
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005
-PlotConfigurationFile: rjs_clean
+PlotConfigurationFile: rjs_clean__more_efielders
