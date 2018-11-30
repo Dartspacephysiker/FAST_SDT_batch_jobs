@@ -225,7 +225,9 @@ PRO SINGLE_KAPPA_SUMMARY,time1,time2, $
   Temp2DD = {x:jvPlotData.time,y:Temperature,dy:TemperatureErr}
 
   IF KEYWORD_SET(msph_sourcecone_halfWidth) THEN BEGIN
-     fac = CEIL(90./msph_sourcecone_halfWidth)
+     ;; fac = CEIL(90./msph_sourcecone_halfWidth)
+     ;; fac = CEIL(1.D/(1-COS(msph_sourcecone_halfWidth*!DTOR)))
+     fac = 1.D/(1-COS(msph_sourcecone_halfWidth*!DTOR))
      Dens2DD.y = Dens2DD.y * fac
      Dens2DD.dy = Dens2DD.dy * fac
   ENDIF

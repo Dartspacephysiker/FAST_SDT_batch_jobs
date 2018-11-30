@@ -268,7 +268,7 @@ PRO JOURNAL__20181126__KAPPA_PAPER2_ORBITS_1607_AND_4682__TRY_LOWERING_HIGH_ENER
   min_peak_energy      = 200
   max_peak_energy      = !NULL
 
-  magicToday = '20181126' ; The day that we make the final plots for orbit 1607!
+  magicToday = '20181130' ; The day that we make the final plots for orbit 1607!
   todayStr = KEYWORD_SET(spoofDate) ? spoofDate : GET_TODAY_STRING(/DO_YYYYMMDD_FMT)
   
   ;; For the JGR
@@ -278,13 +278,13 @@ PRO JOURNAL__20181126__KAPPA_PAPER2_ORBITS_1607_AND_4682__TRY_LOWERING_HIGH_ENER
         sway__timeBar_from_ion_beams = 1
         kSum__timeBar_from_ion_beams = 0
 
-        disable_msph_sc_dens = 1
+        disable_msph_sc_dens = 30
 
         cAP__use_ion_beams_as_cAP_tRanges = 1
 
         dato = '1997-01-17/'
 
-        enforce_diff_eFlux_sRate = 1.89
+        enforce_diff_eFlux_sRate = 0.63
 
         add_parm_errors = 0
         IF KEYWORD_SET(add_parm_errors) THEN BEGIN
@@ -317,6 +317,8 @@ PRO JOURNAL__20181126__KAPPA_PAPER2_ORBITS_1607_AND_4682__TRY_LOWERING_HIGH_ENER
                                    ['12:01:32.0','12:01:47']]
 
         energy_electrons[0] = minElecEnergy
+        ;; See what happens if we lower the top energy
+        energy_electrons[1] = 6.e3
 
         IF use_electron_tBounds THEN BEGIN
 
@@ -359,7 +361,7 @@ PRO JOURNAL__20181126__KAPPA_PAPER2_ORBITS_1607_AND_4682__TRY_LOWERING_HIGH_ENER
      ;; debug__skip_to_this_time  = '1997-01-17/01:04:34.37'
      ;; debug__break_on_this_time = '1997-01-17/01:04:34.37'
 
-     disable_msph_sc_dens = 36
+     disable_msph_sc_dens = 30
 
      minElecEnergy       = 80
      energy_electrons[0] = minElecEnergy
@@ -376,9 +378,10 @@ PRO JOURNAL__20181126__KAPPA_PAPER2_ORBITS_1607_AND_4682__TRY_LOWERING_HIGH_ENER
      dato = '1997-01-17/'
 
      ;; cAP_tRanges = dato + [['01:04:24.276','01:04:49.521']]
-     cAP_tRanges = dato + [['01:04:28.0','01:04:41.3']] ;2018/06/11
+     ;; cAP_tRanges = dato + [['01:04:28.0','01:04:41.3']] ;2018/06/11
+     cAP_tRanges = dato + [['01:04:31.0','01:04:41']] ;2018/11/30
 
-     add_parm_errors = 0
+     add_parm_errors = 1
      IF KEYWORD_SET(add_parm_errors) THEN BEGIN
         kSum__add_parm_errors_from_file      = 1
         CASE enforce_diff_eFlux_sRate OF
@@ -542,7 +545,7 @@ PRO JOURNAL__20181126__KAPPA_PAPER2_ORBITS_1607_AND_4682__TRY_LOWERING_HIGH_ENER
 
   IF orbit EQ 4682 THEN BEGIN
 
-     disable_msph_sc_dens = 36
+     disable_msph_sc_dens = 30
 
      enforce_diff_eFlux_sRate = 1.25
 
@@ -584,7 +587,7 @@ PRO JOURNAL__20181126__KAPPA_PAPER2_ORBITS_1607_AND_4682__TRY_LOWERING_HIGH_ENER
 
      ;; cAP__iu_pot_tids = cAP_tRanges
 
-     add_parm_errors = 0
+     add_parm_errors = 1
      IF KEYWORD_SET(add_parm_errors) THEN BEGIN
         kSum__add_parm_errors_from_file    = 1
         ;; kSum__add_parm_errors_from_file = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/20180815-orb_4682-KandGfits-ees-2NDKAPPA-only_fit_peak_eRange-sRate1_25-09_05_40__000-09_06_55__000-2DPARMERRORS_TWOSIDED-10000Rolls.sav'
