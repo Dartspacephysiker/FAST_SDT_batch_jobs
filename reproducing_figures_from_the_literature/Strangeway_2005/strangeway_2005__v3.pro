@@ -20,6 +20,9 @@ PRO STRANGEWAY_2005__V3, $
    SAVE_INDIVIDUAL_ORBIT=save_individual_orbit, $
    SAVE_INDIVIDUAL_DATA_PRODUCTS_AND_QUIT=save_individual_data_products_and_quit, $
    SAVE_INDIVIDUAL_DATA_PRODUCTS__FSUFF=save_individual_data_products__fSuff, $
+   EFIELD_SHADOW_NOTCH=shadow_notch, $
+   EFIELD_SINTERP=sInterp, $
+   EFIELD_SNAN=sNaN, $
    NO_BLANK_PANELS=no_blank_panels, $
    STRANGEWAY_2005_FIG3_PLOT=Strangeway_2005_Fig3_plot, $
    NO_HASH_UPDATE=no_hash_update, $
@@ -423,7 +426,14 @@ PRO STRANGEWAY_2005__V3, $
   IF (got_efield) THEN BEGIN
 
      ;; despin e field data
-     FA_FIELDS_DESPIN,v58,v12
+     FA_FIELDS_DESPIN,v58,v12, $
+                      ;; MAG_NOTCH=mag_notch, $
+                      ;; BINTERP=BInterp, $
+                      ;; BNAN=BNaN, $
+                      SHADOW_NOTCH=shadow_notch, $
+                      SINTERP=sInterp, $
+                      SNAN=sNaN
+
 
      eF_spinPlane = GET_EFIELD_A_LA_ALFVEN_STATS_5(/BURST)
 

@@ -29,6 +29,11 @@ indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat10_thresh5e5_fracBelow0_75.s
 ;; fracBelowThatMustBeUpward = 0.5D
 ;; indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat5_thresh5e5_fracBelow0_5.sav'
 
+IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20181204' THEN BEGIN
+   indivSuff = '-rawProds_med_dB_sc_and_sp_E__SNOTCH_INTERP__upDownRat10_thresh5e5_fracBelow0_75.sav'
+   shadow_notch = 1
+   sInterp = 1
+ENDIF
 
 STRANGEWAY_2005__V3,/SAVE_PS, $
                     IONSPECS_UPDOWNMINRATIO=10, $
@@ -40,6 +45,8 @@ STRANGEWAY_2005__V3,/SAVE_PS, $
                     /REMAKE_DIFF_EFLUX, $
                     /SAVE_INDIVIDUAL_DATA_PRODUCTS_AND_QUIT, $
                     SAVE_INDIVIDUAL_DATA_PRODUCTS__FSUFF=indivSuff, $
+                    EFIELD_SHADOW_NOTCH=shadow_notch, $
+                    EFIELD_SINTERP=sInterp, $
                     ENERGY_ELECTRONS_LB=energy_electrons_lb
 
 
