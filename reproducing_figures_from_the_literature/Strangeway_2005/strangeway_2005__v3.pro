@@ -133,9 +133,12 @@ PRO STRANGEWAY_2005__V3, $
 
 ; Step 1 - DC Mag data
 
-  @strangeway_2005__defaults__v3.pro
+  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/V3/'
+
   savesDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
   savesIndivDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/V3/rawProds/'
+
+  @strangeway_2005__defaults__v3.pro
 
   dEF__include_sc_pot = 1
 

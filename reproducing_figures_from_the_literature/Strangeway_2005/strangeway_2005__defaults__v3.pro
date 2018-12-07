@@ -1,5 +1,4 @@
   ;;Outputs
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/V3/'
   hashFile     = 'Strangeway_et_al_2005__v3'
   indivOrbPref = 'Strangeway_et_al_2005__v3'
 
