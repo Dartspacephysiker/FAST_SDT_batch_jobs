@@ -322,6 +322,7 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
    SKIP_THESE_ORBS=skip_these_orbs, $
    HMOM__USE_LOSSCONE_NOT_ALL_PITCHA=HMom__use_losscone_not_all_pitcha, $
    AVERAGE_OVER_WHOLE_PASS=average_over_whole_pass, $
+   JUST_USE_LOCALE_NOT_OUTFLOW_FOR_AVGS_OF_OTHER_QUANTS=just_use_locale_not_outflow_for_avgs_of_other_quants, $
    PTS_STRUCT=pts, $
    NORTH=north, $
    SOUTH=south, $
@@ -386,16 +387,24 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
   wholePassStr = ''
   IF KEYWORD_SET(average_over_whole_pass) THEN BEGIN
      wholePassStr = "-wholePass"
+     justLocaleStr = ''
+     allowableGap = 0
+     allowGapStr = ''
+  ENDIF ELSE IF KEYWORD_SET(just_use_locale_not_outflow_for_avgs_of_other_quants) THEN BEGIN
+     wholePassStr = ""
+     justLocaleStr = '-justLocale'     
      allowableGap = 0
      allowGapStr = ''
   ENDIF
 
   HMomString = STRING(FORMAT='("-HMomIdx",I0)',HMom_index)
 
+  maxILATStr = STRING(FORMAT='("-maxILAT",I0)',maxILAT)
+
   lastFile = "last_sway_stats_v3_file" $
              +(hashFile.Replace(indivOrbPref,"")).Replace(".sav","")$
-             +defs.statStr+"-"+defs.sideStr+"-"+defs.hemStr $
-             +HMomString+allowGapStr+wholePassStr+".sav"
+             +defs.statStr+"-"+defs.sideStr+"-"+defs.hemStr +maxILATStr $
+             +HMomString+allowGapStr+wholePassStr+justLocaleStr+".sav"
 
   IF FILE_TEST(outDir+lastFile) AND KEYWORD_SET(restore_last_file) THEN BEGIN
 
@@ -974,10 +983,11 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
 
               ENDIF ELSE BEGIN
                  ;;Calc Poynting flux
+                 multFac = (KEYWORD_SET(south) ? -1. : 1)
 
                  ;;Poynting flux along B
-                 pFB    = PTR_NEW({DC:(*dBp).DC[BclosE_i]*(*eAV).DC[EclosB_i]/mu_0, $
-                                   AC:(*dBp).AC[BclosE_i]*(*eAV).AC[EclosB_i]/mu_0})
+                 pFB    = PTR_NEW({DC:(*dBp).DC[BclosE_i]*(*eAV).DC[EclosB_i]/mu_0*multFac, $
+                                   AC:(*dBp).AC[BclosE_i]*(*eAV).AC[EclosB_i]/mu_0*multFac})
                  
 
                  ;;Poynting flux perp to B and to (Bxv)xB
@@ -1051,38 +1061,61 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
 
               IF nOutflow LT ptsMinOutflow THEN CONTINUE
 
-              ;;Get outflow intervals
+              IF KEYWORD_SET(just_use_locale_not_outflow_for_avgs_of_other_quants) THEN BEGIN
+                 justLocale_i = LINDGEN(N_ELEMENTS(tmpJi.y))
+                 LOCALE_ADJUSTMENTS,tSerie, $
+                                    justLocale_i,nUvvers, $
+                                    ORBIT=key, $
+                                    NORTH=north, $
+                                    SOUTH=south, $
+                                    DAY=day, $
+                                    MINMLT=minMLT, $
+                                    MAXMLT=maxMLT, $
+                                    NIGHT=night, $
+                                    MINILAT=minILAT, $
+                                    MAXILAT=maxILAT
 
-              start_ii = !NULL  ;Dotsa reset these manually
-              stop_ii  = !NULL
-              lens     = !NULL
-              GET_DOUBLE_STREAKS__NTH_DECIMAL_PLACE, $
-                 (*HPTSArr[HJiInd])[oflow_i],0, $
-                 NPTS=ptsMinOutflow, $
-                 MIN_T_STREAKLEN=min_streakLen_t, $
-                 GAP_TIME=allowableGap, $
-                 START_I=start_ii, $
-                 STOP_I=stop_ii, $
-                 STREAKLENS=lens
+                 nStreaks = 1
+                 nOfloPts  = N_ELEMENTS(justLocale_i) + 1
+                 lens = nOfloPts
 
-              IF ~(ISA(start_ii) AND ISA(stop_ii)) THEN BEGIN
-                 PRINT,"No outflow streaks of sufficient length here ..."
-                 CONTINUE
-              ENDIF
+              ENDIF ELSE BEGIN
 
-              IF start_ii[0] EQ stop_ii[0] THEN BEGIN
-                 PRINT,"No outflow streaks of sufficient length here ..."
-                 CONTINUE
-              ENDIF
 
-              ;;OK, now we know that there's going to be action. 
-              ;;If we're this far, we're going to average all outflow points
-              nPts      = (N_ELEMENTS(PUniv_TS) GT 0 ? N_ELEMENTS((*PUniv_TS)) : N_ELEMENTS((*PH_TS)))
-              nStreaks  = N_ELEMENTS(start_ii)
-              nOfloPts  = FIX(TOTAL(lens) + nStreaks)
+                 ;;Get outflow intervals
 
-              PRINT,"n Outflow/not: " + STRCOMPRESS(nOfloPts,/REMOVE_ALL) + '/' + STRCOMPRESS(nPts,/REMOVE_ALL) + ' (' + $
-                    STRCOMPRESS(FLOAT(nOfloPts)/nPts*100.,/REMOVE_ALL) + '%)'
+                 start_ii = !NULL ;Dotsa reset these manually
+                 stop_ii  = !NULL
+                 lens     = !NULL
+                 GET_DOUBLE_STREAKS__NTH_DECIMAL_PLACE, $
+                    (*HPTSArr[HJiInd])[oflow_i],0, $
+                    NPTS=ptsMinOutflow, $
+                    MIN_T_STREAKLEN=min_streakLen_t, $
+                    GAP_TIME=allowableGap, $
+                    START_I=start_ii, $
+                    STOP_I=stop_ii, $
+                    STREAKLENS=lens
+
+                 IF ~(ISA(start_ii) AND ISA(stop_ii)) THEN BEGIN
+                    PRINT,"No outflow streaks of sufficient length here ..."
+                    CONTINUE
+                 ENDIF
+
+                 IF start_ii[0] EQ stop_ii[0] THEN BEGIN
+                    PRINT,"No outflow streaks of sufficient length here ..."
+                    CONTINUE
+                 ENDIF
+
+                 ;;OK, now we know that there's going to be action. 
+                 ;;If we're this far, we're going to average all outflow points
+                 ;; nPts      = (N_ELEMENTS(PUniv_TS) GT 0 ? N_ELEMENTS((*PUniv_TS)) : N_ELEMENTS((*PH_TS)))
+                 nStreaks  = N_ELEMENTS(start_ii)
+                 nOfloPts  = FIX(TOTAL(lens) + nStreaks)
+
+                 ;; PRINT,"n Outflow/not: " + STRCOMPRESS(nOfloPts,/REMOVE_ALL) + '/' + STRCOMPRESS(nPts,/REMOVE_ALL) + ' (' + $
+                 ;;       STRCOMPRESS(FLOAT(nOfloPts)/nPts*100.,/REMOVE_ALL) + '%)'
+
+              ENDELSE
 
               ofloItvlBDCArr = MAKE_ARRAY(nOfloPts,nBTags,/FLOAT,VALUE=0.) 
               ofloItvlEDCArr = MAKE_ARRAY(nOfloPts,nETags,/FLOAT,VALUE=0.) 
@@ -1113,8 +1146,16 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                  ;; strkInds  = [oflow_i[start_ii[l]]:oflow_i[stop_ii[l]]]
 
                  ;; Den nye ordning post-2018-07-31
-                 strkInds  = [oflow_i[start_ii[l]]:oflow_i[stop_ii[l]]]
-                 arrInds  = strkInds-MIN(strkInds)+ofloItvlPtCnt
+
+                 IF KEYWORD_SET(just_use_locale_not_outflow_for_avgs_of_other_quants) THEN BEGIN
+                    strkInds = justLocale_i
+                    arrInds  = justLocale_i
+                 ENDIF ELSE BEGIN
+
+                    strkInds  = [oflow_i[start_ii[l]]:oflow_i[stop_ii[l]]]
+                    arrInds  = strkInds-MIN(strkInds)+ofloItvlPtCnt
+
+                 ENDELSE
 
                  ;; PRINT,FORMAT='(A0,I0,":",I0,A0)',"arrInds : [",arrInds[0],arrInds[-1],"]"
                  ;; PRINT,FORMAT='(A0,I0,":",I0,A0)',"strkInds : [",strkInds[0],strkInds[-1],"]"
@@ -1144,9 +1185,15 @@ FUNCTION EXTRACT_STRANGEWAY_STATS__V3, $
                                               [(*pFB).AC[strkInds]]]
 
                  ;;Particles
-                 ofloItvlHArr[arrInds,*]   = [[tmpStruct[k].(Hind).(HJEeInd).y[strkInds]], $
-                                              [tmpStruct[k].(Hind).(HJeInd).y[strkInds]], $
-                                              [tmpJi.y[strkInds]]]
+                 ;; IF KEYWORD_SET() THEN BEGIN
+                 ;;    ofloItvlHArr[arrInds,*]   = [[tmpStruct[k].(Hind).(HJEeInd).y[strkInds]], $
+                 ;;                                 [tmpStruct[k].(Hind).(HJeInd).y[strkInds]], $
+                 ;;                                 [tmpJi.y[oflow_i]]]
+                 ;; ENDIF ELSE BEGIN
+                    ofloItvlHArr[arrInds,*]   = [[tmpStruct[k].(Hind).(HJEeInd).y[strkInds]], $
+                                                 [tmpStruct[k].(Hind).(HJeInd).y[strkInds]], $
+                                                 [tmpJi.y[strkInds]]]
+                 ;; ENDELSE
 
                  ofloItvlHMomArr[arrInds,*] = [[tmpStruct[k].(HMomind).(HMom_index).(HMomNeInd)[strkInds]], $
                                               [tmpStruct[k].(HMomind).(HMom_index).(HMomCEInd)[strkInds]], $

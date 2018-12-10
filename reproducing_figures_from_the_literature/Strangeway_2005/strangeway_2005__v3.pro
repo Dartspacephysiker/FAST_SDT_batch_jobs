@@ -133,8 +133,6 @@ PRO STRANGEWAY_2005__V3, $
 
 ; Step 1 - DC Mag data
 
-  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/V3/'
-
   savesDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
   savesIndivDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/V3/rawProds/'
 
@@ -143,11 +141,14 @@ PRO STRANGEWAY_2005__V3, $
   dEF__include_sc_pot = 1
 
   IF KEYWORD_SET(userDef_hashFile) THEN BEGIN
-     PRINT,"ACTUALLY, userDef hashFile: ",userDef_hashFile
+     ;; PRINT,"ACTUALLY, userDef hashFile: ",userDef_hashFile
 
      hashFile = userDef_hashFile
      outPlotName = userDef_hashFile.Replace(".sav","")
   ENDIF
+
+  PRINT,'outDir   : ',outDir
+  PRINT,'Hashfile : ',hashFile
 
   psym_ptcl    = 3              ;period
   symsize_ptcl = 5.0
@@ -1101,11 +1102,11 @@ PRO STRANGEWAY_2005__V3, $
 
         ENDIF ELSE BEGIN
 
-           pFBHigh =       dBp.AC *eAV.AC/mu_0 ;Poynting flux along B
+           pFBHigh =       dBp.AC*eAV.AC/mu_0 ;Poynting flux along B
            pFPHigh = (-1.)*dBB.AC*eAV.AC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
            ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
 
-           pFBLow =       dBp.DC *eAV.DC/mu_0 ;Poynting flux along B
+           pFBLow =       dBp.DC*eAV.DC/mu_0 ;Poynting flux along B
            pFPLow = (-1.)*dBB.DC*eAV.DC/mu_0  ;Poynting flux perp to B and to (Bxv)xB
            ;;Negative sign comes out of S = 1/μ_0 * E x B for {b,v,p} "velocity-based" coord system
 

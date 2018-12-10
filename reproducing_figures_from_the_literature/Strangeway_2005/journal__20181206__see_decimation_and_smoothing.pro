@@ -1,5 +1,6 @@
 ;2018/12/06
-PRO JOURNAL__20181206__SEE_DECIMATION_AND_SMOOTHING
+PRO JOURNAL__20181206__SEE_DECIMATION_AND_SMOOTHING, $
+   SAVESEPARATE=saveSep
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -8,6 +9,13 @@ PRO JOURNAL__20181206__SEE_DECIMATION_AND_SMOOTHING
 
   inDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
   inFile = 'journal__20181206-see_decimation_and_smoothing-orb8276.sav'
+
+  IF KEYWORD_SET(saveSep) OR KEYWORD_SET(savePlot) THEN BEGIN
+     outPlotPref = 'orb8276'
+     pltExt = '.ps'
+     SET_PLOT_DIR,outPlotDir,ADD_SUFF='/20181210-SWayDecimateSmooth/',/FOR_SDT
+
+  ENDIF
 
   RESTORE,inDir + inFile
 
@@ -254,6 +262,20 @@ PRO JOURNAL__20181206__SEE_DECIMATION_AND_SMOOTHING
                        OVERPLOT=pltCount NE 0, $
                        CURRENT=win)
 
+     IF KEYWORD_SET(saveSep) THEN BEGIN
+        legend = LEGEND(TARGET=REVERSE(plotArr[0:pltCount]), $
+                        POSITION=[0.7,0.75], $
+                        /NORMAL, $
+                        FONT_SIZE=fSizeLeg)
+
+        suff = STRING(FORMAT='("-",I02,A0)',pltCount,pltExt)
+        outPlotN = outPlotPref + suff
+        PRINT,"Saving to " + outPlotN
+        win.Save,outPlotDir+outPlotN
+
+        legend.Delete
+     ENDIF
+
      pltCount++
 
 
@@ -282,8 +304,23 @@ PRO JOURNAL__20181206__SEE_DECIMATION_AND_SMOOTHING
                     OVERPLOT=pltCount NE 0, $
                     CURRENT=win)
 
-  legend = LEGEND(TARGET=REVERSE(plotArr),FONT_SIZE=fSizeLeg)
+  legend = LEGEND(TARGET=REVERSE(plotArr), $
+                  POSITION=[0.7,0.75], $
+                  /NORMAL, $
+                  FONT_SIZE=fSizeLeg)
+
+  IF KEYWORD_SET(saveSep) THEN BEGIN
+     suff = STRING(FORMAT='("-",I02,A0)',pltCount,pltExt)
+     outPlotN = outPlotPref + suff
+     PRINT,"Saving to " + outPlotN
+     win.Save,outPlotDir+outPlotN
+  ENDIF
+
 
   STOP
+
+  IF KEYWORD_SET(savePlot) THEN BEGIN
+
+  ENDIF
 
 END

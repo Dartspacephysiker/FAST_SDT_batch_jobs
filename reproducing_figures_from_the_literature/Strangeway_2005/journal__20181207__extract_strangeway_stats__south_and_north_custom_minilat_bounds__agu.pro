@@ -8,10 +8,9 @@ PRO JOURNAL__20181207__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
    MAXILAT=maxILAT, $
    RESTORE_LAST_FILE=restore_last_file, $
    USE_V3_STRANGEWAY=use_v3_strangeway, $
-   V3__USE_ELEC_LB30EV_HASHFILE=use_elec_lb30eV_hashFile, $
-   V3__USE_ELEC_LB50EV_HASHFILE=use_elec_lb50eV_hashFile, $
    V3__HMOM__USE_LOSSCONE_NOT_ALL_PITCHA=HMom__use_losscone_not_all_pitcha, $
    V3__AVERAGE_OVER_WHOLE_PASS=average_over_whole_pass, $
+   JUST_USE_LOCALE_NOT_OUTFLOW_FOR_AVGS_OF_OTHER_QUANTS=just_use_locale_not_outflow_for_avgs_of_other_quants, $
    OUT_STATS=this, $
    OUT_PLOTINFO=plotInfo, $
    NO_PLOTS=no_plots
@@ -28,66 +27,49 @@ PRO JOURNAL__20181207__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
 
   ;; USE KEYWORDS
   ;; use_v3_strangeway = 1
-  ;; use_elec_lb30eV_hashFile = 1
 
   CASE 1 OF
      KEYWORD_SET(south): BEGIN
 
-        CASE 1 OF
-           KEYWORD_SET(use_v3_strangeway): BEGIN
+        ;; CASE 1 OF
+        ;;    KEYWORD_SET(use_v3_strangeway): BEGIN
 
-              CASE 1 OF
-                 KEYWORD_SET(use_elec_lb30eV_hashFile): BEGIN
-                    userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec-SOUTH.sav'
-                 END
-                 KEYWORD_SET(use_elec_lb50eV_hashFile): BEGIN
-                    userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-50eVLBforelec-SOUTH.sav'
-                 END
-                 ELSE: BEGIN
-                    userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s.sav'
-                 END
-              ENDCASE
+        userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRat10-minNQualECh_3-fracBelow_075-50eVLBforelec-SOUTH-AGU2018.sav'
 
-           skip_these_orbs =  [8260, $
-                               8261, $
-                               8262, $
-                               8263, $
-                               8264, $
-                               8265, $
-                               8266, $
-                               8267, $
-                               8268, $
-                               8269, $
-                               8270, $
-                               8271, $
-                               8272, $
-                               8273, $
-                               8274, $
-                               8275, $
-                               8276, $
-                               8277, $
-                               8278, $
-                               8279, $
-                               8280, $
-                               8281, $
-                               8282, $
-                               8283, $
-                               8284, $
-                               8285, $
-                               8286, $
-                               8287, $
-                               8288, $
-                               8289, $
-                               8290, $
-                               8291, $
-                               8292]
+        skip_these_orbs =  [8260, $
+                            8261, $
+                            8262, $
+                            8263, $
+                            8264, $
+                            8265, $
+                            8266, $
+                            8267, $
+                            8268, $
+                            8269, $
+                            8270, $
+                            8271, $
+                            8272, $
+                            8273, $
+                            8274, $
+                            8275, $
+                            8276, $
+                            8277, $
+                            8278, $
+                            8279, $
+                            8280, $
+                            8281, $
+                            8282, $
+                            8283, $
+                            8284, $
+                            8285, $
+                            8286, $
+                            8287, $
+                            8288, $
+                            8289, $
+                            8290, $
+                            8291, $
+                            8292]
 
-
-           END
-           ELSE: BEGIN
-              userDef_hashFile = 'Strangeway_et_al_2005__v2-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-SOUTH.sav'
-           END
-        ENDCASE
 
         ;; These minILATs only apply to dayside
         minILATs = [[9443,70], $
@@ -123,56 +105,37 @@ PRO JOURNAL__20181207__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
      END
      KEYWORD_SET(north): BEGIN
 
-        CASE 1 OF
-           KEYWORD_SET(use_v3_strangeway): BEGIN
+        userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRat10-minNQualECh_3-fracBelow_075-50eVLBforelec-AGU2018.sav'
 
-              CASE 1 OF
-                 KEYWORD_SET(use_elec_lb30eV_hashFile): BEGIN
-                    userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s-30eVLBforelec.sav'
-                 END
-                 KEYWORD_SET(use_elec_lb50eV_hashFile): BEGIN
-                    userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-50eVLBforelec.sav'
-                 END
-                 ELSE: BEGIN
-                    userDef_hashFile = 'Strangeway_et_al_2005__v3-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s.sav'
-                 END
-              ENDCASE
-
-              skip_these_orbs = [9443, $
-                                 9444, $
-                                 9452, $
-                                 9454, $
-                                 9457, $
-                                 9463, $
-                                 9465, $
-                                 9472, $
-                                 9474, $
-                                 9475, $
-                                 9476, $
-                                 9477, $
-                                 9478, $
-                                 9479, $
-                                 9480, $
-                                 9483, $
-                                 9485, $
-                                 9486, $
-                                 9487, $
-                                 9488, $
-                                 9489, $
-                                 9490, $
-                                 9493, $
-                                 9495, $
-                                 9497, $
-                                 9498, $
-                                 9504, $
-                                 9506, $
-                                 9517]
-
-           END
-           ELSE: BEGIN
-              userDef_hashFile = 'Strangeway_et_al_2005__v2-threshEFlux5e5-upDownRatio_1-minNQualECh_3-interp4Hz_to_1s.sav'
-           END
-        ENDCASE
+        skip_these_orbs = [9443, $
+                           9444, $
+                           9452, $
+                           9454, $
+                           9457, $
+                           9463, $
+                           9465, $
+                           9472, $
+                           9474, $
+                           9475, $
+                           9476, $
+                           9477, $
+                           9478, $
+                           9479, $
+                           9480, $
+                           9483, $
+                           9485, $
+                           9486, $
+                           9487, $
+                           9488, $
+                           9489, $
+                           9490, $
+                           9493, $
+                           9495, $
+                           9497, $
+                           9498, $
+                           9504, $
+                           9506, $
+                           9517]
 
         ;; These minILATs only apply to dayside
         minILATs = [[8260,70], $
@@ -214,7 +177,7 @@ PRO JOURNAL__20181207__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
   IF KEYWORD_SET(simple_60_assumption) THEN BEGIN
      CASE 1 OF
         KEYWORD_SET(south): BEGIN
-           PRINT,"Simple assumption that ILAT lower limit for ion upflow is 65 deg ..."
+           PRINT,"Simple assumption that ILAT lower limit for ion upflow is 60 deg ..."
            minILATs[1,*] = 60
         END
         KEYWORD_SET(north): BEGIN
@@ -235,7 +198,8 @@ PRO JOURNAL__20181207__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
 
   yesDay = (~KEYWORD_SET(night)) AND N_ELEMENTS(minMLT) EQ 0 AND N_ELEMENTS(maxMLT) EQ 0
 
-  this = CALL_FUNCTION(func,/AVERAGES, $
+  this = CALL_FUNCTION(func, $
+                       /AVERAGES, $
                        SOUTH=south, $
                        NORTH=north, $
                        SKIP_THESE_ORBS=skip_these_orbs, $
@@ -250,7 +214,8 @@ PRO JOURNAL__20181207__EXTRACT_STRANGEWAY_STATS__SOUTH_AND_NORTH_CUSTOM_MINILAT_
                        OUT_PLOTINFO=plotInfo, $
                        NO_PLOTS=no_plots, $
                        HMOM__USE_LOSSCONE_NOT_ALL_PITCHA=HMom__use_losscone_not_all_pitcha, $
-                       AVERAGE_OVER_WHOLE_PASS=average_over_whole_pass)
+                       AVERAGE_OVER_WHOLE_PASS=average_over_whole_pass, $
+                       JUST_USE_LOCALE_NOT_OUTFLOW_FOR_AVGS_OF_OTHER_QUANTS=just_use_locale_not_outflow_for_avgs_of_other_quants)
 
 
 END
