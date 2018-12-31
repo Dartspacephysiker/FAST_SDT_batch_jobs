@@ -29,10 +29,15 @@ indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat10_thresh5e5_fracBelow0_75.s
 ;; fracBelowThatMustBeUpward = 0.5D
 ;; indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat5_thresh5e5_fracBelow0_5.sav'
 
-IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20181204' THEN BEGIN
-   indivSuff = '-rawProds_med_dB_sc_and_sp_E__SNOTCH_INTERP__upDownRat10_thresh5e5_fracBelow0_75.sav'
-   shadow_notch = 1
-   sInterp = 1
+minDag = '20181228'
+IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20181204' THEN BEGIN & $
+   indivSuff = '-rawProds_med_dB_sc_and_sp_E__SNOTCH_INTERP__upDownRat10_thresh5e5_fracBelow0_75.sav' & $
+   shadow_notch = 1 & $
+   sInterp = 1 & $
+ENDIF ELSE IF minDag EQ '20181228' THEN BEGIN & $
+   indivSuff = '-rawProds_med_dB_sc_and_sp_E__SNOTCH__upDownRat10_thresh5e5_fracBelow0_75.sav' & $
+   shadow_notch = 1 & $
+   sInterp = 0 & $
 ENDIF
 
 STRANGEWAY_2005__V3,/SAVE_PS, $
