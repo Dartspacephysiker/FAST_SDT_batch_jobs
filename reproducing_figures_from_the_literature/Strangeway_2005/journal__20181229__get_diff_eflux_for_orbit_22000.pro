@@ -18,18 +18,30 @@ PRO JOURNAL__20181229__GET_DIFF_EFLUX_FOR_ORBIT_22000
 
   GET_FA_ORBIT,times,/TIME_ARRAY
 
-  avgitvlstr = ''
-  threshEFluxStr = ''
-  upDownRatioStr = ''
-  leewardStr = ''
-  minNQualEStr = ''
+  enforce_diff_eFlux_sRate = 2.50
+
+  ;; specAvgSuff = ''
+  ;; CASE 1 OF
+  ;;    KEYWORD_SET(enforce_diff_eFlux_sRate): BEGIN
+  ;;       avgitvlstr = (STRING(FORMAT='("-sRate",F0.2)',enforce_diff_eFlux_sRate)).Replace('.','_')
+  ;;    END
+  ;;    KEYWORD_SET(spectra_average_interval): BEGIN
+  ;;       avgitvlstr = STRING(FORMAT='("-avgItvl",I0)',spectra_average_interval)
+  ;;    END
+  ;; ENDCASE
+
+  ;; avgitvlstr = ''
+  ;; threshEFluxStr = ''
+  ;; upDownRatioStr = ''
+  ;; leewardStr = ''
+  ;; minNQualEStr = ''
+  ;; ;; savePref = "orb_" + STRING(FORMAT='(I0)',orbit)+"-conic_vs_flux_ratios"$
+  ;; ;;            +avgItvlStr+threshEFluxStr+upDownRatioStr+minNQualEStr + leewardStr
+  ;; saveSuff = ".sav"
   
   nHere = N_ELEMENTS(times)
   GET_DATA,"ORBIT",DATA=orbit
   orbit = orbit.y[nHere/2]
-  savePref = "orb_" + STRING(FORMAT='(I0)',orbit)+"-conic_vs_flux_ratios"$
-             +avgItvlStr+threshEFluxStr+upDownRatioStr+minNQualEStr + leewardStr
-  saveSuff = ".sav"
   DIFF_EFLUX_FNAME, $
      T1=times[0], $
      T2=times[-1], $
@@ -85,24 +97,50 @@ PRO JOURNAL__20181229__GET_DIFF_EFLUX_FOR_ORBIT_22000
   ;;    LOAD_DIR=loadDir, $
   ;;    NO_DATA=no_data
 
-  STOP
-
-  print,t2s(diff_eflux[605].time)
+  ;; print,t2s(diff_eflux[605].time)
   ;; have ram ions at 2000-03-04/02:55:00
   ;; this is 2000-03-04/02:55:04
 
-  dat = diff_eflux[605]
+  ;; dat = diff_eflux[605]
 
-  CONTOUR2D,dat, $
-            ;; ANGLE=angle, $
-            /POLAR, $
-            /FILL, $
-            ;; /OVERPLOT, $
-            /MSEC, $
-            LIMITS=limits, $
-            /LABEL, $
-            THICK=thick
+  ;; STOP
 
-plot = PLOT(dat.energy[0:dat.nenergy-1,19],dat.data[0:dat.nenergy-1,19],/XLOG,/YLOG)
+  ;; CONTOUR2D,dat, $
+  ;;           ;; ANGLE=angle, $
+  ;;           /POLAR, $
+  ;;           /FILL, $
+  ;;           ;; /OVERPLOT, $
+  ;;           /MSEC, $
+  ;;           LIMITS=limits, $
+  ;;           /LABEL, $
+  ;;           THICK=thick
+
+  ;; plot = PLOT(dat.energy[0:dat.nenergy-1,19],dat.data[0:dat.nenergy-1,19],/XLOG,/YLOG)
+
+  t1Str = '2000-03-04/02:49:00'
+  t2Str = '2000-03-04/03:25:00'
+
+  t1 = S2T(t1Str)
+  t2 = S2T(t2Str)
+
+  inds = VALUE_CLOSEST2(diff_eFlux.time,[t1,t2],/CONSTRAINED)
+
+  just_save_all = 1
+
+  startInd = inds[0]
+  stopInd = inds[1]
+
+  retrace = 1
+
+  PLOT_DIFF_EFLUX__2D_DISTS,diff_eFlux, $
+                            EEB_OR_EES=ieb_or_ies, $
+                            ORBIT=orbit, $
+                            SPEC_AVG_INTVL=spec_avg_intvl, $
+                            STARTIND=startInd, $
+                            STOPIND=stopInd, $
+                            RETRACE=retrace,   $
+                            IND__STRIDE=stride, $
+                            JUST_SAVE_ALL=just_save_all
+                            
 
 END
