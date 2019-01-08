@@ -446,7 +446,7 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
                          /OVERPLOT)
 
      vparDiffPlot = PLOT(diff_eFlux[goodVals].alt, $
-                         velPar[goodVals]+vFAST.par[goodVals], $
+                         vFAST.par[goodVals]+velPar[goodVals], $
                          NAME='Diff', $
                          LINESTYLE='', $
                          SYMBOL='+', $

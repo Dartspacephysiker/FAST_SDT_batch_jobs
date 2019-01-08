@@ -19,7 +19,10 @@ PRO STRANGEWAY_2005__V3, $
    USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
    SAVE_INDIVIDUAL_ORBIT=save_individual_orbit, $
    SAVE_INDIVIDUAL_DATA_PRODUCTS_AND_QUIT=save_individual_data_products_and_quit, $
+   SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_IONS=save_individual_data_products__only_ions, $
+   SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_DB_AND_IONS=save_individual_data_products__only_db_and_ions, $
    SAVE_INDIVIDUAL_DATA_PRODUCTS__FSUFF=save_individual_data_products__fSuff, $
+   MAKE_IONS_OXYGEN=make_ions_oxygen, $
    EFIELD_SHADOW_NOTCH=shadow_notch, $
    EFIELD_SINTERP=sInterp, $
    EFIELD_SNAN=sNaN, $
@@ -165,6 +168,7 @@ PRO STRANGEWAY_2005__V3, $
      FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
      THRESH_EFLUX=thresh_eFlux, $
      ;; /QUIT_IF_FILE_EXISTS, $
+     MAKE_IONS_OXYGEN=make_ions_oxygen, $
      ONLY_LEEWARD_IONS=only_leeward_ions, $
      ENFORCE_THIS_SAMPLE_RATE=enforce_this_sample_rate, $
      REMAKE_DIFF_EFLUX=remake_diff_eFlux, $
@@ -185,7 +189,10 @@ PRO STRANGEWAY_2005__V3, $
      DOWN_ARANGES=down_aRangeS, $
      SAVE_PS=save_ps, $
      NO_PLOTS=no_plots, $
+     OUT_ORBIT=out_orbit, $
      MISLYKTES=mislyktes
+
+  orbit = out_orbit
 
   IF KEYWORD_SET(mislyktes) THEN BEGIN
      PRINT,"Mislyktes under identifikasjon av ion utstrømming-perioder"
@@ -196,11 +203,15 @@ PRO STRANGEWAY_2005__V3, $
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Step 1 - DC Mag data
 
-  UCLA_MAG_DESPIN,TW_MAT=tw_mat,ORBIT=orbit,SPIN_AXIS=spin_axis,DELTA_PHI=delta_phi
+  IF ~KEYWORD_SET(save_individual_data_products__only_ions) THEN BEGIN
 
-  IF (N_ELEMENTS(orbit) EQ 0) THEN BEGIN
-     PRINT,"Couldn't pick up orb info from UCLA_MAG_DESPIN. OUT!"
-     RETURN
+     UCLA_MAG_DESPIN,TW_MAT=tw_mat,ORBIT=orbit,SPIN_AXIS=spin_axis,DELTA_PHI=delta_phi
+
+     IF (N_ELEMENTS(orbit) EQ 0) THEN BEGIN
+        PRINT,"Couldn't pick up orb info from UCLA_MAG_DESPIN. OUT!"
+        RETURN
+     ENDIF
+
   ENDIF
 
   orbString           = STRING(FORMAT='(I0)',orbit)
@@ -210,7 +221,11 @@ PRO STRANGEWAY_2005__V3, $
      indiv_orbFile = indivOrbPref + orbString + '.sav'
   ENDIF
 
-  IF KEYWORD_SET(save_individual_data_products_and_quit) THEN BEGIN
+  save_data_and_quit = KEYWORD_SET(save_individual_data_products__only_ions) OR $
+                       KEYWORD_SET(save_individual_data_products__only_db_and_ions) OR $
+                       KEYWORD_SET(save_individual_data_products_and_quit)
+
+  IF KEYWORD_SET(save_data_and_quit) THEN BEGIN
      IF KEYWORD_SET(save_individual_data_products__fSuff) THEN BEGIN
         indivSuff = save_individual_data_products__fSuff
      ENDIF ELSE BEGIN
@@ -295,7 +310,14 @@ PRO STRANGEWAY_2005__V3, $
 
      keep = WHERE(north_south EQ -1,nKeep)
 
-     IF nKeep EQ 0 THEN STOP
+     IF nKeep EQ 0 THEN BEGIN
+        IF KEYWORD_SET(batch_mode) THEN BEGIN
+           PRINT,"Ain't no nothin' in SH for orbit " + orbString + "! Returning ..."
+           RETURN
+        ENDIF ELSE BEGIN
+           STOP
+        ENDELSE
+     ENDIF
 
      je_pristine = {x: je_pristine.x[keep], $
                     y: je_pristine.y[keep]}
@@ -358,385 +380,399 @@ PRO STRANGEWAY_2005__V3, $
   ;; STORE_DATA,'gei_to_fac',/delete
   ;; STORE_DATA,'gei_to_fac_v',/delete
 
-  GET_DATA,'dB_fac_v',data=data
-  t1            = data.x[0]
-  t2            = data.x[N_ELEMENTS(data.x)-1L]
-  magz_tBounds  = [t1,t2]
+  IF ~KEYWORD_SET(save_individual_data_products__only_ions) THEN BEGIN
 
-  OPTIONS,'dB_fac_v','panel_size',2
-  OPTIONS,'dB_fac','panel_size',2
-  OPTIONS,'dB_sm','panel_size',2
+     GET_DATA,'dB_fac_v',data=data
+     t1            = data.x[0]
+     t2            = data.x[N_ELEMENTS(data.x)-1L]
+     magz_tBounds  = [t1,t2]
 
-  PRINT,FORMAT='(A0,T35,A0,", ",A0)',"MAG beginning/end : ",TIME_TO_STR(t1,/MSEC),TIME_TO_STR(t2,/MSEC)
+     OPTIONS,'dB_fac_v','panel_size',2
+     OPTIONS,'dB_fac','panel_size',2
+     OPTIONS,'dB_sm','panel_size',2
+
+     PRINT,FORMAT='(A0,T35,A0,", ",A0)',"MAG beginning/end : ",TIME_TO_STR(t1,/MSEC),TIME_TO_STR(t2,/MSEC)
 
 
-  ;;Interp time series
-  tS_1s = DOUBLE(LINDGEN(CEIL(t2-t1))+ROUND(t1))
+     ;;Interp time series
+     tS_1s = DOUBLE(LINDGEN(CEIL(t2-t1))+ROUND(t1))
 
-  tPlt_vars = 'dB_fac_v'
+     tPlt_vars = 'dB_fac_v'
 
-  if (keyword_set(screen_plot)) then begin
-     LOADCT2,ctNum
-     tplot,tPlt_vars,var=['ALT','ILAT','MLT'],TRANGE=je_tBounds
-  endif
+     if (keyword_set(screen_plot)) then begin
+        LOADCT2,ctNum
+        tplot,tPlt_vars,var=['ALT','ILAT','MLT'],TRANGE=je_tBounds
+     endif
 
-  IF KEYWORD_SET(save_individual_data_products_and_quit) THEN BEGIN
-     GET_DATA,'dB_fac_v',data=dB_fac_v
-     GET_DATA,'dB_fac',data=dB_fac
+     IF KEYWORD_SET(save_individual_data_products_and_quit) OR $
+        KEYWORD_SET(save_individual_data_products__only_db_and_ions) $
+     THEN BEGIN
+        GET_DATA,'dB_fac_v',data=dB_fac_v
+        GET_DATA,'dB_fac',data=dB_fac
 
-     ;;  'Bx_sc'      Despun Bx (in spin plane, to sun, smoothed, deglitched)
-     ;;  'By_sc'      Despun By (in spin plane, perp sun, smoothed, deglitched)
-     ;;  'Bz_sc'      Despun Bz (spin axis component, smoothed, deglitched)
-     ;;  'dB_sc'      Detrended field in despun spacecraft coordinates
-     GET_DATA,'dB_sc',data=dB_sc
+        ;;  'Bx_sc'      Despun Bx (in spin plane, to sun, smoothed, deglitched)
+        ;;  'By_sc'      Despun By (in spin plane, perp sun, smoothed, deglitched)
+        ;;  'Bz_sc'      Despun Bz (spin axis component, smoothed, deglitched)
+        ;;  'dB_sc'      Detrended field in despun spacecraft coordinates
+        GET_DATA,'dB_sc',data=dB_sc
 
-     GET_FA_ORBIT,dB_fac.x,/TIME_ARRAY,/DEFINITIVE,/ALL,STRUC=dBEphem
-  ENDIF
+        GET_FA_ORBIT,dB_fac.x,/TIME_ARRAY,/DEFINITIVE,/ALL,STRUC=dBEphem
+     ENDIF
+
 
 ; step 2 - E field
 
-; JBV, 2011/05/22.   If we are running Multi-User SDT, we need
-; to get the SDT index for this run.  Otherwise "showDQIs" won't
-; return.  If this is old, single-user SDT, "sdt_idx" is returned
-; as 255 and we handle the call in the old way.
-  sdt_idx = get_sdt_run_idx()
+     IF ~KEYWORD_SET(save_individual_data_products__only_db_and_ions) THEN BEGIN
+        ;; JBV, 2011/05/22.   If we are running Multi-User SDT, we need
+        ;; to get the SDT index for this run.  Otherwise "showDQIs" won't
+        ;; return.  If this is old, single-user SDT, "sdt_idx" is returned
+        ;; as 255 and we handle the call in the old way.
+        sdt_idx = get_sdt_run_idx()
 
-  prog = GETENV('FASTBIN') + '/showDQIs'
-  IF ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN BEGIN
-     IF (sdt_idx GE 10) THEN BEGIN
-        sidstr = STRING(sdt_idx,FORMAT='(I2)')
-     ENDIF ELSE BEGIN
-        sidstr = STRING(sdt_idx,FORMAT='(I1)')
-     ENDELSE
-     SPAWN,[prog, sidstr],result,/NOSHELL
-  ENDIF ELSE BEGIN
-     SPAWN,prog,result,/NOSHELL
-  ENDELSE
-
-
-  ;;Find out if we have various eField things
-  b = WHERE(STRPOS(result,'V1-V4_S') GE 0,nb4)
-  IF (nb4 GT 0) THEN IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN nb4 = 0
-  b = WHERE(STRPOS(result,'V1-V2_S') GE 0,nb2)
-  IF (nb2 GT 0) THEN IF STRPOS(RESULT[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN nb2 = 0
-  IF (nb4 GT 0) THEN v12 = GET_FA_FIELDS('V1-V4_S',/DEFAULT) $
-  ELSE IF (nb2 GT 0) THEN v12 = GET_FA_FIELDS('V1-V2_S',/DEFAULT)
-
-  b = WHERE(STRPOS(result,'V5-V8_S') GE 0,nb5)
-  IF (nb5 GT 0) THEN v58 = GET_FA_FIELDS('V5-V8_S',/DEFAULT)
-
-  got_efield = (nb4 GT 0 OR nb2 GT 0) AND nb5 GT 0
-
-  IF (got_efield) THEN BEGIN
-
-     ;; despin e field data
-     FA_FIELDS_DESPIN,v58,v12, $
-                      ;; MAG_NOTCH=mag_notch, $
-                      ;; BINTERP=BInterp, $
-                      ;; BNAN=BNaN, $
-                      SHADOW_NOTCH=shadow_notch, $
-                      SINTERP=sInterp, $
-                      SNAN=sNaN
+        prog = GETENV('FASTBIN') + '/showDQIs'
+        IF ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN BEGIN
+           IF (sdt_idx GE 10) THEN BEGIN
+              sidstr = STRING(sdt_idx,FORMAT='(I2)')
+           ENDIF ELSE BEGIN
+              sidstr = STRING(sdt_idx,FORMAT='(I1)')
+           ENDELSE
+           SPAWN,[prog, sidstr],result,/NOSHELL
+        ENDIF ELSE BEGIN
+           SPAWN,prog,result,/NOSHELL
+        ENDELSE
 
 
-     eF_spinPlane = GET_EFIELD_A_LA_ALFVEN_STATS_5(/BURST)
+        ;;Find out if we have various eField things
+        b = WHERE(STRPOS(result,'V1-V4_S') GE 0,nb4)
+        IF (nb4 GT 0) THEN IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN nb4 = 0
+        b = WHERE(STRPOS(result,'V1-V2_S') GE 0,nb2)
+        IF (nb2 GT 0) THEN IF STRPOS(RESULT[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN nb2 = 0
+        IF (nb4 GT 0) THEN v12 = GET_FA_FIELDS('V1-V4_S',/DEFAULT) $
+        ELSE IF (nb2 GT 0) THEN v12 = GET_FA_FIELDS('V1-V2_S',/DEFAULT)
 
-  ENDIF ELSE BEGIN
-     PRINT,"Couldn't get E-field data! Out ..."
-     RETURN
-  ENDELSE
+        b = WHERE(STRPOS(result,'V5-V8_S') GE 0,nb5)
+        IF (nb5 GT 0) THEN v58 = GET_FA_FIELDS('V5-V8_S',/DEFAULT)
 
-  IF KEYWORD_SET(save_individual_data_products_and_quit) THEN BEGIN
-     GET_DATA,eAV_variable,DATA=eAlongV
-     GET_DATA,eNB_variable,DATA=eNearB
-     GET_DATA,"EFIT_ALONG_V",DATA=eFitAlongV
-     GET_DATA,"EFIT_NEAR_B",DATA=eFitNearB
-  ENDIF
+        got_efield = (nb4 GT 0 OR nb2 GT 0) AND nb5 GT 0
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Step 4 - Electron junk, AND
-  ;; Step 5 - Ion flux
+        IF (got_efield) THEN BEGIN
+
+           ;; despin e field data
+           FA_FIELDS_DESPIN,v58,v12, $
+                            ;; MAG_NOTCH=mag_notch, $
+                            ;; BINTERP=BInterp, $
+                            ;; BNAN=BNaN, $
+                            SHADOW_NOTCH=shadow_notch, $
+                            SINTERP=sInterp, $
+                            SNAN=sNaN
 
 
-  ;;Just get them all
-  ;; t           = 0.0D
-  ;; tmp         = GET_FA_EES_C(t,/EN)
-  ;; IF tmp.valid EQ 0 THEN BEGIN
-  ;;    PRINT,'Junk electron data'
-  ;;    RETURN
-  ;; ENDIF
-  ;; last_index  = LONG(tmp.index)
-  ;; t1Ptcl      = 0.0D
-  ;; t2Ptcl      = 0.0D
-  ;; temp        = GET_FA_EES(t1Ptcl,INDEX=0.0D)
-  ;; temp        = GET_FA_EES(t2Ptcl,INDEX=DOUBLE(last_index))
+           eF_spinPlane = GET_EFIELD_A_LA_ALFVEN_STATS_5(/BURST)
 
-  ;; PRINT,FORMAT='(A0,T35,A0,", ",A0)',"Particle beginning/end : ",TIME_TO_STR(,/MSEC),TIME_TO_STR(t2ptcl,/MSEC)
+        ENDIF ELSE BEGIN
+           PRINT,"Couldn't get E-field data! Out ..."
+           RETURN
+        ENDELSE
 
-  types_2dt = ['je_2d_fs','j_2d_fs']
-  routs_2dt = ['fa_ees_c','fa_ees_c']
-  names_2dt = ['JEe','Je']
+        IF KEYWORD_SET(save_individual_data_products_and_quit) THEN BEGIN
+           GET_DATA,eAV_variable,DATA=eAlongV
+           GET_DATA,eNB_variable,DATA=eNearB
+           GET_DATA,"EFIT_ALONG_V",DATA=eFitAlongV
+           GET_DATA,"EFIT_NEAR_B",DATA=eFitNearB
+        ENDIF
 
-  ngsgn_2dt = [0,0]
-  ;; enrgy_2dt = [[energy_electrons],[energy_electrons]]
-  titls_2dt = ['Electron!CEnergy Flux!CmW/(m!U2!N)', $
-               'Electron Flux!C!C#/(cm!U2!N-s)']
-  lims_2dt  = [[-1.,6.,0],[-5.e9,1.5e10,0]]
-  nFlux_2dt = MAKE_ARRAY(N_ELEMENTS(types_2dt),/LONG)
-  of_pos    = [0,0]
-  pr_pos    = [1,1]
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ;; Step 4 - Electron junk, AND
+        ;; Step 5 - Ion flux
 
-  ;; FOR ll=0,N_ELEMENTS(types_2dt)-1 DO BEGIN
+        ;; ENDIF
 
-  ;;    tmpType = types_2dt[ll]
-  ;;    tmpRout = routs_2dt[ll]
-  ;;    tmpName = names_2dt[ll]
-  ;;    tmpNrg  = enrgy_2dt[*,ll]
-  ;;    tmpTitl = titls_2dt[ll]
-  ;;    tmpLims = lims_2dt[*,ll]
+        ;; IF ~KEYWORD_SET(save_individual_data_products__only_ions) THEN BEGIN
 
-  ;;    GET_FA_PARTICLE_2DT,tmpType,tmpRout, $
-  ;;       T1=je_tBounds[0], $
-  ;;       T2=je_tBounds[1], $
-  ;;       NAME=tmpName, $
-  ;;       ENERGY=tmpNrg, $
-  ;;       ;; ERANGE=er, $
-  ;;       ;; EBINS=ebins, $
-  ;;       ;; ANGLE=an, $
-  ;;       ;; ARANGE=ar, $
-  ;;       ;; BINS=bins, $
-  ;;       ;; GAP_TIME=gap_time, $ 
-  ;;       ;; NO_DATA=no_data, $
-  ;;       ;; BKG=bkg, $
-  ;;       ;; MISSING=missing, $
-  ;;       ;; FLOOR=floor, $
-  ;;       /CALIB, $
-  ;;       TITLE=tmpTitl, $
-  ;;       LIMS=tmpLims, $
-  ;;       OUTFLOW_POSITIVE=of_pos[ll], $
-  ;;       PRECIPITATION_POSITIVE=pr_pos[ll]
+
+        ;;Just get them all
+        ;; t           = 0.0D
+        ;; tmp         = GET_FA_EES_C(t,/EN)
+        ;; IF tmp.valid EQ 0 THEN BEGIN
+        ;;    PRINT,'Junk electron data'
+        ;;    RETURN
+        ;; ENDIF
+        ;; last_index  = LONG(tmp.index)
+        ;; t1Ptcl      = 0.0D
+        ;; t2Ptcl      = 0.0D
+        ;; temp        = GET_FA_EES(t1Ptcl,INDEX=0.0D)
+        ;; temp        = GET_FA_EES(t2Ptcl,INDEX=DOUBLE(last_index))
+
+        ;; PRINT,FORMAT='(A0,T35,A0,", ",A0)',"Particle beginning/end : ",TIME_TO_STR(,/MSEC),TIME_TO_STR(t2ptcl,/MSEC)
+
+        types_2dt = ['je_2d_fs','j_2d_fs']
+        routs_2dt = ['fa_ees_c','fa_ees_c']
+        names_2dt = ['JEe','Je']
+
+        ngsgn_2dt = [0,0]
+        ;; enrgy_2dt = [[energy_electrons],[energy_electrons]]
+        titls_2dt = ['Electron!CEnergy Flux!CmW/(m!U2!N)', $
+                     'Electron Flux!C!C#/(cm!U2!N-s)']
+        lims_2dt  = [[-1.,6.,0],[-5.e9,1.5e10,0]]
+        nFlux_2dt = MAKE_ARRAY(N_ELEMENTS(types_2dt),/LONG)
+        of_pos    = [0,0]
+        pr_pos    = [1,1]
+
+        ;; FOR ll=0,N_ELEMENTS(types_2dt)-1 DO BEGIN
+
+        ;;    tmpType = types_2dt[ll]
+        ;;    tmpRout = routs_2dt[ll]
+        ;;    tmpName = names_2dt[ll]
+        ;;    tmpNrg  = enrgy_2dt[*,ll]
+        ;;    tmpTitl = titls_2dt[ll]
+        ;;    tmpLims = lims_2dt[*,ll]
+
+        ;;    GET_FA_PARTICLE_2DT,tmpType,tmpRout, $
+        ;;       T1=je_tBounds[0], $
+        ;;       T2=je_tBounds[1], $
+        ;;       NAME=tmpName, $
+        ;;       ENERGY=tmpNrg, $
+        ;;       ;; ERANGE=er, $
+        ;;       ;; EBINS=ebins, $
+        ;;       ;; ANGLE=an, $
+        ;;       ;; ARANGE=ar, $
+        ;;       ;; BINS=bins, $
+        ;;       ;; GAP_TIME=gap_time, $ 
+        ;;       ;; NO_DATA=no_data, $
+        ;;       ;; BKG=bkg, $
+        ;;       ;; MISSING=missing, $
+        ;;       ;; FLOOR=floor, $
+        ;;       /CALIB, $
+        ;;       TITLE=tmpTitl, $
+        ;;       LIMS=tmpLims, $
+        ;;       OUTFLOW_POSITIVE=of_pos[ll], $
+        ;;       PRECIPITATION_POSITIVE=pr_pos[ll]
         
-  ;;    ;; tmpDatStruct = CREATE_STRUCT(tmpDatStruct,tmpName+'_time',tmp.x,tmpName,tmp.y)
-  ;;    ;; tmp1sStruct  = CREATE_STRUCT(tmp1sStruct,tmpName,doDat)
+        ;;    ;; tmpDatStruct = CREATE_STRUCT(tmpDatStruct,tmpName+'_time',tmp.x,tmpName,tmp.y)
+        ;;    ;; tmp1sStruct  = CREATE_STRUCT(tmp1sStruct,tmpName,doDat)
 
-  ;; ENDFOR
+        ;; ENDFOR
 
-  ;; Nei da, med diff_eFlux
-  McFadden_diff_eFlux = 1
-  eeb_or_ees = "ees"
+        ;; Nei da, med diff_eFlux
+        McFadden_diff_eFlux = 1
+        eeb_or_ees = "ees"
 
-  ;; Get all loss-cone angle ranges
-  ;; angleRange = {all : [0,360.], $
-  ;;               lc  : [0.,0.]}
-                
-  load_elec_dEF_file = N_ELEMENTS(remake_diff_eFlux) GT 0 ? ~remake_diff_eFlux : 1
-  save_elec_dEF_file = 1
-  diffEFlux__array_of_structs = 1
-  elec_dEF_energy = energy_electronsforSCPot
+        ;; Get all loss-cone angle ranges
+        ;; angleRange = {all : [0,360.], $
+        ;;               lc  : [0.,0.]}
+        
+        load_elec_dEF_file = N_ELEMENTS(remake_diff_eFlux) GT 0 ? ~remake_diff_eFlux : 1
+        save_elec_dEF_file = 1
+        diffEFlux__array_of_structs = 1
+        elec_dEF_energy = energy_electronsforSCPot
 
-  DIFF_EFLUX_FNAME, $
-     T1=je_tBounds[0], $
-     T2=je_tBounds[1], $
-     ORBIT=orbit, $
-     EEB_OR_EES=eeb_or_ees, $
-     BONUSPREF=bonusPref ,$
-     SAVE_DIFF_EFLUX_TO_FILE=elec_dEF_fileName,$
-     SAVE_DIFF_EFLUX_FILE=save_elec_dEF_file,$
-     LOAD_DIFF_EFLUX_FILE=load_elec_dEF_file,$
-     MCFADDEN_DIFF_EFLUX=McFadden_diff_eFlux, $
-     OUT_DIFF_EFLUX_FILE=elec_dEF_file, $
-     ENFORCE_DIFF_EFLUX_SRATE=enforce_this_sample_rate, $
-     SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
-     LOADDIR=savesDir
-
-  GET_LOSSCONE_AND_EFLUX_DATA, $
-     T1=je_tBounds[0], $
-     T2=je_tBounds[1], $
-     ;; IN_DIFF_EFLUX_FILE=elec_dEF_file, $
-     LOAD_DAT_FROM_FILE=KEYWORD_SET(load_elec_dEF_file) ? elec_dEF_file : !NULL, $
-     ;; MCFADDEN_DIFF_EFLUX=McFadden_diff_eFlux, $
-     LOAD_DIR=savesDir, $
-     EEB_OR_EES=eeb_or_ees, $
-     DIFF_EFLUX=elec_dEF, $
-     UPGOING=upgoing, $
-     SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
-     ENFORCE_DIFF_EFLUX_SRATE=enforce_this_sample_rate, $
-     DIFFEFLUX__ARRAY_OF_STRUCTS=diffEFlux__array_of_structs, $
-     DEF__INCLUDE_SC_POT=dEF__include_sc_pot, $
-     SC_POT=sc_pot, $
-     OUT_ORB=orb, $
-     OUT_ANGLERANGE=lc_angleRange, $
-     OUT_NORTHSOUTH=north_south, $
-     FIT_EACH_ANGLE=fit_each_angle, $
-     ;; CUSTOM_E_ANGLERANGE=custom_e_angleRange, $
-     MANUAL_ANGLE_CORRECTION=manual_angle_correction, $
-     ALLEXCLATM_ARANGE=allExclAtm_aRange, $
-     EARTHWARD_ARANGE=earthward_aRange, $
-     ANGLESTR=angleStr, $
-     ;; ESPECUNITS=KF__Curvefit_opt.units, $
-     ELECTRON_ENERGY_LIMS=elec_dEF_energy, $
-     SAVE_DIFF_EFLUX_TO_FILE=elec_dEF_fileName, $
-     /IGNORE_MIXED_HEMISPHERE, $
-     _EXTRA=e
-
-  angleRange = {all : [0,360.], $
-                lc  : MAKE_ARRAY(2,N_ELEMENTS(elec_dEF),/FLOAT,VALUE=0.0)}
-
-  ;; Now get loss-cone angles, map ratio
-  eMomEphem = {fa_pos : TRANSPOSE(elec_dEF.fa_pos), $
-           fa_vel : TRANSPOSE(elec_dEF.fa_vel), $
-           alt    : elec_dEF.alt, $
-           mlt    : elec_dEF.mlt, $
-           ilat   : elec_dEF.ilat, $
-           B_model: TRANSPOSE(elec_dEF.B_model), $
-           Bfoot  : TRANSPOSE(elec_dEF.B_foot ), $
-           foot_lat : TRANSPOSE(elec_dEF.foot_lat ), $
-           foot_lng : TRANSPOSE(elec_dEF.foot_lng )}
-
-  GET_LOSS_CONE_AND_ANGLE_RANGES_FOR_HEMI,t1,t2, $
-                                          lc_angleRange, $
-                                          i_angle,i_angle_up, $
-                                          north_south, $
-                                          ALLEXCLATM_ARANGE=allExclAtm_aRange, $
-                                          EARTHWARD_ARANGE=earthward_aRange, $
-                                          CUSTOM_E_ANGLERANGE=custom_e_angleRange, $
-                                          UPGOING=upgoing, $
-                                          OUT_E_ANGLE=e_angle, $
-                                          OUT_MAPRATIO=mapRatio, $
-                                          ANGLESTR=angleStr, $
-                                          SDTSTRUCT=eMomEphem, $
-                                          JUST_ONE=just_one
-
-  angleRange.lc = lc_angleRange
-  ;; angleRange.lc = lc_angleRange
-
-  ;; flip = WHERE(lc_angleRange GT 180,nFlip)
-  ;; IF nFlip GT 0 THEN BEGIN
-  ;;    lc_angleRange[flip] -= 360.
-  ;; ENDIF
-
-  elec_min_if_nan_scpots = 30.
-  minEn_if_no_sc_pot = 30.
-  energy = MAKE_ENERGY_ARRAYS__FOR_DIFF_EFLUX( $
-           elec_dEF, $
-           ENERGY=elec_dEF_energy, $
-           SC_POT=sc_pot, $
+        DIFF_EFLUX_FNAME, $
+           T1=je_tBounds[0], $
+           T2=je_tBounds[1], $
+           ORBIT=orbit, $
            EEB_OR_EES=eeb_or_ees, $
-           ARRAY_OF_STRUCTS_INSTEAD=diffEFlux__array_of_structs, $
-           MIN_IF_NAN_SCPOTS=elec_min_if_nan_scpots, $
-           MINEN_IF_NO_SC_POT=minEn_if_no_sc_pot)
+           BONUSPREF=bonusPref ,$
+           SAVE_DIFF_EFLUX_TO_FILE=elec_dEF_fileName,$
+           SAVE_DIFF_EFLUX_FILE=save_elec_dEF_file,$
+           LOAD_DIFF_EFLUX_FILE=load_elec_dEF_file,$
+           MCFADDEN_DIFF_EFLUX=McFadden_diff_eFlux, $
+           OUT_DIFF_EFLUX_FILE=elec_dEF_file, $
+           ENFORCE_DIFF_EFLUX_SRATE=enforce_this_sample_rate, $
+           SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
+           LOADDIR=savesDir
 
-  ;; NOTE, MOMENT_SUITE_2D ensures that earthward fluxes are positive
+        GET_LOSSCONE_AND_EFLUX_DATA, $
+           T1=je_tBounds[0], $
+           T2=je_tBounds[1], $
+           ;; IN_DIFF_EFLUX_FILE=elec_dEF_file, $
+           LOAD_DAT_FROM_FILE=KEYWORD_SET(load_elec_dEF_file) ? elec_dEF_file : !NULL, $
+           ;; MCFADDEN_DIFF_EFLUX=McFadden_diff_eFlux, $
+           LOAD_DIR=savesDir, $
+           EEB_OR_EES=eeb_or_ees, $
+           DIFF_EFLUX=elec_dEF, $
+           UPGOING=upgoing, $
+           SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
+           ENFORCE_DIFF_EFLUX_SRATE=enforce_this_sample_rate, $
+           DIFFEFLUX__ARRAY_OF_STRUCTS=diffEFlux__array_of_structs, $
+           DEF__INCLUDE_SC_POT=dEF__include_sc_pot, $
+           SC_POT=sc_pot, $
+           OUT_ORB=orb, $
+           OUT_ANGLERANGE=lc_angleRange, $
+           OUT_NORTHSOUTH=north_south, $
+           FIT_EACH_ANGLE=fit_each_angle, $
+           ;; CUSTOM_E_ANGLERANGE=custom_e_angleRange, $
+           MANUAL_ANGLE_CORRECTION=manual_angle_correction, $
+           ALLEXCLATM_ARANGE=allExclAtm_aRange, $
+           EARTHWARD_ARANGE=earthward_aRange, $
+           ANGLESTR=angleStr, $
+           ;; ESPECUNITS=KF__Curvefit_opt.units, $
+           ELECTRON_ENERGY_LIMS=elec_dEF_energy, $
+           SAVE_DIFF_EFLUX_TO_FILE=elec_dEF_fileName, $
+           /IGNORE_MIXED_HEMISPHERE, $
+           _EXTRA=e
 
-  MOMENT_SUITE_2D,elec_dEF, $
-                  ENERGY=energy, $
-                  ARANGE__MOMENTS=angleRange.all, $
-                  SC_POT=sc_pot, $
-                  EEB_OR_EES=eeb_or_ees, $
-                  ;; /ERROR_ESTIMATES, $
-                  ;; MAP_TO_100KM=map_to_100km, $ 
-                  ORBIT=orbit, $
-                  /NEW_MOMENT_ROUTINE, $
-                  MCFADDEN_STYLE_DIFF_EFLUX=McFadden_diff_eFlux, $
-                  /PROVIDING_EPHEM_INFO, $
-                  IN_ILAT=elec_dEF.ilat, $
-                  IN_MLT=elec_dEF.mlt, $
-                  IN_ALT=elec_dEF.alt, $
-                  QUIET=quiet, $
-                  OUTTIME=time, $
-                  OUT_N=n, $
-                  OUT_J_=j, $
-                  OUT_JE=je, $
-                  OUT_T=T, $
-                  OUT_CHARE=charE, $
-                  OUT_CURRENT=cur, $
-                  OUT_JJE_COVAR=jje_coVar, $
-                  OUT_ERRORS=errors, $
-                  OUT_ERR_N=nErr, $
-                  OUT_ERR_J_=jErr, $
-                  OUT_ERR_JE=jeErr, $
-                  OUT_ERR_T=TErr, $
-                  OUT_ERR_CURRENT=curErr, $
-                  OUT_ERR_CHARE=charEErr, $
-                  INOUT_MAPRATIO=mapRatio, $
-                  OUT_STRUCT=eMomStruct_allAngle, $
-                  BATCH_MODE=batch_mode
+        angleRange = {all : [0,360.], $
+                      lc  : MAKE_ARRAY(2,N_ELEMENTS(elec_dEF),/FLOAT,VALUE=0.0)}
 
-  MOMENT_SUITE_2D,elec_dEF, $
-                  ENERGY=energy, $
-                  ARANGE__MOMENTS=angleRange.lc, $
-                  SC_POT=sc_pot, $
-                  EEB_OR_EES=eeb_or_ees, $
-                  ;; /ERROR_ESTIMATES, $
-                  ;; MAP_TO_100KM=map_to_100km, $ 
-                  ORBIT=orbit, $
-                  /NEW_MOMENT_ROUTINE, $
-                  MCFADDEN_STYLE_DIFF_EFLUX=McFadden_diff_eFlux, $
-                  /PROVIDING_EPHEM_INFO, $
-                  IN_ILAT=elec_dEF.ilat, $
-                  IN_MLT=elec_dEF.mlt, $
-                  IN_ALT=elec_dEF.alt, $
-                  QUIET=quiet, $
-                  OUTTIME=time, $
-                  OUT_N=n, $
-                  OUT_J_=j, $
-                  OUT_JE=je, $
-                  OUT_T=T, $
-                  OUT_CHARE=charE, $
-                  OUT_CURRENT=cur, $
-                  OUT_JJE_COVAR=jje_coVar, $
-                  OUT_ERRORS=errors, $
-                  OUT_ERR_N=nErr, $
-                  OUT_ERR_J_=jErr, $
-                  OUT_ERR_JE=jeErr, $
-                  OUT_ERR_T=TErr, $
-                  OUT_ERR_CURRENT=curErr, $
-                  OUT_ERR_CHARE=charEErr, $
-                  INOUT_MAPRATIO=mapRatio, $
-                  OUT_STRUCT=eMomStruct_lcAngle, $
-                  BATCH_MODE=batch_mode
+        ;; Now get loss-cone angles, map ratio
+        eMomEphem = {fa_pos : TRANSPOSE(elec_dEF.fa_pos), $
+                     fa_vel : TRANSPOSE(elec_dEF.fa_vel), $
+                     alt    : elec_dEF.alt, $
+                     mlt    : elec_dEF.mlt, $
+                     ilat   : elec_dEF.ilat, $
+                     B_model: TRANSPOSE(elec_dEF.B_model), $
+                     Bfoot  : TRANSPOSE(elec_dEF.B_foot ), $
+                     foot_lat : TRANSPOSE(elec_dEF.foot_lat ), $
+                     foot_lng : TRANSPOSE(elec_dEF.foot_lng )}
+
+        GET_LOSS_CONE_AND_ANGLE_RANGES_FOR_HEMI,t1,t2, $
+                                                lc_angleRange, $
+                                                i_angle,i_angle_up, $
+                                                north_south, $
+                                                ALLEXCLATM_ARANGE=allExclAtm_aRange, $
+                                                EARTHWARD_ARANGE=earthward_aRange, $
+                                                CUSTOM_E_ANGLERANGE=custom_e_angleRange, $
+                                                UPGOING=upgoing, $
+                                                OUT_E_ANGLE=e_angle, $
+                                                OUT_MAPRATIO=mapRatio, $
+                                                ANGLESTR=angleStr, $
+                                                SDTSTRUCT=eMomEphem, $
+                                                JUST_ONE=just_one
+
+        angleRange.lc = lc_angleRange
+        ;; angleRange.lc = lc_angleRange
+
+        ;; flip = WHERE(lc_angleRange GT 180,nFlip)
+        ;; IF nFlip GT 0 THEN BEGIN
+        ;;    lc_angleRange[flip] -= 360.
+        ;; ENDIF
+
+        elec_min_if_nan_scpots = 30.
+        minEn_if_no_sc_pot = 30.
+        energy = MAKE_ENERGY_ARRAYS__FOR_DIFF_EFLUX( $
+                 elec_dEF, $
+                 ENERGY=elec_dEF_energy, $
+                 SC_POT=sc_pot, $
+                 EEB_OR_EES=eeb_or_ees, $
+                 ARRAY_OF_STRUCTS_INSTEAD=diffEFlux__array_of_structs, $
+                 MIN_IF_NAN_SCPOTS=elec_min_if_nan_scpots, $
+                 MINEN_IF_NO_SC_POT=minEn_if_no_sc_pot)
+
+        ;; NOTE, MOMENT_SUITE_2D ensures that earthward fluxes are positive
+
+        MOMENT_SUITE_2D,elec_dEF, $
+                        ENERGY=energy, $
+                        ARANGE__MOMENTS=angleRange.all, $
+                        SC_POT=sc_pot, $
+                        EEB_OR_EES=eeb_or_ees, $
+                        ;; /ERROR_ESTIMATES, $
+                        ;; MAP_TO_100KM=map_to_100km, $ 
+                        ORBIT=orbit, $
+                        /NEW_MOMENT_ROUTINE, $
+                        MCFADDEN_STYLE_DIFF_EFLUX=McFadden_diff_eFlux, $
+                        /PROVIDING_EPHEM_INFO, $
+                        IN_ILAT=elec_dEF.ilat, $
+                        IN_MLT=elec_dEF.mlt, $
+                        IN_ALT=elec_dEF.alt, $
+                        QUIET=quiet, $
+                        OUTTIME=time, $
+                        OUT_N=n, $
+                        OUT_J_=j, $
+                        OUT_JE=je, $
+                        OUT_T=T, $
+                        OUT_CHARE=charE, $
+                        OUT_CURRENT=cur, $
+                        OUT_JJE_COVAR=jje_coVar, $
+                        OUT_ERRORS=errors, $
+                        OUT_ERR_N=nErr, $
+                        OUT_ERR_J_=jErr, $
+                        OUT_ERR_JE=jeErr, $
+                        OUT_ERR_T=TErr, $
+                        OUT_ERR_CURRENT=curErr, $
+                        OUT_ERR_CHARE=charEErr, $
+                        INOUT_MAPRATIO=mapRatio, $
+                        OUT_STRUCT=eMomStruct_allAngle, $
+                        BATCH_MODE=batch_mode
+
+        MOMENT_SUITE_2D,elec_dEF, $
+                        ENERGY=energy, $
+                        ARANGE__MOMENTS=angleRange.lc, $
+                        SC_POT=sc_pot, $
+                        EEB_OR_EES=eeb_or_ees, $
+                        ;; /ERROR_ESTIMATES, $
+                        ;; MAP_TO_100KM=map_to_100km, $ 
+                        ORBIT=orbit, $
+                        /NEW_MOMENT_ROUTINE, $
+                        MCFADDEN_STYLE_DIFF_EFLUX=McFadden_diff_eFlux, $
+                        /PROVIDING_EPHEM_INFO, $
+                        IN_ILAT=elec_dEF.ilat, $
+                        IN_MLT=elec_dEF.mlt, $
+                        IN_ALT=elec_dEF.alt, $
+                        QUIET=quiet, $
+                        OUTTIME=time, $
+                        OUT_N=n, $
+                        OUT_J_=j, $
+                        OUT_JE=je, $
+                        OUT_T=T, $
+                        OUT_CHARE=charE, $
+                        OUT_CURRENT=cur, $
+                        OUT_JJE_COVAR=jje_coVar, $
+                        OUT_ERRORS=errors, $
+                        OUT_ERR_N=nErr, $
+                        OUT_ERR_J_=jErr, $
+                        OUT_ERR_JE=jeErr, $
+                        OUT_ERR_T=TErr, $
+                        OUT_ERR_CURRENT=curErr, $
+                        OUT_ERR_CHARE=charEErr, $
+                        INOUT_MAPRATIO=mapRatio, $
+                        OUT_STRUCT=eMomStruct_lcAngle, $
+                        BATCH_MODE=batch_mode
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Step 6 - VLF data
+        ;; Step 6 - VLF data
 
-  ;;DSP_V5-V8HG or DSP_V5-V8
+        ;;DSP_V5-V8HG or DSP_V5-V8
 
-  prog = GETENV('FASTBIN') + '/showDQIs'
-  IF ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN BEGIN
-     IF (sdt_idx GE 10) THEN BEGIN
-        sidstr = STRING(sdt_idx, FORMAT='(I2)')
-     ENDIF ELSE BEGIN
-        sidstr = STRING(sdt_idx, FORMAT='(I1)')
-     ENDELSE
-     SPAWN, [prog, sidstr], result, /NOSHELL
-  ENDIF ELSE BEGIN
-     SPAWN, prog, result, /NOSHELL
-  ENDELSE
-  b = WHERE(STRPOS(result,'DspADC_V5-V8HG') GE 0,ndsphg)
-  IF (ndsphg GT 0) THEN BEGIN
-     IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN ndsphg = 0
-  ENDIF
-  b = WHERE((STRPOS(result,'DspADC_V5-V8') GE 0) AND $
-            (STRPOS(result,'DspADC_V5-V8HG') LT 0),ndsp)
-  IF (ndsp GT 0) THEN BEGIN
-     IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN ndsp = 0
-  ENDIF
+        prog = GETENV('FASTBIN') + '/showDQIs'
+        IF ((sdt_idx GE 0) AND (sdt_idx LT 100)) THEN BEGIN
+           IF (sdt_idx GE 10) THEN BEGIN
+              sidstr = STRING(sdt_idx, FORMAT='(I2)')
+           ENDIF ELSE BEGIN
+              sidstr = STRING(sdt_idx, FORMAT='(I1)')
+           ENDELSE
+           SPAWN, [prog, sidstr], result, /NOSHELL
+        ENDIF ELSE BEGIN
+           SPAWN, prog, result, /NOSHELL
+        ENDELSE
+        b = WHERE(STRPOS(result,'DspADC_V5-V8HG') GE 0,ndsphg)
+        IF (ndsphg GT 0) THEN BEGIN
+           IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN ndsphg = 0
+        ENDIF
+        b = WHERE((STRPOS(result,'DspADC_V5-V8') GE 0) AND $
+                  (STRPOS(result,'DspADC_V5-V8HG') LT 0),ndsp)
+        IF (ndsp GT 0) THEN BEGIN
+           IF STRPOS(result[b[0]+1],'Points (cur/aloc): 0       /') GE 0 THEN ndsp = 0
+        ENDIF
 
-  if (ndsphg GT 0) THEN BEGIN
-     data = GET_FA_FIELDS('DspADC_V5-V8HG',/DEFAULT) 
-  ENDIF else BEGIN
-     IF (ndsp GT 0) THEN BEGIN
-        data = GET_FA_FIELDS('DspADC_V5-V8',/DEFAULT)
+        if (ndsphg GT 0) THEN BEGIN
+           data = GET_FA_FIELDS('DspADC_V5-V8HG',/DEFAULT) 
+        ENDIF else BEGIN
+           IF (ndsp GT 0) THEN BEGIN
+              data = GET_FA_FIELDS('DspADC_V5-V8',/DEFAULT)
+           ENDIF
+        ENDELSE
+        ndsp = (ndsp GT 0) or (ndsphg GT 0)
+
+        IF nDSP EQ 0 THEN BEGIN
+           PRINT,'Junk DSP data'
+           RETURN
+        ENDIF
+
      ENDIF
-  ENDELSE
-  ndsp = (ndsp GT 0) or (ndsphg GT 0)
 
-  IF nDSP EQ 0 THEN BEGIN
-     PRINT,'Junk DSP data'
-     RETURN
   ENDIF
 
-  IF KEYWORD_SET(save_individual_data_products_and_quit) THEN BEGIN
+  IF KEYWORD_SET(save_data_and_quit) THEN BEGIN
      
      iMomEphem = {fa_pos : TRANSPOSE(ion_dEF.fa_pos), $
                   fa_vel : TRANSPOSE(ion_dEF.fa_vel), $
@@ -750,6 +786,12 @@ PRO STRANGEWAY_2005__V3, $
 
      iMom = CREATE_STRUCT("ionUpJ",ionUpJ,TEMPORARY(iMomEphem),TEMPORARY(ionMomStruct))
 
+     IF KEYWORD_SET(save_individual_data_products__only_ions) THEN BEGIN
+        PRINT,"Saving " + indivFile + ' ...'
+        SAVE,iMom,FILENAME=savesIndivDir+indivFile
+        EXIT
+     ENDIF
+
      GET_DATA,'MAG_FLAGS',data=mag_flags
 
      ;; dB_info = CREATE_STRUCT('x',dB_fac.x, $
@@ -762,6 +804,12 @@ PRO STRANGEWAY_2005__V3, $
                         'sc',dB_sc.y, $
                         'mag_flags',mag_flags, $
                         TEMPORARY(dBEphem))
+
+     IF KEYWORD_SET(save_individual_data_products__only_db_and_ions) THEN BEGIN
+        PRINT,"Saving " + indivFile + ' ...'
+        SAVE,iMom,dB,FILENAME=savesIndivDir+indivFile
+        EXIT
+     ENDIF
 
      ;; dB = {x: dB_fac.x, $
      ;;       fac: dB_fac.y, $

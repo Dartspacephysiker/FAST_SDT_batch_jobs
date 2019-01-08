@@ -30,22 +30,14 @@ enforce_this_sample_rate = 1.25
 force_SH_tBounds_for_je = 1
 energy_electrons_lb = 50
 
-upDownMinRatio = 5
-
-uDMRStr = STRING(FORMAT='(I0)',upDownMinRatio)
-
 ;; fracBelowThatMustBeUpward = 0.5D
 ;; indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat5_thresh5e5_fracBelow0_5.sav'
 
 fracBelowThatMustBeUpward = 0.75D
-
-;; indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat' + uDMRStr + '_thresh5e5_fracBelow0_75.sav'
-
-save_individual_data_products__only_db_and_ions = 1
-indivSuff = '-rawProds__dB_and_ions__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav'
+indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat10_thresh5e5_fracBelow0_75.sav'
 
 STRANGEWAY_2005__V3,/SAVE_PS, $
-                    IONSPECS_UPDOWNMINRATIO=upDownMinRatio, $
+                    IONSPECS_UPDOWNMINRATIO=10, $
                     IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
                     IONSPECS_THRESH_EFLUX=thresh_eFlux, $
                     IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
@@ -53,7 +45,6 @@ STRANGEWAY_2005__V3,/SAVE_PS, $
                     /STRANGEWAY_2005_FIG3_PLOT, $
                     /REMAKE_DIFF_EFLUX, $
                     /SAVE_INDIVIDUAL_DATA_PRODUCTS_AND_QUIT, $
-                    SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_DB_AND_IONS=save_individual_data_products__only_db_and_ions, $
                     SAVE_INDIVIDUAL_DATA_PRODUCTS__FSUFF=indivSuff, $
                     FORCE_SH_TBOUNDS_FOR_JE=force_SH_tBounds_for_je, $
                     ENERGY_ELECTRONS_LB=energy_electrons_lb

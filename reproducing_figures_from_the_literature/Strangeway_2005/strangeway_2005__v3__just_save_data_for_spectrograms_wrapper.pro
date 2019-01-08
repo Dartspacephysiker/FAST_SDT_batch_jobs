@@ -21,7 +21,15 @@ energy_electrons_lb = 50
 ;; indivSuff = '-rawProds_med_dB_sc_and_spinplane_E.sav'
 
 fracBelowThatMustBeUpward = 0.75D
-indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat10_thresh5e5_fracBelow0_75.sav'
+
+upDownMinRatio = 5
+uDMRStr = STRING(FORMAT='(I0)',upDownMinRatio)
+
+;; indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav'
+;; indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav'
+
+save_individual_data_products__only_db_and_ions = 1
+indivSuff = '-rawProds__dB_and_ions__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav'
 
 ;; fracBelowThatMustBeUpward = 0.5D
 ;; indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat2_thresh5e5_fracBelow0_5.sav'
@@ -29,19 +37,23 @@ indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat10_thresh5e5_fracBelow0_75.s
 ;; fracBelowThatMustBeUpward = 0.5D
 ;; indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat5_thresh5e5_fracBelow0_5.sav'
 
-minDag = '20181228'
 IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20181204' THEN BEGIN & $
-   indivSuff = '-rawProds_med_dB_sc_and_sp_E__SNOTCH_INTERP__upDownRat10_thresh5e5_fracBelow0_75.sav' & $
+   indivSuff = '-rawProds_med_dB_sc_and_sp_E__SNOTCH_INTERP__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav' & $
    shadow_notch = 1 & $
    sInterp = 1 & $
-ENDIF ELSE IF minDag EQ '20181228' THEN BEGIN & $
-   indivSuff = '-rawProds_med_dB_sc_and_sp_E__SNOTCH__upDownRat10_thresh5e5_fracBelow0_75.sav' & $
+ENDIF ELSE IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20181228' THEN BEGIN & $
+   indivSuff = '-rawProds_med_dB_sc_and_sp_E__SNOTCH__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav' & $
    shadow_notch = 1 & $
    sInterp = 0 & $
-ENDIF
+ENDIF ELSE IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20190101' THEN BEGIN & $
+   PRINT,"The JUST OXYGEN IONS batch" & $
+   indivSuff = '-rawProds_oxyIons__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav' & $
+   save_individual_data_products__only_ions = 1 & $
+   make_ions_oxygen = 1 & $
+ENDIF 
 
 STRANGEWAY_2005__V3,/SAVE_PS, $
-                    IONSPECS_UPDOWNMINRATIO=10, $
+                    IONSPECS_UPDOWNMINRATIO=upDownMinRatio, $
                     IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
                     IONSPECS_THRESH_EFLUX=thresh_eFlux, $
                     IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
@@ -49,7 +61,10 @@ STRANGEWAY_2005__V3,/SAVE_PS, $
                     /STRANGEWAY_2005_FIG3_PLOT, $
                     /REMAKE_DIFF_EFLUX, $
                     /SAVE_INDIVIDUAL_DATA_PRODUCTS_AND_QUIT, $
+                    SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_IONS=save_individual_data_products__only_ions, $
+                    SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_DB_AND_IONS=save_individual_data_products__only_db_and_ions, $
                     SAVE_INDIVIDUAL_DATA_PRODUCTS__FSUFF=indivSuff, $
+                    MAKE_IONS_OXYGEN=make_ions_oxygen, $
                     EFIELD_SHADOW_NOTCH=shadow_notch, $
                     EFIELD_SINTERP=sInterp, $
                     ENERGY_ELECTRONS_LB=energy_electrons_lb
