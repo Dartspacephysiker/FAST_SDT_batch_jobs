@@ -29,6 +29,7 @@ PRO STRANGEWAY_2005__V3, $
    NO_BLANK_PANELS=no_blank_panels, $
    STRANGEWAY_2005_FIG3_PLOT=Strangeway_2005_Fig3_plot, $
    NO_HASH_UPDATE=no_hash_update, $
+   MAKE_SPECIAL_JGR_PLOT=make_special_JGR_plot, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps, $
    BATCH_MODE=batch_mode, $
@@ -187,6 +188,7 @@ PRO STRANGEWAY_2005__V3, $
      DOWN_ARANGEN=down_aRangeN, $
      UP_ARANGES=up_aRangeS, $
      DOWN_ARANGES=down_aRangeS, $
+     MAKE_SPECIAL_JGR_PLOT=make_special_JGR_plot, $
      SAVE_PS=save_ps, $
      NO_PLOTS=no_plots, $
      OUT_ORBIT=out_orbit, $
@@ -789,7 +791,8 @@ PRO STRANGEWAY_2005__V3, $
      IF KEYWORD_SET(save_individual_data_products__only_ions) THEN BEGIN
         PRINT,"Saving " + indivFile + ' ...'
         SAVE,iMom,FILENAME=savesIndivDir+indivFile
-        EXIT
+        ;; EXIT
+        RETURN
      ENDIF
 
      GET_DATA,'MAG_FLAGS',data=mag_flags
@@ -808,7 +811,8 @@ PRO STRANGEWAY_2005__V3, $
      IF KEYWORD_SET(save_individual_data_products__only_db_and_ions) THEN BEGIN
         PRINT,"Saving " + indivFile + ' ...'
         SAVE,iMom,dB,FILENAME=savesIndivDir+indivFile
-        EXIT
+        ;; EXIT
+        RETURN
      ENDIF
 
      ;; dB = {x: dB_fac.x, $

@@ -59,7 +59,7 @@ STRANGEWAY_2005__V3,/SAVE_PS, $
                     IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
                     /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
                     /STRANGEWAY_2005_FIG3_PLOT, $
-                    /REMAKE_DIFF_EFLUX, $
+                    ;; /REMAKE_DIFF_EFLUX, $
                     /SAVE_INDIVIDUAL_DATA_PRODUCTS_AND_QUIT, $
                     SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_IONS=save_individual_data_products__only_ions, $
                     SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_DB_AND_IONS=save_individual_data_products__only_db_and_ions, $
