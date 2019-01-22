@@ -3,14 +3,23 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005__v3__just_save_data_for_spectrograms_wrapper.pro
 
 DataBaseRequest:
-    Orbits 1300-1357
+    Orbits 1458
+    Orbits 1459-1463
+    Orbits 1470-1474
+    Orbits 1480-1485
+    Orbits 1491-1492
+    Orbits 1494-1495
+    Orbits 1501
+    Orbits 1503-1505
+    Orbits 1507
+    Orbits DONE1390-1400
+    Orbits DONE1401-1414
+    Orbits DONE1416-1433
+    Orbits DONE1437-1441
+    Orbits DONE1447-1453
+    Orbits ALLEREDE1300-1357
     Orbits BORG1358-1389
     Orbits WAGGAT1300-1389
-    Orbits JUSTWANTTOADDTHEABOVE1390-1400
-    Orbits JUSTWANTTOADDTHEABOVE1401-1414
-    Orbits JUSTWANTTOADDTHEABOVE1416-1433
-    Orbits JUSTWANTTOADDTHEABOVE1437-1441
-    Orbits JUSTWANTTOADDTHEABOVE1447-1453
 
 
 

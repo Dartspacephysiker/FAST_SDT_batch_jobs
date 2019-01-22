@@ -3,19 +3,31 @@ PRO JOURNAL__20190117__WHEN_WAS_FAST_SKYHIGH_AND_ON_DAYSIDE
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
-  LOAD_FASTLOC_AND_FASTLOC_TIMES,fastLoc,fastloc_times,/NO_MEMORY_LOAD
+  ;; LOAD_FASTLOC_AND_FASTLOC_TIMES,fastLoc,fastloc_times,/NO_MEMORY_LOAD
+  LOAD_FASTLOC_AND_FASTLOC_TIMES,fastLoc,fastloc_times, $
+                                 FOR_ESPEC_DBS=for_eSpec_DBs, $
+                                 FOR_ESPEC__GIGANTE=for_eSpec__gigante, $
+                                 /NO_MEMORY_LOAD
 
-  minMLT = 6
-  maxMLT = 18
+  minMLT = 9
+  maxMLT = 17
 
-  dayside = 1
+  ;; dayside = 1
 
   minILAT = 60
   maxILAT = 90
 
   hemi = 'NORTH'
 
-  altRange = [3800,4200]
+  IF hemi EQ 'SOUTH' THEN BEGIN
+
+     tmp = minILAT
+     minILAT = (-1.) * maxILAT
+     maxILAT = (-1.) * TEMPORARY(tmp)
+
+  ENDIF
+
+  altRange = [3500,4200]
 
   mlt_i  = GET_MLT_INDS(fastLoc, $
                         minMLT, $

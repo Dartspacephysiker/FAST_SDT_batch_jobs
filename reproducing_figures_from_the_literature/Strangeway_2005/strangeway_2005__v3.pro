@@ -336,10 +336,10 @@ PRO STRANGEWAY_2005__V3, $
 
   if (orbit gt 9936) then begin
 
-     PRINT,""
-     PRINT,"BATCH_SUMMARY DISABLED FOR ORBITS > 9936, SORRY"
-     PRINT,""
-     return
+     ;; PRINT,""
+     ;; PRINT,"BATCH_SUMMARY DISABLED FOR ORBITS > 9936, SORRY"
+     ;; PRINT,""
+     ;; return
 
   endif
 

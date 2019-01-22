@@ -44,11 +44,18 @@ fracBelowThatMustBeUpward = 0.75D
 save_individual_data_products__only_db_and_ions = 1
 indivSuff = '-rawProds__dB_and_ions__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav'
 
+tryLeeward = 1
+IF KEYWORD_SET(tryLeeward) THEN BEGIN & $
+only_leeward_ions = 1 & $
+indivSuff = '-rawProds__dB_and_ions__leeward__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav' & $
+ENDIF   
+
 STRANGEWAY_2005__V3,/SAVE_PS, $
                     IONSPECS_UPDOWNMINRATIO=upDownMinRatio, $
                     IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
                     IONSPECS_THRESH_EFLUX=thresh_eFlux, $
                     IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
+                    ONLY_LEEWARD_IONS=only_leeward_ions, $
                     /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
                     /STRANGEWAY_2005_FIG3_PLOT, $
                     ;; /REMAKE_DIFF_EFLUX, $

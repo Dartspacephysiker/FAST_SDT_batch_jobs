@@ -1,0 +1,59 @@
+BatchJob: "strangeway_et_al_2005__v3__south"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005__v3__just_save_data_for_spectrograms__south_wrapper.pro
+
+DataBaseRequest:
+    Orbits 2657
+    Orbits 2658
+    Orbits 2659
+    Orbits 2662
+    Orbits 2663
+    Orbits 2664
+    Orbits 2665
+    Orbits 2666
+    Orbits 2670
+    Orbits 2671
+    Orbits 2673
+    Orbits 2674
+    Orbits 2676
+    Orbits 2677
+    Orbits 2680
+    Orbits 2681
+    Orbits 2682
+    Orbits 2683
+    Orbits 2684
+    Orbits 2685
+    Orbits 2687
+    Orbits 2689
+    Orbits 2690
+    Orbits 2691
+    Orbits 2694
+    Orbits 2695
+    Orbits 2696
+    Orbits 2698
+    Orbits 2699
+    Orbits 2701
+    Orbits 2702
+    Orbits 2705
+    Orbits 2706
+    Orbits 2707
+    Orbits 2710
+    Orbits 2711
+    Orbits 2712
+    Orbits 2717
+    Orbits 2720
+    Orbits 2721
+    Orbits 2722
+    Orbits 2723
+    Orbits 2727
+    Orbits 2728
+    Orbits 2729
+    Orbits 2731
+    Orbits 2732
+    Orbits 2733
+    Orbits 2739
+    Orbits 2741
+    Orbits 2744
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005
+PlotConfigurationFile: rjs_clean__more_efielders

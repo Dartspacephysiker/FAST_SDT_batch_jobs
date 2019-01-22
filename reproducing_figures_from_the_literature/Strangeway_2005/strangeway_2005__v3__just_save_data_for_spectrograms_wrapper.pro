@@ -32,10 +32,15 @@ save_individual_data_products__only_db_and_ions = 1
 indivSuff = '-rawProds__dB_and_ions__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav'
 
 ;; fracBelowThatMustBeUpward = 0.5D
-;; indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat2_thresh5e5_fracBelow0_5.sav'
-
-;; fracBelowThatMustBeUpward = 0.5D
 ;; indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat5_thresh5e5_fracBelow0_5.sav'
+
+;; TRY LEEWARD??
+tryLeeward = 1
+IF KEYWORD_SET(tryLeeward) THEN BEGIN & $
+only_leeward_ions = 1 & $
+indivSuff = '-rawProds__dB_and_ions__leeward__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav' & $
+ENDIF   
+
 
 IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20181204' THEN BEGIN & $
    indivSuff = '-rawProds_med_dB_sc_and_sp_E__SNOTCH_INTERP__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav' & $
@@ -57,6 +62,7 @@ STRANGEWAY_2005__V3,/SAVE_PS, $
                     IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
                     IONSPECS_THRESH_EFLUX=thresh_eFlux, $
                     IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
+                    ONLY_LEEWARD_IONS=only_leeward_ions, $
                     /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
                     /STRANGEWAY_2005_FIG3_PLOT, $
                     ;; /REMAKE_DIFF_EFLUX, $
