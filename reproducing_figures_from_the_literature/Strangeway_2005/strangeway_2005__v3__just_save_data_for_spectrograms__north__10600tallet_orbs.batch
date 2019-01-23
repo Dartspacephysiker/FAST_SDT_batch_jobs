@@ -3,7 +3,58 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005__v3__just_save_data_for_spectrograms_wrapper.pro
 
 DataBaseRequest:
-    Orbits 10605-10666
+    Orbits 10611
+    Orbits 10612
+    Orbits 10613
+    Orbits 10614
+    Orbits 10615
+    Orbits 10622
+    Orbits 10623
+    Orbits 10624
+    Orbits 10632
+    Orbits 10633
+    Orbits 10634
+    Orbits 10635
+    Orbits 10644
+    Orbits 10646
+    Orbits 10647
+    Orbits 10655
+    Orbits 10658
+    Orbits 10666
+    Orbits DONE10667
+    Orbits DONE10699
+    Orbits DONE10700
+    Orbits DONE10709-10711
+    Orbits DONE10720-10721
+    Orbits DONE10731
+    Orbits DONE10743
+    Orbits DONE10766
+    Orbits DONE10767
+    Orbits DONE10773
+    Orbits DONE10774
+    Orbits DONE10776
+    Orbits DONE10777
+    Orbits DONE10778
+    Orbits DONE10781
+    Orbits DONE10785
+    Orbits DONE10786
+    Orbits DONE10806
+    Orbits DONE10807
+    Orbits DONE10817
+    Orbits DONE10818-10820
+    Orbits DONE10821
+    Orbits DONE10825
+    Orbits DONE10828
+    Orbits DONE10829
+    Orbits DONE10832
+    Orbits DONE10833
+    Orbits DONE10837
+    Orbits DONE10838
+    Orbits DONE10839
+    Orbits DONE10840-10842
+    Orbits DONE10850
+    Orbits DONE10852
+    Orbits DONE10605-10666
 
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005

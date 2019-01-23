@@ -46,7 +46,6 @@ indivSuff = '-rawProds__dB_and_ions__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_7
 
 tryLeeward = 1
 IF KEYWORD_SET(tryLeeward) THEN BEGIN & $
-only_leeward_ions = 1 & $
 indivSuff = '-rawProds__dB_and_ions__leeward__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav' & $
 ENDIF   
 
@@ -55,7 +54,7 @@ STRANGEWAY_2005__V3,/SAVE_PS, $
                     IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
                     IONSPECS_THRESH_EFLUX=thresh_eFlux, $
                     IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
-                    ONLY_LEEWARD_IONS=only_leeward_ions, $
+                    ONLY_LEEWARD_IONS=tryLeeward, $
                     /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
                     /STRANGEWAY_2005_FIG3_PLOT, $
                     ;; /REMAKE_DIFF_EFLUX, $
