@@ -1,0 +1,21 @@
+BatchJob: "strangeway_2005__v3__just_save_data_for_spectrograms"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005__v3__just_save_data_for_spectrograms_wrapper.pro
+
+DataBaseRequest:
+    Orbits 8293-8294
+    Orbits 8296-8301
+    Orbits 8303-8304
+    Orbits 8306-8307
+    Orbits 8309-8311
+    Orbits 8317-8323
+    Orbits 8327-8332
+    Orbits 8338-8345
+    Orbits 8348-8354
+    Orbits 8358-8359
+    Orbits 8360-8366
+    Orbits 8371
+
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005
+PlotConfigurationFile: rjs_clean__more_efielders
