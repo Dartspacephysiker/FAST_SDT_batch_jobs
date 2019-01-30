@@ -19,14 +19,25 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
 
   ieb_or_ies = 'ies'
 
-  ;; første forsøk: plottet som viser energi mot diffEFlux for en enkel vinkel.
+  ;; FØRSTE forsøk: plottet som viser energi mot diffEFlux for en enkel vinkel.
+  ;; NB, index num er basert på bane 14000
   do20181229Stuff = 0
-  ;; Andre forsøk: Alle observerte ion-fordelinger plottes og lages som .ps-filer
-  do20181231Plots = 0
-  ;; Tredje forsøk: Se hva vi får ut med moment-beregninger
+
+  ;; ANDRE forsøk: Alle observerte ion-fordelinger plottes og lages som .ps-filer
+  do20181231Plots = 1
+  combine_plots_in_PDF = 1
+
+  ;; t1Str_for_diffEflux_plots = '2000-03-04/02:49:00' ;gjelder bane 14000
+  ;; t2Str_for_diffEflux_plots = '2000-03-04/03:25:00'
+
+  t1Str_for_diffEflux_plots = '1997-04-15/05:25:00' ;gjelder bane 14000
+  t2Str_for_diffEflux_plots = '1997-04-15/05:45:00'
+
+
+  ;; TREDJE forsøk: Se hva vi får ut med moment-beregninger
   ;; At least for orbit 14000, these plots show that we don't need to go higher than ~40 eV in energy
   do20181231PlotToConvinceAboutEnergy = 0
-  do20181231Moments = 1
+  do20181231Moments = 0
   makeEmOxygenMoments = 0
 
   ;; t = 0.
@@ -124,17 +135,14 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
 
   ENDIF
 
-  t1Str = '2000-03-04/02:49:00'
-  t2Str = '2000-03-04/03:25:00'
-
-  t1 = S2T(t1Str)
-  t2 = S2T(t2Str)
-
-  inds = VALUE_CLOSEST2(diff_eFlux.time,[t1,t2],/CONSTRAINED)
-
   IF KEYWORD_SET(do20181231Plots) THEN BEGIN
 
      just_save_all = 1
+
+     t1 = S2T(t1Str_for_diffEflux_plots)
+     t2 = S2T(t2Str_for_diffEflux_plots)
+
+     inds = VALUE_CLOSEST2(diff_eFlux.time,[t1,t2],/CONSTRAINED)
 
      startInd = inds[0]
      stopInd = inds[1]
@@ -149,7 +157,9 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
                                STOPIND=stopInd, $
                                RETRACE=retrace,   $
                                IND__STRIDE=stride, $
-                               JUST_SAVE_ALL=just_save_all
+                               JUST_SAVE_ALL=just_save_all, $
+                               COMBINE_PLOTS_IN_PDF=combine_plots_in_PDF
+
 
   ENDIF
                             

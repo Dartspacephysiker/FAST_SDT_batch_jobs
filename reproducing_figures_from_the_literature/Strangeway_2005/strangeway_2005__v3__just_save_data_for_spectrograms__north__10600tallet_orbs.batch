@@ -1,59 +1,36 @@
-BatchJob: "strangeway_2005__v3__just_save_data_for_spectrograms__north__1700tallet_orbs"
+BatchJob: "strangeway_2005__v3__just_save_data_for_spectrograms__north__10600tallet_orbs"
 NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005__v3__just_save_data_for_spectrograms_wrapper.pro
 
 DataBaseRequest:
-    Orbits 10611
-    Orbits 10612
-    Orbits 10613
-    Orbits 10614
-    Orbits 10615
-    Orbits 10622
-    Orbits 10623
-    Orbits 10624
-    Orbits 10632
-    Orbits 10633
-    Orbits 10634
-    Orbits 10635
+    Orbits 10611-10615
+    Orbits 10622-10624
+    Orbits 10632-10635
     Orbits 10644
-    Orbits 10646
-    Orbits 10647
+    Orbits 10646-10647
     Orbits 10655
     Orbits 10658
-    Orbits 10666
-    Orbits DONE10667
-    Orbits DONE10699
-    Orbits DONE10700
-    Orbits DONE10709-10711
-    Orbits DONE10720-10721
-    Orbits DONE10731
-    Orbits DONE10743
-    Orbits DONE10766
-    Orbits DONE10767
-    Orbits DONE10773
-    Orbits DONE10774
-    Orbits DONE10776
-    Orbits DONE10777
-    Orbits DONE10778
-    Orbits DONE10781
-    Orbits DONE10785
-    Orbits DONE10786
-    Orbits DONE10806
-    Orbits DONE10807
-    Orbits DONE10817
-    Orbits DONE10818-10820
-    Orbits DONE10821
-    Orbits DONE10825
-    Orbits DONE10828
-    Orbits DONE10829
-    Orbits DONE10832
-    Orbits DONE10833
-    Orbits DONE10837
-    Orbits DONE10838
-    Orbits DONE10839
-    Orbits DONE10840-10842
-    Orbits DONE10850
-    Orbits DONE10852
+    Orbits 10666-10667
+    Orbits 10699-10700
+    Orbits 10709-10711
+    Orbits 10720-10721
+    Orbits 10731
+    Orbits 10743
+    Orbits 10766-10767
+    Orbits 10773-10774
+    Orbits 10776-10778
+    Orbits 10781
+    Orbits 10785-10786
+    Orbits 10806-10807
+    Orbits 10817-10820
+    Orbits 10821
+    Orbits 10825
+    Orbits 10828-10829
+    Orbits 10832-10833
+    Orbits 10837-10839
+    Orbits 10840-10842
+    Orbits 10850
+    Orbits 10852
     Orbits DONE10605-10666
 
 

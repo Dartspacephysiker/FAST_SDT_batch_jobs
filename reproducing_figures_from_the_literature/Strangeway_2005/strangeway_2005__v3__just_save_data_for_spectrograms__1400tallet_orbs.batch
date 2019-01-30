@@ -3,15 +3,31 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005__v3__just_save_data_for_spectrograms_wrapper.pro
 
 DataBaseRequest:
-    Orbits 1458
-    Orbits 1459-1463
-    Orbits 1470-1474
-    Orbits 1480-1485
+    Orbits 1393-1399
+    Orbits 1404-1410
+    Orbits 1413-1414
+    Orbits 1416-1421
+    Orbits 1425-1427
+    Orbits 1429-1431
+    Orbits 1437-1440
+    Orbits 1447-1452
+    Orbits 1458-1463
+    Orbits 1470-1473
+    Orbits 1479-1484
     Orbits 1491-1492
     Orbits 1494-1495
-    Orbits 1501
-    Orbits 1503-1505
-    Orbits 1507
+    Orbits 1500
+    Orbits 1503-1504
+    Orbits OLDOLD1458
+    Orbits OLDOLD1459-1463
+    Orbits OLDOLD1470-1474
+    Orbits OLDOLD1480-1485
+    Orbits OLDOLD1479
+    Orbits OLDOLD1491-1492
+    Orbits OLDOLD1494-1495
+    Orbits OLDOLD1500-1501
+    Orbits OLDOLD1503-1505
+    Orbits OLDOLD1507
     Orbits DONE1390-1400
     Orbits DONE1401-1414
     Orbits DONE1416-1433
@@ -20,7 +36,6 @@ DataBaseRequest:
     Orbits ALLEREDE1300-1357
     Orbits BORG1358-1389
     Orbits WAGGAT1300-1389
-
 
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005
