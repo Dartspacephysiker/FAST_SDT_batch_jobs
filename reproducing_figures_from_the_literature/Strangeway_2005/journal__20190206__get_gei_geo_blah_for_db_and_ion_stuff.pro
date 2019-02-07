@@ -3,7 +3,32 @@ PRO JOURNAL__20190206__GET_GEI_GEO_BLAH_FOR_DB_AND_ION_STUFF
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
-  orbits = INDGEN(33)+8260
+  doNHSep1998Orbs = 0
+  doSHJan1999Orbs = 1
+
+  IF doNHSep1998Orbs THEN BEGIN
+     orbits = INDGEN(33)+8260
+  ENDIF ELSE IF doSHJan1999Orbs THEN BEGIN
+     orbits = [INDGEN(2,START=9291), $
+               INDGEN(5,START=9300), $
+               INDGEN(3,START=9313), $
+               9322,9324,9333,9336,9346,9354, $
+               INDGEN(5,START=9376), $
+               9387,9389, $
+               INDGEN(2,START=9390), $
+               INDGEN(2,START=9401), $
+               9409,9411,9420, $
+               INDGEN(2,START=9422), $
+               9430, $
+               INDGEN(3,START=9432), $
+               9441,9443,9444,9452,9454,9457,9463,9465,9472, $
+               INDGEN(7,START=9474), $
+               9483, $
+               INDGEN(6,START=9485), $
+               9493,9495, $
+               INDGEN(3,START=9497), $
+               9504,9506,9517,9519]
+  ENDIF
 
   nOrbits = N_ELEMENTS(orbits)
 
