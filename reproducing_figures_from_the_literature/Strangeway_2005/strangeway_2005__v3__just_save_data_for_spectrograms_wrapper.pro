@@ -35,7 +35,7 @@ indivSuff = '-rawProds__dB_and_ions__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_7
 ;; indivSuff = '-rawProds_med_dB_sc_and_sp_E__upDownRat5_thresh5e5_fracBelow0_5.sav'
 
 ;; TRY LEEWARD??
-tryLeeward = 1
+tryLeeward = 0
 IF KEYWORD_SET(tryLeeward) THEN BEGIN & $
 indivSuff = '-rawProds__dB_and_ions__leeward__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav' & $
 ENDIF   

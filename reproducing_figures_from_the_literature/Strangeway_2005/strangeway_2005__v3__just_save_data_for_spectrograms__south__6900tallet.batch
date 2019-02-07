@@ -1,30 +1,64 @@
 BatchJob: "strangeway_et_al_2005__v3__south__6900tallet"
 NoPlots:
-IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005__v3__just_save_data_for_spectrograms__south__6900tallet_wrapper.pro
+IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005__v3__just_save_data_for_spectrograms__south_wrapper.pro
 
 DataBaseRequest:
-
+    Orbits 6894
+    Orbits 6903-6906
+    Orbits 6911-6915
+    Orbits 6923-6925
+    Orbits 6932
+    Orbits 6936-6937
+    Orbits 6944-6947
+    Orbits 6949
+    Orbits 6954
+    Orbits 6959
+    Orbits 6961
     Orbits 6968
     Orbits 6970-6971
-    Orbits 6975
+    Orbits 6977
     Orbits 6980-6982
-    Orbits 6987-7003
+    Orbits 6987
+    Orbits 6989-6992
+    Orbits 6999
+    Orbits 7002-7003
     Orbits 7013
     Orbits 7024
-    Orbits 7026
-    Orbits 7028
-    Orbits 7030 
-    Orbits 7033
+    Orbits 7030
     Orbits 7034
-    Orbits 7036
-    Orbits 7043 
+    Orbits 7040
+    Orbits 7041-7042
     Orbits 7044
-    Orbits 7046
-    Orbits 7047
-    Orbits 7048
-    Orbits 7049
-    Orbits 7052
-    Orbits 7057
+    Orbits 7046-7049
+    Orbits 7051-7052
+    Orbits 7054
+    Orbits 7056-7057
+    Orbits 7063
+    Orbits 7066
+    Orbits 7068
+    Orbits 7072
+    Orbits 7076
+    Orbits ALDLANGSYNE6968
+    Orbits ALDLANGSYNE6970-6971
+    Orbits ALDLANGSYNE6975
+    Orbits ALDLANGSYNE6980-6982
+    Orbits ALDLANGSYNE6987-7003
+    Orbits ALDLANGSYNE7013
+    Orbits ALDLANGSYNE7024
+    Orbits ALDLANGSYNE7026
+    Orbits ALDLANGSYNE7028
+    Orbits ALDLANGSYNE7030 
+    Orbits ALDLANGSYNE7033
+    Orbits ALDLANGSYNE7034
+    Orbits ALDLANGSYNE7036
+    Orbits ALDLANGSYNE7043 
+    Orbits ALDLANGSYNE7044
+    Orbits ALDLANGSYNE7046
+    Orbits ALDLANGSYNE7047
+    Orbits ALDLANGSYNE7048
+    Orbits ALDLANGSYNE7049
+    Orbits ALDLANGSYNE7052
+    Orbits ALDLANGSYNE7057
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005
 PlotConfigurationFile: rjs_clean__more_efielders

@@ -3,115 +3,46 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005/strangeway_2005__v3__just_save_data_for_spectrograms__south_wrapper.pro
 
 DataBaseRequest:
-    Orbits 9443
-    Orbits 9444
-    Orbits 9452
-    Orbits 9454
-    Orbits 9457
-    Orbits 9463
-    Orbits 9465
-    Orbits 9472
-    Orbits 9474-9480
-    Orbits 9483
-    Orbits 9485-9490
-    Orbits 9493
-    Orbits 9495
-    Orbits 9497-9498
-    Orbits 9504
-    Orbits 9506
-    Orbits 9517
-    Orbits 9291-9292
-    Orbits 9300-9304
-    Orbits 9313-9315
-    Orbits 9322
-    Orbits 9324
-    Orbits 9333
-    Orbits 9336
-    Orbits 9346
-    Orbits 9354
-    Orbits 9376-9380
-    Orbits 9387
-    Orbits 9389
-    Orbits 9390-9391
-    Orbits 9401-9402
-    Orbits 9409
-    Orbits 9411
-    Orbits 9420
-    Orbits 9422-9423
-    Orbits 9430
-    Orbits 9432-9434
-    Orbits 9441
-    Orbits 9519
-    Orbits DONE9422
-    Orbits DONE9423
-    Orbits DONE9424
-    Orbits DONE9425
-    Orbits BAD9428
+    Orbits 9499
+    Orbits DONE9291-9292
+    Orbits DONE9300-9304
+    Orbits DONE9313-9315
+    Orbits DONE9322
+    Orbits DONE9324
+    Orbits DONE9333
+    Orbits DONE9336
+    Orbits DONE9346
+    Orbits DONE9354
+    Orbits DONE9376-9380
+    Orbits DONE9387
+    Orbits DONE9389
+    Orbits DONE9390-9391
+    Orbits DONE9401-9402
+    Orbits DONE9409
+    Orbits DONE9411
+    Orbits DONE9420
+    Orbits DONE9422-9423
     Orbits DONE9430
-    Orbits DONE9432
-    Orbits DONE9433
-    Orbits DONE9434
-    Orbits BAD9435
-    Orbits DONE9436
-    Orbits BAD9437
-    Orbits BAD9439
+    Orbits DONE9432-9434
     Orbits DONE9441
     Orbits DONE9443
     Orbits DONE9444
-    Orbits DONE9445
-    Orbits DONE9446
-    Orbits DONE9450
     Orbits DONE9452
     Orbits DONE9454
-    Orbits DONE9456
     Orbits DONE9457
-    Orbits DONE9461
     Orbits DONE9463
     Orbits DONE9465
-    Orbits DONE9467
-    Orbits DONE9468
-    Orbits DONE9470
     Orbits DONE9472
-    Orbits DONE9474
-    Orbits DONE9475
-    Orbits DONE9476
-    Orbits DONE9477
-    Orbits DONE9478
-    Orbits DONE9479
-    Orbits DONE9480
+    Orbits DONE9474-9480
     Orbits DONE9483
-    Orbits DONE9485
-    Orbits DONE9486
-    Orbits DONE6881
-    Orbits DONTKNOWIFILIKEEM6882
-    Orbits DONTKNOWIFILIKEEM6885
-    Orbits DONTKNOWIFILIKEEM6889
-    Orbits DONTKNOWIFILIKEEM6891
-    Orbits DONTKNOWIFILIKEEM6892
-    Orbits DONTKNOWIFILIKEEM6893
-    Orbits DONTKNOWIFILIKEEM6894
-    Orbits DONTKNOWIFILIKEEM6896
-    Orbits DONTKNOWIFILIKEEM6903
-    Orbits DONTKNOWIFILIKEEM6904
-    Orbits DONTKNOWIFILIKEEM6905
-    Orbits DONTKNOWIFILIKEEM6906
-    Orbits DONTKNOWIFILIKEEM6912
-    Orbits DONTKNOWIFILIKEEM6913
-    Orbits DONTKNOWIFILIKEEM6914
-    Orbits DONTKNOWIFILIKEEM6915
-    Orbits DONTKNOWIFILIKEEM6918
-    Orbits DONTKNOWIFILIKEEM6921
-    Orbits DONTKNOWIFILIKEEM6924
-    Orbits DONTKNOWIFILIKEEM6925
-    Orbits DONTKNOWIFILIKEEM6927
-    Orbits DONTKNOWIFILIKEEM6928
-    Orbits DONTKNOWIFILIKEEM6929
-    Orbits DONTKNOWIFILIKEEM6932
-    Orbits DONTKNOWIFILIKEEM6935
-    Orbits DONTKNOWIFILIKEEM6936
-    Orbits DONTKNOWIFILIKEEM6937
-    Orbits DONTKNOWIFILIKEEM6939
-    Orbits DONTKNOWIFILIKEEM6943
+    Orbits DONE9485-9490
+    Orbits DONE9493
+    Orbits DONE9495
+    Orbits DONE9497-9498
+    Orbits DONE9504
+    Orbits DONE9506
+    Orbits DONE9517
+    Orbits DONE9519
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/reproducing_figures_from_the_literature/Strangeway_2005
 PlotConfigurationFile: rjs_clean__more_efielders
