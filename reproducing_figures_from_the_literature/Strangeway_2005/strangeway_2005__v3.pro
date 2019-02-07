@@ -864,7 +864,8 @@ PRO STRANGEWAY_2005__V3, $
         B_GEO_tArr = MAKE_ARRAY(nBMaal,VALUE=0.D,/DOUBLE)
         B_GEO_pArr = MAKE_ARRAY(nBMaal,VALUE=0.D,/DOUBLE)
         FOR jjj=0,nBMaal-1 DO BEGIN
-           B_GEO[jjj,*] = coords.GEI2GEO_vec[*,*,jjj] # TRANSPOSE(B_GEI[jjj,*])
+           ;; B_GEO[jjj,*] = coords.GEI2GEO_vec[*,*,jjj] # TRANSPOSE(B_GEI[jjj,*])
+           B_GEO[jjj,*] = coords.GEI2GEO_coord[*,*,jjj] # TRANSPOSE(B_GEI[jjj,*])
 
            GEOPACK_BCARSP_08, $
               coords.GEO[0,jjj],coords.GEO[1,jjj],coords.GEO[2,jjj], $ ;pos Vec in GEO coords
@@ -878,8 +879,6 @@ PRO STRANGEWAY_2005__V3, $
         ENDFOR
 
         ;; STOP
-
-        ;; R_E              = 6371.2D ;In case coords struct doesn't have it, Earth radius in km, from IGRFLIB_V2.pro
 
         ;; TESTS
         ;; kompNav = ['x','y','z']
@@ -898,17 +897,23 @@ PRO STRANGEWAY_2005__V3, $
         ;; magsGEO=SQRT(TOTAL(B_GEO^2.,2))
         ;; PRINT,MINMAX(magsGEI-magsGEO)
 
+        R_E              = 6371.2D ;In case coords struct doesn't have it, Earth radius in km, from IGRFLIB_V2.pro
+
+        geoCoords = [[geo.alt+r_e],[geo.lon],[geo.lat]]
+
         dB = CREATE_STRUCT( $ ;'x',dB_fac.x, $
-                           'fac',dB_fac.y, $
-                           'fac_v',dB_fac_v.y, $
-                           ;; 'sc',dB_sc.y, $
-                           ;; 'B_gei',B_gei.y, $
-                           'B_geo',B_GEO, $
-                           'B_geo_r',B_GEO_rArr, $
-                           'B_geo_theta',B_GEO_tArr, $
-                           'B_geo_phi',B_GEO_pArr, $
-                           'mag_flags',mag_flags, $
-                           TEMPORARY(dBEphem))
+             'fac',dB_fac.y, $
+             'fac_v',dB_fac_v.y, $
+             ;; 'sc',dB_sc.y, $
+             ;; 'B_gei',B_gei.y, $
+             'B_geo',B_GEO, $
+             'B_geo_r',B_GEO_rArr, $
+             'B_geo_theta',B_GEO_tArr, $
+             'B_geo_phi',B_GEO_pArr, $
+             'mag_flags',mag_flags, $
+             ;; "fa_pos_geo",TRANSPOSE(coords.GEO), $
+             "fa_pos_geo",TEMPORARY(geoCoords), $ ;These are spherical, line above is Cartesian
+             TEMPORARY(dBEphem))
 
      ENDIF ELSE BEGIN
 

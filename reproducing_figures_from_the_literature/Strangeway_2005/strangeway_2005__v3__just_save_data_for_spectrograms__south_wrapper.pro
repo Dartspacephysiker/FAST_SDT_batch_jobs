@@ -44,7 +44,7 @@ fracBelowThatMustBeUpward = 0.75D
 save_individual_data_products__only_db_and_ions = 1
 indivSuff = '-rawProds__dB_and_ions__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav'
 
-tryLeeward = 1
+tryLeeward = 0
 IF KEYWORD_SET(tryLeeward) THEN BEGIN & $
 indivSuff = '-rawProds__dB_and_ions__leeward__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav' & $
 ENDIF   
