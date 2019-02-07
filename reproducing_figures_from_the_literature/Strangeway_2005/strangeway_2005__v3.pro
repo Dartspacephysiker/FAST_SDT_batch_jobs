@@ -877,7 +877,7 @@ PRO STRANGEWAY_2005__V3, $
 
         ENDFOR
 
-        STOP
+        ;; STOP
 
         ;; R_E              = 6371.2D ;In case coords struct doesn't have it, Earth radius in km, from IGRFLIB_V2.pro
 
