@@ -22,6 +22,7 @@ PRO STRANGEWAY_2005__V3, $
    SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_IONS=save_individual_data_products__only_ions, $
    SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_DB_AND_IONS=save_individual_data_products__only_db_and_ions, $
    SAVE_INDIVIDUAL_DATA_PRODUCTS__FSUFF=save_individual_data_products__fSuff, $
+   SAVE_INDIVID__CONVERT_B_GEI_TO_B_GEO=convert_B_gei_to_B_geo, $
    MAKE_IONS_OXYGEN=make_ions_oxygen, $
    EFIELD_SHADOW_NOTCH=shadow_notch, $
    EFIELD_SINTERP=sInterp, $
@@ -83,6 +84,8 @@ PRO STRANGEWAY_2005__V3, $
   ;; outflowMinLog10 = 6
   ;; ptsMinOutflow   = 60
   ;; allowableGap    = 3 ;seconds
+
+  IF N_ELEMENTS(convert_B_gei_to_B_geo) EQ 0 THEN convert_B_gei_to_B_geo = 1
 
   CASE 1 OF
      KEYWORD_SET(use_eField_fit_variables): BEGIN
@@ -409,8 +412,12 @@ PRO STRANGEWAY_2005__V3, $
      IF KEYWORD_SET(save_individual_data_products_and_quit) OR $
         KEYWORD_SET(save_individual_data_products__only_db_and_ions) $
      THEN BEGIN
+
         GET_DATA,'dB_fac_v',data=dB_fac_v
         GET_DATA,'dB_fac',data=dB_fac
+
+        ;; 'B_gei'      Smoothed and deglitched field in GEI coordinates
+        GET_DATA,'B_gei',data=B_gei
 
         ;;  'Bx_sc'      Despun Bx (in spin plane, to sun, smoothed, deglitched)
         ;;  'By_sc'      Despun By (in spin plane, perp sun, smoothed, deglitched)
@@ -797,16 +804,127 @@ PRO STRANGEWAY_2005__V3, $
 
      GET_DATA,'MAG_FLAGS',data=mag_flags
 
-     ;; dB_info = CREATE_STRUCT('x',dB_fac.x, $
-     ;;                    'fac',dB_fac.y, $
-     ;;                    'fac_v',dB_fac_v.y, $
-     ;;                    'sc',{x:"",y:"",z:""})
-     dB = CREATE_STRUCT('x',dB_fac.x, $
-                        'fac',dB_fac.y, $
-                        'fac_v',dB_fac_v.y, $
-                        'sc',dB_sc.y, $
-                        'mag_flags',mag_flags, $
-                        TEMPORARY(dBEphem))
+     IF KEYWORD_SET(convert_B_gei_to_B_geo) THEN BEGIN
+
+        nBMaal = N_ELEMENTS(dBEphem.time)
+
+        coordDir = '/SPENCEdata/Research/database/temps/'
+        GEO_MAG_filename = "tmpGEOMAGcoords_"+orbString+".sav"
+
+        have_GEO_MAG = 0
+
+        ;; Med dette får du
+        ;;   GEO     = {ALT:GEOSph_arr[*,2], $
+        ;;              LON:GEOSph_arr[*,1], $
+        ;;              LAT:GEOSph_arr[*,0]}
+        ;; 
+        ;;   MAG     = {ALT:MAGSph_arr[*,2], $
+        ;;              LON:MAGSph_arr[*,1], $
+        ;;              LAT:MAGSph_arr[*,0]}
+        ;; 
+        ;;  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ;;  ;;make struct
+        ;;  coords = {TIME   : times, $
+        ;;            MAG    : MAG_arr, $
+        ;;            GEO    : GEO_arr, $
+        ;;            CREATED: GET_TODAY_STRING(/DO_YYYYMMDD_FMT), $
+        ;;            R_E    : R_E, $
+        ;;            INFO   : "Components of FAST position vector in this struct are CARTESIAN MAG and GEO. The self-standing structs give FAST pos vec in SPHERICAL coords (lat, lon, R-R_E)", $
+        ;;            ORIGINATING_ROUTINE:''}
+
+        IF FILE_TEST(coordDir + GEO_MAG_filename) THEN BEGIN
+           RESTORE,coordDir + GEO_MAG_filename
+           have_GEO_MAG = N_ELEMENTS(coords.time) EQ nBMaal
+
+           IF have_GEO_MAG THEN BEGIN
+
+              tNames = STRUPCASE(TAG_NAMES(coords))
+
+              have_GEO_MAG = (WHERE(tNames EQ "GEI2GEO_COORD"))[0] NE -1 
+
+           ENDIF
+
+        ENDIF
+
+        IF ~have_GEO_MAG THEN BEGIN
+
+           JOURNAL__20190206__GET_GEI_GEO_BLAH_FOR_DB_AND_ION_STUFF, $
+              HERE_ARE_MY_ORBITS=[orbit]
+
+           RESTORE,coordDir + GEO_MAG_filename
+
+        ENDIF
+
+        PRINT,"Getting B in GEO coords ..."
+
+        ;; Do the next stuff
+        B_GEI = B_GEI.y
+        B_GEO = B_GEI *0.D
+        B_GEO_rArr = MAKE_ARRAY(nBMaal,VALUE=0.D,/DOUBLE)
+        B_GEO_tArr = MAKE_ARRAY(nBMaal,VALUE=0.D,/DOUBLE)
+        B_GEO_pArr = MAKE_ARRAY(nBMaal,VALUE=0.D,/DOUBLE)
+        FOR jjj=0,nBMaal-1 DO BEGIN
+           B_GEO[jjj,*] = coords.GEI2GEO_vec[*,*,jjj] # TRANSPOSE(B_GEI[jjj,*])
+
+           GEOPACK_BCARSP_08, $
+              coords.GEO[0,jjj],coords.GEO[1,jjj],coords.GEO[2,jjj], $ ;pos Vec in GEO coords
+              B_GEO[jjj,0],B_GEO[jjj,1],B_GEO[jjj,2], $                ;B Vec in GEO coords
+              B_GEO_r,B_GEO_theta,B_GEO_phi
+
+           B_GEO_rArr[jjj] = B_GEO_r
+           B_GEO_tArr[jjj] = B_GEO_theta
+           B_GEO_pArr[jjj] = B_GEO_phi
+
+        ENDFOR
+
+        STOP
+
+        ;; R_E              = 6371.2D ;In case coords struct doesn't have it, Earth radius in km, from IGRFLIB_V2.pro
+
+        ;; TESTS
+        ;; kompNav = ['x','y','z']
+        ;; testInd = 0
+        ;; PRINT,T2S(dBEphem.time[testInd])
+        ;; PRINT,FORMAT='(A-5,TR5,A-8,TR5,A-8)', $
+        ;;       "komp","GEI","GEO"
+        ;; FOR jkj=0,2 DO PRINT,FORMAT='(A-5,TR5,F8.2,TR5,F8.2)', $
+        ;;                      kompNav[jkj], $
+        ;;                      B_GEI[testInd,jkj], $
+        ;;                      B_GEO[testInd,jkj]
+
+        ;; ;; Z-komponenter bør stemme
+        ;; PRINT,MINMAX(B_GEI[*,2]-B_GEO[*,2])
+        ;; magsGEI=SQRT(TOTAL(B_GEI^2.,2))
+        ;; magsGEO=SQRT(TOTAL(B_GEO^2.,2))
+        ;; PRINT,MINMAX(magsGEI-magsGEO)
+
+        dB = CREATE_STRUCT( $ ;'x',dB_fac.x, $
+                           'fac',dB_fac.y, $
+                           'fac_v',dB_fac_v.y, $
+                           ;; 'sc',dB_sc.y, $
+                           ;; 'B_gei',B_gei.y, $
+                           'B_geo',B_GEO, $
+                           'B_geo_r',B_GEO_rArr, $
+                           'B_geo_theta',B_GEO_tArr, $
+                           'B_geo_phi',B_GEO_pArr, $
+                           'mag_flags',mag_flags, $
+                           TEMPORARY(dBEphem))
+
+     ENDIF ELSE BEGIN
+
+        ;; dB_info = CREATE_STRUCT('x',dB_fac.x, $
+        ;;                    'fac',dB_fac.y, $
+        ;;                    'fac_v',dB_fac_v.y, $
+        ;;                    'sc',{x:"",y:"",z:""})
+        dB = CREATE_STRUCT('x',dB_fac.x, $
+                           'fac',dB_fac.y, $
+                           'fac_v',dB_fac_v.y, $
+                           ;; 'sc',dB_sc.y, $
+                           ;; 'B_gei',B_gei.y, $
+                           'mag_flags',mag_flags, $
+                           TEMPORARY(dBEphem))
+
+     ENDELSE
 
      IF KEYWORD_SET(save_individual_data_products__only_db_and_ions) THEN BEGIN
         PRINT,"Saving " + indivFile + ' ...'
