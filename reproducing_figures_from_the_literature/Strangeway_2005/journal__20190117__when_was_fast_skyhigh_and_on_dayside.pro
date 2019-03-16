@@ -4,20 +4,34 @@ PRO JOURNAL__20190117__WHEN_WAS_FAST_SKYHIGH_AND_ON_DAYSIDE
   COMPILE_OPT IDL2,STRICTARRSUBS
 
   ;; LOAD_FASTLOC_AND_FASTLOC_TIMES,fastLoc,fastloc_times,/NO_MEMORY_LOAD
-  LOAD_FASTLOC_AND_FASTLOC_TIMES,fastLoc,fastloc_times, $
-                                 FOR_ESPEC_DBS=for_eSpec_DBs, $
-                                 FOR_ESPEC__GIGANTE=for_eSpec__gigante, $
-                                 /NO_MEMORY_LOAD
+  ;; LOAD_FASTLOC_AND_FASTLOC_TIMES,fastLoc,fastloc_times, $
+  ;;                                FOR_ESPEC_DBS=for_eSpec_DBs, $
+  ;;                                FOR_ESPEC__GIGANTE=for_eSpec__gigante, $
+  ;;                                /NO_MEMORY_LOAD
 
-  minMLT = 9
-  maxMLT = 17
+  file = '/SPENCEdata/Research/database/FAST/dartdb/electron_Newell_db/v2018/eMomDB_20181127-1000-51315-ephem.sav'
 
-  ;; dayside = 1
+  restore,file
 
-  minILAT = 60
+  ;; minMLT = 9
+  ;; maxMLT = 17
+
+  ;; minILAT = 60
+  ;; maxILAT = 90
+
+  ;; altRange = [3800,4200]
+
+
+  minMLT = 10
+  maxMLT = 14
+
+  minILAT = 66
   maxILAT = 90
 
-  hemi = 'NORTH'
+  altRange = [3800,4200]
+
+  ;; hemi = 'NORTH'
+  hemi = 'BOTH'
 
   IF hemi EQ 'SOUTH' THEN BEGIN
 
@@ -27,9 +41,7 @@ PRO JOURNAL__20190117__WHEN_WAS_FAST_SKYHIGH_AND_ON_DAYSIDE
 
   ENDIF
 
-  altRange = [3500,4200]
-
-  mlt_i  = GET_MLT_INDS(fastLoc, $
+  mlt_i  = GET_MLT_INDS(ephem, $
                         minMLT, $
                         maxMLT, $
                         DAYSIDE=dayside, $
@@ -39,7 +51,7 @@ PRO JOURNAL__20190117__WHEN_WAS_FAST_SKYHIGH_AND_ON_DAYSIDE
                         USE_LNG=use_Lng, $
                         LUN=lun)
 
-  ilat_i    = GET_ILAT_INDS(fastLoc, $
+  ilat_i    = GET_ILAT_INDS(ephem, $
                             minILAT, $
                             maxILAT, $
                             hemi, $
@@ -50,16 +62,16 @@ PRO JOURNAL__20190117__WHEN_WAS_FAST_SKYHIGH_AND_ON_DAYSIDE
 
 
   alt_i     = GET_ALTITUDE_INDS( $
-              fastLoc, $
+              ephem, $
               altRange[0], $
               altRange[1],LUN=lun)
 
 
   region_i          = CGSETINTERSECTION(region_i,alt_i)
 
-  uniqOrbs_ii = UNIQ(fastLoc.orbit[region_i],SORT(fastLoc.orbit[region_i]))
+  uniqOrbs_ii = UNIQ(ephem.orbit[region_i],SORT(ephem.orbit[region_i]))
 
-  uniqOrbs = fastLoc.orbit[region_i[uniqOrbs_ii]]
+  uniqOrbs = ephem.orbit[region_i[uniqOrbs_ii]]
 
   nUniq = N_ELEMENTS(uniqOrbs)
   PRINT,FORMAT='(A5,TR2,A8,TR2,A23,TR2,A5,TR2,A8,TR2,A8,TR2,A8)', $
@@ -73,16 +85,16 @@ PRO JOURNAL__20190117__WHEN_WAS_FAST_SKYHIGH_AND_ON_DAYSIDE
   FOR k=0,nUniq-1 DO BEGIN
      ind = region_i[uniqOrbs_ii[k]]
 
-     nPunkt = N_ELEMENTS(WHERE(fastLoc.orbit[region_i] EQ fastLoc.orbit[ind]))
+     nPunkt = N_ELEMENTS(WHERE(ephem.orbit[region_i] EQ ephem.orbit[ind]))
 
      PRINT,FORMAT='(I5,TR2,I8,TR2,A23,TR2,I5,TR2,F8.2,TR2,F8.2,TR2,F8.2)', $
            k, $
-           fastLoc.orbit[ind], $
-           fastLoc.time[ind], $
+           ephem.orbit[ind], $
+           ephem.time[ind], $
            nPunkt, $
-           fastLoc.mlt[ind], $
-           fastLoc.ilat[ind], $
-           fastLoc.alt[ind]
+           ephem.mlt[ind], $
+           ephem.ilat[ind], $
+           ephem.alt[ind]
 
   ENDFOR
 

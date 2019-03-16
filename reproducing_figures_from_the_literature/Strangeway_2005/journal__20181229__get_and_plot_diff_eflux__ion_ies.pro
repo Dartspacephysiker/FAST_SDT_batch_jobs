@@ -27,11 +27,13 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
   do20181231Plots = 1
   combine_plots_in_PDF = 1
 
+  plot_all_times = 1B
+
   ;; t1Str_for_diffEflux_plots = '2000-03-04/02:49:00' ;gjelder bane 14000
   ;; t2Str_for_diffEflux_plots = '2000-03-04/03:25:00'
 
-  t1Str_for_diffEflux_plots = '1997-04-15/05:25:00' ;gjelder bane 14000
-  t2Str_for_diffEflux_plots = '1997-04-15/05:45:00'
+  ;; t1Str_for_diffEflux_plots = '1997-04-15/05:25:00' ;gjelder bane 14000
+  ;; t2Str_for_diffEflux_plots = '1997-04-15/05:45:00'
 
 
   ;; TREDJE forsøk: Se hva vi får ut med moment-beregninger
@@ -139,9 +141,14 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
 
      just_save_all = 1
 
-     t1 = S2T(t1Str_for_diffEflux_plots)
-     t2 = S2T(t2Str_for_diffEflux_plots)
-
+     IF KEYWORD_SET(plot_all_times) THEN BEGIN
+        t1 = diff_eFlux[0].time
+        t2 = diff_eFlux[-1].time
+     ENDIF ELSE BEGIN
+        t1 = S2T(t1Str_for_diffEflux_plots)
+        t2 = S2T(t2Str_for_diffEflux_plots)
+     ENDELSE
+     
      inds = VALUE_CLOSEST2(diff_eFlux.time,[t1,t2],/CONSTRAINED)
 
      startInd = inds[0]
@@ -160,6 +167,8 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
                                JUST_SAVE_ALL=just_save_all, $
                                COMBINE_PLOTS_IN_PDF=combine_plots_in_PDF
 
+
+     STOP
 
   ENDIF
                             

@@ -20,6 +20,7 @@ PRO STRANGEWAY_2005__V3, $
    SAVE_INDIVIDUAL_ORBIT=save_individual_orbit, $
    SAVE_INDIVIDUAL_DATA_PRODUCTS_AND_QUIT=save_individual_data_products_and_quit, $
    SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_IONS=save_individual_data_products__only_ions, $
+   SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_ELECTRONS_AND_IONS=save_individual_data_products__only_electrons_and_ions, $
    SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_DB_AND_IONS=save_individual_data_products__only_db_and_ions, $
    SAVE_INDIVIDUAL_DATA_PRODUCTS__FSUFF=save_individual_data_products__fSuff, $
    SAVE_INDIVID__CONVERT_B_GEI_TO_B_GEO=convert_B_gei_to_B_geo, $
@@ -208,7 +209,9 @@ PRO STRANGEWAY_2005__V3, $
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Step 1 - DC Mag data
 
-  IF ~KEYWORD_SET(save_individual_data_products__only_ions) THEN BEGIN
+  IF ~(KEYWORD_SET(save_individual_data_products__only_ions)             OR $
+       KEYWORD_SET(save_individual_data_products__only_electrons_and_ions)) $
+  THEN BEGIN
 
      UCLA_MAG_DESPIN,TW_MAT=tw_mat,ORBIT=orbit,SPIN_AXIS=spin_axis,DELTA_PHI=delta_phi
 
@@ -226,8 +229,9 @@ PRO STRANGEWAY_2005__V3, $
      indiv_orbFile = indivOrbPref + orbString + '.sav'
   ENDIF
 
-  save_data_and_quit = KEYWORD_SET(save_individual_data_products__only_ions) OR $
-                       KEYWORD_SET(save_individual_data_products__only_db_and_ions) OR $
+  save_data_and_quit = KEYWORD_SET(save_individual_data_products__only_ions)               OR $
+                       KEYWORD_SET(save_individual_data_products__only_db_and_ions)        OR $
+                       KEYWORD_SET(save_individual_data_products__only_electrons_and_ions) OR $
                        KEYWORD_SET(save_individual_data_products_and_quit)
 
   IF KEYWORD_SET(save_data_and_quit) THEN BEGIN
@@ -385,7 +389,9 @@ PRO STRANGEWAY_2005__V3, $
   ;; STORE_DATA,'gei_to_fac',/delete
   ;; STORE_DATA,'gei_to_fac_v',/delete
 
-  IF ~KEYWORD_SET(save_individual_data_products__only_ions) THEN BEGIN
+  IF ~(KEYWORD_SET(save_individual_data_products__only_ions)              OR $
+       KEYWORD_SET(save_individual_data_products__only_electrons_and_ions)  ) $
+  THEN BEGIN
 
      GET_DATA,'dB_fac_v',data=data
      t1            = data.x[0]
@@ -849,7 +855,8 @@ PRO STRANGEWAY_2005__V3, $
         IF ~have_GEO_MAG THEN BEGIN
 
            JOURNAL__20190206__GET_GEI_GEO_BLAH_FOR_DB_AND_ION_STUFF, $
-              HERE_ARE_MY_ORBITS=[orbit]
+              HERE_ARE_MY_ORBITS=[orbit], $
+              HERE_IS_MY_EPHEM=dBEphem
 
            RESTORE,coordDir + GEO_MAG_filename
 

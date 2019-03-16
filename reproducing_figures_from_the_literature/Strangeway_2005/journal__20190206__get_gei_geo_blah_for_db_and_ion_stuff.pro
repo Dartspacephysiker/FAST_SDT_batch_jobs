@@ -2,6 +2,7 @@
 ;; Version with lots of unnecessary details related to FASTDB_COORDINATE_CONVERSION__SINGLE at bottom of file
 PRO JOURNAL__20190206__GET_GEI_GEO_BLAH_FOR_DB_AND_ION_STUFF, $
    HERE_ARE_MY_ORBITS=here_they_are, $
+   HERE_IS_MY_EPHEM=dBEphem, $
    INCLUDE_GEI_TO_GEO_MATRIX=include_gei_to_geo_matrix
 
   COMPILE_OPT IDL2,STRICTARRSUBS
@@ -45,6 +46,11 @@ PRO JOURNAL__20190206__GET_GEI_GEO_BLAH_FOR_DB_AND_ION_STUFF, $
 
   ENDELSE
 
+  single_use_case = 0B
+  IF N_ELEMENTS(dBEphem) GT 0 THEN BEGIN
+     single_use_case = 1B
+  ENDIF
+
   IF N_ELEMENTS(defGEIStructName) EQ 0 THEN defGEIStructName = 'GEICoords'
 
   nOrbits = N_ELEMENTS(orbits)
@@ -54,13 +60,21 @@ PRO JOURNAL__20190206__GET_GEI_GEO_BLAH_FOR_DB_AND_ION_STUFF, $
      orbit = orbits[k]
      orbStr = STRING(FORMAT='(I0)',orbit)
 
-     tryFile = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/V3/rawProds/Orbit_'+orbStr+'-rawProds__dB_and_ions__upDownRat5_thresh5e5_fracBelow0_75.sav'
+     IF NOT KEYWORD_SET(single_use_case) THEN BEGIN
+
+        tryFile = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/V3/rawProds/Orbit_'+orbStr+'-rawProds__dB_and_ions__upDownRat5_thresh5e5_fracBelow0_75.sav'
+
+        RESTORE,tryFile
+
+        useDB = db
+
+     ENDIF ELSE BEGIN
+
+        useDB = dBEphem
+
+     ENDELSE
 
      print,"Orbit " + orbStr
-
-     RESTORE,tryFile
-
-     useDB = db
 
      times = useDB.time
      nTot = N_ELEMENTS(times)
