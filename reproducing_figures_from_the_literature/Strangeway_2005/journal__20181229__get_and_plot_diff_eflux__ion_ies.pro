@@ -24,28 +24,48 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
   do20181229Stuff = 0
 
   ;; ANDRE forsøk: Alle observerte ion-fordelinger plottes og lages som .ps-filer
-  do20181231Plots = 1
-  combine_plots_in_PDF = 1
+  do20181231Plots = 0
+  combine_plots_in_PDF = 0
 
-  plot_all_times = 1B
+  plot_all_times = 0B
 
-  ;; t1Str_for_diffEflux_plots = '2000-03-04/02:49:00' ;gjelder bane 14000
-  ;; t2Str_for_diffEflux_plots = '2000-03-04/03:25:00'
+  fit2D__PA_zRange = 10.D^([4.,8.])
 
-  ;; t1Str_for_diffEflux_plots = '1997-04-15/05:25:00' ;gjelder bane 14000
-  ;; t2Str_for_diffEflux_plots = '1997-04-15/05:45:00'
+  ;; Good for orbits 14000, 9499
+  energy_ions = [4,40]          
 
+  ;; Good for orbit 8276
+  energy_ions = [4,120]          
+
+  IF NOT plot_all_times THEN BEGIN
+
+     ;; t1Str_for_diffEflux_plots = '2000-03-04/02:49:00' ;gjelder bane 14000
+     ;; t2Str_for_diffEflux_plots = '2000-03-04/03:25:00'
+   
+     ;; t1Str_for_diffEflux_plots = '1997-04-15/05:25:00' ;gjelder bane 14000
+     ;; t2Str_for_diffEflux_plots = '1997-04-15/05:45:00'
+   
+     ;; t1Str_for_diffEflux_plots = '1999-01-15/16:40:00' ;gjelder bane 9499 (20190325)
+     ;; t2Str_for_diffEflux_plots = '1999-01-15/16:55:00'
+
+     t1Str_for_diffEflux_plots = '1998-09-25/00:00:00' ;gjelder bane 8276 (20190325)
+     t2Str_for_diffEflux_plots = '1998-09-25/00:19:00'
+
+  ENDIF
 
   ;; TREDJE forsøk: Se hva vi får ut med moment-beregninger
   ;; At least for orbit 14000, these plots show that we don't need to go higher than ~40 eV in energy
-  do20181231PlotToConvinceAboutEnergy = 0
-  do20181231Moments = 0
+
+  ;; 20190325 I am not immediately sure what the point of these plots was.
+  ;; Next time I figure it out I should describe it ...
+  do20181231PlotToConvinceAboutEnergy = 1
+  do20181231Moments = 1
   makeEmOxygenMoments = 0
 
   ;; t = 0.
   ;; this = GET_FA_IES(
 
-  calc_geom_factors      = 1
+  calc_geom_factors         = 1
   deFlux__array_of_structs  = 1
   save_diff_eFlux_to_file   = 1
   load_diff_eFlux_from_file = N_ELEMENTS(remake_diff_eFlux) GT 0 ? ~remake_diff_eFlux : 1
@@ -56,7 +76,7 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
   GET_FA_ORBIT,times,/TIME_ARRAY
 
   ;; enforce_diff_eFlux_sRate = 2.50
-  enforce_diff_eFlux_sRate = 5.0
+  enforce_diff_eFlux_sRates = 5.0
 
   winDims = [1200,800]
 
@@ -165,6 +185,7 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
                                RETRACE=retrace,   $
                                IND__STRIDE=stride, $
                                JUST_SAVE_ALL=just_save_all, $
+                               FIT2D__PA_ZRANGE=fit2D__PA_zRange, $
                                COMBINE_PLOTS_IN_PDF=combine_plots_in_PDF
 
 
@@ -207,8 +228,6 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
      IF KEYWORD_SET(makeEmOxygenMoments) THEN BEGIN
         diff_eFlux[*].mass = diff_eFlux[0].mass * 16.
      ENDIF
-
-     energy_ions = [4,40]
 
      up_aRangeN = [90,270]
      down_aRangeN = [270,90]
@@ -290,7 +309,8 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
 
      goodVals = WHERE(FINITE(ionmomstruct.n) AND $
                       FINITE(ionmomstruct.j) AND $
-                      FINITE(ionmomstruct.perp.j))
+                      FINITE(ionmomstruct.perp.j) AND $
+                      (ionMomStruct.errors.Uz < 5))
 
      cmTokm = 1E-5
      velPerp = ionMomStruct.perp.j/ionMomStruct.n * cmTokm
@@ -436,7 +456,7 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
      win = WINDOW(DIMENSIONS=winDims)
 
      vParPlot = ERRORPLOT(diff_eflux[goodVals].alt, $
-                          velPar[goodVals],ABS(velPar[goodVals])*ionMomStruct.errors.Uz, $
+                          velPar[goodVals],ABS(velPar[goodVals])*ionMomStruct.errors.Uz[goodVals], $
                           NAME='IESA', $
                           XTITLE='Altitude (km)', $
                           YTITLE='v_Par (km/s)!C(Negative is anti-earthward)', $
@@ -444,7 +464,10 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
                           LINESTYLE='', $
                           SYMBOL='x', $
                           FONT_SIZE=18, $
-                          TITLE='From IESA measurements over 4-40 eV', $
+                          YRANGE=[-30,20], $
+                          TITLE='From IESA measurements over 4-'+ $
+                          STRING(FORMAT='(I3)',energy_ions[1]) + $
+                          'eV', $
                           CURRENT=win)
      ;; vParPlot = PLOT(diff_eflux[goodVals].alt, $
      ;;                 velPar[goodVals], $
@@ -478,15 +501,18 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
      win2 = WINDOW(DIMENSIONS=winDims)
 
      vPerpPlot = ERRORPLOT(diff_eflux[goodVals].alt, $
-                          velPerp[goodVals],ABS(velPerp[goodVals])*ionMomStruct.errors.Ux, $
+                          velPerp[goodVals],ABS(velPerp[goodVals])*ionMomStruct.errors.Ux[goodVals], $
                           NAME='IESA', $
                           XTITLE='Altitude (km)', $
                           YTITLE='v_Perp (km/s)', $
                           ;; /YLOG, $
                           LINESTYLE='', $
                           SYMBOL='x', $
+                          YRANGE=[-30,20], $
                           FONT_SIZE=18, $
-                          TITLE='From IESA measurements over 4-40 eV', $
+                           TITLE='From IESA measurements over 4-'+ $
+                           STRING(FORMAT='(I3)',energy_ions[1]) + $
+                           'eV', $
                           CURRENT=win2)
      ;; vPerpPlot = PLOT(diff_eflux[goodVals].alt, $
      ;;                 velPerp[goodVals], $
@@ -507,7 +533,7 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
                          /OVERPLOT)
 
      vperpDiffPlot = PLOT(diff_eFlux[goodVals].alt, $
-                         velPerp[goodVals]-vFAST.perp[goodVals], $
+                         velPerp[goodVals]+vFAST.perp[goodVals], $
                          NAME='Diff', $
                          LINESTYLE='', $
                          SYMBOL='+', $
