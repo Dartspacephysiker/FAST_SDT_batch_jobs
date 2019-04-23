@@ -53,6 +53,7 @@ ENDIF ELSE IF GET_TODAY_STRING(/DO_YYYYMMDD_FMT) EQ '20190101' THEN BEGIN & $
    PRINT,"The JUST OXYGEN IONS batch" & $
    indivSuff = '-rawProds_oxyIons__upDownRat'+uDMRStr+'_thresh5e5_fracBelow0_75.sav' & $
    save_individual_data_products__only_ions = 1 & $
+   save_individual_data_products__only_db_and_ions = 0B & $
    make_ions_oxygen = 1 & $
 ENDIF 
 

@@ -141,7 +141,8 @@ PRO STRANGEWAY_2005__V3, $
 
 ; Step 1 - DC Mag data
 
-  savesDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
+  ;; savesDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
+  savesDir = '/thelonious_data1/FAST/'
   savesIndivDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/V3/rawProds/'
 
   @strangeway_2005__defaults__v3.pro
@@ -810,6 +811,12 @@ PRO STRANGEWAY_2005__V3, $
 
      GET_DATA,'MAG_FLAGS',data=mag_flags
 
+     IF ~KEYWORD_SET(quiet) THEN PRINT,"Getting dB field buffs ..."
+
+     FA_FIELDS_BUFS,{time:data.x},BUF_STARTS=strt_i,BUF_ENDS=stop_i
+     dbBufs = {start : strt_i, $
+               stop  : stop_i}
+
      IF KEYWORD_SET(convert_B_gei_to_B_geo) THEN BEGIN
 
         nBMaal = N_ELEMENTS(dBEphem.time)
@@ -918,9 +925,10 @@ PRO STRANGEWAY_2005__V3, $
              'B_geo_theta',B_GEO_tArr, $
              'B_geo_phi',B_GEO_pArr, $
              'mag_flags',mag_flags, $
+             "fa_fields_bufs",dbBufs, $ 
+             TEMPORARY(dBEphem), $
              ;; "fa_pos_geo",TRANSPOSE(coords.GEO), $
-             "fa_pos_geo",TEMPORARY(geoCoords), $ ;These are spherical, line above is Cartesian
-             TEMPORARY(dBEphem))
+             "fa_pos_geo",TEMPORARY(geoCoords)) ;These are spherical, line above is Cartesian
 
      ENDIF ELSE BEGIN
 
@@ -934,6 +942,7 @@ PRO STRANGEWAY_2005__V3, $
                            ;; 'sc',dB_sc.y, $
                            ;; 'B_gei',B_gei.y, $
                            'mag_flags',mag_flags, $
+                           "fa_fields_bufs",dbBufs, $
                            TEMPORARY(dBEphem))
 
      ENDELSE
