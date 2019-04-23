@@ -13,7 +13,70 @@ FUNCTION CROSSP_NORMED,v1,v2
   tmp = CROSSP(v1,v2)
   RETURN,VNORMALIZE(tmp)
 END
-PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
+PRO PRINT_DIST_FUNCTION,wanttime, $
+                        diff_eflux, $
+                        ORBSTR=orbStr, $
+                        MAKECSV=makeCSV ;; , $
+  ;; OUTLUN=outLun
+
+  IF N_ELEMENTS(orbSTR) EQ 0 THEN BEGIN
+     orbPref = ''
+  ENDIF ELSE BEGIN
+     orbPref = 'orb_'+orbStr+'_'
+  ENDELSE
+
+  ;; useLun = N_ELEMENTS(outLun) GT 0 ? outLun : -1
+
+  junk = MIN(ABS(S2T(wanttime)-diff_eFlux.time),minInd)
+  PRINT,T2S(diff_eFlux[minInd].time,/MS)
+
+  curDataStr = MAKE_SDT_STRUCT_FROM_PREPPED_EFLUX__MCFADDEN_STYLE( $
+               diff_eFlux, $
+               minInd, $
+               HAS_SC_POT=has_sc_pot, $
+               UNITS=units)
+  
+
+  IF KEYWORD_SET(makeCSV) THEN BEGIN
+     outDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/'
+     outWantTStr = ((STRMID(wanttime,11,STRLEN(wantTime))).Replace(':','_')).Replace('.','__')
+     outCSV = orbPref+'ies__'+outWantTStr+'.csv'
+
+     PRINT,"Opening " + outCSV + ' ...'
+
+     OPENW,outLun,outDir+outCSV,/GET_LUN
+  ENDIF ELSE BEGIN
+     outLun = -1
+  ENDELSE
+
+
+  ;; PRINT,FORMAT='(A4,TR4,A10,TR4,A6,TR4,A10,TR4,A10,TR4,A10,TR4,A6,TR4,A6)',"Ind","Energy","Theta","Data","DData","DEnergy","DTheta","Geom"
+
+  ;; FOR iEn=0,curDataStr.nEnergy-1 DO BEGIN
+  ;;    FOR iTh=0,curDataStr.nBins-1 DO BEGIN
+  ;;       PRINT,FORMAT='(I4,TR4,G10.4,TR4,F6.2,TR4,G10.4,TR4,G10.4,TR4,G10.4,TR4,F6.2,TR4,F6.2)',iEn*curDataStr.nBins+iTh,curDataStr.energy[iEn,iTh],curDataStr.theta[iEn,iTh],curDataStr.data[iEn,iTh],curDataStr.ddata[iEn,iTh],curDataStr.denergy[iEn,iTh],curDataStr.dtheta[iEn,iTh],curDataStr.geom[iEn,iTh]
+  ;;    ENDFOR
+  ;; ENDFOR
+
+
+  PRINTF,outLun,FORMAT='(A4,",",A10,",",A6,",",A10,",",A10,",",A10,",",A6,",",A6)',"Ind","Energy","Theta","Data","DData","DEnergy","DTheta","Geom"
+
+   FOR iEn=0,curDataStr.nEnergy-1 DO BEGIN
+      FOR iTh=0,curDataStr.nBins-1 DO BEGIN
+         PRINTF,outLun,FORMAT='(I4,",",G10.4,",",F6.2,",",G10.4,",",G10.4,",",G10.4,",",F6.2,",",F6.2)',iEn*curDataStr.nBins+iTh,curDataStr.energy[iEn,iTh],curDataStr.theta[iEn,iTh],curDataStr.data[iEn,iTh],curDataStr.ddata[iEn,iTh],curDataStr.denergy[iEn,iTh],curDataStr.dtheta[iEn,iTh],curDataStr.geom[iEn,iTh] 
+      ENDFOR
+   ENDFOR
+
+   IF KEYWORD_SET(makeCSV) THEN BEGIN
+     PRINT,"Closing " + outCSV + ' ...'
+      CLOSE,outLun
+      FREE_LUN,outLun
+   ENDIF
+
+END
+
+;; 20190422 Added printing-to-csv capability
+PRO JOURNAL__20181229__GET_PLOT_AND_PRINT_DIFF_EFLUX__ION_IES
 
   COMPILE_OPT IDL2,STRICTARRSUBS
 
@@ -36,6 +99,9 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
 
   ;; Good for orbit 8276
   energy_ions = [4,120]          
+
+  printCSV = 0B
+  printCSVTime = '1998-09-25/00:05:03.654'
 
   IF NOT plot_all_times THEN BEGIN
 
@@ -99,6 +165,8 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
   ;; ;;            +avgItvlStr+threshEFluxStr+upDownRatioStr+minNQualEStr + leewardStr
   ;; saveSuff = ".sav"
   
+  loadDir = '/thelonious_data1/FAST/'
+
   nHere = N_ELEMENTS(times)
   GET_DATA,"ORBIT",DATA=orbit
   orbit = orbit.y[nHere/2]
@@ -132,6 +200,15 @@ PRO JOURNAL__20181229__GET_AND_PLOT_DIFF_EFLUX__ION_IES
                  OUT_DIFF_EFLUX=diff_eflux
 
   tDiffs     = diff_eFlux.end_time - diff_eFlux.time
+
+  IF KEYWORD_SET(printCSV) THEN BEGIN
+     orbStr = STRING(diff_eflux[0].orbit)
+
+     PRINT_DIST_FUNCTION,printCSVTime, $
+                         diff_eflux, $
+                         ORBSTR=orbStr, $
+                         /MAKECSV
+  ENDIF
 
   IF KEYWORD_SET(do20181229Stuff) THEN BEGIN
 
