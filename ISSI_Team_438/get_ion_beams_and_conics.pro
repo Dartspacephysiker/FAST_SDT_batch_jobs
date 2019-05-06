@@ -1,16 +1,13 @@
-;2018/07/26
-;The new sheriff in town wants us to use JOURNAL__20180720__LOOK_AT_CONIC_VS_ALL_FLUX_RATIOS (NOT JOURNAL__20180723__[YADDAYADDA]).
-;The journal provides identification of outflow as well as all required ion moments.
-;We just need to use this to get the electrons and fields info, which you have to admit is easiest. 
-;; 2018/09/07 INNOVATION: Add all electron moments, including uncertainties, for (i) all pitch angles, and (ii) loss-cone pitch
-;; angles. Se på den.
-PRO STRANGEWAY_2005__V3, $
+;2019/05/06
+;Get ion beams (according to Hatch, Chaston, LaBelle 2018) and ion conics (according to strangeway_2005__v3.pro), as well as their moments
+PRO GET_ION_BEAMS_AND_CONICS, $
    TPLT_VARS=tPlt_vars, $
+   DO_NOT_ENFORCE_SAMPLE_RATE=do_not_enforce_sample_rate, $
    IONSPECS_UPDOWNMINRATIO=upDownMinRatio, $
    IONSPECS_MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
    IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
    IONSPECS_THRESH_EFLUX=thresh_eFlux, $
-   USERDEF_HASHFILE=userDef_hashFile, $
+   ;; USERDEF_HASHFILE=userDef_hashFile, $
    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
    ONLY_LEEWARD_IONS=only_leeward_ions, $
    ENFORCE_THIS_SAMPLE_RATE=enforce_this_sample_rate, $
@@ -30,49 +27,15 @@ PRO STRANGEWAY_2005__V3, $
    EFIELD_SNAN=sNaN, $
    NO_BLANK_PANELS=no_blank_panels, $
    STRANGEWAY_2005_FIG3_PLOT=Strangeway_2005_Fig3_plot, $
-   NO_HASH_UPDATE=no_hash_update, $
+   ;; NO_HASH_UPDATE=no_hash_update, $
    MAKE_SPECIAL_JGR_PLOT=make_special_JGR_plot, $
    SAVE_PNG=save_png, $
    SAVE_PS=save_ps, $
    BATCH_MODE=batch_mode, $
-   SKIP_EXISTING_IN_HASH=skip_existing_in_hash, $
+   ;; SKIP_EXISTING_IN_HASH=skip_existing_in_hash, $
    REMAKE_DIFF_EFLUX=remake_diff_eFlux, $
    FORCE_SH_TBOUNDS_FOR_JE=force_SH_tBounds_for_je, $
    ENERGY_ELECTRONS_LB=energy_electrons_lb
-
-; create a summary plot of:
-; SFA (AKR)
-; DSP (VLF)
-; Eesa Energy
-; Eesa Angle
-; Iesa Energy
-; Iesa Angle
-; E fit along V (Southern hemisphere corrected)
-; dB_fac_v (dB_fac and dB_SM also stored)
-
-; Returns:
-; tPlt_vars  - array of tplot variables
-; tlimit_north - tlimits for northern hemisphere
-; tlimit_south - tlimits for southern hemisphere
-; tlimit_all -  tlimits for all the data
-
-; procedure for making summary plots
-; batch_summary,tPlt_vars=tPlt_vars,tlimit_north=tlimit_north,tlimit_south=tlimit_south,tlimit_all=tlimit_all
-; loadct2,40  ; load color table
-; if (n_elements(tPlt_vars) gt 0) then tplot,tPlt_vars,var=['ALT','ILAT','MLT']
-; if (n_elements(tlimit_north) gt 0) then tlimit,tlimit_north  ; northern hemisphere
-; if (n_elements(tlimit_south) gt 0) then tlimit,tlimit_south  ; southern hemisphere
-
-; if running interactively
-; batch_summary,tPlt_vars=tPlt_vars,/screen_plot,/no_blank_panels
-
-; Input needed on:
-; (a) Northern/southern hemisphere limits
-; (b) ESA data limits
-; (c) DSP calibration
-
-
-; Under development - R. J. Strangeway 4/4/08
 
 ; Program will use fac_v if E field data are available, other use fac_v
 ; over-ride with use_fac_v and use_fac keywords
@@ -85,6 +48,15 @@ PRO STRANGEWAY_2005__V3, $
   ;; outflowMinLog10 = 6
   ;; ptsMinOutflow   = 60
   ;; allowableGap    = 3 ;seconds
+
+  IF N_ELEMENTS(do_not_enforce_sample_rate) EQ 0 THEN do_not_enforce_sample_rate = 1
+
+  ;; Ion and electron options
+  ;; Nei da, med diff_eFlux
+  McFadden_diff_eFlux = 1
+  eeb_or_ees = "ees"
+  ionBeam_energyRange = [10,2.4e4]  ;According to J2018 l724 er ion_min_if_nan_scpots = 4.
+
 
   IF N_ELEMENTS(convert_B_gei_to_B_geo) EQ 0 THEN convert_B_gei_to_B_geo = 1
 
@@ -108,7 +80,7 @@ PRO STRANGEWAY_2005__V3, $
   ;;Allowable difference between t{1,2} and nearest fields data
   tBuf              = 10.
 
-  minILAT           = 50 
+  minILAT           = 50
 
   ;; energy_ions       = [4,120.]
   energy_electrons  = [50,30400.]
@@ -125,12 +97,12 @@ PRO STRANGEWAY_2005__V3, $
   ENDIF
 
   ;;From UCLA_MAG_DESPIN:
-  ;;"   Field-aligned coordinates defined as: 
+  ;;"   Field-aligned coordinates defined as:
   ;;"   z-along B, y-east (BxR), x-nominally out"
   ;;    (ind 2)  , (ind 1)     , (ind 0)
   ;;    (b)      , (e)         , (o)
 
-  ;;"   Field-aligned velocity-based coordinates defined as: 
+  ;;"   Field-aligned velocity-based coordinates defined as:
   ;;"   z-along B, y-cross track (BxV), x-along track ((BxV)xB).
   ;;    (ind 2)  , (ind 1)            , (ind 0)
   ;;    (b)      , (p)                , (v)
@@ -145,19 +117,61 @@ PRO STRANGEWAY_2005__V3, $
   savesDir = '/thelonious_data1/FAST/'
   savesIndivDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/V3/rawProds/'
 
-  @strangeway_2005__defaults__v3.pro
+  ;; 'AT'strangeway_2005__defaults__v3.pro
+  ;;Outputs
+  ;; hashFile     = 'Strangeway_et_al_2005__v3'
+  ;; indivOrbPref = 'Strangeway_et_al_2005__v3'
+
+  outDir       = '/home/spencerh/software/sdt/batch_jobs/saves_output_etc/ISSI_Team_438/'
+
+  outPlotName  = 'Ion_beams_and_conics'
+  ;; plotDirSuff  = '/Strangeway_et_al_2005/V3'
+  plotDirSuff  = ''
+
+  ;; IF KEYWORD_SET(use_eField_fit_variables) THEN BEGIN
+  ;;    hashFile    +='--eFieldFits'
+  ;;    outPlotName += '--eFieldFits'
+  ;; ENDIF
+
+  IF KEYWORD_SET(plot_north) THEN outPlotName += '--' + 'NORTH'
+  IF KEYWORD_SET(plot_south) THEN outPlotName += '--' + 'SOUTH'
+
+  bonusSuff    = '-threshEFlux5e5-upDownRatio_2-minNQualECh_3-interp4Hz_to_1s-50eVLBforelec'
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; SOUTHERN
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;; hashFile    += bonusSuff
+  ;; outPlotName += bonusSuff
+
+  ;; hashFile += ".sav"
+
+  ;;Update hashfile name and outPlotName
+  ;; plotPref = SETUP_STRANGEWAY_BRAMBLES_PLOTPREF(USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables,ONLY_FASTSRVY_DATA=only_128Ss_data,INCLUDE_E_NEAR_B=include_E_near_B,FULL_PFLUX_CALC=full_pFlux,FIELDS_INTERP=do_fields_interp,FIELDS_SPLINE=do_fields_spline)
+
+  ;; SETUP_STRANGEWAY_BRAMBLES_PLOTPREF,USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
+  ;;                                    ONLY_FASTSRVY_DATA=only_128Ss_data, $
+  ;;                                    INCLUDE_E_NEAR_B=include_E_near_B, $
+  ;;                                    FULL_PFLUX_CALC=full_pFlux, $
+  ;;                                    FIELDS_INTERP=do_fields_interp, $
+  ;;                                    FIELDS_SPLINE=do_fields_spline
+
+  ;; hashFile    += plotPref
+  ;; outPlotName += plotPref
+
 
   dEF__include_sc_pot = 1
 
-  IF KEYWORD_SET(userDef_hashFile) THEN BEGIN
-     ;; PRINT,"ACTUALLY, userDef hashFile: ",userDef_hashFile
+  ;; IF KEYWORD_SET(userDef_hashFile) THEN BEGIN
+  ;;    ;; PRINT,"ACTUALLY, userDef hashFile: ",userDef_hashFile
 
-     hashFile = userDef_hashFile
-     outPlotName = userDef_hashFile.Replace(".sav","")
-  ENDIF
+  ;;    hashFile = userDef_hashFile
+  ;;    outPlotName = userDef_hashFile.Replace(".sav","")
+  ;; ENDIF
 
-  PRINT,'outDir   : ',outDir
-  PRINT,'Hashfile : ',hashFile
+  ;; PRINT,'outDir   : ',outDir
+  ;; PRINT,'Hashfile : ',hashFile
 
   psym_ptcl    = 3              ;period
   symsize_ptcl = 5.0
@@ -170,13 +184,14 @@ PRO STRANGEWAY_2005__V3, $
 
   EXAMINE_ION_CONIC_VS_ALL_FLUX_RATIOS, $
      UPDOWNMINRATIO=upDownMinRatio, $
-     MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
+     MINNUMQUALIFYINGECHANNELSf=minNumQualifyingEChannels, $
      FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
      THRESH_EFLUX=thresh_eFlux, $
      ;; /QUIT_IF_FILE_EXISTS, $
      MAKE_IONS_OXYGEN=make_ions_oxygen, $
      ONLY_LEEWARD_IONS=only_leeward_ions, $
      ENFORCE_THIS_SAMPLE_RATE=enforce_this_sample_rate, $
+     DO_NOT_ENFORCE_SAMPLE_RATE=do_not_enforce_sample_rate, $
      REMAKE_DIFF_EFLUX=remake_diff_eFlux, $
      DEF__INCLUDE_SC_POT=dEF__include_sc_pot, $
      SC_POT=sc_pot, $
@@ -197,6 +212,7 @@ PRO STRANGEWAY_2005__V3, $
      SAVE_PS=save_ps, $
      NO_PLOTS=no_plots, $
      OUT_ORBIT=out_orbit, $
+     OUTSTRUCT_ORBIT=struc, $
      MISLYKTES=mislyktes
 
   orbit = out_orbit
@@ -206,6 +222,52 @@ PRO STRANGEWAY_2005__V3, $
      PRINT,"Tilbake ..."
      RETURN
   ENDIF
+
+  ;; Try to add other ion beam thing
+  ;; ILAT data from call to GET_FA_ORBIT for ion_diff_eFlux in JOURNAL__20180720__LOOK_AT_CONIC_VS_ALL_FLUX_RATIOS
+
+
+  ;; GET_DATA,'ILAT',data=ILAT
+  north_southArr               = ABS(struc.ilat)/struc.ilat
+
+  STOP
+
+  ;; Need t1, t2
+  GET_LOSS_CONE_AND_ANGLE_RANGES_FOR_HEMI, $
+     ;; t1,t2, $
+     struct.time[0],struc.time[-1], $
+     ionlc_angleRange, $
+     i_angle,i_angle_up, $
+     north_southArr, $
+     ALLEXCLATM_ARANGE=allExclAtm_aRange, $
+     OUT_LCW=lcw, $
+     ONLY_FIT_FIELDALIGNED_ANGLE=only_fit_fieldaligned_angle, $
+     CUSTOM_E_ANGLERANGE=custom_e_angleRange, $
+     OUT_E_ANGLE=e_angle, $
+     ANGLESTR=angleStr, $
+     SDTSTRUCT=struc;; , $
+     ;; /JUST_ONE
+
+  ;; Flip lc_angleRange so that it's upgoing
+  ion_angleRange = (360.*((ionlc_angleRange-180)/360.-FLOOR((ionlc_angleRange-180)/360.)))
+
+  GET_FA_IESA_ION_BEAMS,STR_TO_TIME(t1Str),STR_TO_TIME(t2Str), $
+                        ORBIT=orbit, $
+                        ;; NEWELL_2009_INTERP=Newell_2009_interp, $
+                        ;; ION_ANGLERANGE=curPotList[2].angles.peakEn, $
+                        ION_ANGLERANGE=ion_angleRange, $
+                        ;; ION_ENERGYRANGE=curPotList[2].energy, $
+                        ION_ENERGYRANGE=ionBeam_energyRange, $
+                        SPECTROGRAM_UNITS=spectrogram_units, $
+                        EEB_OR_EES=eeb_or_ees, $
+                        SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
+                        ENFORCE_DIFF_EFLUX_SRATE=enforce_diff_eFlux_sRate, $
+                        SC_POT=sc_pot, $
+                        OUT_SC_POTAVG=sc_potAvg, $
+                        OUT_IONEVENTS=ionEvents, $
+                        BATCH_MODE=batch_mode
+
+  STOP
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Step 1 - DC Mag data
@@ -245,25 +307,25 @@ PRO STRANGEWAY_2005__V3, $
      indivFile = "Orbit_"+orbString+indivSuff
   ENDIF
 
-  IF KEYWORD_SET(skip_existing_in_hash) THEN BEGIN
+  ;; IF KEYWORD_SET(skip_existing_in_hash) THEN BEGIN
 
-     IF FILE_TEST(outDir+hashFile) THEN BEGIN
-        PRINT,"Checking for orbit " + orbString + " in hash file " + hashFile + " ..."
-        RESTORE,outDir+hashFile
+  ;;    IF FILE_TEST(outDir+hashFile) THEN BEGIN
+  ;;       PRINT,"Checking for orbit " + orbString + " in hash file " + hashFile + " ..."
+  ;;       RESTORE,outDir+hashFile
 
-        CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
-           -1: BEGIN
-              PRINT,'Getting stuff from orbit ' + orbString + ' ...'
-           END
-           ELSE: BEGIN
-              PRINT,"Already got this orbit! Out ..."
-              RETURN
-           END
-        ENDCASE
+  ;;       CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
+  ;;          -1: BEGIN
+  ;;             PRINT,'Getting stuff from orbit ' + orbString + ' ...'
+  ;;          END
+  ;;          ELSE: BEGIN
+  ;;             PRINT,"Already got this orbit! Out ..."
+  ;;             RETURN
+  ;;          END
+  ;;       ENDCASE
 
-     ENDIF
+  ;;    ENDIF
 
-  ENDIF
+  ;; ENDIF
 
   ;;Get time and Je info
   check =  LOAD_JE_AND_JE_TIMES_FOR_ORB(orbit, $
@@ -315,7 +377,7 @@ PRO STRANGEWAY_2005__V3, $
 
   IF KEYWORD_SET(force_SH_tBounds_for_je) THEN BEGIN
      GET_FA_ORBIT,je_pristine.x,/TIME_ARRAY,/DEFINITIVE,/ALL,STRUC=struc
-     
+
      north_south = LONG(ABS(struc.ilat)/struc.ilat)
 
      keep = WHERE(north_south EQ -1,nKeep)
@@ -354,7 +416,7 @@ PRO STRANGEWAY_2005__V3, $
 ; got mag data, set time limits, delete unused tplot variables, set tPlt_vars
 
   ;; STORE_DATA,'BDATA',/delete
-  ;; STORE_DATA,'BFIT',/delete 
+  ;; STORE_DATA,'BFIT',/delete
   ;; STORE_DATA,'Bx_sp',/delete
   ;; STORE_DATA,'By_sp',/delete
   ;; STORE_DATA,'Bz_sp',/delete
@@ -553,7 +615,7 @@ PRO STRANGEWAY_2005__V3, $
         ;;       ;; ANGLE=an, $
         ;;       ;; ARANGE=ar, $
         ;;       ;; BINS=bins, $
-        ;;       ;; GAP_TIME=gap_time, $ 
+        ;;       ;; GAP_TIME=gap_time, $
         ;;       ;; NO_DATA=no_data, $
         ;;       ;; BKG=bkg, $
         ;;       ;; MISSING=missing, $
@@ -563,20 +625,16 @@ PRO STRANGEWAY_2005__V3, $
         ;;       LIMS=tmpLims, $
         ;;       OUTFLOW_POSITIVE=of_pos[ll], $
         ;;       PRECIPITATION_POSITIVE=pr_pos[ll]
-        
+
         ;;    ;; tmpDatStruct = CREATE_STRUCT(tmpDatStruct,tmpName+'_time',tmp.x,tmpName,tmp.y)
         ;;    ;; tmp1sStruct  = CREATE_STRUCT(tmp1sStruct,tmpName,doDat)
 
         ;; ENDFOR
 
-        ;; Nei da, med diff_eFlux
-        McFadden_diff_eFlux = 1
-        eeb_or_ees = "ees"
-
         ;; Get all loss-cone angle ranges
         ;; angleRange = {all : [0,360.], $
         ;;               lc  : [0.,0.]}
-        
+
         load_elec_dEF_file = N_ELEMENTS(remake_diff_eFlux) GT 0 ? ~remake_diff_eFlux : 1
         save_elec_dEF_file = 1
         diffEFlux__array_of_structs = 1
@@ -682,7 +740,7 @@ PRO STRANGEWAY_2005__V3, $
                         SC_POT=sc_pot, $
                         EEB_OR_EES=eeb_or_ees, $
                         ;; /ERROR_ESTIMATES, $
-                        ;; MAP_TO_100KM=map_to_100km, $ 
+                        ;; MAP_TO_100KM=map_to_100km, $
                         ORBIT=orbit, $
                         /NEW_MOMENT_ROUTINE, $
                         MCFADDEN_STYLE_DIFF_EFLUX=McFadden_diff_eFlux, $
@@ -716,7 +774,7 @@ PRO STRANGEWAY_2005__V3, $
                         SC_POT=sc_pot, $
                         EEB_OR_EES=eeb_or_ees, $
                         ;; /ERROR_ESTIMATES, $
-                        ;; MAP_TO_100KM=map_to_100km, $ 
+                        ;; MAP_TO_100KM=map_to_100km, $
                         ORBIT=orbit, $
                         /NEW_MOMENT_ROUTINE, $
                         MCFADDEN_STYLE_DIFF_EFLUX=McFadden_diff_eFlux, $
@@ -771,7 +829,7 @@ PRO STRANGEWAY_2005__V3, $
         ENDIF
 
         if (ndsphg GT 0) THEN BEGIN
-           data = GET_FA_FIELDS('DspADC_V5-V8HG',/DEFAULT) 
+           data = GET_FA_FIELDS('DspADC_V5-V8HG',/DEFAULT)
         ENDIF else BEGIN
            IF (ndsp GT 0) THEN BEGIN
               data = GET_FA_FIELDS('DspADC_V5-V8',/DEFAULT)
@@ -789,7 +847,7 @@ PRO STRANGEWAY_2005__V3, $
   ENDIF
 
   IF KEYWORD_SET(save_data_and_quit) THEN BEGIN
-     
+
      iMomEphem = {fa_pos : TRANSPOSE(ion_dEF.fa_pos), $
                   fa_vel : TRANSPOSE(ion_dEF.fa_vel), $
                   alt    : ion_dEF.alt, $
@@ -830,11 +888,11 @@ PRO STRANGEWAY_2005__V3, $
         ;;   GEO     = {ALT:GEOSph_arr[*,2], $
         ;;              LON:GEOSph_arr[*,1], $
         ;;              LAT:GEOSph_arr[*,0]}
-        ;; 
+        ;;
         ;;   MAG     = {ALT:MAGSph_arr[*,2], $
         ;;              LON:MAGSph_arr[*,1], $
         ;;              LAT:MAGSph_arr[*,0]}
-        ;; 
+        ;;
         ;;  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ;;  ;;make struct
         ;;  coords = {TIME   : times, $
@@ -853,7 +911,7 @@ PRO STRANGEWAY_2005__V3, $
 
               tNames = STRUPCASE(TAG_NAMES(coords))
 
-              have_GEO_MAG = (WHERE(tNames EQ "GEI2GEO_COORD"))[0] NE -1 
+              have_GEO_MAG = (WHERE(tNames EQ "GEI2GEO_COORD"))[0] NE -1
 
            ENDIF
 
@@ -925,7 +983,7 @@ PRO STRANGEWAY_2005__V3, $
              'B_geo_theta',B_GEO_tArr, $
              'B_geo_phi',B_GEO_pArr, $
              'mag_flags',mag_flags, $
-             "fa_fields_bufs",dbBufs, $ 
+             "fa_fields_bufs",dbBufs, $
              TEMPORARY(dBEphem), $
              ;; "fa_pos_geo",TRANSPOSE(coords.GEO), $
              "fa_pos_geo",TEMPORARY(geoCoords)) ;These are spherical, line above is Cartesian
@@ -969,25 +1027,25 @@ PRO STRANGEWAY_2005__V3, $
 
      eMom = CREATE_STRUCT('lc',TEMPORARY(eMomStruct_lcAngle), $
                           'all',TEMPORARY(eMomStruct_allAngle), $
-                          eMomEphem)     
+                          eMomEphem)
 
      dsp = data
      GET_FA_ORBIT,dsp.time,/TIME_ARRAY,/DEFINITIVE,/ALL,STRUC=dspEphem
      ;; dsp = CREATE_STRUCT(dsp,dspEphem)
 
      ;; Get rid of time tag in dspEphem
-     dspEphem = {orbit : dspEphem.orbit, $  
-                 fa_pos : dspEphem.fa_pos, $ 
-                 alt : dspEphem.alt, $    
-                 ilat : dspEphem.ilat, $   
-                 ilng : dspEphem.ilng, $   
-                 mlt : dspEphem.mlt, $    
-                 fa_vel : dspEphem.fa_vel, $ 
-                 bfoot : dspEphem.bfoot, $  
-                 lat : dspEphem.lat, $    
-                 lng : dspEphem.lng, $    
-                 flat : dspEphem.flat, $   
-                 flng : dspEphem.flng, $   
+     dspEphem = {orbit : dspEphem.orbit, $
+                 fa_pos : dspEphem.fa_pos, $
+                 alt : dspEphem.alt, $
+                 ilat : dspEphem.ilat, $
+                 ilng : dspEphem.ilng, $
+                 mlt : dspEphem.mlt, $
+                 fa_vel : dspEphem.fa_vel, $
+                 bfoot : dspEphem.bfoot, $
+                 lat : dspEphem.lat, $
+                 lng : dspEphem.lng, $
+                 flat : dspEphem.flat, $
+                 flng : dspEphem.flng, $
                  b_model : dspEphem.b_model}
 
      PRINT,"Saving " + indivFile + ' ...'
@@ -1058,7 +1116,7 @@ PRO STRANGEWAY_2005__V3, $
      FOR m=0,N_ELEMENTS(data.x)-1 DO BEGIN
 
         ;; 20180728
-        ;; Bothering with finiteness seems to do us no good, to my surprise 
+        ;; Bothering with finiteness seems to do us no good, to my surprise
         ;; finiteii = WHERE(FINITE(data.y[m,tmpF_i]),nFinite,/NULL)
 
         ;;"Intergrate," as some have it, and apply test
@@ -1127,7 +1185,7 @@ PRO STRANGEWAY_2005__V3, $
         PRINT,'No data above min ILAT. Skipping this interval ...'
         CONTINUE
      ENDIF
-     
+
      ;;Trim time series, if necessary
      IF nKeep LT N_ELEMENTS(ionMomStruct.time) THEN BEGIN
 
@@ -1141,10 +1199,10 @@ PRO STRANGEWAY_2005__V3, $
            CONTINUE
         ENDIF
 
-        IF tmpII_t1 EQ tmpII_t2 THEN BEGIN 
-           PRINT,'t1 and t2 are the same!' 
-           PRINT,'Questionable, indeed. Skipping this interval ...' 
-           CONTINUE 
+        IF tmpII_t1 EQ tmpII_t2 THEN BEGIN
+           PRINT,'t1 and t2 are the same!'
+           PRINT,'Questionable, indeed. Skipping this interval ...'
+           CONTINUE
         ENDIF
 
         t1             = ionMomStruct.time[keep[tmpII_t1]]
@@ -1173,15 +1231,15 @@ PRO STRANGEWAY_2005__V3, $
 
      ;;   From UCLA_MAG_DESPIN:
      ;;   "Field-aligned velocity-based coordinates defined as: "
-     ;;   "z (ind 2)-along B, 
-     ;;    y (ind 1)-cross track (BxV), 
+     ;;   "z (ind 2)-along B,
+     ;;    y (ind 1)-cross track (BxV),
      ;;    x (ind 0)-along track ((BxV)xB)." (I added "ind" marks)
      magB = {x:magData.x[ind1:ind2], $
-             y:magData.y[ind1:ind2,2]} 
+             y:magData.y[ind1:ind2,2]}
      magp = {x:magData.x[ind1:ind2], $
              y:magData.y[ind1:ind2,1]}
      magv = {x:magData.x[ind1:ind2], $
-             y:magData.y[ind1:ind2,0]} 
+             y:magData.y[ind1:ind2,0]}
      nMag = N_ELEMENTS(magp.x)
 
      ;;E-field trim
@@ -1351,14 +1409,14 @@ PRO STRANGEWAY_2005__V3, $
         ;; ENDCASE
 
         ;; IF gjordet THEN BEGIN
-           
+
         ;;    nBigT = N_ELEMENTS(bigT)
         ;;    nLilT = N_ELEMENTS(lilT)
 
         ;;    WHILE FIX(FLOAT(nBigT)/nLilT) GE 2 THEN BEGIN
 
-              
-              
+
+
 
         ;;       bigTInds = VALUE_CLOSEST2(bigT,lilT,/CONSTRAINED)
 
@@ -1422,7 +1480,7 @@ PRO STRANGEWAY_2005__V3, $
            pFV  = {DC:pFV.DC, $
                    AC:pFV.AC}
 
-        ENDIF        
+        ENDIF
 
      ENDELSE
 
@@ -1463,7 +1521,7 @@ PRO STRANGEWAY_2005__V3, $
      dLimit = {spec:0, $
                ystyle:1, $
                ytitle:'SFlux Wave!C[0.125-0.5 Hz]!C(mW/m!U2!N)', $
-               yticks:4, $      
+               yticks:4, $
                ylog:0, $
                yrange:[-5,2], $
                ytickv:[-4,-2,0,2], $
@@ -1471,7 +1529,7 @@ PRO STRANGEWAY_2005__V3, $
                           '10!U-2!N','10!U0!N','10!U2!N'], $
                ;; ylog:1, $
                ;; yrange:[1e-4,1e2], $
-               ;; ytickv:[1e-4,1e-3,1e-2,1e-1,1e0,1e1,1e2], $          
+               ;; ytickv:[1e-4,1e-3,1e-2,1e-1,1e0,1e1,1e2], $
                ;; ytickname:['10!U-4!N','10!U-3!N','10!U-2!N', $
                ;;            '10!U-1!N','10!U0!N','10!U1!N','10!U2!N'], $
                colors:normColorI ,$
@@ -1514,15 +1572,15 @@ PRO STRANGEWAY_2005__V3, $
      dLimit = {spec:0, $
                ystyle:1, $
                ytitle:'SFlux Wave!C[< 0.125 Hz]!C(mW/m!U2!N)', $
-               yticks:7, $      
+               yticks:7, $
                ylog:0, $
                yrange:[-4,2], $
-               ytickv:[-4,-3,-2,-1,0,1,2], $          
+               ytickv:[-4,-3,-2,-1,0,1,2], $
                ytickname:['10!U-4!N','10!U-3!N','10!U-2!N', $
                           '10!U-1!N','10!U0!N','10!U1!N','10!U2!N'], $
                ;; ylog:1, $
                ;; yrange:[1e-4,1e2], $
-               ;; ytickv:[1e-4,1e-3,1e-2,1e-1,1e0,1e1,1e2], $          
+               ;; ytickv:[1e-4,1e-3,1e-2,1e-1,1e0,1e1,1e2], $
                ;; ytickname:['10!U-4!N','10!U-3!N','10!U-2!N', $
                ;;            '10!U-1!N','10!U0!N','10!U1!N','10!U2!N'], $
                colors:normColorI,$
@@ -1542,7 +1600,7 @@ PRO STRANGEWAY_2005__V3, $
 ; Step 4 - Electron junk
 
      ;; GET_DATA,'Je',DATA=tmp &
-     tmp = {x:eMomStruct_allAngle.time,y:eMomStruct_allAngle.j} 
+     tmp = {x:eMomStruct_allAngle.time,y:eMomStruct_allAngle.j}
      STORE_DATA,'Je',DATA=tmp
 
      ll = 1
@@ -1578,7 +1636,7 @@ PRO STRANGEWAY_2005__V3, $
         ;; doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
         ;; tFlux = tS_1s
      ;; ENDIF
-     
+
      ;;Make all downgoing, pre-log
      good_i   = WHERE(FINITE(tmpJe.y) AND tmpJe.y GT 0.00,nGood, $
                       COMPLEMENT=bad_i,NCOMPLEMENT=nBad)
@@ -1600,7 +1658,7 @@ PRO STRANGEWAY_2005__V3, $
      ;; dLimit = {spec:0, $
      ;;           ystyle:1, $
      ;;           ytitle:'Downgoing Elec.!CFlux!C#/cm!U2!N-s)', $
-     ;;           yticks:6, $      
+     ;;           yticks:6, $
      ;;           ylog:0, $
      ;;           yrange:[6,12], $
      ;;           ytickv:[6,7,8,9,10,11,12], $ ; set y-axis labels
@@ -1629,7 +1687,7 @@ PRO STRANGEWAY_2005__V3, $
      ;;Did this up top
      ;; GET_2DT,'je_2d_fs','fa_ees_c',name='JEe',t1=t1,t2=t2,energy=energy_electrons
      ;; GET_DATA,'JEe',DATA=tmp
-     tmp = {x:eMomStruct_allAngle.time,y:eMomStruct_allAngle.je} 
+     tmp = {x:eMomStruct_allAngle.time,y:eMomStruct_allAngle.je}
      STORE_DATA,'JEe',DATA=tmp
 
      ll = 0
@@ -1665,7 +1723,7 @@ PRO STRANGEWAY_2005__V3, $
         ;; doDat = INTERPOL(tmp.y,tmp.x,tS_1s)
         ;; tFlux = tS_1s
      ;; ENDIF
-     
+
      ;;Make all downgoing, pre-log
      good_i   = WHERE(FINITE(tmpJEe.y) AND tmpJEe.y GT 0.00,nGood, $
                       COMPLEMENT=bad_i,NCOMPLEMENT=nBad)
@@ -1768,7 +1826,7 @@ PRO STRANGEWAY_2005__V3, $
               WINDOW,0,XSIZE=600,YSIZE=800
            ENDELSE
         ENDELSE
-        
+
         ;; CASE 1 OF
         ;;    KEYWORD_SET(plot_north): BEGIN
         ;;       tLims = tlimit_north
@@ -1778,7 +1836,7 @@ PRO STRANGEWAY_2005__V3, $
         ;;    END
         ;;    ELSE: BEGIN
         ;;       tLims = je_tmp_tBounds
-        ;;    END        
+        ;;    END
         ;; ENDCASE
 
         LOADCT2,ctNum
@@ -1904,7 +1962,7 @@ PRO STRANGEWAY_2005__V3, $
                  WINDOW,0,XSIZE=600,YSIZE=800
               ENDELSE
            ENDELSE
-           
+
            ;; CASE 1 OF
            ;;    KEYWORD_SET(plot_north): BEGIN
            ;;       tLims = tlimit_north
@@ -1914,7 +1972,7 @@ PRO STRANGEWAY_2005__V3, $
            ;;    END
            ;;    ELSE: BEGIN
            ;;       tLims = je_tmp_tBounds
-           ;;    END        
+           ;;    END
            ;; ENDCASE
 
            LOADCT2,ctNum
@@ -1986,7 +2044,7 @@ PRO STRANGEWAY_2005__V3, $
         ;;See if DSP is messing things up
         IF ( N_ELEMENTS(tmpDSP.x) EQ ( N_ELEMENTS(eAV.x) + 1 ) ) AND $
            ARRAY_EQUAL(eAV.x,eNB.x) THEN BEGIN
-           
+
            IF ARRAY_EQUAL(eAV.x,tmpDSP.x[0:-2]) THEN BEGIN
               E_has_common_TS     = 1
               ;; tmpDSP              = {DC:tmpDSP.DC[0:-2], $
@@ -2004,7 +2062,7 @@ PRO STRANGEWAY_2005__V3, $
            ENDELSE
 
         ENDIF
-        
+
         IF E_has_common_TS THEN BEGIN
            eAV  = {x:eAV.x, $
                    DC:eAV.DC, $
@@ -2076,7 +2134,7 @@ PRO STRANGEWAY_2005__V3, $
                         include_E_near_B       : BYTE(KEYWORD_SET(include_E_near_B)), $
                         eField_fit_variables   : BYTE(KEYWORD_SET(use_eField_fit_variables))}}
      ;; outflow_i:[[start_i],[stop_i]]}
-     
+
      PRINT,"Adding struct for interval " + itvlString + " in orbit " + orbString + ' ...'
      structList.Add,tmpStruct
 
@@ -2085,44 +2143,44 @@ PRO STRANGEWAY_2005__V3, $
   CASE 1 OF
      KEYWORD_SET(save_individual_orbit): BEGIN
 
-        PRINT,"Saving " + indiv_orbFile + ' ...' 
+        PRINT,"Saving " + indiv_orbFile + ' ...'
         SAVE,structList,FILENAME=outDir+indiv_orbFile
 
      END
      ELSE: BEGIN
 
-        IF ~KEYWORD_SET(no_hash_update) THEN BEGIN
+        ;; IF ~KEYWORD_SET(no_hash_update) THEN BEGIN
 
-           IF FILE_TEST(outDir+hashFile) THEN BEGIN
-              PRINT,"Restoring hash file " + hashFile + " ..."
-              RESTORE,outDir+hashFile
+        ;;    IF FILE_TEST(outDir+hashFile) THEN BEGIN
+        ;;       PRINT,"Restoring hash file " + hashFile + " ..."
+        ;;       RESTORE,outDir+hashFile
 
-              CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
-                 -1: BEGIN
-                    PRINT,'Adding stuff from orbit ' + orbString + ' ...'
-                    swHash  = swHash + ORDEREDHASH(orbit,structList)
-                 END
-                 ELSE: BEGIN
-                    PRINT,'Replacing hash entry for orbit ' + orbString + ' ...'
-                    swHash[orbit] = structList
-                 END
-              ENDCASE
+        ;;       CASE (WHERE((swHash.Keys()).ToArray() EQ orbit))[0] OF
+        ;;          -1: BEGIN
+        ;;             PRINT,'Adding stuff from orbit ' + orbString + ' ...'
+        ;;             swHash  = swHash + ORDEREDHASH(orbit,structList)
+        ;;          END
+        ;;          ELSE: BEGIN
+        ;;             PRINT,'Replacing hash entry for orbit ' + orbString + ' ...'
+        ;;             swHash[orbit] = structList
+        ;;          END
+        ;;       ENDCASE
 
-              PRINT,'Saving Strangeway statistics hash ...'
+        ;;       PRINT,'Saving Strangeway statistics hash ...'
 
-              SAVE,swHash,FILENAME=outDir+hashFile
+        ;;       SAVE,swHash,FILENAME=outDir+hashFile
 
-           ENDIF ELSE BEGIN
+        ;;    ENDIF ELSE BEGIN
 
-              PRINT,'Creating Strangeway statistics hash for orbit ' + orbString + ' ...'
+        ;;       PRINT,'Creating Strangeway statistics hash for orbit ' + orbString + ' ...'
 
-              swHash = ORDEREDHASH(orbit,structList)
+        ;;       swHash = ORDEREDHASH(orbit,structList)
 
-              SAVE,swHash,FILENAME=outDir+hashFile
+        ;;       SAVE,swHash,FILENAME=outDir+hashFile
 
-           ENDELSE
+        ;;    ENDELSE
 
-        ENDIF
+        ;; ENDIF
 
      END
   ENDCASE

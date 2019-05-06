@@ -233,7 +233,7 @@ PRO TPLOT_UP_VS_DOWN_ION_FLUXES, $
 
 END
 
-PRO JOURNAL__20180720__LOOK_AT_CONIC_VS_ALL_FLUX_RATIOS, $
+PRO EXAMINE_ION_CONIC_VS_ALL_FLUX_RATIOS, $
    UPDOWNMINRATIO=upDownMinRatio, $
    MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
    FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
@@ -243,6 +243,7 @@ PRO JOURNAL__20180720__LOOK_AT_CONIC_VS_ALL_FLUX_RATIOS, $
    ONLY_LEEWARD_IONS=only_leeward_ions, $
    ONLY_CONE_IONS=only_cone_ions, $
    ENFORCE_THIS_SAMPLE_RATE=enforce_this_sample_rate, $
+   DO_NOT_ENFORCE_SAMPLE_RATE=do_not_enforce_sample_rate, $
    REMAKE_DIFF_EFLUX=remake_diff_eFlux, $
    DEF__INCLUDE_SC_POT=dEF__include_sc_pot, $
    SC_POT=sc_pot, $
@@ -264,6 +265,7 @@ PRO JOURNAL__20180720__LOOK_AT_CONIC_VS_ALL_FLUX_RATIOS, $
    MAKE_SPECIAL_JGR_PLOT=make_special_JGR_plot, $
    NO_PLOTS=no_plots, $
    OUT_ORBIT=out_orbit, $
+   OUTSTRUCT_ORBIT=struc, $
    MISLYKTES=mislyktes
 
   COMPILE_OPT IDL2,STRICTARRSUBS
@@ -279,7 +281,18 @@ PRO JOURNAL__20180720__LOOK_AT_CONIC_VS_ALL_FLUX_RATIOS, $
 
   ieb_or_ies = "ies"
   ;; enforce_diff_eFlux_sRate = 1.25
-  enforce_diff_eFlux_sRate = KEYWORD_SET(enforce_this_sample_rate) ? enforce_this_sample_rate : 2.5
+  ;; enforce_diff_eFlux_sRate = KEYWORD_SET(enforce_this_sample_rate) ? enforce_this_sample_rate : 2.5
+
+  IF KEYWORD_SET(do_not_enforce_sample_rate) THEN BEGIN
+     PRINT,"JOURNAL_20180720__LOOK_AT_CONIC...: Not enforcing sample rate ..."
+     enforce_diff_eFlux_sRate = 0
+  ENDIF ELSE IF KEYWORD_SET(enforce_diff_eFlux_sRate) THEN BEGIN
+     enforce_diff_eFlux_sRate = enforce_this_sample_rate
+  ENDIF ELSE BEGIN
+     PRINT,"enforce_diff_eFlux_sRate = 2.5 by default ..."
+     enforce_diff_eFlux_sRate = 2.5
+  ENDELSE
+
   calc_geom_factors      = 1
   clean_the_McFadden_way = 0
 
@@ -357,7 +370,11 @@ PRO JOURNAL__20180720__LOOK_AT_CONIC_VS_ALL_FLUX_RATIOS, $
      leewardStr = "-coneyIons"
   ENDIF
 
-  avgItvlStr    = '-sRate' + (STRING(FORMAT='(F0.2)',enforce_diff_eFlux_sRate)).Replace('.','_')
+  IF KEYWORD_SET(do_not_enforce_sample_rate) THEN BEGIN
+     avgItvlStr = ''
+  ENDIF ELSE BEGIN
+     avgItvlStr    = '-sRate' + (STRING(FORMAT='(F0.2)',enforce_diff_eFlux_sRate)).Replace('.','_')
+  ENDELSE
 
   savePref = "orb_" + STRING(FORMAT='(I0)',orbit)+"-conic_vs_flux_ratios"$
              +avgItvlStr+threshEFluxStr+upDownRatioStr+minNQualEStr + leewardStr
@@ -416,7 +433,7 @@ PRO JOURNAL__20180720__LOOK_AT_CONIC_VS_ALL_FLUX_RATIOS, $
   tDiffs     = diff_eFlux.end_time - diff_eFlux.time
 
   ;; Now get times corresponding to diff_eFlux
-  GET_FA_ORBIT,diff_eFlux.time,/TIME_ARRAY
+  GET_FA_ORBIT,diff_eFlux.time,/TIME_ARRAY,STRUC=struc
 
   ;; get_data,'ORBIT',data=orb
   ;; out_orbit=diff_eflux[0].orbit
