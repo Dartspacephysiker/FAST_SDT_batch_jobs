@@ -184,7 +184,7 @@ PRO GET_ION_BEAMS_AND_CONICS, $
 
   EXAMINE_ION_CONIC_VS_ALL_FLUX_RATIOS, $
      UPDOWNMINRATIO=upDownMinRatio, $
-     MINNUMQUALIFYINGECHANNELSf=minNumQualifyingEChannels, $
+     MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
      FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
      THRESH_EFLUX=thresh_eFlux, $
      ;; /QUIT_IF_FILE_EXISTS, $
@@ -228,14 +228,12 @@ PRO GET_ION_BEAMS_AND_CONICS, $
 
 
   ;; GET_DATA,'ILAT',data=ILAT
-  north_southArr               = ABS(struc.ilat)/struc.ilat
-
-  STOP
+  north_southArr               = FIX(ABS(struc.ilat)/struc.ilat)
 
   ;; Need t1, t2
   GET_LOSS_CONE_AND_ANGLE_RANGES_FOR_HEMI, $
      ;; t1,t2, $
-     struct.time[0],struc.time[-1], $
+     struc.time[0],struc.time[-1], $
      ionlc_angleRange, $
      i_angle,i_angle_up, $
      north_southArr, $
@@ -251,7 +249,12 @@ PRO GET_ION_BEAMS_AND_CONICS, $
   ;; Flip lc_angleRange so that it's upgoing
   ion_angleRange = (360.*((ionlc_angleRange-180)/360.-FLOOR((ionlc_angleRange-180)/360.)))
 
-  GET_FA_IESA_ION_BEAMS,STR_TO_TIME(t1Str),STR_TO_TIME(t2Str), $
+  useDiffEflux = 1
+  ;; GET_FA_IESA_ION_BEAMS,STR_TO_TIME(t1Str),STR_TO_TIME(t2Str), $
+  GET_FA_IESA_ION_BEAMS,struc.time[0],struc.time[-1], $
+                        USEDIFFEFLUX=useDiffEflux, $
+                        IONDIFFEFLUX=ion_dEF, $
+                        MCFADDEN_STYLE_DIFF_EFLUX=McFadden_diff_eFlux, $
                         ORBIT=orbit, $
                         ;; NEWELL_2009_INTERP=Newell_2009_interp, $
                         ;; ION_ANGLERANGE=curPotList[2].angles.peakEn, $
