@@ -12,19 +12,16 @@ PRO GET_ION_BEAMS_AND_CONICS, $
    ONLY_LEEWARD_IONS=only_leeward_ions, $
    ENFORCE_THIS_SAMPLE_RATE=enforce_this_sample_rate, $
    SCREEN_PLOT=screen_plot, $
-   DECIMATE_EB_CALC_PFLUX=decimate_eb_calc_pFlux, $
+   ;; DECIMATE_EB_CALC_PFLUX=decimate_eb_calc_pFlux, $
    USE_EFIELD_FIT_VARIABLES=use_eField_fit_variables, $
-   SAVE_INDIVIDUAL_ORBIT=save_individual_orbit, $
-   SAVE_INDIVIDUAL_DATA_PRODUCTS_AND_QUIT=save_individual_data_products_and_quit, $
-   SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_IONS=save_individual_data_products__only_ions, $
-   SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_ELECTRONS_AND_IONS=save_individual_data_products__only_electrons_and_ions, $
-   SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_DB_AND_IONS=save_individual_data_products__only_db_and_ions, $
-   SAVE_INDIVIDUAL_DATA_PRODUCTS__FSUFF=save_individual_data_products__fSuff, $
-   SAVE_INDIVID__CONVERT_B_GEI_TO_B_GEO=convert_B_gei_to_B_geo, $
+   ;; SAVE_INDIVIDUAL_ORBIT=save_individual_orbit, $
+   ;; SAVE_INDIVIDUAL_DATA_PRODUCTS_AND_QUIT=save_individual_data_products_and_quit, $
+   ;; SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_IONS=save_individual_data_products__only_ions, $
+   ;; SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_ELECTRONS_AND_IONS=save_individual_data_products__only_electrons_and_ions, $
+   ;; SAVE_INDIVIDUAL_DATA_PRODUCTS__ONLY_DB_AND_IONS=save_individual_data_products__only_db_and_ions, $
+   ;; SAVE_INDIVIDUAL_DATA_PRODUCTS__FSUFF=save_individual_data_products__fSuff, $
+   ;; SAVE_INDIVID__CONVERT_B_GEI_TO_B_GEO=convert_B_gei_to_B_geo, $
    MAKE_IONS_OXYGEN=make_ions_oxygen, $
-   EFIELD_SHADOW_NOTCH=shadow_notch, $
-   EFIELD_SINTERP=sInterp, $
-   EFIELD_SNAN=sNaN, $
    NO_BLANK_PANELS=no_blank_panels, $
    STRANGEWAY_2005_FIG3_PLOT=Strangeway_2005_Fig3_plot, $
    ;; NO_HASH_UPDATE=no_hash_update, $
@@ -115,7 +112,7 @@ PRO GET_ION_BEAMS_AND_CONICS, $
 
   ;; savesDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/'
   savesDir = '/thelonious_data1/FAST/'
-  savesIndivDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/V3/rawProds/'
+  ;; savesIndivDir = '/SPENCEdata/software/sdt/batch_jobs/saves_output_etc/Strangeway_et_al_2005/V3/rawProds/'
 
   ;; 'AT'strangeway_2005__defaults__v3.pro
   ;;Outputs
@@ -213,7 +210,9 @@ PRO GET_ION_BEAMS_AND_CONICS, $
      NO_PLOTS=no_plots, $
      OUT_ORBIT=out_orbit, $
      OUTSTRUCT_ORBIT=struc, $
-     MISLYKTES=mislyktes
+     MISLYKTES=mislyktes, $
+     TPLT_VARS=tplt_vars, $
+     /ADD_EBOUND_INFO_TO_IONMOMSTRUCT
 
   orbit = out_orbit
 
@@ -250,6 +249,7 @@ PRO GET_ION_BEAMS_AND_CONICS, $
   ion_angleRange = (360.*((ionlc_angleRange-180)/360.-FLOOR((ionlc_angleRange-180)/360.)))
 
   useDiffEflux = 1
+  usePeakEnergy = 1
   ;; GET_FA_IESA_ION_BEAMS,STR_TO_TIME(t1Str),STR_TO_TIME(t2Str), $
   GET_FA_IESA_ION_BEAMS,struc.time[0],struc.time[-1], $
                         USEDIFFEFLUX=useDiffEflux, $
@@ -268,7 +268,16 @@ PRO GET_ION_BEAMS_AND_CONICS, $
                         SC_POT=sc_pot, $
                         OUT_SC_POTAVG=sc_potAvg, $
                         OUT_IONEVENTS=ionEvents, $
-                        BATCH_MODE=batch_mode
+                        BATCH_MODE=batch_mode, $
+                        USEPEAKENERGY=usePeakEnergy
+
+  outAlgFile = 'orbit_'+str(orbit)+'__outflow_algorithm_and_beam_algorithm.sav'
+  PRINT,"Saving " + outAlgFile + ' ...'
+  SAVE,ionEvents, $
+       ionMomStruct, $
+       FILENAME=savesDir+'twoTypes_ion_identification/'+outAlgFile
+
+  RETURN
 
   STOP
 
