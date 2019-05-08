@@ -18,6 +18,8 @@ thresh_eFlux = 5e5
 enforce_this_sample_rate = 1.25
 energy_electrons_lb = 50
 
+thresh_beam_eFlux = 5e4
+
 ;; indivSuff = '-rawProds_med_dB_sc_and_spinplane_E.sav'
 
 fracBelowThatMustBeUpward = 0.75D
@@ -42,6 +44,7 @@ GET_ION_BEAMS_AND_CONICS,/SAVE_PS, $
                     IONSPECS_UPDOWNMINRATIO=upDownMinRatio, $
                     IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
                     IONSPECS_THRESH_EFLUX=thresh_eFlux, $
+                    IONSPECS_THRESH_BEAM_EFLUX=thresh_beam_eFlux, $
                     IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
                     ;; ONLY_LEEWARD_IONS=tryLeeward, $
                     ;; /INTERP_4HZ_RES_TO_1S_TIMESERIES, $

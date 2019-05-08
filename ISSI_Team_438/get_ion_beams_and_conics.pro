@@ -7,6 +7,7 @@ PRO GET_ION_BEAMS_AND_CONICS, $
    IONSPECS_MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
    IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
    IONSPECS_THRESH_EFLUX=thresh_eFlux, $
+   IONSPECS_THRESH_BEAM_EFLUX=thresh_beam_eFlux, $
    ;; USERDEF_HASHFILE=userDef_hashFile, $
    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
    ONLY_LEEWARD_IONS=only_leeward_ions, $
@@ -35,7 +36,7 @@ PRO GET_ION_BEAMS_AND_CONICS, $
    FORCE_SH_TBOUNDS_FOR_JE=force_SH_tBounds_for_je, $
    ENERGY_ELECTRONS_LB=energy_electrons_lb
 
-  CURVERSION = '20190508'
+  CURVERSION = '20190508.1'
 
 ; Program will use fac_v if E field data are available, other use fac_v
 ; over-ride with use_fac_v and use_fac keywords
@@ -49,7 +50,17 @@ PRO GET_ION_BEAMS_AND_CONICS, $
   ;; ptsMinOutflow   = 60
   ;; allowableGap    = 3 ;seconds
 
-  IF N_ELEMENTS(do_not_enforce_sample_rate) EQ 0 THEN do_not_enforce_sample_rate = 1
+  ;; IF N_ELEMENTS(do_not_enforce_sample_rate) EQ 0 THEN do_not_enforce_sample_rate = 1
+
+  IF KEYWORD_SET(do_not_enforce_sample_rate) THEN BEGIN
+     PRINT,"GET_ION_BEAMS_AND_CONICS: Not enforcing sample rate ..."
+     enforce_this_sample_rate = 0
+  ENDIF ELSE IF KEYWORD_SET(enforce_this_sample_rate) THEN BEGIN
+     enforce_this_sample_rate = enforce_this_sample_rate
+  ENDIF ELSE BEGIN
+     PRINT,"enforce_this_sample_rate = 2.5 by default ..."
+     enforce_this_sample_rate = 2.5
+  ENDELSE
 
   ;; Ion and electron options
   ;; Nei da, med diff_eFlux
@@ -190,7 +201,23 @@ PRO GET_ION_BEAMS_AND_CONICS, $
   GET_DATA,"ORBIT",DATA=orbit
   orbit = orbit.y[nHere/2]
 
-  outAlgFile = 'orbit_'+str(orbit)+'__outflow_algorithm_and_beam_algorithm.sav'
+  ;; output file name
+  specAvgSuff = ''
+  CASE 1 OF
+     KEYWORD_SET(enforce_this_sample_rate): BEGIN
+        specAvgSuff = (STRING(FORMAT='("-sRate",F0.2)', $
+                              enforce_this_sample_rate)).Replace('.','_')
+     END
+     KEYWORD_SET(spectra_average_interval): BEGIN
+        specAvgSuff = STRING(FORMAT='("-avgItvl",I0)',spectra_average_interval)
+     END
+     ELSE: BEGIN
+        specAvgSuff = ''
+     END
+  ENDCASE
+
+  outAlgFile = 'orbit_'+str(orbit)+'__outflow_algorithm_and_beam_algorithm' $
+               + specAvgSuff + '.sav'
 
   IF KEYWORD_SET(skip_existing) THEN BEGIN
 
@@ -206,6 +233,12 @@ PRO GET_ION_BEAMS_AND_CONICS, $
            ;;                                   saveVersion, $
            ;;                                   FILENAME=savesDir+'twoTypes_ion_identification/'+outAlgFile
 
+           ;; Gjelder CURVERSION = '20190508.1'
+           ionEvents = !NULL
+           ionMomStruct = !NULL
+           ephemStruct = !NULL
+           saveVersion = !NULL
+
         ENDIF ELSE BEGIN
 
            IF saveVersion EQ CURVERSION THEN BEGIN
@@ -213,7 +246,16 @@ PRO GET_ION_BEAMS_AND_CONICS, $
               PRINT,"Already have " + outAlgFile + ' (V.'+CURVERSION+')! Returning ...'
               RETURN
 
-           ENDIF
+           ENDIF ELSE BEGIN
+              PRINT,"Saved version is " + saveVersion + ", but CURVERSION is " + CURVERSION + "! Remaking ..." 
+
+              ;; Gjelder CURVERSION = '20190508.1'
+              ionEvents = !NULL
+              ionMomStruct = !NULL
+              ephemStruct = !NULL
+              saveVersion = !NULL
+
+           ENDELSE
 
         ENDELSE
 
@@ -253,7 +295,7 @@ PRO GET_ION_BEAMS_AND_CONICS, $
      NO_PLOTS=no_plots, $
      ORBIT=orbit, $
      OUT_ORBIT=out_orbit, $
-     OUTSTRUCT_ORBIT=struc, $
+     OUTSTRUCT_ORBIT=ephemStruct, $
      MISLYKTES=mislyktes, $
      TPLT_VARS=tplt_vars, $
      /ADD_EBOUND_INFO_TO_IONMOMSTRUCT
@@ -271,12 +313,12 @@ PRO GET_ION_BEAMS_AND_CONICS, $
 
 
   ;; GET_DATA,'ILAT',data=ILAT
-  north_southArr               = FIX(ABS(struc.ilat)/struc.ilat)
+  north_southArr               = FIX(ABS(ephemStruct.ilat)/ephemStruct.ilat)
 
   ;; Need t1, t2
   GET_LOSS_CONE_AND_ANGLE_RANGES_FOR_HEMI, $
      ;; t1,t2, $
-     struc.time[0],struc.time[-1], $
+     ephemStruct.time[0],ephemStruct.time[-1], $
      ionlc_angleRange, $
      i_angle,i_angle_up, $
      north_southArr, $
@@ -286,7 +328,7 @@ PRO GET_ION_BEAMS_AND_CONICS, $
      CUSTOM_E_ANGLERANGE=custom_e_angleRange, $
      OUT_E_ANGLE=e_angle, $
      ANGLESTR=angleStr, $
-     SDTSTRUCT=struc;; , $
+     SDTSTRUCT=ephemStruct;; , $
      ;; /JUST_ONE
 
   ;; Flip lc_angleRange so that it's upgoing
@@ -295,11 +337,12 @@ PRO GET_ION_BEAMS_AND_CONICS, $
   useDiffEflux = 1
   usePeakEnergy = 1
   ;; GET_FA_IESA_ION_BEAMS,STR_TO_TIME(t1Str),STR_TO_TIME(t2Str), $
-  GET_FA_IESA_ION_BEAMS,struc.time[0],struc.time[-1], $
+  GET_FA_IESA_ION_BEAMS,ephemStruct.time[0],ephemStruct.time[-1], $
                         USEDIFFEFLUX=useDiffEflux, $
                         IONDIFFEFLUX=ion_dEF, $
                         MCFADDEN_STYLE_DIFF_EFLUX=McFadden_diff_eFlux, $
                         ORBIT=orbit, $
+                        THRESH_BEAM_EFLUX=thresh_beam_eFlux, $
                         ;; NEWELL_2009_INTERP=Newell_2009_interp, $
                         ;; ION_ANGLERANGE=curPotList[2].angles.peakEn, $
                         ION_ANGLERANGE=ion_angleRange, $
@@ -308,17 +351,23 @@ PRO GET_ION_BEAMS_AND_CONICS, $
                         SPECTROGRAM_UNITS=spectrogram_units, $
                         EEB_OR_EES=eeb_or_ees, $
                         SPECTRA_AVERAGE_INTERVAL=spectra_average_interval, $
-                        ENFORCE_DIFF_EFLUX_SRATE=enforce_diff_eFlux_sRate, $
+                        ENFORCE_DIFF_EFLUX_SRATE=enforce_this_sample_rate, $
                         SC_POT=sc_pot, $
                         OUT_SC_POTAVG=sc_potAvg, $
                         OUT_IONEVENTS=ionEvents, $
                         BATCH_MODE=batch_mode, $
-                        USEPEAKENERGY=usePeakEnergy
+                        USEPEAKENERGY=usePeakEnergy, $
+                        EPHEMSTRUCT=ephemStruct, $
+                        MAKE_TPLOT=~KEYWORD_SET(no_plots), $
+                        SAVE_PS=save_ps
+
+  ;; Stick TPLOT_BEAM_VS_HALFRANGE_ION_FLUXES HERE
 
   PRINT,"Saving " + outAlgFile + ' ...'
   saveVersion = CURVERSION
   SAVE,ionEvents, $
        ionMomStruct, $
+       ephemStruct, $
        saveVersion, $
        FILENAME=savesDir+'twoTypes_ion_identification/'+outAlgFile
 
