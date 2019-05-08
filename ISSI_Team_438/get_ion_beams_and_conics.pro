@@ -30,9 +30,12 @@ PRO GET_ION_BEAMS_AND_CONICS, $
    SAVE_PS=save_ps, $
    BATCH_MODE=batch_mode, $
    ;; SKIP_EXISTING_IN_HASH=skip_existing_in_hash, $
+   SKIP_EXISTING=skip_existing, $
    REMAKE_DIFF_EFLUX=remake_diff_eFlux, $
    FORCE_SH_TBOUNDS_FOR_JE=force_SH_tBounds_for_je, $
    ENERGY_ELECTRONS_LB=energy_electrons_lb
+
+  CURVERSION = '20190508'
 
 ; Program will use fac_v if E field data are available, other use fac_v
 ; over-ride with use_fac_v and use_fac keywords
@@ -179,7 +182,47 @@ PRO GET_ION_BEAMS_AND_CONICS, $
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Step 0a - restore ion fings, or get 'em if we ain't got em
 
+  tRange = GET_ESA_TIMERANGES__RASKT(/IONS,OUT_TIME_ARRAY=times)
+
+  GET_FA_ORBIT,times,/TIME_ARRAY
+
+  nHere = N_ELEMENTS(times)
+  GET_DATA,"ORBIT",DATA=orbit
+  orbit = orbit.y[nHere/2]
+
+  outAlgFile = 'orbit_'+str(orbit)+'__outflow_algorithm_and_beam_algorithm.sav'
+
+  IF KEYWORD_SET(skip_existing) THEN BEGIN
+
+     IF FILE_TEST(savesDir+'twoTypes_ion_identification/'+outAlgFile) THEN BEGIN
+        
+        RESTORE,savesDir+'twoTypes_ion_identification/'+outAlgFile
+
+        IF N_ELEMENTS(saveVersion) EQ 0 THEN BEGIN
+           PRINT,"No saveVersion here! Remaking ..."
+
+           ;; saveVersion = CURVERSION &   SAVE,ionEvents, $
+           ;;                                   ionMomStruct, $
+           ;;                                   saveVersion, $
+           ;;                                   FILENAME=savesDir+'twoTypes_ion_identification/'+outAlgFile
+
+        ENDIF ELSE BEGIN
+
+           IF saveVersion EQ CURVERSION THEN BEGIN
+              
+              PRINT,"Already have " + outAlgFile + ' (V.'+CURVERSION+')! Returning ...'
+              RETURN
+
+           ENDIF
+
+        ENDELSE
+
+     ENDIF
+
+  ENDIF
+
   EXAMINE_ION_CONIC_VS_ALL_FLUX_RATIOS, $
+     TIMES=times, $
      UPDOWNMINRATIO=upDownMinRatio, $
      MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
      FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
@@ -208,13 +251,14 @@ PRO GET_ION_BEAMS_AND_CONICS, $
      MAKE_SPECIAL_JGR_PLOT=make_special_JGR_plot, $
      SAVE_PS=save_ps, $
      NO_PLOTS=no_plots, $
+     ORBIT=orbit, $
      OUT_ORBIT=out_orbit, $
      OUTSTRUCT_ORBIT=struc, $
      MISLYKTES=mislyktes, $
      TPLT_VARS=tplt_vars, $
      /ADD_EBOUND_INFO_TO_IONMOMSTRUCT
 
-  orbit = out_orbit
+  ;; orbit = out_orbit
 
   IF KEYWORD_SET(mislyktes) THEN BEGIN
      PRINT,"Mislyktes under identifikasjon av ion utstrømming-perioder"
@@ -271,10 +315,11 @@ PRO GET_ION_BEAMS_AND_CONICS, $
                         BATCH_MODE=batch_mode, $
                         USEPEAKENERGY=usePeakEnergy
 
-  outAlgFile = 'orbit_'+str(orbit)+'__outflow_algorithm_and_beam_algorithm.sav'
   PRINT,"Saving " + outAlgFile + ' ...'
+  saveVersion = CURVERSION
   SAVE,ionEvents, $
        ionMomStruct, $
+       saveVersion, $
        FILENAME=savesDir+'twoTypes_ion_identification/'+outAlgFile
 
   RETURN
