@@ -8,6 +8,7 @@ PRO GET_ION_BEAMS_AND_CONICS, $
    IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
    IONSPECS_THRESH_EFLUX=thresh_eFlux, $
    IONSPECS_THRESH_BEAM_EFLUX=thresh_beam_eFlux, $
+   IONSPECS_BEAMHALFRATIO=beamHalfRatio, $
    ;; USERDEF_HASHFILE=userDef_hashFile, $
    INTERP_4HZ_RES_TO_1S_TIMESERIES=interp_4Hz_to_1s, $
    ONLY_LEEWARD_IONS=only_leeward_ions, $
@@ -67,6 +68,8 @@ PRO GET_ION_BEAMS_AND_CONICS, $
   McFadden_diff_eFlux = 1
   eeb_or_ees = "ees"
   ionBeam_energyRange = [10,2.4e4]  ;According to J2018 l724 er ion_min_if_nan_scpots = 4.
+
+  IF N_ELEMENTS(beamHalfRatio) EQ 0 THEN beamHalfRatio = 3
 
 
   IF N_ELEMENTS(convert_B_gei_to_B_geo) EQ 0 THEN convert_B_gei_to_B_geo = 1
@@ -343,6 +346,7 @@ PRO GET_ION_BEAMS_AND_CONICS, $
                         MCFADDEN_STYLE_DIFF_EFLUX=McFadden_diff_eFlux, $
                         ORBIT=orbit, $
                         THRESH_BEAM_EFLUX=thresh_beam_eFlux, $
+                        BEAMHALFRATIO=beamHalfRatio, $
                         ;; NEWELL_2009_INTERP=Newell_2009_interp, $
                         ;; ION_ANGLERANGE=curPotList[2].angles.peakEn, $
                         ION_ANGLERANGE=ion_angleRange, $
