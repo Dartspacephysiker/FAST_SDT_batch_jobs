@@ -38,6 +38,7 @@ PRO GET_ION_BEAMS_AND_CONICS, $
    ENERGY_ELECTRONS_LB=energy_electrons_lb
 
   CURVERSION = '20190508.1'
+  CURVERSION = '20190508.1KLUGE'
 
 ; Program will use fac_v if E field data are available, other use fac_v
 ; over-ride with use_fac_v and use_fac keywords
@@ -310,6 +311,19 @@ PRO GET_ION_BEAMS_AND_CONICS, $
      PRINT,"Tilbake ..."
      RETURN
   ENDIF
+
+  ;; START NEED-RESULTS-NOW KLUGE
+  PRINT,"TOTAL KLUGE! SPENCE IS BANGING HIS WAY OUT OF GET_ION_BEAMS_AND_CONICS"
+  PRINT,"Saving " + outAlgFile + ' ...'
+  saveVersion = CURVERSION
+  SAVE,ionMomStruct, $
+       ephemStruct, $
+       saveVersion, $
+       FILENAME=savesDir+'twoTypes_ion_identification/'+outAlgFile
+  RETURN
+
+  ;; END KLUGE
+
 
   ;; Try to add other ion beam thing
   ;; ILAT data from call to GET_FA_ORBIT for ion_diff_eFlux in JOURNAL__20180720__LOOK_AT_CONIC_VS_ALL_FLUX_RATIOS

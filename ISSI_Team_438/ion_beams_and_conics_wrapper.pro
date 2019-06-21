@@ -15,10 +15,12 @@
 ;Put code here:
 
 thresh_eFlux = 5e5
-enforce_this_sample_rate = 1.25
-energy_electrons_lb = 50
+;; enforce_this_sample_rate = 1.25
+do_not_enforce_sample_rate = 1B
 
 thresh_beam_eFlux = 5e4
+
+skip_existing = 1
 
 ;; indivSuff = '-rawProds_med_dB_sc_and_spinplane_E.sav'
 
@@ -46,6 +48,9 @@ GET_ION_BEAMS_AND_CONICS,/SAVE_PS, $
                     IONSPECS_THRESH_EFLUX=thresh_eFlux, $
                     IONSPECS_THRESH_BEAM_EFLUX=thresh_beam_eFlux, $
                     IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
+                    ENFORCE_THIS_SAMPLE_RATE=enforce_this_sample_rate, $
+                    DO_NOT_ENFORCE_SAMPLE_RATE=do_not_enforce_sample_rate, $
+                    SKIP_EXISTING=skip_existing, $
                     ;; ONLY_LEEWARD_IONS=tryLeeward, $
                     ;; /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
                     ;; /STRANGEWAY_2005_FIG3_PLOT, $
