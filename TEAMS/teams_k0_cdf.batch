@@ -1,0 +1,46 @@
+BatchJob: "teams_k0_cdf"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/TEAMS/teams_k0_cdf_wrapper.pro
+
+DataBaseRequest:
+    Orbits 1421
+    Orbits 1425
+    Orbits 1426
+    Orbits 1427
+    Orbits 1429
+    Orbits 1430
+    Orbits 1431
+    Orbits 1437
+    Orbits 1438
+    Orbits 1439
+    Orbits 1440
+    Orbits 1447
+    Orbits 1448
+    Orbits 1449
+    Orbits 1450
+    Orbits 1451
+    Orbits 1452
+    Orbits 1458
+    Orbits 1459
+    Orbits 1460
+    Orbits 1461
+    Orbits 1462
+    Orbits 1463
+    Orbits 1470
+    Orbits 1471
+    Orbits 1472
+    Orbits 1473
+    Orbits 1479
+    Orbits 1480
+    Orbits 1481
+    Orbits 1482
+    Orbits 1483
+    Orbits 1484
+    Orbits 1491
+    Orbits 1492
+    Orbits 1494
+    Orbits 1500
+    Orbits 1503
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/TEAMS/
+PlotConfigurationFile: just_TEAMS
