@@ -17,8 +17,10 @@ outIDL*
 #output_alfven_stats dir
 Alfven_study_14F/output_alfven_stats/*
 
-#No .ps or .pdf files
+#No .ps or .pdf or .gif or .cdf files
 *.ps
+*.gif
+*.cdf
 *.pdf
 
 #No dflux files

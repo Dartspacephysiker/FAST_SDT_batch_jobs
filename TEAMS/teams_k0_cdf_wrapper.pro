@@ -19,7 +19,9 @@
 ;*****************************
 ;Put code here:
 
-fast_t_summary,BW=bw,k0=k0
+JOURNAL__20190621__TRY_MAKING_K0_CDFS
+
+;; fast_t_summary,BW=bw,k0=k0
 
 
 ;*****************************
