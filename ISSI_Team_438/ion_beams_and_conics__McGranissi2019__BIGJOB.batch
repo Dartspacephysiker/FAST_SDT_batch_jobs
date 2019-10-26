@@ -1,0 +1,10 @@
+BatchJob: "ion_beams_and_conics__McGranissi2019"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/ISSI_Team_438/ion_beams_and_conics_wrapper.pro
+
+DataBaseRequest:
+    Orbits 1500-10000
+
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/ISSI_Team_438
+PlotConfigurationFile: rjs_clean__more_efielders
