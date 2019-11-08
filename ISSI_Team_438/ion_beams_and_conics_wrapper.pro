@@ -8,6 +8,9 @@
 ;cols=get_colors()
 ;time_stamp,off=1
 
+on_error,1          ;  returns to main program whenever errors occur
+print,'ON_ERROR set to 1...'
+
 !PATH='/home/spencerh/software/sdt/batch_jobs/ISSI_Team_438:'+!PATH
       
 

@@ -199,9 +199,15 @@ PRO GET_ION_BEAMS_AND_CONICS, $
 
   tRange = GET_ESA_TIMERANGES__RASKT(/IONS,OUT_TIME_ARRAY=times)
 
+  nHere = N_ELEMENTS(times)
+
+  IF nHere EQ 0 THEN BEGIN
+     PRINT,"No times here! returning ..."
+     RETURN
+  ENDIF
+  
   GET_FA_ORBIT,times,/TIME_ARRAY
 
-  nHere = N_ELEMENTS(times)
   GET_DATA,"ORBIT",DATA=orbit
   orbit = orbit.y[nHere/2]
 
