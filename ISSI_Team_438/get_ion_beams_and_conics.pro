@@ -40,6 +40,7 @@ PRO GET_ION_BEAMS_AND_CONICS, $
   CURVERSION = '20190508.1'
   CURVERSION = '20190508.1KLUGE'
 
+  save_diff_eFlux_to_file = 0B
 ; Program will use fac_v if E field data are available, other use fac_v
 ; over-ride with use_fac_v and use_fac keywords
 
@@ -284,6 +285,7 @@ PRO GET_ION_BEAMS_AND_CONICS, $
      ONLY_LEEWARD_IONS=only_leeward_ions, $
      ENFORCE_THIS_SAMPLE_RATE=enforce_this_sample_rate, $
      DO_NOT_ENFORCE_SAMPLE_RATE=do_not_enforce_sample_rate, $
+     SAVE_DIFF_EFLUX_TO_FILE=save_diff_eFlux_to_file, $
      REMAKE_DIFF_EFLUX=remake_diff_eFlux, $
      DEF__INCLUDE_SC_POT=dEF__include_sc_pot, $
      SC_POT=sc_pot, $
