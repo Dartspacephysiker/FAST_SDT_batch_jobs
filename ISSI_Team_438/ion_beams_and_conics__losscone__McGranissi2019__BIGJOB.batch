@@ -1,0 +1,10 @@
+BatchJob: "ion_beams_and_conics__losscone__McGranissi2019"
+NoPlots:
+IDL: /home/spencerh/software/sdt/batch_jobs/ISSI_Team_438/ion_beams_and_conics__loss_cone__wrapper.pro
+
+DataBaseRequest:
+    Orbits 8260-8292
+
+
+PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/ISSI_Team_438
+PlotConfigurationFile: rjs_clean__more_efielders

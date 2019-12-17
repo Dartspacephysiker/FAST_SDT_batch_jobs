@@ -3,8 +3,7 @@ NoPlots:
 IDL: /home/spencerh/software/sdt/batch_jobs/ISSI_Team_438/ion_beams_and_conics_wrapper.pro
 
 DataBaseRequest:
-    Orbits 9289-9999
-    Orbits 12534-30000
+    Orbits 30001-52000
 
 
 PlotConfigurationDir: /home/spencerh/software/sdt/batch_jobs/ISSI_Team_438
