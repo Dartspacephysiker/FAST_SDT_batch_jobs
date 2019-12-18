@@ -10,6 +10,7 @@
 
 on_error,1          ;  returns to main program whenever errors occur
 print,'ON_ERROR set to 1...'
+batch_mode = 1B
 
 !PATH='/home/spencerh/software/sdt/batch_jobs/ISSI_Team_438:'+!PATH
       
@@ -57,6 +58,7 @@ GET_ION_BEAMS_AND_CONICS,/SAVE_PS, $
                     ENFORCE_THIS_SAMPLE_RATE=enforce_this_sample_rate, $
                     DO_NOT_ENFORCE_SAMPLE_RATE=do_not_enforce_sample_rate, $
                     SKIP_EXISTING=skip_existing, $
+                    BATCH_MODE=batch_mode, $
                     ;; ONLY_LEEWARD_IONS=tryLeeward, $
                     ;; /INTERP_4HZ_RES_TO_1S_TIMESERIES, $
                     ;; /STRANGEWAY_2005_FIG3_PLOT, $
