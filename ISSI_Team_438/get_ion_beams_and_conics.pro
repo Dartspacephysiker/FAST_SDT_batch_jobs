@@ -317,7 +317,8 @@ PRO GET_ION_BEAMS_AND_CONICS, $
      OUTSTRUCT_ORBIT=ephemStruct, $
      MISLYKTES=mislyktes, $
      TPLT_VARS=tplt_vars, $
-     /ADD_EBOUND_INFO_TO_IONMOMSTRUCT
+     /ADD_EBOUND_INFO_TO_IONMOMSTRUCT, $
+     BATCH_MODE=batch_mode
 
   ;; orbit = out_orbit
 
