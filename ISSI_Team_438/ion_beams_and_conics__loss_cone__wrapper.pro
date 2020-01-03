@@ -27,6 +27,7 @@ thresh_beam_eFlux = 5e4
 skip_existing = 1
 
 use_losscone = 1B
+add_upward = 1B
 
 ;; indivSuff = '-rawProds_med_dB_sc_and_spinplane_E.sav'
 
@@ -52,6 +53,7 @@ GET_ION_BEAMS_AND_CONICS,/SAVE_PS, $
                     IONSPECS_UPDOWNMINRATIO=upDownMinRatio, $
                     IONSPECS_MINNUMQUALIFYINGECHANNELS=3, $
                     IONSPECS_USE_LOSSCONE=use_losscone, $
+                    IONSPECS_ADD_UPWARD=add_upward, $
                     IONSPECS_THRESH_EFLUX=thresh_eFlux, $
                     IONSPECS_THRESH_BEAM_EFLUX=thresh_beam_eFlux, $
                     IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $

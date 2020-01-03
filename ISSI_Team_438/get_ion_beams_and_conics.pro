@@ -7,6 +7,7 @@ PRO GET_ION_BEAMS_AND_CONICS, $
    IONSPECS_MINNUMQUALIFYINGECHANNELS=minNumQualifyingEChannels, $
    IONSPECS_FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
    IONSPECS_USE_LOSSCONE=use_losscone, $
+   IONSPECS_ADD_UPWARD=add_upward, $
    IONSPECS_THRESH_EFLUX=thresh_eFlux, $
    IONSPECS_THRESH_BEAM_EFLUX=thresh_beam_eFlux, $
    IONSPECS_BEAMHALFRATIO=beamHalfRatio, $
@@ -235,6 +236,10 @@ PRO GET_ION_BEAMS_AND_CONICS, $
      outAlgFile = outAlgFile + '_LC'
   ENDIF
 
+  IF KEYWORD_SET(add_upward) THEN BEGIN
+     outAlgFile = outAlgFile + '_UPWARD'
+  ENDIF
+
   outAlgFile = outAlgFile + '.sav'
   IF KEYWORD_SET(skip_existing) THEN BEGIN
 
@@ -287,6 +292,7 @@ PRO GET_ION_BEAMS_AND_CONICS, $
      FRACBELOWTHATMUSTBEUPWARD=fracBelowThatMustBeUpward, $
      THRESH_EFLUX=thresh_eFlux, $
      USE_LOSSCONE=use_losscone, $
+     ADD_UPWARD=add_upward, $
      ;; /QUIT_IF_FILE_EXISTS, $
      MAKE_IONS_OXYGEN=make_ions_oxygen, $
      ONLY_LEEWARD_IONS=only_leeward_ions, $
